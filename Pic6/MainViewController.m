@@ -133,41 +133,46 @@
 - (void)initCamera {
     
     AVCaptureSession *session = [[AVCaptureSession alloc] init];
-	session.sessionPreset = AVCaptureSessionPresetPhoto;
+	session.sessionPreset = AVCaptureSessionPresetMedium;
     
+    //display camera preview frame
 	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     [captureVideoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
     
+    //display camera preview frame
 	captureVideoPreviewLayer.frame = self.cameraView.bounds;
 	[self.cameraView.layer addSublayer:captureVideoPreviewLayer];
     
+    //display camera preview frame
     UIView *view = [self cameraView];
     CALayer *viewLayer = [view layer];
     [viewLayer setMasksToBounds:YES];
     
+    //set camera preview frame
     CGRect bounds = [view bounds];
     [captureVideoPreviewLayer setFrame:bounds];
     
+    //get front and back camera objects
     NSArray *devices = [AVCaptureDevice devices];
     AVCaptureDevice *frontCamera;
     AVCaptureDevice *backCamera;
     
+    //get front and back camera objects
     for (AVCaptureDevice *device in devices) {
-        
         NSLog(@"Device name: %@", [device localizedName]);
         
         if ([device hasMediaType:AVMediaTypeVideo]) {
             
             if ([device position] == AVCaptureDevicePositionBack) {
-                NSLog(@"Device position : back");
                 backCamera = device;
             }
             else {
-                NSLog(@"Device position : front");
                 frontCamera = device;
             }
         }
     }
+    
+    //check camera settings and set to appropriate camera
     if (!self.FrontCamera) {
         NSError *error = nil;
         AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:backCamera error:&error];
@@ -186,13 +191,60 @@
         [session addInput:input];
     }
     
+    //set still image output
     self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
     NSDictionary *outputSettings = [[NSDictionary alloc] initWithObjectsAndKeys: AVVideoCodecJPEG, AVVideoCodecKey, nil];
     [self.stillImageOutput setOutputSettings:outputSettings];
     
+    //still setting still image output
     [session addOutput:self.stillImageOutput];
     
-	[session startRunning];
+
+	//ADD MOVIE FILE OUTPUT
+	NSLog(@"Adding movie file output");
+	self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+	
+	Float64 TotalSeconds = 60;			//Total seconds
+	int32_t preferredTimeScale = 30;	//Frames per second
+	CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
+	self.movieFileOutput.maxRecordedDuration = maxDuration;
+	
+	self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024;						//<<SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
+	
+	if ([session canAddOutput:self.movieFileOutput])
+		[session addOutput:self.movieFileOutput];
+    
+	//SET THE CONNECTION PROPERTIES (output properties)
+	[self CameraSetOutputProperties];
+    
+    
+    
+    [session startRunning];
+}
+
+- (void) CameraSetOutputProperties
+{
+	//SET THE CONNECTION PROPERTIES (output properties)
+	AVCaptureConnection *CaptureConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
+	
+	//Set landscape (if required)
+	if ([CaptureConnection isVideoOrientationSupported])
+	{
+		AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeRight;		//<<<<<SET VIDEO ORIENTATION IF LANDSCAPE
+		[CaptureConnection setVideoOrientation:orientation];
+	}
+	
+	//Set frame rate (if requried)
+	CMTimeShow(CaptureConnection.videoMinFrameDuration);
+	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
+	
+	if (CaptureConnection.supportsVideoMinFrameDuration)
+		CaptureConnection.videoMinFrameDuration = CMTimeMake(1, 10);
+	if (CaptureConnection.supportsVideoMaxFrameDuration)
+		CaptureConnection.videoMaxFrameDuration = CMTimeMake(1, 10);
+	
+	CMTimeShow(CaptureConnection.videoMinFrameDuration);
+	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
 }
 
 - (void) capImage { //method to capture image from AVCaptureSession video feed
@@ -222,37 +274,21 @@
     }];
 }
 
-- (void)processImage:(UIImage *) image {
-    
-//    CGSize imageSize = image.size;
-//    CGSize viewSize = CGSizeMake(450, 340); // size in which you want to draw
-//    
-//    float hfactor = imageSize.width / viewSize.width;
-//    float vfactor = imageSize.height / viewSize.height;
-//    
-//    float factor = fmax(hfactor, vfactor);
-//    
-//    // Divide the size by the greater of the vertical or horizontal shrinkage factor
-//    float newWidth = imageSize.width / factor;
-//    float newHeight = imageSize.height / factor;
-//    
-//    CGRect newRect = CGRectMake(0, 0, newWidth, newHeight);
-//    [image drawInRect:newRect];
+- (void) startRecordingVideo {
+    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+    CMTime maxDuration = CMTimeMake(6,1);
+    aMovieFileOutput.maxRecordedDuration = maxDuration;
     
     
-    
-//    CGSize newSize = CGSizeMake(640/4, 1136/8);
-//    
-//    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
-//    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
-//    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-//    UIGraphicsEndImageContext();
-//    
-//    NSData *imageData = UIImagePNGRepresentation(newImage); //UIImageJPEGRepresentation(newImage, 0.7);
-//    [self uploadImage:imageData];
+}
 
+- (void) stopRecordingVideo {
+    
+}
+
+- (void)processImage:(UIImage *) image {
     UIImage *newImage = [image imageScaledToFitSize:CGSizeMake(640/4, 1136/8)];
-    NSData *imageData = UIImagePNGRepresentation(newImage); //UIImageJPEGRepresentation(newImage, 0.7);
+    NSData *imageData = UIImageJPEGRepresentation(newImage, 1);
     [self uploadImage:imageData];
 }
 

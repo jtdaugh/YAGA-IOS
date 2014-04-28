@@ -11,8 +11,9 @@
 #import <Firebase/Firebase.h>
 
 @interface MainViewController : UIViewController<UIGestureRecognizerDelegate, UICollectionViewDataSource, UICollectionViewDelegate>
-@property (strong,nonatomic) UIImageView *cameraView;
+@property (strong,nonatomic) UIView *cameraView;
 @property (strong, nonatomic) AVCaptureStillImageOutput *stillImageOutput;
+@property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (strong, nonatomic) UICollectionView *grid;
 @property (strong, nonatomic) NSMutableArray *gridData;
 @property (strong, nonatomic) Firebase *firebase;
