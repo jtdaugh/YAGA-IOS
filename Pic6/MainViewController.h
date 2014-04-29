@@ -17,14 +17,11 @@
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 @property (strong, nonatomic) UICollectionView *grid;
 @property (strong, nonatomic) NSMutableArray *gridData;
-@property (strong, nonatomic) Firebase *firebase;
 
-@property (strong, nonatomic) NSMutableArray *moviePlayers;
-@property (strong, nonatomic) MPMoviePlayerController *moviePlayer1;
-@property (strong, nonatomic) MPMoviePlayerController *moviePlayer2;
-@property (strong, nonatomic) MPMoviePlayerController *moviePlayer3;
-@property (strong, nonatomic) MPMoviePlayerController *moviePlayer4;
-@property (strong, nonatomic) MPMoviePlayerController *moviePlayer5;
-@property (strong, nonatomic) MPMoviePlayerController *moviePlayer6;
+@property (strong, nonatomic) UIView *gridView;
+@property (strong, nonatomic) NSMutableArray *gridTiles;
+@property (strong, nonatomic) NSMutableArray *players;
+
+@property (strong, nonatomic) Firebase *firebase;
 
 @end

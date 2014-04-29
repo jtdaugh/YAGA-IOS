@@ -38,14 +38,20 @@
     [self.view addSubview:plaque];
     
     [self initSwitchButton];
-    [self initGrid];
+    [self initGridView];
     [self initFirebase];
     [self initCameraFrame];
     self.FrontCamera = 1;
     [self initCamera];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    NSLog(@"test!");
 }
 
 - (void)initSwitchButton {
@@ -55,52 +61,24 @@
     [self.view addSubview:switchButton];
 }
 
-- (void)initGrid {
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    [layout setSectionInset:UIEdgeInsetsZero];
-    [layout setMinimumInteritemSpacing:0.0];
-    [layout setMinimumLineSpacing:0.0];
-    self.grid = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 1136/8, 640/2, 1136/8 * 3) collectionViewLayout:layout];
-//    self.grid = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 1136/8, 640/2, 1136/8 * 3)];
-    self.grid.delegate = self;
-    self.grid.dataSource = self;
+- (void)initGridView {
+    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 1136/8, 640/2, 1136/8 * 3)];
+    [self.view addSubview:self.gridView];
+    self.gridTiles = [NSMutableArray array];
     
-    [self.grid registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"Cell"];
-    [self.view addSubview:self.grid];
-    
-    self.gridData = [NSMutableArray array];
-    
-//    for(int i = 0; i<6; i++){
-//        MPMoviePlayerController * __strong
-//        MPMoviePlayerController *moviePlayer;
-//        [self.moviePlayers addObject:moviePlayer];
-//    }
 }
 
--(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return 1;
-}
-
-
--(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return [self.gridData count];
-}
-
--(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return CGSizeMake(640/4, 1136/8);
-}
-
--(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewCell *cell = [[UICollectionViewCell alloc] init];
-//    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
+- (void)insertGridTile:(FDataSnapshot *)snapshot {
+//    [[self.gridTiles lastObject] removeFromSuperview];
+    UIView *newGridTile = [[UIView alloc] initWithFrame:CGRectMake(640/4, -1136/8, 640/4, 1136/8)];
+    FDataSnapshot *cellData = snapshot;
     
-    FDataSnapshot *cellData = self.gridData[indexPath.row];
     if([cellData.value[@"type"] isEqualToString:@"image"]){
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
         [imageView setContentMode:UIViewContentModeScaleAspectFill];
         [imageView setClipsToBounds:YES];
         
-        [cell addSubview:imageView];
+        [newGridTile addSubview:imageView];
         NSData *data = [[NSData alloc]initWithBase64EncodedString:cellData.value[@"data"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
         [imageView setImage:[UIImage imageWithData:data]];
         
@@ -118,67 +96,61 @@
             //            videoData writeToURL:movieURL atomically:<#(BOOL)#>
             //            [videoData writeToFile:moviePath atomically:YES];
             [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
-//            NSError *error;
-//            if ([fileManager removeItemAtPath:moviePath error:&error] == NO)
-//            {
-//                //Error - handle if requried
-//            }
+            //            NSError *error;
+            //            if ([fileManager removeItemAtPath:moviePath error:&error] == NO)
+            //            {
+            //                //Error - handle if requried
+            //            }
         }
         
         
         AVPlayer *player = [AVPlayer playerWithURL:movieURL];
         AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+        [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
         
-        playerLayer.frame = cell.frame;
-        [cell.layer addSublayer: playerLayer];
+        UIView *playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
         
-//        // Create an AVURLAsset with an NSURL containing the path to the video
-//        AVURLAsset *asset = [AVURLAsset URLAssetWithURL:movieURL options:nil];
-//        
-//        // Create an AVPlayerItem using the asset
-//        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithAsset:asset];
-//        
-//        // Create the AVPlayer using the playeritem
-//        AVPlayer *player = [AVPlayer playerWithPlayerItem:playerItem];
-//        
-//        // Create an AVPlayerLayer using the player
-//        AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-//        
-//        // Add it to your view's sublayers
-//        [cell.layer addSublayer:playerLayer];
+        playerLayer.frame = playerContainer.frame;
+        [playerContainer.layer addSublayer: playerLayer];
+        [newGridTile addSubview:playerContainer];
         
-        // You can play/pause using the AVPlayer object
         [player play];
-//        [player pause];
         
-//        NSInteger i = indexPath.row;
-//        
-//        MPMoviePlayerController *moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
-////        self.moviePlayers[i] = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
-//        
-//        UIView *movieContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
-//        
-//        [moviePlayer.view setFrame:movieContainer.frame];
-////        [self.moviePlayer prepareToPlay];
-//        [moviePlayer setMovieSourceType: MPMovieSourceTypeFile];
-//        [moviePlayer setRepeatMode:MPMovieRepeatModeOne];
-//        [moviePlayer setControlStyle:MPMovieControlStyleNone];
-//        [moviePlayer play];
-//        [movieContainer addSubview:moviePlayer.view];
-//        
-//        switch(i){
-//            case 0: self.moviePlayer1 = moviePlayer; break;
-//            case 1: self.moviePlayer2 = moviePlayer; break;
-//            case 2: self.moviePlayer3 = moviePlayer; break;
-//            case 3: self.moviePlayer4 = moviePlayer; break;
-//            case 4: self.moviePlayer5 = moviePlayer; break;
-//            case 5: self.moviePlayer6 = moviePlayer; break;
-//        }
-//        
-//        [cell addSubview:movieContainer];
+        [player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(playerItemDidReachEnd:)
+                                                     name:AVPlayerItemDidPlayToEndTimeNotification
+                                                   object:[player currentItem]];
     }
 
-    return cell;
+    [self.gridView addSubview:newGridTile];
+    [self.gridTiles insertObject:newGridTile atIndex:0];
+    
+    [UIView animateWithDuration:0.0 animations:^{
+        int i = 0;
+        for(UIView *tile in self.gridTiles){
+            [tile setFrame:CGRectMake((i%2) * 640/4, (i/2) * 1136/8, 640/4, 1136/8)];
+            i++;
+        }
+    } completion:^(BOOL finished) {
+        //
+    }];
+    
+    //    for(int i = 0; i < [self.gridTiles count]; i++){
+    //        NSLog(@"%i", i);
+    //        [self.gridTiles[i] setFrame:];
+    //    }
+    
+    while([self.gridTiles count] > 6){
+        [[self.gridTiles lastObject] removeFromSuperview];
+        [self.gridTiles removeLastObject];
+    }
+}
+
+//loop video when ends
+- (void)playerItemDidReachEnd:(NSNotification *)notification {
+    AVPlayerItem *p = [notification object];
+    [p seekToTime:kCMTimeZero];
 }
 
 - (void)initFirebase {
@@ -186,12 +158,13 @@
     
     [[[self.firebase childByAppendingPath:@"global"] queryLimitedToNumberOfChildren:6] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
 //        NSLog(@"%@", snapshot.value);
-        [self.gridData insertObject:snapshot atIndex:0];
-        while([self.gridData count] > 6){
-            [self.gridData removeLastObject];
-        }
-        
-        [self.grid reloadData];
+//        [self.gridData insertObject:snapshot atIndex:0];
+//        while([self.gridData count] > 6){
+//            [self.gridData removeLastObject];
+//        }
+//        
+//        [self.grid reloadData];
+        [self insertGridTile:snapshot];
     }];
 }
 
@@ -315,31 +288,6 @@
     
     
     [session startRunning];
-}
-
-- (void) CameraSetOutputProperties
-{
-//	//SET THE CONNECTION PROPERTIES (output properties)
-//	AVCaptureConnection *CaptureConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
-//	
-//	//Set landscape (if required)
-//	if ([CaptureConnection isVideoOrientationSupported])
-//	{
-//		AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeRight;		//<<<<<SET VIDEO ORIENTATION IF LANDSCAPE
-//		[CaptureConnection setVideoOrientation:orientation];
-//	}
-//	
-//	//Set frame rate (if requried)
-//	CMTimeShow(CaptureConnection.videoMinFrameDuration);
-//	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
-//	
-//	if (CaptureConnection.supportsVideoMinFrameDuration)
-//		CaptureConnection.videoMinFrameDuration = CMTimeMake(1, 10);
-//	if (CaptureConnection.supportsVideoMaxFrameDuration)
-//		CaptureConnection.videoMaxFrameDuration = CMTimeMake(1, 10);
-//	
-//	CMTimeShow(CaptureConnection.videoMinFrameDuration);
-//	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
 }
 
 - (void) startRecordingVideo {
@@ -466,6 +414,11 @@
     }
     [self initCameraFrame];
     [self initCamera];
+}
+
+- (void)willEnterForeground {
+    for(UIView *v in self.gridTiles){
+    }
 }
 
 - (void)didReceiveMemoryWarning
