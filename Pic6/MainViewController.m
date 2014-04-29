@@ -91,7 +91,8 @@
 }
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
+    UICollectionViewCell *cell = [[UICollectionViewCell alloc] init];
+//    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     
     FDataSnapshot *cellData = self.gridData[indexPath.row];
     if([cellData.value[@"type"] isEqualToString:@"image"]){
@@ -124,30 +125,57 @@
 //            }
         }
         
-        NSInteger i = indexPath.row;
-        MPMoviePlayerController *moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
-//        self.moviePlayers[i] = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
         
-        UIView *movieContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
+        AVPlayer *player = [AVPlayer playerWithURL:movieURL];
+        AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
         
-        [moviePlayer.view setFrame:movieContainer.frame];
-//        [self.moviePlayer prepareToPlay];
-        [moviePlayer setMovieSourceType: MPMovieSourceTypeFile];
-        [moviePlayer setRepeatMode:MPMovieRepeatModeOne];
-        [moviePlayer setControlStyle:MPMovieControlStyleNone];
-        [moviePlayer play];
-        [movieContainer addSubview:moviePlayer.view];
+        playerLayer.frame = cell.frame;
+        [cell.layer addSublayer: playerLayer];
         
-        switch(i){
-            case 0: self.moviePlayer1 = moviePlayer; break;
-            case 1: self.moviePlayer2 = moviePlayer; break;
-            case 2: self.moviePlayer3 = moviePlayer; break;
-            case 3: self.moviePlayer4 = moviePlayer; break;
-            case 4: self.moviePlayer5 = moviePlayer; break;
-            case 5: self.moviePlayer6 = moviePlayer; break;
-        }
+//        // Create an AVURLAsset with an NSURL containing the path to the video
+//        AVURLAsset *asset = [AVURLAsset URLAssetWithURL:movieURL options:nil];
+//        
+//        // Create an AVPlayerItem using the asset
+//        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithAsset:asset];
+//        
+//        // Create the AVPlayer using the playeritem
+//        AVPlayer *player = [AVPlayer playerWithPlayerItem:playerItem];
+//        
+//        // Create an AVPlayerLayer using the player
+//        AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
+//        
+//        // Add it to your view's sublayers
+//        [cell.layer addSublayer:playerLayer];
         
-        [cell addSubview:movieContainer];
+        // You can play/pause using the AVPlayer object
+        [player play];
+//        [player pause];
+        
+//        NSInteger i = indexPath.row;
+//        
+//        MPMoviePlayerController *moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
+////        self.moviePlayers[i] = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
+//        
+//        UIView *movieContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
+//        
+//        [moviePlayer.view setFrame:movieContainer.frame];
+////        [self.moviePlayer prepareToPlay];
+//        [moviePlayer setMovieSourceType: MPMovieSourceTypeFile];
+//        [moviePlayer setRepeatMode:MPMovieRepeatModeOne];
+//        [moviePlayer setControlStyle:MPMovieControlStyleNone];
+//        [moviePlayer play];
+//        [movieContainer addSubview:moviePlayer.view];
+//        
+//        switch(i){
+//            case 0: self.moviePlayer1 = moviePlayer; break;
+//            case 1: self.moviePlayer2 = moviePlayer; break;
+//            case 2: self.moviePlayer3 = moviePlayer; break;
+//            case 3: self.moviePlayer4 = moviePlayer; break;
+//            case 4: self.moviePlayer5 = moviePlayer; break;
+//            case 5: self.moviePlayer6 = moviePlayer; break;
+//        }
+//        
+//        [cell addSubview:movieContainer];
     }
 
     return cell;
