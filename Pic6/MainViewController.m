@@ -69,6 +69,12 @@
     [self.view addSubview:self.grid];
     
     self.gridData = [NSMutableArray array];
+    
+//    for(int i = 0; i<6; i++){
+//        MPMoviePlayerController * __strong
+//        MPMoviePlayerController *moviePlayer;
+//        [self.moviePlayers addObject:moviePlayer];
+//    }
 }
 
 -(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
@@ -87,14 +93,63 @@
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
-    [imageView setContentMode:UIViewContentModeScaleAspectFill];
-    [imageView setClipsToBounds:YES];
-    
-    [cell addSubview:imageView];
-    NSData *data = [[NSData alloc]initWithBase64EncodedString:self.gridData[indexPath.row][@"data"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    [imageView setImage:[UIImage imageWithData:data]];
-    
+    FDataSnapshot *cellData = self.gridData[indexPath.row];
+    if([cellData.value[@"type"] isEqualToString:@"image"]){
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
+        [imageView setContentMode:UIViewContentModeScaleAspectFill];
+        [imageView setClipsToBounds:YES];
+        
+        [cell addSubview:imageView];
+        NSData *data = [[NSData alloc]initWithBase64EncodedString:cellData.value[@"data"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
+        [imageView setImage:[UIImage imageWithData:data]];
+        
+    } else if([cellData.value[@"type"] isEqualToString:@"video"]){
+        NSLog(@"%@", cellData.name);
+        
+        NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), cellData.name];
+        NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        if (![fileManager fileExistsAtPath:moviePath])
+        {
+            NSError *error = nil;
+            NSData *videoData = [[NSData alloc] initWithBase64EncodedString:cellData.value[@"data"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
+            
+            //            videoData writeToURL:movieURL atomically:<#(BOOL)#>
+            //            [videoData writeToFile:moviePath atomically:YES];
+            [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
+//            NSError *error;
+//            if ([fileManager removeItemAtPath:moviePath error:&error] == NO)
+//            {
+//                //Error - handle if requried
+//            }
+        }
+        
+        NSInteger i = indexPath.row;
+        MPMoviePlayerController *moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
+//        self.moviePlayers[i] = [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
+        
+        UIView *movieContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
+        
+        [moviePlayer.view setFrame:movieContainer.frame];
+//        [self.moviePlayer prepareToPlay];
+        [moviePlayer setMovieSourceType: MPMovieSourceTypeFile];
+        [moviePlayer setRepeatMode:MPMovieRepeatModeOne];
+        [moviePlayer setControlStyle:MPMovieControlStyleNone];
+        [moviePlayer play];
+        [movieContainer addSubview:moviePlayer.view];
+        
+        switch(i){
+            case 0: self.moviePlayer1 = moviePlayer; break;
+            case 1: self.moviePlayer2 = moviePlayer; break;
+            case 2: self.moviePlayer3 = moviePlayer; break;
+            case 3: self.moviePlayer4 = moviePlayer; break;
+            case 4: self.moviePlayer5 = moviePlayer; break;
+            case 5: self.moviePlayer6 = moviePlayer; break;
+        }
+        
+        [cell addSubview:movieContainer];
+    }
+
     return cell;
 }
 
@@ -103,7 +158,7 @@
     
     [[[self.firebase childByAppendingPath:@"global"] queryLimitedToNumberOfChildren:6] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
 //        NSLog(@"%@", snapshot.value);
-        [self.gridData insertObject:snapshot.value atIndex:0];
+        [self.gridData insertObject:snapshot atIndex:0];
         while([self.gridData count] > 6){
             [self.gridData removeLastObject];
         }
@@ -120,13 +175,32 @@
     self.cameraView = [[UIImageView alloc] initWithFrame:CGRectMake(640/4, 0, 640/4, 1136/8)];
     [self.view addSubview:self.cameraView];
     
+    UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+    [longPressGestureRecognizer setMinimumPressDuration:0.4f];
+    longPressGestureRecognizer.delegate = self;
+    [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
+
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     [self.cameraView setUserInteractionEnabled:YES];
     tapGestureRecognizer.delegate = self;
+    [tapGestureRecognizer requireGestureRecognizerToFail:longPressGestureRecognizer];
     [self.cameraView addGestureRecognizer:tapGestureRecognizer];
+
+}
+
+- (void)handleHold:(UITapGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateEnded) {
+        NSLog(@"Ended!!!");
+        [self stopRecordingVideo];
+        //Do Whatever You want on End of Gesture
+    } else if (recognizer.state == UIGestureRecognizerStateBegan){
+        NSLog(@"begann!!!");
+        [self startRecordingVideo];
+    }
 }
 
 - (void)handleTap:(UITapGestureRecognizer *)recognizer {
+    NSLog(@"tapped!!!");
     [self capImage];
 }
 
@@ -154,42 +228,34 @@
     
     //get front and back camera objects
     NSArray *devices = [AVCaptureDevice devices];
-    AVCaptureDevice *frontCamera;
-    AVCaptureDevice *backCamera;
+    AVCaptureDevice *captureDevice;
     
     //get front and back camera objects
     for (AVCaptureDevice *device in devices) {
-        NSLog(@"Device name: %@", [device localizedName]);
         
         if ([device hasMediaType:AVMediaTypeVideo]) {
             
-            if ([device position] == AVCaptureDevicePositionBack) {
-                backCamera = device;
+            if ([device position] == AVCaptureDevicePositionBack && !self.FrontCamera) {
+                captureDevice = device;
             }
-            else {
-                frontCamera = device;
+            if ([device position] == AVCaptureDevicePositionFront && self.FrontCamera) {
+                captureDevice = device;
             }
         }
     }
     
-    //check camera settings and set to appropriate camera
-    if (!self.FrontCamera) {
-        NSError *error = nil;
-        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:backCamera error:&error];
-        if (!input) {
-            NSLog(@"ERROR: trying to open camera: %@", error);
-        }
-        [session addInput:input];
+    if ( [captureDevice lockForConfiguration:NULL] == YES ) {
+        captureDevice.activeVideoMinFrameDuration = CMTimeMake(1, 30);
+        captureDevice.activeVideoMaxFrameDuration = CMTimeMake(1, 30);
+        [captureDevice unlockForConfiguration];
     }
     
-    if (self.FrontCamera) {
-        NSError *error = nil;
-        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:frontCamera error:&error];
-        if (!input) {
-            NSLog(@"ERROR: trying to open camera: %@", error);
-        }
-        [session addInput:input];
+    NSError *error = nil;
+    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+    if (!input) {
+        NSLog(@"ERROR: trying to open camera: %@", error);
     }
+    [session addInput:input];
     
     //set still image output
     self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
@@ -204,18 +270,19 @@
 	NSLog(@"Adding movie file output");
 	self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
 	
-	Float64 TotalSeconds = 60;			//Total seconds
-	int32_t preferredTimeScale = 30;	//Frames per second
+	Float64 TotalSeconds = 6;			//Total seconds
+	int32_t preferredTimeScale = 10;	//Frames per second
 	CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
 	self.movieFileOutput.maxRecordedDuration = maxDuration;
 	
-	self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024;						//<<SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
+	self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
 	
-	if ([session canAddOutput:self.movieFileOutput])
+	if ([session canAddOutput:self.movieFileOutput]) {
 		[session addOutput:self.movieFileOutput];
+    }
     
 	//SET THE CONNECTION PROPERTIES (output properties)
-	[self CameraSetOutputProperties];
+	//[self CameraSetOutputProperties];
     
     
     
@@ -224,27 +291,99 @@
 
 - (void) CameraSetOutputProperties
 {
-	//SET THE CONNECTION PROPERTIES (output properties)
-	AVCaptureConnection *CaptureConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
+//	//SET THE CONNECTION PROPERTIES (output properties)
+//	AVCaptureConnection *CaptureConnection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
+//	
+//	//Set landscape (if required)
+//	if ([CaptureConnection isVideoOrientationSupported])
+//	{
+//		AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeRight;		//<<<<<SET VIDEO ORIENTATION IF LANDSCAPE
+//		[CaptureConnection setVideoOrientation:orientation];
+//	}
+//	
+//	//Set frame rate (if requried)
+//	CMTimeShow(CaptureConnection.videoMinFrameDuration);
+//	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
+//	
+//	if (CaptureConnection.supportsVideoMinFrameDuration)
+//		CaptureConnection.videoMinFrameDuration = CMTimeMake(1, 10);
+//	if (CaptureConnection.supportsVideoMaxFrameDuration)
+//		CaptureConnection.videoMaxFrameDuration = CMTimeMake(1, 10);
+//	
+//	CMTimeShow(CaptureConnection.videoMinFrameDuration);
+//	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
+}
+
+- (void) startRecordingVideo {
+//    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+
+    
+    NSLog(@"START RECORDING");
+    //Create temporary URL to record to
+    NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
+    NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:outputPath])
+    {
+        NSError *error;
+        if ([fileManager removeItemAtPath:outputPath error:&error] == NO)
+        {
+            //Error - handle if requried
+        }
+    }
+    //Start recording
+    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+    
+}
+
+- (void) stopRecordingVideo {
+    [self.movieFileOutput stopRecording];
+}
+
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
+    
+	NSLog(@"didFinishRecordingToOutputFileAtURL - enter");
 	
-	//Set landscape (if required)
-	if ([CaptureConnection isVideoOrientationSupported])
+    BOOL RecordedSuccessfully = YES;
+    if ([error code] != noErr)
 	{
-		AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeRight;		//<<<<<SET VIDEO ORIENTATION IF LANDSCAPE
-		[CaptureConnection setVideoOrientation:orientation];
+        // A problem occurred: Find out if the recording was successful.
+        id value = [[error userInfo] objectForKey:AVErrorRecordingSuccessfullyFinishedKey];
+        if (value)
+		{
+            RecordedSuccessfully = [value boolValue];
+        }
+    }
+	if (RecordedSuccessfully)
+	{
+		//----- RECORDED SUCESSFULLY -----
+        NSLog(@"didFinishRecordingToOutputFileAtURL - success");
+
+        NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
+        NSLog(@"%lu", (unsigned long)[videoData length]);
+        [self uploadVideo:videoData];
+        
+//		ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+//		if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL])
+//		{
+//			[library writeVideoAtPathToSavedPhotosAlbum:outputFileURL
+//										completionBlock:^(NSURL *assetURL, NSError *error)
+//             {
+//                 if (error)
+//                 {
+//                     
+//                 }
+//             }];
+//		}
 	}
-	
-	//Set frame rate (if requried)
-	CMTimeShow(CaptureConnection.videoMinFrameDuration);
-	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
-	
-	if (CaptureConnection.supportsVideoMinFrameDuration)
-		CaptureConnection.videoMinFrameDuration = CMTimeMake(1, 10);
-	if (CaptureConnection.supportsVideoMaxFrameDuration)
-		CaptureConnection.videoMaxFrameDuration = CMTimeMake(1, 10);
-	
-	CMTimeShow(CaptureConnection.videoMinFrameDuration);
-	CMTimeShow(CaptureConnection.videoMaxFrameDuration);
+    
+}
+
+- (void) uploadVideo:(NSData *) videoData {
+    NSString *stringData = [videoData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    Firebase *newVideo = [[self.firebase childByAppendingPath:@"global"] childByAutoId];
+    [newVideo setValue:@{@"type": @"video", @"data":stringData}];
+    NSLog(@"video!!!");
 }
 
 - (void) capImage { //method to capture image from AVCaptureSession video feed
@@ -274,21 +413,11 @@
     }];
 }
 
-- (void) startRecordingVideo {
-    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-    CMTime maxDuration = CMTimeMake(6,1);
-    aMovieFileOutput.maxRecordedDuration = maxDuration;
-    
-    
-}
-
-- (void) stopRecordingVideo {
-    
-}
-
 - (void)processImage:(UIImage *) image {
+    //resizes image
     UIImage *newImage = [image imageScaledToFitSize:CGSizeMake(640/4, 1136/8)];
     NSData *imageData = UIImageJPEGRepresentation(newImage, 1);
+    NSLog(@"%lu", (unsigned long)[imageData length]);
     [self uploadImage:imageData];
 }
 
@@ -296,8 +425,6 @@
     //NSString *stringData = [[NSString alloc] initWithData:imageData encoding:NSUTF8StringEncoding];
     //NSString *stringData = [NSString stringWithUTF8String:[imageData bytes]];
     NSString *stringData = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    NSLog(@"%i", [stringData length]);
-    [self.firebase childByAppendingPath:@"global"];
     Firebase *newImage = [[self.firebase childByAppendingPath:@"global"] childByAutoId];
     [newImage setValue:@{@"type": @"image", @"data":stringData}];
     //    NSLog(@"%@", stringData);
