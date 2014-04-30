@@ -9,6 +9,8 @@
 #import "MainViewController.h"
 #import "UIImage+Resize.h"
 
+#define NODE_NAME @"global2"
+
 @interface MainViewController ()
 @property bool FrontCamera;
 @end
@@ -63,6 +65,16 @@
 
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 1136/8, 640/2, 1136/8 * 3)];
+
+    self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, -1136/8, 640/2, 1136/2)];
+    [self.overlay setBackgroundColor:[UIColor blackColor]];
+    [self.overlay setAlpha:0.0];
+    
+//    UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tappedTile:)];
+//    [self.overlay addGestureRecognizer:tappedTile];
+
+    
+    [self.gridView addSubview:self.overlay];
     [self.view addSubview:self.gridView];
     self.gridData = [NSMutableArray array];
     self.gridTiles = [NSMutableArray array];
@@ -133,7 +145,6 @@
     }
 
     UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tappedTile:)];
-    tappedTile.delegate = self;
     [newGridTile addGestureRecognizer:tappedTile];
     
     [self.gridView addSubview:newGridTile];
@@ -145,25 +156,64 @@
 //    [self.gridTiles insertObject:newGridTile atIndex:0];
 //    [self.gridData addObject:cellData];
     
-    [self layoutGrid];
+    [self layoutGrid:0];
     
 }
 
-- (void) layoutGrid {
-    [UIView animateWithDuration:0.3 animations:^{
+- (void) layoutGrid:(BOOL)tapped {
+    
+    CGFloat duration;
+    if(tapped){
+        duration = 0.5;
+    } else {
+        duration = 0.0;
+    }
+    
+    [UIView animateWithDuration:duration delay:0.0 usingSpringWithDamping:0.5 initialSpringVelocity:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         int i = 0;
+        bool was_enlarged = 0;
         for(NSDictionary *tileData in self.gridData){
-            [[tileData objectForKey:@"view"] setFrame:CGRectMake((i%2) * 640/4, (i/2) * 1136/8, 640/4, 1136/8)];
+            int width, height;
+            if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:1]]){
+                width = 640/2;
+                height = 1136/4;
+                [[tileData objectForKey:@"view"] setFrame:CGRectMake(0, 0, 640/2, 1136/4)];
+                was_enlarged = 1;
+                [self.overlay setAlpha:1.0];
+                [self.overlay setTag:i];
+                [self.gridView bringSubviewToFront:self.overlay];
+                [self.gridView bringSubviewToFront:[tileData objectForKey:@"view"]];
+            } else {
+                width = 640/4;
+                height = 1136/8;
+                [[tileData objectForKey:@"view"] setFrame:CGRectMake((i%2) * 640/4, (i/2) * 1136/8, width, height)];
+            }
+            
+            FDataSnapshot *snapshot = [tileData objectForKey:@"data"];
+
+            if([snapshot.value[@"type"] isEqualToString:@"image"]){
+                [[tileData objectForKey:@"imageView"] setFrame:CGRectMake(0, 0, width, height)];
+            } else if([snapshot.value[@"type"] isEqualToString:@"video"]){
+                [[tileData objectForKey:@"playerLayer"] setFrame:CGRectMake(0, 0, width, height)];
+                [[tileData objectForKey:@"playerContainer"] setFrame:CGRectMake(0, 0, width, height)];
+            }
+            
             [[tileData objectForKey:@"view"] setTag:i];
             i++;
         }
-    } completion:^(BOOL finished) {
-        while([self.gridData count] > 6){
-            [[[self.gridData lastObject] objectForKey:@"view"] removeFromSuperview];
-            [self.gridData removeLastObject];
-            
-            // other deallocating goes here...
+        
+        if(!was_enlarged){
+            [self.overlay setAlpha:0.0];
         }
+    } completion:^(BOOL finished) {
+        for(int i = 6; i < [self.gridData count]; i++){
+            if([[self.gridData[i] objectForKey:@"enlarged"] isEqualToNumber:[NSNumber numberWithBool:0]]){
+                [[self.gridData[i] objectForKey:@"view"] removeFromSuperview];
+                [self.gridData removeObjectAtIndex:i];
+                i--;
+            }
+        }
+        
         //
     }];
 
@@ -173,44 +223,16 @@
     [self.gridView bringSubviewToFront:[gestureRecognizer view]];
     NSInteger tag = [[gestureRecognizer view] tag];
     NSMutableDictionary *tileData = self.gridData[tag];
+    float alpha;
     if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:1]]){
         [tileData setValue:[NSNumber numberWithBool:0] forKey:@"enlarged"];
+        alpha = 0.0;
     } else {
         [tileData setValue:[NSNumber numberWithBool:1] forKey:@"enlarged"];
+        alpha = 1.0;
     }
-    [self layoutGrid];
-    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        //
-
-        int width, height;
-        if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:1]]){
-            width = 640/4;
-            height = 1136/8;
-            [[gestureRecognizer view] setFrame:CGRectMake(0, 0, 640/4, 1136/8)];
-            [tileData setValue:[NSNumber numberWithBool:0] forKey:@"enlarged"];
-        } else {
-            width = 640/2;
-            height = 1136/4;
-            [[gestureRecognizer view] setFrame:CGRectMake(0, 0, 640/2, 1136/4)];
-            [tileData setValue:[NSNumber numberWithBool:1] forKey:@"enlarged"];
-        }
-
-        FDataSnapshot *snapshot = [tileData objectForKey:@"data"];
-        
-        if([snapshot.value[@"type"] isEqualToString:@"image"]){
-            [[tileData objectForKey:@"imageView"] setFrame:CGRectMake(0, 0, width, height)];
-        } else if([snapshot.value[@"type"] isEqualToString:@"video"]){
-            [[tileData objectForKey:@"playerLayer"] setFrame:CGRectMake(0, 0, width, height)];
-            [[tileData objectForKey:@"playerContainer"] setFrame:CGRectMake(0, 0, width, height)];
-        }
-        //        CGAffineTransform scale = CGAffineTransformMakeScale(1.5, 1.5);
-        //        [[gestureRecognizer view] setTransform:scale];
-    } completion:^(BOOL finished) {
-        if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:0]]){
-            [self layoutGrid];
-        }
-        //
-    }];
+    [self layoutGrid:1];
+    
 }
 
 //loop video when ends
@@ -222,7 +244,7 @@
 - (void)initFirebase {
     self.firebase = [[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"];
     
-    [[[self.firebase childByAppendingPath:@"global"] queryLimitedToNumberOfChildren:6] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+    [[[self.firebase childByAppendingPath:NODE_NAME] queryLimitedToNumberOfChildren:6] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
 //        NSLog(@"%@", snapshot.value);
 //        [self.gridData insertObject:snapshot atIndex:0];
 //        while([self.gridData count] > 6){
@@ -241,6 +263,7 @@
     [self.cameraView removeFromSuperview];
     self.cameraView = [[UIImageView alloc] initWithFrame:CGRectMake(640/4, 0, 640/4, 1136/8)];
     [self.view addSubview:self.cameraView];
+    [self.view bringSubviewToFront:self.gridView];
     
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
     [longPressGestureRecognizer setMinimumPressDuration:0.4f];
@@ -278,7 +301,7 @@
         }
         //
     }];
-    //        [self startRecordingVideo];
+    [self startRecordingVideo];
     
 }
 
@@ -286,7 +309,7 @@
     if(self.recording){
         NSLog(@"Ended!!!");
         [self.indicator removeFromSuperview];
-        // [self stopRecordingVideo];
+        [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
         self.recording = 0;
     }
@@ -448,7 +471,7 @@
 
 - (void) uploadVideo:(NSData *) videoData {
     NSString *stringData = [videoData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *newVideo = [[self.firebase childByAppendingPath:@"global"] childByAutoId];
+    Firebase *newVideo = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
     [newVideo setValue:@{@"type": @"video", @"data":stringData}];
     NSLog(@"video!!!");
 }
@@ -492,7 +515,7 @@
     //NSString *stringData = [[NSString alloc] initWithData:imageData encoding:NSUTF8StringEncoding];
     //NSString *stringData = [NSString stringWithUTF8String:[imageData bytes]];
     NSString *stringData = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *newImage = [[self.firebase childByAppendingPath:@"global"] childByAutoId];
+    Firebase *newImage = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
     [newImage setValue:@{@"type": @"image", @"data":stringData}];
     //    NSLog(@"%@", stringData);
 }

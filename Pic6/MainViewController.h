@@ -27,6 +27,7 @@
 @property (strong, nonatomic) NSMutableDictionary *players;
 
 @property (strong, nonatomic) UIView *selectedTile;
+@property (strong, nonatomic) UIView *overlay;
 
 @property (strong, nonatomic) Firebase *firebase;
 
