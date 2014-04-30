@@ -64,7 +64,9 @@
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 1136/8, 640/2, 1136/8 * 3)];
     [self.view addSubview:self.gridView];
+    self.gridData = [NSMutableArray array];
     self.gridTiles = [NSMutableArray array];
+    self.players = [NSMutableDictionary dictionary];
     
 }
 
@@ -73,6 +75,7 @@
     UIView *newGridTile = [[UIView alloc] initWithFrame:CGRectMake(640/4, -1136/8, 640/4, 1136/8)];
     FDataSnapshot *cellData = snapshot;
     
+    NSMutableDictionary *tileData = [NSMutableDictionary dictionary];
     if([cellData.value[@"type"] isEqualToString:@"image"]){
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
         [imageView setContentMode:UIViewContentModeScaleAspectFill];
@@ -81,6 +84,8 @@
         [newGridTile addSubview:imageView];
         NSData *data = [[NSData alloc]initWithBase64EncodedString:cellData.value[@"data"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
         [imageView setImage:[UIImage imageWithData:data]];
+        
+        [tileData setObject:imageView forKey:@"imageView"];
         
     } else if([cellData.value[@"type"] isEqualToString:@"video"]){
         NSLog(@"%@", cellData.name);
@@ -103,7 +108,6 @@
             //            }
         }
         
-        
         AVPlayer *player = [AVPlayer playerWithURL:movieURL];
         AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
         [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
@@ -116,35 +120,97 @@
         
         [player play];
         
+        [tileData setObject:player forKey:@"player"];
+        [tileData setObject:playerLayer forKey:@"playerLayer"];
+        [tileData setObject:playerContainer forKey:@"playerContainer"];
+        
         [player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(playerItemDidReachEnd:)
                                                      name:AVPlayerItemDidPlayToEndTimeNotification
                                                    object:[player currentItem]];
+        
     }
 
-    [self.gridView addSubview:newGridTile];
-    [self.gridTiles insertObject:newGridTile atIndex:0];
+    UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tappedTile:)];
+    tappedTile.delegate = self;
+    [newGridTile addGestureRecognizer:tappedTile];
     
-    [UIView animateWithDuration:0.0 animations:^{
+    [self.gridView addSubview:newGridTile];
+    [tileData setObject:newGridTile forKey:@"view"];
+    [tileData setObject:snapshot forKey:@"data"];
+    [tileData setValue:[NSNumber numberWithBool:0] forKey:@"enlarged"];
+    
+    [self.gridData insertObject:tileData atIndex:0];
+//    [self.gridTiles insertObject:newGridTile atIndex:0];
+//    [self.gridData addObject:cellData];
+    
+    [self layoutGrid];
+    
+}
+
+- (void) layoutGrid {
+    [UIView animateWithDuration:0.3 animations:^{
         int i = 0;
-        for(UIView *tile in self.gridTiles){
-            [tile setFrame:CGRectMake((i%2) * 640/4, (i/2) * 1136/8, 640/4, 1136/8)];
+        for(NSDictionary *tileData in self.gridData){
+            [[tileData objectForKey:@"view"] setFrame:CGRectMake((i%2) * 640/4, (i/2) * 1136/8, 640/4, 1136/8)];
+            [[tileData objectForKey:@"view"] setTag:i];
             i++;
         }
     } completion:^(BOOL finished) {
+        while([self.gridData count] > 6){
+            [[[self.gridData lastObject] objectForKey:@"view"] removeFromSuperview];
+            [self.gridData removeLastObject];
+            
+            // other deallocating goes here...
+        }
         //
     }];
-    
-    //    for(int i = 0; i < [self.gridTiles count]; i++){
-    //        NSLog(@"%i", i);
-    //        [self.gridTiles[i] setFrame:];
-    //    }
-    
-    while([self.gridTiles count] > 6){
-        [[self.gridTiles lastObject] removeFromSuperview];
-        [self.gridTiles removeLastObject];
+
+}
+
+- (void)tappedTile:(UITapGestureRecognizer *)gestureRecognizer {
+    [self.gridView bringSubviewToFront:[gestureRecognizer view]];
+    NSInteger tag = [[gestureRecognizer view] tag];
+    NSMutableDictionary *tileData = self.gridData[tag];
+    if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:1]]){
+        [tileData setValue:[NSNumber numberWithBool:0] forKey:@"enlarged"];
+    } else {
+        [tileData setValue:[NSNumber numberWithBool:1] forKey:@"enlarged"];
     }
+    [self layoutGrid];
+    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        //
+
+        int width, height;
+        if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:1]]){
+            width = 640/4;
+            height = 1136/8;
+            [[gestureRecognizer view] setFrame:CGRectMake(0, 0, 640/4, 1136/8)];
+            [tileData setValue:[NSNumber numberWithBool:0] forKey:@"enlarged"];
+        } else {
+            width = 640/2;
+            height = 1136/4;
+            [[gestureRecognizer view] setFrame:CGRectMake(0, 0, 640/2, 1136/4)];
+            [tileData setValue:[NSNumber numberWithBool:1] forKey:@"enlarged"];
+        }
+
+        FDataSnapshot *snapshot = [tileData objectForKey:@"data"];
+        
+        if([snapshot.value[@"type"] isEqualToString:@"image"]){
+            [[tileData objectForKey:@"imageView"] setFrame:CGRectMake(0, 0, width, height)];
+        } else if([snapshot.value[@"type"] isEqualToString:@"video"]){
+            [[tileData objectForKey:@"playerLayer"] setFrame:CGRectMake(0, 0, width, height)];
+            [[tileData objectForKey:@"playerContainer"] setFrame:CGRectMake(0, 0, width, height)];
+        }
+        //        CGAffineTransform scale = CGAffineTransformMakeScale(1.5, 1.5);
+        //        [[gestureRecognizer view] setTransform:scale];
+    } completion:^(BOOL finished) {
+        if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:0]]){
+            [self layoutGrid];
+        }
+        //
+    }];
 }
 
 //loop video when ends
@@ -191,17 +257,42 @@
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
     if (recognizer.state == UIGestureRecognizerStateEnded) {
-        NSLog(@"Ended!!!");
-        [self stopRecordingVideo];
-        //Do Whatever You want on End of Gesture
+        [self endHold];
     } else if (recognizer.state == UIGestureRecognizerStateBegan){
-        NSLog(@"begann!!!");
-        [self startRecordingVideo];
+        [self startHold];
+    }
+}
+
+- (void)startHold {
+    NSLog(@"begann!!!");
+    self.recording = 1;
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 8)];
+    [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
+    [self.cameraView addSubview:self.indicator];
+    
+    [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        [self.indicator setFrame:CGRectMake(0, 0, 640/4, 8)];
+    } completion:^(BOOL finished) {
+        if(finished){
+            [self endHold];
+        }
+        //
+    }];
+    //        [self startRecordingVideo];
+    
+}
+
+- (void) endHold {
+    if(self.recording){
+        NSLog(@"Ended!!!");
+        [self.indicator removeFromSuperview];
+        // [self stopRecordingVideo];
+        // Do Whatever You want on End of Gesture
+        self.recording = 0;
     }
 }
 
 - (void)handleTap:(UITapGestureRecognizer *)recognizer {
-    NSLog(@"tapped!!!");
     [self capImage];
 }
 
@@ -417,7 +508,12 @@
 }
 
 - (void)willEnterForeground {
-    for(UIView *v in self.gridTiles){
+    for(NSDictionary *gridData in self.gridData){
+        FDataSnapshot *snapshot = [gridData objectForKey:@"data"];
+        if([snapshot.value[@"type"] isEqualToString:@"video"]){
+            AVPlayer *player = [gridData objectForKey:@"player"];
+            [player play];
+        }
     }
 }
 
