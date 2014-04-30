@@ -9,7 +9,7 @@
 #import "MainViewController.h"
 #import "UIImage+Resize.h"
 
-#define NODE_NAME @"global2"
+#define NODE_NAME @"global"
 
 @interface MainViewController ()
 @property bool FrontCamera;
@@ -169,7 +169,7 @@
         duration = 0.0;
     }
     
-    [UIView animateWithDuration:duration delay:0.0 usingSpringWithDamping:0.5 initialSpringVelocity:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+    [UIView animateWithDuration:duration delay:0.0 usingSpringWithDamping:0.6 initialSpringVelocity:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         int i = 0;
         bool was_enlarged = 0;
         for(NSDictionary *tileData in self.gridData){
