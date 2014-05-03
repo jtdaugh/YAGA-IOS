@@ -33,13 +33,14 @@
     
     NSLog(@"yooo");
     
-    UIView *plaque = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
-    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
+    UIView *plaque = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
     [logo setImage:[UIImage imageNamed:@"Logo"]];
     [plaque addSubview:logo];
     [self.view addSubview:plaque];
     
     [self initSwitchButton];
+    [self initLoader];
     [self initGridView];
     [self initFirebase];
     [self initCameraFrame];
@@ -57,23 +58,87 @@
 }
 
 - (void)initSwitchButton {
-    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(640/4 - 60, 1168/8 - 60, 50, 50)];
+    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, TILE_HEIGHT - 60, 50, 50)];
     [switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
     [switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
     [self.view addSubview:switchButton];
 }
 
-- (void)initGridView {
-    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 1136/8, 640/2, 1136/8 * 3)];
+- (void)initLoader {
+    self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3)];
+    [self.loader setBackgroundColor:PRIMARY_COLOR];
+    self.loaderTiles = [NSMutableArray array];
+    for(int i = 0; i<6; i++){
+        int x, y;
+        if(i > 2){
+            x = 0;
+            y = TILE_HEIGHT * (-i + 5);
+        } else if (i <= 2){
+            x = TILE_WIDTH;
+            y = TILE_HEIGHT * i;
+        }
+        
+        UIView *tile = [[UIView alloc] initWithFrame:CGRectMake(x, y, TILE_WIDTH, TILE_HEIGHT)];
+        [self.loaderTiles addObject:tile];
+        [self.loader addSubview:tile];
+    }
+    
+    [self.view addSubview:self.loader];
+    
+    self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                     target:self
+                                   selector:@selector(loaderTick:)
+                                   userInfo:nil
+                                    repeats:YES];
+    self.loading = 1;
+    self.tickCount = 0;
+}
 
-    self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, -1136/8, 640/2, 1136/2)];
+- (void)loaderTick:(NSTimer *) timer {
+//    NSArray *positions = @[@0, @1, @4, @3, @2, @1, @4, @5];
+//    NSArray *positions = [[NSArray alloc] initWithObjects:0, 1, 4, 3, 2, 1, 4, 5,nil];
+    int positions[8] = {0,1,4,3,2,1,4,5};
+    int rootIndex = self.tickCount % 8;
+    int trailer1Index = (self.tickCount - 1) % 8;
+    int trailer2Index = (self.tickCount - 2) % 8;
+    
+    int root = 0;
+//    int root = (int);
+    int trailer1 = (int)positions[(self.tickCount - 1) % 8];
+    int trailer2 = (int)positions[(self.tickCount - 2) % 8];
+    
+    for(int i = 0; i < [self.loaderTiles count]; i++){
+        if(i == (int) positions[self.tickCount % 8]){// if i == root
+            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.5])];
+        } else if (i == (int) positions[(self.tickCount - 1) % 8]){
+            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.25])];
+        } else if (i == (int) positions[(self.tickCount - 2) % 8]){
+            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.125])];
+        } else {
+            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)(PRIMARY_COLOR)];
+        }
+    }
+    self.tickCount = self.tickCount + 1;
+}
+
+- (void) doneLoading {
+    [self.loaderTimer invalidate];
+    [self.loader removeFromSuperview];
+}
+
+- (void)initGridView {
+    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH * 2, TILE_HEIGHT * 3)];
+
+    self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, -TILE_HEIGHT, TILE_WIDTH * 2, TILE_HEIGHT*4)];
     [self.overlay setBackgroundColor:[UIColor blackColor]];
     [self.overlay setAlpha:0.0];
     
-//    UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tappedTile:)];
-//    [self.overlay addGestureRecognizer:tappedTile];
-
+    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(0, 16, TILE_WIDTH * 2, 40)];
+    [self.displayName setTextAlignment:NSTextAlignmentCenter];
+    [self.displayName setTextColor:[UIColor whiteColor]];
+    [self.displayName setFont:[UIFont systemFontOfSize:24]];
     
+    [self.overlay addSubview:self.displayName];
     [self.gridView addSubview:self.overlay];
     [self.view addSubview:self.gridView];
     self.gridData = [NSMutableArray array];
@@ -83,13 +148,12 @@
 }
 
 - (void)insertGridTile:(FDataSnapshot *)snapshot {
-//    [[self.gridTiles lastObject] removeFromSuperview];
-    UIView *newGridTile = [[UIView alloc] initWithFrame:CGRectMake(640/4, -1136/8, 640/4, 1136/8)];
+    UIView *newGridTile = [[UIView alloc] initWithFrame:CGRectMake(TILE_WIDTH, -TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
     FDataSnapshot *cellData = snapshot;
     
     NSMutableDictionary *tileData = [NSMutableDictionary dictionary];
     if([cellData.value[@"type"] isEqualToString:@"image"]){
-        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
         [imageView setContentMode:UIViewContentModeScaleAspectFill];
         [imageView setClipsToBounds:YES];
         
@@ -124,7 +188,7 @@
         AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
         [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
         
-        UIView *playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 640/4, 1136/8)];
+        UIView *playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
         
         playerLayer.frame = playerContainer.frame;
         [playerContainer.layer addSublayer: playerLayer];
@@ -169,31 +233,43 @@
         duration = 0.0;
     }
     
-    [UIView animateWithDuration:duration delay:0.0 usingSpringWithDamping:0.6 initialSpringVelocity:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+    [UIView animateWithDuration:duration delay:0.0 usingSpringWithDamping:0.75 initialSpringVelocity:0.5 options:0 animations:^{
         int i = 0;
         bool was_enlarged = 0;
         for(NSDictionary *tileData in self.gridData){
-            int width, height;
+            int width, height, top_offset;
+            FDataSnapshot *snapshot = [tileData objectForKey:@"data"];
+
             if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:1]]){
-                width = 640/2;
-                height = 1136/4;
-                [[tileData objectForKey:@"view"] setFrame:CGRectMake(0, 0, 640/2, 1136/4)];
+                width = TILE_WIDTH * 2;
+                height = TILE_HEIGHT * 2;
+                top_offset = -TILE_HEIGHT/2;
+                [[tileData objectForKey:@"view"] setFrame:CGRectMake(0, top_offset, TILE_WIDTH * 2, TILE_HEIGHT * 2)];
                 was_enlarged = 1;
                 [self.overlay setAlpha:1.0];
                 [self.overlay setTag:i];
+                [self.displayName setText:snapshot.value[@"user"]];
+                NSLog(@"%@", snapshot.value[@"user"]);
                 [self.gridView bringSubviewToFront:self.overlay];
+                [self.view bringSubviewToFront:self.cameraView];
+                [self.cameraView setFrame:CGRectMake(TILE_WIDTH, TILE_HEIGHT*3, TILE_WIDTH, TILE_HEIGHT)];
+                self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
                 [self.gridView bringSubviewToFront:[tileData objectForKey:@"view"]];
             } else {
-                width = 640/4;
-                height = 1136/8;
-                [[tileData objectForKey:@"view"] setFrame:CGRectMake((i%2) * 640/4, (i/2) * 1136/8, width, height)];
+                width = TILE_WIDTH;
+                height = TILE_HEIGHT;
+                top_offset = 0;
+                [[tileData objectForKey:@"view"] setFrame:CGRectMake((i%2) * TILE_WIDTH, (i/2) * TILE_HEIGHT, width, height)];
             }
             
-            FDataSnapshot *snapshot = [tileData objectForKey:@"data"];
-
             if([snapshot.value[@"type"] isEqualToString:@"image"]){
                 [[tileData objectForKey:@"imageView"] setFrame:CGRectMake(0, 0, width, height)];
             } else if([snapshot.value[@"type"] isEqualToString:@"video"]){
+                if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:1]]){
+                    [self setAudioLevel:1.0 forPlayer:[tileData objectForKey:@"player"]];
+                } else {
+                    [self setAudioLevel:0.0 forPlayer:[tileData objectForKey:@"player"]];
+                }
                 [[tileData objectForKey:@"playerLayer"] setFrame:CGRectMake(0, 0, width, height)];
                 [[tileData objectForKey:@"playerContainer"] setFrame:CGRectMake(0, 0, width, height)];
             }
@@ -203,6 +279,9 @@
         }
         
         if(!was_enlarged){
+            [self.view bringSubviewToFront:self.cameraView];
+            [self.cameraView setFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
+            self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
             [self.overlay setAlpha:0.0];
         }
     } completion:^(BOOL finished) {
@@ -245,14 +324,11 @@
     self.firebase = [[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"];
     
     [[[self.firebase childByAppendingPath:NODE_NAME] queryLimitedToNumberOfChildren:6] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-//        NSLog(@"%@", snapshot.value);
-//        [self.gridData insertObject:snapshot atIndex:0];
-//        while([self.gridData count] > 6){
-//            [self.gridData removeLastObject];
-//        }
-//        
-//        [self.grid reloadData];
         [self insertGridTile:snapshot];
+        if(self.loading){
+            self.loading = 0;
+            [self doneLoading];
+        }
     }];
 }
 
@@ -261,7 +337,7 @@
 
 - (void)initCameraFrame {
     [self.cameraView removeFromSuperview];
-    self.cameraView = [[UIImageView alloc] initWithFrame:CGRectMake(640/4, 0, 640/4, 1136/8)];
+    self.cameraView = [[UIImageView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
     [self.view addSubview:self.cameraView];
     [self.view bringSubviewToFront:self.gridView];
     
@@ -294,7 +370,7 @@
     [self.cameraView addSubview:self.indicator];
     
     [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        [self.indicator setFrame:CGRectMake(0, 0, 640/4, 8)];
+        [self.indicator setFrame:CGRectMake(0, 0, TILE_WIDTH, 8)];
     } completion:^(BOOL finished) {
         if(finished){
             [self endHold];
@@ -325,12 +401,12 @@
 	session.sessionPreset = AVCaptureSessionPresetMedium;
     
     //display camera preview frame
-	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
-    [captureVideoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+	self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
+    [self.captureVideoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
     
     //display camera preview frame
-	captureVideoPreviewLayer.frame = self.cameraView.bounds;
-	[self.cameraView.layer addSublayer:captureVideoPreviewLayer];
+	self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
+	[self.cameraView.layer addSublayer:self.captureVideoPreviewLayer];
     
     //display camera preview frame
     UIView *view = [self cameraView];
@@ -339,7 +415,7 @@
     
     //set camera preview frame
     CGRect bounds = [view bounds];
-    [captureVideoPreviewLayer setFrame:bounds];
+    [self.captureVideoPreviewLayer setFrame:bounds];
     
     //get front and back camera objects
     NSArray *devices = [AVCaptureDevice devices];
@@ -371,6 +447,15 @@
         NSLog(@"ERROR: trying to open camera: %@", error);
     }
     [session addInput:input];
+    
+    //ADD AUDIO INPUT
+	NSLog(@"Adding audio input");
+	AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+	AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+	if (audioInput)
+	{
+		[session addInput:audioInput];
+	}
     
     //set still image output
     self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
@@ -472,7 +557,7 @@
 - (void) uploadVideo:(NSData *) videoData {
     NSString *stringData = [videoData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     Firebase *newVideo = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
-    [newVideo setValue:@{@"type": @"video", @"data":stringData}];
+    [newVideo setValue:@{@"type": @"video", @"data":stringData, @"user":[self humanName]}];
     NSLog(@"video!!!");
 }
 
@@ -505,7 +590,7 @@
 
 - (void)processImage:(UIImage *) image {
     //resizes image
-    UIImage *newImage = [image imageScaledToFitSize:CGSizeMake(640/4, 1136/8)];
+    UIImage *newImage = [image imageScaledToFitSize:CGSizeMake(TILE_WIDTH, TILE_HEIGHT)];
     NSData *imageData = UIImageJPEGRepresentation(newImage, 1);
     NSLog(@"%lu", (unsigned long)[imageData length]);
     [self uploadImage:imageData];
@@ -516,8 +601,26 @@
     //NSString *stringData = [NSString stringWithUTF8String:[imageData bytes]];
     NSString *stringData = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     Firebase *newImage = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
-    [newImage setValue:@{@"type": @"image", @"data":stringData}];
+    [newImage setValue:@{@"type": @"image", @"data":stringData, @"user":[self humanName]}];
     //    NSLog(@"%@", stringData);
+}
+
+- (void)setAudioLevel:(CGFloat) level forPlayer:(AVPlayer *)player  {
+    AVAsset *asset = [[player currentItem] asset];
+    NSArray *audioTracks = [asset tracksWithMediaType:AVMediaTypeAudio];
+    
+    // Mute all the audio tracks
+    NSMutableArray *allAudioParams = [NSMutableArray array];
+    for (AVAssetTrack *track in audioTracks) {
+        AVMutableAudioMixInputParameters *audioInputParams =    [AVMutableAudioMixInputParameters audioMixInputParameters];
+        [audioInputParams setVolume:level atTime:kCMTimeZero];
+        [audioInputParams setTrackID:[track trackID]];
+        [allAudioParams addObject:audioInputParams];
+    }
+    AVMutableAudioMix *audioZeroMix = [AVMutableAudioMix audioMix];
+    [audioZeroMix setInputParameters:allAudioParams];
+    
+    [[player currentItem] setAudioMix:audioZeroMix];
 }
 
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
@@ -538,6 +641,23 @@
             [player play];
         }
     }
+}
+
+- (NSString *)humanName {
+    NSString *deviceName = [[UIDevice currentDevice].name lowercaseString];
+    for (NSString *string in @[@"’s iphone", @"’s ipad", @"’s ipod touch", @"’s ipod",
+                               @"'s iphone", @"'s ipad", @"'s ipod touch", @"'s ipod",
+                               @"s iphone", @"s ipad", @"s ipod touch", @"s ipod", @"iphone"]) {
+        NSRange ownershipRange = [deviceName rangeOfString:string];
+        
+        if (ownershipRange.location != NSNotFound) {
+            return [[[deviceName substringToIndex:ownershipRange.location] componentsSeparatedByString:@" "][0]
+                    stringByReplacingCharactersInRange:NSMakeRange(0,1)
+                    withString:[[deviceName substringToIndex:1] capitalizedString]];
+        }
+    }
+    
+    return [UIDevice currentDevice].name;
 }
 
 - (void)didReceiveMemoryWarning
