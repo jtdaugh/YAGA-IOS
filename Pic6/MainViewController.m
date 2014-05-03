@@ -9,8 +9,6 @@
 #import "MainViewController.h"
 #import "UIImage+Resize.h"
 
-#define NODE_NAME @"global"
-
 @interface MainViewController ()
 @property bool FrontCamera;
 @end
@@ -32,15 +30,9 @@
     // Do any additional setup after loading the view.
     
     NSLog(@"yooo");
-    
-    UIView *plaque = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-    [logo setImage:[UIImage imageNamed:@"Logo"]];
-    [plaque addSubview:logo];
-    [self.view addSubview:plaque];
-    
-    [self initSwitchButton];
-    [self initLoader];
+//    [self initPlaque];
+//    [self initSwitchButton];
+//    [self initLoader];
     [self initGridView];
     [self initFirebase];
     [self initCameraFrame];
@@ -57,6 +49,14 @@
     NSLog(@"test!");
 }
 
+- (void)initPlaque {
+    UIView *plaque = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+    [logo setImage:[UIImage imageNamed:@"Logo"]];
+    [plaque addSubview:logo];
+    [self.view addSubview:plaque];
+}
+
 - (void)initSwitchButton {
     UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, TILE_HEIGHT - 60, 50, 50)];
     [switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
@@ -68,7 +68,7 @@
     self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3)];
     [self.loader setBackgroundColor:PRIMARY_COLOR];
     self.loaderTiles = [NSMutableArray array];
-    for(int i = 0; i<6; i++){
+    for(int i = 0; i<NUM_TILES; i++){
         int x, y;
         if(i > 2){
             x = 0;
@@ -127,9 +127,9 @@
 }
 
 - (void)initGridView {
-    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH * 2, TILE_HEIGHT * 3)];
+    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
 
-    self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, -TILE_HEIGHT, TILE_WIDTH * 2, TILE_HEIGHT*4)];
+    self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
     [self.overlay setBackgroundColor:[UIColor blackColor]];
     [self.overlay setAlpha:0.0];
     
@@ -323,7 +323,7 @@
 - (void)initFirebase {
     self.firebase = [[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"];
     
-    [[[self.firebase childByAppendingPath:NODE_NAME] queryLimitedToNumberOfChildren:6] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+    [[[self.firebase childByAppendingPath:NODE_NAME] queryLimitedToNumberOfChildren:NUM_TILES] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [self insertGridTile:snapshot];
         if(self.loading){
             self.loading = 0;
@@ -435,9 +435,16 @@
         }
     }
     
-    if ( [captureDevice lockForConfiguration:NULL] == YES ) {
+    if ([captureDevice lockForConfiguration:NULL] == YES ) {
         captureDevice.activeVideoMinFrameDuration = CMTimeMake(1, 30);
         captureDevice.activeVideoMaxFrameDuration = CMTimeMake(1, 30);
+//        AVCaptureFlashMode *flashMode = captureDevice.flashMode;
+        if([captureDevice isFlashModeSupported:AVCaptureFlashModeAuto]){
+            [captureDevice setFlashMode:AVCaptureFlashModeAuto];
+        }
+        
+//        [captureDevice setTorchMode:AVCaptureTorchModeOn];
+//        [captureDevice setFlashMode:AVCaptureFlashModeAuto];
         [captureDevice unlockForConfiguration];
     }
     
@@ -597,12 +604,9 @@
 }
 
 - (void)uploadImage:(NSData *) imageData {
-    //NSString *stringData = [[NSString alloc] initWithData:imageData encoding:NSUTF8StringEncoding];
-    //NSString *stringData = [NSString stringWithUTF8String:[imageData bytes]];
     NSString *stringData = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     Firebase *newImage = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
     [newImage setValue:@{@"type": @"image", @"data":stringData, @"user":[self humanName]}];
-    //    NSLog(@"%@", stringData);
 }
 
 - (void)setAudioLevel:(CGFloat) level forPlayer:(AVPlayer *)player  {
