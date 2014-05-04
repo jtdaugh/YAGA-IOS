@@ -268,7 +268,7 @@
 //            [self.cameraView setFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
 //            self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
             [self.overlay setAlpha:0.0];
-        }
+        } 
     } completion:^(BOOL finished) {
         for(int i = NUM_TILES; i < [self.gridData count]; i++){
             if([[self.gridData[i] objectForKey:@"enlarged"] isEqualToNumber:[NSNumber numberWithBool:0]]){
