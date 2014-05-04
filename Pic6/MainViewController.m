@@ -8,6 +8,7 @@
 
 #import "MainViewController.h"
 #import "UIImage+Resize.h"
+#import "UIView+Grid.h"
 
 @interface MainViewController ()
 @property bool FrontCamera;
@@ -30,9 +31,9 @@
     // Do any additional setup after loading the view.
     
     NSLog(@"yooo");
-//    [self initPlaque];
-//    [self initSwitchButton];
-//    [self initLoader];
+    [self initPlaque];
+    [self initSwitchButton];
+    [self initLoader];
     [self initGridView];
     [self initFirebase];
     [self initCameraFrame];
@@ -58,27 +59,32 @@
 }
 
 - (void)initSwitchButton {
-    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, TILE_HEIGHT - 60, 50, 50)];
+    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(2*TILE_WIDTH - 60, TILE_HEIGHT - 60, 20, 20)];
     [switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
     [switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
+    [switchButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
     [self.view addSubview:switchButton];
 }
 
 - (void)initLoader {
-    self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3)];
+    self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*4)];
     [self.loader setBackgroundColor:PRIMARY_COLOR];
     self.loaderTiles = [NSMutableArray array];
-    for(int i = 0; i<NUM_TILES; i++){
+    for(int i = 0; i<NUM_TILES + 1; i++){
         int x, y;
-        if(i > 2){
-            x = 0;
-            y = TILE_HEIGHT * (-i + 5);
-        } else if (i <= 2){
-            x = TILE_WIDTH;
-            y = TILE_HEIGHT * i;
-        }
+//        if(i > 2){
+//            x = 0;
+//            y = TILE_HEIGHT * (-i + 5);
+//            y = TILE_HEIGHT * i;
+//        } else if (i <= 2){
+//            x = TILE_WIDTH;
+//            y = TILE_HEIGHT * i;
+//        }
+        x = i%2 * TILE_WIDTH;
+        y = i/2 * TILE_HEIGHT;
         
-        UIView *tile = [[UIView alloc] initWithFrame:CGRectMake(x, y, TILE_WIDTH, TILE_HEIGHT)];
+        UIView *tile = [[UIView alloc] init];
+        [tile setGridPosition:i];
         [self.loaderTiles addObject:tile];
         [self.loader addSubview:tile];
     }
@@ -97,22 +103,16 @@
 - (void)loaderTick:(NSTimer *) timer {
 //    NSArray *positions = @[@0, @1, @4, @3, @2, @1, @4, @5];
 //    NSArray *positions = [[NSArray alloc] initWithObjects:0, 1, 4, 3, 2, 1, 4, 5,nil];
-    int positions[8] = {0,1,4,3,2,1,4,5};
-    int rootIndex = self.tickCount % 8;
-    int trailer1Index = (self.tickCount - 1) % 8;
-    int trailer2Index = (self.tickCount - 2) % 8;
+//    int positions[] = {0,1,4,3,2,1,4,5};
+    int positions[] = {0,2,4,6,7,5,3,2,4,6,4,2};
+    int count = 12;
     
-    int root = 0;
-//    int root = (int);
-    int trailer1 = (int)positions[(self.tickCount - 1) % 8];
-    int trailer2 = (int)positions[(self.tickCount - 2) % 8];
-    
-    for(int i = 0; i < [self.loaderTiles count]; i++){
-        if(i == (int) positions[self.tickCount % 8]){// if i == root
+    for(int i = 0; i < NUM_TILES + 1; i++){
+        if(i == (int) positions[self.tickCount % count]){// if i == root
             [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.5])];
-        } else if (i == (int) positions[(self.tickCount - 1) % 8]){
+        } else if (i == (int) positions[(self.tickCount - 1) % count]){
             [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.25])];
-        } else if (i == (int) positions[(self.tickCount - 2) % 8]){
+        } else if (i == (int) positions[(self.tickCount - 2) % count]){
             [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.125])];
         } else {
             [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)(PRIMARY_COLOR)];
@@ -133,7 +133,7 @@
     [self.overlay setBackgroundColor:[UIColor blackColor]];
     [self.overlay setAlpha:0.0];
     
-    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(0, 16, TILE_WIDTH * 2, 40)];
+    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(0, 16, TILE_WIDTH, 40)];
     [self.displayName setTextAlignment:NSTextAlignmentCenter];
     [self.displayName setTextColor:[UIColor whiteColor]];
     [self.displayName setFont:[UIFont systemFontOfSize:24]];
@@ -230,12 +230,13 @@
     if(tapped){
         duration = 0.5;
     } else {
-        duration = 0.0;
+        duration = 1.0;
     }
     
     [UIView animateWithDuration:duration delay:0.0 usingSpringWithDamping:0.75 initialSpringVelocity:0.5 options:0 animations:^{
         int i = 0;
         bool was_enlarged = 0;
+        int indexes[] = {0,2,3,5,4,6,7,9};
         for(NSDictionary *tileData in self.gridData){
             int width, height, top_offset;
             FDataSnapshot *snapshot = [tileData objectForKey:@"data"];
@@ -243,7 +244,7 @@
             if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:1]]){
                 width = TILE_WIDTH * 2;
                 height = TILE_HEIGHT * 2;
-                top_offset = -TILE_HEIGHT/2;
+                top_offset = TILE_HEIGHT;
                 [[tileData objectForKey:@"view"] setFrame:CGRectMake(0, top_offset, TILE_WIDTH * 2, TILE_HEIGHT * 2)];
                 was_enlarged = 1;
                 [self.overlay setAlpha:1.0];
@@ -252,14 +253,15 @@
                 NSLog(@"%@", snapshot.value[@"user"]);
                 [self.gridView bringSubviewToFront:self.overlay];
                 [self.view bringSubviewToFront:self.cameraView];
-                [self.cameraView setFrame:CGRectMake(TILE_WIDTH, TILE_HEIGHT*3, TILE_WIDTH, TILE_HEIGHT)];
-                self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
+//                [self.cameraView setFrame:CGRectMake(TILE_WIDTH, TILE_HEIGHT*3, TILE_WIDTH, TILE_HEIGHT)];
+//                self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
                 [self.gridView bringSubviewToFront:[tileData objectForKey:@"view"]];
             } else {
                 width = TILE_WIDTH;
                 height = TILE_HEIGHT;
                 top_offset = 0;
-                [[tileData objectForKey:@"view"] setFrame:CGRectMake((i%2) * TILE_WIDTH, (i/2) * TILE_HEIGHT, width, height)];
+                int index = indexes[i];
+                [[tileData objectForKey:@"view"] setFrame:CGRectMake((index%2) * TILE_WIDTH, (index/2) * TILE_HEIGHT, width, height)];
             }
             
             if([snapshot.value[@"type"] isEqualToString:@"image"]){
@@ -280,12 +282,12 @@
         
         if(!was_enlarged){
             [self.view bringSubviewToFront:self.cameraView];
-            [self.cameraView setFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
-            self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
+//            [self.cameraView setFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
+//            self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
             [self.overlay setAlpha:0.0];
         }
     } completion:^(BOOL finished) {
-        for(int i = 6; i < [self.gridData count]; i++){
+        for(int i = NUM_TILES; i < [self.gridData count]; i++){
             if([[self.gridData[i] objectForKey:@"enlarged"] isEqualToNumber:[NSNumber numberWithBool:0]]){
                 [[self.gridData[i] objectForKey:@"view"] removeFromSuperview];
                 [self.gridData removeObjectAtIndex:i];
