@@ -30,14 +30,12 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    NSLog(@"yooo");
-    [self initPlaque];
-    [self initSwitchButton];
     [self initLoader];
     [self initGridView];
+    [self initPlaque];
     [self initFirebase];
     [self initCameraFrame];
-    self.FrontCamera = 1;
+    self.FrontCamera = 0;
     [self initCamera];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -47,42 +45,29 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    NSLog(@"test!");
 }
 
 - (void)initPlaque {
-    UIView *plaque = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+    UIView *plaque = [[UIView alloc] init];
+    [plaque setGridPosition:0];
     UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
     [logo setImage:[UIImage imageNamed:@"Logo"]];
     [plaque addSubview:logo];
-    [self.view addSubview:plaque];
-}
 
-- (void)initSwitchButton {
-    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(2*TILE_WIDTH - 60, TILE_HEIGHT - 60, 20, 20)];
+    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, TILE_HEIGHT - 60, 50, 50)];
     [switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
     [switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
     [switchButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
-    [self.view addSubview:switchButton];
+    [plaque addSubview:switchButton];
+
+    [self.gridView addSubview:plaque];
 }
 
 - (void)initLoader {
     self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*4)];
     [self.loader setBackgroundColor:PRIMARY_COLOR];
     self.loaderTiles = [NSMutableArray array];
-    for(int i = 0; i<NUM_TILES + 1; i++){
-        int x, y;
-//        if(i > 2){
-//            x = 0;
-//            y = TILE_HEIGHT * (-i + 5);
-//            y = TILE_HEIGHT * i;
-//        } else if (i <= 2){
-//            x = TILE_WIDTH;
-//            y = TILE_HEIGHT * i;
-//        }
-        x = i%2 * TILE_WIDTH;
-        y = i/2 * TILE_HEIGHT;
-        
+    for(int i = 2; i < 2 + NUM_TILES; i++){
         UIView *tile = [[UIView alloc] init];
         [tile setGridPosition:i];
         [self.loaderTiles addObject:tile];
@@ -101,13 +86,12 @@
 }
 
 - (void)loaderTick:(NSTimer *) timer {
-//    NSArray *positions = @[@0, @1, @4, @3, @2, @1, @4, @5];
-//    NSArray *positions = [[NSArray alloc] initWithObjects:0, 1, 4, 3, 2, 1, 4, 5,nil];
 //    int positions[] = {0,1,4,3,2,1,4,5};
-    int positions[] = {0,2,4,6,7,5,3,2,4,6,4,2};
-    int count = 12;
+//    int positions[] = {3,5,4,6,7,5,4,2};
+    int positions[] = {1,3,2,4,5,3,2,0};
+    int count = 8;
     
-    for(int i = 0; i < NUM_TILES + 1; i++){
+    for(int i = 0; i < NUM_TILES; i++){
         if(i == (int) positions[self.tickCount % count]){// if i == root
             [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.5])];
         } else if (i == (int) positions[(self.tickCount - 1) % count]){
@@ -148,7 +132,9 @@
 }
 
 - (void)insertGridTile:(FDataSnapshot *)snapshot {
-    UIView *newGridTile = [[UIView alloc] initWithFrame:CGRectMake(TILE_WIDTH, -TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
+    UIView *newGridTile = [[UIView alloc] init];
+    [newGridTile setGridPosition:1];
+//    UIView *newGridTile = [[UIView alloc] initWithFrame:CGRectMake(TILE_WIDTH, -TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
     FDataSnapshot *cellData = snapshot;
     
     NSMutableDictionary *tileData = [NSMutableDictionary dictionary];
@@ -164,8 +150,6 @@
         [tileData setObject:imageView forKey:@"imageView"];
         
     } else if([cellData.value[@"type"] isEqualToString:@"video"]){
-        NSLog(@"%@", cellData.name);
-        
         NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), cellData.name];
         NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
         NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -236,7 +220,7 @@
     [UIView animateWithDuration:duration delay:0.0 usingSpringWithDamping:0.75 initialSpringVelocity:0.5 options:0 animations:^{
         int i = 0;
         bool was_enlarged = 0;
-        int indexes[] = {0,2,3,5,4,6,7,9};
+        int indexes[] = {3,2,4,5,7,6,8};
         for(NSDictionary *tileData in self.gridData){
             int width, height, top_offset;
             FDataSnapshot *snapshot = [tileData objectForKey:@"data"];
@@ -250,9 +234,8 @@
                 [self.overlay setAlpha:1.0];
                 [self.overlay setTag:i];
                 [self.displayName setText:snapshot.value[@"user"]];
-                NSLog(@"%@", snapshot.value[@"user"]);
                 [self.gridView bringSubviewToFront:self.overlay];
-                [self.view bringSubviewToFront:self.cameraView];
+                [self.gridView bringSubviewToFront:self.cameraView];
 //                [self.cameraView setFrame:CGRectMake(TILE_WIDTH, TILE_HEIGHT*3, TILE_WIDTH, TILE_HEIGHT)];
 //                self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
                 [self.gridView bringSubviewToFront:[tileData objectForKey:@"view"]];
@@ -261,7 +244,7 @@
                 height = TILE_HEIGHT;
                 top_offset = 0;
                 int index = indexes[i];
-                [[tileData objectForKey:@"view"] setFrame:CGRectMake((index%2) * TILE_WIDTH, (index/2) * TILE_HEIGHT, width, height)];
+                [[tileData objectForKey:@"view"] setGridPosition:index];
             }
             
             if([snapshot.value[@"type"] isEqualToString:@"image"]){
@@ -340,8 +323,8 @@
 - (void)initCameraFrame {
     [self.cameraView removeFromSuperview];
     self.cameraView = [[UIImageView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
-    [self.view addSubview:self.cameraView];
-    [self.view bringSubviewToFront:self.gridView];
+    [self.gridView addSubview:self.cameraView];
+    [self.gridView bringSubviewToFront:self.gridView];
     
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
     [longPressGestureRecognizer setMinimumPressDuration:0.4f];
@@ -365,7 +348,6 @@
 }
 
 - (void)startHold {
-    NSLog(@"begann!!!");
     self.recording = 1;
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 8)];
     [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
@@ -385,7 +367,6 @@
 
 - (void) endHold {
     if(self.recording){
-        NSLog(@"Ended!!!");
         [self.indicator removeFromSuperview];
         [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
@@ -458,7 +439,6 @@
     [session addInput:input];
     
     //ADD AUDIO INPUT
-	NSLog(@"Adding audio input");
 	AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
 	AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
 	if (audioInput)
@@ -476,7 +456,6 @@
     
 
 	//ADD MOVIE FILE OUTPUT
-	NSLog(@"Adding movie file output");
 	self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
 	
 	Float64 TotalSeconds = 6;			//Total seconds
@@ -501,8 +480,6 @@
 - (void) startRecordingVideo {
 //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
 
-    
-    NSLog(@"START RECORDING");
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
@@ -526,8 +503,6 @@
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
     
-	NSLog(@"didFinishRecordingToOutputFileAtURL - enter");
-	
     BOOL RecordedSuccessfully = YES;
     if ([error code] != noErr)
 	{
@@ -541,7 +516,6 @@
 	if (RecordedSuccessfully)
 	{
 		//----- RECORDED SUCESSFULLY -----
-        NSLog(@"didFinishRecordingToOutputFileAtURL - success");
 
         NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
         NSLog(@"%lu", (unsigned long)[videoData length]);
@@ -567,7 +541,6 @@
     NSString *stringData = [videoData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     Firebase *newVideo = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
     [newVideo setValue:@{@"type": @"video", @"data":stringData, @"user":[self humanName]}];
-    NSLog(@"video!!!");
 }
 
 - (void) capImage { //method to capture image from AVCaptureSession video feed
@@ -587,7 +560,6 @@
         }
     }
     
-    NSLog(@"about to request a capture from: %@", self.stillImageOutput);
     [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
         
         if (imageSampleBuffer != NULL) {
@@ -630,12 +602,12 @@
 }
 
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
+    [self initCameraFrame];
     if (self.FrontCamera == 1) {
         self.FrontCamera = 0;
     } else {
         self.FrontCamera = 1;
     }
-    [self initCameraFrame];
     [self initCamera];
 }
 
