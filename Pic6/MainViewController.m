@@ -76,7 +76,7 @@
     
     [self.view addSubview:self.loader];
     
-    self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+    self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval:0.2
                                      target:self
                                    selector:@selector(loaderTick:)
                                    userInfo:nil
@@ -92,15 +92,17 @@
     int count = 8;
     
     for(int i = 0; i < NUM_TILES; i++){
-        if(i == (int) positions[self.tickCount % count]){// if i == root
-            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.5])];
-        } else if (i == (int) positions[(self.tickCount - 1) % count]){
-            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.25])];
-        } else if (i == (int) positions[(self.tickCount - 2) % count]){
-            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.125])];
-        } else {
-            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)(PRIMARY_COLOR)];
-        }
+//        float val = ((float)arc4random() / ARC4RANDOM_MAX);
+        [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithRed:((float)arc4random() / ARC4RANDOM_MAX) green:((float)arc4random() / ARC4RANDOM_MAX) blue:((float)arc4random() / ARC4RANDOM_MAX) alpha:0.5])];
+//        if(i == (int) positions[self.tickCount % count]){// if i == root
+//            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.5])];
+//        } else if (i == (int) positions[(self.tickCount - 1) % count]){
+//            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.25])];
+//        } else if (i == (int) positions[(self.tickCount - 2) % count]){
+//            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.125])];
+//        } else {
+//            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)(PRIMARY_COLOR)];
+//        }
     }
     self.tickCount = self.tickCount + 1;
 }
@@ -178,6 +180,7 @@
         [playerContainer.layer addSublayer: playerLayer];
         [newGridTile addSubview:playerContainer];
         
+        [self setAudioLevel:0.0 forPlayer:player];
         [player play];
         
         [tileData setObject:player forKey:@"player"];
@@ -265,10 +268,8 @@
         
         if(!was_enlarged){
             [self.view bringSubviewToFront:self.cameraView];
-//            [self.cameraView setFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
-//            self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
             [self.overlay setAlpha:0.0];
-        } 
+        }
     } completion:^(BOOL finished) {
         for(int i = NUM_TILES; i < [self.gridData count]; i++){
             if([[self.gridData[i] objectForKey:@"enlarged"] isEqualToNumber:[NSNumber numberWithBool:0]]){
@@ -287,13 +288,12 @@
     [self.gridView bringSubviewToFront:[gestureRecognizer view]];
     NSInteger tag = [[gestureRecognizer view] tag];
     NSMutableDictionary *tileData = self.gridData[tag];
-    float alpha;
     if([[tileData valueForKey:@"enlarged"] isEqualToValue:[NSNumber numberWithBool:1]]){
         [tileData setValue:[NSNumber numberWithBool:0] forKey:@"enlarged"];
-        alpha = 0.0;
+        self.enlarged = nil;
     } else {
         [tileData setValue:[NSNumber numberWithBool:1] forKey:@"enlarged"];
-        alpha = 1.0;
+        self.enlarged = tileData;
     }
     [self layoutGrid:1];
     
@@ -519,7 +519,7 @@
 
         NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
         NSLog(@"%lu", (unsigned long)[videoData length]);
-        [self uploadVideo:videoData];
+        [self uploadData:videoData withType:@"video"];
         
 //		ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
 //		if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL])
@@ -535,12 +535,6 @@
 //		}
 	}
     
-}
-
-- (void) uploadVideo:(NSData *) videoData {
-    NSString *stringData = [videoData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *newVideo = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
-    [newVideo setValue:@{@"type": @"video", @"data":stringData, @"user":[self humanName]}];
 }
 
 - (void) capImage { //method to capture image from AVCaptureSession video feed
@@ -574,13 +568,42 @@
     UIImage *newImage = [image imageScaledToFitSize:CGSizeMake(TILE_WIDTH, TILE_HEIGHT)];
     NSData *imageData = UIImageJPEGRepresentation(newImage, 1);
     NSLog(@"%lu", (unsigned long)[imageData length]);
-    [self uploadImage:imageData];
+    [self uploadData:imageData withType:@"image"];
+}
+
+- (void) uploadVideo:(NSData *) videoData {
+    NSString *stringData = [videoData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    Firebase *newVideo = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
+    [newVideo setValue:@{@"type": @"video", @"data":stringData, @"user":[self humanName]}];
 }
 
 - (void)uploadImage:(NSData *) imageData {
     NSString *stringData = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     Firebase *newImage = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
     [newImage setValue:@{@"type": @"image", @"data":stringData, @"user":[self humanName]}];
+}
+
+- (void)uploadData:(NSData *)data withType:(NSString *)type {
+    NSString *stringData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    Firebase *newObject = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
+    NSMutableDictionary *dataDictionary = [@{@"type": type, @"data":stringData, @"user":[self humanName]} mutableCopy];
+    if(self.enlarged){
+        FDataSnapshot *snapshot = [self.enlarged objectForKey:@"data"];
+        NSString *parentString;
+        if(snapshot.value[@"parent"]){
+            parentString = snapshot.value[@"parent"];
+        } else {
+            parentString = snapshot.name;
+        }
+        Firebase *parentObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/replies", NODE_NAME, parentString]] childByAutoId];
+        [parentObject setValue:newObject.name];
+        [dataDictionary setObject:parentString forKey:@"parent"];
+//        [newObject setValue:parentString forUndefinedKey:@"parent"];
+//        [newObject setValue:parentString forKeyPath:@"parent"];
+//        [newObject setValue:parentString forKey:@"parent"];
+    }
+    [newObject setValue:dataDictionary];
+
 }
 
 - (void)setAudioLevel:(CGFloat) level forPlayer:(AVPlayer *)player  {
@@ -590,7 +613,7 @@
     // Mute all the audio tracks
     NSMutableArray *allAudioParams = [NSMutableArray array];
     for (AVAssetTrack *track in audioTracks) {
-        AVMutableAudioMixInputParameters *audioInputParams =    [AVMutableAudioMixInputParameters audioMixInputParameters];
+        AVMutableAudioMixInputParameters *audioInputParams = [AVMutableAudioMixInputParameters audioMixInputParameters];
         [audioInputParams setVolume:level atTime:kCMTimeZero];
         [audioInputParams setTrackID:[track trackID]];
         [allAudioParams addObject:audioInputParams];

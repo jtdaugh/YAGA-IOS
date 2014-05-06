@@ -35,6 +35,7 @@
 @property (strong, nonatomic) UIView *selectedTile;
 @property (strong, nonatomic) UIView *overlay;
 @property (strong, nonatomic) UILabel *displayName;
+@property (strong, nonatomic) NSMutableDictionary *enlarged;
 
 @property (strong, nonatomic) Firebase *firebase;
 
