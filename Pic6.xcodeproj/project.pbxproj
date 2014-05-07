@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		71404FAB1916A9B6002F4B92 /* UIView+Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FAA1916A9B6002F4B92 /* UIView+Grid.m */; };
+		71404FAE1919FD4A002F4B92 /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FAD1919FD49002F4B92 /* Tile.m */; };
+		71404FB3191A0A9D002F4B92 /* OrderedDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FB1191A0A9D002F4B92 /* OrderedDictionary.m */; };
 		715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 715455D0190E01D600ABE2BE /* UIImage+Resize.m */; };
 		71D0F56C190D998000C7DEE0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56B190D998000C7DEE0 /* Foundation.framework */; };
 		71D0F56E190D998000C7DEE0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */; };
@@ -46,6 +48,10 @@
 		71404FA819121A78002F4B92 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		71404FA91916A9B6002F4B92 /* UIView+Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Grid.h"; sourceTree = "<group>"; };
 		71404FAA1916A9B6002F4B92 /* UIView+Grid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Grid.m"; sourceTree = "<group>"; };
+		71404FAC1919FD49002F4B92 /* Tile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tile.h; sourceTree = "<group>"; };
+		71404FAD1919FD49002F4B92 /* Tile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tile.m; sourceTree = "<group>"; };
+		71404FB1191A0A9D002F4B92 /* OrderedDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OrderedDictionary.m; sourceTree = "<group>"; };
+		71404FB2191A0A9D002F4B92 /* OrderedDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderedDictionary.h; sourceTree = "<group>"; };
 		715455CF190E01D600ABE2BE /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
 		715455D0190E01D600ABE2BE /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
 		71D0F568190D998000C7DEE0 /* Pic6.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pic6.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,6 +111,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		71404FAF1919FD55002F4B92 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				71404FAC1919FD49002F4B92 /* Tile.h */,
+				71404FAD1919FD49002F4B92 /* Tile.m */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		71404FB0191A0A90002F4B92 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				71404FB1191A0A9D002F4B92 /* OrderedDictionary.m */,
+				71404FB2191A0A9D002F4B92 /* OrderedDictionary.h */,
+			);
+			name = Helpers;
+			sourceTree = "<group>";
+		};
 		715455D3191063F500ABE2BE /* Categories */ = {
 			isa = PBXGroup;
 			children = (
@@ -156,13 +180,15 @@
 		71D0F571190D998000C7DEE0 /* Pic6 */ = {
 			isa = PBXGroup;
 			children = (
+				71404FB0191A0A90002F4B92 /* Helpers */,
 				715455D3191063F500ABE2BE /* Categories */,
+				71404FAF1919FD55002F4B92 /* Models */,
 				71404FA819121A78002F4B92 /* Constants.h */,
+				71D0F5A0190D99A700C7DEE0 /* MainViewController.h */,
+				71D0F5A1190D99A700C7DEE0 /* MainViewController.m */,
 				71D0F57A190D998000C7DEE0 /* AppDelegate.h */,
 				71D0F57B190D998000C7DEE0 /* AppDelegate.m */,
 				71D0F57D190D998000C7DEE0 /* Main.storyboard */,
-				71D0F5A0190D99A700C7DEE0 /* MainViewController.h */,
-				71D0F5A1190D99A700C7DEE0 /* MainViewController.m */,
 				71D0F583190D998000C7DEE0 /* Images.xcassets */,
 				71D0F572190D998000C7DEE0 /* Supporting Files */,
 			);
@@ -331,8 +357,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				71404FAB1916A9B6002F4B92 /* UIView+Grid.m in Sources */,
+				71404FAE1919FD4A002F4B92 /* Tile.m in Sources */,
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
+				71404FB3191A0A9D002F4B92 /* OrderedDictionary.m in Sources */,
 				71D0F5A2190D99A700C7DEE0 /* MainViewController.m in Sources */,
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
 			);

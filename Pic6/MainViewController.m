@@ -9,6 +9,7 @@
 #import "MainViewController.h"
 #import "UIImage+Resize.h"
 #import "UIView+Grid.h"
+#import "Tile.h"
 
 @interface MainViewController ()
 @property bool FrontCamera;
@@ -128,9 +129,31 @@
     [self.gridView addSubview:self.overlay];
     [self.view addSubview:self.gridView];
     self.gridData = [NSMutableArray array];
-    self.gridTiles = [NSMutableArray array];
     self.players = [NSMutableDictionary dictionary];
     
+}
+
+- (void)newGridTile:(FDataSnapshot *)snapshot {
+    Tile *tile = [[Tile alloc] init];
+    tile.metadata = snapshot;
+    [self.tiles insertObject:tile forKey:snapshot.name atIndex:0];
+    [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", DATA, snapshot.name]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        [self newGridData:snapshot];
+    }];
+}
+
+- (void) newGridData:(FDataSnapshot *)snapshot {
+    NSLog(@"data id: %@", snapshot.name);
+    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
+    NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:moviePath])
+    {
+        NSError *error = nil;
+        NSData *videoData = [[NSData alloc] initWithBase64EncodedString:snapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
+        
+        [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
+    }
 }
 
 - (void)insertGridTile:(FDataSnapshot *)snapshot {
@@ -306,10 +329,12 @@
 }
 
 - (void)initFirebase {
-    self.firebase = [[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"];
+    self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
     
-    [[[self.firebase childByAppendingPath:NODE_NAME] queryLimitedToNumberOfChildren:NUM_TILES] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        [self insertGridTile:snapshot];
+    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", POSTS]] queryLimitedToNumberOfChildren:NUM_TILES] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+        
+        NSLog(@"snapshot name: %@", snapshot.name);
+        [self newGridTile:snapshot];
         if(self.loading){
             self.loading = 0;
             [self doneLoading];
@@ -324,7 +349,7 @@
     [self.gridView bringSubviewToFront:self.gridView];
     
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-    [longPressGestureRecognizer setMinimumPressDuration:0.4f];
+    [longPressGestureRecognizer setMinimumPressDuration:0.0f];
     longPressGestureRecognizer.delegate = self;
     [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
 
@@ -332,7 +357,7 @@
     [self.cameraView setUserInteractionEnabled:YES];
     tapGestureRecognizer.delegate = self;
     [tapGestureRecognizer requireGestureRecognizerToFail:longPressGestureRecognizer];
-    [self.cameraView addGestureRecognizer:tapGestureRecognizer];
+//    [self.cameraView addGestureRecognizer:tapGestureRecognizer];
 
 }
 
@@ -514,22 +539,8 @@
 		//----- RECORDED SUCESSFULLY -----
 
         NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
-        NSLog(@"%lu", (unsigned long)[videoData length]);
         [self uploadData:videoData withType:@"video"];
-        
-//		ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-//		if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL])
-//		{
-//			[library writeVideoAtPathToSavedPhotosAlbum:outputFileURL
-//										completionBlock:^(NSURL *assetURL, NSError *error)
-//             {
-//                 if (error)
-//                 {
-//                     
-//                 }
-//             }];
-//		}
-	}
+    }
     
 }
 
@@ -563,17 +574,18 @@
     //resizes image
     UIImage *newImage = [image imageScaledToFitSize:CGSizeMake(TILE_WIDTH, TILE_HEIGHT)];
     NSData *imageData = UIImageJPEGRepresentation(newImage, 1);
-    NSLog(@"%lu", (unsigned long)[imageData length]);
     [self uploadData:imageData withType:@"image"];
 }
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type {
+    NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
+
     NSString *stringData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *dataObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", NODE_NAME, DATA]] childByAutoId];
+    Firebase *dataObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] childByAutoId];
     [dataObject setValue:stringData];
     
-    Firebase *postObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", NODE_NAME, POSTS]] childByAutoId];
-    NSMutableDictionary *dataDictionary = [@{@"type": type, @"data_id":dataObject.name, @"user":[self humanName]} mutableCopy];
+    Firebase *postObject = [self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", POSTS, dataObject.name]];
+    NSMutableDictionary *dataDictionary = [@{@"type": type, @"user":[self humanName]} mutableCopy];
     if(self.enlarged){
         FDataSnapshot *snapshot = [self.enlarged objectForKey:@"data"];
         NSString *parentString;
@@ -582,7 +594,7 @@
         } else {
             parentString = snapshot.name;
         }
-        Firebase *parentObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/replies", NODE_NAME, parentString]] childByAutoId];
+        Firebase *parentObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/replies", parentString]] childByAutoId];
         [parentObject setValue:postObject.name];
         [dataDictionary setObject:parentString forKey:@"parent"];
     }

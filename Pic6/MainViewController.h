@@ -26,6 +26,8 @@
 @property BOOL loading;
 @property int tickCount;
 
+@property (strong, nonatomic) OrderedDictionary *tiles;
+
 @property (strong, nonatomic) UIView *gridView;
 @property (strong, nonatomic) NSMutableArray *gridTiles;
 @property (strong, nonatomic) NSMutableArray *gridData;
