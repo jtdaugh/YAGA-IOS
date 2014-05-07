@@ -317,9 +317,6 @@
     }];
 }
 
-- (void) initStream {
-}
-
 - (void)initCameraFrame {
     [self.cameraView removeFromSuperview];
     self.cameraView = [[UIImageView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
@@ -421,13 +418,12 @@
     if ([captureDevice lockForConfiguration:NULL] == YES ) {
         captureDevice.activeVideoMinFrameDuration = CMTimeMake(1, 30);
         captureDevice.activeVideoMaxFrameDuration = CMTimeMake(1, 30);
-//        AVCaptureFlashMode *flashMode = captureDevice.flashMode;
-        if([captureDevice isFlashModeSupported:AVCaptureFlashModeAuto]){
-            [captureDevice setFlashMode:AVCaptureFlashModeAuto];
+        
+        if([captureDevice isTorchModeSupported:AVCaptureTorchModeAuto]){
+            [captureDevice setTorchMode:AVCaptureTorchModeAuto];
+//            [captureDevice setFlashMode:AVCaptureFlashModeAuto];
         }
         
-//        [captureDevice setTorchMode:AVCaptureTorchModeOn];
-//        [captureDevice setFlashMode:AVCaptureFlashModeAuto];
         [captureDevice unlockForConfiguration];
     }
     
@@ -571,22 +567,13 @@
     [self uploadData:imageData withType:@"image"];
 }
 
-- (void) uploadVideo:(NSData *) videoData {
-    NSString *stringData = [videoData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *newVideo = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
-    [newVideo setValue:@{@"type": @"video", @"data":stringData, @"user":[self humanName]}];
-}
-
-- (void)uploadImage:(NSData *) imageData {
-    NSString *stringData = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *newImage = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
-    [newImage setValue:@{@"type": @"image", @"data":stringData, @"user":[self humanName]}];
-}
-
 - (void)uploadData:(NSData *)data withType:(NSString *)type {
     NSString *stringData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *newObject = [[self.firebase childByAppendingPath:NODE_NAME] childByAutoId];
-    NSMutableDictionary *dataDictionary = [@{@"type": type, @"data":stringData, @"user":[self humanName]} mutableCopy];
+    Firebase *dataObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", NODE_NAME, DATA]] childByAutoId];
+    [dataObject setValue:stringData];
+    
+    Firebase *postObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", NODE_NAME, POSTS]] childByAutoId];
+    NSMutableDictionary *dataDictionary = [@{@"type": type, @"data_id":dataObject.name, @"user":[self humanName]} mutableCopy];
     if(self.enlarged){
         FDataSnapshot *snapshot = [self.enlarged objectForKey:@"data"];
         NSString *parentString;
@@ -596,14 +583,10 @@
             parentString = snapshot.name;
         }
         Firebase *parentObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/replies", NODE_NAME, parentString]] childByAutoId];
-        [parentObject setValue:newObject.name];
+        [parentObject setValue:postObject.name];
         [dataDictionary setObject:parentString forKey:@"parent"];
-//        [newObject setValue:parentString forUndefinedKey:@"parent"];
-//        [newObject setValue:parentString forKeyPath:@"parent"];
-//        [newObject setValue:parentString forKey:@"parent"];
     }
-    [newObject setValue:dataDictionary];
-
+    [postObject setValue:dataDictionary];
 }
 
 - (void)setAudioLevel:(CGFloat) level forPlayer:(AVPlayer *)player  {
@@ -634,16 +617,6 @@
     [self initCamera];
 }
 
-- (void)willEnterForeground {
-    for(NSDictionary *gridData in self.gridData){
-        FDataSnapshot *snapshot = [gridData objectForKey:@"data"];
-        if([snapshot.value[@"type"] isEqualToString:@"video"]){
-            AVPlayer *player = [gridData objectForKey:@"player"];
-            [player play];
-        }
-    }
-}
-
 - (NSString *)humanName {
     NSString *deviceName = [[UIDevice currentDevice].name lowercaseString];
     for (NSString *string in @[@"’s iphone", @"’s ipad", @"’s ipod touch", @"’s ipod",
@@ -659,6 +632,16 @@
     }
     
     return [UIDevice currentDevice].name;
+}
+
+- (void)willEnterForeground {
+    for(NSDictionary *gridData in self.gridData){
+        FDataSnapshot *snapshot = [gridData objectForKey:@"data"];
+        if([snapshot.value[@"type"] isEqualToString:@"video"]){
+            AVPlayer *player = [gridData objectForKey:@"player"];
+            [player play];
+        }
+    }
 }
 
 - (void)didReceiveMemoryWarning
