@@ -10,4 +10,10 @@
 
 @implementation Tile
 
+- (void)setVideoFrame:(CGRect)frame {
+    [self.view setFrame:frame];
+    [self.playerLayer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+    [self.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+}
+
 @end

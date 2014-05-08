@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <Firebase/Firebase.h>
+#import "Tile.h"
 
 @interface MainViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate>
 
@@ -26,18 +27,22 @@
 @property BOOL loading;
 @property int tickCount;
 
-@property (strong, nonatomic) OrderedDictionary *tiles;
-
+@property (strong, nonatomic) NSMutableArray *tiles;
 @property (strong, nonatomic) UIView *gridView;
-@property (strong, nonatomic) NSMutableArray *gridTiles;
-@property (strong, nonatomic) NSMutableArray *gridData;
 
 @property (strong, nonatomic) NSMutableDictionary *players;
 
+@property (strong, nonatomic) UIView *carousel;
+@property (strong, nonatomic) UIView *blackBG;
+@property (strong, nonatomic) NSMutableArray *reactions;
+@property int carouselPosition;
+
 @property (strong, nonatomic) UIView *selectedTile;
-@property (strong, nonatomic) UIView *overlay;
+@property (strong, nonatomic) UIButton *closeButton;
 @property (strong, nonatomic) UILabel *displayName;
-@property (strong, nonatomic) NSMutableDictionary *enlarged;
+
+@property (strong, nonatomic) Tile *enlargedTile;
+@property (strong, nonatomic) NSString *enlargedId;
 
 @property (strong, nonatomic) Firebase *firebase;
 
