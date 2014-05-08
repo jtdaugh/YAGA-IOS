@@ -17,16 +17,17 @@
     [self setFrame:CGRectMake(x, y, TILE_WIDTH, TILE_HEIGHT)];
 }
 
-- (void)setCarouselPosition:(int)position {
+- (void)setCarouselPosition:(int)position withIndex:(int)index {
     int x, origin;
     if(x > 0){
         origin = 320 - (320 - ENLARGED_WIDTH)/2 + 5;
-    } else {
+    } else if(x < 0){
         origin = (320 - ENLARGED_WIDTH)/2 - 5;
+    } else {
+        [self setFrame:CGRectMake(x, 100, CAROUSEL_WIDTH, CAROUSEL_HEIGHT)];        
     }
     x = position * ENLARGED_WIDTH;
-//    [self setFrame:CGRectMake(x, 100, CAROUSEL_WIDTH, CAROUSEL_HEIGHT)];
-    [self setFrame:CGRectMake(500, 500, CAROUSEL_WIDTH, CAROUSEL_HEIGHT)];
+//    [self setFrame:CGRectMake(500, 500, CAROUSEL_WIDTH, CAROUSEL_HEIGHT)];
 }
 
 @end

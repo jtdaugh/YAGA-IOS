@@ -24,5 +24,6 @@
 @property BOOL enlarged;
 
 - (void)setVideoFrame:(CGRect)frame;
+- (void)setCarouselPosition:(int)position withIndex:(int)index;
 
 @end

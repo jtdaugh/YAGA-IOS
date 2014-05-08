@@ -10,5 +10,5 @@
 
 @interface UIView (Grid)
 - (void)setGridPosition:(int)position;
-- (void)setCarouselPosition:(int)position;
+//- (void)setCarouselPosition:(int)position withIndex:(int)index;
 @end
