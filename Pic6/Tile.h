@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 #import <Firebase/Firebase.h>
-#import "LoaderTileView.h"
 
 @interface Tile : NSObject
 @property (strong, nonatomic) FDataSnapshot *data;
@@ -19,7 +18,7 @@
 
 @property (strong, nonatomic) UIView *view;
 
-@property (strong, nonatomic) LoaderTileView *loader;
+//@property (strong, nonatomic) LoaderTileView *loader;
 
 @property BOOL enlarged;
 

@@ -18,16 +18,22 @@
 
 - (void)setCarouselPosition:(int)currentPosition withIndex:(int)index {
     int offset = index - currentPosition;
-    int origin;
-    if(offset > 0){
-        origin = VIEW_WIDTH/2 + ENLARGED_WIDTH/2 + 5;
-        [self setVideoFrame:CGRectMake(origin + (offset-1)*ENLARGED_WIDTH, TILE_HEIGHT + (VIEW_WIDTH-ENLARGED_WIDTH)/2, ENLARGED_WIDTH, ENLARGED_HEIGHT)];
-    } else if(offset < 0){
-        origin = VIEW_WIDTH/2 - ENLARGED_WIDTH/2 - 5 - ENLARGED_WIDTH;
-        [self setVideoFrame:CGRectMake(origin + (offset+1)*ENLARGED_WIDTH, TILE_HEIGHT + (VIEW_WIDTH-ENLARGED_WIDTH)/2, ENLARGED_WIDTH, ENLARGED_HEIGHT)];
+    if(offset != 0){
+        int origin, m;
+        if(offset>0){
+            origin = VIEW_WIDTH/2 + ENLARGED_WIDTH/2 + 5;
+            m = -1;
+        } else if(offset < 0){
+            origin = VIEW_WIDTH/2 - ENLARGED_WIDTH/2 - 5 - CAROUSEL_WIDTH;
+            m = 1;
+        }
+        [self setVideoFrame:CGRectMake(origin + (offset+m)*ENLARGED_WIDTH, TILE_HEIGHT + (VIEW_WIDTH-ENLARGED_WIDTH)/2 + (ENLARGED_WIDTH - CAROUSEL_WIDTH)/2, CAROUSEL_WIDTH, CAROUSEL_HEIGHT)];
+        [self.player setVolume:0.0];
     } else {
+        [self.player setVolume:1.0];
         [self setVideoFrame:CGRectMake((VIEW_WIDTH-ENLARGED_WIDTH)/2, TILE_HEIGHT + (VIEW_WIDTH-ENLARGED_WIDTH)/2, ENLARGED_WIDTH, ENLARGED_HEIGHT)];
     }
+    
 //    offset = position * (ENLARGED_WIDTH + 10);
     //    [self setFrame:CGRectMake(500, 500, CAROUSEL_WIDTH, CAROUSEL_HEIGHT)];
 }

@@ -32,8 +32,12 @@
 
 @property (strong, nonatomic) NSMutableDictionary *players;
 
+@property (strong, nonatomic) UIView *plaque;
+@property (strong, nonatomic) UIButton *switchButton;
+
 @property (strong, nonatomic) UIView *carousel;
 @property (strong, nonatomic) UIView *blackBG;
+@property (strong, nonatomic) UIView *reactionPlaque;
 @property (strong, nonatomic) NSMutableArray *reactions;
 @property int carouselPosition;
 

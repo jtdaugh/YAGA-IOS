@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		71106D88192444A30083C64A /* PData.m in Sources */ = {isa = PBXBuildFile; fileRef = 71106D87192444A30083C64A /* PData.m */; };
 		71404FAB1916A9B6002F4B92 /* UIView+Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FAA1916A9B6002F4B92 /* UIView+Grid.m */; };
 		71404FAE1919FD4A002F4B92 /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FAD1919FD49002F4B92 /* Tile.m */; };
 		715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 715455D0190E01D600ABE2BE /* UIImage+Resize.m */; };
@@ -45,6 +46,8 @@
 
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		71106D86192444A30083C64A /* PData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PData.h; sourceTree = "<group>"; };
+		71106D87192444A30083C64A /* PData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PData.m; sourceTree = "<group>"; };
 		71404FA819121A78002F4B92 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		71404FA91916A9B6002F4B92 /* UIView+Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Grid.h"; sourceTree = "<group>"; };
 		71404FAA1916A9B6002F4B92 /* UIView+Grid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Grid.m"; sourceTree = "<group>"; };
@@ -111,6 +114,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		71106D85192434970083C64A /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				71106D86192444A30083C64A /* PData.h */,
+				71106D87192444A30083C64A /* PData.m */,
+			);
+			name = Data;
+			sourceTree = "<group>";
+		};
+		71106D89192449B80083C64A /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Camera;
+			sourceTree = "<group>";
+		};
 		71404FAF1919FD55002F4B92 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -180,8 +199,9 @@
 		71D0F571190D998000C7DEE0 /* Pic6 */ = {
 			isa = PBXGroup;
 			children = (
+				71106D89192449B80083C64A /* Camera */,
+				71106D85192434970083C64A /* Data */,
 				71B827D8191B0445008C4048 /* Views */,
-				715455D3191063F500ABE2BE /* Categories */,
 				71404FAF1919FD55002F4B92 /* Models */,
 				71404FA819121A78002F4B92 /* Constants.h */,
 				71D0F5A0190D99A700C7DEE0 /* MainViewController.h */,
@@ -190,6 +210,7 @@
 				71D0F57B190D998000C7DEE0 /* AppDelegate.m */,
 				71D0F57D190D998000C7DEE0 /* Main.storyboard */,
 				71D0F583190D998000C7DEE0 /* Images.xcassets */,
+				715455D3191063F500ABE2BE /* Categories */,
 				71D0F572190D998000C7DEE0 /* Supporting Files */,
 			);
 			path = Pic6;
@@ -360,6 +381,7 @@
 				71404FAE1919FD4A002F4B92 /* Tile.m in Sources */,
 				71B827D7191B0440008C4048 /* LoaderTileView.m in Sources */,
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
+				71106D88192444A30083C64A /* PData.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
 				71D0F5A2190D99A700C7DEE0 /* MainViewController.m in Sources */,
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
