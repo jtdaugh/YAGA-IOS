@@ -117,10 +117,11 @@
     
     self.carousel = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
     [self.carousel setBackgroundColor:[UIColor clearColor]];
+    [self.carousel setAlpha:0.0];
     
     self.carouselText = [[UILabel alloc] initWithFrame:CGRectMake(0, TILE_WIDTH * 3, VIEW_WIDTH, 40)];
     [self.carousel addSubview:self.carouselText];
-    [self.carouselText setText:@"Swipe Through Reactions!"];
+    [self.carouselText setText:@"Swipe Through Reactions 😮"];
     [self.carouselText setTextColor:[UIColor whiteColor]];
     [self.carouselText setTextAlignment:NSTextAlignmentCenter];
     
@@ -444,7 +445,6 @@
         NSLog(@"%@", [NSString stringWithFormat:@"%@/%@", REACTIONS, self.enlargedTile.data.name]);
         
         [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", REACTIONS, self.enlargedTile.data.name]] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-            NSLog(@"watuppp");
             [self newCarouselTile:snapshot];
         }];
         
@@ -459,6 +459,7 @@
         [self.enlargedTile.view removeFromSuperview];
         [self.cameraView removeFromSuperview];
         [self.switchButton removeFromSuperview];
+        [self.carousel setAlpha:1.0];
         [self.carousel addSubview:self.cameraView];
         [self.carousel bringSubviewToFront:self.reactionPlaque];
         [self.carousel bringSubviewToFront:self.scroller];
@@ -526,6 +527,7 @@
             [tile.view removeFromSuperview];
         }
         [self.reactions removeAllObjects];
+        [self.carousel setAlpha:0.0];
     } completion:^(BOOL finished) {
         // set tap gesture recognizer
         UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeTile:)];
