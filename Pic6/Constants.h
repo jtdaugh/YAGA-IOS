@@ -23,6 +23,9 @@
 #define CAROUSEL_WIDTH TILE_WIDTH*CAROUSEL_MULTIPLIER
 #define CAROUSEL_HEIGHT TILE_HEIGHT*CAROUSEL_MULTIPLIER
 
+#define CAROUSEL_MARGIN 5
+#define CAROUSEL_GUTTER (VIEW_WIDTH - ENLARGED_WIDTH - CAROUSEL_MARGIN*2)/2
+
 #define VIEW_HEIGHT [[UIScreen mainScreen] applicationFrame].size.height //568 //self.view.frame.size.height
 #define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width //320 //self.view.frame.size.width
 

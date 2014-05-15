@@ -24,5 +24,5 @@
 
 - (void)setVideoFrame:(CGRect)frame;
 - (void)setCarouselPosition:(int)position withIndex:(int)index;
-
+- (void)setCarouselPosition:(int)position;
 @end

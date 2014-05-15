@@ -118,6 +118,22 @@
     self.carousel = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
     [self.carousel setBackgroundColor:[UIColor clearColor]];
     
+    self.carouselText = [[UILabel alloc] initWithFrame:CGRectMake(0, TILE_WIDTH * 3, VIEW_WIDTH, 40)];
+    [self.carousel addSubview:self.carouselText];
+    [self.carouselText setText:@"Swipe Through Reactions!"];
+    [self.carouselText setTextColor:[UIColor whiteColor]];
+    [self.carouselText setTextAlignment:NSTextAlignmentCenter];
+    
+    self.scroller = [[UIScrollView alloc] initWithFrame:CGRectMake(CAROUSEL_GUTTER, TILE_HEIGHT + 16, ENLARGED_WIDTH + CAROUSEL_MARGIN, ENLARGED_HEIGHT)];
+    [self.scroller setClipsToBounds:NO];
+    [self.scroller setContentSize:CGSizeMake((ENLARGED_WIDTH + CAROUSEL_MARGIN), ENLARGED_HEIGHT)];
+    [self.scroller setScrollEnabled:YES];
+    [self.scroller setPagingEnabled:YES];
+    [self.scroller setShowsHorizontalScrollIndicator:NO];
+    [self.scroller setShowsVerticalScrollIndicator:NO];
+    self.scroller.delegate = self;
+    [self.carousel addSubview:self.scroller];
+    
     self.blackBG = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
     [self.blackBG setBackgroundColor:[UIColor blackColor]];
     [self.blackBG setAlpha:0.0];
@@ -206,7 +222,9 @@
     tile.data = snapshot;
     
     tile.view = [[UIView alloc] init];
-    [tile setCarouselPosition:1 withIndex:0];
+//    [tile setCarouselPosition:5];
+    [self.scroller addSubview:tile.view];
+//    [tile setCarouselPosition:1 withIndex:0];
     
     UISwipeGestureRecognizer* swipeRightGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeRight:)];
     swipeRightGestureRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
@@ -214,11 +232,12 @@
     UISwipeGestureRecognizer* swipeLeftGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeLeft:)];
     swipeLeftGestureRecognizer.direction = UISwipeGestureRecognizerDirectionLeft;
     
-    [tile.view addGestureRecognizer:swipeRightGestureRecognizer];
-    [tile.view addGestureRecognizer:swipeLeftGestureRecognizer];
+//    [tile.view addGestureRecognizer:swipeRightGestureRecognizer];
+//    [tile.view addGestureRecognizer:swipeLeftGestureRecognizer];
+
 //    tile.loader = [[LoaderTileView alloc] initWithFrame:tile.view.frame];
 //    [tile.view addSubview:tile.loader];
-    [self.carousel addSubview:tile.view];
+//    [self.scroller addSubview:tile.view];
     [self.reactions addObject:tile];
     
     NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
@@ -296,17 +315,24 @@
                 tile.playerLayer = playerLayer;
                 tile.playerContainer = playerContainer;
                 
-                [tile setCarouselPosition:0 withIndex:5];
+//                [tile setCarouselPosition:5];
             }
         }
         
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             //
-            [tile setCarouselPosition:self.carouselPosition withIndex:i];
+            [tile setCarouselPosition:i];
+//            [tile setCarouselPosition:self.carouselPosition withIndex:i];
         } completion:^(BOOL finished) {
             //
+//            [self.scroller setContentSize:CGSizeMake(ENLARGED_WIDTH*5, ENLARGED_HEIGHT)];
+            [self.scroller setContentSize:CGSizeMake((ENLARGED_WIDTH + CAROUSEL_MARGIN)*[self.reactions count], ENLARGED_HEIGHT)];
         }];
         i++;
+    }
+    
+    if([self.reactions count] > 1){
+        
     }
     
     NSLog(@"%i", i);
@@ -315,14 +341,14 @@
 
 - (void)handleSwipeRight:(UIGestureRecognizer*)recognizer {
     NSLog(@"right!");
-    [self moveCarouselToPosition:self.carouselPosition-1];
+//    [self moveCarouselToPosition:self.carouselPosition-1];
     
 //    self.enlargedTile = self.reactions[self.carouselPosition];
     
 }
 
 - (void)handleSwipeLeft:(UIGestureRecognizer*)recognizer {
-    [self moveCarouselToPosition:self.carouselPosition+1];
+//    [self moveCarouselToPosition:self.carouselPosition+1];
     NSLog(@"left");
 }
 
@@ -434,15 +460,19 @@
         [self.cameraView removeFromSuperview];
         [self.switchButton removeFromSuperview];
         [self.carousel addSubview:self.cameraView];
-        [self.carousel addSubview:self.enlargedTile.view];
         [self.carousel bringSubviewToFront:self.reactionPlaque];
+        [self.carousel bringSubviewToFront:self.scroller];
+        [self.carousel bringSubviewToFront:self.carouselText];
         [self.reactionPlaque addSubview:self.switchButton];
+        [self.scroller addSubview:self.enlargedTile.view];
+        [self.scroller setContentOffset:CGPointZero animated:NO];
+        [self.scroller setContentSize:CGSizeMake((ENLARGED_WIDTH + CAROUSEL_MARGIN)*[self.reactions count], ENLARGED_HEIGHT)];
         self.carouselPosition = 0;
 
         [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
             [self.blackBG setAlpha:1.0];
             [self.reactionPlaque setAlpha:1.0];
-            [self.enlargedTile setCarouselPosition:self.carouselPosition withIndex:0];
+            [self.enlargedTile setCarouselPosition:0];
 
             [self.enlargedTile.player setVolume:1.0];
         } completion:^(BOOL finished) {
@@ -452,8 +482,8 @@
             UISwipeGestureRecognizer* swipeLeftGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeLeft:)];
             swipeLeftGestureRecognizer.direction = UISwipeGestureRecognizerDirectionLeft;
             
-            [self.enlargedTile.view addGestureRecognizer:swipeRightGestureRecognizer];
-            [self.enlargedTile.view addGestureRecognizer:swipeLeftGestureRecognizer];
+//            [self.enlargedTile.view addGestureRecognizer:swipeRightGestureRecognizer];
+//            [self.enlargedTile.view addGestureRecognizer:swipeLeftGestureRecognizer];
             //
         }];
         
@@ -608,7 +638,7 @@
         if(finished){
             [self endHold];
         }
-        // 
+        //
     }];
     [self startRecordingVideo];
     

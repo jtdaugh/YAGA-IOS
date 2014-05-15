@@ -11,7 +11,7 @@
 #import <Firebase/Firebase.h>
 #import "Tile.h"
 
-@interface MainViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate>
+@interface MainViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate, UIScrollViewDelegate>
 
 @property (strong, nonatomic) UIView *cameraView;
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
@@ -36,6 +36,8 @@
 @property (strong, nonatomic) UIButton *switchButton;
 
 @property (strong, nonatomic) UIView *carousel;
+@property (strong, nonatomic) UILabel *carouselText;
+@property (strong, nonatomic) UIScrollView *scroller;
 @property (strong, nonatomic) UIView *blackBG;
 @property (strong, nonatomic) UIView *reactionPlaque;
 @property (strong, nonatomic) NSMutableArray *reactions;
