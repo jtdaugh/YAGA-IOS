@@ -257,8 +257,7 @@
     int i = 0;
     for(Tile *tile in self.reactions){
         if(!tile.player){
-            NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), tile.data.value];
-            NSLog(@"%@", moviePath);
+            NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), tile.data.name];
             NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
             NSFileManager *fileManager = [NSFileManager defaultManager];
             if ([fileManager fileExistsAtPath:moviePath]){
@@ -415,7 +414,11 @@
             parentString = self.enlargedTile.data.name;
         }
         
+        
+        NSLog(@"%@", [NSString stringWithFormat:@"%@/%@", REACTIONS, self.enlargedTile.data.name]);
+        
         [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", REACTIONS, self.enlargedTile.data.name]] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+            NSLog(@"watuppp");
             [self newCarouselTile:snapshot];
         }];
         
@@ -540,7 +543,14 @@
         }
         
         //upload to reactions if enlarged tile, otherwise upload to main stream
-        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", self.enlargedTile?REACTIONS:DATA, dataPath]] setValue:@{@"type": type, @"user":[self humanName]}];
+        NSString *path;
+        if(self.enlargedTile){
+            path = [NSString stringWithFormat:@"%@/%@/%@", REACTIONS, self.enlargedTile.data.name, dataPath];
+        } else {
+            path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
+        }
+        
+        [[self.firebase childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
     }];
     
 }
