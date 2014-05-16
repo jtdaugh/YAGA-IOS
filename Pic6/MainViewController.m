@@ -208,11 +208,16 @@
     if (![fileManager fileExistsAtPath:moviePath])
     {
         NSError *error = nil;
-        NSString *string = snapshot.value;
-
-        NSData *videoData = [[NSData alloc] initWithBase64EncodedString:snapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
-        
-        [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
+        if(snapshot.value != [NSNull null]){
+            
+            NSData *videoData = [[NSData alloc] initWithBase64EncodedString:snapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
+            
+            if(videoData != nil){
+                [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
+            }            
+        } else {
+            
+        }
     }
 
     [self layoutGrid];
@@ -223,22 +228,8 @@
     tile.data = snapshot;
     
     tile.view = [[UIView alloc] init];
-//    [tile setCarouselPosition:5];
+    
     [self.scroller addSubview:tile.view];
-//    [tile setCarouselPosition:1 withIndex:0];
-    
-    UISwipeGestureRecognizer* swipeRightGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeRight:)];
-    swipeRightGestureRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
-
-    UISwipeGestureRecognizer* swipeLeftGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeLeft:)];
-    swipeLeftGestureRecognizer.direction = UISwipeGestureRecognizerDirectionLeft;
-    
-//    [tile.view addGestureRecognizer:swipeRightGestureRecognizer];
-//    [tile.view addGestureRecognizer:swipeLeftGestureRecognizer];
-
-//    tile.loader = [[LoaderTileView alloc] initWithFrame:tile.view.frame];
-//    [tile.view addSubview:tile.loader];
-//    [self.scroller addSubview:tile.view];
     [self.reactions addObject:tile];
     
     NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
@@ -333,31 +324,13 @@
     }
     
     if([self.reactions count] > 1){
-        
+        [UIView animateWithDuration:0.3 animations:^{
+            [self.carouselText setAlpha:1.0];
+        }];
     }
     
     NSLog(@"%i", i);
     
-}
-
-- (void)handleSwipeRight:(UIGestureRecognizer*)recognizer {
-    NSLog(@"right!");
-//    [self moveCarouselToPosition:self.carouselPosition-1];
-    
-//    self.enlargedTile = self.reactions[self.carouselPosition];
-    
-}
-
-- (void)handleSwipeLeft:(UIGestureRecognizer*)recognizer {
-//    [self moveCarouselToPosition:self.carouselPosition+1];
-    NSLog(@"left");
-}
-
-- (void)moveCarouselToPosition:(int)position {
-    if(position < [self.reactions count]){
-        self.carouselPosition = position;
-        [self layoutCarousel];
-    }
 }
 
 - (void) layoutGrid {
@@ -432,17 +405,6 @@
         self.enlargedTile = self.tiles[tileIndex];
         
         [self.reactions insertObject:self.enlargedTile atIndex:0];
-        
-        //setup firebase queries
-        NSString *parentString;
-        if(self.enlargedTile.data.value[@"parent"]){
-            parentString = self.enlargedTile.data.value[@"parent"];
-        } else {
-            parentString = self.enlargedTile.data.name;
-        }
-        
-        
-        NSLog(@"%@", [NSString stringWithFormat:@"%@/%@", REACTIONS, self.enlargedTile.data.name]);
         
         [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", REACTIONS, self.enlargedTile.data.name]] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
             [self newCarouselTile:snapshot];
@@ -528,6 +490,7 @@
         }
         [self.reactions removeAllObjects];
         [self.carousel setAlpha:0.0];
+        [self.carouselText setAlpha:0.0];
     } completion:^(BOOL finished) {
         // set tap gesture recognizer
         UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeTile:)];
@@ -566,25 +529,23 @@
     [dataObject setValue:stringData];
     NSString *dataPath = dataObject.name;
     
-    [dataObject setValue:stringData withCompletionBlock:^(NSError *error, Firebase *ref) {
-        NSFileManager * fm = [[NSFileManager alloc] init];
-        NSError *err = nil;
-        [fm moveItemAtURL:outputURL toURL:[self movieUrlForSnapshotName:dataPath] error:&err];
-        if(err){
-            NSLog(@"error: %@", err);
-        }
-        
-        //upload to reactions if enlarged tile, otherwise upload to main stream
-        NSString *path;
-        if(self.enlargedTile){
-            path = [NSString stringWithFormat:@"%@/%@/%@", REACTIONS, self.enlargedTile.data.name, dataPath];
-        } else {
-            path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
-        }
-        
-        [[self.firebase childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
-    }];
+    [dataObject setValue:stringData];// withCompletionBlock:^(NSError *error, Firebase *ref) {
+    NSFileManager * fm = [[NSFileManager alloc] init];
+    NSError *err = nil;
+    [fm moveItemAtURL:outputURL toURL:[self movieUrlForSnapshotName:dataPath] error:&err];
+    if(err){
+        NSLog(@"error: %@", err);
+    }
     
+    //upload to reactions if enlarged tile, otherwise upload to main stream
+    NSString *path;
+    if(self.enlargedTile){
+        path = [NSString stringWithFormat:@"%@/%@/%@", REACTIONS, self.enlargedTile.data.name, dataPath];
+    } else {
+        path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
+    }
+    
+    [[self.firebase childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
 }
 
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras

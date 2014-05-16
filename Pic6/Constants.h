@@ -35,7 +35,7 @@
 //rgb(26, 188, 156)
 #define PRIMARY_COLOR [UIColor colorWithRed: 26.0f/255.0f green: 188.0f/255.0f blue:156.0f/255.0f alpha:1.0]
 
-#define NODE_NAME @"dev"
+#define NODE_NAME @"production2"
 #define MEDIA @"media"
 #define DATA @"data"
 #define REACTIONS @"reactions"
