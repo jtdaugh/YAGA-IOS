@@ -30,18 +30,10 @@
 @property (strong, nonatomic) NSMutableArray *tiles;
 @property (strong, nonatomic) UIView *gridView;
 
-@property (strong, nonatomic) NSMutableDictionary *players;
-
 @property (strong, nonatomic) UIView *plaque;
 @property (strong, nonatomic) UIButton *switchButton;
 
-@property (strong, nonatomic) UIView *carousel;
-@property (strong, nonatomic) UILabel *carouselText;
-@property (strong, nonatomic) UIScrollView *scroller;
-@property (strong, nonatomic) UIView *blackBG;
-@property (strong, nonatomic) UIView *reactionPlaque;
-@property (strong, nonatomic) NSMutableArray *reactions;
-@property int carouselPosition;
+@property (strong, nonatomic) UIView *overlay;
 
 @property (strong, nonatomic) UIView *selectedTile;
 @property (strong, nonatomic) UIButton *closeButton;

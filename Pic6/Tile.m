@@ -43,4 +43,12 @@
     [self setVideoFrame:CGRectMake(CAROUSEL_MARGIN + (ENLARGED_WIDTH+CAROUSEL_MARGIN)*position, 0, ENLARGED_WIDTH, ENLARGED_HEIGHT)];
 }
 
+- (void)setGridPosition:(int)position {
+    int x, y;
+    x = position%2 * TILE_WIDTH;
+    y = position/2 * TILE_HEIGHT;
+    [self setVideoFrame:CGRectMake(x, y, TILE_WIDTH, TILE_HEIGHT)];
+}
+
+
 @end

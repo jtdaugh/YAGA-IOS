@@ -115,58 +115,27 @@
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
     
-    self.carousel = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
-    [self.carousel setBackgroundColor:[UIColor clearColor]];
-    [self.carousel setAlpha:0.0];
-    
-    self.carouselText = [[UILabel alloc] initWithFrame:CGRectMake(0, TILE_WIDTH * 3, VIEW_WIDTH, 40)];
-    [self.carousel addSubview:self.carouselText];
-    [self.carouselText setText:@"Swipe Through Reactions 😮"];
-    [self.carouselText setTextColor:[UIColor whiteColor]];
-    [self.carouselText setTextAlignment:NSTextAlignmentCenter];
-    
-    self.scroller = [[UIScrollView alloc] initWithFrame:CGRectMake(CAROUSEL_GUTTER, TILE_HEIGHT + 16, ENLARGED_WIDTH + CAROUSEL_MARGIN, ENLARGED_HEIGHT)];
-    [self.scroller setClipsToBounds:NO];
-    [self.scroller setContentSize:CGSizeMake((ENLARGED_WIDTH + CAROUSEL_MARGIN), ENLARGED_HEIGHT)];
-    [self.scroller setScrollEnabled:YES];
-    [self.scroller setPagingEnabled:YES];
-    [self.scroller setShowsHorizontalScrollIndicator:NO];
-    [self.scroller setShowsVerticalScrollIndicator:NO];
-    self.scroller.delegate = self;
-    [self.carousel addSubview:self.scroller];
-    
-    self.blackBG = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
-    [self.blackBG setBackgroundColor:[UIColor blackColor]];
-    [self.blackBG setAlpha:0.0];
-    
-    self.reactionPlaque = [[UIView alloc] init];
-    [self.reactionPlaque setGridPosition:0];
-    UIImageView *reactionLogo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-    [reactionLogo setImage:[UIImage imageNamed:@"ReactionPlaque"]];
-    [self.reactionPlaque addSubview:reactionLogo];
-    [self.reactionPlaque setAlpha:0.0];
+    self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
+    [self.overlay setBackgroundColor:[UIColor blackColor]];
+    [self.overlay setAlpha:0.0];
     
     UITapGestureRecognizer *collapseTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseTile)];
-    [self.reactionPlaque addGestureRecognizer:collapseTile];
-    
-    [self.carousel addSubview:self.reactionPlaque];
+    [self.overlay addGestureRecognizer:collapseTile];
 
-    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(0, 16, TILE_WIDTH, 40)];
-    [self.displayName setTextAlignment:NSTextAlignmentCenter];
+    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 8, TILE_WIDTH, 40)];
+    [self.displayName setTextAlignment:NSTextAlignmentLeft];
     [self.displayName setTextColor:[UIColor whiteColor]];
     [self.displayName setFont:[UIFont systemFontOfSize:24]];
+    [self.overlay addSubview:self.displayName];
     
     self.closeButton = [[UIButton alloc] initWithFrame:CGRectMake(20, 20, TILE_WIDTH-40, TILE_HEIGHT - 40)];
     [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
     [self.closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.closeButton addTarget:self action:@selector(closeButtonTapped) forControlEvents:UIControlEventTouchUpInside];
     
-    [self.carousel addSubview:self.blackBG];
-    [self.carousel addSubview:self.closeButton];
-    [self.view addSubview:self.carousel];
+    [self.view addSubview:self.overlay];
     [self.view addSubview:self.gridView];
     self.tiles = [NSMutableArray array];
-    self.reactions = [NSMutableArray array];
     
 }
 
@@ -221,116 +190,6 @@
     }
 
     [self layoutGrid];
-}
-
-- (void)newCarouselTile:(FDataSnapshot *)snapshot {
-    Tile *tile = [[Tile alloc] init];
-    tile.data = snapshot;
-    
-    tile.view = [[UIView alloc] init];
-    
-    [self.scroller addSubview:tile.view];
-    [self.reactions addObject:tile];
-    
-    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if (![fileManager fileExistsAtPath:moviePath]){
-        
-        NSLog(@"the file does not exist: %@", snapshot.value);
-        
-        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, snapshot.name]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-            
-            [self newCarouselData:snapshot];
-        }];
-    }
-    
-    [self layoutCarousel];
-}
-
-- (void) newCarouselData:(FDataSnapshot *)snapshot {
-    
-    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
-    NSURL *movieURL = [self movieUrlForSnapshotName:snapshot.name];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if (![fileManager fileExistsAtPath:moviePath])
-    {
-        NSError *error = nil;
-        
-        NSData *videoData = [[NSData alloc] initWithBase64EncodedString:snapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
-        [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
-    }
-    
-    [self layoutCarousel];
-}
-
-- (void) layoutCarousel {
-    
-    int i = 0;
-    for(Tile *tile in self.reactions){
-        if(!tile.player){
-            NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), tile.data.name];
-            NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
-            NSFileManager *fileManager = [NSFileManager defaultManager];
-            if ([fileManager fileExistsAtPath:moviePath]){
-                
-                // init video player
-                AVPlayer *player = [AVPlayer playerWithURL:movieURL];
-                AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-                [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-                
-                // set video sizing
-                UIView *playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ENLARGED_WIDTH, ENLARGED_HEIGHT)];
-                playerLayer.frame = playerContainer.frame;
-                
-                // play video in frame
-                [playerContainer.layer addSublayer: playerLayer];
-                [tile.view addSubview:playerContainer];
-                //                [tile.loader removeFromSuperview];
-                
-                // mute and play
-                [player setVolume:0.0];
-                [player play];
-                
-                // set looping
-                [player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
-                [[NSNotificationCenter defaultCenter] addObserver:self
-                                                         selector:@selector(playerItemDidReachEnd:)
-                                                             name:AVPlayerItemDidPlayToEndTimeNotification
-                                                           object:[player currentItem]];
-                
-//                // set tap gesture recognizer
-//                UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeTile:)];
-//                [tile.view addGestureRecognizer:tappedTile];
-                
-                // set video view pointers for later use (when resizing)
-                tile.player = player;
-                tile.playerLayer = playerLayer;
-                tile.playerContainer = playerContainer;
-                
-//                [tile setCarouselPosition:5];
-            }
-        }
-        
-        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            //
-            [tile setCarouselPosition:i];
-//            [tile setCarouselPosition:self.carouselPosition withIndex:i];
-        } completion:^(BOOL finished) {
-            //
-//            [self.scroller setContentSize:CGSizeMake(ENLARGED_WIDTH*5, ENLARGED_HEIGHT)];
-            [self.scroller setContentSize:CGSizeMake((ENLARGED_WIDTH + CAROUSEL_MARGIN)*[self.reactions count], ENLARGED_HEIGHT)];
-        }];
-        i++;
-    }
-    
-    if([self.reactions count] > 1){
-        [UIView animateWithDuration:0.3 animations:^{
-            [self.carouselText setAlpha:1.0];
-        }];
-    }
-    
-    NSLog(@"%i", i);
-    
 }
 
 - (void) layoutGrid {
@@ -388,7 +247,6 @@
     
 }
 
-
 - (void)enlargeTile:(UITapGestureRecognizer *)gestureRecognizer {
     if(self.enlargedTile == nil){
         
@@ -404,56 +262,35 @@
         
         self.enlargedTile = self.tiles[tileIndex];
         
-        [self.reactions insertObject:self.enlargedTile atIndex:0];
-        
-        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", REACTIONS, self.enlargedTile.data.name]] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-            [self newCarouselTile:snapshot];
-        }];
-        
-        
         //remove gesture recognizers
         for (UIGestureRecognizer *recognizer in self.enlargedTile.view.gestureRecognizers) {
             [self.enlargedTile.view removeGestureRecognizer:recognizer];
         }
         
         //resize tile
-        [self.view bringSubviewToFront:self.carousel];
+        [self.view bringSubviewToFront:self.overlay];
         [self.enlargedTile.view removeFromSuperview];
-        [self.cameraView removeFromSuperview];
-        [self.switchButton removeFromSuperview];
-        [self.carousel setAlpha:1.0];
-        [self.carousel addSubview:self.cameraView];
-        [self.carousel bringSubviewToFront:self.reactionPlaque];
-        [self.carousel bringSubviewToFront:self.scroller];
-        [self.carousel bringSubviewToFront:self.carouselText];
-        [self.reactionPlaque addSubview:self.switchButton];
-        [self.scroller addSubview:self.enlargedTile.view];
-        [self.scroller setContentOffset:CGPointZero animated:NO];
-        [self.scroller setContentSize:CGSizeMake((ENLARGED_WIDTH + CAROUSEL_MARGIN)*[self.reactions count], ENLARGED_HEIGHT)];
-        self.carouselPosition = 0;
-
+        [self.overlay addSubview:self.enlargedTile.view];
+        [self.displayName setText:self.enlargedTile.data.value[@"user"]];
+        
         [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-            [self.blackBG setAlpha:1.0];
-            [self.reactionPlaque setAlpha:1.0];
-            [self.enlargedTile setCarouselPosition:0];
+            [self.overlay setAlpha:1.0];
+            [self.enlargedTile setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
 
             [self.enlargedTile.player setVolume:1.0];
         } completion:^(BOOL finished) {
-            UISwipeGestureRecognizer* swipeRightGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeRight:)];
-            swipeRightGestureRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
-            
-            UISwipeGestureRecognizer* swipeLeftGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeLeft:)];
-            swipeLeftGestureRecognizer.direction = UISwipeGestureRecognizerDirectionLeft;
-            
-//            [self.enlargedTile.view addGestureRecognizer:swipeRightGestureRecognizer];
-//            [self.enlargedTile.view addGestureRecognizer:swipeLeftGestureRecognizer];
-            //
+            // add tap gesture recognizer for collapsing tile
         }];
         
     }
 }
 
 - (void)closeButtonTapped {
+    [self collapseTile];
+}
+
+- (void)overlayTapped {
+    NSLog(@"overlay tapped");
     [self collapseTile];
 }
 
@@ -470,27 +307,15 @@
     
     [self.view bringSubviewToFront:self.gridView];
     [self.enlargedTile.view removeFromSuperview];
-    [self.cameraView removeFromSuperview];
-    [self.switchButton removeFromSuperview];
-    [self.gridView addSubview:self.cameraView];
     [self.gridView addSubview:self.enlargedTile.view];
-    [self.plaque addSubview:self.switchButton];
 
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
-        [self.blackBG setAlpha:0.0];
+        [self.overlay setAlpha:0.0];
         [self.enlargedTile.view setGridPosition:2+tileIndex];
         [self.enlargedTile.playerLayer setFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
         [self.enlargedTile.playerContainer setFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
         [self.enlargedTile.player setVolume:0.0];
-        [self.reactions removeObjectAtIndex:0];
-        for(Tile *tile in self.reactions){
-            [tile.player setVolume:0.0];
-            [tile.view removeFromSuperview];
-        }
-        [self.reactions removeAllObjects];
-        [self.carousel setAlpha:0.0];
-        [self.carouselText setAlpha:0.0];
     } completion:^(BOOL finished) {
         // set tap gesture recognizer
         UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeTile:)];
