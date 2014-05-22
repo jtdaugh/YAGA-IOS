@@ -9,9 +9,11 @@
 #import "MainViewController.h"
 #import "UIImage+Resize.h"
 #import "UIView+Grid.h"
+#import "NSMutableArray+Tile.h"
 
 @interface MainViewController ()
 @property bool FrontCamera;
+@property bool liked;
 @end
 
 @implementation MainViewController
@@ -30,12 +32,13 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    [self initOverlay];
     [self initGridView];
     [self initLoader];
     [self initPlaque];
     [self initFirebase];
     [self initCameraFrame];
-    self.FrontCamera = 0;
+    self.FrontCamera = 1;
     [self initCamera];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -45,14 +48,30 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+
 }
 
 - (void)initPlaque {
     self.plaque = [[UIView alloc] init];
     [self.plaque setGridPosition:0];
-    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-    [logo setImage:[UIImage imageNamed:@"Logo"]];
+    [self.plaque setBackgroundColor:PRIMARY_COLOR];
+    
+    UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(8, 8, TILE_WIDTH-16, 30)];
+    [logo setText:@"Loco"]; // 🔥
+    [logo setTextColor:[UIColor whiteColor]];
+    [logo setFont:[UIFont boldSystemFontOfSize:30]];
     [self.plaque addSubview:logo];
+    
+    UILabel *instructions = [[UILabel alloc] initWithFrame:CGRectMake(10, 30+8+4, TILE_WIDTH-16, 60)];
+    [instructions setText:@"Tap to snap, \nhold to record"];
+    [instructions setNumberOfLines:0];
+    [instructions sizeToFit];
+    [instructions setTextColor:[UIColor whiteColor]];
+    [instructions setFont:[UIFont systemFontOfSize:14]];
+    [self.plaque addSubview:instructions];
+//    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+//    [logo setImage:[UIImage imageNamed:@"Logo"]];
+//    [self.plaque addSubview:logo];
 
     self.switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, TILE_HEIGHT - 60, 50, 50)];
     [self.switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
@@ -82,39 +101,34 @@
                                    userInfo:nil
                                     repeats:YES];
     self.loading = 1;
-    self.tickCount = 0;
 }
 
 - (void)loaderTick:(NSTimer *) timer {
-//    int positions[] = {0,1,4,3,2,1,4,5};
-//    int positions[] = {3,5,4,6,7,5,4,2};
-    int positions[] = {1,3,2,4,5,3,2,0};
-    int count = 8;
-    
     for(int i = 0; i < NUM_TILES; i++){
-//        float val = ((float)arc4random() / ARC4RANDOM_MAX);
         [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithRed:((float)arc4random() / ARC4RANDOM_MAX) green:((float)arc4random() / ARC4RANDOM_MAX) blue:((float)arc4random() / ARC4RANDOM_MAX) alpha:0.5])];
-//        if(i == (int) positions[self.tickCount % count]){// if i == root
-//            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.5])];
-//        } else if (i == (int) positions[(self.tickCount - 1) % count]){
-//            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.25])];
-//        } else if (i == (int) positions[(self.tickCount - 2) % count]){
-//            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithWhite:1.0 alpha:0.125])];
-//        } else {
-//            [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)(PRIMARY_COLOR)];
-//        }
     }
-    self.tickCount = self.tickCount + 1;
 }
 
 - (void) doneLoading {
-    [self.loaderTimer invalidate];
-    [self.loader removeFromSuperview];
+    if(self.loading){
+        self.loading = 0;
+        [self.loader removeFromSuperview];
+    }
 }
 
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
     
+    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3)];
+    self.gridTiles.delegate = self;
+    self.gridTiles.dataSource = self;
+    
+    [self.view addSubview:self.gridView];
+    self.tiles = [NSMutableArray array];
+    
+}
+
+- (void) initOverlay {
     self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
     [self.overlay setBackgroundColor:[UIColor blackColor]];
     [self.overlay setAlpha:0.0];
@@ -122,21 +136,25 @@
     UITapGestureRecognizer *collapseTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseTile)];
     [self.overlay addGestureRecognizer:collapseTile];
 
-    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 8, TILE_WIDTH, 40)];
+    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-48-8, TILE_HEIGHT*3+16, 48, 48)];
+    [self.likeButton setTitle:@"😃" forState:UIControlStateNormal];
+    [self.likeButton.titleLabel setFont:[UIFont systemFontOfSize:48]];
+    [self.likeButton setAlpha:0.5];
+    [self.likeButton addTarget:self action:@selector(likePressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.likeButton];
+    
+    self.likeCount = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH-48-8-72-8, TILE_HEIGHT*3+16, 72, 48)];
+    [self.likeCount setTextAlignment:NSTextAlignmentRight];
+    [self.likeCount setTextColor:[UIColor whiteColor]];
+    [self.likeCount setFont:[UIFont systemFontOfSize:36]];
+    [self.overlay addSubview:self.likeCount];
+    
+    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16, TILE_WIDTH, 48)];
     [self.displayName setTextAlignment:NSTextAlignmentLeft];
     [self.displayName setTextColor:[UIColor whiteColor]];
-    [self.displayName setFont:[UIFont systemFontOfSize:24]];
+    [self.displayName setFont:[UIFont systemFontOfSize:36]];
     [self.overlay addSubview:self.displayName];
-    
-    self.closeButton = [[UIButton alloc] initWithFrame:CGRectMake(20, 20, TILE_WIDTH-40, TILE_HEIGHT - 40)];
-    [self.closeButton setTitle:@"Close" forState:UIControlStateNormal];
-    [self.closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.closeButton addTarget:self action:@selector(closeButtonTapped) forControlEvents:UIControlEventTouchUpInside];
-    
     [self.view addSubview:self.overlay];
-    [self.view addSubview:self.gridView];
-    self.tiles = [NSMutableArray array];
-    
 }
 
 - (NSURL *) movieUrlForSnapshotName:(NSString *)name {
@@ -150,8 +168,8 @@
     tile.data = snapshot;
     tile.view = [[UIView alloc] init];
     [tile.view setGridPosition:0];
-//    tile.loader = [[LoaderTileView alloc] initWithFrame:tile.view.frame];
-//    [tile.view addSubview:tile.loader];
+    tile.loader = [[LoaderTileView alloc] initWithFrame:tile.view.frame];
+    [tile.view addSubview:tile.loader];
     [self.gridView addSubview:tile.view];
     [self.tiles insertObject:tile atIndex:0];
     
@@ -174,8 +192,7 @@
     NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
     NSURL *movieURL = [self movieUrlForSnapshotName:snapshot.name];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if (![fileManager fileExistsAtPath:moviePath])
-    {
+    if (![fileManager fileExistsAtPath:moviePath]){
         NSError *error = nil;
         if(snapshot.value != [NSNull null]){
             
@@ -184,8 +201,6 @@
             if(videoData != nil){
                 [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
             }            
-        } else {
-            
         }
     }
 
@@ -216,7 +231,7 @@
                 // play video in frame
                 [playerContainer.layer addSublayer: playerLayer];
                 [tile.view addSubview:playerContainer];
-                //                [tile.loader removeFromSuperview];
+                [tile.loader removeFromSuperview];
                 
                 // mute and play
                 [player setVolume:0.0];
@@ -237,14 +252,18 @@
                 tile.player = player;
                 tile.playerLayer = playerLayer;
                 tile.playerContainer = playerContainer;
+                
+                [self doneLoading];
             }
         }
+        
         if(!self.enlargedTile){
             [tile.view setGridPosition:i + 2];
         }
+        
         i++;
+        
     }
-    
 }
 
 - (void)enlargeTile:(UITapGestureRecognizer *)gestureRecognizer {
@@ -273,16 +292,60 @@
         [self.overlay addSubview:self.enlargedTile.view];
         [self.displayName setText:self.enlargedTile.data.value[@"user"]];
         
+        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes", DATA, self.enlargedTile.data.name]] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+            [self renderLikes:snapshot];
+        }];
+
+        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes/%@", DATA, self.enlargedTile.data.name, [self humanName]]] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+            [self renderLikeButton:snapshot];
+        }];
+        
         [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
             [self.overlay setAlpha:1.0];
+            [self.likeButton setAlpha:0.5];
             [self.enlargedTile setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
 
             [self.enlargedTile.player setVolume:1.0];
         } completion:^(BOOL finished) {
             // add tap gesture recognizer for collapsing tile
         }];
-        
     }
+}
+
+- (void) likePressed {
+    if(self.liked){
+        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes/%@", DATA, self.enlargedTile.data.name, [self humanName]]] setValue:[NSNull null]];
+    } else {
+        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes/%@", DATA, self.enlargedTile.data.name, [self humanName]]] setValue:@"1"];
+    }
+}
+
+- (void)renderLikes:(FDataSnapshot *)snapshot {
+    NSLog(@"%lu", (unsigned long)snapshot.childrenCount);
+//    [self.likeCount setText:[NSString stringWithFormat:@"%lu", snapshot.childrenCount]];
+}
+
+- (void)renderLikeButton:(FDataSnapshot *)snapshot {
+    if(snapshot.value != [NSNull null]){
+        self.liked = 1;
+    } else {
+        self.liked = 0;
+    }
+    
+    NSLog(@"%lu", (unsigned long)snapshot.childrenCount);
+    
+    [UIView animateKeyframesWithDuration:0.5 delay:0.0 options:0 animations:^{
+        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
+            [self.likeButton setTransform:self.liked?CGAffineTransformMakeScale(1.4, 1.4):CGAffineTransformMakeScale(0.7, 0.7)];
+            [self.likeButton setAlpha:self.liked?1.0:0.5];
+        }];
+        [UIView addKeyframeWithRelativeStartTime:0.6 relativeDuration:0.4 animations:^{
+            [self.likeButton setTransform:CGAffineTransformIdentity];
+        }];
+    } completion:^(BOOL finished) {
+        
+    }];
+
 }
 
 - (void)closeButtonTapped {
@@ -308,6 +371,8 @@
     [self.view bringSubviewToFront:self.gridView];
     [self.enlargedTile.view removeFromSuperview];
     [self.gridView addSubview:self.enlargedTile.view];
+    [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes", DATA, self.enlargedTile.data.name]] removeAllObservers];
+    [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes/%@", DATA, self.enlargedTile.data.name, [self humanName]]] removeAllObservers];
 
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
@@ -337,10 +402,6 @@
     [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         
         [self newGridTile:snapshot];
-        if(self.loading){
-            self.loading = 0;
-            [self doneLoading];
-        }
     }];
 }
 
@@ -392,15 +453,16 @@
     } else {
         [self.gridView addSubview:self.cameraView];
     }
-    [self.gridView bringSubviewToFront:self.gridView];
+    [self.gridView bringSubviewToFront:self.cameraView];
     
+    [self.cameraView setUserInteractionEnabled:YES];
+
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
     [longPressGestureRecognizer setMinimumPressDuration:0.2f];
     longPressGestureRecognizer.delegate = self;
     [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
     
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-    [self.cameraView setUserInteractionEnabled:YES];
     tapGestureRecognizer.delegate = self;
     [tapGestureRecognizer requireGestureRecognizerToFail:longPressGestureRecognizer];
     

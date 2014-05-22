@@ -32,10 +32,16 @@
 #define LOADER_WIDTH 4
 #define LOADER_HEIGHT 4
 
-//rgb(26, 188, 156)
-#define PRIMARY_COLOR [UIColor colorWithRed: 26.0f/255.0f green: 188.0f/255.0f blue:156.0f/255.0f alpha:1.0]
+//emerald: rgb(26, 188, 156)
+//sunflower: rgb(241, 196, 15)
+//pomegranite: rgb(192, 57, 43)
+//wisteria: rgba(142, 68, 173)
+//amethyst: rgb(155, 89, 182)
 
-#define NODE_NAME @"production2"
+#define PRIMARY_COLOR [UIColor colorWithRed: 142.0f/255.0f green: 68.0f/255.0f blue:173.0f/255.0f alpha:1.0]
+#define SECONDARY_COLOR [UIColor colorWithRed: 241.0f/255.0f green: 196.0f/255.0f blue:15.0f/255.0f alpha:1.0]
+
+#define NODE_NAME @"production3"
 #define MEDIA @"media"
 #define DATA @"data"
 #define REACTIONS @"reactions"

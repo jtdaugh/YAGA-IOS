@@ -31,12 +31,7 @@
     self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
     
     [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        
-//        [self newGridTile:snapshot];
-//        if(self.loading){
-//            self.loading = 0;
-//            [self doneLoading];
-//        }
+        NSLog(@"new!");
     }];
 }
 

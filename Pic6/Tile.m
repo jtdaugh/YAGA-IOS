@@ -39,7 +39,7 @@
 }
 
 - (void)setCarouselPosition:(int)position {
-    int gutter = (VIEW_WIDTH - ENLARGED_WIDTH - CAROUSEL_MARGIN*2);
+//    int gutter = (VIEW_WIDTH - ENLARGED_WIDTH - CAROUSEL_MARGIN*2);
     [self setVideoFrame:CGRectMake(CAROUSEL_MARGIN + (ENLARGED_WIDTH+CAROUSEL_MARGIN)*position, 0, ENLARGED_WIDTH, ENLARGED_HEIGHT)];
 }
 
