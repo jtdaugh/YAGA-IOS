@@ -12,6 +12,7 @@
 		71404FAE1919FD4A002F4B92 /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FAD1919FD49002F4B92 /* Tile.m */; };
 		715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 715455D0190E01D600ABE2BE /* UIImage+Resize.m */; };
 		716CFA33192BE92700E6ED17 /* NSMutableArray+Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = 716CFA32192BE92700E6ED17 /* NSMutableArray+Tile.m */; };
+		716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 716CFA35192EC1F500E6ED17 /* TileCell.m */; };
 		71B827D7191B0440008C4048 /* LoaderTileView.m in Sources */ = {isa = PBXBuildFile; fileRef = 71B827D6191B0440008C4048 /* LoaderTileView.m */; };
 		71D0F56C190D998000C7DEE0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56B190D998000C7DEE0 /* Foundation.framework */; };
 		71D0F56E190D998000C7DEE0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */; };
@@ -58,6 +59,8 @@
 		715455D0190E01D600ABE2BE /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
 		716CFA31192BE92700E6ED17 /* NSMutableArray+Tile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Tile.h"; sourceTree = "<group>"; };
 		716CFA32192BE92700E6ED17 /* NSMutableArray+Tile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Tile.m"; sourceTree = "<group>"; };
+		716CFA34192EC1F500E6ED17 /* TileCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileCell.h; sourceTree = "<group>"; };
+		716CFA35192EC1F500E6ED17 /* TileCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileCell.m; sourceTree = "<group>"; };
 		71B827D5191B0440008C4048 /* LoaderTileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoaderTileView.h; sourceTree = "<group>"; };
 		71B827D6191B0440008C4048 /* LoaderTileView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoaderTileView.m; sourceTree = "<group>"; };
 		71D0F568190D998000C7DEE0 /* Pic6.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pic6.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -160,6 +163,8 @@
 			children = (
 				71B827D5191B0440008C4048 /* LoaderTileView.h */,
 				71B827D6191B0440008C4048 /* LoaderTileView.m */,
+				716CFA34192EC1F500E6ED17 /* TileCell.h */,
+				716CFA35192EC1F500E6ED17 /* TileCell.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -299,6 +304,9 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
+					71D0F567190D998000C7DEE0 = {
+						DevelopmentTeam = V947KF58NW;
+					};
 					71D0F588190D998000C7DEE0 = {
 						TestTargetID = 71D0F567190D998000C7DEE0;
 					};
@@ -389,6 +397,7 @@
 				71106D88192444A30083C64A /* PData.m in Sources */,
 				716CFA33192BE92700E6ED17 /* NSMutableArray+Tile.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
+				716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */,
 				71D0F5A2190D99A700C7DEE0 /* MainViewController.m in Sources */,
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
 			);
@@ -516,11 +525,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
 				INFOPLIST_FILE = "Pic6/Pic6-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -531,11 +543,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
 				INFOPLIST_FILE = "Pic6/Pic6-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

@@ -10,6 +10,7 @@
 #import "UIImage+Resize.h"
 #import "UIView+Grid.h"
 #import "NSMutableArray+Tile.h"
+#import "TileCell.h"
 
 @interface MainViewController ()
 @property bool FrontCamera;
@@ -93,7 +94,7 @@
         [self.loader addSubview:tile];
     }
     
-    [self.gridView addSubview:self.loader];
+//    [self.gridView addSubview:self.loader];
     
     self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval:0.2
                                      target:self
@@ -119,13 +120,20 @@
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
     
-    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3)];
+    UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
+    [layout setSectionInset:UIEdgeInsetsZero];
+    [layout setMinimumInteritemSpacing:0.0];
+    [layout setMinimumLineSpacing:0.0];
+    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3) collectionViewLayout:layout];
+    [self.gridTiles setBackgroundColor:[UIColor blackColor]];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
+    [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
+    [self.gridView addSubview:self.gridTiles];
     
     [self.view addSubview:self.gridView];
     self.tiles = [NSMutableArray array];
-    
+    self.gridData = [NSMutableArray array];
 }
 
 - (void) initOverlay {
@@ -164,27 +172,40 @@
 }
 
 - (void)newGridTile:(FDataSnapshot *)snapshot {
-    Tile *tile = [[Tile alloc] init];
-    tile.data = snapshot;
-    tile.view = [[UIView alloc] init];
-    [tile.view setGridPosition:0];
-    tile.loader = [[LoaderTileView alloc] initWithFrame:tile.view.frame];
-    [tile.view addSubview:tile.loader];
-    [self.gridView addSubview:tile.view];
-    [self.tiles insertObject:tile atIndex:0];
     
     NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
+    NSURL *movieURL = [self movieUrlForSnapshotName:snapshot.name];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if (![fileManager fileExistsAtPath:moviePath]){
-        
+
         NSLog(@"the file does not exist!");
-        
-        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, snapshot.name]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-            [self newGridData:snapshot];
+
+        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, snapshot.name]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
+            if(dataSnapshot.value != [NSNull null]){
+                NSError *error = nil;
+
+                NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
+                
+                if(videoData != nil){
+                    [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
+                }
+                
+                [self newLoadedTile:snapshot];
+            }
+
         }];
+    } else {
+        [self newLoadedTile:snapshot];
     }
-    
-    [self layoutGrid];
+}
+
+- (void) newLoadedTile:(FDataSnapshot *)snapshot {
+    [self.gridData insertObject:snapshot atIndex:0];
+    [self.gridTiles insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+    while([self.gridData count] > NUM_TILES){
+        [self.gridData removeLastObject];
+        [self.gridTiles deleteItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:[self.gridData count] inSection:0]]];
+    }
 }
 
 - (void) newGridData:(FDataSnapshot *)snapshot {
@@ -204,7 +225,77 @@
         }
     }
 
-    [self layoutGrid];
+}
+
+-(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return [self.gridData count];
+}
+
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake(TILE_WIDTH, TILE_HEIGHT);
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
+    
+    FDataSnapshot *snapshot = [self.gridData objectAtIndex:indexPath.row];
+    
+    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
+    NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if ([fileManager fileExistsAtPath:moviePath]){
+        if(!cell.player){
+            // init video player
+            cell.player = [AVPlayer playerWithURL:movieURL];
+            cell.playerLayer = [AVPlayerLayer playerLayerWithPlayer:cell.player];
+            [cell.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+            
+            // set video sizing
+            cell.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+            cell.playerLayer.frame = cell.playerContainer.frame;
+            
+            // play video in frame
+            [cell.playerContainer.layer addSublayer: cell.playerLayer];
+            [cell addSubview:cell.playerContainer];
+            
+            // mute and play
+            [cell.player setVolume:0.0];
+            [cell.player play];
+            
+            // set looping
+            [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(playerItemDidReachEnd:)
+                                                         name:AVPlayerItemDidPlayToEndTimeNotification
+                                                       object:[cell.player currentItem]];
+            
+            // set tap gesture recognizer
+            //        UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeTile:)];
+            //        [cell addGestureRecognizer:tappedTile];
+            
+            //        [self doneLoading];
+        } else {
+//            NSLog(@"fucked %lu", indexPath.row);
+//            [cell.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithURL:movieURL]];
+//            [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
+//            [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                     selector:@selector(playerItemDidReachEnd:)
+//                                                         name:AVPlayerItemDidPlayToEndTimeNotification
+//                                                       object:[cell.player currentItem]];
+            
+        }
+
+    }
+    
+    NSLog(@"%lu", [[cell subviews] count]);
+    
+    return cell;
 }
 
 - (void) layoutGrid {
@@ -465,7 +556,8 @@
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     tapGestureRecognizer.delegate = self;
     [tapGestureRecognizer requireGestureRecognizerToFail:longPressGestureRecognizer];
-    
+//    [self.cameraView addGestureRecognizer:tapGestureRecognizer];
+
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
@@ -642,6 +734,38 @@
         [self uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
     }
     
+}
+
+- (void)handleTap:(UITapGestureRecognizer *)recognizer {
+    [self capImage];
+}
+
+- (void) capImage { //method to capture image from AVCaptureSession video feed
+    AVCaptureConnection *videoConnection = nil;
+    for (AVCaptureConnection *connection in self.stillImageOutput.connections) {
+        
+        for (AVCaptureInputPort *port in [connection inputPorts]) {
+            
+            if ([[port mediaType] isEqual:AVMediaTypeVideo] ) {
+                videoConnection = connection;
+                break;
+            }
+        }
+        
+        if (videoConnection) {
+            break;
+        }
+    }
+    
+    NSLog(@"about to request a capture from: %@", self.stillImageOutput);
+    [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
+        
+        if (imageSampleBuffer != NULL) {
+            NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
+//            self uploadData:<#(NSData *)#> withType:<#(NSString *)#> withOutputURL:<#(NSURL *)#>
+//            [self processImage:[UIImage imageWithData:imageData]];
+        }
+    }];
 }
 
 - (NSString *)humanName {

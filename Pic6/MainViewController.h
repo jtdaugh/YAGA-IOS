@@ -29,6 +29,7 @@
 @property (strong, nonatomic) NSMutableArray *tiles;
 @property (strong, nonatomic) UIView *gridView;
 @property (strong, nonatomic) UICollectionView *gridTiles;
+@property (strong, nonatomic) NSMutableArray *gridData;
 
 @property (strong, nonatomic) UIView *plaque;
 @property (strong, nonatomic) UIButton *switchButton;
