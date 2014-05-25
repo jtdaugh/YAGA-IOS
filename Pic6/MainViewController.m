@@ -208,30 +208,6 @@
     }
 }
 
-- (void) newGridData:(FDataSnapshot *)snapshot {
-
-    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
-    NSURL *movieURL = [self movieUrlForSnapshotName:snapshot.name];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if (![fileManager fileExistsAtPath:moviePath]){
-        NSError *error = nil;
-        if(snapshot.value != [NSNull null]){
-            
-            NSData *videoData = [[NSData alloc] initWithBase64EncodedString:snapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
-            
-            if(videoData != nil){
-                [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
-            }            
-        }
-    }
-
-}
-
--(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return 1;
-}
-
-
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return [self.gridData count];
 }
@@ -276,8 +252,8 @@
                                                        object:[cell.player currentItem]];
             
             // set tap gesture recognizer
-            //        UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeTile:)];
-            //        [cell addGestureRecognizer:tappedTile];
+            UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(selectedTile:)];
+//            [cell addGestureRecognizer:tappedTile];
             
             //        [self doneLoading];
         } else {
@@ -293,9 +269,50 @@
 
     }
     
-    NSLog(@"%lu", [[cell subviews] count]);
-    
     return cell;
+}
+
+- (void)selectedTile:(UITapGestureRecognizer *)gesture {
+    TileCell *selected = (TileCell *)[gesture view];
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        [self.gridTiles bringSubviewToFront:selected];
+        [selected setVideoFrame:CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
+        //
+    } completion:^(BOOL finished) {
+        //
+    }];
+//    [UIView animateWithDuration:0.5 animations:^{
+//        CGRect frame = CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT);
+////        [selected setFrame:frame];
+////        [selected.playerLayer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+//        [self.gridTiles bringSubviewToFront:selected];
+////        [selected.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+//        
+//        [selected setVideoFrame:CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
+//        //
+//    }];
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"selected");
+    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
+ //    [selected setSelected:YES];
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        CGRect frame = CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT);
+//        [selected setFrame:frame];
+//        [selected.playerLayer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+        [collectionView bringSubviewToFront:selected];
+//        [selected.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+
+        [selected setVideoFrame:CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
+        //
+    } completion:^(BOOL finished) {
+        //
+    }];
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"deselected");
 }
 
 - (void) layoutGrid {

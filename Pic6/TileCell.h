@@ -15,4 +15,5 @@
 @property (strong, nonatomic) AVPlayer *player;
 
 @property (strong, nonatomic) UIImageView *image;
+- (void)setVideoFrame:(CGRect)frame;
 @end

@@ -19,6 +19,12 @@
     return self;
 }
 
+- (void)setVideoFrame:(CGRect)frame {
+    [self setFrame:frame];
+    [self.playerLayer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+    [self.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+}
+
 /*
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
