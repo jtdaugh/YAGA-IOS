@@ -121,10 +121,11 @@
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
     
     UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
-    [layout setSectionInset:UIEdgeInsetsZero];
+    [layout setSectionInset:UIEdgeInsetsMake(TILE_HEIGHT, 0, 0, 0)];
     [layout setMinimumInteritemSpacing:0.0];
     [layout setMinimumLineSpacing:0.0];
-    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3) collectionViewLayout:layout];
+    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*4) collectionViewLayout:layout];
+//    self.gridTiles set
     [self.gridTiles setBackgroundColor:[UIColor blackColor]];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
@@ -138,31 +139,31 @@
 
 - (void) initOverlay {
     self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
-    [self.overlay setBackgroundColor:[UIColor blackColor]];
+    [self.overlay setBackgroundColor:[UIColor greenColor]];
     [self.overlay setAlpha:0.0];
     
-    UITapGestureRecognizer *collapseTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseTile)];
-    [self.overlay addGestureRecognizer:collapseTile];
+//    UITapGestureRecognizer *collapseTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseTile)];
+//    [self.overlay addGestureRecognizer:collapseTile];
 
-    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-48-8, TILE_HEIGHT*3+16, 48, 48)];
-    [self.likeButton setTitle:@"😃" forState:UIControlStateNormal];
-    [self.likeButton.titleLabel setFont:[UIFont systemFontOfSize:48]];
-    [self.likeButton setAlpha:0.5];
-    [self.likeButton addTarget:self action:@selector(likePressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.likeButton];
+//    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-48-8, TILE_HEIGHT*3+16, 48, 48)];
+//    [self.likeButton setTitle:@"😃" forState:UIControlStateNormal];
+//    [self.likeButton.titleLabel setFont:[UIFont systemFontOfSize:48]];
+//    [self.likeButton setAlpha:0.5];
+//    [self.likeButton addTarget:self action:@selector(likePressed) forControlEvents:UIControlEventTouchUpInside];
+//    [self.overlay addSubview:self.likeButton];
     
-    self.likeCount = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH-48-8-72-8, TILE_HEIGHT*3+16, 72, 48)];
-    [self.likeCount setTextAlignment:NSTextAlignmentRight];
-    [self.likeCount setTextColor:[UIColor whiteColor]];
-    [self.likeCount setFont:[UIFont systemFontOfSize:36]];
-    [self.overlay addSubview:self.likeCount];
+//    self.likeCount = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH-48-8-72-8, TILE_HEIGHT*3+16, 72, 48)];
+//    [self.likeCount setTextAlignment:NSTextAlignmentRight];
+//    [self.likeCount setTextColor:[UIColor whiteColor]];
+//    [self.likeCount setFont:[UIFont systemFontOfSize:36]];
+//    [self.overlay addSubview:self.likeCount];
     
-    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16, TILE_WIDTH, 48)];
-    [self.displayName setTextAlignment:NSTextAlignmentLeft];
-    [self.displayName setTextColor:[UIColor whiteColor]];
-    [self.displayName setFont:[UIFont systemFontOfSize:36]];
-    [self.overlay addSubview:self.displayName];
-    [self.view addSubview:self.overlay];
+//    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16, TILE_WIDTH, 48)];
+//    [self.displayName setTextAlignment:NSTextAlignmentLeft];
+//    [self.displayName setTextColor:[UIColor whiteColor]];
+//    [self.displayName setFont:[UIFont systemFontOfSize:36]];
+//    [self.overlay addSubview:self.displayName];
+    [self.gridTiles addSubview:self.overlay];
 }
 
 - (NSURL *) movieUrlForSnapshotName:(NSString *)name {
@@ -206,6 +207,8 @@
         [self.gridData removeLastObject];
         [self.gridTiles deleteItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:[self.gridData count] inSection:0]]];
     }
+    
+//    [self.view bringSubviewToFront:self.overlay];
 }
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -257,13 +260,13 @@
             
             //        [self doneLoading];
         } else {
-//            NSLog(@"fucked %lu", indexPath.row);
-//            [cell.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithURL:movieURL]];
-//            [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
-//            [[NSNotificationCenter defaultCenter] addObserver:self
-//                                                     selector:@selector(playerItemDidReachEnd:)
-//                                                         name:AVPlayerItemDidPlayToEndTimeNotification
-//                                                       object:[cell.player currentItem]];
+            NSLog(@"fucked %lu", indexPath.row);
+            [cell.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithURL:movieURL]];
+            [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(playerItemDidReachEnd:)
+                                                         name:AVPlayerItemDidPlayToEndTimeNotification
+                                                       object:[cell.player currentItem]];
             
         }
 
@@ -274,23 +277,19 @@
 
 - (void)selectedTile:(UITapGestureRecognizer *)gesture {
     TileCell *selected = (TileCell *)[gesture view];
+    [selected removeFromSuperview];
+    [self.overlay addSubview:selected];
+    
+    NSLog(@"yooo");
+    
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        [self.gridTiles bringSubviewToFront:selected];
-        [selected setVideoFrame:CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
+        [self.view bringSubviewToFront:self.overlay];
+        [self.overlay setAlpha:1.0];
+        [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
         //
     } completion:^(BOOL finished) {
         //
     }];
-//    [UIView animateWithDuration:0.5 animations:^{
-//        CGRect frame = CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT);
-////        [selected setFrame:frame];
-////        [selected.playerLayer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-//        [self.gridTiles bringSubviewToFront:selected];
-////        [selected.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-//        
-//        [selected setVideoFrame:CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
-//        //
-//    }];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -298,17 +297,35 @@
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
  //    [selected setSelected:YES];
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        CGRect frame = CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT);
-//        [selected setFrame:frame];
-//        [selected.playerLayer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+        [self.overlay setAlpha:1.0];
+        [collectionView bringSubviewToFront:self.overlay];
         [collectionView bringSubviewToFront:selected];
-//        [selected.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-
-        [selected setVideoFrame:CGRectMake(0, 0, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
-        //
+        [selected setSelected:YES];
+        [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
+        
+        UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(deselectTile:)];
+        [selected addGestureRecognizer:tappedTile];
     } completion:^(BOOL finished) {
         //
     }];
+}
+
+- (void)deselectTile:(UITapGestureRecognizer *)gesture {
+    
+    TileCell *selected = (TileCell *)[gesture view];
+    NSIndexPath *indexPath = [self.gridTiles indexPathForCell:selected];
+    UICollectionViewLayoutAttributes *attributes = [self.gridTiles layoutAttributesForItemAtIndexPath:indexPath];
+    for (UIGestureRecognizer *recognizer in selected.gestureRecognizers) {
+        [selected removeGestureRecognizer:recognizer];
+    }
+
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        [selected setVideoFrame:attributes.frame];
+    } completion:^(BOOL finished) {
+        //
+    }];
+    NSLog(@"%li", indexPath.row);
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
