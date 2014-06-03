@@ -125,7 +125,6 @@
     [layout setMinimumInteritemSpacing:0.0];
     [layout setMinimumLineSpacing:0.0];
     self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*4) collectionViewLayout:layout];
-//    self.gridTiles set
     [self.gridTiles setBackgroundColor:[UIColor blackColor]];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
@@ -255,12 +254,12 @@
                                                        object:[cell.player currentItem]];
             
             // set tap gesture recognizer
-            UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(selectedTile:)];
+//            UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(selectedTile:)];
 //            [cell addGestureRecognizer:tappedTile];
             
             //        [self doneLoading];
         } else {
-            NSLog(@"fucked %lu", indexPath.row);
+            NSLog(@"laggy row: %lu", indexPath.row);
             [cell.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithURL:movieURL]];
             [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
             [[NSNotificationCenter defaultCenter] addObserver:self
