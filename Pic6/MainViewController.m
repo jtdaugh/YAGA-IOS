@@ -58,7 +58,7 @@
     [self.plaque setBackgroundColor:PRIMARY_COLOR];
     
     UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(8, 8, TILE_WIDTH-16, 30)];
-    [logo setText:@"Loco"]; // 🔥
+    [logo setText:@"Pic6"]; // 🔥
     [logo setTextColor:[UIColor whiteColor]];
     [logo setFont:[UIFont boldSystemFontOfSize:30]];
     [self.plaque addSubview:logo];
@@ -121,10 +121,10 @@
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
     
     UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
-    [layout setSectionInset:UIEdgeInsetsMake(TILE_HEIGHT, 0, 0, 0)];
+    [layout setSectionInset:UIEdgeInsetsMake(0, 0, 0, 0)];
     [layout setMinimumInteritemSpacing:0.0];
     [layout setMinimumLineSpacing:0.0];
-    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*4) collectionViewLayout:layout];
+    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3) collectionViewLayout:layout];
     [self.gridTiles setBackgroundColor:[UIColor blackColor]];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
