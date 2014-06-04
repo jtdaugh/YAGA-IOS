@@ -39,7 +39,7 @@
     [self initPlaque];
     [self initFirebase];
     [self initCameraFrame];
-    self.FrontCamera = 1;
+    self.FrontCamera = 0;
     [self initCamera];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -206,8 +206,7 @@
         [self.gridData removeLastObject];
         [self.gridTiles deleteItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:[self.gridData count] inSection:0]]];
     }
-    
-//    [self.view bringSubviewToFront:self.overlay];
+    //    [self.view bringSubviewToFront:self.overlay];
 }
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -261,6 +260,7 @@
         } else {
             NSLog(@"laggy row: %lu", indexPath.row);
             [cell.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithURL:movieURL]];
+            
             [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(playerItemDidReachEnd:)
