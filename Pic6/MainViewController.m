@@ -11,6 +11,7 @@
 #import "UIView+Grid.h"
 #import "NSMutableArray+Tile.h"
 #import "TileCell.h"
+#import "AVPlayer+AVPlayer_Async.h"
 
 @interface MainViewController ()
 @property bool FrontCamera;
@@ -243,14 +244,16 @@
             
             // mute and play
             [cell.player setVolume:0.0];
-            [cell.player play];
+            [cell.player asyncPlay];
+//            [cell.player play];
             
             // set looping
-            [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(playerItemDidReachEnd:)
-                                                         name:AVPlayerItemDidPlayToEndTimeNotification
-                                                       object:[cell.player currentItem]];
+            [cell.player setLooping];
+//            [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
+//            [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                     selector:@selector(playerItemDidReachEnd:)
+//                                                         name:AVPlayerItemDidPlayToEndTimeNotification
+//                                                       object:[cell.player currentItem]];
             
             // set tap gesture recognizer
 //            UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(selectedTile:)];
@@ -259,13 +262,9 @@
             //        [self doneLoading];
         } else {
             NSLog(@"laggy row: %lu", indexPath.row);
-            [cell.player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithURL:movieURL]];
-            
-            [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(playerItemDidReachEnd:)
-                                                         name:AVPlayerItemDidPlayToEndTimeNotification
-                                                       object:[cell.player currentItem]];
+            AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:movieURL];
+            [cell.player replaceCurrentItemWithPlayerItem:playerItem];
+            [cell.player setLooping];
             
         }
 
@@ -359,7 +358,7 @@
                 
                 // mute and play
                 [player setVolume:0.0];
-                [player play];
+                [player asyncPlay];
                 
                 // set looping
                 [player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
