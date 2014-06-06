@@ -263,7 +263,8 @@
         } else {
             NSLog(@"laggy row: %lu", indexPath.row);
             AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:movieURL];
-            [cell.player replaceCurrentItemWithPlayerItem:playerItem];
+            [cell.player asyncReplaceWithPlayerItem:playerItem];
+//            [cell.player replaceCurrentItemWithPlayerItem:playerItem];
             [cell.player setLooping];
             
         }

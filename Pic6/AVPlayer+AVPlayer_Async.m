@@ -11,11 +11,21 @@
 @implementation AVPlayer (AVPlayer_Async)
 
 static const NSString *ItemStatusContext;
+static const NSString *ReplaceItemStatusContext;
 
 - (void)asyncPlay {
     [self.currentItem addObserver:self forKeyPath:@"status"
                                           options:NSKeyValueObservingOptionInitial context:&ItemStatusContext];
     NSLog(@"yoo");
+    
+}
+
+- (void)asyncReplaceWithPlayerItem:(AVPlayerItem *) playerItem {
+    [playerItem addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionInitial context:&ReplaceItemStatusContext];
+    NSLog(@"async replacing beginning");
+}
+
+- (void)asyncReplace {
     
 }
 
@@ -29,6 +39,12 @@ static const NSString *ItemStatusContext;
                            [self play];
                        });
         return;
+    } else if(context == &ReplaceItemStatusContext) {
+        NSLog(@"about to replace");
+        dispatch_async(dispatch_get_main_queue(),
+                       ^{
+                           [self replaceCurrentItemWithPlayerItem:object];
+                       });
     }
     
 //    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];

@@ -10,5 +10,6 @@
 
 @interface AVPlayer (AVPlayer_Async)
 - (void)asyncPlay;
+- (void)asyncReplaceWithPlayerItem:(AVPlayerItem *) playerItem;
 - (void)setLooping;
 @end
