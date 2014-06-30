@@ -14,9 +14,9 @@ static const NSString *ItemStatusContext;
 static const NSString *ReplaceItemStatusContext;
 
 - (void)asyncPlay {
+    NSLog(@"asyncPlay");
     [self.currentItem addObserver:self forKeyPath:@"status"
                                           options:NSKeyValueObservingOptionInitial context:&ItemStatusContext];
-    NSLog(@"yoo");
     
 }
 
@@ -33,18 +33,17 @@ static const NSString *ReplaceItemStatusContext;
                         change:(NSDictionary *)change context:(void *)context {
     
     if (context == &ItemStatusContext) {
-        NSLog(@"yoooo");
         dispatch_async(dispatch_get_main_queue(),
                        ^{
                            [self play];
                        });
         return;
     } else if(context == &ReplaceItemStatusContext) {
-        NSLog(@"about to replace");
-        dispatch_async(dispatch_get_main_queue(),
-                       ^{
-                           [self replaceCurrentItemWithPlayerItem:object];
-                       });
+//        NSLog(@"about to replace");
+//        dispatch_async(dispatch_get_main_queue(),
+//                       ^{
+//                           [self replaceCurrentItemWithPlayerItem:object];
+//                       });
     }
     
 //    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];

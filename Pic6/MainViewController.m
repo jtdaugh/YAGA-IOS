@@ -227,51 +227,65 @@
     NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
+    // init loader
+    
     if ([fileManager fileExistsAtPath:moviePath]){
-        if(!cell.player){
-            // init video player
+        // init video player
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,
+                                                 (unsigned long)NULL), ^(void) {
+//            AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:movieURL];
+//            cell.player = [AVPlayer playerWithPlayerItem:playerItem];
             cell.player = [AVPlayer playerWithURL:movieURL];
             cell.playerLayer = [AVPlayerLayer playerLayerWithPlayer:cell.player];
-            [cell.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
             
+            [cell.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+
             // set video sizing
             cell.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+            //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
             cell.playerLayer.frame = cell.playerContainer.frame;
             
             // play video in frame
             [cell.playerContainer.layer addSublayer: cell.playerLayer];
+            //
+            for(UIView *v in cell.subviews){
+                [v removeFromSuperview];
+            }
+            
             [cell addSubview:cell.playerContainer];
-            
-            // mute and play
-            [cell.player setVolume:0.0];
-            [cell.player asyncPlay];
-//            [cell.player play];
-            
-            // set looping
-            [cell.player setLooping];
-//            [cell.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
-//            [[NSNotificationCenter defaultCenter] addObserver:self
-//                                                     selector:@selector(playerItemDidReachEnd:)
-//                                                         name:AVPlayerItemDidPlayToEndTimeNotification
-//                                                       object:[cell.player currentItem]];
-            
-            // set tap gesture recognizer
-//            UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(selectedTile:)];
-//            [cell addGestureRecognizer:tappedTile];
-            
-            //        [self doneLoading];
-        } else {
-            NSLog(@"laggy row: %lu", indexPath.row);
-            AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:movieURL];
-            [cell.player asyncReplaceWithPlayerItem:playerItem];
-//            [cell.player replaceCurrentItemWithPlayerItem:playerItem];
-            [cell.player setLooping];
-            
-        }
-
+        });
+        
+        // mute and play
+//        [cell.player setVolume:0.0];
+////        [cell.player asyncPlay];
+////            [cell.player play];
+//        
+//        // set looping
+//        [cell.player setLooping];
     }
     
     return cell;
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self scrollingEnded];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if(!decelerate){
+        [self scrollingEnded];
+    }
+}
+
+- (void)scrollingEnded {
+    NSLog(@"scrolling ended");
+    NSArray *visibleCells = [self.gridTiles visibleCells];
+    for(TileCell *cell in visibleCells){
+        if(cell.state == LOADED){
+            cell.state = PREPARING;
+            [cell.player play];
+        }
+    }
 }
 
 - (void)selectedTile:(UITapGestureRecognizer *)gesture {
@@ -293,38 +307,38 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"selected");
-    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
- //    [selected setSelected:YES];
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        [self.overlay setAlpha:1.0];
-        [collectionView bringSubviewToFront:self.overlay];
-        [collectionView bringSubviewToFront:selected];
-        [selected setSelected:YES];
-        [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
-        
-        UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(deselectTile:)];
-        [selected addGestureRecognizer:tappedTile];
-    } completion:^(BOOL finished) {
-        //
-    }];
+//    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
+// //    [selected setSelected:YES];
+//    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+//        [self.overlay setAlpha:1.0];
+//        [collectionView bringSubviewToFront:self.overlay];
+//        [collectionView bringSubviewToFront:selected];
+//        [selected setSelected:YES];
+//        [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
+//        
+//        UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(deselectTile:)];
+//        [selected addGestureRecognizer:tappedTile];
+//    } completion:^(BOOL finished) {
+//        //
+//    }];
 }
 
 - (void)deselectTile:(UITapGestureRecognizer *)gesture {
     
-    TileCell *selected = (TileCell *)[gesture view];
-    NSIndexPath *indexPath = [self.gridTiles indexPathForCell:selected];
-    UICollectionViewLayoutAttributes *attributes = [self.gridTiles layoutAttributesForItemAtIndexPath:indexPath];
-    for (UIGestureRecognizer *recognizer in selected.gestureRecognizers) {
-        [selected removeGestureRecognizer:recognizer];
-    }
-
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        //
-        [selected setVideoFrame:attributes.frame];
-    } completion:^(BOOL finished) {
-        //
-    }];
-    NSLog(@"%li", indexPath.row);
+//    TileCell *selected = (TileCell *)[gesture view];
+//    NSIndexPath *indexPath = [self.gridTiles indexPathForCell:selected];
+//    UICollectionViewLayoutAttributes *attributes = [self.gridTiles layoutAttributesForItemAtIndexPath:indexPath];
+//    for (UIGestureRecognizer *recognizer in selected.gestureRecognizers) {
+//        [selected removeGestureRecognizer:recognizer];
+//    }
+//
+//    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+//        //
+//        [selected setVideoFrame:attributes.frame];
+//    } completion:^(BOOL finished) {
+//        //
+//    }];
+//    NSLog(@"%li", indexPath.row);
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -510,7 +524,7 @@
         UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeTile:)];
         [self.enlargedTile.view addGestureRecognizer:tappedTile];
         self.enlargedTile = nil;
-        [self layoutGrid];
+//        [self layoutGrid];
     }];
 }
 
@@ -559,7 +573,6 @@
 }
 
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
-    [self initCameraFrame];
     if (self.FrontCamera == 1) {
         self.FrontCamera = 0;
     } else {

@@ -218,6 +218,7 @@
 				71106D85192434970083C64A /* Data */,
 				71B827D8191B0445008C4048 /* Views */,
 				71404FAF1919FD55002F4B92 /* Models */,
+				715455D3191063F500ABE2BE /* Categories */,
 				71404FA819121A78002F4B92 /* Constants.h */,
 				71D0F5A0190D99A700C7DEE0 /* MainViewController.h */,
 				71D0F5A1190D99A700C7DEE0 /* MainViewController.m */,
@@ -225,7 +226,6 @@
 				71D0F57B190D998000C7DEE0 /* AppDelegate.m */,
 				71D0F57D190D998000C7DEE0 /* Main.storyboard */,
 				71D0F583190D998000C7DEE0 /* Images.xcassets */,
-				715455D3191063F500ABE2BE /* Categories */,
 				71D0F572190D998000C7DEE0 /* Supporting Files */,
 			);
 			path = Pic6;
