@@ -223,6 +223,19 @@
     
     FDataSnapshot *snapshot = [self.gridData objectAtIndex:indexPath.row];
     
+/*
+if file is loaded && not scrolling {
+ play video
+} else {
+ init loader
+ if(not loaded){
+    start loading
+ }
+}
+ 
+*/
+    
+    
     NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
     NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
