@@ -121,11 +121,13 @@
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
     
+    int tile_buffer = 2;
+    
     UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
-    [layout setSectionInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+    [layout setSectionInset:UIEdgeInsetsMake(0, 0, TILE_HEIGHT*tile_buffer, 0)];
     [layout setMinimumInteritemSpacing:0.0];
     [layout setMinimumLineSpacing:0.0];
-    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3) collectionViewLayout:layout];
+    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3 + tile_buffer*TILE_HEIGHT) collectionViewLayout:layout];
     [self.gridTiles setBackgroundColor:[UIColor blackColor]];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
@@ -220,64 +222,23 @@
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
-    
     FDataSnapshot *snapshot = [self.gridData objectAtIndex:indexPath.row];
     
-/*
-if file is loaded && not scrolling {
- play video
-} else {
- init loader
- if(not loaded){
-    start loading
- }
-}
- 
-*/
+    [cell setUid:snapshot.name];
     
-    
-    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
-    NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    
-    // init loader
-    
-    if ([fileManager fileExistsAtPath:moviePath]){
-        // init video player
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,
-                                                 (unsigned long)NULL), ^(void) {
-//            AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:movieURL];
-//            cell.player = [AVPlayer playerWithPlayerItem:playerItem];
-            cell.player = [AVPlayer playerWithURL:movieURL];
-            cell.playerLayer = [AVPlayerLayer playerLayerWithPlayer:cell.player];
-            
-            [cell.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-
-            // set video sizing
-            cell.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-            //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
-            cell.playerLayer.frame = cell.playerContainer.frame;
-            
-            // play video in frame
-            [cell.playerContainer.layer addSublayer: cell.playerLayer];
-            //
-            for(UIView *v in cell.subviews){
-                [v removeFromSuperview];
-            }
-            
-            [cell addSubview:cell.playerContainer];
-        });
-        
-        // mute and play
-//        [cell.player setVolume:0.0];
-////        [cell.player asyncPlay];
-////            [cell.player play];
-//        
-//        // set looping
-//        [cell.player setLooping];
+    if(cell.isLoaded && !self.scrolling){
+        [cell play];
+    } else {
+        [cell showLoader];
     }
     
     return cell;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    self.scrolling = YES;
+    NSLog(@"scrolling...");
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -292,11 +253,13 @@ if file is loaded && not scrolling {
 
 - (void)scrollingEnded {
     NSLog(@"scrolling ended");
+    self.scrolling = NO;
     NSArray *visibleCells = [self.gridTiles visibleCells];
     for(TileCell *cell in visibleCells){
-        if(cell.state == LOADED){
-            cell.state = PREPARING;
-            [cell.player play];
+        if(cell.state == LOADING){
+            if(cell.isLoaded && !self.scrolling){
+                [cell play];
+            }
         }
     }
 }
