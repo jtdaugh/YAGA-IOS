@@ -23,6 +23,8 @@
 
 @property (strong, nonatomic) UIView *loader;
 
+@property (strong, nonatomic) NSMutableArray *boxes;
+
 - (void)setVideoFrame:(CGRect)frame;
 - (void)showLoader;
 - (void)play;

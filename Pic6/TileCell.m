@@ -26,13 +26,44 @@
     [self.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
 }
 
+//- (void)showLoader {
+//    NSLog(@"setting to red!");
+//    self.state = LOADING;
+//    for(UIView *v in self.subviews){
+//        [v removeFromSuperview];
+//    }
+//}
+
+
 - (void)showLoader {
-    NSLog(@"setting to red!");
     self.state = LOADING;
-    for(UIView *v in self.subviews){
-        [v removeFromSuperview];
+    [self.playerContainer removeFromSuperview];
+    // Initialization code
+    self.boxes = [NSMutableArray array];
+    int width = self.frame.size.width / LOADER_WIDTH;
+    int height = self.frame.size.height / LOADER_HEIGHT;
+    [self.loader removeFromSuperview];
+    self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+    
+    for(int i = 0; i < LOADER_HEIGHT * LOADER_WIDTH; i++){
+        UIView *box = [[UIView alloc] initWithFrame:CGRectMake((i%4) * TILE_WIDTH/LOADER_WIDTH, (i/LOADER_HEIGHT) * TILE_HEIGHT/LOADER_HEIGHT, width, height)];
+        [self.boxes addObject:box];
+        [self.loader addSubview:box];
     }
-    [self setBackgroundColor:[UIColor redColor]];
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                      target:self
+                                                    selector:@selector(loaderTick:)
+                                                    userInfo:nil
+                                                     repeats:YES];
+    
+    [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+    [self addSubview:self.loader];
+}
+
+- (void)loaderTick:(NSTimer *) timer {
+    for(UIView *box in self.boxes){
+        [box setBackgroundColor:[UIColor colorWithRed:((float)arc4random() / ARC4RANDOM_MAX) green:((float)arc4random() / ARC4RANDOM_MAX) blue:((float)arc4random() / ARC4RANDOM_MAX) alpha:0.5]];
+    }
 }
 
 //LOAD IT UP
@@ -44,6 +75,7 @@
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
     if ([fileManager fileExistsAtPath:moviePath]){
+        
         AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:movieURL];
         self.player = [AVPlayer playerWithPlayerItem:playerItem];
 
@@ -52,23 +84,21 @@
 
 
         [self.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-
+        
         // set video sizing
+        [self.playerContainer removeFromSuperview];
         self.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
         //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
         self.playerLayer.frame = self.playerContainer.frame;
 
         // play video in frame
         [self.playerContainer.layer addSublayer: self.playerLayer];
-        //
-        for(UIView *v in self.subviews){
-            [v removeFromSuperview];
-        }
-
+//        [self.loader removeFromSuperview];
         [self addSubview:self.playerContainer];
+        
+        NSLog(@"%lu", [self.subviews count]);
 
         [self.player setVolume:0.0];
-//        [cell.player asyncPlay];
         [self.player play];
 
         // set looping

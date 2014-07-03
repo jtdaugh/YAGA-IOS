@@ -121,7 +121,7 @@
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
     
-    int tile_buffer = 2;
+    int tile_buffer = 0;
     
     UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
     [layout setSectionInset:UIEdgeInsetsMake(0, 0, TILE_HEIGHT*tile_buffer, 0)];
@@ -132,6 +132,7 @@
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
+    [self.gridTiles setBackgroundColor:PRIMARY_COLOR];
     [self.gridView addSubview:self.gridTiles];
     
     [self.view addSubview:self.gridView];
@@ -238,7 +239,6 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     self.scrolling = YES;
-    NSLog(@"scrolling...");
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
