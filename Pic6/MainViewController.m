@@ -9,7 +9,6 @@
 #import "MainViewController.h"
 #import "UIImage+Resize.h"
 #import "UIView+Grid.h"
-#import "NSMutableArray+Tile.h"
 #import "TileCell.h"
 #import "AVPlayer+AVPlayer_Async.h"
 
@@ -175,42 +174,37 @@
     return movieURL;
 }
 
-- (void)newGridTile:(FDataSnapshot *)snapshot {
+- (void) triggerRemoteLoad:(NSString *)uid {
     
-    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), snapshot.name];
-    NSURL *movieURL = [self movieUrlForSnapshotName:snapshot.name];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if (![fileManager fileExistsAtPath:moviePath]){
-
-        NSLog(@"the file does not exist!");
-
-        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, snapshot.name]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
-            if(dataSnapshot.value != [NSNull null]){
-                NSError *error = nil;
-
-                NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
-                
-                if(videoData != nil){
-                    [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
-                }
-                
-                [self newLoadedTile:snapshot];
+    [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, uid]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
+        if(dataSnapshot.value != [NSNull null]){
+            NSError *error = nil;
+            
+            NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
+            
+            if(videoData != nil){
+                NSURL *movieURL = [self movieUrlForSnapshotName:uid];
+                [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
             }
+            
+            [self finishedLoading:uid];
+            
+        }
+        
+    }];
+}
 
-        }];
-    } else {
-        [self newLoadedTile:snapshot];
+- (void) finishedLoading:(NSString *)uid {
+    for(TileCell *tile in [self.gridTiles visibleCells]){
+        if([tile.uid isEqualToString:uid]){
+            [tile play];
+        }
     }
 }
 
-- (void) newLoadedTile:(FDataSnapshot *)snapshot {
+- (void) newTile:(FDataSnapshot *)snapshot {
     [self.gridData insertObject:snapshot atIndex:0];
     [self.gridTiles insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
-    while([self.gridData count] > NUM_TILES){
-        [self.gridData removeLastObject];
-        [self.gridTiles deleteItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:[self.gridData count] inSection:0]]];
-    }
-    //    [self.view bringSubviewToFront:self.overlay];
 }
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -231,6 +225,10 @@
         [cell play];
     } else {
         [cell showLoader];
+        if(!cell.isLoaded){
+            NSLog(@"triggering remote load of %@", cell.uid);
+            [self triggerRemoteLoad:cell.uid];
+        }
     }
     
     return cell;
@@ -321,64 +319,6 @@
     NSLog(@"deselected");
 }
 
-- (void) layoutGrid {
-    //iterate through tiles and positions
-    // set proper frame
-    //
-    int i = 0;
-    for(Tile *tile in self.tiles){
-        if(!tile.player){
-            NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), tile.data.name];
-            NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
-            NSFileManager *fileManager = [NSFileManager defaultManager];
-            if ([fileManager fileExistsAtPath:moviePath]){
-                
-                // init video player
-                AVPlayer *player = [AVPlayer playerWithURL:movieURL];
-                AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:player];
-                [playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-                
-                // set video sizing
-                UIView *playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-                playerLayer.frame = playerContainer.frame;
-                
-                // play video in frame
-                [playerContainer.layer addSublayer: playerLayer];
-                [tile.view addSubview:playerContainer];
-                [tile.loader removeFromSuperview];
-                
-                // mute and play
-                [player setVolume:0.0];
-                [player asyncPlay];
-                
-                // set looping
-                [player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
-                [[NSNotificationCenter defaultCenter] addObserver:self
-                                                         selector:@selector(playerItemDidReachEnd:)
-                                                             name:AVPlayerItemDidPlayToEndTimeNotification
-                                                           object:[player currentItem]];
-                
-                // set tap gesture recognizer
-                UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeTile:)];
-                [tile.view addGestureRecognizer:tappedTile];
-                
-                // set video view pointers for later use (when resizing)
-                tile.player = player;
-                tile.playerLayer = playerLayer;
-                tile.playerContainer = playerContainer;
-                
-                [self doneLoading];
-            }
-        }
-        
-        if(!self.enlargedTile){
-            [tile.view setGridPosition:i + 2];
-        }
-        
-        i++;
-        
-    }
-}
 
 - (void)enlargeTile:(UITapGestureRecognizer *)gestureRecognizer {
     if(self.enlargedTile == nil){
@@ -515,7 +455,7 @@
     
     [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         
-        [self newGridTile:snapshot];
+        [self newTile:snapshot];
     }];
 }
 

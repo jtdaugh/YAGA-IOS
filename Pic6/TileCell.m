@@ -45,15 +45,6 @@
     [self.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
 }
 
-//- (void)showLoader {
-//    NSLog(@"setting to red!");
-//    self.state = LOADING;
-//    for(UIView *v in self.subviews){
-//        [v removeFromSuperview];
-//    }
-//}
-
-
 - (void)showLoader {
     self.state = LOADING;
     [self.playerContainer removeFromSuperview];
