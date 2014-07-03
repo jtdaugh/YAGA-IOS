@@ -16,6 +16,25 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
+        self.boxes = [NSMutableArray array];
+        int width = self.frame.size.width / LOADER_WIDTH;
+        int height = self.frame.size.height / LOADER_HEIGHT;
+        [self.loader removeFromSuperview];
+        self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+        
+        for(int i = 0; i < LOADER_HEIGHT * LOADER_WIDTH; i++){
+            UIView *box = [[UIView alloc] initWithFrame:CGRectMake((i%4) * TILE_WIDTH/LOADER_WIDTH, (i/LOADER_HEIGHT) * TILE_HEIGHT/LOADER_HEIGHT, width, height)];
+            [self.boxes addObject:box];
+            [self.loader addSubview:box];
+        }
+        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                          target:self
+                                                        selector:@selector(loaderTick:)
+                                                        userInfo:nil
+                                                         repeats:YES];
+        
+        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+        [self addSubview:self.loader];
     }
     return self;
 }
@@ -39,25 +58,6 @@
     self.state = LOADING;
     [self.playerContainer removeFromSuperview];
     // Initialization code
-    self.boxes = [NSMutableArray array];
-    int width = self.frame.size.width / LOADER_WIDTH;
-    int height = self.frame.size.height / LOADER_HEIGHT;
-    [self.loader removeFromSuperview];
-    self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
-    
-    for(int i = 0; i < LOADER_HEIGHT * LOADER_WIDTH; i++){
-        UIView *box = [[UIView alloc] initWithFrame:CGRectMake((i%4) * TILE_WIDTH/LOADER_WIDTH, (i/LOADER_HEIGHT) * TILE_HEIGHT/LOADER_HEIGHT, width, height)];
-        [self.boxes addObject:box];
-        [self.loader addSubview:box];
-    }
-    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                                      target:self
-                                                    selector:@selector(loaderTick:)
-                                                    userInfo:nil
-                                                     repeats:YES];
-    
-    [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-    [self addSubview:self.loader];
 }
 
 - (void)loaderTick:(NSTimer *) timer {
