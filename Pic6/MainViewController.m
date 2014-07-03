@@ -59,7 +59,7 @@
     [self.plaque setBackgroundColor:PRIMARY_COLOR];
     
     UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(8, 8, TILE_WIDTH-16, 30)];
-    [logo setText:@"Pic6"]; // 🔥
+    [logo setText:APP_NAME]; // 🔥
     [logo setTextColor:[UIColor whiteColor]];
     [logo setFont:[UIFont boldSystemFontOfSize:30]];
     [self.plaque addSubview:logo];
@@ -808,9 +808,9 @@
 }
 
 - (void)willEnterForeground {
-    for(Tile *tile in self.tiles){
-        if(tile.player){
-            [tile.player play];
+    for(TileCell *tile in [self.gridTiles visibleCells]){
+        if(tile.state == PLAYING){
+            [tile play];
         }
     }
 }
