@@ -27,13 +27,14 @@
             [self.boxes addObject:box];
             [self.loader addSubview:box];
         }
-        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                                          target:self
-                                                        selector:@selector(loaderTick:)
-                                                        userInfo:nil
-                                                         repeats:YES];
-        
-        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+//        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
+//                                                          target:self
+//                                                        selector:@selector(loaderTick:)
+//                                                        userInfo:nil
+//                                                         repeats:YES];
+//        
+//        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+        [self loaderTick:nil];
         [self addSubview:self.loader];
     }
     return self;
@@ -43,6 +44,7 @@
     [self setFrame:frame];
     [self.playerLayer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
     [self.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+    NSLog(@"setting frame...");
 }
 
 - (void)showLoader {
@@ -67,12 +69,8 @@
     
     if ([fileManager fileExistsAtPath:moviePath]){
         
-        AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:movieURL];
-        self.player = [AVPlayer playerWithPlayerItem:playerItem];
-
         self.player = [AVPlayer playerWithURL:movieURL];
         self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-
 
         [self.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
         
@@ -87,10 +85,8 @@
 //        [self.loader removeFromSuperview];
         [self addSubview:self.playerContainer];
         
-        NSLog(@"%lu", [self.subviews count]);
-
         [self.player setVolume:0.0];
-        [self.player play];
+        [self.player asyncPlay];
 
         // set looping
         [self.player setLooping];

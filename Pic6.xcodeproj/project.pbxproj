@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415AEFE3196638D600F6A8B1 /* OverlayViewController.m */; };
 		71106D88192444A30083C64A /* PData.m in Sources */ = {isa = PBXBuildFile; fileRef = 71106D87192444A30083C64A /* PData.m */; };
 		71404FAB1916A9B6002F4B92 /* UIView+Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FAA1916A9B6002F4B92 /* UIView+Grid.m */; };
 		71404FAE1919FD4A002F4B92 /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FAD1919FD49002F4B92 /* Tile.m */; };
@@ -49,6 +50,8 @@
 
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		415AEFE2196638D600F6A8B1 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
+		415AEFE3196638D600F6A8B1 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
 		71106D86192444A30083C64A /* PData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PData.h; sourceTree = "<group>"; };
 		71106D87192444A30083C64A /* PData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PData.m; sourceTree = "<group>"; };
 		71404FA819121A78002F4B92 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -222,6 +225,8 @@
 				71404FA819121A78002F4B92 /* Constants.h */,
 				71D0F5A0190D99A700C7DEE0 /* MainViewController.h */,
 				71D0F5A1190D99A700C7DEE0 /* MainViewController.m */,
+				415AEFE2196638D600F6A8B1 /* OverlayViewController.h */,
+				415AEFE3196638D600F6A8B1 /* OverlayViewController.m */,
 				71D0F57A190D998000C7DEE0 /* AppDelegate.h */,
 				71D0F57B190D998000C7DEE0 /* AppDelegate.m */,
 				71D0F57D190D998000C7DEE0 /* Main.storyboard */,
@@ -402,6 +407,7 @@
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
 				71106D88192444A30083C64A /* PData.m in Sources */,
 				716CFA33192BE92700E6ED17 /* NSMutableArray+Tile.m in Sources */,
+				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
 				716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */,
 				71D0F5A2190D99A700C7DEE0 /* MainViewController.m in Sources */,

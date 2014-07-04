@@ -10,44 +10,20 @@
 
 @implementation AVPlayer (AVPlayer_Async)
 
-static const NSString *ItemStatusContext;
-static const NSString *ReplaceItemStatusContext;
-
 - (void)asyncPlay {
-    NSLog(@"asyncPlay");
-    [self.currentItem addObserver:self forKeyPath:@"status"
-                                          options:NSKeyValueObservingOptionInitial context:&ItemStatusContext];
-    
-}
-
-- (void)asyncReplaceWithPlayerItem:(AVPlayerItem *) playerItem {
-    [playerItem addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionInitial context:&ReplaceItemStatusContext];
-    NSLog(@"async replacing beginning");
-}
-
-- (void)asyncReplace {
-    
+    [self addObserver:self forKeyPath:@"status"
+                                          options:0 context:nil];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
                         change:(NSDictionary *)change context:(void *)context {
-    
-    if (context == &ItemStatusContext) {
-        dispatch_async(dispatch_get_main_queue(),
-                       ^{
-                           [self play];
-                       });
-        return;
-    } else if(context == &ReplaceItemStatusContext) {
-//        NSLog(@"about to replace");
-//        dispatch_async(dispatch_get_main_queue(),
-//                       ^{
-//                           [self replaceCurrentItemWithPlayerItem:object];
-//                       });
+
+    if(object == self && [keyPath isEqualToString:@"status"]){
+        [self removeObserver:self forKeyPath:@"status"];
+        if(self.status == AVPlayerStatusReadyToPlay){
+            [self play];
+        }
     }
-    
-//    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    return;
 }
 
 - (void)setLooping {

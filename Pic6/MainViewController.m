@@ -11,6 +11,7 @@
 #import "UIView+Grid.h"
 #import "TileCell.h"
 #import "AVPlayer+AVPlayer_Async.h"
+#import "OverlayViewController.h"
 
 @interface MainViewController ()
 @property bool FrontCamera;
@@ -219,16 +220,20 @@
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [self.gridData objectAtIndex:indexPath.row];
     
-    [cell setUid:snapshot.name];
-    
-    if(cell.isLoaded && !self.scrolling){
-        [cell play];
-    } else {
-        [cell showLoader];
-        if(!cell.isLoaded){
-            NSLog(@"triggering remote load of %@", cell.uid);
-            [self triggerRemoteLoad:cell.uid];
+    if(![cell.uid isEqualToString:snapshot.name]){
+
+        [cell setUid:snapshot.name];
+
+        if(cell.isLoaded && !self.scrolling){
+            [cell play];
+        } else {
+            [cell showLoader];
+            if(!cell.isLoaded){
+                NSLog(@"triggering remote load of %@", cell.uid);
+                [self triggerRemoteLoad:cell.uid];
+            }
         }
+
     }
     
     return cell;
@@ -281,20 +286,28 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"selected");
-//    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
-// //    [selected setSelected:YES];
-//    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-//        [self.overlay setAlpha:1.0];
-//        [collectionView bringSubviewToFront:self.overlay];
-//        [collectionView bringSubviewToFront:selected];
-//        [selected setSelected:YES];
-//        [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
-//        
-//        UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(deselectTile:)];
-//        [selected addGestureRecognizer:tappedTile];
-//    } completion:^(BOOL finished) {
-//        //
-//    }];
+    
+    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    
+    [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+        //
+        [self.gridTiles bringSubviewToFront:selected];
+        [selected setVideoFrame:CGRectMake(0, collectionView.contentOffset.y, TILE_WIDTH*2, TILE_HEIGHT*2)];
+    } completion:^(BOOL finished) {
+        OverlayViewController *overlay = [[OverlayViewController alloc] init];
+        [overlay setTile:selected];
+        [self presentViewController:overlay animated:NO completion:^{
+            //
+        }];
+    }];
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    UICollectionViewLayoutAttributes *attributes = [collectionView layoutAttributesForItemAtIndexPath:indexPath];
+    
+    [selected setVideoFrame:attributes.frame];
 }
 
 - (void)deselectTile:(UITapGestureRecognizer *)gesture {
@@ -314,11 +327,6 @@
 //    }];
 //    NSLog(@"%li", indexPath.row);
 }
-
-- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"deselected");
-}
-
 
 - (void)enlargeTile:(UITapGestureRecognizer *)gestureRecognizer {
     if(self.enlargedTile == nil){
