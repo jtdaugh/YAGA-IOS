@@ -8,7 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import "TileCell.h"
+#import "MainViewController.h"
 
 @interface OverlayViewController : UIViewController
+@property (strong, nonatomic) UIView *bg;
 @property (strong, nonatomic) TileCell *tile;
+@property (strong, nonatomic) MainViewController *previousViewController;
+@property (strong, nonatomic) UILabel *userLabel;
+@property CGRect previousFrame;
+@property CGRect adjustedPreviousFrame;
 @end

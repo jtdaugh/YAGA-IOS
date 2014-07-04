@@ -40,7 +40,7 @@
     [self initPlaque];
     [self initFirebase];
     [self initCameraFrame];
-    self.FrontCamera = 0;
+    self.FrontCamera = 1;
     [self initCamera];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -65,7 +65,7 @@
     [self.plaque addSubview:logo];
     
     UILabel *instructions = [[UILabel alloc] initWithFrame:CGRectMake(10, 30+8+4, TILE_WIDTH-16, 60)];
-    [instructions setText:@"Tap to snap, \nhold to record"];
+    [instructions setText:@"📹 Hold to record 👉"];
     [instructions setNumberOfLines:0];
     [instructions sizeToFit];
     [instructions setTextColor:[UIColor whiteColor]];
@@ -175,6 +175,34 @@
     return movieURL;
 }
 
+- (void)initFirebase {
+    self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
+    
+    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        NSLog(@"%lu", snapshot.childrenCount);
+        NSString *lastUid;
+        for (FDataSnapshot* child in snapshot.children) {
+            [self.gridData insertObject:child atIndex:0];
+            lastUid = child.name;
+        }
+        [self.gridTiles reloadData];
+        [self listenForAdded];
+    }];
+}
+
+- (void)listenForAdded; {
+    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+        [self newTile:snapshot];
+    }];
+}
+
+- (void) newTile:(FDataSnapshot *)snapshot {
+    if(![[(FDataSnapshot *)self.gridData[0] name] isEqualToString:snapshot.name]){
+        [self.gridData insertObject:snapshot atIndex:0];
+        [self.gridTiles insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+    }
+}
+
 - (void) triggerRemoteLoad:(NSString *)uid {
     
     [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, uid]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
@@ -203,11 +231,6 @@
     }
 }
 
-- (void) newTile:(FDataSnapshot *)snapshot {
-    [self.gridData insertObject:snapshot atIndex:0];
-    [self.gridTiles insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
-}
-
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return [self.gridData count];
 }
@@ -223,6 +246,7 @@
     if(![cell.uid isEqualToString:snapshot.name]){
 
         [cell setUid:snapshot.name];
+        [cell setUsername:snapshot.value[@"user"]];
 
         if(cell.isLoaded && !self.scrolling){
             [cell play];
@@ -289,16 +313,15 @@
     
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
     
-    [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        //
-        [self.gridTiles bringSubviewToFront:selected];
-        [selected setVideoFrame:CGRectMake(0, collectionView.contentOffset.y, TILE_WIDTH*2, TILE_HEIGHT*2)];
-    } completion:^(BOOL finished) {
-        OverlayViewController *overlay = [[OverlayViewController alloc] init];
-        [overlay setTile:selected];
-        [self presentViewController:overlay animated:NO completion:^{
-            //
-        }];
+    OverlayViewController *overlay = [[OverlayViewController alloc] init];
+    [overlay setTile:selected];
+    [overlay setPreviousFrame:selected.frame];
+    [overlay setPreviousViewController:self];
+    overlay.tile.frame = CGRectMake(overlay.tile.frame.origin.x, overlay.tile.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+    [overlay.view setBackgroundColor:[UIColor clearColor]];
+    self.modalPresentationStyle = UIModalPresentationCurrentContext;
+    [self presentViewController:overlay animated:NO completion:^{
+        
     }];
 }
 
@@ -456,15 +479,6 @@
 - (void)playerItemDidReachEnd:(NSNotification *)notification {
     AVPlayerItem *p = [notification object];
     [p seekToTime:kCMTimeZero];
-}
-
-- (void)initFirebase {
-    self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
-    
-    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        
-        [self newTile:snapshot];
-    }];
 }
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
