@@ -600,6 +600,8 @@
 }
 
 - (void)willEnterForeground {
+    [self initCamera];
+    
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if(tile.state == PLAYING){
             [tile play];
