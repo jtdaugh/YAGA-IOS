@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <Firebase/Firebase.h>
-#import "Tile.h"
+#import "TileCell.h"
 
 @interface MainViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate>
 
@@ -40,8 +40,10 @@
 @property (strong, nonatomic) UIButton *likeButton;
 @property (strong, nonatomic) UILabel *likeCount;
 
-@property (strong, nonatomic) Tile *enlargedTile;
+//@property (strong, nonatomic) Tile *enlargedTile;
 
 @property (strong, nonatomic) Firebase *firebase;
+
+- (void)collapse:(TileCell *)tile;
 
 @end

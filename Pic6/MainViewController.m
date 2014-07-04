@@ -36,11 +36,10 @@
     
     [self initOverlay];
     [self initGridView];
-    [self initLoader];
     [self initPlaque];
     [self initFirebase];
-    [self initCameraFrame];
     self.FrontCamera = 1;
+    [self initCameraFrame];
     [self initCamera];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -95,8 +94,6 @@
         [self.loader addSubview:tile];
     }
     
-//    [self.gridView addSubview:self.loader];
-    
     self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval:0.2
                                      target:self
                                    selector:@selector(loaderTick:)
@@ -142,31 +139,11 @@
 
 - (void) initOverlay {
     self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
-    [self.overlay setBackgroundColor:[UIColor greenColor]];
+    [self.overlay setBackgroundColor:[UIColor blackColor]];
     [self.overlay setAlpha:0.0];
     
-//    UITapGestureRecognizer *collapseTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseTile)];
-//    [self.overlay addGestureRecognizer:collapseTile];
 
-//    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-48-8, TILE_HEIGHT*3+16, 48, 48)];
-//    [self.likeButton setTitle:@"😃" forState:UIControlStateNormal];
-//    [self.likeButton.titleLabel setFont:[UIFont systemFontOfSize:48]];
-//    [self.likeButton setAlpha:0.5];
-//    [self.likeButton addTarget:self action:@selector(likePressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.overlay addSubview:self.likeButton];
-    
-//    self.likeCount = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH-48-8-72-8, TILE_HEIGHT*3+16, 72, 48)];
-//    [self.likeCount setTextAlignment:NSTextAlignmentRight];
-//    [self.likeCount setTextColor:[UIColor whiteColor]];
-//    [self.likeCount setFont:[UIFont systemFontOfSize:36]];
-//    [self.overlay addSubview:self.likeCount];
-    
-//    self.displayName = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16, TILE_WIDTH, 48)];
-//    [self.displayName setTextAlignment:NSTextAlignmentLeft];
-//    [self.displayName setTextColor:[UIColor whiteColor]];
-//    [self.displayName setFont:[UIFont systemFontOfSize:36]];
-//    [self.overlay addSubview:self.displayName];
-    [self.gridTiles addSubview:self.overlay];
+    [self.view addSubview:self.overlay];
 }
 
 - (NSURL *) movieUrlForSnapshotName:(NSString *)name {
@@ -253,7 +230,6 @@
         } else {
             [cell showLoader];
             if(!cell.isLoaded){
-                NSLog(@"triggering remote load of %@", cell.uid);
                 [self triggerRemoteLoad:cell.uid];
             }
         }
@@ -279,7 +255,6 @@
 }
 
 - (void)scrollingEnded {
-    NSLog(@"scrolling ended");
     self.scrolling = NO;
     NSArray *visibleCells = [self.gridTiles visibleCells];
     for(TileCell *cell in visibleCells){
@@ -291,37 +266,43 @@
     }
 }
 
-- (void)selectedTile:(UITapGestureRecognizer *)gesture {
-    TileCell *selected = (TileCell *)[gesture view];
-    [selected removeFromSuperview];
-    [self.overlay addSubview:selected];
-    
-    NSLog(@"yooo");
-    
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        [self.view bringSubviewToFront:self.overlay];
-        [self.overlay setAlpha:1.0];
-        [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, 2*TILE_WIDTH, 2*TILE_HEIGHT)];
-        //
-    } completion:^(BOOL finished) {
-        //
-    }];
-}
-
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"selected");
     
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
     
-    OverlayViewController *overlay = [[OverlayViewController alloc] init];
-    [overlay setTile:selected];
-    [overlay setPreviousFrame:selected.frame];
-    [overlay setPreviousViewController:self];
-    overlay.tile.frame = CGRectMake(overlay.tile.frame.origin.x, overlay.tile.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
-    [overlay.view setBackgroundColor:[UIColor clearColor]];
-    self.modalPresentationStyle = UIModalPresentationCurrentContext;
-    [self presentViewController:overlay animated:NO completion:^{
-        
+    selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+    [self.overlay addSubview:selected];
+
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+        //
+        [self.view bringSubviewToFront:self.overlay];
+        [self.overlay setAlpha:1.0];
+        [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
+    } completion:^(BOOL finished) {
+        //
+        OverlayViewController *overlay = [[OverlayViewController alloc] init];
+        [overlay setTile:selected];
+        [overlay setPreviousViewController:self];
+        self.modalPresentationStyle = UIModalPresentationCurrentContext;
+        [self presentViewController:overlay animated:NO completion:^{
+            
+        }];
+    }];
+    
+}
+
+- (void) collapse:(TileCell *)tile {
+    tile.frame = CGRectMake(0, self.gridTiles.contentOffset.y, TILE_WIDTH*2, TILE_HEIGHT*2);
+    [self.gridTiles addSubview:tile];
+    
+    [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+        [self.overlay setAlpha:0.0];
+        NSIndexPath *ip = [self.gridTiles indexPathForCell:tile];
+        [tile setVideoFrame:[self.gridTiles layoutAttributesForItemAtIndexPath:ip].frame];
+        //
+    } completion:^(BOOL finished) {
+        //
     }];
 }
 
@@ -333,153 +314,6 @@
     [selected setVideoFrame:attributes.frame];
 }
 
-- (void)deselectTile:(UITapGestureRecognizer *)gesture {
-    
-//    TileCell *selected = (TileCell *)[gesture view];
-//    NSIndexPath *indexPath = [self.gridTiles indexPathForCell:selected];
-//    UICollectionViewLayoutAttributes *attributes = [self.gridTiles layoutAttributesForItemAtIndexPath:indexPath];
-//    for (UIGestureRecognizer *recognizer in selected.gestureRecognizers) {
-//        [selected removeGestureRecognizer:recognizer];
-//    }
-//
-//    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-//        //
-//        [selected setVideoFrame:attributes.frame];
-//    } completion:^(BOOL finished) {
-//        //
-//    }];
-//    NSLog(@"%li", indexPath.row);
-}
-
-- (void)enlargeTile:(UITapGestureRecognizer *)gestureRecognizer {
-    if(self.enlargedTile == nil){
-        
-        int tileIndex = 0;
-        
-        //get tapped tile
-        for(Tile *tile in self.tiles){
-            if(tile.view == [gestureRecognizer view]){
-                break;
-            }
-            tileIndex++;
-        }
-        
-        self.enlargedTile = self.tiles[tileIndex];
-        
-        //remove gesture recognizers
-        for (UIGestureRecognizer *recognizer in self.enlargedTile.view.gestureRecognizers) {
-            [self.enlargedTile.view removeGestureRecognizer:recognizer];
-        }
-        
-        //resize tile
-        [self.view bringSubviewToFront:self.overlay];
-        [self.enlargedTile.view removeFromSuperview];
-        [self.overlay addSubview:self.enlargedTile.view];
-        [self.displayName setText:self.enlargedTile.data.value[@"user"]];
-        
-        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes", DATA, self.enlargedTile.data.name]] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-            [self renderLikes:snapshot];
-        }];
-
-        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes/%@", DATA, self.enlargedTile.data.name, [self humanName]]] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-            [self renderLikeButton:snapshot];
-        }];
-        
-        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-            [self.overlay setAlpha:1.0];
-            [self.likeButton setAlpha:0.5];
-            [self.enlargedTile setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
-
-            [self.enlargedTile.player setVolume:1.0];
-        } completion:^(BOOL finished) {
-            // add tap gesture recognizer for collapsing tile
-        }];
-    }
-}
-
-- (void) likePressed {
-    if(self.liked){
-        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes/%@", DATA, self.enlargedTile.data.name, [self humanName]]] setValue:[NSNull null]];
-    } else {
-        [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes/%@", DATA, self.enlargedTile.data.name, [self humanName]]] setValue:@"1"];
-    }
-}
-
-- (void)renderLikes:(FDataSnapshot *)snapshot {
-    NSLog(@"%lu", (unsigned long)snapshot.childrenCount);
-//    [self.likeCount setText:[NSString stringWithFormat:@"%lu", snapshot.childrenCount]];
-}
-
-- (void)renderLikeButton:(FDataSnapshot *)snapshot {
-    if(snapshot.value != [NSNull null]){
-        self.liked = 1;
-    } else {
-        self.liked = 0;
-    }
-    
-    NSLog(@"%lu", (unsigned long)snapshot.childrenCount);
-    
-    [UIView animateKeyframesWithDuration:0.5 delay:0.0 options:0 animations:^{
-        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
-            [self.likeButton setTransform:self.liked?CGAffineTransformMakeScale(1.4, 1.4):CGAffineTransformMakeScale(0.7, 0.7)];
-            [self.likeButton setAlpha:self.liked?1.0:0.5];
-        }];
-        [UIView addKeyframeWithRelativeStartTime:0.6 relativeDuration:0.4 animations:^{
-            [self.likeButton setTransform:CGAffineTransformIdentity];
-        }];
-    } completion:^(BOOL finished) {
-        
-    }];
-
-}
-
-- (void)closeButtonTapped {
-    [self collapseTile];
-}
-
-- (void)overlayTapped {
-    NSLog(@"overlay tapped");
-    [self collapseTile];
-}
-
-- (void)collapseTile {
-    int tileIndex = 0;
-    
-    //get tapped tile
-    for(Tile *tile in self.tiles){
-        if(tile == self.enlargedTile){
-            break;
-        }
-        tileIndex++;
-    }
-    
-    [self.view bringSubviewToFront:self.gridView];
-    [self.enlargedTile.view removeFromSuperview];
-    [self.gridView addSubview:self.enlargedTile.view];
-    [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes", DATA, self.enlargedTile.data.name]] removeAllObservers];
-    [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@/likes/%@", DATA, self.enlargedTile.data.name, [self humanName]]] removeAllObservers];
-
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-        //
-        [self.overlay setAlpha:0.0];
-        [self.enlargedTile.view setGridPosition:2+tileIndex];
-        [self.enlargedTile.playerLayer setFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-        [self.enlargedTile.playerContainer setFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-        [self.enlargedTile.player setVolume:0.0];
-    } completion:^(BOOL finished) {
-        // set tap gesture recognizer
-        UITapGestureRecognizer *tappedTile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeTile:)];
-        [self.enlargedTile.view addGestureRecognizer:tappedTile];
-        self.enlargedTile = nil;
-//        [self layoutGrid];
-    }];
-}
-
-//loop video when ends
-- (void)playerItemDidReachEnd:(NSNotification *)notification {
-    AVPlayerItem *p = [notification object];
-    [p seekToTime:kCMTimeZero];
-}
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
     // measure size of data
@@ -501,11 +335,7 @@
     
     //upload to reactions if enlarged tile, otherwise upload to main stream
     NSString *path;
-    if(self.enlargedTile){
-        path = [NSString stringWithFormat:@"%@/%@/%@", REACTIONS, self.enlargedTile.data.name, dataPath];
-    } else {
-        path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
-    }
+    path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
     
     [[self.firebase childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
 }

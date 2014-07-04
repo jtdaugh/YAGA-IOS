@@ -24,11 +24,7 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    self.bg = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    [self.bg setAlpha:0.0];
-//    [self.view addSubview:self.bg];
     [self.view addSubview:self.tile];
-    self.adjustedPreviousFrame = self.tile.frame;
     [self.tile.player setVolume:1.0];
 
     self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16, TILE_WIDTH, 48)];
@@ -36,17 +32,9 @@
     [self.userLabel setTextColor:[UIColor whiteColor]];
     [self.userLabel setFont:[UIFont systemFontOfSize:36]];
     [self.userLabel setText:self.tile.username];
-    [self.userLabel setAlpha:0.0];
+    [self.userLabel setAlpha:1.0];
     [self.view addSubview:self.userLabel];
     
-    [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        //
-        [self.bg setAlpha:1.0];
-        [self.userLabel setAlpha:1.0];
-        [self.tile setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
-    } completion:^(BOOL finished) {
-        //
-    }];
 }
 
 - (void)viewDidLoad
@@ -59,17 +47,9 @@
 
 - (void)tapped:(UITapGestureRecognizer *)gesture {
     [self.tile.player setVolume:0.0];
-    [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        //
-        [self.userLabel setAlpha:0.0];
-        [self.bg setAlpha:0.0];
-        [self.tile setVideoFrame:self.adjustedPreviousFrame];
-    } completion:^(BOOL finished) {
-        [self.previousViewController.gridTiles addSubview:self.tile];
-        [self.tile setFrame:self.previousFrame];
-        [self dismissViewControllerAnimated:NO completion:^{
-        }];
-
+    [self.previousViewController.overlay addSubview:self.tile];
+    [self dismissViewControllerAnimated:NO completion:^{
+        [self.previousViewController collapse:self.tile];
     }];
     
 }
