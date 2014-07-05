@@ -39,7 +39,7 @@
     [self initPlaque];
     [self initFirebase];
     self.FrontCamera = 1;
-    [self initCameraFrame];
+    [self initCameraView];
     [self initCamera];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -138,7 +138,6 @@
 }
 
 - (void) triggerRemoteLoad:(NSString *)uid {
-    
     [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, uid]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
         if(dataSnapshot.value != [NSNull null]){
             NSError *error = nil;
@@ -271,30 +270,6 @@
 //    [selected setVideoFrame:attributes.frame];
 }
 
-
-- (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
-    // measure size of data
-    NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
-
-    // set up data object
-    NSString *stringData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *dataObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
-    NSString *dataPath = dataObject.name;
-    [dataObject setValue:stringData withCompletionBlock:^(NSError *error, Firebase *ref) {
-    }];
-    
-    NSString *path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
-    [[self.firebase childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
-
-    NSFileManager * fm = [[NSFileManager alloc] init];
-    NSError *err = nil;
-    [fm moveItemAtURL:outputURL toURL:[dataPath movieUrl] error:&err];
-    if(err){
-        NSLog(@"error: %@", err);
-    }
-    
-}
-
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
     if (self.FrontCamera == 1) {
         self.FrontCamera = 0;
@@ -304,16 +279,9 @@
     [self initCamera];
 }
 
-- (void)initCameraFrame {
-    UIView *superView = [self.cameraView superview];
-    [self.cameraView removeFromSuperview];
-    self.cameraView = [[UIImageView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
-    if(superView){
-        [superView addSubview:self.cameraView];
-    } else {
-        [self.gridView addSubview:self.cameraView];
-    }
-    [self.gridView bringSubviewToFront:self.cameraView];
+- (void)initCameraView {
+    self.cameraView = [[UIView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
+    [self.gridView addSubview:self.cameraView];
     
     [self.cameraView setUserInteractionEnabled:YES];
 
@@ -322,69 +290,29 @@
     longPressGestureRecognizer.delegate = self;
     [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
     
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-    tapGestureRecognizer.delegate = self;
-    [tapGestureRecognizer requireGestureRecognizerToFail:longPressGestureRecognizer];
-//    [self.cameraView addGestureRecognizer:tapGestureRecognizer];
-
-}
-
-- (void)handleHold:(UITapGestureRecognizer *)recognizer {
-    if (recognizer.state == UIGestureRecognizerStateEnded) {
-        [self endHold];
-    } else if (recognizer.state == UIGestureRecognizerStateBegan){
-        [self startHold];
-    }
-}
-
-- (void)startHold {
-    self.recording = 1;
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 8)];
-    [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
-    [self.cameraView addSubview:self.indicator];
-    
-    [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        [self.indicator setFrame:CGRectMake(0, 0, TILE_WIDTH, 8)];
-    } completion:^(BOOL finished) {
-        if(finished){
-            [self endHold];
-        }
-        //
-    }];
-    [self startRecordingVideo];
-    
-}
-
-- (void) endHold {
-    if(self.recording){
-        [self.indicator removeFromSuperview];
-        [self stopRecordingVideo];
-        // Do Whatever You want on End of Gesture
-        self.recording = 0;
-    }
 }
 
 - (void)initCamera {
     
     AVCaptureSession *session = [[AVCaptureSession alloc] init];
-	session.sessionPreset = AVCaptureSessionPresetMedium;
+    session.sessionPreset = AVCaptureSessionPresetMedium;
     
     //display camera preview frame
-	self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
+    self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     [self.captureVideoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
     
     //display camera preview frame
-	self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
-	[self.cameraView.layer addSublayer:self.captureVideoPreviewLayer];
+    self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
+    [self.cameraView.layer addSublayer:self.captureVideoPreviewLayer];
     
     //display camera preview frame
     UIView *view = [self cameraView];
     CALayer *viewLayer = [view layer];
-    [viewLayer setMasksToBounds:YES];
+//    [viewLayer setMasksToBounds:YES];
     
     //set camera preview frame
     CGRect bounds = [view bounds];
-    [self.captureVideoPreviewLayer setFrame:bounds];
+//    [self.captureVideoPreviewLayer setFrame:bounds];
     
     //get front and back camera objects
     NSArray *devices = [AVCaptureDevice devices];
@@ -423,12 +351,11 @@
     [session addInput:input];
     
     //ADD AUDIO INPUT
-	AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-	AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-	if (audioInput)
-	{
-		[session addInput:audioInput];
-	}
+    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+    if (audioInput) {
+        [session addInput:audioInput];
+    }
     
     //set still image output
     self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
@@ -439,24 +366,59 @@
     [session addOutput:self.stillImageOutput];
     
     
-	//ADD MOVIE FILE OUTPUT
-	self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-	
-	Float64 TotalSeconds = 6;			//Total seconds
-	int32_t preferredTimeScale = 10;	//Frames per second
-	CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
-	self.movieFileOutput.maxRecordedDuration = maxDuration;
-	
-	self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
-	
-	if ([session canAddOutput:self.movieFileOutput]) {
-		[session addOutput:self.movieFileOutput];
+    //ADD MOVIE FILE OUTPUT
+    self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+    
+    Float64 TotalSeconds = 6;			//Total seconds
+    int32_t preferredTimeScale = 10;	//Frames per second
+    CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
+    self.movieFileOutput.maxRecordedDuration = maxDuration;
+    
+    self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
+    
+    if ([session canAddOutput:self.movieFileOutput]) {
+        [session addOutput:self.movieFileOutput];
     }
     
-	//SET THE CONNECTION PROPERTIES (output properties)
-	//[self CameraSetOutputProperties];
+    //SET THE CONNECTION PROPERTIES (output properties)
+    //[self CameraSetOutputProperties];
     
     [session startRunning];
+}
+
+- (void)handleHold:(UITapGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateEnded) {
+        [self endHold];
+    } else if (recognizer.state == UIGestureRecognizerStateBegan){
+        [self startHold];
+    }
+}
+
+- (void)startHold {
+    self.recording = 1;
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 8)];
+    [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
+    [self.cameraView addSubview:self.indicator];
+    
+    [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        [self.indicator setFrame:CGRectMake(0, 0, TILE_WIDTH, 8)];
+    } completion:^(BOOL finished) {
+        if(finished){
+            [self endHold];
+        }
+        //
+    }];
+    [self startRecordingVideo];
+    
+}
+
+- (void) endHold {
+    if(self.recording){
+        [self.indicator removeFromSuperview];
+        [self stopRecordingVideo];
+        // Do Whatever You want on End of Gesture
+        self.recording = 0;
+    }
 }
 
 - (void) startRecordingVideo {
@@ -505,36 +467,27 @@
     
 }
 
-- (void)handleTap:(UITapGestureRecognizer *)recognizer {
-    [self capImage];
-}
-
-- (void) capImage { //method to capture image from AVCaptureSession video feed
-    AVCaptureConnection *videoConnection = nil;
-    for (AVCaptureConnection *connection in self.stillImageOutput.connections) {
-        
-        for (AVCaptureInputPort *port in [connection inputPorts]) {
-            
-            if ([[port mediaType] isEqual:AVMediaTypeVideo] ) {
-                videoConnection = connection;
-                break;
-            }
-        }
-        
-        if (videoConnection) {
-            break;
-        }
+- (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
+    // measure size of data
+    NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
+    
+    // set up data object
+    NSString *stringData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    Firebase *dataObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
+    NSString *dataPath = dataObject.name;
+    [dataObject setValue:stringData withCompletionBlock:^(NSError *error, Firebase *ref) {
+    }];
+    
+    NSString *path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
+    [[self.firebase childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
+    
+    NSFileManager * fm = [[NSFileManager alloc] init];
+    NSError *err = nil;
+    [fm moveItemAtURL:outputURL toURL:[dataPath movieUrl] error:&err];
+    if(err){
+        NSLog(@"error: %@", err);
     }
     
-    NSLog(@"about to request a capture from: %@", self.stillImageOutput);
-    [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:videoConnection completionHandler: ^(CMSampleBufferRef imageSampleBuffer, NSError *error) {
-        
-        if (imageSampleBuffer != NULL) {
-            NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
-//            self uploadData:<#(NSData *)#> withType:<#(NSString *)#> withOutputURL:<#(NSURL *)#>
-//            [self processImage:[UIImage imageWithData:imageData]];
-        }
-    }];
 }
 
 - (NSString *)humanName {
@@ -559,7 +512,7 @@
     
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if(tile.state == PLAYING){
-            [tile play];
+            [tile.player play];
         }
     }
 }
