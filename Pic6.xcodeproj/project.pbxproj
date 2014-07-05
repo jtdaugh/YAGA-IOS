@@ -8,9 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415AEFE3196638D600F6A8B1 /* OverlayViewController.m */; };
+		418954BE19687DD2009C17E2 /* NSString+File.m in Sources */ = {isa = PBXBuildFile; fileRef = 418954BD19687DD2009C17E2 /* NSString+File.m */; };
 		71106D88192444A30083C64A /* PData.m in Sources */ = {isa = PBXBuildFile; fileRef = 71106D87192444A30083C64A /* PData.m */; };
-		71404FAB1916A9B6002F4B92 /* UIView+Grid.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FAA1916A9B6002F4B92 /* UIView+Grid.m */; };
-		71404FAE1919FD4A002F4B92 /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = 71404FAD1919FD49002F4B92 /* Tile.m */; };
 		715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 715455D0190E01D600ABE2BE /* UIImage+Resize.m */; };
 		7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */ = {isa = PBXBuildFile; fileRef = 7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */; };
 		716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 716CFA35192EC1F500E6ED17 /* TileCell.m */; };
@@ -50,13 +49,11 @@
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		415AEFE2196638D600F6A8B1 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
 		415AEFE3196638D600F6A8B1 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
+		418954BC19687DD2009C17E2 /* NSString+File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+File.h"; sourceTree = "<group>"; };
+		418954BD19687DD2009C17E2 /* NSString+File.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+File.m"; sourceTree = "<group>"; };
 		71106D86192444A30083C64A /* PData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PData.h; sourceTree = "<group>"; };
 		71106D87192444A30083C64A /* PData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PData.m; sourceTree = "<group>"; };
 		71404FA819121A78002F4B92 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
-		71404FA91916A9B6002F4B92 /* UIView+Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Grid.h"; sourceTree = "<group>"; };
-		71404FAA1916A9B6002F4B92 /* UIView+Grid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Grid.m"; sourceTree = "<group>"; };
-		71404FAC1919FD49002F4B92 /* Tile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tile.h; sourceTree = "<group>"; };
-		71404FAD1919FD49002F4B92 /* Tile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tile.m; sourceTree = "<group>"; };
 		715455CF190E01D600ABE2BE /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
 		715455D0190E01D600ABE2BE /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
 		7154774A1941119B00133083 /* AVPlayer+AVPlayer_Async.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVPlayer+AVPlayer_Async.h"; sourceTree = "<group>"; };
@@ -129,29 +126,13 @@
 			name = Data;
 			sourceTree = "<group>";
 		};
-		71106D89192449B80083C64A /* Camera */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Camera;
-			sourceTree = "<group>";
-		};
-		71404FAF1919FD55002F4B92 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				71404FAC1919FD49002F4B92 /* Tile.h */,
-				71404FAD1919FD49002F4B92 /* Tile.m */,
-			);
-			name = Models;
-			sourceTree = "<group>";
-		};
 		715455D3191063F500ABE2BE /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				418954BC19687DD2009C17E2 /* NSString+File.h */,
+				418954BD19687DD2009C17E2 /* NSString+File.m */,
 				715455CF190E01D600ABE2BE /* UIImage+Resize.h */,
 				715455D0190E01D600ABE2BE /* UIImage+Resize.m */,
-				71404FA91916A9B6002F4B92 /* UIView+Grid.h */,
-				71404FAA1916A9B6002F4B92 /* UIView+Grid.m */,
 				7154774A1941119B00133083 /* AVPlayer+AVPlayer_Async.h */,
 				7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */,
 			);
@@ -207,10 +188,8 @@
 		71D0F571190D998000C7DEE0 /* Pic6 */ = {
 			isa = PBXGroup;
 			children = (
-				71106D89192449B80083C64A /* Camera */,
 				71106D85192434970083C64A /* Data */,
 				71B827D8191B0445008C4048 /* Views */,
-				71404FAF1919FD55002F4B92 /* Models */,
 				715455D3191063F500ABE2BE /* Categories */,
 				71404FA819121A78002F4B92 /* Constants.h */,
 				71D0F5A0190D99A700C7DEE0 /* MainViewController.h */,
@@ -391,11 +370,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */,
-				71404FAB1916A9B6002F4B92 /* UIView+Grid.m in Sources */,
-				71404FAE1919FD4A002F4B92 /* Tile.m in Sources */,
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
 				71106D88192444A30083C64A /* PData.m in Sources */,
 				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,
+				418954BE19687DD2009C17E2 /* NSString+File.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
 				716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */,
 				71D0F5A2190D99A700C7DEE0 /* MainViewController.m in Sources */,

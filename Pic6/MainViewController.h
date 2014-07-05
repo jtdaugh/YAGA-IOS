@@ -21,11 +21,6 @@
 @property (strong, nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
-@property (strong, nonatomic) UIView *loader;
-@property (strong, nonatomic) NSMutableArray *loaderTiles;
-@property (strong, nonatomic) NSTimer *loaderTimer;
-@property BOOL loading;
-
 @property (strong, nonatomic) UIView *gridView;
 @property (strong, nonatomic) UICollectionView *gridTiles;
 @property (strong, nonatomic) NSMutableArray *gridData;

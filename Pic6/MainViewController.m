@@ -8,7 +8,7 @@
 
 #import "MainViewController.h"
 #import "UIImage+Resize.h"
-#import "UIView+Grid.h"
+#import "NSString+File.h"
 #import "TileCell.h"
 #import "AVPlayer+AVPlayer_Async.h"
 #import "OverlayViewController.h"
@@ -54,7 +54,7 @@
 
 - (void)initPlaque {
     self.plaque = [[UIView alloc] init];
-    [self.plaque setGridPosition:0];
+    [self.plaque setFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
     [self.plaque setBackgroundColor:PRIMARY_COLOR];
     
     UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(8, 8, TILE_WIDTH-16, 30)];
@@ -78,38 +78,6 @@
     [self.plaque addSubview:self.switchButton];
 
     [self.gridView addSubview:self.plaque];
-}
-
-- (void)initLoader {
-    self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*4)];
-    [self.loader setBackgroundColor:PRIMARY_COLOR];
-    self.loaderTiles = [NSMutableArray array];
-    for(int i = 2; i < 2 + NUM_TILES; i++){
-        UIView *tile = [[UIView alloc] init];
-        [tile setGridPosition:i];
-        [self.loaderTiles addObject:tile];
-        [self.loader addSubview:tile];
-    }
-    
-    self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval:0.2
-                                     target:self
-                                   selector:@selector(loaderTick:)
-                                   userInfo:nil
-                                    repeats:YES];
-    self.loading = 1;
-}
-
-- (void)loaderTick:(NSTimer *) timer {
-    for(int i = 0; i < NUM_TILES; i++){
-        [self.loaderTiles[i] setBackgroundColor:(__bridge CGColorRef)([UIColor colorWithRed:((float)arc4random() / ARC4RANDOM_MAX) green:((float)arc4random() / ARC4RANDOM_MAX) blue:((float)arc4random() / ARC4RANDOM_MAX) alpha:0.5])];
-    }
-}
-
-- (void) doneLoading {
-    if(self.loading){
-        self.loading = 0;
-        [self.loader removeFromSuperview];
-    }
 }
 
 - (void)initGridView {
@@ -139,12 +107,6 @@
     [self.overlay setAlpha:0.0];
 
     [self.view addSubview:self.overlay];
-}
-
-- (NSURL *) movieUrlForSnapshotName:(NSString *)name {
-    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), name];
-    NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
-    return movieURL;
 }
 
 - (void)initFirebase {
@@ -184,7 +146,7 @@
             NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
             
             if(videoData != nil){
-                NSURL *movieURL = [self movieUrlForSnapshotName:uid];
+                NSURL *movieURL = [uid movieUrl];
                 [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
             }
             
@@ -326,7 +288,7 @@
 
     NSFileManager * fm = [[NSFileManager alloc] init];
     NSError *err = nil;
-    [fm moveItemAtURL:outputURL toURL:[self movieUrlForSnapshotName:dataPath] error:&err];
+    [fm moveItemAtURL:outputURL toURL:[dataPath movieUrl] error:&err];
     if(err){
         NSLog(@"error: %@", err);
     }
