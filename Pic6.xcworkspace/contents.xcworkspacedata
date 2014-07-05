@@ -2,12 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:NSMutableArray+Tile.h">
-   </FileRef>
-   <FileRef
-      location = "group:NSMutableArray+Tile.m">
-   </FileRef>
-   <FileRef
       location = "group:Pic6.xcodeproj">
    </FileRef>
    <FileRef

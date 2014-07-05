@@ -26,7 +26,6 @@
 @property (strong, nonatomic) NSTimer *loaderTimer;
 @property BOOL loading;
 
-@property (strong, nonatomic) NSMutableArray *tiles;
 @property (strong, nonatomic) UIView *gridView;
 @property (strong, nonatomic) UICollectionView *gridTiles;
 @property (strong, nonatomic) NSMutableArray *gridData;
@@ -36,9 +35,6 @@
 @property (strong, nonatomic) UIButton *switchButton;
 
 @property (strong, nonatomic) UIView *overlay;
-@property (strong, nonatomic) UILabel *displayName;
-@property (strong, nonatomic) UIButton *likeButton;
-@property (strong, nonatomic) UILabel *likeCount;
 
 //@property (strong, nonatomic) Tile *enlargedTile;
 

@@ -70,9 +70,6 @@
     [instructions setTextColor:[UIColor whiteColor]];
     [instructions setFont:[UIFont systemFontOfSize:14]];
     [self.plaque addSubview:instructions];
-//    UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-//    [logo setImage:[UIImage imageNamed:@"Logo"]];
-//    [self.plaque addSubview:logo];
 
     self.switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, TILE_HEIGHT - 60, 50, 50)];
     [self.switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
@@ -133,7 +130,6 @@
     [self.gridView addSubview:self.gridTiles];
     
     [self.view addSubview:self.gridView];
-    self.tiles = [NSMutableArray array];
     self.gridData = [NSMutableArray array];
 }
 
@@ -141,7 +137,6 @@
     self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
     [self.overlay setBackgroundColor:[UIColor blackColor]];
     [self.overlay setAlpha:0.0];
-    
 
     [self.view addSubview:self.overlay];
 }
