@@ -24,6 +24,12 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+
+    //add background for tap gesture recognizer
+    UIView *bg = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [bg setBackgroundColor:[UIColor blackColor]];
+    [self.view addSubview:bg];
+    
     [self.view addSubview:self.tile];
     [self.tile.player setVolume:1.0];
 
@@ -46,6 +52,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
     [self.view addGestureRecognizer:tap];
     // Do any additional setup after loading the view.
