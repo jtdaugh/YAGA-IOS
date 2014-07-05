@@ -264,10 +264,6 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-//    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
-//    UICollectionViewLayoutAttributes *attributes = [collectionView layoutAttributesForItemAtIndexPath:indexPath];
-//    
-//    [selected setVideoFrame:attributes.frame];
 }
 
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
@@ -276,7 +272,11 @@
     } else {
         self.FrontCamera = 1;
     }
-    [self initCamera];
+    
+    [self.session beginConfiguration];
+    [self.session removeInput:[self.session.inputs lastObject]];
+    [self addCameraInput];
+    [self.session commitConfiguration];
 }
 
 - (void)initCameraView {
@@ -294,11 +294,11 @@
 
 - (void)initCamera {
     
-    AVCaptureSession *session = [[AVCaptureSession alloc] init];
-    session.sessionPreset = AVCaptureSessionPresetMedium;
+    self.session = [[AVCaptureSession alloc] init];
+    self.session.sessionPreset = AVCaptureSessionPresetMedium;
     
     //display camera preview frame
-    self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
+    self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
     [self.captureVideoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
     
     //display camera preview frame
@@ -314,6 +314,48 @@
     CGRect bounds = [view bounds];
 //    [self.captureVideoPreviewLayer setFrame:bounds];
     
+    NSError *error = nil;
+    
+    //ADD AUDIO INPUT
+    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+    if (audioInput) {
+        [self.session addInput:audioInput];
+    }
+    
+    //set still image output
+    self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
+    NSDictionary *outputSettings = [[NSDictionary alloc] initWithObjectsAndKeys: AVVideoCodecJPEG, AVVideoCodecKey, nil];
+    [self.stillImageOutput setOutputSettings:outputSettings];
+    
+    //still setting still image output
+    [self.session addOutput:self.stillImageOutput];
+    
+    
+    //ADD MOVIE FILE OUTPUT
+    self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+    
+    Float64 TotalSeconds = 6;			//Total seconds
+    int32_t preferredTimeScale = 10;	//Frames per second
+    CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
+    self.movieFileOutput.maxRecordedDuration = maxDuration;
+    
+    self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
+    
+    if ([self.session canAddOutput:self.movieFileOutput]) {
+        [self.session addOutput:self.movieFileOutput];
+    }
+    
+    //SET THE CONNECTION PROPERTIES (output properties)
+    //[self CameraSetOutputProperties];
+    
+    [self addCameraInput];
+    
+    [self.session startRunning];
+    
+}
+
+- (void)addCameraInput {
     //get front and back camera objects
     NSArray *devices = [AVCaptureDevice devices];
     AVCaptureDevice *captureDevice;
@@ -348,42 +390,9 @@
     if (!input) {
         NSLog(@"ERROR: trying to open camera: %@", error);
     }
-    [session addInput:input];
     
-    //ADD AUDIO INPUT
-    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-    if (audioInput) {
-        [session addInput:audioInput];
-    }
-    
-    //set still image output
-    self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
-    NSDictionary *outputSettings = [[NSDictionary alloc] initWithObjectsAndKeys: AVVideoCodecJPEG, AVVideoCodecKey, nil];
-    [self.stillImageOutput setOutputSettings:outputSettings];
-    
-    //still setting still image output
-    [session addOutput:self.stillImageOutput];
-    
-    
-    //ADD MOVIE FILE OUTPUT
-    self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-    
-    Float64 TotalSeconds = 6;			//Total seconds
-    int32_t preferredTimeScale = 10;	//Frames per second
-    CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
-    self.movieFileOutput.maxRecordedDuration = maxDuration;
-    
-    self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
-    
-    if ([session canAddOutput:self.movieFileOutput]) {
-        [session addOutput:self.movieFileOutput];
-    }
-    
-    //SET THE CONNECTION PROPERTIES (output properties)
-    //[self CameraSetOutputProperties];
-    
-    [session startRunning];
+    [self.session addInput:input];
+
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {

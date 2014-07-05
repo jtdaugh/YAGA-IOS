@@ -18,6 +18,7 @@
 @property (strong, nonatomic) UIView *indicator;
 @property BOOL recording;
 
+@property (strong, nonatomic) AVCaptureSession *session;
 @property (strong, nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
