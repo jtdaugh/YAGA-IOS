@@ -174,7 +174,7 @@
 }
 
 - (void) newTile:(FDataSnapshot *)snapshot {
-    if(![[(FDataSnapshot *)self.gridData[0] name] isEqualToString:snapshot.name]){
+    if(!([self.gridData count] > 0 && [[(FDataSnapshot *)self.gridData[0] name] isEqualToString:snapshot.name])){
         [self.gridData insertObject:snapshot atIndex:0];
         [self.gridTiles insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
     }
@@ -308,10 +308,10 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
-    UICollectionViewLayoutAttributes *attributes = [collectionView layoutAttributesForItemAtIndexPath:indexPath];
-    
-    [selected setVideoFrame:attributes.frame];
+//    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
+//    UICollectionViewLayoutAttributes *attributes = [collectionView layoutAttributesForItemAtIndexPath:indexPath];
+//    
+//    [selected setVideoFrame:attributes.frame];
 }
 
 
@@ -322,10 +322,13 @@
     // set up data object
     NSString *stringData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     Firebase *dataObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
-    [dataObject setValue:stringData];
     NSString *dataPath = dataObject.name;
+    [dataObject setValue:stringData withCompletionBlock:^(NSError *error, Firebase *ref) {
+    }];
     
-    [dataObject setValue:stringData];// withCompletionBlock:^(NSError *error, Firebase *ref) {
+    NSString *path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
+    [[self.firebase childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
+
     NSFileManager * fm = [[NSFileManager alloc] init];
     NSError *err = nil;
     [fm moveItemAtURL:outputURL toURL:[self movieUrlForSnapshotName:dataPath] error:&err];
@@ -333,11 +336,6 @@
         NSLog(@"error: %@", err);
     }
     
-    //upload to reactions if enlarged tile, otherwise upload to main stream
-    NSString *path;
-    path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
-    
-    [[self.firebase childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
 }
 
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
