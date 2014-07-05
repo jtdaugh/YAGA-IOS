@@ -31,15 +31,9 @@
     [self.view addSubview:bg];
     
     [self.view addSubview:self.tile];
-    [self.tile.player setVolume:1.0];
 
-    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16, TILE_WIDTH, 48)];
-    [self.userLabel setTextAlignment:NSTextAlignmentLeft];
-    [self.userLabel setTextColor:[UIColor whiteColor]];
-    [self.userLabel setFont:[UIFont systemFontOfSize:36]];
-    [self.userLabel setText:self.tile.username];
-    [self.userLabel setAlpha:0.0];
-    [self.view addSubview:self.userLabel];
+    [self initUserLabel];
+    [self initCaptionLabel];
     
     [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         [self.userLabel setAlpha:1.0];
@@ -56,6 +50,27 @@
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
     [self.view addGestureRecognizer:tap];
     // Do any additional setup after loading the view.
+}
+
+- (void) initUserLabel {
+    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16, TILE_WIDTH, 48)];
+    [self.userLabel setTextAlignment:NSTextAlignmentLeft];
+    [self.userLabel setTextColor:[UIColor whiteColor]];
+    [self.userLabel setFont:[UIFont systemFontOfSize:36]];
+    [self.userLabel setText:self.tile.username];
+    [self.userLabel setAlpha:0.0];
+    [self.view addSubview:self.userLabel];
+}
+
+- (void) initCaptionLabel {
+    self.captionLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16 + 48 + 8, VIEW_WIDTH - 16, 48)];
+    [self.captionLabel setTextAlignment:NSTextAlignmentLeft];
+    [self.captionLabel setTextColor:[UIColor lightGrayColor]];
+    [self.captionLabel setFont:[UIFont systemFontOfSize:18]];
+    [self.captionLabel setText:@"Add caption"];
+//    [self.captionLabel setBackgroundColor:[UIColor greenColor]];
+    [self.captionLabel setAlpha:1.0];
+    [self.view addSubview:self.captionLabel];
 }
 
 - (void)tapped:(UITapGestureRecognizer *)gesture {

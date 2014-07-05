@@ -14,4 +14,5 @@
 @property (strong, nonatomic) TileCell *tile;
 @property (strong, nonatomic) MainViewController *previousViewController;
 @property (strong, nonatomic) UILabel *userLabel;
+@property (strong, nonatomic) UILabel *captionLabel;
 @end

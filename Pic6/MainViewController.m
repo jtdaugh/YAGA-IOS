@@ -234,6 +234,7 @@
         //
         [self.view bringSubviewToFront:self.overlay];
         [self.overlay setAlpha:1.0];
+        [selected.player setVolume:1.0];
         [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
     } completion:^(BOOL finished) {
         //
@@ -273,10 +274,24 @@
         self.FrontCamera = 1;
     }
     
+    [self reloadCamera];
+}
+
+- (void)reloadCamera {
     [self.session beginConfiguration];
+    // find video object and remove it
     [self.session removeInput:[self.session.inputs lastObject]];
     [self addCameraInput];
     [self.session commitConfiguration];
+}
+
+- (void)reloadCameraAndAudio {
+    [self.session beginConfiguration];
+    for(AVCaptureDeviceInput *input in self.session.inputs){
+        [self.session removeInput:input];
+    }
+    [self.session commitConfiguration];
+
 }
 
 - (void)initCameraView {
@@ -316,12 +331,7 @@
     
     NSError *error = nil;
     
-    //ADD AUDIO INPUT
-    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-    if (audioInput) {
-        [self.session addInput:audioInput];
-    }
+    [self addAudioInput];
     
     //set still image output
     self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
@@ -353,6 +363,16 @@
     
     [self.session startRunning];
     
+}
+
+- (void)addAudioInput {
+    //ADD AUDIO INPUT
+    NSError *error = nil;
+    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+    if (audioInput) {
+        [self.session addInput:audioInput];
+    }
 }
 
 - (void)addCameraInput {
@@ -517,7 +537,8 @@
 }
 
 - (void)willEnterForeground {
-    [self initCamera];
+//    [self reloadCameraAndAudio];
+    [self reloadCamera];
     
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if(tile.state == PLAYING){
