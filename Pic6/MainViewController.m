@@ -61,6 +61,7 @@
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
+
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -571,22 +572,22 @@
 }
 
 - (void)willResignActive {
-    NSLog(@"will resign active");
+//    NSLog(@"will resign active");
 //    [self.view setAlpha:0.0];
 }
 
 - (void)didBecomeActive {
-    NSLog(@"did become active");
+//    NSLog(@"did become active");
 }
 
 - (void)didEnterBackground {
-    NSLog(@"did enter background");
+//    NSLog(@"did enter background");
     [self.view setAlpha:0.0];
     [self closeCamera];
 }
 
 - (void)willEnterForeground {
-    NSLog(@"will enter foreground");
+//    NSLog(@"will enter foreground");
     [self.view setAlpha:1.0];
     [self initCamera];
 
