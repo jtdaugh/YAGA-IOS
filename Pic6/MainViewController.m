@@ -46,9 +46,20 @@
                                              selector:@selector(willEnterForeground)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willResignActive)
                                                  name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didBecomeActive)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
 }
 
@@ -335,7 +346,9 @@
     
     //display camera preview frame
     self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
+    [[self.cameraView.layer.sublayers firstObject] removeFromSuperlayer];
     [self.cameraView.layer addSublayer:self.captureVideoPreviewLayer];
+    NSLog(@"%lu", [self.cameraView.layer.sublayers count]);
     
     //display camera preview frame
     UIView *view = [self cameraView];
@@ -558,13 +571,23 @@
 }
 
 - (void)willResignActive {
-    NSLog(@"goodbye?");
+    NSLog(@"will resign active");
 //    [self.view setAlpha:0.0];
+}
+
+- (void)didBecomeActive {
+    NSLog(@"did become active");
+}
+
+- (void)didEnterBackground {
+    NSLog(@"did enter background");
+    [self.view setAlpha:0.0];
     [self closeCamera];
 }
 
 - (void)willEnterForeground {
-    NSLog(@"awake 2!");
+    NSLog(@"will enter foreground");
+    [self.view setAlpha:1.0];
     [self initCamera];
 
     for(TileCell *tile in [self.gridTiles visibleCells]){
