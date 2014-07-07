@@ -46,6 +46,10 @@
                                              selector:@selector(willEnterForeground)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willResignActive)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -110,8 +114,9 @@
 }
 
 - (void)initFirebase {
-    self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
     
+    self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
+
     [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"%lu", snapshot.childrenCount);
         NSString *lastUid;
@@ -120,14 +125,26 @@
             lastUid = child.name;
         }
         [self.gridTiles reloadData];
-        [self listenForAdded];
+        [self listenForChanges];
     }];
 }
 
-- (void)listenForAdded; {
+- (void)listenForChanges; {
+    
+    //new child added
     [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [self newTile:snapshot];
     }];
+
+    //child deleted
+    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildMoved withBlock:^(FDataSnapshot *snapshot) {
+        NSLog(@"child moved");
+    }];
+
+    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildRemoved withBlock:^(FDataSnapshot *snapshot) {
+        NSLog(@"child deleted");
+    }];
+
 }
 
 - (void) newTile:(FDataSnapshot *)snapshot {
@@ -365,6 +382,10 @@
     
 }
 
+- (void)closeCamera {
+    [self.session stopRunning];
+}
+
 - (void)addAudioInput {
     //ADD AUDIO INPUT
     NSError *error = nil;
@@ -536,10 +557,16 @@
     return [UIDevice currentDevice].name;
 }
 
+- (void)willResignActive {
+    NSLog(@"goodbye?");
+//    [self.view setAlpha:0.0];
+    [self closeCamera];
+}
+
 - (void)willEnterForeground {
-//    [self reloadCameraAndAudio];
-    [self reloadCamera];
-    
+    NSLog(@"awake 2!");
+    [self initCamera];
+
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if(tile.state == PLAYING){
             [tile.player play];
@@ -547,8 +574,7 @@
     }
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }

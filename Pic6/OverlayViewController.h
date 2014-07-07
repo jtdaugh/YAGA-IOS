@@ -9,10 +9,14 @@
 #import <UIKit/UIKit.h>
 #import "TileCell.h"
 #import "MainViewController.h"
+#import <Firebase/Firebase.h>
 
 @interface OverlayViewController : UIViewController
 @property (strong, nonatomic) TileCell *tile;
 @property (strong, nonatomic) MainViewController *previousViewController;
 @property (strong, nonatomic) UILabel *userLabel;
-@property (strong, nonatomic) UILabel *captionLabel;
+@property (strong, nonatomic) UITextView *captionField;
+
+@property (strong, nonatomic) Firebase *firebase;
+
 @end

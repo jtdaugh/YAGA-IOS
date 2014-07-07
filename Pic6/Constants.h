@@ -11,7 +11,7 @@
 
 #define APP_NAME @"Clique"
 
-#define NUM_TILES 12
+#define NUM_TILES 20
 #define TILE_WIDTH 640/4
 #define TILE_HEIGHT 1136/8
 
@@ -44,8 +44,8 @@
 #define PRIMARY_COLOR2 [UIColor colorWithRed: 142.0f/255.0f green: 68.0f/255.0f blue:173.0f/255.0f alpha:1.0]
 #define SECONDARY_COLOR [UIColor colorWithRed: 241.0f/255.0f green: 196.0f/255.0f blue:15.0f/255.0f alpha:1.0]
 
-//#define NODE_NAME @"dev5"
-#define NODE_NAME @"production5"
+#define NODE_NAME @"dev5"
+//#define NODE_NAME @"production5"
 #define MEDIA @"media"
 #define DATA @"data"
 #define REACTIONS @"reactions"

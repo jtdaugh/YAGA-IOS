@@ -19,7 +19,6 @@
 		71D0F576190D998000C7DEE0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 71D0F574190D998000C7DEE0 /* InfoPlist.strings */; };
 		71D0F578190D998000C7DEE0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 71D0F577190D998000C7DEE0 /* main.m */; };
 		71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 71D0F57B190D998000C7DEE0 /* AppDelegate.m */; };
-		71D0F57F190D998000C7DEE0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71D0F57D190D998000C7DEE0 /* Main.storyboard */; };
 		71D0F584190D998000C7DEE0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 71D0F583190D998000C7DEE0 /* Images.xcassets */; };
 		71D0F58B190D998000C7DEE0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F58A190D998000C7DEE0 /* XCTest.framework */; };
 		71D0F58C190D998000C7DEE0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56B190D998000C7DEE0 /* Foundation.framework */; };
@@ -70,7 +69,6 @@
 		71D0F579190D998000C7DEE0 /* Pic6-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Pic6-Prefix.pch"; sourceTree = "<group>"; };
 		71D0F57A190D998000C7DEE0 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		71D0F57B190D998000C7DEE0 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		71D0F57E190D998000C7DEE0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		71D0F583190D998000C7DEE0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		71D0F589190D998000C7DEE0 /* Pic6Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Pic6Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		71D0F58A190D998000C7DEE0 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -198,7 +196,6 @@
 				415AEFE3196638D600F6A8B1 /* OverlayViewController.m */,
 				71D0F57A190D998000C7DEE0 /* AppDelegate.h */,
 				71D0F57B190D998000C7DEE0 /* AppDelegate.m */,
-				71D0F57D190D998000C7DEE0 /* Main.storyboard */,
 				71D0F583190D998000C7DEE0 /* Images.xcassets */,
 				71D0F572190D998000C7DEE0 /* Supporting Files */,
 			);
@@ -317,7 +314,6 @@
 			files = (
 				71D0F584190D998000C7DEE0 /* Images.xcassets in Resources */,
 				71D0F576190D998000C7DEE0 /* InfoPlist.strings in Resources */,
-				71D0F57F190D998000C7DEE0 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,14 +402,6 @@
 				71D0F575190D998000C7DEE0 /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		71D0F57D190D998000C7DEE0 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				71D0F57E190D998000C7DEE0 /* Base */,
-			);
-			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 		71D0F593190D998000C7DEE0 /* InfoPlist.strings */ = {

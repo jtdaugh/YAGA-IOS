@@ -33,13 +33,19 @@
     [self.view addSubview:self.tile];
 
     [self initUserLabel];
-    [self initCaptionLabel];
+//    [self initCaptionLabel];
     
     [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         [self.userLabel setAlpha:1.0];
+//        [self.captionField setAlpha:1.0];
     } completion:^(BOOL finished) {
         //
     }];
+    
+    /*
+     Anyone else want Melo to stay in New York? I love him, he's one of my favorite players, and I think he'd clearly help the Lakers quickly turn into contenders -- BUT I think it would be awesome for him to be able to bring a championship to the city of New York. He'd be a king there - his childhood dream. I just like the NBA more that way.
+     
+     */
     
 }
 
@@ -53,7 +59,7 @@
 }
 
 - (void) initUserLabel {
-    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16, TILE_WIDTH, 48)];
+    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 8, TILE_WIDTH, 48)];
     [self.userLabel setTextAlignment:NSTextAlignmentLeft];
     [self.userLabel setTextColor:[UIColor whiteColor]];
     [self.userLabel setFont:[UIFont systemFontOfSize:36]];
@@ -63,14 +69,20 @@
 }
 
 - (void) initCaptionLabel {
-    self.captionLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 16 + 48 + 8, VIEW_WIDTH - 16, 48)];
-    [self.captionLabel setTextAlignment:NSTextAlignmentLeft];
-    [self.captionLabel setTextColor:[UIColor lightGrayColor]];
-    [self.captionLabel setFont:[UIFont systemFontOfSize:18]];
-    [self.captionLabel setText:@"Add caption"];
-//    [self.captionLabel setBackgroundColor:[UIColor greenColor]];
-    [self.captionLabel setAlpha:1.0];
-    [self.view addSubview:self.captionLabel];
+    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(5, TILE_HEIGHT*3 + 8 + 48, VIEW_WIDTH - 16, 76)];
+    
+//    [self.captionLabel setTextAlignment:NSTextAlignmentLeft];
+    [self.captionField setText:@"Add caption"];
+    [self.captionField setTextColor:[UIColor grayColor]];
+    [self.captionField setFont:[UIFont systemFontOfSize:18]];
+    [self.captionField setBackgroundColor:[UIColor clearColor]];
+    [self.captionField setAlpha:0.0];
+    [self.view addSubview:self.captionField];
+    
+    NSLog(@"%@", NSStringFromCGRect(self.captionField.bounds));
+}
+
+- (void) getCaptionText:(NSString *)uid {
 }
 
 - (void)tapped:(UITapGestureRecognizer *)gesture {
