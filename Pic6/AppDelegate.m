@@ -8,13 +8,25 @@
 
 #import "AppDelegate.h"
 #import <AVFoundation/AVFoundation.h>
+#import "MainViewController.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    NSLog(@"yooo");
+    
     [self setupAudio];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    // Override point for customization after application launch.
+    // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
+    // self.window.backgroundColor = [UIColor whiteColor];
+    
+    self.window.rootViewController = [[MainViewController alloc] init];
+    
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
 							

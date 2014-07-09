@@ -130,7 +130,7 @@
     self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
 
     [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        NSLog(@"%lu", snapshot.childrenCount);
+        NSLog(@"children count: %lu", snapshot.childrenCount);
         NSString *lastUid;
         for (FDataSnapshot* child in snapshot.children) {
             [self.gridData insertObject:child atIndex:0];
@@ -171,11 +171,16 @@
         if(dataSnapshot.value != [NSNull null]){
             NSError *error = nil;
             
-            NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value options:NSDataBase64DecodingIgnoreUnknownCharacters];
+            NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"video"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
             
+            NSData *imageData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"thumb"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
+
             if(videoData != nil){
                 NSURL *movieURL = [uid movieUrl];
                 [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
+
+                NSURL *imageURL = [uid movieUrl];
+                [imageData writeToURL:imageURL options:NSDataWritingAtomic error:&error];
             }
             
             [self finishedLoading:uid];
@@ -212,6 +217,8 @@
 
         if(cell.isLoaded && !self.scrolling){
             [cell play];
+        } else if(cell.isLoaded && self.scrolling){
+            // [cell setImage];
         } else {
             [cell showLoader];
             if(!cell.isLoaded){
@@ -349,7 +356,6 @@
     self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
     [[self.cameraView.layer.sublayers firstObject] removeFromSuperlayer];
     [self.cameraView.layer addSublayer:self.captureVideoPreviewLayer];
-    NSLog(@"%lu", [self.cameraView.layer.sublayers count]);
     
     //display camera preview frame
     UIView *view = [self cameraView];
@@ -361,8 +367,6 @@
 //    [self.captureVideoPreviewLayer setFrame:bounds];
     
     NSError *error = nil;
-    
-    [self addAudioInput];
     
     //set still image output
     self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
@@ -390,6 +394,7 @@
     //SET THE CONNECTION PROPERTIES (output properties)
     //[self CameraSetOutputProperties];
     
+    [self addAudioInput];
     [self addCameraInput];
     
     [self.session startRunning];
@@ -397,6 +402,11 @@
 }
 
 - (void)closeCamera {
+    [self.session beginConfiguration];
+    for(AVCaptureDeviceInput *input in self.session.inputs){
+        [self.session removeInput:input];
+    }
+    [self.session commitConfiguration];
     [self.session stopRunning];
 }
 
@@ -404,10 +414,16 @@
     //ADD AUDIO INPUT
     NSError *error = nil;
     AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-    if (audioInput) {
-        [self.session addInput:audioInput];
+    self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+    if (self.audioInput) {
+        [self.session addInput:self.audioInput];
     }
+}
+
+- (void)removeAudioInput {
+    [self.session beginConfiguration];
+    [self.session removeInput:self.audioInput];
+    [self.session commitConfiguration];
 }
 
 - (void)addCameraInput {
@@ -536,10 +552,23 @@
     NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
     
     // set up data object
-    NSString *stringData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    NSString *videoData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     Firebase *dataObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
     NSString *dataPath = dataObject.name;
-    [dataObject setValue:stringData withCompletionBlock:^(NSError *error, Firebase *ref) {
+    
+    AVURLAsset* asset = [AVURLAsset URLAssetWithURL:outputURL options:nil];
+    AVAssetImageGenerator* imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+    [imageGenerator setAppliesPreferredTrackTransform:YES];
+//    UIImage* image = [UIImage imageWithCGImage:[imageGenerator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil]];
+    CGImageRef imageRef = [imageGenerator copyCGImageAtTime:CMTimeMake(0,1) actualTime:nil error:nil];
+    
+    UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(TILE_WIDTH, TILE_HEIGHT)];
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
+    NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    
+    NSLog(@"imagedata size: %lu", [imageData length]);
+    
+    [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
     }];
     
     NSString *path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
@@ -572,12 +601,12 @@
 }
 
 - (void)willResignActive {
-//    NSLog(@"will resign active");
-//    [self.view setAlpha:0.0];
+// remove microphone
+
 }
 
 - (void)didBecomeActive {
-//    NSLog(@"did become active");
+// add microphone
 }
 
 - (void)didEnterBackground {

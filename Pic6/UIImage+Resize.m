@@ -12,7 +12,7 @@
 - (UIImage *)imageScaledToSize:(CGSize)size
 {
     //create drawing context
-    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0f);
+    UIGraphicsBeginImageContext(size);
     
     //draw
     [self drawInRect:CGRectMake(0.0f, 0.0f, size.width, size.height)];

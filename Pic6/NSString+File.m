@@ -16,4 +16,10 @@
     return movieURL;
 }
 
+- (NSURL *) imageUrl {
+    NSString *imagePath = [[NSString alloc] initWithFormat:@"%@%@.jpg", NSTemporaryDirectory(), self];
+    NSURL *imageURL = [[NSURL alloc] initFileURLWithPath:imagePath];
+    return imageURL;
+}
+
 @end

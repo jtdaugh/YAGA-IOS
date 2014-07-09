@@ -58,6 +58,41 @@
     }
 }
 
+- (void)showImage {
+    self.state = PLAYING;
+    
+    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self.uid];
+    NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if ([fileManager fileExistsAtPath:moviePath]){
+        
+        self.player = [AVPlayer playerWithURL:movieURL];
+        self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+        
+        [self.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+        
+        // set video sizing
+        [self.playerContainer removeFromSuperview];
+        self.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+        //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
+        self.playerLayer.frame = self.playerContainer.frame;
+        
+        // play video in frame
+        [self.playerContainer.layer addSublayer: self.playerLayer];
+        //        [self.loader removeFromSuperview];
+        [self addSubview:self.playerContainer];
+        
+        [self.player setVolume:0.0];
+        [self.player asyncPlay];
+        
+        // set looping
+        [self.player setLooping];
+    } else {
+        NSLog(@"wtf?");
+    }
+}
+
 //LOAD IT UP
 - (void)play {
     self.state = PLAYING;

@@ -19,6 +19,10 @@
 @property BOOL recording;
 
 @property (strong, nonatomic) AVCaptureSession *session;
+
+@property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
+@property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
+
 @property (strong, nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
