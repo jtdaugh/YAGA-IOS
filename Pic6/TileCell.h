@@ -10,7 +10,9 @@
 #import <AVFoundation/AVFoundation.h>
 
 #define LOADING 0
-#define PLAYING 1
+#define LOADED 1
+#define PLAYING 2
+#define LIMBO 4
 
 @interface TileCell : UICollectionViewCell
 @property int state;

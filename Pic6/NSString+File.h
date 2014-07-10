@@ -8,4 +8,5 @@
 
 @interface NSString (File)
 - (NSURL *) movieUrl;
+- (NSURL *) imageUrl;
 @end

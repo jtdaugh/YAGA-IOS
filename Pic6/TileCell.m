@@ -36,6 +36,11 @@
 //        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
         [self loaderTick:nil];
         [self addSubview:self.loader];
+        
+        self.image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+        [self.image setContentMode:UIViewContentModeScaleAspectFill];
+        [self.image setClipsToBounds:YES];
+        [self addSubview:self.image];
     }
     return self;
 }
@@ -48,6 +53,7 @@
 
 - (void)showLoader {
     self.state = LOADING;
+    [self.image removeFromSuperview];
     [self.playerContainer removeFromSuperview];
     // Initialization code
 }
@@ -59,37 +65,21 @@
 }
 
 - (void)showImage {
-    self.state = PLAYING;
+    self.state = LOADED;
     
-    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self.uid];
-    NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
+    [self.playerContainer removeFromSuperview];
+    
+    NSString *imagePath = [[NSString alloc] initWithFormat:@"%@%@.jpg", NSTemporaryDirectory(), self.uid];
+//    NSURL *imageURL = [[NSURL alloc] initFileURLWithPath:imagePath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
-    if ([fileManager fileExistsAtPath:moviePath]){
-        
-        self.player = [AVPlayer playerWithURL:movieURL];
-        self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-        
-        [self.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-        
-        // set video sizing
-        [self.playerContainer removeFromSuperview];
-        self.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-        //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
-        self.playerLayer.frame = self.playerContainer.frame;
-        
-        // play video in frame
-        [self.playerContainer.layer addSublayer: self.playerLayer];
-        //        [self.loader removeFromSuperview];
-        [self addSubview:self.playerContainer];
-        
-        [self.player setVolume:0.0];
-        [self.player asyncPlay];
-        
-        // set looping
-        [self.player setLooping];
+    if ([fileManager fileExistsAtPath:imagePath]){
+        [self.image setImage:[UIImage imageWithContentsOfFile:imagePath]];
+        [self addSubview:self.image];
+        NSLog(@"subview count: %lu", [self.subviews count]);
+        NSLog(@"setImage?");
     } else {
-        NSLog(@"wtf?");
+        NSLog(@"wtf? image");
     }
 }
 

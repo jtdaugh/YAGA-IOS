@@ -175,25 +175,24 @@
             
             NSData *imageData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"thumb"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
 
-            if(videoData != nil){
+            if(videoData != nil && imageData != nil){
                 NSURL *movieURL = [uid movieUrl];
                 [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
 
-                NSURL *imageURL = [uid movieUrl];
+                NSURL *imageURL = [uid imageUrl];
                 [imageData writeToURL:imageURL options:NSDataWritingAtomic error:&error];
             }
             
             [self finishedLoading:uid];
             
         }
-        
     }];
 }
 
 - (void) finishedLoading:(NSString *)uid {
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if([tile.uid isEqualToString:uid]){
-            [tile play];
+            [self.gridTiles reloadItemsAtIndexPaths:@[[self.gridTiles indexPathForCell:tile]]];
         }
     }
 }
@@ -209,23 +208,23 @@
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [self.gridData objectAtIndex:indexPath.row];
+    cell.state = LIMBO;
     
     if(![cell.uid isEqualToString:snapshot.name]){
 
         [cell setUid:snapshot.name];
         [cell setUsername:snapshot.value[@"user"]];
 
-        if(cell.isLoaded && !self.scrolling){
-            [cell play];
-        } else if(cell.isLoaded && self.scrolling){
-            // [cell setImage];
+        if(cell.isLoaded){
+            if(self.scrolling){
+                [cell showImage];
+            } else {
+                [cell play];
+            }
         } else {
             [cell showLoader];
-            if(!cell.isLoaded){
-                [self triggerRemoteLoad:cell.uid];
-            }
+            [self triggerRemoteLoad:cell.uid];
         }
-
     }
     
     return cell;
@@ -248,12 +247,10 @@
 
 - (void)scrollingEnded {
     self.scrolling = NO;
-    NSArray *visibleCells = [self.gridTiles visibleCells];
-    for(TileCell *cell in visibleCells){
-        if(cell.state == LOADING){
-            if(cell.isLoaded && !self.scrolling){
-                [cell play];
-            }
+    for(TileCell *cell in [self.gridTiles visibleCells]){
+        if(cell.state == LOADED){
+            [cell play];
+//            [self.gridTiles reloadItemsAtIndexPaths: @[[self.gridTiles indexPathForCell:cell]]];
         }
     }
 }
@@ -562,11 +559,9 @@
 //    UIImage* image = [UIImage imageWithCGImage:[imageGenerator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil]];
     CGImageRef imageRef = [imageGenerator copyCGImageAtTime:CMTimeMake(0,1) actualTime:nil error:nil];
     
-    UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(TILE_WIDTH, TILE_HEIGHT)];
+    UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(TILE_WIDTH*2, TILE_HEIGHT*2)];
     NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
     NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    
-    NSLog(@"imagedata size: %lu", [imageData length]);
     
     [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
     }];
@@ -577,6 +572,9 @@
     NSFileManager * fm = [[NSFileManager alloc] init];
     NSError *err = nil;
     [fm moveItemAtURL:outputURL toURL:[dataPath movieUrl] error:&err];
+    [imageData writeToURL:[dataPath imageUrl] options:NSDataWritingAtomic error:&err];
+
+    
     if(err){
         NSLog(@"error: %@", err);
     }
@@ -621,8 +619,8 @@
     [self initCamera];
 
     for(TileCell *tile in [self.gridTiles visibleCells]){
-        if(tile.state == PLAYING){
-            [tile.player play];
+        if(tile.state == PLAYING || tile.state == LOADED){
+            [tile play];
         }
     }
 }
