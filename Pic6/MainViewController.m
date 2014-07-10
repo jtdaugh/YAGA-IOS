@@ -611,6 +611,7 @@
 //    NSLog(@"did enter background");
     [self.view setAlpha:0.0];
     [self closeCamera];
+    
 }
 
 - (void)willEnterForeground {
