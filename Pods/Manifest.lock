@@ -1,10 +1,10 @@
 PODS:
-  - Firebase (1.0.9)
+  - Firebase (1.1.9)
 
 DEPENDENCIES:
-  - Firebase (~> 1.0.0)
+  - Firebase (>= 1.1)
 
 SPEC CHECKSUMS:
-  Firebase: f88860bb05fde375a236bab7182ecc4e02fe5c93
+  Firebase: 389b4d1f1a8f4b9ed53abec2aa62a3ceeafd7fcd
 
-COCOAPODS: 0.32.1
+COCOAPODS: 0.33.1
