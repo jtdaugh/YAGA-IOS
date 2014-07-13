@@ -142,7 +142,7 @@
     }];
 }
 
-- (void)listenForChanges; {
+- (void)listenForChanges {
     
     //new child added
     [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
