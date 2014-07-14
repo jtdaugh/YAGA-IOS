@@ -156,15 +156,6 @@
         [self newTile:snapshot];
     }];
 
-    //child deleted
-    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildMoved withBlock:^(FDataSnapshot *snapshot) {
-        NSLog(@"child moved");
-    }];
-
-    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildRemoved withBlock:^(FDataSnapshot *snapshot) {
-        NSLog(@"child deleted");
-    }];
-
 }
 
 - (void) newTile:(FDataSnapshot *)snapshot {
