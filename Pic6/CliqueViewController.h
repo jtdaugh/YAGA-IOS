@@ -10,5 +10,6 @@
 
 @interface CliqueViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
 @property (strong, nonatomic) UITableView *list;
+@property (strong, nonatomic) NSMutableArray *data;
 
 @end

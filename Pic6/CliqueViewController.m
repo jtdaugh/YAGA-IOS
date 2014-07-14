@@ -54,6 +54,7 @@
     self.list.delegate = self;
     [self.list registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
 
+    self.data = [@[@[@"Kobe Bryant", @"Steve Jobs", @"Leo", @"Tim Tebow"], @[@"Michael Jordan (Added You)", @"Kanye West (Added You)", @"Dr. Dre", @"50 Cent", @"Phil Jackson"], @[@"Mark Zuckerberg", @"Elon Musk"]] mutableCopy];
     // Do any additional setup after loading the view.
 }
 
@@ -65,17 +66,17 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 3;
+    return [self.data count];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 5;
+    return [self.data[section] count];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch (section) {
         case 0:
-            return @"My Clique";
+            return @"My Clique (4/12)";
             break;
         case 1:
             return @"Contacts on Clique";
@@ -92,7 +93,32 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"];
-    [cell.textLabel setText:@"Hello hello"];
+    [cell.textLabel setText:self.data[indexPath.section][indexPath.row]];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    [cell setAccessoryView:[[UIImageView alloc] init]];
+    
+    UIImageView *accessory = [[UIImageView alloc] initWithFrame:CGRectMake(240, 5, 34, 34)];
+    
+    switch (indexPath.section) {
+        case 0:
+            // @"My Clique";
+            [accessory setImage:[UIImage imageNamed:@"Remove"]];
+            break;
+        case 1:
+            // Contacts on Clique
+            [accessory setImage:[UIImage imageNamed:@"Add"]];
+            break;
+        case 2:
+            // All Contacts
+            [accessory setImage:[UIImage imageNamed:@"Invite"]];
+            break;
+        default:
+            accessory = nil;
+            break;
+    }
+    
+    [cell setAccessoryView:accessory];
     
     return cell;
     
