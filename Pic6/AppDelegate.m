@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import <AVFoundation/AVFoundation.h>
-#import "MainViewController.h"
+#import "GridViewController.h"
 
 @implementation AppDelegate
 
@@ -17,13 +17,14 @@
     // Override point for customization after application launch.
     NSLog(@"yooo");
     
+    [Firebase setOption:@"persistence" to:@YES];
     [self setupAudio];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
     // self.window.backgroundColor = [UIColor whiteColor];
     
-    self.window.rootViewController = [[MainViewController alloc] init];
+    self.window.rootViewController = [[GridViewController alloc] init];
     
     [self.window makeKeyAndVisible];
     

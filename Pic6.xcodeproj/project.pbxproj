@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41373A1A19734DAD00F41895 /* CliqueViewController.m */; };
 		415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415AEFE3196638D600F6A8B1 /* OverlayViewController.m */; };
 		418954BE19687DD2009C17E2 /* NSString+File.m in Sources */ = {isa = PBXBuildFile; fileRef = 418954BD19687DD2009C17E2 /* NSString+File.m */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
@@ -26,7 +27,7 @@
 		71D0F58D190D998000C7DEE0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56F190D998000C7DEE0 /* UIKit.framework */; };
 		71D0F595190D998000C7DEE0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 71D0F593190D998000C7DEE0 /* InfoPlist.strings */; };
 		71D0F597190D998000C7DEE0 /* Pic6Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71D0F596190D998000C7DEE0 /* Pic6Tests.m */; };
-		71D0F5A2190D99A700C7DEE0 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 71D0F5A1190D99A700C7DEE0 /* MainViewController.m */; };
+		71D0F5A2190D99A700C7DEE0 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 71D0F5A1190D99A700C7DEE0 /* GridViewController.m */; };
 		71D0F5A4190DCE2E00C7DEE0 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A3190DCE2E00C7DEE0 /* libicucore.dylib */; };
 		71D0F5A6190DCE3600C7DEE0 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A5190DCE3600C7DEE0 /* libc++.dylib */; };
 		71D0F5A8190DCE3D00C7DEE0 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */; };
@@ -47,6 +48,8 @@
 
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		41373A1919734DAD00F41895 /* CliqueViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliqueViewController.h; sourceTree = "<group>"; };
+		41373A1A19734DAD00F41895 /* CliqueViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CliqueViewController.m; sourceTree = "<group>"; };
 		415AEFE2196638D600F6A8B1 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
 		415AEFE3196638D600F6A8B1 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
 		418954BC19687DD2009C17E2 /* NSString+File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+File.h"; sourceTree = "<group>"; };
@@ -77,8 +80,8 @@
 		71D0F592190D998000C7DEE0 /* Pic6Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Pic6Tests-Info.plist"; sourceTree = "<group>"; };
 		71D0F594190D998000C7DEE0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		71D0F596190D998000C7DEE0 /* Pic6Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Pic6Tests.m; sourceTree = "<group>"; };
-		71D0F5A0190D99A700C7DEE0 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
-		71D0F5A1190D99A700C7DEE0 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
+		71D0F5A0190D99A700C7DEE0 /* GridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridViewController.h; sourceTree = "<group>"; };
+		71D0F5A1190D99A700C7DEE0 /* GridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridViewController.m; sourceTree = "<group>"; };
 		71D0F5A3190DCE2E00C7DEE0 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		71D0F5A5190DCE3600C7DEE0 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -118,6 +121,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		41373A181973459600F41895 /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				71D0F5A0190D99A700C7DEE0 /* GridViewController.h */,
+				71D0F5A1190D99A700C7DEE0 /* GridViewController.m */,
+				415AEFE2196638D600F6A8B1 /* OverlayViewController.h */,
+				415AEFE3196638D600F6A8B1 /* OverlayViewController.m */,
+				41373A1919734DAD00F41895 /* CliqueViewController.h */,
+				41373A1A19734DAD00F41895 /* CliqueViewController.m */,
+			);
+			name = "View Controllers";
+			sourceTree = "<group>";
+		};
 		71106D85192434970083C64A /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -193,11 +209,8 @@
 				71106D85192434970083C64A /* Data */,
 				71B827D8191B0445008C4048 /* Views */,
 				715455D3191063F500ABE2BE /* Categories */,
+				41373A181973459600F41895 /* View Controllers */,
 				71404FA819121A78002F4B92 /* Constants.h */,
-				71D0F5A0190D99A700C7DEE0 /* MainViewController.h */,
-				71D0F5A1190D99A700C7DEE0 /* MainViewController.m */,
-				415AEFE2196638D600F6A8B1 /* OverlayViewController.h */,
-				415AEFE3196638D600F6A8B1 /* OverlayViewController.m */,
 				71D0F57A190D998000C7DEE0 /* AppDelegate.h */,
 				71D0F57B190D998000C7DEE0 /* AppDelegate.m */,
 				71D0F583190D998000C7DEE0 /* Images.xcassets */,
@@ -376,8 +389,9 @@
 				418954BE19687DD2009C17E2 /* NSString+File.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
 				716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */,
-				71D0F5A2190D99A700C7DEE0 /* MainViewController.m in Sources */,
+				71D0F5A2190D99A700C7DEE0 /* GridViewController.m in Sources */,
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
+				41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -27,13 +27,13 @@
             [self.boxes addObject:box];
             [self.loader addSubview:box];
         }
-//        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
-//                                                          target:self
-//                                                        selector:@selector(loaderTick:)
-//                                                        userInfo:nil
-//                                                         repeats:YES];
-//        
-//        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                          target:self
+                                                        selector:@selector(loaderTick:)
+                                                        userInfo:nil
+                                                         repeats:YES];
+        
+        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
         [self loaderTick:nil];
         [self addSubview:self.loader];
         

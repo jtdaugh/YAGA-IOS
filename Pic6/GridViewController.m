@@ -6,19 +6,20 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "MainViewController.h"
+#import "GridViewController.h"
 #import "UIImage+Resize.h"
 #import "NSString+File.h"
 #import "TileCell.h"
 #import "AVPlayer+AVPlayer_Async.h"
 #import "OverlayViewController.h"
+#import "CliqueViewController.h"
 
-@interface MainViewController ()
+@interface GridViewController ()
 @property bool FrontCamera;
 @property bool liked;
 @end
 
-@implementation MainViewController
+@implementation GridViewController
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -93,6 +94,12 @@
     [self.switchButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
     [self.plaque addSubview:self.switchButton];
 
+    UIButton *cliqueButton = [[UIButton alloc] initWithFrame:CGRectMake(10, TILE_HEIGHT - 60, 50, 50)];
+    [cliqueButton addTarget:self action:@selector(manageClique:) forControlEvents:UIControlEventTouchUpInside];
+    [cliqueButton setImage:[UIImage imageNamed:@"Clique"] forState:UIControlStateNormal];
+    [cliqueButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
+    [self.plaque addSubview:cliqueButton];
+    
     [self.gridView addSubview:self.plaque];
 }
 
@@ -111,6 +118,7 @@
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
     [self.gridTiles setBackgroundColor:PRIMARY_COLOR];
+//    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
     
     [self.view addSubview:self.gridView];
@@ -127,7 +135,6 @@
 
 - (void)initFirebase {
     
-    [Firebase setOption:@"persistence" to:@YES];
     self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
     
     [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
@@ -251,7 +258,8 @@
     for(TileCell *cell in [self.gridTiles visibleCells]){
         if(cell.state == LOADED){
             [cell play];
-//            [self.gridTiles reloadItemsAtIndexPaths: @[[self.gridTiles indexPathForCell:cell]]];
+        } else {
+
         }
     }
 }
@@ -265,7 +273,6 @@
     [self.overlay addSubview:selected];
 
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        //
         [self.view bringSubviewToFront:self.overlay];
         [self.overlay setAlpha:1.0];
         [selected.player setVolume:1.0];
@@ -299,6 +306,13 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     
+}
+
+- (void)manageClique:(id)sender { //switch cameras front and rear cameras
+    CliqueViewController *vc = [[CliqueViewController alloc] init];
+    [self presentViewController:vc animated:YES completion:^{
+        //
+    }];
 }
 
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
