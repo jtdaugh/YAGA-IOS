@@ -76,8 +76,6 @@
     if ([fileManager fileExistsAtPath:imagePath]){
         [self.image setImage:[UIImage imageWithContentsOfFile:imagePath]];
         [self addSubview:self.image];
-        NSLog(@"subview count: %lu", [self.subviews count]);
-        NSLog(@"setImage?");
     } else {
         NSLog(@"wtf? image");
     }

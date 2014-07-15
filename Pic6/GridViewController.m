@@ -221,8 +221,8 @@
                 [cell play];
             }
         } else {
-            [self triggerRemoteLoad:cell.uid];
             [cell showLoader];
+            [self triggerRemoteLoad:cell.uid];
         }
     }
     
