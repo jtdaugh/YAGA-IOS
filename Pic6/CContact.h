@@ -10,5 +10,7 @@
 
 @interface CContact : NSObject
 @property (strong, nonatomic) NSString *name;
+@property (strong, nonatomic) NSString *firstName;
 @property (strong, nonatomic) NSString *number;
+- (NSString *) readableNumber;
 @end

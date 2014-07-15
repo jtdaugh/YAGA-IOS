@@ -114,23 +114,9 @@
     
     CContact *contact = self.data[indexPath.section][indexPath.row];
     [cell.textLabel setText:contact.name];
-    
-    NSError *aError = nil;
-    
-    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
-    NSString *num = @"";
-    for(NSString *phone in contact.phones){
-        NBPhoneNumber *myNumber = [phoneUtil parse:phone
-                                     defaultRegion:@"US" error:&aError];
-        
-        num = [NSString stringWithFormat:@"%@ +%@", num, [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatNATIONAL error:&aError]];
-    }
-
-    [cell.detailTextLabel setText:num];
+    [cell.detailTextLabel setText:[contact readableNumber]];
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    
-//    UIImageView *accessory = [[UIImageView alloc] initWithFrame:CGRectMake(240, 5, 34, 34)];
     
     UIButton *accessory = [[UIButton alloc] initWithFrame:CGRectMake(240, 5, 34, 34)];
     [accessory addTarget:self action:@selector(accessoryButtonTapped:withEvent:) forControlEvents:UIControlEventTouchUpInside];
@@ -162,7 +148,7 @@
 - (void)importAddressBook {
     
     APAddressBook *addressBook = [[APAddressBook alloc] init];
-    addressBook.fieldsMask = APContactFieldCompositeName | APContactFieldPhones | APContactFieldPhonesWithLabels;
+    addressBook.fieldsMask = APContactFieldCompositeName | APContactFieldPhones | APContactFieldFirstName;
     addressBook.filterBlock = ^BOOL(APContact *contact){
         return
             // has a #
@@ -178,8 +164,7 @@
                                     [NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]
                                     ];
     
-    [addressBook loadContacts:^(NSArray *contacts, NSError *error)
-    {
+    [addressBook loadContacts:^(NSArray *contacts, NSError *error){
         // hide activity
         if (!error){
             for(int i = 0; i<[contacts count]; i++){
@@ -189,24 +174,31 @@
                     NSError *aError = nil;
                     NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j]
                                                  defaultRegion:@"US" error:&aError];
-                    
                     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
 
-                    int k = i + j - 1;
-                    CContact *previous = self.data[2][k];
-                    
-                    BOOL dupe = 0;
-                    while([previous.name isEqualToString:contact.compositeName]){
-                        if([previous.number isEqualToString:num]){
-                            dupe = 1;
+
+                    int dupe = 0;
+
+                    //crawl backwards
+                    int k = (int)[self.data[2] count] - 1;
+                    while(k > 0){
+                        CContact *previous = self.data[2][k];
+                        if([previous.name isEqualToString:contact.compositeName]){
+                            if([previous.number isEqualToString:num]){
+                                dupe = 1;
+                            }
+                        } else {
+                            break;
                         }
-                        k--;
+                        k = k-1;
+                        
                     }
                     
-                    if(!dupe){
+                    if(dupe == 0){
                         CContact *current = [CContact new];
                         current.name = contact.compositeName;
                         current.number = num;
+                        current.firstName = contact.firstName;
                         [self.data[2] addObject:current];
                     }
                 }
@@ -251,7 +243,13 @@
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"tapped");
-    
+    CContact *contact = self.data[indexPath.section][indexPath.row];
+    [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
+                                message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
+                               delegate: nil
+                      cancelButtonTitle:@"Invite"
+                      otherButtonTitles:@"Not now", nil]
+     show];
 }
 
 /*

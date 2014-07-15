@@ -7,6 +7,17 @@
 //
 
 #import "CContact.h"
+#import "NBPhoneNumberUtil.h"
 
 @implementation CContact
+
+- (NSString *)readableNumber {
+    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+    NSError *aError = nil;
+    NBPhoneNumber *myNumber = [phoneUtil parse:self.number
+                                 defaultRegion:@"US" error:&aError];
+    NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatNATIONAL error:&aError];
+    return num;
+}
+
 @end
