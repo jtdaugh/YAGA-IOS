@@ -117,10 +117,11 @@
     [cell.textLabel setText:contact.name];
     [cell.detailTextLabel setText:[contact readableNumber]];
     
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     
     UIButton *accessory = [[UIButton alloc] initWithFrame:CGRectMake(240, 5, 34, 34)];
-    [accessory addTarget:self action:@selector(accessoryButtonTapped:withEvent:) forControlEvents:UIControlEventTouchUpInside];
+    [accessory setUserInteractionEnabled:NO];
+//    [accessory addTarget:self action:@selector(accessoryButtonTapped:withEvent:)forControlEvents:UIControlEventTouchUpInside];
     switch (indexPath.section) {
         case 0:
             // @"My Clique";
@@ -243,13 +244,25 @@
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"tapped");
+//    CContact *contact = self.data[indexPath.section][indexPath.row];
+//    [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
+//                                message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
+//                               delegate: nil
+//                      cancelButtonTitle:@"Invite"
+//                      otherButtonTitles:@"Not now", nil]
+//     show];
+    [self.list selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     CContact *contact = self.data[indexPath.section][indexPath.row];
     [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
                                 message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
-                               delegate: nil
+                               delegate: self
                       cancelButtonTitle:@"Invite"
                       otherButtonTitles:@"Not now", nil]
      show];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 /*

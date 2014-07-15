@@ -16,7 +16,7 @@
 {
     // Override point for customization after application launch.
     NSLog(@"yooo");
-    
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     [Firebase setOption:@"persistence" to:@YES];
     [self setupAudio];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
