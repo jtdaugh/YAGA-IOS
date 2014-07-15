@@ -54,8 +54,8 @@
     NSLog(@"clique view controller did loaed");
     
     self.data = [@[
-                   [@[] mutableCopy],
-                   [@[] mutableCopy],
+                   [@[@"Kobe Bryant", @"Michael Jordan"] mutableCopy],
+                   [@[@"Steve Jobs", @"Mark Zuckerberg"] mutableCopy],
                    [@[] mutableCopy]
                    ] mutableCopy];
 
@@ -113,9 +113,14 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Cell"];
     }
     
-    CContact *contact = self.data[indexPath.section][indexPath.row];
-    [cell.textLabel setText:contact.name];
-    [cell.detailTextLabel setText:[contact readableNumber]];
+    if(indexPath.section == 2){
+        CContact *contact = self.data[indexPath.section][indexPath.row];
+        [cell.textLabel setText:contact.name];
+        [cell.detailTextLabel setText:[contact readableNumber]];
+    } else {
+        [cell.textLabel setText:self.data[indexPath.section][indexPath.row]];
+        [cell.detailTextLabel setText:@""];
+    }
     
     cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     
@@ -213,6 +218,7 @@
             NSLog(@"contacts count: %lu", [contacts count]);
             NSIndexSet *set = [[NSIndexSet alloc] initWithIndex:2];
             [self.list reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
+            
             // do something with contacts array
         }
         else
@@ -255,14 +261,21 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    CContact *contact = self.data[indexPath.section][indexPath.row];
-    [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
-                                message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
-                               delegate: self
-                      cancelButtonTitle:@"Invite"
-                      otherButtonTitles:@"Not now", nil]
-     show];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if(indexPath.section == 2){
+        CContact *contact = self.data[indexPath.section][indexPath.row];
+        [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
+                                    message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
+                                   delegate: self
+                          cancelButtonTitle:@"Invite"
+                          otherButtonTitles:@"Not now", nil]
+         show];
+    } else {
+        NSObject *o = self.data[indexPath.section][indexPath.row];
+        [self.data[indexPath.section] removeObject:o];
+        [self.data[0] addObject:o];
+        [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+    }
 }
 
 /*
