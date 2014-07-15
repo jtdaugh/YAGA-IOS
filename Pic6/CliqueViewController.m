@@ -13,6 +13,7 @@
 #import "ECPhoneNumberFormatter.h"
 #import "NBPhoneNumberUtil.h"
 #import "CContact.h"
+#import "NSString+Hash.h"
 
 @interface CliqueViewController ()
 
@@ -158,7 +159,7 @@
             contact.compositeName &&
         
             // name does not contain "GroupMe"
-            ![contact.compositeName containsString:@"GroupMe:"];
+            ([contact.compositeName rangeOfString:@"GroupMe:"].location == NSNotFound);
     };
     addressBook.sortDescriptors = @[
                                     [NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]
@@ -191,9 +192,8 @@
                             break;
                         }
                         k = k-1;
-                        
                     }
-                    
+                                        
                     if(dupe == 0){
                         CContact *current = [CContact new];
                         current.name = contact.compositeName;

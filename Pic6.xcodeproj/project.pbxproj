@@ -12,6 +12,7 @@
 		418954BE19687DD2009C17E2 /* NSString+File.m in Sources */ = {isa = PBXBuildFile; fileRef = 418954BD19687DD2009C17E2 /* NSString+File.m */; };
 		41B404941974CA6700F9EE3F /* CContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B404931974CA6700F9EE3F /* CContact.m */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
+		41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */ = {isa = PBXBuildFile; fileRef = 41DCA6B11974E30F0055910F /* NSString+Hash.m */; };
 		71106D88192444A30083C64A /* PData.m in Sources */ = {isa = PBXBuildFile; fileRef = 71106D87192444A30083C64A /* PData.m */; };
 		715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 715455D0190E01D600ABE2BE /* UIImage+Resize.m */; };
 		7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */ = {isa = PBXBuildFile; fileRef = 7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */; };
@@ -58,6 +59,8 @@
 		41B404921974CA6700F9EE3F /* CContact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CContact.h; sourceTree = "<group>"; };
 		41B404931974CA6700F9EE3F /* CContact.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CContact.m; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		41DCA6B11974E30F0055910F /* NSString+Hash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Hash.m"; sourceTree = "<group>"; };
+		41DCA6B31974E32A0055910F /* NSString+Hash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Hash.h"; sourceTree = "<group>"; };
 		71106D86192444A30083C64A /* PData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PData.h; sourceTree = "<group>"; };
 		71106D87192444A30083C64A /* PData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PData.m; sourceTree = "<group>"; };
 		71404FA819121A78002F4B92 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -151,6 +154,8 @@
 		715455D3191063F500ABE2BE /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				41DCA6B31974E32A0055910F /* NSString+Hash.h */,
+				41DCA6B11974E30F0055910F /* NSString+Hash.m */,
 				418954BC19687DD2009C17E2 /* NSString+File.h */,
 				418954BD19687DD2009C17E2 /* NSString+File.m */,
 				715455CF190E01D600ABE2BE /* UIImage+Resize.h */,
@@ -388,6 +393,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */,
+				41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */,
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
 				71106D88192444A30083C64A /* PData.m in Sources */,
 				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,
