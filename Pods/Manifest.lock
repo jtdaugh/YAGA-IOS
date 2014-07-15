@@ -1,10 +1,19 @@
 PODS:
+  - APAddressBook (0.0.10)
+  - ECPhoneNumberFormatter (0.1.1)
   - Firebase (1.1.9)
+  - libPhoneNumber-iOS (0.7.3)
 
 DEPENDENCIES:
+  - APAddressBook (~> 0.0.7)
+  - ECPhoneNumberFormatter
   - Firebase (>= 1.1)
+  - libPhoneNumber-iOS (~> 0.7)
 
 SPEC CHECKSUMS:
+  APAddressBook: d176555d6b845a3c900f3f3c3787c1b98d83151d
+  ECPhoneNumberFormatter: 5e178027d1d43472187c3f623e7b69b89fdb3187
   Firebase: 389b4d1f1a8f4b9ed53abec2aa62a3ceeafd7fcd
+  libPhoneNumber-iOS: 98fc07d70c8fdb5e6a8e3442c37e97353065c20e
 
 COCOAPODS: 0.33.1

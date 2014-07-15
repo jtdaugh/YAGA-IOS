@@ -7,7 +7,12 @@
 //
 
 #import "CliqueViewController.h"
-@import AddressBook;
+#import "APAddressBook.h"
+#import "APContact.h"
+#import "APPhoneWithLabel.h"
+#import "ECPhoneNumberFormatter.h"
+#import "NBPhoneNumberUtil.h"
+#import "CContact.h"
 
 @interface CliqueViewController ()
 
@@ -47,19 +52,20 @@
     [navBar setBarTintColor:PRIMARY_COLOR];
     NSLog(@"clique view controller did loaed");
     
+    self.data = [@[
+                   [@[] mutableCopy],
+                   [@[] mutableCopy],
+                   [@[] mutableCopy]
+                   ] mutableCopy];
+
     self.list = [[UITableView alloc] initWithFrame:CGRectMake(0, 44, 320, VIEW_HEIGHT-44)];
+    [self.list setScrollsToTop:YES];
     [self.view addSubview:self.list];
     [self.list setBackgroundColor:[UIColor whiteColor]];
     [self.list setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     self.list.dataSource = self;
     self.list.delegate = self;
-    [self.list registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
-
-    self.data = [@[
-                  [@[@"Kobe Bryant", @"Steve Jobs", @"Leo", @"Tim Tebow"] mutableCopy],
-                  [@[@"Michael Jordan (Added You)", @"Kanye West (Added You)", @"Dr. Dre", @"50 Cent", @"Phil Jackson"] mutableCopy],
-                  [@[] mutableCopy]
-                  ] mutableCopy];
+//    [self.list registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
     
     // Do any additional setup after loading the view.
     
@@ -84,7 +90,7 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch (section) {
         case 0:
-            return @"My Clique (4/12)";
+            return [NSString stringWithFormat:@"My Clique (%lu/12)", [self.data[section] count]];
             break;
         case 1:
             return @"Contacts on Clique";
@@ -101,25 +107,45 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"];
-    [cell.textLabel setText:self.data[indexPath.section][indexPath.row]];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Cell"];
+    }
+    
+    CContact *contact = self.data[indexPath.section][indexPath.row];
+    [cell.textLabel setText:contact.name];
+    
+    NSError *aError = nil;
+    
+    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+    NSString *num = @"";
+    for(NSString *phone in contact.phones){
+        NBPhoneNumber *myNumber = [phoneUtil parse:phone
+                                     defaultRegion:@"US" error:&aError];
+        
+        num = [NSString stringWithFormat:@"%@ +%@", num, [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatNATIONAL error:&aError]];
+    }
+
+    [cell.detailTextLabel setText:num];
+    
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    [cell setAccessoryView:[[UIImageView alloc] init]];
+//    UIImageView *accessory = [[UIImageView alloc] initWithFrame:CGRectMake(240, 5, 34, 34)];
     
-    UIImageView *accessory = [[UIImageView alloc] initWithFrame:CGRectMake(240, 5, 34, 34)];
-    
+    UIButton *accessory = [[UIButton alloc] initWithFrame:CGRectMake(240, 5, 34, 34)];
+    [accessory addTarget:self action:@selector(accessoryButtonTapped:withEvent:) forControlEvents:UIControlEventTouchUpInside];
     switch (indexPath.section) {
         case 0:
             // @"My Clique";
-            [accessory setImage:[UIImage imageNamed:@"Remove"]];
+            [accessory setBackgroundImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
             break;
         case 1:
             // Contacts on Clique
-            [accessory setImage:[UIImage imageNamed:@"Add"]];
+            [accessory setBackgroundImage:[UIImage imageNamed:@"Add"] forState:UIControlStateNormal];
             break;
         case 2:
             // All Contacts
-            [accessory setImage:[UIImage imageNamed:@"Invite"]];
+            [accessory setBackgroundImage:[UIImage imageNamed:@"Invite"] forState:UIControlStateNormal];
             break;
         default:
             accessory = nil;
@@ -134,62 +160,98 @@
 }
 
 - (void)importAddressBook {
-    ABAddressBookRequestAccessWithCompletion(ABAddressBookCreateWithOptions(NULL, nil), ^(bool granted, CFErrorRef error) {
-        if (!granted){
-            //4
-            NSLog(@"Just denied");
-            return;
-        }
+    
+    APAddressBook *addressBook = [[APAddressBook alloc] init];
+    addressBook.fieldsMask = APContactFieldCompositeName | APContactFieldPhones | APContactFieldPhonesWithLabels;
+    addressBook.filterBlock = ^BOOL(APContact *contact){
+        return
+            // has a #
+            (contact.phones.count > 0) &&
         
-        CFErrorRef *aError = NULL;
-        ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, aError);
-        ABRecordRef source = ABAddressBookCopyDefaultSource(addressBook);
-        CFArrayRef people = ABAddressBookCopyArrayOfAllPeopleInSourceWithSortOrdering(addressBook, source, kABPersonSortByFirstName);
+            // has a name
+            contact.compositeName &&
         
-        //(addressBook);
-//        CFMutableArrayRef peopleMutable = CFArrayCreateMutableCopy(kCFAllocatorDefault, CFArrayGetCount(people), people);
-//        
-//        CFArraySortValues(
-//                          peopleMutable,
-//                          CFRangeMake(0, CFArrayGetCount(peopleMutable)),
-//                          (CFComparatorFunction) ABPersonComparePeopleByName,
-//                          (void*) ABPersonGetSortOrdering()
-//                          );
-        
-        CFIndex numberOfPeople = ABAddressBookGetPersonCount(addressBook);
-        int i;
-        for(i = 0; i < numberOfPeople; i++) {
-            
-            ABRecordRef person = CFArrayGetValueAtIndex(people, i );
-            
-            if(person){
-                
-                ABRecordCopyValue(person, kABPersonPhoneProperty);
-                NSString *name = (__bridge NSString *)(ABRecordCopyCompositeName(person));
-                if(name){
-                    NSLog(@"name: %@", name);
-                    [self.data[2] addObject:name];
+            // name does not contain "GroupMe"
+            ![contact.compositeName containsString:@"GroupMe:"];
+    };
+    addressBook.sortDescriptors = @[
+                                    [NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]
+                                    ];
+    
+    [addressBook loadContacts:^(NSArray *contacts, NSError *error)
+    {
+        // hide activity
+        if (!error){
+            for(int i = 0; i<[contacts count]; i++){
+                APContact *contact = contacts[i];
+                for(int j = 0; j<[contact.phones count]; j++){
+                    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+                    NSError *aError = nil;
+                    NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j]
+                                                 defaultRegion:@"US" error:&aError];
+                    
+                    NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
+
+                    int k = i + j - 1;
+                    CContact *previous = self.data[2][k];
+                    
+                    BOOL dupe = 0;
+                    while([previous.name isEqualToString:contact.compositeName]){
+                        if([previous.number isEqualToString:num]){
+                            dupe = 1;
+                        }
+                        k--;
+                    }
+                    
+                    if(!dupe){
+                        CContact *current = [CContact new];
+                        current.name = contact.compositeName;
+                        current.number = num;
+                        [self.data[2] addObject:current];
+                    }
                 }
             }
-        }
-        
-        
-        
-        // update table view
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+//            for(APContact *contact in contacts){
+//                for(APPhoneWithLabel *phone in contact.phonesWithLabels){
+//                    
+//                }
+//                [self.data[2] addObject:contact];
+//            }
+            NSLog(@"contacts count: %lu", [contacts count]);
             NSIndexSet *set = [[NSIndexSet alloc] initWithIndex:2];
             [self.list reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
-        }];
-        
-    });
-
+            // do something with contacts array
+        }
+        else
+        {
+            // show error
+        }
+    }];
     
+
+//[[NSOperationQueue mainQueue] addOperationWithBlock:^{
+//}];
+
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void) accessoryButtonTapped: (UIControl *) button withEvent: (UIEvent *) event
+{
+    NSIndexPath * indexPath = [self.list indexPathForRowAtPoint: [[[event touchesForView: button] anyObject] locationInView: self.list]];
+    if ( indexPath == nil )
+        return;
+    
+    [self.list.delegate tableView: self.list accessoryButtonTappedForRowWithIndexPath: indexPath];
+}
+
+- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"tapped");
+    
 }
 
 /*
