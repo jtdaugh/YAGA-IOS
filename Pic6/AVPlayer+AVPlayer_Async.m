@@ -19,8 +19,8 @@
                         change:(NSDictionary *)change context:(void *)context {
 
     if(object == self && [keyPath isEqualToString:@"status"]){
-        [self removeObserver:self forKeyPath:@"status"];
         if(self.status == AVPlayerStatusReadyToPlay){
+            [self removeObserver:self forKeyPath:@"status"];
             [self play];
         }
     }

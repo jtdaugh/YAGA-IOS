@@ -16,9 +16,7 @@
 {
     // Override point for customization after application launch.
     NSLog(@"yooo");
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     [Firebase setOption:@"persistence" to:@YES];
-    [self setupAudio];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
@@ -59,7 +57,7 @@
 }
 
 - (void)setupAudio {
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:nil];
+//    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:nil];
 //    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
 //    UInt32 doSetProperty = 1;
 //    AudioSessionSetProperty (kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof(doSetProperty), &doSetProperty);

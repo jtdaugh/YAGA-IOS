@@ -15,8 +15,6 @@
 #import "CliqueViewController.h"
 
 @interface GridViewController ()
-@property bool FrontCamera;
-@property bool liked;
 @end
 
 @implementation GridViewController
@@ -39,7 +37,7 @@
     [self initGridView];
     [self initPlaque];
     [self initFirebase];
-    self.FrontCamera = 1;
+    self.FrontCamera = [NSNumber numberWithBool:0];
     [self initCameraView];
     [self initCamera];
     
@@ -207,7 +205,7 @@
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [self.gridData objectAtIndex:indexPath.row];
-    cell.state = LIMBO;
+    cell.state = [NSNumber numberWithInt:LIMBO];
     
     if(![cell.uid isEqualToString:snapshot.name]){
 
@@ -215,7 +213,7 @@
         [cell setUsername:snapshot.value[@"user"]];
 
         if(cell.isLoaded){
-            if(self.scrolling){
+            if([self.scrolling boolValue]){
                 [cell showImage];
             } else {
                 [cell play];
@@ -231,7 +229,7 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    self.scrolling = YES;
+    self.scrolling = [NSNumber numberWithBool:YES];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -245,9 +243,9 @@
 }
 
 - (void)scrollingEnded {
-    self.scrolling = NO;
+    self.scrolling = [NSNumber numberWithBool:NO];
     for(TileCell *cell in [self.gridTiles visibleCells]){
-        if(cell.state == LOADED){
+        if([cell.state isEqualToNumber:[NSNumber numberWithInt: LOADED]]){
             [cell play];
         } else {
 
@@ -307,10 +305,10 @@
 }
 
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
-    if (self.FrontCamera == 1) {
-        self.FrontCamera = 0;
+    if ([self.FrontCamera boolValue]) {
+        self.FrontCamera = [NSNumber numberWithBool:NO];
     } else {
-        self.FrontCamera = 1;
+        self.FrontCamera = [NSNumber numberWithBool:YES];
     }
     
     [self reloadCamera];
@@ -319,7 +317,7 @@
 - (void)reloadCamera {
     [self.session beginConfiguration];
     // find video object and remove it
-    [self.session removeInput:[self.session.inputs lastObject]];
+    [self.session removeInput:self.videoInput];
     [self addCameraInput];
     [self.session commitConfiguration];
 }
@@ -363,11 +361,11 @@
     //display camera preview frame
     UIView *view = [self cameraView];
     CALayer *viewLayer = [view layer];
-//    [viewLayer setMasksToBounds:YES];
+    [viewLayer setMasksToBounds:YES];
     
     //set camera preview frame
     CGRect bounds = [view bounds];
-//    [self.captureVideoPreviewLayer setFrame:bounds];
+    [self.captureVideoPreviewLayer setFrame:bounds];
     
     NSError *error = nil;
     
@@ -415,11 +413,18 @@
 
 - (void)addAudioInput {
     //ADD AUDIO INPUT
-    NSError *error = nil;
+    NSLog(@"adding audio input");
+    
     AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    
+    NSError *error = nil;
+    [self.session removeInput:self.audioInput];
     self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
     if (self.audioInput) {
+        NSLog(@"pooo");
         [self.session addInput:self.audioInput];
+    } else {
+        NSLog(@"audio error: %@", error);
     }
 }
 
@@ -439,10 +444,10 @@
         
         if ([device hasMediaType:AVMediaTypeVideo]) {
             
-            if ([device position] == AVCaptureDevicePositionBack && !self.FrontCamera) {
+            if ([device position] == AVCaptureDevicePositionBack && ![self.FrontCamera boolValue]) {
                 captureDevice = device;
             }
-            if ([device position] == AVCaptureDevicePositionFront && self.FrontCamera) {
+            if ([device position] == AVCaptureDevicePositionFront && [self.FrontCamera boolValue]) {
                 captureDevice = device;
             }
         }
@@ -460,12 +465,12 @@
     }
     
     NSError *error = nil;
-    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-    if (!input) {
+    self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+    if (!self.videoInput) {
         NSLog(@"ERROR: trying to open camera: %@", error);
     }
     
-    [self.session addInput:input];
+    [self.session addInput:self.videoInput];
 
 }
 
@@ -482,7 +487,7 @@
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 8)];
     [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
     [self.cameraView addSubview:self.indicator];
-    
+
     [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self.indicator setFrame:CGRectMake(0, 0, TILE_WIDTH, 8)];
     } completion:^(BOOL finished) {
@@ -491,6 +496,7 @@
         }
         //
     }];
+    
     [self startRecordingVideo];
     
 }
@@ -605,11 +611,13 @@
 }
 
 - (void)willResignActive {
+//    [self removeAudioInput];
 // remove microphone
 
 }
 
 - (void)didBecomeActive {
+//    [self addAudioInput];
 // add microphone
 }
 
@@ -626,7 +634,7 @@
     [self initCamera];
 
     for(TileCell *tile in [self.gridTiles visibleCells]){
-        if(tile.state == PLAYING || tile.state == LOADED){
+        if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]] || [tile.state  isEqualToNumber:[NSNumber numberWithInt:  LOADED]]){
             [tile play];
         }
     }
@@ -638,6 +646,7 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+    NSLog(@"memory warning?");
     // Dispose of any resources that can be recreated.
 }
 

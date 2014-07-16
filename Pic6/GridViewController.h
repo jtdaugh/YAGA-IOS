@@ -17,6 +17,7 @@
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
 @property BOOL recording;
+@property (strong, nonatomic) NSNumber *FrontCamera;
 
 @property (strong, nonatomic) AVCaptureSession *session;
 
@@ -29,7 +30,7 @@
 @property (strong, nonatomic) UIView *gridView;
 @property (strong, nonatomic) UICollectionView *gridTiles;
 @property (strong, nonatomic) NSMutableArray *gridData;
-@property BOOL scrolling;
+@property (strong, nonatomic) NSNumber *scrolling;
 
 @property (strong, nonatomic) UIView *plaque;
 @property (strong, nonatomic) UIButton *switchButton;

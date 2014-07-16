@@ -52,7 +52,7 @@
 }
 
 - (void)showLoader {
-    self.state = LOADING;
+    self.state = [NSNumber numberWithInt:LOADING];
     [self.image removeFromSuperview];
     [self.playerContainer removeFromSuperview];
     // Initialization code
@@ -65,7 +65,7 @@
 }
 
 - (void)showImage {
-    self.state = LOADED;
+    self.state = [NSNumber numberWithInt:LOADED];
     
     [self.playerContainer removeFromSuperview];
     
@@ -73,9 +73,9 @@
 //    NSURL *imageURL = [[NSURL alloc] initFileURLWithPath:imagePath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
+    [self.image setImage:[UIImage imageWithContentsOfFile:imagePath]];
+    [self addSubview:self.image];
     if ([fileManager fileExistsAtPath:imagePath]){
-        [self.image setImage:[UIImage imageWithContentsOfFile:imagePath]];
-        [self addSubview:self.image];
     } else {
         NSLog(@"wtf? image");
     }
@@ -83,7 +83,7 @@
 
 //LOAD IT UP
 - (void)play {
-    self.state = PLAYING;
+    self.state = [NSNumber numberWithInt:PLAYING];
     
     NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self.uid];
     NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
@@ -110,8 +110,8 @@
         [self.player setVolume:0.0];
         [self.player asyncPlay];
 
-        // set looping
         [self.player setLooping];
+        // set looping
     } else {
      NSLog(@"wtf?");
     }

@@ -11,7 +11,7 @@
 
 #define APP_NAME @"Clique"
 
-#define NUM_TILES 20
+#define NUM_TILES 96
 #define TILE_WIDTH 640/4
 #define TILE_HEIGHT 1136/8
 

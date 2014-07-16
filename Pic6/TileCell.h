@@ -15,7 +15,8 @@
 #define LIMBO 4
 
 @interface TileCell : UICollectionViewCell
-@property int state;
+
+@property (strong, nonatomic) NSNumber *state;
 @property (strong, nonatomic) NSString *uid;
 @property (strong, nonatomic) NSString *username;
 @property (strong, nonatomic) UIView *playerContainer;
