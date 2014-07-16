@@ -14,6 +14,12 @@
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
 		41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */ = {isa = PBXBuildFile; fileRef = 41DCA6B11974E30F0055910F /* NSString+Hash.m */; };
 		41DCA6B61975D7550055910F /* SplashViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41DCA6B51975D7550055910F /* SplashViewController.m */; };
+		41EC820119771320002AE4BF /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41EC820019771320002AE4BF /* LoginViewController.m */; };
+		41EC82081977218A002AE4BF /* 1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82031977218A002AE4BF /* 1.mp4 */; };
+		41EC82091977218A002AE4BF /* 2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82041977218A002AE4BF /* 2.mp4 */; };
+		41EC820A1977218A002AE4BF /* 3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82051977218A002AE4BF /* 3.mp4 */; };
+		41EC820B1977218A002AE4BF /* 4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82061977218A002AE4BF /* 4.mp4 */; };
+		41EC820C1977218A002AE4BF /* 0.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82071977218A002AE4BF /* 0.mp4 */; };
 		71106D88192444A30083C64A /* PData.m in Sources */ = {isa = PBXBuildFile; fileRef = 71106D87192444A30083C64A /* PData.m */; };
 		715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 715455D0190E01D600ABE2BE /* UIImage+Resize.m */; };
 		7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */ = {isa = PBXBuildFile; fileRef = 7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */; };
@@ -64,6 +70,13 @@
 		41DCA6B31974E32A0055910F /* NSString+Hash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Hash.h"; sourceTree = "<group>"; };
 		41DCA6B41975D7550055910F /* SplashViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplashViewController.h; sourceTree = "<group>"; };
 		41DCA6B51975D7550055910F /* SplashViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplashViewController.m; sourceTree = "<group>"; };
+		41EC81FF19771320002AE4BF /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
+		41EC820019771320002AE4BF /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
+		41EC82031977218A002AE4BF /* 1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1.mp4; sourceTree = "<group>"; };
+		41EC82041977218A002AE4BF /* 2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 2.mp4; sourceTree = "<group>"; };
+		41EC82051977218A002AE4BF /* 3.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 3.mp4; sourceTree = "<group>"; };
+		41EC82061977218A002AE4BF /* 4.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 4.mp4; sourceTree = "<group>"; };
+		41EC82071977218A002AE4BF /* 0.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 0.mp4; sourceTree = "<group>"; };
 		71106D86192444A30083C64A /* PData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PData.h; sourceTree = "<group>"; };
 		71106D87192444A30083C64A /* PData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PData.m; sourceTree = "<group>"; };
 		71404FA819121A78002F4B92 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -139,8 +152,7 @@
 				415AEFE3196638D600F6A8B1 /* OverlayViewController.m */,
 				41373A1919734DAD00F41895 /* CliqueViewController.h */,
 				41373A1A19734DAD00F41895 /* CliqueViewController.m */,
-				41DCA6B41975D7550055910F /* SplashViewController.h */,
-				41DCA6B51975D7550055910F /* SplashViewController.m */,
+				41EC81FE197712F7002AE4BF /* Onboarding */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -148,8 +160,33 @@
 		41DCA6B7197624780055910F /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				41EC82021977218A002AE4BF /* Videos */,
 			);
 			name = Assets;
+			sourceTree = "<group>";
+		};
+		41EC81FE197712F7002AE4BF /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				41DCA6B41975D7550055910F /* SplashViewController.h */,
+				41DCA6B51975D7550055910F /* SplashViewController.m */,
+				41EC81FF19771320002AE4BF /* LoginViewController.h */,
+				41EC820019771320002AE4BF /* LoginViewController.m */,
+			);
+			name = Onboarding;
+			sourceTree = "<group>";
+		};
+		41EC82021977218A002AE4BF /* Videos */ = {
+			isa = PBXGroup;
+			children = (
+				41EC82031977218A002AE4BF /* 1.mp4 */,
+				41EC82041977218A002AE4BF /* 2.mp4 */,
+				41EC82051977218A002AE4BF /* 3.mp4 */,
+				41EC82061977218A002AE4BF /* 4.mp4 */,
+				41EC82071977218A002AE4BF /* 0.mp4 */,
+			);
+			name = Videos;
+			path = vids;
 			sourceTree = "<group>";
 		};
 		71106D85192434970083C64A /* Models */ = {
@@ -352,7 +389,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41EC820B1977218A002AE4BF /* 4.mp4 in Resources */,
+				41EC82081977218A002AE4BF /* 1.mp4 in Resources */,
 				71D0F584190D998000C7DEE0 /* Images.xcassets in Resources */,
+				41EC82091977218A002AE4BF /* 2.mp4 in Resources */,
+				41EC820A1977218A002AE4BF /* 3.mp4 in Resources */,
+				41EC820C1977218A002AE4BF /* 0.mp4 in Resources */,
 				71D0F576190D998000C7DEE0 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -409,6 +451,7 @@
 				41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */,
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
 				41DCA6B61975D7550055910F /* SplashViewController.m in Sources */,
+				41EC820119771320002AE4BF /* LoginViewController.m in Sources */,
 				71106D88192444A30083C64A /* PData.m in Sources */,
 				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,
 				418954BE19687DD2009C17E2 /* NSString+File.m in Sources */,

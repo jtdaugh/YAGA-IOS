@@ -33,6 +33,7 @@
 - (void)showLoader;
 - (void)showImage;
 - (void)play;
+- (void)playLocal:(NSString *)path;
 //- (void)initLoaderWithSwatches:(NSArray *)swatches;
 - (BOOL)isLoaded;
 + (BOOL)isLoaded:(NSString *)uid;

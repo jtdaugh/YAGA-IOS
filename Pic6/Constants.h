@@ -41,8 +41,10 @@
 //amethyst: rgb(155, 89, 182)
 
 #define PRIMARY_COLOR [UIColor colorWithRed: 195.0f/255.0f green: 7.0f/255.0f blue:5.0f/255.0f alpha:1.0]
-#define PRIMARY_COLOR2 [UIColor colorWithRed: 142.0f/255.0f green: 68.0f/255.0f blue:173.0f/255.0f alpha:1.0]
-#define SECONDARY_COLOR [UIColor colorWithRed: 241.0f/255.0f green: 196.0f/255.0f blue:15.0f/255.0f alpha:1.0]
+#define SECONDARY_COLOR [UIColor colorWithRed: 5.0f/255.0f green: 135.0f/255.0f blue:195.0f/255.0f alpha:1.0]
+#define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
+
+#define BIG_FONT @"ArialRoundedMTBold"
 
 //#define NODE_NAME @"dev8"
 #define NODE_NAME @"production6"
