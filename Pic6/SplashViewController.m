@@ -11,7 +11,7 @@
 @implementation SplashViewController
 
 - (void)viewDidLoad {
-    NSLog(@"yooo");
+    NSLog(@"yooo splashery");
 }
 
 @end

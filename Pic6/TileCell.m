@@ -72,8 +72,8 @@
     NSString *imagePath = [[NSString alloc] initWithFormat:@"%@%@.jpg", NSTemporaryDirectory(), self.uid];
 //    NSURL *imageURL = [[NSURL alloc] initFileURLWithPath:imagePath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    
-    [self.image setImage:[UIImage imageWithContentsOfFile:imagePath]];
+    NSData* imageData = [[NSData alloc] initWithContentsOfFile:imagePath];
+    [self.image setImage:[UIImage imageWithData:imageData]];
     [self addSubview:self.image];
     if ([fileManager fileExistsAtPath:imagePath]){
     } else {

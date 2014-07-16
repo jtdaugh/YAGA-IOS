@@ -30,11 +30,15 @@
     return self;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     [self.view setBackgroundColor:[UIColor whiteColor]];
-    UINavigationBar *navBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+    UINavigationBar *navBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, 0, 320, 44 + 10)];
     
     UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithTitle:@"Done"
                                                                     style:UIBarButtonItemStyleDone target:nil action:@selector(donePressed)];
@@ -59,7 +63,7 @@
                    [@[] mutableCopy]
                    ] mutableCopy];
 
-    self.list = [[UITableView alloc] initWithFrame:CGRectMake(0, 44, 320, VIEW_HEIGHT-44)];
+    self.list = [[UITableView alloc] initWithFrame:CGRectMake(0, 44 + 10, 320, VIEW_HEIGHT-44 - 10)];
     [self.list setScrollsToTop:YES];
     [self.view addSubview:self.list];
     [self.list setBackgroundColor:[UIColor whiteColor]];

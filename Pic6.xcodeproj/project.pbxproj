@@ -145,6 +145,13 @@
 			name = "View Controllers";
 			sourceTree = "<group>";
 		};
+		41DCA6B7197624780055910F /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Assets;
+			sourceTree = "<group>";
+		};
 		71106D85192434970083C64A /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -221,6 +228,7 @@
 		71D0F571190D998000C7DEE0 /* Pic6 */ = {
 			isa = PBXGroup;
 			children = (
+				41DCA6B7197624780055910F /* Assets */,
 				71106D85192434970083C64A /* Models */,
 				71B827D8191B0445008C4048 /* Views */,
 				715455D3191063F500ABE2BE /* Categories */,

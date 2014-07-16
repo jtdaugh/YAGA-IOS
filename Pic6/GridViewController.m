@@ -134,7 +134,7 @@
 - (void)initFirebase {
     
     self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
-    
+        
     [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"children count: %lu", snapshot.childrenCount);
         NSString *lastUid;
@@ -257,6 +257,8 @@
     NSLog(@"selected");
     
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    
+    NSLog(@"selected id: %@", selected.uid);
     
     selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
     [self.overlay addSubview:selected];
