@@ -28,6 +28,18 @@
     return self;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+//    [[UIApplication sharedApplication].delegate.window setRootViewController:self];
+//    [self willEnterForeground];
+    if(![self.appeared boolValue]){
+        self.appeared = [NSNumber numberWithBool:YES];
+    }
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -36,10 +48,14 @@
     [self initOverlay];
     [self initGridView];
     [self initPlaque];
-    [self initFirebase];
     self.FrontCamera = [NSNumber numberWithBool:0];
     [self initCameraView];
-    [self initCamera];
+    if([self.onboarding boolValue]){
+        [self initCameraButton];
+    } else {
+        [self initCamera];
+    }
+    [self initFirebase];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -60,10 +76,6 @@
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
-
-}
-
-- (void)viewDidAppear:(BOOL)animated {
 
 }
 
@@ -257,9 +269,7 @@
     NSLog(@"selected");
     
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
-    
-    NSLog(@"selected id: %@", selected.uid);
-    
+        
     selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
     [self.overlay addSubview:selected];
 
@@ -335,14 +345,40 @@
 
 - (void)initCameraView {
     self.cameraView = [[UIView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
+    [self.cameraView setBackgroundColor:[UIColor whiteColor]];
     [self.gridView addSubview:self.cameraView];
     
-    [self.cameraView setUserInteractionEnabled:YES];
+}
 
-    UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-    [longPressGestureRecognizer setMinimumPressDuration:0.2f];
-    longPressGestureRecognizer.delegate = self;
-    [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
+- (void)initCameraButton {
+    UIButton *cameraButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+    [cameraButton setBackgroundColor:SECONDARY_COLOR];
+    [cameraButton setImage:[UIImage imageNamed:@"Camera"] forState:UIControlStateNormal];
+    [cameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [cameraButton addTarget:self action:@selector(cameraButtonTapped) forControlEvents:UIControlEventTouchUpInside];
+    [cameraButton setTitle:@"Enable Camera" forState:UIControlStateNormal];
+    
+    // the space between the image and text
+    CGFloat spacing = 6.0;
+    
+    // lower the text and push it left so it appears centered
+    //  below the image
+    CGSize imageSize = cameraButton.imageView.frame.size;
+    cameraButton.titleEdgeInsets = UIEdgeInsetsMake(
+                                              0.0, - imageSize.width, - (imageSize.height + spacing), 0.0);
+    
+    // raise the image and push it right so it appears centered
+    //  above the text
+    CGSize titleSize = cameraButton.titleLabel.frame.size;
+    cameraButton.imageEdgeInsets = UIEdgeInsetsMake(
+                                              - (titleSize.height + spacing), 0.0, 0.0, - titleSize.width);
+    
+    [self.cameraView addSubview:cameraButton];
+    
+}
+
+- (void)cameraButtonTapped {
+    NSLog(@"tapped");
     
 }
 
@@ -368,8 +404,6 @@
     //set camera preview frame
     CGRect bounds = [view bounds];
     [self.captureVideoPreviewLayer setFrame:bounds];
-    
-    NSError *error = nil;
     
     //set still image output
     self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
@@ -400,8 +434,15 @@
     [self addAudioInput];
     [self addCameraInput];
     
-    [self.session startRunning];
-    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self.session startRunning];
+        [self.cameraView setUserInteractionEnabled:YES];
+        
+        UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+        [longPressGestureRecognizer setMinimumPressDuration:0.2f];
+        longPressGestureRecognizer.delegate = self;
+        [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
+    });
 }
 
 - (void)closeCamera {

@@ -14,10 +14,16 @@
 
 @implementation SplashViewController
 
+- (void)viewWillAppear:(BOOL)animated {
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+}
+
 - (void)viewDidLoad {
     NSLog(@"yooo splashery");
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
+    
+    self.title = @" ";
     
     UIView *plaque = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
     [plaque setBackgroundColor:PRIMARY_COLOR];
@@ -38,12 +44,14 @@
     [plaque addSubview:slogan];
     
     [self.view addSubview:plaque];
-    
+
+    self.container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [self.view addSubview:self.container];
+
     UIButton *loginButton = [[UIButton alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT*2, TILE_WIDTH, TILE_HEIGHT)];
     [loginButton addTarget:self action:@selector(loginPressed) forControlEvents:UIControlEventTouchUpInside];
     [loginButton setTitle:@"Log In" forState:UIControlStateNormal];
     [loginButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:28]];
-//    [loginButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     [loginButton setBackgroundColor:SECONDARY_COLOR];
     [self.view addSubview:loginButton];
     
@@ -54,20 +62,14 @@
     [signupButton setBackgroundColor:TERTIARY_COLOR];
     [self.view addSubview:signupButton];
     
-    self.container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    [self.view addSubview:self.container];
-    
     NSArray *positions = @[@0, @1, @3, @6, @7];
     for(int i = 0; i < [positions count]; i++){
         int position = [(NSNumber *)positions[i] intValue];
         TileCell *tile = [[TileCell alloc] initWithFrame:CGRectMake(position%2 * TILE_WIDTH, (position/2) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
 
         NSString *filename = [NSString stringWithFormat:@"%i", i];
-        NSLog(@"%@", filename);
         
         NSString *path = [[NSBundle mainBundle] pathForResource:filename ofType:@"mp4"];
-        
-        NSLog(@"path: %@", path);
         
         tile.uid = path;
         
@@ -98,14 +100,11 @@
 }
 
 - (void)loginPressed {
-//    LoginViewController *vc = [LoginViewController new];
-//    [self presentViewController:vc animated:YES completion:^{
-//        //
-//    }];
     NSLog(@"login pressed");
 }
 
 - (void)signupPressed {
+    [self.navigationController pushViewController:[SignupViewController new] animated:YES];
     NSLog(@"signup pressed");
 }
 
@@ -130,7 +129,6 @@
     for(TileCell *tile in self.container.subviews){
         NSLog(@"yoo tiles");
         if([[tile class] isSubclassOfClass:[TileCell class]]){
-            NSLog(@"yoo tilecell");
             [tile playLocal:tile.uid];
         }
     }

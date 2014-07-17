@@ -11,6 +11,7 @@
 		415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415AEFE3196638D600F6A8B1 /* OverlayViewController.m */; };
 		415DE46D197766A5000DD3C7 /* 0.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41A5F545197765E100E6A1F5 /* 0.mp4 */; };
 		415DE4701977759B000DD3C7 /* SignupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415DE46F1977759B000DD3C7 /* SignupViewController.m */; };
+		415DE47319777609000DD3C7 /* OnboardingNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415DE47219777609000DD3C7 /* OnboardingNavigationController.m */; };
 		418954BE19687DD2009C17E2 /* NSString+File.m in Sources */ = {isa = PBXBuildFile; fileRef = 418954BD19687DD2009C17E2 /* NSString+File.m */; };
 		41B404941974CA6700F9EE3F /* CContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B404931974CA6700F9EE3F /* CContact.m */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
@@ -64,6 +65,8 @@
 		415AEFE3196638D600F6A8B1 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
 		415DE46E1977759B000DD3C7 /* SignupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignupViewController.h; sourceTree = "<group>"; };
 		415DE46F1977759B000DD3C7 /* SignupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SignupViewController.m; sourceTree = "<group>"; };
+		415DE47119777609000DD3C7 /* OnboardingNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnboardingNavigationController.h; sourceTree = "<group>"; };
+		415DE47219777609000DD3C7 /* OnboardingNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnboardingNavigationController.m; sourceTree = "<group>"; };
 		418954BC19687DD2009C17E2 /* NSString+File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+File.h"; sourceTree = "<group>"; };
 		418954BD19687DD2009C17E2 /* NSString+File.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+File.m"; sourceTree = "<group>"; };
 		41A5F545197765E100E6A1F5 /* 0.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 0.mp4; sourceTree = "<group>"; };
@@ -177,6 +180,8 @@
 				41EC820019771320002AE4BF /* LoginViewController.m */,
 				415DE46E1977759B000DD3C7 /* SignupViewController.h */,
 				415DE46F1977759B000DD3C7 /* SignupViewController.m */,
+				415DE47119777609000DD3C7 /* OnboardingNavigationController.h */,
+				415DE47219777609000DD3C7 /* OnboardingNavigationController.m */,
 			);
 			name = Onboarding;
 			sourceTree = "<group>";
@@ -456,6 +461,7 @@
 				41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */,
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
 				41DCA6B61975D7550055910F /* SplashViewController.m in Sources */,
+				415DE47319777609000DD3C7 /* OnboardingNavigationController.m in Sources */,
 				41EC820119771320002AE4BF /* LoginViewController.m in Sources */,
 				71106D88192444A30083C64A /* PData.m in Sources */,
 				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,

@@ -19,6 +19,9 @@
 @property BOOL recording;
 @property (strong, nonatomic) NSNumber *FrontCamera;
 
+@property (strong, nonatomic) NSNumber *appeared;
+@property (strong, nonatomic) NSNumber *onboarding;
+
 @property (strong, nonatomic) AVCaptureSession *session;
 
 @property (strong, nonatomic) AVCaptureDeviceInput *videoInput;

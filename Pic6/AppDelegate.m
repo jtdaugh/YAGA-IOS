@@ -9,7 +9,7 @@
 #import "AppDelegate.h"
 #import <AVFoundation/AVFoundation.h>
 #import "GridViewController.h"
-#import "SplashViewController.h"
+#import "OnboardingNavigationController.h"
 
 @implementation AppDelegate
 
@@ -22,8 +22,9 @@
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
     // self.window.backgroundColor = [UIColor whiteColor];
     
-    self.window.rootViewController = [SplashViewController new];
-    
+    self.window.rootViewController = [OnboardingNavigationController new];
+//    self.window.rootViewController = [GridViewController new];
+  
     [self.window makeKeyAndVisible];
     
     return YES;

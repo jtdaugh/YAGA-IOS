@@ -11,7 +11,6 @@
 @implementation AVPlayer (AVPlayer_Async)
 
 - (void)asyncPlay {
-    NSLog(@"async playing");
     [self addObserver:self forKeyPath:@"status"
                                           options:0 context:nil];
 }
@@ -21,7 +20,6 @@
 
     if(object == self && [keyPath isEqualToString:@"status"]){
         if(self.status == AVPlayerStatusReadyToPlay){
-            NSLog(@"no error!");
             [self play];
             [self removeObserver:self forKeyPath:@"status"];
         }
