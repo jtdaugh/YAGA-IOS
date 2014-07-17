@@ -33,26 +33,12 @@
     UIButton *signupButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH, TILE_HEIGHT*2, TILE_WIDTH, TILE_HEIGHT)];
     [signupButton addTarget:self action:@selector(signupPressed) forControlEvents:UIControlEventTouchUpInside];
     [signupButton setTitle:@"Sign Up" forState:UIControlStateNormal];
-//    [signupButton.titleLabel setFont:[UIFont boldSystemFontOfSize:28]];
     [signupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:28]];
-//    [signupButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     [signupButton setBackgroundColor:TERTIARY_COLOR];
     [self.view addSubview:signupButton];
     
-//    UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
-//    [layout setSectionInset:UIEdgeInsetsMake(0, 0, 0, 0)];
-//    [layout setMinimumInteritemSpacing:0.0];
-//    [layout setMinimumLineSpacing:0.0];
-//    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*2) collectionViewLayout:layout];
-//    self.collectionView.delegate = self;
-//    self.collectionView.dataSource = self;
-//    [self.collectionView setBackgroundColor:PRIMARY_COLOR];
-//    [self.collectionView registerClass:[TileCell class] forCellWithReuseIdentifier:@"SplashCell"];
-    
     UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.view addSubview:container];
-    
-//    [container addSubview:self.collectionView];
     
     NSArray *positions = @[@0, @1, @3, @6, @7];
     for(int i = 0; i < [positions count]; i++){
@@ -68,28 +54,6 @@
         
         [tile playLocal:path];
     }
-}
-
--(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return CGSizeMake(TILE_WIDTH, TILE_HEIGHT);
-}
-
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return 2;
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    
-    TileCell *tile = [collectionView dequeueReusableCellWithReuseIdentifier:@"SplashCell" forIndexPath:indexPath];
-    
-    int i = (int)indexPath.row;
-    
-    NSString *filename = [NSString stringWithFormat:@"%i", i];
-    NSString *path = [[NSBundle mainBundle] pathForResource:filename ofType:@"mov"];
-    
-    [tile playLocal:path];
-    
-    return tile;
 }
 
 - (void)loginPressed {
