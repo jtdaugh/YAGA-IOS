@@ -8,18 +8,35 @@
 
 #import "SplashViewController.h"
 #import "LoginViewController.h"
+#import "SignupViewController.h"
 #import "AVPlayer+AVPlayer_Async.h"
 #import "TileCell.h"
 
 @implementation SplashViewController
 
-- (void)viewDidAppear:(BOOL)animated {
+- (void)viewDidLoad {
     NSLog(@"yooo splashery");
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
     UIView *plaque = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
     [plaque setBackgroundColor:PRIMARY_COLOR];
+    
+    UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(20, 12, TILE_WIDTH - 40, 50)];
+    [logo setText:@"Clique"];
+    [logo setFont:[UIFont fontWithName:BIG_FONT size:28]];
+    [logo setTextColor:[UIColor whiteColor]];
+    [logo setTextAlignment:NSTextAlignmentCenter];
+    [plaque addSubview:logo];
+    
+    UILabel *slogan = [[UILabel alloc] initWithFrame:CGRectMake(30, 48, TILE_WIDTH - 60, 80)];
+    [slogan setText:@"Share your life with your inner circle"];
+    [slogan setFont:[UIFont fontWithName:BIG_FONT size:16]];
+    [slogan setTextColor:[UIColor whiteColor]];
+    [slogan setTextAlignment:NSTextAlignmentCenter];
+    [slogan setNumberOfLines:0];
+    [plaque addSubview:slogan];
+    
     [self.view addSubview:plaque];
     
     UIButton *loginButton = [[UIButton alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT*2, TILE_WIDTH, TILE_HEIGHT)];
@@ -37,8 +54,8 @@
     [signupButton setBackgroundColor:TERTIARY_COLOR];
     [self.view addSubview:signupButton];
     
-    UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    [self.view addSubview:container];
+    self.container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [self.view addSubview:self.container];
     
     NSArray *positions = @[@0, @1, @3, @6, @7];
     for(int i = 0; i < [positions count]; i++){
@@ -46,14 +63,38 @@
         TileCell *tile = [[TileCell alloc] initWithFrame:CGRectMake(position%2 * TILE_WIDTH, (position/2) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
 
         NSString *filename = [NSString stringWithFormat:@"%i", i];
-        NSString *path = [[NSBundle mainBundle] pathForResource:filename ofType:@"mov"];
+        NSLog(@"%@", filename);
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:filename ofType:@"mp4"];
         
         NSLog(@"path: %@", path);
         
-        [container addSubview:tile];
+        tile.uid = path;
         
+        [self.container addSubview:tile];
         [tile playLocal:path];
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willResignActive)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didBecomeActive)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+
 }
 
 - (void)loginPressed {
@@ -61,12 +102,38 @@
 //    [self presentViewController:vc animated:YES completion:^{
 //        //
 //    }];
-    [self.collectionView reloadData];
     NSLog(@"login pressed");
 }
 
 - (void)signupPressed {
     NSLog(@"signup pressed");
+}
+
+- (void)willResignActive {
+    //    [self removeAudioInput];
+    // remove microphone
+    
+}
+
+- (void)didBecomeActive {
+    //    [self addAudioInput];
+    // add microphone
+}
+
+- (void)didEnterBackground {
+    //    NSLog(@"did enter background");
+}
+
+- (void)willEnterForeground {
+    NSLog(@"will enter foreground");
+    
+    for(TileCell *tile in self.container.subviews){
+        NSLog(@"yoo tiles");
+        if([[tile class] isSubclassOfClass:[TileCell class]]){
+            NSLog(@"yoo tilecell");
+            [tile playLocal:tile.uid];
+        }
+    }
 }
 
 @end
