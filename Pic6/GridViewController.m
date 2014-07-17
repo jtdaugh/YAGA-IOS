@@ -44,15 +44,19 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
+    self.cameraAccessories = [[NSMutableArray alloc] init];
+
     [self initOverlay];
     [self initGridView];
     [self initPlaque];
     self.FrontCamera = [NSNumber numberWithBool:0];
-    [self initCameraView];
     if([self.onboarding boolValue]){
         [self initCameraButton];
+        for(UIView *v in self.cameraAccessories){
+            [v setAlpha:0.0];
+        }
     } else {
+        [self initCameraView];
         [self initCamera];
     }
     [self initFirebase];
@@ -84,10 +88,10 @@
     [self.plaque setFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
     [self.plaque setBackgroundColor:PRIMARY_COLOR];
     
-    UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(8, 8, TILE_WIDTH-16, 30)];
+    UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(8, 8, TILE_WIDTH-16, 36)];
     [logo setText:APP_NAME]; // 🔥
     [logo setTextColor:[UIColor whiteColor]];
-    [logo setFont:[UIFont boldSystemFontOfSize:30]];
+    [logo setFont:[UIFont fontWithName:BIG_FONT size:30]];
     [self.plaque addSubview:logo];
     
     UILabel *instructions = [[UILabel alloc] initWithFrame:CGRectMake(10, 30+8+4, TILE_WIDTH-16, 60)];
@@ -95,13 +99,15 @@
     [instructions setNumberOfLines:0];
     [instructions sizeToFit];
     [instructions setTextColor:[UIColor whiteColor]];
-    [instructions setFont:[UIFont systemFontOfSize:14]];
+    [instructions setFont:[UIFont fontWithName:BIG_FONT size:13]];
+    [self.cameraAccessories addObject:instructions];
     [self.plaque addSubview:instructions];
 
     self.switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, TILE_HEIGHT - 60, 50, 50)];
     [self.switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
     [self.switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
     [self.switchButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
+    [self.cameraAccessories addObject:self.switchButton];
     [self.plaque addSubview:self.switchButton];
 
     UIButton *cliqueButton = [[UIButton alloc] initWithFrame:CGRectMake(10, TILE_HEIGHT - 60, 50, 50)];
@@ -348,15 +354,28 @@
     [self.cameraView setBackgroundColor:[UIColor whiteColor]];
     [self.gridView addSubview:self.cameraView];
     
+    for(UIView *v in self.cameraAccessories){
+        [v setAlpha:1.0];
+    }
+    
+    [self.cameraView setUserInteractionEnabled:YES];
+    
+    UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+    [longPressGestureRecognizer setMinimumPressDuration:0.2f];
+    longPressGestureRecognizer.delegate = self;
+    [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
+    
 }
 
 - (void)initCameraButton {
-    UIButton *cameraButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+    UIButton *cameraButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
     [cameraButton setBackgroundColor:SECONDARY_COLOR];
     [cameraButton setImage:[UIImage imageNamed:@"Camera"] forState:UIControlStateNormal];
     [cameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [cameraButton addTarget:self action:@selector(cameraButtonTapped) forControlEvents:UIControlEventTouchUpInside];
     [cameraButton setTitle:@"Enable Camera" forState:UIControlStateNormal];
+    
+    [cameraButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:13]];
     
     // the space between the image and text
     CGFloat spacing = 6.0;
@@ -373,11 +392,14 @@
     cameraButton.imageEdgeInsets = UIEdgeInsetsMake(
                                               - (titleSize.height + spacing), 0.0, 0.0, - titleSize.width);
     
-    [self.cameraView addSubview:cameraButton];
+    [self.gridView addSubview:cameraButton];
     
 }
 
 - (void)cameraButtonTapped {
+    [self initCameraView];
+    [self initCamera];
+    [self setOnboarding:[NSNumber numberWithBool:NO]];
     NSLog(@"tapped");
     
 }
@@ -431,17 +453,23 @@
     //SET THE CONNECTION PROPERTIES (output properties)
     //[self CameraSetOutputProperties];
     
-    [self addAudioInput];
+//    [self addAudioInput];
+    
+    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    
+    NSError *error = nil;
+    self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+    if (self.audioInput) {
+        NSLog(@"pooo");
+        [self.session addInput:self.audioInput];
+    } else {
+        NSLog(@"audio error: %@", error);
+    }
+
     [self addCameraInput];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self.session startRunning];
-        [self.cameraView setUserInteractionEnabled:YES];
-        
-        UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-        [longPressGestureRecognizer setMinimumPressDuration:0.2f];
-        longPressGestureRecognizer.delegate = self;
-        [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
     });
 }
 
@@ -458,17 +486,6 @@
     //ADD AUDIO INPUT
     NSLog(@"adding audio input");
     
-    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    
-    NSError *error = nil;
-    [self.session removeInput:self.audioInput];
-    self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-    if (self.audioInput) {
-        NSLog(@"pooo");
-        [self.session addInput:self.audioInput];
-    } else {
-        NSLog(@"audio error: %@", error);
-    }
 }
 
 - (void)removeAudioInput {

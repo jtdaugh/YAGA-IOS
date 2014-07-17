@@ -18,6 +18,7 @@
 @property (strong, nonatomic) UIView *indicator;
 @property BOOL recording;
 @property (strong, nonatomic) NSNumber *FrontCamera;
+@property (strong, nonatomic) NSMutableArray *cameraAccessories;
 
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *onboarding;
