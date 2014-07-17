@@ -39,50 +39,65 @@
     [signupButton setBackgroundColor:TERTIARY_COLOR];
     [self.view addSubview:signupButton];
     
+//    UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
+//    [layout setSectionInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+//    [layout setMinimumInteritemSpacing:0.0];
+//    [layout setMinimumLineSpacing:0.0];
+//    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*2) collectionViewLayout:layout];
+//    self.collectionView.delegate = self;
+//    self.collectionView.dataSource = self;
+//    [self.collectionView setBackgroundColor:PRIMARY_COLOR];
+//    [self.collectionView registerClass:[TileCell class] forCellWithReuseIdentifier:@"SplashCell"];
+    
+    UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [self.view addSubview:container];
+    
+//    [container addSubview:self.collectionView];
+    
     NSArray *positions = @[@0, @1, @3, @6, @7];
     for(int i = 0; i < [positions count]; i++){
         int position = [(NSNumber *)positions[i] intValue];
         TileCell *tile = [[TileCell alloc] initWithFrame:CGRectMake(position%2 * TILE_WIDTH, (position/2) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
 
         NSString *filename = [NSString stringWithFormat:@"%i", i];
-        NSString *path = [[NSBundle mainBundle] pathForResource:filename ofType:@"mp4"];
+        NSString *path = [[NSBundle mainBundle] pathForResource:filename ofType:@"mov"];
         
-        [self.view addSubview:tile];
+        NSLog(@"path: %@", path);
+        
+        [container addSubview:tile];
         
         [tile playLocal:path];
-        
-//        UIView *playerContainer = [[UIView alloc] initWithFrame:CGRectMake( 0, 0, TILE_WIDTH, TILE_HEIGHT)];
-//
-//        tile.player = [AVPlayer playerWithURL:fileURL];
-//
-//        tile.playerLayer = [AVPlayerLayer playerLayerWithPlayer:tile.player];
-//        
-//        [tile.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-//        
-//        // set video sizing
-//        NSLog(@"frame - x: %f, y: %f", playerContainer.frame.origin.x, playerContainer.frame.origin.y);
-//        
-//        tile.playerLayer.frame = tile.playerContainer.frame;
-//        
-//        // play video in frame
-//        [tile.playerContainer.layer addSublayer: tile.playerLayer];
-//        [self.view addSubview:tile];
-//        
-//        [tile.player setVolume:0.0];
-//        [tile.player asyncPlay];
-        
-//        self.player = player;
-        
-//        [player setLooping];
-        
     }
 }
 
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake(TILE_WIDTH, TILE_HEIGHT);
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return 2;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    TileCell *tile = [collectionView dequeueReusableCellWithReuseIdentifier:@"SplashCell" forIndexPath:indexPath];
+    
+    int i = (int)indexPath.row;
+    
+    NSString *filename = [NSString stringWithFormat:@"%i", i];
+    NSString *path = [[NSBundle mainBundle] pathForResource:filename ofType:@"mov"];
+    
+    [tile playLocal:path];
+    
+    return tile;
+}
+
 - (void)loginPressed {
-    LoginViewController *vc = [LoginViewController new];
-    [self presentViewController:vc animated:YES completion:^{
-        //
-    }];
+//    LoginViewController *vc = [LoginViewController new];
+//    [self presentViewController:vc animated:YES completion:^{
+//        //
+//    }];
+    [self.collectionView reloadData];
     NSLog(@"login pressed");
 }
 

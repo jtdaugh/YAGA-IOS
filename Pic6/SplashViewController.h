@@ -9,5 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface SplashViewController : UIViewController
+@interface SplashViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
+
+@property (strong, nonatomic) UICollectionView *collectionView;
+
 @end
