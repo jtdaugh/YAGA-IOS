@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SignupViewController : UIViewController
+@interface SignupViewController : UIViewController <UITextFieldDelegate>
+
+@property (strong,nonatomic) UITextField *nameField;
+@property (strong,nonatomic) UITextField *phoneField;
+@property (strong,nonatomic) UITextField *passwordField;
+
+@property (strong, nonatomic) UIButton *submitButton;
 
 @end

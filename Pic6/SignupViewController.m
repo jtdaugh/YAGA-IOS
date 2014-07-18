@@ -26,21 +26,60 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [self.navigationController setNavigationBarHidden:NO animated:YES];    
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [self.nameField becomeFirstResponder];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self.view setBackgroundColor:[UIColor greenColor]];
+    [self.view setBackgroundColor:TERTIARY_COLOR];
     [self setTitle:@"Sign Up"];
     
-    UIButton *exit = [[UIButton alloc] initWithFrame:CGRectMake(0, 40, VIEW_WIDTH, 200)];
-    [exit setBackgroundColor:[UIColor redColor]];
-    [exit addTarget:self action:@selector(exit) forControlEvents:UIControlEventTouchUpInside];
-    [exit setTitle:@"Exit to main app" forState:UIControlStateNormal];
-    [exit.titleLabel setTextColor:[UIColor whiteColor]];
-    [self.view addSubview:exit];
+    int size = 50;
+    int top_padding = 8;
+    int margin = 16;
+    
+    self.nameField = [self textFieldSkeleton:0];
+    [self.nameField setPlaceholder:@"Display Name"];
+    [self.nameField setAutocorrectionType:UITextAutocorrectionTypeNo];
+    [self.nameField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
+    [self.nameField setReturnKeyType:UIReturnKeyNext];
+    [self.view addSubview:self.nameField];
+        
+    self.phoneField = [self textFieldSkeleton:1];
+    [self.phoneField setPlaceholder:@"Phone Number"];
+    [self.phoneField setKeyboardType:UIKeyboardTypePhonePad];
+    [self.view addSubview:self.phoneField];
+    
+//    UIToolbar* keyboardDoneButtonView = [[UIToolbar alloc] init];
+//    [keyboardDoneButtonView setTranslucent:NO];
+//    [keyboardDoneButtonView sizeToFit];
+//    [keyboardDoneButtonView setBarTintColor:TERTIARY_COLOR];
+//    UIBarButtonItem* doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Next"
+//                                                                   style:UIBarButtonItemStyleBordered target:self
+//                                                                  action:@selector(doneClicked:)];
+//    UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+//    [doneButton setTintColor:[UIColor whiteColor]];
+//    [keyboardDoneButtonView setItems:[NSArray arrayWithObjects:flex, doneButton, nil]];
+//    self.phoneField.inputAccessoryView = keyboardDoneButtonView;
+
+    self.passwordField = [self textFieldSkeleton:2];
+    [self.passwordField setSecureTextEntry:YES];
+    [self.passwordField setPlaceholder:@"Password"];
+    [self.view addSubview:self.passwordField];
+    
+    self.submitButton = [[UIButton alloc] initWithFrame:CGRectMake(0, top_padding + (size+margin)*3, VIEW_WIDTH, size)];
+    [self.submitButton setBackgroundColor:SECONDARY_COLOR];
+    [self.submitButton addTarget:self action:@selector(exit) forControlEvents:UIControlEventTouchUpInside];
+    [self.submitButton setTitle:@"Create Account" forState:UIControlStateNormal];
+    [self.submitButton.titleLabel setTextColor:[UIColor whiteColor]];
+    [self.submitButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
+    [self.submitButton setAlpha:0.0];
+    [self.view addSubview:self.submitButton];
     // Do any additional setup after loading the view.
 }
 
@@ -57,6 +96,47 @@
     
 //    [self.navigationController popToViewController:grid animated:YES];
 //    self.navigationController.v
+}
+
+- (UITextField *)textFieldSkeleton:(int)i {
+    int size = 50;
+    int top_padding = 8;
+    int margin = 16;
+    
+    UITextField *v = [[UITextField alloc] initWithFrame:CGRectMake(0, top_padding + (size + margin)*i, 320, size)];
+    [v setBackgroundColor:[UIColor whiteColor]];
+    [v setFont:[UIFont fontWithName:BIG_FONT size:18]];
+    
+    v.delegate = self;
+    
+    v.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"" attributes:@{NSForegroundColorAttributeName: [UIColor lightGrayColor], NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18]}];
+
+    UIView *paddingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 12, 12)];
+    [v setLeftViewMode:UITextFieldViewModeAlways];
+    [v setLeftView:paddingView];
+
+    return v;
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    
+    bool done;
+    
+    if(([self.nameField.text length] > 0) && ([self.phoneField.text length] > 0) && ([self.passwordField.text length] > 0)){
+        done = 1;
+    } else {
+        done = 0;
+    }
+    
+    [UIView animateWithDuration:0.5 animations:^{
+        if(done){
+            [self.submitButton setAlpha:1.0];
+        } else {
+            [self.submitButton setAlpha:0.0];
+        }
+    }];
+    
+    return YES;
 }
 
 /*

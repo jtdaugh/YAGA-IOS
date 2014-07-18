@@ -300,9 +300,10 @@
 - (void) collapse:(TileCell *)tile {
     tile.frame = CGRectMake(0, self.gridTiles.contentOffset.y, TILE_WIDTH*2, TILE_HEIGHT*2);
     [self.gridTiles addSubview:tile];
+    [self.overlay setAlpha:0.0];
+//    [self.gridTiles addSubview:self.overlay];
     
-    [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        [self.overlay setAlpha:0.0];
+    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         NSIndexPath *ip = [self.gridTiles indexPathForCell:tile];
         [tile setVideoFrame:[self.gridTiles layoutAttributesForItemAtIndexPath:ip].frame];
         //
@@ -398,7 +399,10 @@
 
 - (void)cameraButtonTapped {
     [self initCameraView];
+    
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [self initCamera];
+//    });
     [self setOnboarding:[NSNumber numberWithBool:NO]];
     NSLog(@"tapped");
     
@@ -455,22 +459,22 @@
     
 //    [self addAudioInput];
     
-    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    
-    NSError *error = nil;
-    self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-    if (self.audioInput) {
-        NSLog(@"pooo");
-        [self.session addInput:self.audioInput];
-    } else {
-        NSLog(@"audio error: %@", error);
-    }
+//    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+//    
+//    NSError *error = nil;
+//    self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
+//    if (self.audioInput) {
+//        NSLog(@"pooo");
+//        [self.session addInput:self.audioInput];
+//    } else {
+//        NSLog(@"audio error: %@", error);
+//    }
 
     [self addCameraInput];
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self.session startRunning];
-    });
+//    });
 }
 
 - (void)closeCamera {

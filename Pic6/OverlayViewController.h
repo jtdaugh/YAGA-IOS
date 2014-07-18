@@ -13,6 +13,7 @@
 
 @interface OverlayViewController : UIViewController
 @property (strong, nonatomic) TileCell *tile;
+@property (strong, nonatomic) UIView *bg;
 @property (strong, nonatomic) GridViewController *previousViewController;
 @property (strong, nonatomic) UILabel *userLabel;
 @property (strong, nonatomic) UITextView *captionField;

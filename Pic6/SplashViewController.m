@@ -73,8 +73,8 @@
         
         tile.uid = path;
         
-        [self.container addSubview:tile];
         [tile playLocal:path];
+        [self.container addSubview:tile];
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self

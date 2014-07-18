@@ -26,9 +26,9 @@
 - (void)viewWillAppear:(BOOL)animated {
 
     //add background for tap gesture recognizer
-    UIView *bg = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    [bg setBackgroundColor:[UIColor blackColor]];
-    [self.view addSubview:bg];
+    self.bg = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [self.bg setBackgroundColor:[UIColor blackColor]];
+//    [self.view addSubview:self.bg];
     
     [self.view addSubview:self.tile];
 
@@ -87,6 +87,7 @@
 
 - (void)tapped:(UITapGestureRecognizer *)gesture {
     [self.tile.player setVolume:0.0];
+//    [self.bg removeFromSuperview];
     [self.previousViewController.overlay addSubview:self.tile];
     [self dismissViewControllerAnimated:NO completion:^{
         [self.previousViewController collapse:self.tile];
