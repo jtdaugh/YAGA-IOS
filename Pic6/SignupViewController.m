@@ -78,7 +78,7 @@
     [self.submitButton setTitle:@"Create Account" forState:UIControlStateNormal];
     [self.submitButton.titleLabel setTextColor:[UIColor whiteColor]];
     [self.submitButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
-    [self.submitButton setAlpha:0.0];
+    [self.submitButton setAlpha:1.0];
     [self.view addSubview:self.submitButton];
     // Do any additional setup after loading the view.
 }

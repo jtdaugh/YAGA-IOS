@@ -413,6 +413,11 @@
     self.session = [[AVCaptureSession alloc] init];
     self.session.sessionPreset = AVCaptureSessionPresetMedium;
     
+    [self setupAudio];
+    
+    [self addAudioInput];
+    [self addCameraInput];
+    
     //display camera preview frame
     self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
     [self.captureVideoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
@@ -450,6 +455,10 @@
     
     self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
     
+    CMTime fragmentInterval = CMTimeMake(5,1);
+    
+    [self.movieFileOutput setMovieFragmentInterval:fragmentInterval];
+    
     if ([self.session canAddOutput:self.movieFileOutput]) {
         [self.session addOutput:self.movieFileOutput];
     }
@@ -458,9 +467,9 @@
     //[self CameraSetOutputProperties];
     
 //    [self addAudioInput];
-    
+
 //    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-//    
+    
 //    NSError *error = nil;
 //    self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
 //    if (self.audioInput) {
@@ -470,10 +479,12 @@
 //        NSLog(@"audio error: %@", error);
 //    }
 
-    [self addCameraInput];
     
 //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self.session startRunning];
+//        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.session startRunning];
+//        });
+//    
 //    });
 }
 
@@ -489,7 +500,17 @@
 - (void)addAudioInput {
     //ADD AUDIO INPUT
     NSLog(@"adding audio input");
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
+    AVCaptureDevice *captureDevice;
     
+    for(AVCaptureDevice *device in devices){
+        captureDevice = device;
+        break;
+    }
+    
+//    AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+    AVCaptureDeviceInput * audioInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:nil];
+    [self.session addInput:audioInput];
 }
 
 - (void)removeAudioInput {
@@ -712,6 +733,13 @@
     [super didReceiveMemoryWarning];
     NSLog(@"memory warning?");
     // Dispose of any resources that can be recreated.
+}
+
+- (void)setupAudio {
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
+    UInt32 doSetProperty = 1;
+    AudioSessionSetProperty (kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof(doSetProperty), &doSetProperty);
+    [[AVAudioSession sharedInstance] setActive: YES error: nil];
 }
 
 /*
