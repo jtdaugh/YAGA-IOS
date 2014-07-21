@@ -68,13 +68,21 @@
     self.state = [NSNumber numberWithInt:LOADED];
     
     [self.playerContainer removeFromSuperview];
+    [self.image removeFromSuperview];
     
     NSString *imagePath = [[NSString alloc] initWithFormat:@"%@%@.jpg", NSTemporaryDirectory(), self.uid];
-//    NSURL *imageURL = [[NSURL alloc] initFileURLWithPath:imagePath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSData* imageData = [[NSData alloc] initWithContentsOfFile:imagePath];
-    [self.image setImage:[UIImage imageWithData:imageData]];
-    [self addSubview:self.image];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSData* imageData = [[NSData alloc] initWithContentsOfFile:imagePath];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.image setImage:[UIImage imageWithData:imageData]];
+            [self addSubview:self.image];
+        });
+    });
+    
+    
     if ([fileManager fileExistsAtPath:imagePath]){
     } else {
         NSLog(@"wtf? image");
