@@ -26,6 +26,7 @@
 @property (strong, nonatomic) NSNumber *onboarding;
 
 @property (strong, nonatomic) AVCaptureSession *session;
+@property (nonatomic) dispatch_queue_t sessionQueue;
 
 @property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
 @property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
