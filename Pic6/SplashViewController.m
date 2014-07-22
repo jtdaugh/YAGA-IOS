@@ -29,7 +29,7 @@
     [plaque setBackgroundColor:PRIMARY_COLOR];
     
     UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(20, 12, TILE_WIDTH - 40, 50)];
-    [logo setText:@"Clique"];
+    [logo setText:APP_NAME];
     [logo setFont:[UIFont fontWithName:BIG_FONT size:28]];
     [logo setTextColor:[UIColor whiteColor]];
     [logo setTextAlignment:NSTextAlignmentCenter];

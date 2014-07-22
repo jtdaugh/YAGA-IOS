@@ -7,13 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <AVFoundation/AVFoundation.h>
 #import <Firebase/Firebase.h>
+#import "AVCamPreviewView.h"
 #import "TileCell.h"
+@import AVFoundation;
 
 @interface GridViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate>
 
-@property (strong, nonatomic) UIView *cameraView;
+@property (strong, nonatomic) AVCamPreviewView *cameraView;
+@property (strong, nonatomic) UIButton *cameraButton;
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
 @property BOOL recording;

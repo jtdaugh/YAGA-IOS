@@ -90,12 +90,13 @@
 }
 
 - (void)exit {
-    GridViewController *grid = [[GridViewController alloc] init];
-    grid.onboarding = [NSNumber numberWithBool:YES];
-    [self.navigationController pushViewController:grid animated:YES];
+//    GridViewController *grid = [[GridViewController alloc] init];
+//    grid.onboarding = [NSNumber numberWithBool:YES];
+//    [self.navigationController pushViewController:grid animated:YES];
+    [self.navigationController dismissViewControllerAnimated:YES completion:^{
+        //
+    }];
     
-//    [self.navigationController popToViewController:grid animated:YES];
-//    self.navigationController.v
 }
 
 - (UITextField *)textFieldSkeleton:(int)i {

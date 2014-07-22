@@ -119,6 +119,8 @@
         [self.player asyncPlay];
 
         [self.player setLooping];
+        
+
         // set looping
     } else {
      NSLog(@"wtf?");

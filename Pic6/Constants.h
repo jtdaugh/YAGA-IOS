@@ -9,7 +9,7 @@
 #ifndef Pic6_Constants_h
 #define Pic6_Constants_h
 
-#define APP_NAME @"Clique"
+#define APP_NAME @"Cliq"
 
 #define NUM_TILES 96
 #define TILE_WIDTH 640/4
@@ -44,7 +44,7 @@
 #define SECONDARY_COLOR [UIColor colorWithRed: 5.0f/255.0f green: 135.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 
-#define BIG_FONT @"ArialRoundedMTBold"
+#define BIG_FONT @"Avenir-Light"
 
 //#define NODE_NAME @"dev8"
 #define NODE_NAME @"production6"

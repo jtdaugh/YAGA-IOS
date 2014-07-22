@@ -12,6 +12,7 @@
 		415DE46D197766A5000DD3C7 /* 0.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41A5F545197765E100E6A1F5 /* 0.mp4 */; };
 		415DE4701977759B000DD3C7 /* SignupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415DE46F1977759B000DD3C7 /* SignupViewController.m */; };
 		415DE47319777609000DD3C7 /* OnboardingNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415DE47219777609000DD3C7 /* OnboardingNavigationController.m */; };
+		416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 416D52C5197E107100769721 /* AVCamPreviewView.m */; };
 		418954BE19687DD2009C17E2 /* NSString+File.m in Sources */ = {isa = PBXBuildFile; fileRef = 418954BD19687DD2009C17E2 /* NSString+File.m */; };
 		41B404941974CA6700F9EE3F /* CContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B404931974CA6700F9EE3F /* CContact.m */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
@@ -67,6 +68,8 @@
 		415DE46F1977759B000DD3C7 /* SignupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SignupViewController.m; sourceTree = "<group>"; };
 		415DE47119777609000DD3C7 /* OnboardingNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnboardingNavigationController.h; sourceTree = "<group>"; };
 		415DE47219777609000DD3C7 /* OnboardingNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnboardingNavigationController.m; sourceTree = "<group>"; };
+		416D52C4197E107100769721 /* AVCamPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVCamPreviewView.h; sourceTree = "<group>"; };
+		416D52C5197E107100769721 /* AVCamPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVCamPreviewView.m; sourceTree = "<group>"; };
 		418954BC19687DD2009C17E2 /* NSString+File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+File.h"; sourceTree = "<group>"; };
 		418954BD19687DD2009C17E2 /* NSString+File.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+File.m"; sourceTree = "<group>"; };
 		41A5F545197765E100E6A1F5 /* 0.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 0.mp4; sourceTree = "<group>"; };
@@ -228,6 +231,8 @@
 		71B827D8191B0445008C4048 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				416D52C4197E107100769721 /* AVCamPreviewView.h */,
+				416D52C5197E107100769721 /* AVCamPreviewView.m */,
 				716CFA34192EC1F500E6ED17 /* TileCell.h */,
 				716CFA35192EC1F500E6ED17 /* TileCell.m */,
 			);
@@ -472,6 +477,7 @@
 				716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */,
 				71D0F5A2190D99A700C7DEE0 /* GridViewController.m in Sources */,
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
+				416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */,
 				41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

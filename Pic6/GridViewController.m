@@ -13,6 +13,7 @@
 #import "AVPlayer+AVPlayer_Async.h"
 #import "OverlayViewController.h"
 #import "CliqueViewController.h"
+#import "OnboardingNavigationController.h"
 
 @interface GridViewController ()
 @end
@@ -41,9 +42,9 @@
         self.appeared = [NSNumber numberWithBool:YES];
     }
     
-    UIWindow *window = [[UIApplication sharedApplication] delegate].window;
-    window.rootViewController = self;
-    [window makeKeyAndVisible];
+//    UIWindow *window = [[UIApplication sharedApplication] delegate].window;
+//    window.rootViewController = self;
+//    [window makeKeyAndVisible];
 
 }
 
@@ -52,11 +53,14 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.cameraAccessories = [[NSMutableArray alloc] init];
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+//    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
 
     [self initOverlay];
     [self initGridView];
     [self initPlaque];
     self.FrontCamera = [NSNumber numberWithBool:0];
+    [self initCameraView];
     if([self.onboarding boolValue] || 1){
         [self initCameraButton];
         for(UIView *v in self.cameraAccessories){
@@ -141,7 +145,7 @@
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
     [self.gridTiles setBackgroundColor:PRIMARY_COLOR];
-//    [self.gridTiles setBounces:NO];
+    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
     
     [self.view addSubview:self.gridView];
@@ -248,7 +252,7 @@
             [self triggerRemoteLoad:cell.uid];
         }
     }
-    
+        
     return cell;
 }
 
@@ -360,13 +364,10 @@
 }
 
 - (void)initCameraView {
-    self.cameraView = [[UIView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
+    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
+//    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.cameraView setBackgroundColor:PRIMARY_COLOR];
     [self.gridView addSubview:self.cameraView];
-    
-    for(UIView *v in self.cameraAccessories){
-        [v setAlpha:1.0];
-    }
     
     [self.cameraView setUserInteractionEnabled:YES];
     
@@ -374,44 +375,53 @@
     [longPressGestureRecognizer setMinimumPressDuration:0.2f];
     longPressGestureRecognizer.delegate = self;
     [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
-    
 }
 
 - (void)initCameraButton {
-    UIButton *cameraButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
-    [cameraButton setBackgroundColor:SECONDARY_COLOR];
-    [cameraButton setImage:[UIImage imageNamed:@"Camera"] forState:UIControlStateNormal];
-    [cameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [cameraButton addTarget:self action:@selector(cameraButtonTapped) forControlEvents:UIControlEventTouchUpInside];
-    [cameraButton setTitle:@"Enable Camera" forState:UIControlStateNormal];
+    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+    [self.cameraButton setBackgroundColor:SECONDARY_COLOR];
+    [self.cameraButton setImage:[UIImage imageNamed:@"Camera"] forState:UIControlStateNormal];
+    [self.cameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.cameraButton addTarget:self action:@selector(cameraButtonTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.cameraButton setTitle:@"Enable Camera" forState:UIControlStateNormal];
     
-    [cameraButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:13]];
+    [self.cameraButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:13]];
     
     // the space between the image and text
     CGFloat spacing = 6.0;
     
     // lower the text and push it left so it appears centered
     //  below the image
-    CGSize imageSize = cameraButton.imageView.frame.size;
-    cameraButton.titleEdgeInsets = UIEdgeInsetsMake(
+    CGSize imageSize = self.cameraButton.imageView.frame.size;
+    self.cameraButton.titleEdgeInsets = UIEdgeInsetsMake(
                                               0.0, - imageSize.width, - (imageSize.height + spacing), 0.0);
     
     // raise the image and push it right so it appears centered
     //  above the text
-    CGSize titleSize = cameraButton.titleLabel.frame.size;
-    cameraButton.imageEdgeInsets = UIEdgeInsetsMake(
+    CGSize titleSize = self.cameraButton.titleLabel.frame.size;
+    self.cameraButton.imageEdgeInsets = UIEdgeInsetsMake(
                                               - (titleSize.height + spacing), 0.0, 0.0, - titleSize.width);
     
-    [self.gridView addSubview:cameraButton];
+    [self.cameraView addSubview:self.cameraButton];
     
 }
 
 - (void)cameraButtonTapped {
-    [self initCameraView];
-    [self initCamera];
-    [self setOnboarding:[NSNumber numberWithBool:NO]];
-    NSLog(@"tapped");
+//    for(TileCell *cell in [self.gridTiles visibleCells]){
+//        if([cell.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]){
+//            [cell showLoader];
+//        }
+//    }
     
+    [self initCamera];
+    [self.cameraButton removeFromSuperview];
+    
+    for(UIView *v in self.cameraAccessories){
+        [v setAlpha:1.0];
+    }
+
+//    [self setOnboarding:[NSNumber numberWithBool:NO]];
+//    NSLog(@"tapped");
 }
 - (void)checkDeviceAuthorizationStatus
 {
@@ -438,50 +448,87 @@
 
 - (void)initCamera {
     
+        NSLog(@"init camera");
+    
         self.session = [[AVCaptureSession alloc] init];
         self.session.sessionPreset = AVCaptureSessionPresetMedium;
-        
-        //display camera preview frame
-        self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
-        [self.captureVideoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-        
-        //display camera preview frame
-        self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
 
-//        [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
-        [[self.cameraView.layer.sublayers firstObject] removeFromSuperlayer];
-        [self.cameraView.layer addSublayer:self.captureVideoPreviewLayer];
+        [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
+        [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
 
-        //display camera preview frame
-        UIView *view = [self cameraView];
-        CALayer *viewLayer = [view layer];
-        [viewLayer setMasksToBounds:YES];
-        
-        //set camera preview frame
-        CGRect bounds = [view bounds];
-        [self.captureVideoPreviewLayer setFrame:bounds];
-
-    
         //set still image output
-        [self addCameraInput];
-        [self addAudioInput];
-    
-        //ADD MOVIE FILE OUTPUT
-        self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+        dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
+        //    [self setSessionQueue:sessionQueue];
         
-        Float64 TotalSeconds = 6;			//Total seconds
-        int32_t preferredTimeScale = 10;	//Frames per second
-        CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
-        self.movieFileOutput.maxRecordedDuration = maxDuration;
-        
-        self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
-    
-        if ([self.session canAddOutput:self.movieFileOutput]) {
-            [self.session addOutput:self.movieFileOutput];
-        }
-            
-        [self.session startRunning];
+        dispatch_async(sessionQueue, ^{
 
+            NSError *error = nil;
+            
+            NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+            AVCaptureDevice *captureDevice = [devices firstObject];
+            
+            for (AVCaptureDevice *device in devices)
+            {
+                if ([device position] == AVCaptureDevicePositionBack)
+                {
+                    captureDevice = device;
+                    break;
+                }
+            }
+            
+            AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+            
+            if (error)
+            {
+                NSLog(@"%@", error);
+            }
+            
+            if ([self.session canAddInput:videoDeviceInput])
+            {
+                [self.session addInput:videoDeviceInput];
+            }
+            
+            AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
+            AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+            
+            if (error)
+            {
+                NSLog(@"%@", error);
+            }
+            
+            if ([self.session canAddInput:audioDeviceInput])
+            {
+                [self.session addInput:audioDeviceInput];
+            }
+            
+            AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+            if ([self.session canAddOutput:movieFileOutput])
+            {
+                [self.session addOutput:movieFileOutput];
+            }
+            
+            [self.session startRunning];
+
+//            
+//            [self addCameraInput];
+//            [self addAudioInput];
+//            
+//            //ADD MOVIE FILE OUTPUT
+//            self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+//            
+//            Float64 TotalSeconds = 6;			//Total seconds
+//            int32_t preferredTimeScale = 10;	//Frames per second
+//            CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
+//            self.movieFileOutput.maxRecordedDuration = maxDuration;
+//            
+//            self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
+//        
+//            if ([self.session canAddOutput:self.movieFileOutput]) {
+//                [self.session addOutput:self.movieFileOutput];
+//            }
+//                
+//            [self.session startRunning];
+        });
 }
 
 - (void)closeCamera {
@@ -495,13 +542,8 @@
 
 - (void)addAudioInput {
     
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
         //ADD AUDIO INPUT
-    dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
-    //    [self setSessionQueue:sessionQueue];
     
-    dispatch_async(sessionQueue, ^{
-        
         NSLog(@"adding audio input");
         NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
         AVCaptureDevice *captureDevice;
@@ -514,7 +556,7 @@
         // AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
         AVCaptureDeviceInput * audioInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:nil];
         [self.session addInput:audioInput];
-    });
+//    });
 }
 
 - (void)removeAudioInput {
@@ -524,11 +566,11 @@
 }
 
 - (void)addCameraInput {
-    dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
-    //    [self setSessionQueue:sessionQueue];
+//    dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
+//    //    [self setSessionQueue:sessionQueue];
+//    
+//    dispatch_async(sessionQueue, ^{
     
-    dispatch_async(sessionQueue, ^{
-        
         //get front and back camera objects
         NSArray *devices = [AVCaptureDevice devices];
         AVCaptureDevice *captureDevice;
@@ -565,7 +607,7 @@
         }
         
         [self.session addInput:self.videoInput];
-    });
+//    });
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
