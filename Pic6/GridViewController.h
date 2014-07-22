@@ -28,7 +28,6 @@
 @property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
 @property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
 
-@property (strong, nonatomic) AVCaptureStillImageOutput *stillImageOutput;
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
 @property (strong, nonatomic) UIView *gridView;
@@ -44,6 +43,8 @@
 //@property (strong, nonatomic) Tile *enlargedTile;
 
 @property (strong, nonatomic) Firebase *firebase;
+
+@property (strong, nonatomic) TileCell *loaderTile;
 
 - (void)collapse:(TileCell *)tile;
 

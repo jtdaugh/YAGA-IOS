@@ -35,9 +35,16 @@
 - (void)viewDidAppear:(BOOL)animated {
 //    [[UIApplication sharedApplication].delegate.window setRootViewController:self];
 //    [self willEnterForeground];
+    
+    
     if(![self.appeared boolValue]){
         self.appeared = [NSNumber numberWithBool:YES];
     }
+    
+    UIWindow *window = [[UIApplication sharedApplication] delegate].window;
+    window.rootViewController = self;
+    [window makeKeyAndVisible];
+
 }
 
 - (void)viewDidLoad
@@ -50,7 +57,7 @@
     [self initGridView];
     [self initPlaque];
     self.FrontCamera = [NSNumber numberWithBool:0];
-    if([self.onboarding boolValue]){
+    if([self.onboarding boolValue] || 1){
         [self initCameraButton];
         for(UIView *v in self.cameraAccessories){
             [v setAlpha:0.0];
@@ -329,7 +336,9 @@
     } else {
         self.FrontCamera = [NSNumber numberWithBool:YES];
     }
-    
+//    [self.session beginConfiguration];
+//    [self.session commitConfiguration];
+
     [self reloadCamera];
 }
 
@@ -352,7 +361,7 @@
 
 - (void)initCameraView {
     self.cameraView = [[UIView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
-    [self.cameraView setBackgroundColor:[UIColor whiteColor]];
+    [self.cameraView setBackgroundColor:PRIMARY_COLOR];
     [self.gridView addSubview:self.cameraView];
     
     for(UIView *v in self.cameraAccessories){
@@ -399,93 +408,80 @@
 
 - (void)cameraButtonTapped {
     [self initCameraView];
-    
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [self initCamera];
-//    });
     [self setOnboarding:[NSNumber numberWithBool:NO]];
     NSLog(@"tapped");
     
 }
+- (void)checkDeviceAuthorizationStatus
+{
+    NSString *mediaType = AVMediaTypeAudio;
+    
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
+        if (granted)
+        {
+            //Granted access to mediaType
+        }
+        else
+        {
+            //Not granted access to mediaType
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[[UIAlertView alloc] initWithTitle:@"AVCam!"
+                                            message:@"AVCam doesn't have permission to use Camera, please change privacy settings"
+                                           delegate:self
+                                  cancelButtonTitle:@"OK"
+                                  otherButtonTitles:nil] show];
+            });
+        }
+    }];
+}
 
 - (void)initCamera {
     
-    self.session = [[AVCaptureSession alloc] init];
-    self.session.sessionPreset = AVCaptureSessionPresetMedium;
-    
-    [self setupAudio];
-    
-    [self addAudioInput];
-    [self addCameraInput];
-    
-    //display camera preview frame
-    self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
-    [self.captureVideoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-    
-    //display camera preview frame
-    self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
-    [[self.cameraView.layer.sublayers firstObject] removeFromSuperlayer];
-    [self.cameraView.layer addSublayer:self.captureVideoPreviewLayer];
-    
-    //display camera preview frame
-    UIView *view = [self cameraView];
-    CALayer *viewLayer = [view layer];
-    [viewLayer setMasksToBounds:YES];
-    
-    //set camera preview frame
-    CGRect bounds = [view bounds];
-    [self.captureVideoPreviewLayer setFrame:bounds];
-    
-    //set still image output
-    self.stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
-    NSDictionary *outputSettings = [[NSDictionary alloc] initWithObjectsAndKeys: AVVideoCodecJPEG, AVVideoCodecKey, nil];
-    [self.stillImageOutput setOutputSettings:outputSettings];
-    
-    //still setting still image output
-    [self.session addOutput:self.stillImageOutput];
-    
-    
-    //ADD MOVIE FILE OUTPUT
-    self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-    
-    Float64 TotalSeconds = 6;			//Total seconds
-    int32_t preferredTimeScale = 10;	//Frames per second
-    CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
-    self.movieFileOutput.maxRecordedDuration = maxDuration;
-    
-    self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
-    
-    CMTime fragmentInterval = CMTimeMake(5,1);
-    
-    [self.movieFileOutput setMovieFragmentInterval:fragmentInterval];
-    
-    if ([self.session canAddOutput:self.movieFileOutput]) {
-        [self.session addOutput:self.movieFileOutput];
-    }
-    
-    //SET THE CONNECTION PROPERTIES (output properties)
-    //[self CameraSetOutputProperties];
-    
-//    [self addAudioInput];
+        self.session = [[AVCaptureSession alloc] init];
+        self.session.sessionPreset = AVCaptureSessionPresetMedium;
+        
+        //display camera preview frame
+        self.captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
+        [self.captureVideoPreviewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+        
+        //display camera preview frame
+        self.captureVideoPreviewLayer.frame = self.cameraView.bounds;
 
-//    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    
-//    NSError *error = nil;
-//    self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-//    if (self.audioInput) {
-//        NSLog(@"pooo");
-//        [self.session addInput:self.audioInput];
-//    } else {
-//        NSLog(@"audio error: %@", error);
-//    }
+//        [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
+        [[self.cameraView.layer.sublayers firstObject] removeFromSuperlayer];
+        [self.cameraView.layer addSublayer:self.captureVideoPreviewLayer];
+
+        //display camera preview frame
+        UIView *view = [self cameraView];
+        CALayer *viewLayer = [view layer];
+        [viewLayer setMasksToBounds:YES];
+        
+        //set camera preview frame
+        CGRect bounds = [view bounds];
+        [self.captureVideoPreviewLayer setFrame:bounds];
 
     
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.session startRunning];
-//        });
-//    
-//    });
+        //set still image output
+        [self addCameraInput];
+        [self addAudioInput];
+    
+        //ADD MOVIE FILE OUTPUT
+        self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+        
+        Float64 TotalSeconds = 6;			//Total seconds
+        int32_t preferredTimeScale = 10;	//Frames per second
+        CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
+        self.movieFileOutput.maxRecordedDuration = maxDuration;
+        
+        self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
+    
+        if ([self.session canAddOutput:self.movieFileOutput]) {
+            [self.session addOutput:self.movieFileOutput];
+        }
+            
+        [self.session startRunning];
+
 }
 
 - (void)closeCamera {
@@ -498,19 +494,27 @@
 }
 
 - (void)addAudioInput {
-    //ADD AUDIO INPUT
-    NSLog(@"adding audio input");
-    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
-    AVCaptureDevice *captureDevice;
     
-    for(AVCaptureDevice *device in devices){
-        captureDevice = device;
-        break;
-    }
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+        //ADD AUDIO INPUT
+    dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
+    //    [self setSessionQueue:sessionQueue];
     
-//    AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    AVCaptureDeviceInput * audioInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:nil];
-    [self.session addInput:audioInput];
+    dispatch_async(sessionQueue, ^{
+        
+        NSLog(@"adding audio input");
+        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
+        AVCaptureDevice *captureDevice;
+        
+        for(AVCaptureDevice *device in devices){
+            captureDevice = device;
+            break;
+        }
+        
+        // AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
+        AVCaptureDeviceInput * audioInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:nil];
+        [self.session addInput:audioInput];
+    });
 }
 
 - (void)removeAudioInput {
@@ -520,43 +524,48 @@
 }
 
 - (void)addCameraInput {
-    //get front and back camera objects
-    NSArray *devices = [AVCaptureDevice devices];
-    AVCaptureDevice *captureDevice;
+    dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
+    //    [self setSessionQueue:sessionQueue];
     
-    //get front and back camera objects
-    for (AVCaptureDevice *device in devices) {
+    dispatch_async(sessionQueue, ^{
         
-        if ([device hasMediaType:AVMediaTypeVideo]) {
+        //get front and back camera objects
+        NSArray *devices = [AVCaptureDevice devices];
+        AVCaptureDevice *captureDevice;
+        
+        //get front and back camera objects
+        for (AVCaptureDevice *device in devices) {
             
-            if ([device position] == AVCaptureDevicePositionBack && ![self.FrontCamera boolValue]) {
-                captureDevice = device;
-            }
-            if ([device position] == AVCaptureDevicePositionFront && [self.FrontCamera boolValue]) {
-                captureDevice = device;
+            if ([device hasMediaType:AVMediaTypeVideo]) {
+                
+                if ([device position] == AVCaptureDevicePositionBack && ![self.FrontCamera boolValue]) {
+                    captureDevice = device;
+                }
+                if ([device position] == AVCaptureDevicePositionFront && [self.FrontCamera boolValue]) {
+                    captureDevice = device;
+                }
             }
         }
-    }
-    
-    if ([captureDevice lockForConfiguration:NULL] == YES ) {
-        captureDevice.activeVideoMinFrameDuration = CMTimeMake(1, 30);
-        captureDevice.activeVideoMaxFrameDuration = CMTimeMake(1, 30);
         
-        if([captureDevice isTorchModeSupported:AVCaptureTorchModeAuto]){
-            [captureDevice setTorchMode:AVCaptureTorchModeAuto];
+        if ([captureDevice lockForConfiguration:NULL] == YES ) {
+            captureDevice.activeVideoMinFrameDuration = CMTimeMake(1, 30);
+            captureDevice.activeVideoMaxFrameDuration = CMTimeMake(1, 30);
+            
+            if([captureDevice isTorchModeSupported:AVCaptureTorchModeAuto]){
+                [captureDevice setTorchMode:AVCaptureTorchModeAuto];
+            }
+            
+            [captureDevice unlockForConfiguration];
         }
         
-        [captureDevice unlockForConfiguration];
-    }
-    
-    NSError *error = nil;
-    self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-    if (!self.videoInput) {
-        NSLog(@"ERROR: trying to open camera: %@", error);
-    }
-    
-    [self.session addInput:self.videoInput];
-
+        NSError *error = nil;
+        self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+        if (!self.videoInput) {
+            NSLog(@"ERROR: trying to open camera: %@", error);
+        }
+        
+        [self.session addInput:self.videoInput];
+    });
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
@@ -733,13 +742,6 @@
     [super didReceiveMemoryWarning];
     NSLog(@"memory warning?");
     // Dispose of any resources that can be recreated.
-}
-
-- (void)setupAudio {
-    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
-    UInt32 doSetProperty = 1;
-    AudioSessionSetProperty (kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof(doSetProperty), &doSetProperty);
-    [[AVAudioSession sharedInstance] setActive: YES error: nil];
 }
 
 /*
