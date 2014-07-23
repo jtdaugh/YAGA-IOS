@@ -17,6 +17,7 @@
 @property (strong, nonatomic) GridViewController *previousViewController;
 @property (strong, nonatomic) UILabel *userLabel;
 @property (strong, nonatomic) UITextView *captionField;
+@property (strong, nonatomic) UIButton *likeButton;
 
 @property (strong, nonatomic) Firebase *firebase;
 

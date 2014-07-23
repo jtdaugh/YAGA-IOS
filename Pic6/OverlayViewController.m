@@ -9,7 +9,8 @@
 #import "OverlayViewController.h"
 
 @interface OverlayViewController ()
-
+@property (strong, nonatomic) NSArray *reactions;
+@property int reactionIndex;
 @end
 
 @implementation OverlayViewController
@@ -33,6 +34,7 @@
     [self.view addSubview:self.tile];
 
     [self initUserLabel];
+    [self initLikeButton];
 //    [self initCaptionLabel];
     
     [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
@@ -41,12 +43,6 @@
     } completion:^(BOOL finished) {
         //
     }];
-    
-    /*
-     Anyone else want Melo to stay in New York? I love him, he's one of my favorite players, and I think he'd clearly help the Lakers quickly turn into contenders -- BUT I think it would be awesome for him to be able to bring a championship to the city of New York. He'd be a king there - his childhood dream. I just like the NBA more that way.
-     
-     */
-    
 }
 
 - (void)viewDidLoad
@@ -55,6 +51,8 @@
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
     [self.view addGestureRecognizer:tap];
+    
+    self.reactions = @[@"😐", @"😄", @"😍", @"😜", @"😂", @"😎", @"😮"];
     // Do any additional setup after loading the view.
 }
 
@@ -66,6 +64,40 @@
     [self.userLabel setText:self.tile.username];
     [self.userLabel setAlpha:0.0];
     [self.view addSubview:self.userLabel];
+}
+
+- (void) initLikeButton {
+    float size = 48.0f;
+    
+    self.reactionIndex = 0;
+    
+    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-8-size, TILE_HEIGHT*3 + 8, size, size)];
+    [self.likeButton setTitle:self.reactions[self.reactionIndex] forState:UIControlStateNormal];
+    [self.likeButton.titleLabel setFont:[UIFont systemFontOfSize:44]];
+    [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.likeButton];
+}
+
+- (void)likeButtonPressed {
+    self.reactionIndex++;
+    if(self.reactionIndex >= [self.reactions count]){
+        self.reactionIndex = 0;
+    }
+    
+    [self.likeButton setTitle:self.reactions[self.reactionIndex] forState:UIControlStateNormal];
+    
+    [UIView animateKeyframesWithDuration:0.5 delay:0 options:0 animations:^{
+        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
+            self.likeButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
+        }];
+        
+        [UIView addKeyframeWithRelativeStartTime:0.6 relativeDuration:0.4 animations:^{
+            self.likeButton.transform = CGAffineTransformIdentity;
+        }];
+        
+    } completion:^(BOOL finished) {
+        //
+    }];
 }
 
 - (void) initCaptionLabel {

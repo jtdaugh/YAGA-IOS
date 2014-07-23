@@ -145,7 +145,7 @@
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
     [self.gridTiles setBackgroundColor:PRIMARY_COLOR];
-    [self.gridTiles setBounces:NO];
+//    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
     
     [self.view addSubview:self.gridView];
@@ -234,7 +234,7 @@
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [self.gridData objectAtIndex:indexPath.row];
-    cell.state = [NSNumber numberWithInt:LIMBO];
+//    cell.state = [NSNumber numberWithInt:LIMBO];
     
     if(![cell.uid isEqualToString:snapshot.name]){
 
@@ -283,28 +283,32 @@
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"selected");
     
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    
+    if([selected.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]) {
+        selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+        [self.overlay addSubview:selected];
         
-    selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
-    [self.overlay addSubview:selected];
-
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        [self.view bringSubviewToFront:self.overlay];
-        [self.overlay setAlpha:1.0];
-        [selected.player setVolume:1.0];
-        [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
-    } completion:^(BOOL finished) {
-        //
-        OverlayViewController *overlay = [[OverlayViewController alloc] init];
-        [overlay setTile:selected];
-        [overlay setPreviousViewController:self];
-        self.modalPresentationStyle = UIModalPresentationCurrentContext;
-        [self presentViewController:overlay animated:NO completion:^{
-            
+        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+            [self.view bringSubviewToFront:self.overlay];
+            [self.overlay setAlpha:1.0];
+            [selected.player setVolume:1.0];
+            [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
+        } completion:^(BOOL finished) {
+            //
+            OverlayViewController *overlay = [[OverlayViewController alloc] init];
+            [overlay setTile:selected];
+            [overlay setPreviousViewController:self];
+            self.modalPresentationStyle = UIModalPresentationCurrentContext;
+            [self presentViewController:overlay animated:NO completion:^{
+                
+            }];
         }];
-    }];
+    } else {
+        NSLog(@"state: %@", selected.state);
+//        [collectionView reloadItemsAtIndexPaths:@[[collectionView indexPathForCell:selected]]];
+    }
     
 }
 
@@ -314,7 +318,7 @@
     [self.overlay setAlpha:0.0];
 //    [self.gridTiles addSubview:self.overlay];
     
-    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.9 initialSpringVelocity:0.7 options:0 animations:^{
         NSIndexPath *ip = [self.gridTiles indexPathForCell:tile];
         [tile setVideoFrame:[self.gridTiles layoutAttributesForItemAtIndexPath:ip].frame];
         //
