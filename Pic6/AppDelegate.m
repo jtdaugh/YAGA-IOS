@@ -10,6 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "GridViewController.h"
 #import "OnboardingNavigationController.h"
+#import <Crashlytics/Crashlytics.h>
 
 @implementation AppDelegate
 
@@ -17,6 +18,8 @@
 {
     // Override point for customization after application launch.
     [Firebase setOption:@"persistence" to:@YES];
+    [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.

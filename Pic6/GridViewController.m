@@ -335,6 +335,8 @@
 }
 
 - (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
+//    int *x = NULL; *x = 42;
+
     if ([self.FrontCamera boolValue]) {
         self.FrontCamera = [NSNumber numberWithBool:NO];
     } else {
