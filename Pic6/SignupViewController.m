@@ -27,6 +27,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [self.navigationController.navigationBar setBarTintColor:TERTIARY_COLOR];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -90,12 +91,12 @@
 }
 
 - (void)exit {
-//    GridViewController *grid = [[GridViewController alloc] init];
-//    grid.onboarding = [NSNumber numberWithBool:YES];
-//    [self.navigationController pushViewController:grid animated:YES];
-    [self.navigationController dismissViewControllerAnimated:YES completion:^{
-        //
-    }];
+    GridViewController *grid = [[GridViewController alloc] init];
+    grid.onboarding = [NSNumber numberWithBool:YES];
+    [self.navigationController pushViewController:grid animated:YES];
+//    [self.navigationController dismissViewControllerAnimated:YES completion:^{
+//        //
+//    }];
     
 }
 

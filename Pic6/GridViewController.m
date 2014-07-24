@@ -126,8 +126,8 @@
     [self.flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
     [self.flashButton setImage:[UIImage imageNamed:@"TorchOn"] forState:UIControlStateNormal];
     [self.flashButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
-    [self.cameraAccessories addObject:self.flashButton];
-    [self.plaque addSubview:self.flashButton];
+//    [self.cameraAccessories addObject:self.flashButton];
+//    [self.plaque addSubview:self.flashButton];
     
     [self.gridView addSubview:self.plaque];
 }
@@ -334,7 +334,7 @@
 }
 
 - (void)manageClique:(id)sender { //switch cameras front and rear cameras
-    CliqueViewController *vc = [[CliqueViewController alloc] init];
+    CliqueViewController *vc = [CliqueViewController new];
     [self presentViewController:vc animated:YES completion:^{
         //
     }];

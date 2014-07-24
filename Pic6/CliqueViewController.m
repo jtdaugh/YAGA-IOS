@@ -277,12 +277,35 @@
          show];
         self.messageView = [MFMessageComposeViewController new];
     } else {
-        NSObject *o = self.data[indexPath.section][indexPath.row];
-        [self.data[indexPath.section] removeObject:o];
-        [self.data[0] addObject:o];
-        [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
         [self.list deselectRowAtIndexPath:indexPath animated:YES];
+        if(indexPath.section == 1){
+            [self addToClique:indexPath];
+        } else if(indexPath.section == 0){
+            [self removeFromClique:indexPath];
+        }
     }
+}
+
+- (void)addToClique:(NSIndexPath *)indexPath {
+    NSObject *o = self.data[indexPath.section][indexPath.row];
+    [self.data[indexPath.section] removeObject:o];
+    [self.data[0] addObject:o];
+    NSUInteger newRow = [(NSArray *)(self.data[0]) count] - 1;
+    
+    [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:newRow inSection:0]];
+//    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
+    [self.list reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
+}
+
+- (void)removeFromClique:(NSIndexPath *)indexPath {
+    NSObject *o = self.data[indexPath.section][indexPath.row];
+    [self.data[indexPath.section] removeObject:o];
+    [self.data[1] addObject:o];
+    NSUInteger newRow = [(NSArray *)(self.data[1]) count] - 1;
+    
+    [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:newRow inSection:1]];
+    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:1]] withRowAnimation:UITableViewRowAnimationFade];
+    [self.list reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {

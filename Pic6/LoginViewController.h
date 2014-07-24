@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface LoginViewController : UIViewController
+@interface LoginViewController : UIViewController <UITextFieldDelegate>
+@property (strong,nonatomic) UITextField *phoneField;
+@property (strong,nonatomic) UITextField *passwordField;
+
+@property (strong, nonatomic) UIButton *submitButton;
 
 @end

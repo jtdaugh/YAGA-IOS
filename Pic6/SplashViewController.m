@@ -35,8 +35,8 @@
     [logo setTextAlignment:NSTextAlignmentCenter];
     [plaque addSubview:logo];
     
-    UILabel *slogan = [[UILabel alloc] initWithFrame:CGRectMake(30, 48, TILE_WIDTH - 60, 80)];
-    [slogan setText:@"Share your life with your inner circle"];
+    UILabel *slogan = [[UILabel alloc] initWithFrame:CGRectMake(25, 48, TILE_WIDTH - 50, 80)];
+    [slogan setText:@"Share with those who care"];
     [slogan setFont:[UIFont fontWithName:BIG_FONT size:16]];
     [slogan setTextColor:[UIColor whiteColor]];
     [slogan setTextAlignment:NSTextAlignmentCenter];
@@ -101,6 +101,7 @@
 
 - (void)loginPressed {
     NSLog(@"login pressed");
+    [self.navigationController pushViewController:[LoginViewController new] animated:YES];
 }
 
 - (void)signupPressed {
