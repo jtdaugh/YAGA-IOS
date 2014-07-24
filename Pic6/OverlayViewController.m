@@ -29,7 +29,7 @@
     //add background for tap gesture recognizer
     self.bg = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.bg setBackgroundColor:[UIColor blackColor]];
-//    [self.view addSubview:self.bg];
+    [self.view addSubview:self.bg];
     
     [self.view addSubview:self.tile];
 
@@ -54,6 +54,11 @@
     
     self.reactions = @[@"😐", @"😄", @"😍", @"😜", @"😂", @"😎", @"😮"];
     // Do any additional setup after loading the view.
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
 }
 
 - (void) initUserLabel {
@@ -67,12 +72,14 @@
 }
 
 - (void) initLikeButton {
-    float size = 48.0f;
+    float size = 60.0f;
     
     self.reactionIndex = 0;
     
-    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-8-size, TILE_HEIGHT*3 + 8, size, size)];
+    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-4-size, TILE_HEIGHT*3 + 4, size, size)];
     [self.likeButton setTitle:self.reactions[self.reactionIndex] forState:UIControlStateNormal];
+    [self.likeButton.titleLabel setTextAlignment:NSTextAlignmentRight];
+    [self.likeButton setContentVerticalAlignment:UIControlContentVerticalAlignmentTop];
     [self.likeButton.titleLabel setFont:[UIFont systemFontOfSize:44]];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.likeButton];
@@ -127,10 +134,10 @@
     
 }
 
-- (void)willEnterForeground {
+- (void)didEnterBackground {
     [self dismissViewControllerAnimated:NO completion:^{
-        [self.previousViewController collapse:self.tile];
     }];
+    [self.previousViewController collapse:self.tile];
 }
 
 - (void)didReceiveMemoryWarning

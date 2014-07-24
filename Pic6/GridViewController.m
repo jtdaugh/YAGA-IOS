@@ -61,7 +61,7 @@
     [self initPlaque];
     self.FrontCamera = [NSNumber numberWithBool:0];
     [self initCameraView];
-    if([self.onboarding boolValue] || 1){
+    if([self.onboarding boolValue] && 0){
         [self initCameraButton];
         for(UIView *v in self.cameraAccessories){
             [v setAlpha:0.0];
@@ -87,11 +87,6 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didEnterBackground)
-                                                 name:UIApplicationDidEnterBackgroundNotification
-                                               object:nil];
-
 }
 
 - (void)initPlaque {
@@ -103,7 +98,7 @@
     [logo setText:APP_NAME]; // 🔥
     [logo setTextColor:[UIColor whiteColor]];
     [logo setFont:[UIFont fontWithName:BIG_FONT size:30]];
-    [self.plaque addSubview:logo];
+//    [self.plaque addSubview:logo];
     
     UILabel *instructions = [[UILabel alloc] initWithFrame:CGRectMake(10, 30+8+4, TILE_WIDTH-16, 60)];
     [instructions setText:@"📹 Hold to record 👉"];
@@ -111,8 +106,8 @@
     [instructions sizeToFit];
     [instructions setTextColor:[UIColor whiteColor]];
     [instructions setFont:[UIFont fontWithName:BIG_FONT size:13]];
-    [self.cameraAccessories addObject:instructions];
-    [self.plaque addSubview:instructions];
+//    [self.cameraAccessories addObject:instructions];
+//    [self.plaque addSubview:instructions];
 
     self.switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, TILE_HEIGHT - 60, 50, 50)];
     [self.switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
@@ -126,6 +121,13 @@
     [cliqueButton setImage:[UIImage imageNamed:@"Clique"] forState:UIControlStateNormal];
     [cliqueButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
     [self.plaque addSubview:cliqueButton];
+    
+    self.flashButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, 10, 50, 50)];
+    [self.flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
+    [self.flashButton setImage:[UIImage imageNamed:@"TorchOn"] forState:UIControlStateNormal];
+    [self.flashButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
+    [self.cameraAccessories addObject:self.flashButton];
+    [self.plaque addSubview:self.flashButton];
     
     [self.gridView addSubview:self.plaque];
 }
@@ -338,9 +340,9 @@
     }];
 }
 
-- (IBAction)switchCamera:(id)sender { //switch cameras front and rear cameras
+- (void) switchCamera:(id)sender { //switch cameras front and rear cameras
 //    int *x = NULL; *x = 42;
-
+    
     if ([self.FrontCamera boolValue]) {
         self.FrontCamera = [NSNumber numberWithBool:NO];
     } else {
@@ -388,6 +390,26 @@
 
 //    [self.session beginConfiguration];
 //    [self.session commitConfiguration];
+
+}
+
+- (void) switchFlashMode:(id)sender {
+    
+    NSLog(@"switching flash mode");
+    AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
+    [currentVideoDevice lockForConfiguration:nil];
+    
+    if([currentVideoDevice torchMode] == AVCaptureTorchModeAuto){
+        if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOff]){
+            [currentVideoDevice setTorchMode:AVCaptureTorchModeOff];
+        }
+        [self.flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
+    } else {
+        if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeAuto]){
+            [currentVideoDevice setTorchMode:AVCaptureTorchModeAuto];
+        }
+        [self.flashButton setImage:[UIImage imageNamed:@"TorchOn"] forState:UIControlStateNormal];
+    }
 
 }
 
@@ -505,6 +527,10 @@
             }
         }
         
+        [captureDevice lockForConfiguration:nil];
+        [captureDevice setTorchMode:AVCaptureTorchModeAuto];
+        [captureDevice unlockForConfiguration];
+        
         self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
         
         if (error)
@@ -538,25 +564,6 @@
         
         [self.session startRunning];
 
-//            
-//            [self addCameraInput];
-//            [self addAudioInput];
-//            
-//            //ADD MOVIE FILE OUTPUT
-//            self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-//            
-//            Float64 TotalSeconds = 6;			//Total seconds
-//            int32_t preferredTimeScale = 10;	//Frames per second
-//            CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
-//            self.movieFileOutput.maxRecordedDuration = maxDuration;
-//            
-//            self.movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024; //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
-//        
-//            if ([self.session canAddOutput:self.movieFileOutput]) {
-//                [self.session addOutput:self.movieFileOutput];
-//            }
-//                
-//            [self.session startRunning];
     });
 }
 

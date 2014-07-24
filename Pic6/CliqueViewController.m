@@ -75,6 +75,8 @@
     // Do any additional setup after loading the view.
     
     [self importAddressBook];
+    
+//    self.messageView = [MFMessageComposeViewController new];
 }
 
 - (void)donePressed {
@@ -142,7 +144,7 @@
             break;
         case 2:
             // All Contacts
-            [accessory setBackgroundImage:[UIImage imageNamed:@"Invite"] forState:UIControlStateNormal];
+            [accessory setBackgroundImage:[UIImage imageNamed:@"Add"] forState:UIControlStateNormal];
             break;
         default:
             accessory = nil;
@@ -265,21 +267,48 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
     if(indexPath.section == 2){
         CContact *contact = self.data[indexPath.section][indexPath.row];
         [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
                                     message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
                                    delegate: self
-                          cancelButtonTitle:@"Invite"
-                          otherButtonTitles:@"Not now", nil]
+                          cancelButtonTitle:@"Not Now"
+                          otherButtonTitles:@"Invite", nil]
          show];
+        self.messageView = [MFMessageComposeViewController new];
     } else {
         NSObject *o = self.data[indexPath.section][indexPath.row];
         [self.data[indexPath.section] removeObject:o];
         [self.data[0] addObject:o];
         [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+        [self.list deselectRowAtIndexPath:indexPath animated:YES];
     }
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    NSIndexPath *indexPath = [self.list indexPathForSelectedRow];
+    [self.list deselectRowAtIndexPath:indexPath animated:YES];
+
+    if(buttonIndex == 0){
+        NSLog(@"cancel");
+    } else {
+        NSLog(@"invite");
+        CContact *contact = self.data[indexPath.section][indexPath.row];
+        self.messageView.messageComposeDelegate = self;
+        [self.messageView setRecipients:@[contact.number]];
+        [self.messageView setBody:@"I just added you to my Clique. Add me back! http://clique.com/download"];
+        [self presentViewController:self.messageView animated:YES completion:^{
+            
+        }];
+    }
+}
+
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result {
+    NSLog(@"result %u", result);
+    [controller dismissViewControllerAnimated:YES completion:^{
+        //
+        NSLog(@"yessss");
+    }];
 }
 
 /*

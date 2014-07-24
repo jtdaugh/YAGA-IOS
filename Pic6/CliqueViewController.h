@@ -7,9 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+@import MessageUI;
 
-@interface CliqueViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
+@interface CliqueViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, UIAlertViewDelegate, MFMessageComposeViewControllerDelegate>
 @property (strong, nonatomic) UITableView *list;
 @property (strong, nonatomic) NSMutableArray *data;
+@property (strong, nonatomic) MFMessageComposeViewController *messageView;
 
 @end

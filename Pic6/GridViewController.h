@@ -40,6 +40,7 @@
 
 @property (strong, nonatomic) UIView *plaque;
 @property (strong, nonatomic) UIButton *switchButton;
+@property (strong, nonatomic) UIButton *flashButton;
 
 @property (strong, nonatomic) UIView *overlay;
 
