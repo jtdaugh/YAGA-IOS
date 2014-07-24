@@ -59,6 +59,21 @@
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willResignActive)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didBecomeActive)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+
 }
 
 - (void) initUserLabel {
@@ -125,19 +140,40 @@
 }
 
 - (void)tapped:(UITapGestureRecognizer *)gesture {
+    [self collapse:0.3f];
+}
+
+- (void)collapse:(CGFloat)speed {
     [self.tile.player setVolume:0.0];
-//    [self.bg removeFromSuperview];
+    //    [self.bg removeFromSuperview];
     [self.previousViewController.overlay addSubview:self.tile];
     [self dismissViewControllerAnimated:NO completion:^{
-        [self.previousViewController collapse:self.tile];
+        [self.previousViewController collapse:self.tile speed:speed];
     }];
-    
 }
 
 - (void)didEnterBackground {
-    [self dismissViewControllerAnimated:NO completion:^{
-    }];
-    [self.previousViewController collapse:self.tile];
+    [self.view setAlpha:0.0];
+    [self collapse:0.0f];
+//    [self.view setAlpha:0.0f];
+//    [self.previousViewController.view setAlpha:0.0f];
+//    [self.previousViewController.gridTiles reloadItemsAtIndexPaths:@[[self.previousViewController.gridTiles indexPathForCell:self.tile]]];
+
+//    [self.view setAlpha:0.0];
+//    [self.tile setVideoFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+}
+
+- (void)willEnterForeground {
+//    [self tapped:[UITapGestureRecognizer new]];
+}
+
+- (void)willResignActive {
+//    [self.view setAlpha:0.0];
+//    [self collapse:0.0f];
+}
+
+- (void)didBecomeActive {
+//    [self.view setAlpha:1.0];
 }
 
 - (void)didReceiveMemoryWarning

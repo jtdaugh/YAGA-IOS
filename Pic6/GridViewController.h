@@ -50,6 +50,6 @@
 
 @property (strong, nonatomic) TileCell *loaderTile;
 
-- (void)collapse:(TileCell *)tile;
+- (void)collapse:(TileCell *)tile speed:(CGFloat)speed;
 
 @end

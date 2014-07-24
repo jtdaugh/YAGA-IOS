@@ -87,6 +87,11 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
 
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+
 }
 
 - (void)initPlaque {
@@ -314,13 +319,12 @@
     
 }
 
-- (void) collapse:(TileCell *)tile {
+- (void) collapse:(TileCell *)tile speed:(CGFloat)speed {
     tile.frame = CGRectMake(0, self.gridTiles.contentOffset.y, TILE_WIDTH*2, TILE_HEIGHT*2);
     [self.gridTiles addSubview:tile];
     [self.overlay setAlpha:0.0];
 //    [self.gridTiles addSubview:self.overlay];
-    
-    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.9 initialSpringVelocity:0.7 options:0 animations:^{
+    [UIView animateWithDuration:speed delay:0.0 usingSpringWithDamping:0.9 initialSpringVelocity:0.7 options:0 animations:^{
         NSIndexPath *ip = [self.gridTiles indexPathForCell:tile];
         [tile setVideoFrame:[self.gridTiles layoutAttributesForItemAtIndexPath:ip].frame];
         //
