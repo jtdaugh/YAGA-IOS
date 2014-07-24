@@ -41,11 +41,15 @@
     if(![self.appeared boolValue]){
         self.appeared = [NSNumber numberWithBool:YES];
     }
-    
+        
 //    UIWindow *window = [[UIApplication sharedApplication] delegate].window;
 //    window.rootViewController = self;
 //    [window makeKeyAndVisible];
 
+}
+
+- (void)test {
+    NSLog(@"test!");
 }
 
 - (void)viewDidLoad
@@ -338,7 +342,7 @@
 }
 
 - (void)manageClique:(id)sender { //switch cameras front and rear cameras
-    CliqueViewController *vc = [CliqueViewController new];
+    CliqueViewController *vc = [[CliqueViewController alloc] init];
     [self presentViewController:vc animated:YES completion:^{
         //
     }];

@@ -15,6 +15,7 @@
 		416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 416D52C5197E107100769721 /* AVCamPreviewView.m */; };
 		418954BE19687DD2009C17E2 /* NSString+File.m in Sources */ = {isa = PBXBuildFile; fileRef = 418954BD19687DD2009C17E2 /* NSString+File.m */; };
 		41A2EC6A197F887F008DF482 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A2EC69197F887F008DF482 /* Crashlytics.framework */; };
+		41A308A619819D1000D30349 /* CNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 41A308A519819D1000D30349 /* CNetworking.m */; };
 		41B404941974CA6700F9EE3F /* CContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B404931974CA6700F9EE3F /* CContact.m */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
 		41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */ = {isa = PBXBuildFile; fileRef = 41DCA6B11974E30F0055910F /* NSString+Hash.m */; };
@@ -74,6 +75,8 @@
 		418954BC19687DD2009C17E2 /* NSString+File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+File.h"; sourceTree = "<group>"; };
 		418954BD19687DD2009C17E2 /* NSString+File.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+File.m"; sourceTree = "<group>"; };
 		41A2EC69197F887F008DF482 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		41A308A419819D1000D30349 /* CNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CNetworking.h; sourceTree = "<group>"; };
+		41A308A519819D1000D30349 /* CNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CNetworking.m; sourceTree = "<group>"; };
 		41A5F545197765E100E6A1F5 /* 0.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 0.mp4; sourceTree = "<group>"; };
 		41B404921974CA6700F9EE3F /* CContact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CContact.h; sourceTree = "<group>"; };
 		41B404931974CA6700F9EE3F /* CContact.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CContact.m; sourceTree = "<group>"; };
@@ -212,6 +215,8 @@
 				71106D87192444A30083C64A /* PData.m */,
 				41B404921974CA6700F9EE3F /* CContact.h */,
 				41B404931974CA6700F9EE3F /* CContact.m */,
+				41A308A419819D1000D30349 /* CNetworking.h */,
+				41A308A519819D1000D30349 /* CNetworking.m */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -497,6 +502,7 @@
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
 				416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */,
 				41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */,
+				41A308A619819D1000D30349 /* CNetworking.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
