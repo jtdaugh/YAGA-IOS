@@ -256,6 +256,7 @@
 
         if(cell.isLoaded){
             if([self.scrolling boolValue]){
+//                [cell play];
                 [cell showImage];
             } else {
                 [cell play];
