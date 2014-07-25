@@ -14,6 +14,7 @@
 #import "OverlayViewController.h"
 #import "CliqueViewController.h"
 #import "OnboardingNavigationController.h"
+#import <Crashlytics/Crashlytics.h>
 
 @interface GridViewController ()
 @end
@@ -59,6 +60,7 @@
     self.cameraAccessories = [[NSMutableArray alloc] init];
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
 //    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+    [Crashlytics setUserIdentifier:[self humanName]];
 
     [self initOverlay];
     [self initGridView];
