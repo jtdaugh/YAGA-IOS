@@ -19,6 +19,7 @@
 @property (strong, nonatomic) NSNumber *state;
 @property (strong, nonatomic) NSString *uid;
 @property (strong, nonatomic) NSString *username;
+
 @property (strong, nonatomic) UIView *playerContainer;
 @property (strong, nonatomic) AVPlayerLayer *playerLayer;
 @property (strong, nonatomic) AVPlayer *player;

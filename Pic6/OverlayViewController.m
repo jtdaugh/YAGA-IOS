@@ -35,10 +35,13 @@
 
     [self initUserLabel];
     [self initLikeButton];
+    [self initSettingsButton];
+    
 //    [self initCaptionLabel];
     
     [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         [self.userLabel setAlpha:1.0];
+        [self.likeButton setAlpha:1.0];
 //        [self.captionField setAlpha:1.0];
     } completion:^(BOOL finished) {
         //
@@ -52,7 +55,7 @@
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
     [self.view addGestureRecognizer:tap];
     
-    self.reactions = @[@"😐", @"😄", @"😍", @"😜", @"😂", @"😎", @"😮"];
+    self.reactions = @[@"❤️", @"💙", @"💜", @"💚", @"💛"]; //😐", @"😄", @"😍", @"😜", @"😂", @"😎", @"😮"];
     // Do any additional setup after loading the view.
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -97,6 +100,7 @@
     [self.likeButton setContentVerticalAlignment:UIControlContentVerticalAlignmentTop];
     [self.likeButton.titleLabel setFont:[UIFont systemFontOfSize:44]];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.likeButton setAlpha:0.0];
     [self.view addSubview:self.likeButton];
 }
 
@@ -120,6 +124,25 @@
     } completion:^(BOOL finished) {
         //
     }];
+}
+
+- (void) initSettingsButton {
+    CGFloat size = 60.0f;
+    self.settingsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - size, TILE_HEIGHT - 4 - size, size, size)];
+    [self.settingsButton setTitle:@"🔧" forState:UIControlStateNormal];
+    [self.settingsButton.titleLabel setFont:[UIFont systemFontOfSize:36]];
+//    [self.settingsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
+    [self.settingsButton addTarget:self action:@selector(settingsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.settingsButton];
+    
+}
+
+- (void) settingsButtonPressed {
+    UIActionSheet *settings = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:[NSString stringWithFormat:@"Block %@", self.tile.username], [NSString stringWithFormat:@"Add %@ to Clique", self.tile.username], nil];
+    
+    [settings setActionSheetStyle:UIActionSheetStyleBlackOpaque];
+    [settings showInView:self.view];
+    
 }
 
 - (void) initCaptionLabel {

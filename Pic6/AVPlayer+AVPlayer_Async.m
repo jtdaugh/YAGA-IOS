@@ -33,12 +33,18 @@
                                              selector:@selector(playerItemDidReachEnd:)
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:[self currentItem]];
-
+    
 }
 
 - (void)playerItemDidReachEnd:(NSNotification *)notification {
     AVPlayerItem *p = [notification object];
     [p seekToTime:kCMTimeZero];
 }
+
+- (void)removeAllObservers {
+    [self removeAllObservers];
+}
+
+
 
 @end

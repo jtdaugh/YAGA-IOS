@@ -539,7 +539,9 @@
         }
         
         [captureDevice lockForConfiguration:nil];
-        [captureDevice setTorchMode:AVCaptureTorchModeAuto];
+        if([captureDevice isTorchModeSupported:AVCaptureTorchModeAuto]){
+            [captureDevice setTorchMode:AVCaptureTorchModeAuto];
+        }
         [captureDevice unlockForConfiguration];
         
         self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
