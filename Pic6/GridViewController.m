@@ -120,25 +120,30 @@
 //    [self.cameraAccessories addObject:instructions];
 //    [self.plaque addSubview:instructions];
 
-    self.switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, TILE_HEIGHT - 60, 50, 50)];
+    self.switchButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH/2, TILE_HEIGHT/2, TILE_WIDTH/2, TILE_HEIGHT/2)];
     [self.switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
+//    [self.switchButton setTitle:@"🔃" forState:UIControlStateNormal];
+//    [self.switchButton.titleLabel setFont:[UIFont systemFontOfSize:48]];
     [self.switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
-    [self.switchButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
+    [self.switchButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.cameraAccessories addObject:self.switchButton];
     [self.plaque addSubview:self.switchButton];
 
-    UIButton *cliqueButton = [[UIButton alloc] initWithFrame:CGRectMake(10, TILE_HEIGHT - 60, 50, 50)];
+    UIButton *cliqueButton = [[UIButton alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT/2, TILE_WIDTH/2, TILE_HEIGHT/2)];
     [cliqueButton addTarget:self action:@selector(manageClique:) forControlEvents:UIControlEventTouchUpInside];
+//    [cliqueButton setTitle:@"👥" forState:UIControlStateNormal]; //🔃
+//    [cliqueButton.titleLabel setFont:[UIFont systemFontOfSize:48]];
     [cliqueButton setImage:[UIImage imageNamed:@"Clique"] forState:UIControlStateNormal];
-    [cliqueButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
+    [cliqueButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.plaque addSubview:cliqueButton];
     
-    self.flashButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH - 60, 10, 50, 50)];
+    self.flashButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH/2, 0, TILE_WIDTH/2, TILE_HEIGHT/2)];
     [self.flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
-    [self.flashButton setImage:[UIImage imageNamed:@"TorchOn"] forState:UIControlStateNormal];
-    [self.flashButton.imageView setContentMode:UIViewContentModeScaleAspectFill];
+    [self.flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
+    [self.flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.flashButton setAlpha:0.0];
 //    [self.cameraAccessories addObject:self.flashButton];
-//    [self.plaque addSubview:self.flashButton];
+    [self.plaque addSubview:self.flashButton];
     
     [self.gridView addSubview:self.plaque];
 }
@@ -369,7 +374,7 @@
 		switch (currentPosition)
 		{
 			case AVCaptureDevicePositionUnspecified:
-				preferredPosition = AVCaptureDevicePositionBack;
+				preferredPosition = AVCaptureDevicePositionFront;
 				break;
 			case AVCaptureDevicePositionBack:
 				preferredPosition = AVCaptureDevicePositionFront;
@@ -381,7 +386,16 @@
 		
 		AVCaptureDevice *videoDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:preferredPosition];
 		AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:nil];
-		
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+
+            if([videoDevice isTorchModeSupported:AVCaptureTorchModeOn]){
+                [self.flashButton setAlpha:1.0];
+            } else {
+                [self.flashButton setAlpha:0.0];
+            }
+		});
+        
 		[[self session] beginConfiguration];
 		
 		[[self session] removeInput:[self videoInput]];
@@ -410,14 +424,14 @@
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
     [currentVideoDevice lockForConfiguration:nil];
     
-    if([currentVideoDevice torchMode] == AVCaptureTorchModeAuto){
+    if([currentVideoDevice torchMode] == AVCaptureTorchModeOn){
         if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOff]){
             [currentVideoDevice setTorchMode:AVCaptureTorchModeOff];
         }
         [self.flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
     } else {
-        if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeAuto]){
-            [currentVideoDevice setTorchMode:AVCaptureTorchModeAuto];
+        if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOn]){
+            [currentVideoDevice setTorchMode:AVCaptureTorchModeOn];
         }
         [self.flashButton setImage:[UIImage imageNamed:@"TorchOn"] forState:UIControlStateNormal];
     }
@@ -531,7 +545,7 @@
         
         for (AVCaptureDevice *device in devices)
         {
-            if ([device position] == AVCaptureDevicePositionBack)
+            if ([device position] == AVCaptureDevicePositionFront)
             {
                 captureDevice = device;
                 break;
@@ -539,9 +553,9 @@
         }
         
         [captureDevice lockForConfiguration:nil];
-        if([captureDevice isTorchModeSupported:AVCaptureTorchModeAuto]){
-            [captureDevice setTorchMode:AVCaptureTorchModeAuto];
-        }
+//        if([captureDevice isTorchModeSupported:AVCaptureTorchModeAuto]){
+//            [captureDevice setTorchMode:AVCaptureTorchModeAuto];
+//        }
         [captureDevice unlockForConfiguration];
         
         self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];

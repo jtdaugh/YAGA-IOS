@@ -43,7 +43,7 @@
     UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithTitle:@"Done"
                                                                     style:UIBarButtonItemStyleDone target:nil action:@selector(donePressed)];
     
-    UINavigationItem *item = [[UINavigationItem alloc] initWithTitle:@"Manage Clique"];
+    UINavigationItem *item = [[UINavigationItem alloc] initWithTitle:@"👥 Manage Clique"];
     item.rightBarButtonItem = rightButton;
     item.hidesBackButton = YES;
     [navBar pushNavigationItem:item animated:NO];
