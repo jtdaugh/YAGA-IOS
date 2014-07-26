@@ -159,7 +159,6 @@
     }
 }
 
-
 + (BOOL)isLoaded:(NSString *)uid {
     NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), uid];
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -182,6 +181,10 @@
     } else {
         return NO;
     }
+}
+
+- (void)prepareForReuse {
+    [self.player removeObservers];
 }
 
 /*

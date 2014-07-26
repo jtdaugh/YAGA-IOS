@@ -11,4 +11,5 @@
 @interface AVPlayer (AVPlayer_Async)
 - (void)asyncPlay;
 - (void)setLooping;
+- (void)removeObservers;
 @end

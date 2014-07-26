@@ -28,6 +28,7 @@
 
 - (void)setLooping {
     // set looping
+    
     [self setActionAtItemEnd:AVPlayerActionAtItemEndNone];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(playerItemDidReachEnd:)
@@ -41,8 +42,9 @@
     [p seekToTime:kCMTimeZero];
 }
 
-- (void)removeAllObservers {
-    [self removeAllObservers];
+- (void)removeObservers {
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 
