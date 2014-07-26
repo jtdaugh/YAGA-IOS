@@ -391,6 +391,7 @@
 
             if([videoDevice isTorchModeSupported:AVCaptureTorchModeOn]){
                 [self.flashButton setAlpha:1.0];
+                [self.flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
             } else {
                 [self.flashButton setAlpha:0.0];
             }
