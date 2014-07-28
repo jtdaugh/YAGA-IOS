@@ -616,7 +616,7 @@
 - (void)startHold {
     self.recording = 1;
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, TILE_HEIGHT/4)];
-    [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.6]];
+    [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
     [self.indicator setUserInteractionEnabled:NO];
     [self.cameraView addSubview:self.indicator];
 
