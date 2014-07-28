@@ -60,6 +60,7 @@
     self.cameraAccessories = [[NSMutableArray alloc] init];
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
 //    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+    NSLog(@"heyoo: %@", [self humanName]);
     [Crashlytics setUserIdentifier:[self humanName]];
 
     [self initOverlay];
@@ -614,8 +615,9 @@
 
 - (void)startHold {
     self.recording = 1;
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 8)];
-    [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, TILE_HEIGHT/4)];
+    [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.6]];
+    [self.indicator setUserInteractionEnabled:NO];
     [self.cameraView addSubview:self.indicator];
 
     [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
@@ -724,6 +726,7 @@
 }
 
 - (NSString *)humanName {
+    
     NSString *deviceName = [[UIDevice currentDevice].name lowercaseString];
     for (NSString *string in @[@"’s iphone", @"’s ipad", @"’s ipod touch", @"’s ipod",
                                @"'s iphone", @"'s ipad", @"'s ipod touch", @"'s ipod",
