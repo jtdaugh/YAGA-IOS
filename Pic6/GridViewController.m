@@ -58,7 +58,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.cameraAccessories = [[NSMutableArray alloc] init];
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+    
 //    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
     NSLog(@"heyoo: %@", [self humanName]);
     [Crashlytics setUserIdentifier:[self humanName]];
@@ -66,7 +67,6 @@
     [self initOverlay];
     [self initGridView];
     [self initPlaque];
-    self.FrontCamera = [NSNumber numberWithBool:0];
     [self initCameraView];
     if([self.onboarding boolValue] && 0){
         [self initCameraButton];
@@ -142,8 +142,7 @@
     [self.flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
     [self.flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
     [self.flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [self.flashButton setAlpha:0.0];
-//    [self.cameraAccessories addObject:self.flashButton];
+    [self.cameraAccessories addObject:self.flashButton];
     [self.plaque addSubview:self.flashButton];
     
     [self.gridView addSubview:self.plaque];
@@ -360,13 +359,6 @@
 - (void) switchCamera:(id)sender { //switch cameras front and rear cameras
 //    int *x = NULL; *x = 42;
     
-    if ([self.FrontCamera boolValue]) {
-        self.FrontCamera = [NSNumber numberWithBool:NO];
-    } else {
-        self.FrontCamera = [NSNumber numberWithBool:YES];
-    }
-    
-    
     dispatch_async([self sessionQueue], ^{
 		AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
 		AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
@@ -389,13 +381,7 @@
 		AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:nil];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-
-            if([videoDevice isTorchModeSupported:AVCaptureTorchModeOn]){
-                [self.flashButton setAlpha:1.0];
-                [self.flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
-            } else {
-                [self.flashButton setAlpha:0.0];
-            }
+            [self configureFlashButton:[NSNumber numberWithBool:NO]];
 		});
         
 		[[self session] beginConfiguration];
@@ -424,20 +410,53 @@
     
     NSLog(@"switching flash mode");
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
-    [currentVideoDevice lockForConfiguration:nil];
     
-    if([currentVideoDevice torchMode] == AVCaptureTorchModeOn){
-        if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOff]){
-            [currentVideoDevice setTorchMode:AVCaptureTorchModeOff];
+    if([currentVideoDevice position] == AVCaptureDevicePositionBack){
+        // back camera
+        [currentVideoDevice lockForConfiguration:nil];
+        if([self.flash boolValue]){
+            //turn flash off
+            if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOff]){
+                [currentVideoDevice setTorchMode:AVCaptureTorchModeOff];
+            }
+            [self configureFlashButton:[NSNumber numberWithBool:NO]];
+        } else {
+            //turn flash on
+            NSError *error = nil;
+            if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOn]){
+                [currentVideoDevice setTorchModeOnWithLevel:0.2 error:&error];
+            }
+            if(error){
+                NSLog(@"error: %@", error);
+            }
+            
+            [self configureFlashButton:[NSNumber numberWithBool:YES]];
         }
-        [self.flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
-    } else {
-        if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOn]){
-            [currentVideoDevice setTorchMode:AVCaptureTorchModeOn];
+        [currentVideoDevice unlockForConfiguration];
+        
+    } else if([currentVideoDevice position] == AVCaptureDevicePositionFront) {
+        //front camera
+        if([self.flash boolValue]){
+            // turn flash off
+            [self.white removeFromSuperview];
+            [self configureFlashButton:[NSNumber numberWithBool:NO]];
+        } else {
+            // turn flash on
+            [self.gridView addSubview:self.white];
+            [self.gridView bringSubviewToFront:self.cameraView];
+            [self configureFlashButton:[NSNumber numberWithBool:YES]];
         }
-        [self.flashButton setImage:[UIImage imageNamed:@"TorchOn"] forState:UIControlStateNormal];
+        
     }
+}
 
+- (void)configureFlashButton:(NSNumber *)flash {
+    self.flash = flash;
+    if([flash boolValue]){
+        [self.flashButton setImage:[UIImage imageNamed:@"TorchOn"] forState:UIControlStateNormal];
+    } else {
+        [self.flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
+    }
 }
 
 - (void)initCameraView {
@@ -452,6 +471,15 @@
     [longPressGestureRecognizer setMinimumPressDuration:0.2f];
     longPressGestureRecognizer.delegate = self;
     [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
+    
+    self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [self.white setBackgroundColor:[UIColor whiteColor]];
+    [self.white setAlpha:0.95];
+    
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchFlashMode:)];
+    tapGestureRecognizer.delegate = self;
+    [self.white addGestureRecognizer:tapGestureRecognizer];
+    
 }
 
 - (void)initCameraButton {
@@ -614,14 +642,17 @@
 }
 
 - (void)startHold {
-    self.recording = 1;
+    
+    NSLog(@"starting hold");
+    
+    self.recording = [NSNumber numberWithBool:YES];
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, TILE_HEIGHT/4)];
     [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
     [self.indicator setUserInteractionEnabled:NO];
     [self.cameraView addSubview:self.indicator];
 
     [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        [self.indicator setFrame:CGRectMake(0, 0, TILE_WIDTH, 8)];
+        [self.indicator setFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT/4)];
     } completion:^(BOOL finished) {
         if(finished){
             [self endHold];
@@ -634,11 +665,12 @@
 }
 
 - (void) endHold {
-    if(self.recording){
+    if([self.recording boolValue]){
         [self.indicator removeFromSuperview];
+        [self.white removeFromSuperview];
         [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
-        self.recording = 0;
+        self.recording = [NSNumber numberWithBool:NO];
     }
 }
 
@@ -756,14 +788,14 @@
 
 - (void)didEnterBackground {
 //    NSLog(@"did enter background");
-    [self.view setAlpha:0.0];
+//    [self.view setAlpha:0.0];
     [self closeCamera];
     
 }
 
 - (void)willEnterForeground {
 //    NSLog(@"will enter foreground");
-    [self.view setAlpha:1.0];
+//    [self.view setAlpha:1.0];
     [self initCamera];
 
     for(TileCell *tile in [self.gridTiles visibleCells]){

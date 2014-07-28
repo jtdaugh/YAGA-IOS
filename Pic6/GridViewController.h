@@ -19,8 +19,10 @@
 @property (strong, nonatomic) UIButton *cameraButton;
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
-@property BOOL recording;
+@property (strong, nonatomic) UIView *white;
+@property (strong, nonatomic) NSNumber *recording;
 @property (strong, nonatomic) NSNumber *FrontCamera;
+@property (strong, nonatomic) NSNumber *flash;
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 
 @property (strong, nonatomic) NSNumber *appeared;

@@ -176,7 +176,7 @@
 }
 
 - (void)didEnterBackground {
-    [self.view setAlpha:0.0];
+//    [self.view setAlpha:0.0];
     [self collapse:0.0f];
 //    [self.view setAlpha:0.0f];
 //    [self.previousViewController.view setAlpha:0.0f];
