@@ -115,6 +115,7 @@
     [self.playerContainer.layer addSublayer: self.playerLayer];
 //        [self.loader removeFromSuperview];
     [self addSubview:self.playerContainer];
+    [self bringSubviewToFront:self.playerContainer];
     
     [self.player setVolume:0.0];
     [self.player asyncPlay];
@@ -184,7 +185,15 @@
 }
 
 - (void)prepareForReuse {
-    [self.player removeObservers];
+    if(self.player){
+        [self.player removeObservers];
+    }
+}
+
+- (void)dealloc {
+    if(self.player){
+        [self.player removeObservers];        
+    }
 }
 
 /*

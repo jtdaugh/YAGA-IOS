@@ -19,13 +19,16 @@
     // Override point for customization after application launch.
     [Firebase setOption:@"persistence" to:@YES];
     [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
+    
+    [self setupAudio];
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
     // self.window.backgroundColor = [UIColor whiteColor];
     
-//    self.window.rootViewController = [OnboardingNavigationController new];
-    self.window.rootViewController = [GridViewController new];
+    self.window.rootViewController = [OnboardingNavigationController new];
+//    self.window.rootViewController = [GridViewController new];
   
     [self.window makeKeyAndVisible];
     
@@ -59,6 +62,7 @@
 }
 
 - (void)setupAudio {
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
 //    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:nil];
 //    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
 //    UInt32 doSetProperty = 1;

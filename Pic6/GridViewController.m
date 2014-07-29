@@ -42,15 +42,16 @@
     if(![self.appeared boolValue]){
         self.appeared = [NSNumber numberWithBool:YES];
     }
-        
+    [self initCameraView];
+    [self initCamera];
+    [self initGridTiles];
+    [self initFirebase];
+
+    
 //    UIWindow *window = [[UIApplication sharedApplication] delegate].window;
 //    window.rootViewController = self;
 //    [window makeKeyAndVisible];
 
-}
-
-- (void)test {
-    NSLog(@"test!");
 }
 
 - (void)viewDidLoad
@@ -73,17 +74,13 @@
     [self initOverlay];
     [self initGridView];
     [self initPlaque];
-    [self initCameraView];
-    if([self.onboarding boolValue] && 0){
-        [self initCameraButton];
-        for(UIView *v in self.cameraAccessories){
-            [v setAlpha:0.0];
-        }
-    } else {
-        [self initCameraView];
-        [self initCamera];
+    for(UIView *v in self.cameraAccessories){
+//        [v setAlpha:0.0];
     }
-    [self initFirebase];
+    if([self.onboarding boolValue] || 1){
+//        [self initCameraButton];
+    } else {
+    }
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -156,7 +153,12 @@
 
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
+    [self.gridView setBackgroundColor:PRIMARY_COLOR];
     
+    [self.view addSubview:self.gridView];
+}
+
+- (void) initGridTiles {
     int tile_buffer = 0;
     
     UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
@@ -169,10 +171,9 @@
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
     [self.gridTiles setBackgroundColor:PRIMARY_COLOR];
-//    [self.gridTiles setBounces:NO];
+    //    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
     
-    [self.view addSubview:self.gridView];
     self.gridData = [NSMutableArray array];
 }
 
@@ -535,7 +536,6 @@
 //        }
 //    }
     
-    [self initCamera];
     [self.cameraButton removeFromSuperview];
     
     for(UIView *v in self.cameraAccessories){
@@ -603,7 +603,7 @@
         
         if (error)
         {
-            NSLog(@"%@", error);
+            NSLog(@"add video input error: %@", error);
         }
         
         if ([self.session canAddInput:self.videoInput])
@@ -616,7 +616,7 @@
         
         if (error)
         {
-            NSLog(@"%@", error);
+            NSLog(@"add audio input error: %@", error);
         }
         
         if ([self.session canAddInput:self.audioInput])
@@ -818,6 +818,7 @@
         if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]]){
             tile.state = [NSNumber numberWithInt:LOADED];
             tile.player = nil;
+            [tile.player removeObservers];
         }
     }
 }
