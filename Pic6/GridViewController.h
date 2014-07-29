@@ -23,6 +23,7 @@
 @property (strong, nonatomic) NSNumber *recording;
 @property (strong, nonatomic) NSNumber *FrontCamera;
 @property (strong, nonatomic) NSNumber *flash;
+@property (strong, nonatomic) NSNumber *previousBrightness;
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 
 @property (strong, nonatomic) NSNumber *appeared;

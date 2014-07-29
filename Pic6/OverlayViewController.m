@@ -177,7 +177,7 @@
 
 - (void)didEnterBackground {
 //    [self.view setAlpha:0.0];
-    [self collapse:0.0f];
+//    [self collapse:0.0f];
 //    [self.view setAlpha:0.0f];
 //    [self.previousViewController.view setAlpha:0.0f];
 //    [self.previousViewController.gridTiles reloadItemsAtIndexPaths:@[[self.previousViewController.gridTiles indexPathForCell:self.tile]]];
@@ -192,7 +192,7 @@
 
 - (void)willResignActive {
 //    [self.view setAlpha:0.0];
-//    [self collapse:0.0f];
+    [self collapse:0.2f];
 }
 
 - (void)didBecomeActive {

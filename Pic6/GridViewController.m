@@ -58,7 +58,10 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.cameraAccessories = [[NSMutableArray alloc] init];
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:nil];
+//    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+    
+//    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
     
 //    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
     NSLog(@"heyoo: %@", [self humanName]);
@@ -438,10 +441,15 @@
         //front camera
         if([self.flash boolValue]){
             // turn flash off
+            if(self.previousBrightness){
+                [[UIScreen mainScreen] setBrightness:[self.previousBrightness floatValue]];
+            }
             [self.white removeFromSuperview];
             [self configureFlashButton:[NSNumber numberWithBool:NO]];
         } else {
             // turn flash on
+            self.previousBrightness = [NSNumber numberWithFloat: [[UIScreen mainScreen] brightness]];
+            [[UIScreen mainScreen] setBrightness:1.0];
             [self.gridView addSubview:self.white];
             [self.gridView bringSubviewToFront:self.cameraView];
             [self configureFlashButton:[NSNumber numberWithBool:YES]];
@@ -667,7 +675,6 @@
 - (void) endHold {
     if([self.recording boolValue]){
         [self.indicator removeFromSuperview];
-        [self.white removeFromSuperview];
         [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
         self.recording = [NSNumber numberWithBool:NO];
@@ -789,20 +796,28 @@
 - (void)didEnterBackground {
 //    NSLog(@"did enter background");
 //    [self.view setAlpha:0.0];
+    if([self.flash boolValue] && [[self.videoInput device] position] == AVCaptureDevicePositionFront){
+        [self switchFlashMode:nil];
+    }
     [self closeCamera];
-    
+    for(TileCell *tile in [self.gridTiles visibleCells]){
+        if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]]){
+            tile.player = nil;
+        }
+    }
 }
 
 - (void)willEnterForeground {
 //    NSLog(@"will enter foreground");
 //    [self.view setAlpha:1.0];
     [self initCamera];
+    [self.gridTiles reloadData];
 
-    for(TileCell *tile in [self.gridTiles visibleCells]){
-        if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]] || [tile.state  isEqualToNumber:[NSNumber numberWithInt:  LOADED]]){
-            [tile play];
-        }
-    }
+//    for(TileCell *tile in [self.gridTiles visibleCells]){
+//        if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]] || [tile.state  isEqualToNumber:[NSNumber numberWithInt:  LOADED]]){
+//            [tile play];
+//        }
+//    }
 }
 
 -(BOOL)prefersStatusBarHidden {
