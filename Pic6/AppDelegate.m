@@ -19,7 +19,6 @@
     // Override point for customization after application launch.
     [Firebase setOption:@"persistence" to:@YES];
     [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
-    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
@@ -47,7 +46,6 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
-    [self setupAudio];
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
 }
 

@@ -58,7 +58,10 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.cameraAccessories = [[NSMutableArray alloc] init];
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:nil];
+    NSError *error = nil;
+    if(error){
+        NSLog(@"error: %@", error);
+    }
 //    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
     
 //    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
@@ -309,24 +312,28 @@
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
     
     if([selected.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]) {
-        selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
-        [self.overlay addSubview:selected];
-        
-        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-            [self.view bringSubviewToFront:self.overlay];
-            [self.overlay setAlpha:1.0];
-            [selected.player setVolume:1.0];
-            [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
-        } completion:^(BOOL finished) {
-            //
-            OverlayViewController *overlay = [[OverlayViewController alloc] init];
-            [overlay setTile:selected];
-            [overlay setPreviousViewController:self];
-            self.modalPresentationStyle = UIModalPresentationCurrentContext;
-            [self presentViewController:overlay animated:NO completion:^{
-                
+        if(selected.player.rate == 1.0){
+            selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+            [self.overlay addSubview:selected];
+            
+            [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+                [self.view bringSubviewToFront:self.overlay];
+                [self.overlay setAlpha:1.0];
+                [selected.player setVolume:1.0];
+                [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
+            } completion:^(BOOL finished) {
+                //
+                OverlayViewController *overlay = [[OverlayViewController alloc] init];
+                [overlay setTile:selected];
+                [overlay setPreviousViewController:self];
+                self.modalPresentationStyle = UIModalPresentationCurrentContext;
+                [self presentViewController:overlay animated:NO completion:^{
+                    
+                }];
             }];
-        }];
+        } else {
+            [collectionView reloadItemsAtIndexPaths:@[indexPath]];
+        }
     } else {
         NSLog(@"state: %@", selected.state);
 //        [collectionView reloadItemsAtIndexPaths:@[[collectionView indexPathForCell:selected]]];
@@ -379,6 +386,8 @@
 				preferredPosition = AVCaptureDevicePositionBack;
 				break;
 		}
+        
+        [self addAudioInput];
 		
 		AVCaptureDevice *videoDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:preferredPosition];
 		AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:nil];
@@ -427,7 +436,7 @@
             //turn flash on
             NSError *error = nil;
             if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOn]){
-                [currentVideoDevice setTorchModeOnWithLevel:0.2 error:&error];
+                [currentVideoDevice setTorchModeOnWithLevel:0.8 error:&error];
             }
             if(error){
                 NSLog(@"error: %@", error);
@@ -590,12 +599,6 @@
             }
         }
         
-        [captureDevice lockForConfiguration:nil];
-//        if([captureDevice isTorchModeSupported:AVCaptureTorchModeAuto]){
-//            [captureDevice setTorchMode:AVCaptureTorchModeAuto];
-//        }
-        [captureDevice unlockForConfiguration];
-        
         self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
         
         if (error)
@@ -630,6 +633,17 @@
         [self.session startRunning];
 
     });
+}
+
+- (void)addAudioInput {
+    
+    NSError *error = nil;
+    
+    if(error){
+        NSLog(@"set play and record error: %@", error);
+    }
+    
+    NSLog(@"audio input added!");
 }
 
 - (void)closeCamera {
@@ -802,6 +816,7 @@
     [self closeCamera];
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]]){
+            tile.state = [NSNumber numberWithInt:LOADED];
             tile.player = nil;
         }
     }
