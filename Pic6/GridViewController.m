@@ -40,12 +40,12 @@
     
     
     if(![self.appeared boolValue]){
+        [self initCameraView];
+        [self initCamera];
+        [self initGridTiles];
+        [self initFirebase];
         self.appeared = [NSNumber numberWithBool:YES];
     }
-    [self initCameraView];
-    [self initCamera];
-    [self initGridTiles];
-    [self initFirebase];
 
     
 //    UIWindow *window = [[UIApplication sharedApplication] delegate].window;
@@ -63,11 +63,6 @@
     if(error){
         NSLog(@"error: %@", error);
     }
-//    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
-    
-//    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
-    
-//    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
     NSLog(@"heyoo: %@", [self humanName]);
     [Crashlytics setUserIdentifier:[self humanName]];
 
