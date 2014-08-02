@@ -138,7 +138,7 @@
 }
 
 - (void) settingsButtonPressed {
-    UIActionSheet *settings = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:[NSString stringWithFormat:@"Block %@", self.tile.username], [NSString stringWithFormat:@"Add %@ to Clique", self.tile.username], nil];
+    UIActionSheet *settings = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:[NSString stringWithFormat:@"Block %@", self.tile.username], [NSString stringWithFormat:@"Add %@ to Clique", self.tile.username], @"Save to Camera Roll", nil];
     
     [settings setActionSheetStyle:UIActionSheetStyleBlackOpaque];
     [settings showInView:self.view];

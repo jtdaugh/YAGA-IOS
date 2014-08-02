@@ -53,9 +53,8 @@
 #define REACTIONS @"reactions"
 #define TEMP @"temp"
 
-#define MediaTypePhoto @"photo"
-#define MediaTypeVideo @"video"
-
 #define ARC4RANDOM_MAX 0x100000000
+
+#define MIXPANEL_TOKEN @"YOUR_TOKEN"
 
 #endif

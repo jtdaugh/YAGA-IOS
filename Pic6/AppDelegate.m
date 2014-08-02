@@ -11,14 +11,20 @@
 #import "GridViewController.h"
 #import "OnboardingNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
+#import "AnalyticsKit.h"
+#import "AnalyticsKitMixpanelProvider.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
-    [Firebase setOption:@"persistence" to:@YES];
+//    [Firebase setOption:@"persistence" to:@YES];
     [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
+    
+    AnalyticsKitMixpanelProvider *mixpanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:MIXPANEL_TOKEN];
+    
+    [AnalyticsKit initializeLoggers:@[mixpanel]];
     
     [self setupAudio];
     
@@ -27,8 +33,13 @@
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
     // self.window.backgroundColor = [UIColor whiteColor];
     
-    self.window.rootViewController = [OnboardingNavigationController new];
-//    self.window.rootViewController = [GridViewController new];
+    if(0){
+        OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
+        self.window.rootViewController = vc;
+    } else {
+        GridViewController *vc = [[GridViewController alloc] init];
+        self.window.rootViewController = vc;
+    }
   
     [self.window makeKeyAndVisible];
     
@@ -62,7 +73,13 @@
 }
 
 - (void)setupAudio {
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    NSError *error = nil;
+    
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+        
+    if(error){
+        NSLog(@"audio session error: %@", error);
+    }
 //    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:nil];
 //    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
 //    UInt32 doSetProperty = 1;

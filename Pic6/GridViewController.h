@@ -18,6 +18,7 @@
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
 @property (strong, nonatomic) UIButton *cameraButton;
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
+@property (strong, nonatomic) UIView *instructions;
 @property (strong, nonatomic) UIView *indicator;
 @property (strong, nonatomic) UIView *white;
 @property (strong, nonatomic) NSNumber *recording;
@@ -41,6 +42,8 @@
 @property (strong, nonatomic) UICollectionView *gridTiles;
 @property (strong, nonatomic) NSMutableArray *gridData;
 @property (strong, nonatomic) NSNumber *scrolling;
+@property (strong, nonatomic) UIRefreshControl *pull;
+@property (strong, nonatomic) UIActivityIndicatorView *loader;
 
 @property (strong, nonatomic) UIView *plaque;
 @property (strong, nonatomic) UIButton *switchButton;

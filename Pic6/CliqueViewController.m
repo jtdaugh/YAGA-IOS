@@ -10,7 +10,6 @@
 #import "APAddressBook.h"
 #import "APContact.h"
 #import "APPhoneWithLabel.h"
-#import "ECPhoneNumberFormatter.h"
 #import "NBPhoneNumberUtil.h"
 #import "CContact.h"
 #import "NSString+Hash.h"

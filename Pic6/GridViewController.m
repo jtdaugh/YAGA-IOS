@@ -35,28 +35,31 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-//    [[UIApplication sharedApplication].delegate.window setRootViewController:self];
-//    [self willEnterForeground];
     
+    CNetworking *currentUser = [CNetworking currentUser];
     
-    if(![self.appeared boolValue]){
-        [self initCameraView];
-        [self initCamera];
-        [self initGridTiles];
-        [self initFirebase];
-        self.appeared = [NSNumber numberWithBool:YES];
+    if([(NSNumber *)[currentUser userDataForKey:@"onboarded"] boolValue]){
+        if(![self.appeared boolValue]){
+            self.appeared = [NSNumber numberWithBool:YES];
+            [self setup];
+        }
+    } else {
+        NSLog(@"yoo");
+        OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
+        [self presentViewController:vc animated:NO completion:^{
+            //
+        }];
     }
-
-    
-//    UIWindow *window = [[UIApplication sharedApplication] delegate].window;
-//    window.rootViewController = self;
-//    [window makeKeyAndVisible];
 
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+}
+
+- (void)setup {
     // Do any additional setup after loading the view.
     self.cameraAccessories = [[NSMutableArray alloc] init];
     NSError *error = nil;
@@ -65,17 +68,16 @@
     }
     NSLog(@"heyoo: %@", [self humanName]);
     [Crashlytics setUserIdentifier:[self humanName]];
-
+    
     [self initOverlay];
     [self initGridView];
     [self initPlaque];
-    for(UIView *v in self.cameraAccessories){
-//        [v setAlpha:0.0];
-    }
-    if([self.onboarding boolValue] || 1){
-//        [self initCameraButton];
-    } else {
-    }
+    [self initCameraView];
+    [self initGridTiles];
+    [self initLoader];
+    [self initCamera];
+    // look at afterCameraInit to see what happens after the camera gets initialized. eg initFirebase.
+    
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -86,17 +88,22 @@
                                              selector:@selector(willResignActive)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didBecomeActive)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
+}
 
+- (void)afterCameraInit {
+    if(!self.firebase){
+        [self initFirebase];
+    }
 }
 
 - (void)initPlaque {
@@ -169,7 +176,26 @@
     //    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
     
+    self.pull = [[UIRefreshControl alloc] init];
+    [self.pull setTintColor:[UIColor whiteColor]];
+    [self.pull addTarget:self action:@selector(refreshTable) forControlEvents:UIControlEventValueChanged];
+    [self.gridTiles addSubview:self.pull];
+    
+    CGFloat size = 48;
+    self.loader = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake((self.gridTiles.frame.size.width - size)/2, (self.gridTiles.frame.size.height - size)/2, size, size)];
+    [self.loader setTintColor:[UIColor whiteColor]];
+    [self.loader setHidesWhenStopped:YES];
+    [self.loader setActivityIndicatorViewStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [self.gridTiles addSubview:self.loader];
+    [self.loader startAnimating];
+    
     self.gridData = [NSMutableArray array];
+}
+
+- (void) initLoader {
+    NSLog(@"initing loader");
+    UIView *loader = [[UIView alloc] initWithFrame:self.gridTiles.frame];
+    [self.gridView insertSubview:loader belowSubview:self.gridTiles];
 }
 
 - (void) initOverlay {
@@ -191,6 +217,7 @@
             [self.gridData insertObject:child atIndex:0];
             lastUid = child.name;
         }
+        [self.loader stopAnimating];
         [self.gridTiles reloadData];
         [self listenForChanges];
     }];
@@ -241,6 +268,10 @@
             [self.gridTiles reloadItemsAtIndexPaths:@[[self.gridTiles indexPathForCell:tile]]];
         }
     }
+}
+
+- (void) refreshTable {
+    [self.pull endRefreshing];
 }
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -493,6 +524,27 @@
     tapGestureRecognizer.delegate = self;
     [self.white addGestureRecognizer:tapGestureRecognizer];
     
+    self.instructions = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT * 3 / 8, TILE_WIDTH, TILE_HEIGHT/4)];
+    [self.instructions setAlpha:0.6];
+    
+    UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
+    [instructionText setText:@"Hold to Record!"];
+    [instructionText setFont:[UIFont fontWithName:BIG_FONT size:14]];
+    [instructionText setTextAlignment:NSTextAlignmentCenter];
+    [instructionText setTextColor:[UIColor whiteColor]];
+    [instructionText setBackgroundColor:PRIMARY_COLOR];
+    [instructionText sizeToFit];
+    CGFloat newHeight = instructionText.frame.size.height * 1.2;
+    CGFloat newWidth = instructionText.frame.size.width * 1.2;
+    [instructionText setFrame:CGRectMake(.5 * (self.instructions.frame.size.width - newWidth), .5 * (self.instructions.frame.size.height - newHeight), newWidth, newHeight)];
+    
+    [self.instructions addSubview:instructionText];
+//    [self.instructions setAlpha:0.0];
+    
+//    [self.cameraView addSubview:self.instructions];
+//    [self.cameraAccessories addObject:self.instructions];
+    
+    
 }
 
 - (void)initCameraButton {
@@ -626,7 +678,7 @@
         }
         
         [self.session startRunning];
-
+        [self afterCameraInit];
     });
 }
 
