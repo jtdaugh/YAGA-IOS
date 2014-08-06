@@ -10,6 +10,10 @@
 
 @implementation NSString (File)
 
+- (NSString *) moviePath {
+    return [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self];
+}
+
 - (NSURL *) movieUrl {
     NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self];
     NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];

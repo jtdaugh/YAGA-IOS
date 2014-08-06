@@ -27,6 +27,7 @@
 @property (strong, nonatomic) NSNumber *previousBrightness;
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 
+@property (strong, nonatomic) NSNumber *setup;
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *onboarding;
 

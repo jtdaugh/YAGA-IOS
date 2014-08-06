@@ -15,6 +15,7 @@
 #import "CliqueViewController.h"
 #import "OnboardingNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
+#import <Parse/Parse.h>
 
 @interface GridViewController ()
 @end
@@ -36,30 +37,63 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     
-    CNetworking *currentUser = [CNetworking currentUser];
-    
-    if([(NSNumber *)[currentUser userDataForKey:@"onboarded"] boolValue]){
+    if([PFUser currentUser]){
+        NSLog(@"current user is set in View Did Appear!");
         if(![self.appeared boolValue]){
             self.appeared = [NSNumber numberWithBool:YES];
-            [self setup];
+            if(![self.setup boolValue]){
+                [self setupView];
+            }
         }
     } else {
-        NSLog(@"yoo");
+        NSLog(@"poop. not logged in.");
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
         [self presentViewController:vc animated:NO completion:^{
             //
         }];
     }
 
+////    [currentUser saveUserData:[NSNumber numberWithBool:NO] forKey:@"onboarded"];
+//    CNetworking *currentUser = [CNetworking currentUser];
+//
+//    if([(NSNumber *)[currentUser userDataForKey:@"onboarded"] boolValue]){
+//        if(![self.appeared boolValue]){
+//            self.appeared = [NSNumber numberWithBool:YES];
+//            if(![self.setup boolValue]){
+//                [self setupView];
+//            }
+//        }
+//    } else {
+//        OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
+//        [self presentViewController:vc animated:NO completion:^{
+//            //
+//        }];
+//    }
+
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
+    if([PFUser currentUser]){
+        NSLog(@"current user is set!");
+        [self setupView];
+    }
+//    [currentUser saveUserData:[NSNumber numberWithBool:NO] forKey:@"onboarded"];
+//    
+//    if([(NSNumber *)[currentUser userDataForKey:@"onboarded"] boolValue]){
+//        [currentUser saveUserData:[NSNumber numberWithBool:YES] forKey:@"onboarded"];
+//        [self setupView];
+//    }
 }
 
-- (void)setup {
+- (void)setupView {
+    
+    NSLog(@"setting up muthafuckas");
+    
+    self.setup = [NSNumber numberWithBool:YES];
+    
     // Do any additional setup after loading the view.
     self.cameraAccessories = [[NSMutableArray alloc] init];
     NSError *error = nil;
@@ -75,7 +109,7 @@
     [self initCameraView];
     [self initGridTiles];
     [self initLoader];
-    [self initCamera];
+    [self initCamera:YES];
     // look at afterCameraInit to see what happens after the camera gets initialized. eg initFirebase.
     
     
@@ -98,12 +132,13 @@
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
+
 }
 
 - (void)afterCameraInit {
-    if(!self.firebase){
-        [self initFirebase];
-    }
+//    if(![[CNetworking currentUser] firebase]){
+    [self initFirebase];
+//    }
 }
 
 - (void)initPlaque {
@@ -208,9 +243,7 @@
 
 - (void)initFirebase {
     
-    self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];;
-    
-    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"children count: %lu", snapshot.childrenCount);
         NSString *lastUid;
         for (FDataSnapshot* child in snapshot.children) {
@@ -226,10 +259,9 @@
 - (void)listenForChanges {
     
     //new child added
-    [[[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [self newTile:snapshot];
     }];
-
 }
 
 - (void) newTile:(FDataSnapshot *)snapshot {
@@ -240,7 +272,8 @@
 }
 
 - (void) triggerRemoteLoad:(NSString *)uid {
-    [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, uid]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
+    
+    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, uid]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
         if(dataSnapshot.value != [NSNull null]){
             NSError *error = nil;
             
@@ -314,22 +347,25 @@
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    self.scrolling = [NSNumber numberWithBool:NO];
     [self scrollingEnded];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if(!decelerate){
-        [self scrollingEnded];
+        self.scrolling = [NSNumber numberWithBool:NO];
+        [self performSelector:@selector(scrollingEnded) withObject:self afterDelay:0.1];
     }
 }
 
 - (void)scrollingEnded {
-    self.scrolling = [NSNumber numberWithBool:NO];
-    for(TileCell *cell in [self.gridTiles visibleCells]){
-        if([cell.state isEqualToNumber:[NSNumber numberWithInt: LOADED]]){
-            [cell play];
-        } else {
-
+    if(![self.scrolling boolValue]){
+        for(TileCell *cell in [self.gridTiles visibleCells]){
+            if([cell.state isEqualToNumber:[NSNumber numberWithInt: LOADED]]){
+                [cell play];
+            } else {
+                
+            }
         }
     }
 }
@@ -615,7 +651,7 @@
     }];
 }
 
-- (void)initCamera {
+- (void)initCamera:(BOOL)initial {
     
     NSLog(@"init camera");
 
@@ -678,7 +714,9 @@
         }
         
         [self.session startRunning];
-        [self afterCameraInit];
+        if(initial){
+            [self afterCameraInit];
+        }
     });
 }
 
@@ -794,7 +832,7 @@
     
     // set up data object
     NSString *videoData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *dataObject = [[self.firebase childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
+    Firebase *dataObject = [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
     NSString *dataPath = dataObject.name;
     
     AVURLAsset* asset = [AVURLAsset URLAssetWithURL:outputURL options:nil];
@@ -811,7 +849,7 @@
     }];
     
     NSString *path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
-    [[self.firebase childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
+    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
     
     NSFileManager * fm = [[NSFileManager alloc] init];
     NSError *err = nil;
@@ -873,7 +911,7 @@
 - (void)willEnterForeground {
 //    NSLog(@"will enter foreground");
 //    [self.view setAlpha:1.0];
-    [self initCamera];
+    [self initCamera:0];
     [self.gridTiles reloadData];
 
 //    for(TileCell *tile in [self.gridTiles visibleCells]){

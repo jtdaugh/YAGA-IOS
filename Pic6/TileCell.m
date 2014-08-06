@@ -188,15 +188,17 @@
 
 - (void)prepareForReuse {
     if(self.player){
+        NSLog(@"preparing for reuse!");
         [self.player removeObservers];
     }
 }
 
-- (void)dealloc {
-    if(self.player){
-        [self.player removeObservers];        
-    }
-}
+//- (void)dealloc {
+//    if(self.player){
+//        NSLog(@"dealloc!");
+////        [self.player removeObservers];        
+//    }
+//}
 
 /*
 // Only override drawRect: if you perform custom drawing.

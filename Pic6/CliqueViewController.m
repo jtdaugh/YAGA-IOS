@@ -13,6 +13,8 @@
 #import "NBPhoneNumberUtil.h"
 #import "CContact.h"
 #import "NSString+Hash.h"
+#import "CNetworking.h"
+#import <Parse/Parse.h>
 
 @interface CliqueViewController ()
 
@@ -42,8 +44,12 @@
     UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithTitle:@"Done"
                                                                     style:UIBarButtonItemStyleDone target:nil action:@selector(donePressed)];
     
+    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:@selector(logoutPressed)];
+    [leftButton setImage:[UIImage imageNamed:@"Logout"]];
+    
     UINavigationItem *item = [[UINavigationItem alloc] initWithTitle:@"Manage Clique"];
     item.rightBarButtonItem = rightButton;
+    item.leftBarButtonItem = leftButton;
     item.hidesBackButton = YES;
     [navBar pushNavigationItem:item animated:NO];
     [navBar setTranslucent:NO];
@@ -80,6 +86,18 @@
 
 - (void)donePressed {
     NSLog(@"done motherfuckers");
+    [self dismissViewControllerAnimated:YES completion:^{
+        //
+    }];
+}
+
+- (void)logoutPressed {
+    [PFUser logOut];
+    
+    // request all friends here. see what happens.
+    
+    
+//    [[CNetworking currentUser] saveUserData:[NSNumber numberWithBool:NO] forKey:@"onboarded"];
     [self dismissViewControllerAnimated:YES completion:^{
         //
     }];
@@ -225,17 +243,74 @@
             [self.list reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
             
             // do something with contacts array
+            [self afterContactsLoaded];
         }
         else
         {
             // show error
         }
     }];
-    
 
 //[[NSOperationQueue mainQueue] addOperationWithBlock:^{
 //}];
 
+}
+
+- (void)afterContactsLoaded {
+    NSMutableArray *completed = [@[] mutableCopy];
+    NSUInteger count = [self.data[2] count];
+    
+//    for(int i = 0; i < count; i++){
+//        [completed addObject:@NO];
+//    }
+    
+    NSDate *start = [NSDate date];
+    
+    // a considerable amount of difficult processing here
+    // a considerable amount of difficult processing here
+    // a considerable amount of difficult processing here
+    
+//    int i = 0;
+//    __block int completedCount = 0;
+//    for(CContact *contact in self.data[2]){
+//        NSString *requestUrl = [NSString stringWithFormat:@"users-by-phones/%@", contact.number];
+////        NSLog(@"url: %@", requestUrl);
+//        
+////        [[[[CNetworking currentUser] firebase] childByAppendingPath:requestUrl] setValue:@"YES!"];
+//        
+//        [[[[CNetworking currentUser] firebase] childByAppendingPath:requestUrl] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+//            completedCount++;
+//            
+//            if(completedCount == count){
+//                NSLog(@"done!");
+//                NSDate *methodFinish = [NSDate date];
+//                NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:start];
+//                
+//                NSLog(@"Execution Time: %f", executionTime);
+//            }
+//        }];
+//        i++;
+//        
+//    }
+    
+    NSMutableArray *hashedNumbers = [@[] mutableCopy];
+    
+    for(CContact *contact in self.data[2]){
+        [hashedNumbers addObject:[contact.number sha1]];
+    }
+    
+    PFQuery *query = [PFUser query];
+    [query whereKey:@"phoneHash" containedIn:hashedNumbers];
+    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        NSLog(@"%lu", [objects count]);
+        NSLog(@"username: %@", ((PFUser *)[objects firstObject]).username);
+
+        NSLog(@"done!");
+        NSDate *methodFinish = [NSDate date];
+        NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:start];
+
+        NSLog(@"Execution Time: %f", executionTime);
+    }];
 }
 
 - (void)didReceiveMemoryWarning
@@ -329,7 +404,6 @@
     NSLog(@"result %u", result);
     [controller dismissViewControllerAnimated:YES completion:^{
         //
-        NSLog(@"yessss");
     }];
 }
 

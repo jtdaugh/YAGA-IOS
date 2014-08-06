@@ -8,6 +8,9 @@
 
 #import "LoginViewController.h"
 #import "GridViewController.h"
+#import <Parse/Parse.h>
+#import "NBPhoneNumberUtil.h"
+#import "NSString+Hash.h"
 
 @implementation LoginViewController
 
@@ -45,11 +48,11 @@
     
     self.submitButton = [[UIButton alloc] initWithFrame:CGRectMake(0, top_padding + (size+margin)*2, VIEW_WIDTH, size)];
     [self.submitButton setBackgroundColor:TERTIARY_COLOR];
-    [self.submitButton addTarget:self action:@selector(exit) forControlEvents:UIControlEventTouchUpInside];
+    [self.submitButton addTarget:self action:@selector(loginPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.submitButton setTitle:@"Log In" forState:UIControlStateNormal];
     [self.submitButton.titleLabel setTextColor:[UIColor whiteColor]];
     [self.submitButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
-    [self.submitButton setAlpha:1.0];
+    [self.submitButton setAlpha:0.0];
     [self.view addSubview:self.submitButton];
     // Do any additional setup after loading the view.
 
@@ -64,14 +67,48 @@
     [self.phoneField becomeFirstResponder];
 }
 
-- (void)exit {
-    GridViewController *grid = [[GridViewController alloc] init];
-    grid.onboarding = [NSNumber numberWithBool:YES];
-    [self.navigationController pushViewController:grid animated:YES];
-//    [self.navigationController dismissViewControllerAnimated:YES completion:^{
-//        //
-//    }];
+- (void)loginPressed {
+    NSLog(@"login pressed!");
+    NSLog(@"submit pressed");
+    // validate form items
+    // create user
+    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+    NSError *aError = nil;
+    NBPhoneNumber *myNumber = [phoneUtil parse:self.phoneField.text
+                                 defaultRegion:@"US" error:&aError];
+    NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
+    NSString *phoneHash = [num sha1];
     
+    PFQuery *query = [PFUser query];
+    [query whereKey:@"phoneHash" equalTo:phoneHash];
+    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        PFUser *user = [objects firstObject];
+        if(user){
+            NSLog(@"found user, loggin in!!");
+            [PFUser logInWithUsernameInBackground:user.username password:self.passwordField.text block:^(PFUser *user, NSError *error) {
+                if(error){
+                    NSString *errorString = [error userInfo][@"error"];
+                    [[[UIAlertView alloc] initWithTitle: @"Error"
+                                                message: errorString //, [contact readableNumber]]
+                                               delegate: self
+                                      cancelButtonTitle:@"ok"
+                                      otherButtonTitles:nil]
+                     show];
+                } else {
+                    NSLog(@"logged in!");
+                    [self exit];
+                }
+            }];
+        } else {
+            NSLog(@"did not find");
+        }
+    }];
+}
+
+- (void)exit {
+    [self.navigationController dismissViewControllerAnimated:YES completion:^{
+        
+    }];
 }
 
 - (UITextField *)textFieldSkeleton:(int)i {

@@ -7,6 +7,7 @@
 //
 
 #import "OverlayViewController.h"
+#import "NSString+File.h"
 
 @interface OverlayViewController ()
 @property (strong, nonatomic) NSArray *reactions;
@@ -141,8 +142,19 @@
     UIActionSheet *settings = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:[NSString stringWithFormat:@"Block %@", self.tile.username], [NSString stringWithFormat:@"Add %@ to Clique", self.tile.username], @"Save to Camera Roll", nil];
     
     [settings setActionSheetStyle:UIActionSheetStyleBlackOpaque];
-    [settings showInView:self.view];
+    [settings showInView:self.view];    
     
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    switch (buttonIndex) {
+        case 3:
+            UISaveVideoAtPathToSavedPhotosAlbum([self.tile.uid moviePath],nil,nil,nil);
+            break;
+        default:
+            break;
+    }
+    NSLog(@"button index: %lu", buttonIndex);
 }
 
 - (void) initCaptionLabel {

@@ -22,6 +22,8 @@
 - (id)init {
     if (self = [super init]) {
         [self loadUserData];
+        self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];
+        NSLog(@"just inited firebase");
     }
     
     return self;

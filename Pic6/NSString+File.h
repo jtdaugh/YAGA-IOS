@@ -7,6 +7,7 @@
 //
 
 @interface NSString (File)
+- (NSString *) moviePath;
 - (NSURL *) movieUrl;
 - (NSURL *) imageUrl;
 @end

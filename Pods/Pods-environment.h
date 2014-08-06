@@ -24,6 +24,18 @@
 #define COCOAPODS_VERSION_MINOR_AnalyticsKit_Mixpanel 2
 #define COCOAPODS_VERSION_PATCH_AnalyticsKit_Mixpanel 3
 
+// Bolts
+#define COCOAPODS_POD_AVAILABLE_Bolts
+#define COCOAPODS_VERSION_MAJOR_Bolts 1
+#define COCOAPODS_VERSION_MINOR_Bolts 1
+#define COCOAPODS_VERSION_PATCH_Bolts 1
+
+// Facebook-iOS-SDK
+#define COCOAPODS_POD_AVAILABLE_Facebook_iOS_SDK
+#define COCOAPODS_VERSION_MAJOR_Facebook_iOS_SDK 3
+#define COCOAPODS_VERSION_MINOR_Facebook_iOS_SDK 16
+#define COCOAPODS_VERSION_PATCH_Facebook_iOS_SDK 2
+
 // Firebase
 #define COCOAPODS_POD_AVAILABLE_Firebase
 #define COCOAPODS_VERSION_MAJOR_Firebase 1
@@ -35,6 +47,12 @@
 #define COCOAPODS_VERSION_MAJOR_Mixpanel 2
 #define COCOAPODS_VERSION_MINOR_Mixpanel 4
 #define COCOAPODS_VERSION_PATCH_Mixpanel 1
+
+// Parse
+#define COCOAPODS_POD_AVAILABLE_Parse
+#define COCOAPODS_VERSION_MAJOR_Parse 1
+#define COCOAPODS_VERSION_MINOR_Parse 2
+#define COCOAPODS_VERSION_PATCH_Parse 20
 
 // libPhoneNumber-iOS
 #define COCOAPODS_POD_AVAILABLE_libPhoneNumber_iOS

@@ -10,7 +10,9 @@
 #import "GridViewController.h"
 #import "CNetworking.h"
 #import "AppDelegate.h"
-
+#import <Parse/Parse.h>
+#import "NBPhoneNumberUtil.h"
+#import "NSString+Hash.h"
 
 @interface SignupViewController ()
 
@@ -47,7 +49,7 @@
     int margin = 16;
     
     self.nameField = [self textFieldSkeleton:0];
-    [self.nameField setPlaceholder:@"Display Name"];
+    [self.nameField setPlaceholder:@"Username"];
     [self.nameField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.nameField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
     [self.nameField setReturnKeyType:UIReturnKeyNext];
@@ -77,7 +79,7 @@
     
     self.submitButton = [[UIButton alloc] initWithFrame:CGRectMake(0, top_padding + (size+margin)*3, VIEW_WIDTH, size)];
     [self.submitButton setBackgroundColor:SECONDARY_COLOR];
-    [self.submitButton addTarget:self action:@selector(exit) forControlEvents:UIControlEventTouchUpInside];
+    [self.submitButton addTarget:self action:@selector(submitPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.submitButton setTitle:@"Create Account" forState:UIControlStateNormal];
     [self.submitButton.titleLabel setTextColor:[UIColor whiteColor]];
     [self.submitButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
@@ -92,6 +94,43 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)submitPressed {
+    NSLog(@"submit pressed");
+    // validate form items
+    // create user
+    PFUser *user = [PFUser user];
+    user.username = self.nameField.text;
+    user.password = self.passwordField.text;
+    
+    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+    NSError *aError = nil;
+    NBPhoneNumber *myNumber = [phoneUtil parse:self.phoneField.text
+                                 defaultRegion:@"US" error:&aError];
+    NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
+    
+    
+    
+    user[@"phoneHash"] = [num sha1];
+    
+    [user signUpInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        if (!error) {
+            // Hooray! Let them use the app now.
+        } else {
+            NSString *errorString = [error userInfo][@"error"];
+            // Show the errorString somewhere and let the user try again.
+            
+            [[[UIAlertView alloc] initWithTitle: @"Error"
+                                        message: errorString //, [contact readableNumber]]
+                                       delegate: self
+                              cancelButtonTitle:@"ok"
+                              otherButtonTitles:nil]
+             show];
+        }
+    }];
+
+    // log in
+}
+
 - (void)exit {
 //    GridViewController *grid = [[GridViewController alloc] init];
 //    grid.onboarding = [NSNumber numberWithBool:YES];
@@ -99,7 +138,7 @@
 //    [self.navigationController dismissViewControllerAnimated:YES completion:^{
 //        //
 //    }];
-    [[CNetworking currentUser] saveUserData:[NSNumber numberWithBool:YES] forKey:@"onboarded"];
+//    [[CNetworking currentUser] saveUserData:[NSNumber numberWithBool:YES] forKey:@"onboarded"];
     [self.navigationController dismissViewControllerAnimated:NO completion:^{
         //
     }];

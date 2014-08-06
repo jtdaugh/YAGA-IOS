@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <Firebase/Firebase.h>
+
 @class CNetworking;
 
 @protocol CNetworkingDelegate <NSObject>
@@ -17,6 +19,7 @@
 @interface CNetworking : NSObject
 @property (nonatomic,assign)id delegate;
 @property (strong, nonatomic) NSMutableDictionary *userData;
+@property (strong, nonatomic) Firebase *firebase;
 
 + (id)currentUser;
 

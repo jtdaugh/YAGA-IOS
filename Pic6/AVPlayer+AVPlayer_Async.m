@@ -44,8 +44,6 @@
 
 - (void)removeObservers {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-//    [self removeObserver:self forKeyPath:@"status" context:nil];
-    
 }
 
 @end

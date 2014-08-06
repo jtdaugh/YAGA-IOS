@@ -13,14 +13,20 @@
 #import <Crashlytics/Crashlytics.h>
 #import "AnalyticsKit.h"
 #import "AnalyticsKitMixpanelProvider.h"
+#import <Parse/Parse.h>
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
-//    [Firebase setOption:@"persistence" to:@YES];
+    [Firebase setOption:@"persistence" to:@YES];
+    
     [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
+    
+    [Parse setApplicationId:@"fMGmvOq0PhaTtIIJe371Ra5nMuv7T0Ot1ulNx2oi"
+                  clientKey:@"Av1qzrSKppbGK4JAM3mEuksQKp9xeovLJQnROEWN"];
+    [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
     
     AnalyticsKitMixpanelProvider *mixpanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:MIXPANEL_TOKEN];
     
