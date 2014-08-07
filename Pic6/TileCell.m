@@ -109,7 +109,8 @@
             // set video sizing
             [self.playerContainer removeFromSuperview];
             self.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-            //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
+
+//            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
             self.playerLayer.frame = self.playerContainer.frame;
             
             // play video in frame

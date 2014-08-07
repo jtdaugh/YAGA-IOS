@@ -242,8 +242,11 @@
 }
 
 - (void)initFirebase {
-    
-    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", STREAM, [PFUser currentUser][@"phoneHash"]]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+
+    NSString *hash = [PFUser currentUser][@"phoneHash"];
+    NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+
+    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", STREAM, escapedHash]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"children count: %lu", snapshot.childrenCount);
         NSString *lastUid;
         for (FDataSnapshot* child in snapshot.children) {
@@ -259,7 +262,10 @@
 - (void)listenForChanges {
     
     //new child added
-    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+    NSString *hash = [PFUser currentUser][@"phoneHash"];
+    NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    
+    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", STREAM, escapedHash]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [self newTile:snapshot];
     }];
 }
@@ -848,15 +854,23 @@
     [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
     }];
     
-    NSString *path = [NSString stringWithFormat:@"%@/%@", DATA, dataPath];
-    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
+    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
+    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
+    
+    for(NSString *hash in clique){
+        NSLog(@"hash: %@", hash);
+        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
+        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName]}];
+    }
+    
+    
     
     NSFileManager * fm = [[NSFileManager alloc] init];
     NSError *err = nil;
     [fm moveItemAtURL:outputURL toURL:[dataPath movieUrl] error:&err];
     [imageData writeToURL:[dataPath imageUrl] options:NSDataWritingAtomic error:&err];
 
-    
     if(err){
         NSLog(@"error: %@", err);
     }

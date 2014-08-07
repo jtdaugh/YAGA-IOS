@@ -108,13 +108,11 @@
                                  defaultRegion:@"US" error:&aError];
     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
     
-    user.objectId = [num sha1];
-    
-    
     user[@"phoneHash"] = [num sha1];
     
     [user signUpInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
         if (!error) {
+            [self exit];
             // Hooray! Let them use the app now.
         } else {
             NSString *errorString = [error userInfo][@"error"];

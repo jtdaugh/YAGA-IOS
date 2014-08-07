@@ -47,7 +47,7 @@
 #define BIG_FONT @"Avenir-Light"
 
 //#define NODE_NAME @"dev8"
-#define NODE_NAME @"production7"
+#define NODE_NAME @"production8"
 #define MEDIA @"media"
 #define DATA @"data"
 #define STREAM @"stream"

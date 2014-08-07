@@ -44,8 +44,13 @@
     UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithTitle:@"Done"
                                                                     style:UIBarButtonItemStyleDone target:nil action:@selector(donePressed)];
     
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:@selector(logoutPressed)];
-    [leftButton setImage:[UIImage imageNamed:@"Logout"]];
+    UIButton *leftButtonTemp = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 34, 34)];
+    [leftButtonTemp addTarget:self action:@selector(logoutPressed) forControlEvents:UIControlEventTouchUpInside];
+    [leftButtonTemp setImage:[UIImage imageNamed:@"Logout"] forState:UIControlStateNormal];
+    [leftButtonTemp setContentMode:UIViewContentModeScaleAspectFit];
+    
+    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithCustomView:leftButtonTemp];
+    
     
     UINavigationItem *item = [[UINavigationItem alloc] initWithTitle:@"Manage Clique"];
     item.rightBarButtonItem = rightButton;
@@ -273,51 +278,51 @@
 }
 
 - (void)afterContactsLoaded {
-    NSMutableArray *completed = [@[] mutableCopy];
-    NSUInteger count = [self.data[2] count];
-    
-//    for(int i = 0; i < count; i++){
-//        [completed addObject:@NO];
-//    }
-    
     NSDate *start = [NSDate date];
     
     // a considerable amount of difficult processing here
     // a considerable amount of difficult processing here
     // a considerable amount of difficult processing here
     
-//    int i = 0;
-//    __block int completedCount = 0;
-//    for(CContact *contact in self.data[2]){
-//        NSString *requestUrl = [NSString stringWithFormat:@"users-by-phones/%@", contact.number];
-////        NSLog(@"url: %@", requestUrl);
-//        
-////        [[[[CNetworking currentUser] firebase] childByAppendingPath:requestUrl] setValue:@"YES!"];
-//        
-//        [[[[CNetworking currentUser] firebase] childByAppendingPath:requestUrl] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-//            completedCount++;
-//            
-//            if(completedCount == count){
-//                NSLog(@"done!");
-//                NSDate *methodFinish = [NSDate date];
-//                NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:start];
-//                
-//                NSLog(@"Execution Time: %f", executionTime);
-//            }
-//        }];
-//        i++;
-//        
-//    }
-    
     NSMutableArray *hashedNumbers = [@[] mutableCopy];
+    NSMutableDictionary *indexes = [@{} mutableCopy];
     
+    int i = 0;
     for(CContact *contact in self.data[2]){
         [hashedNumbers addObject:[contact.number sha1]];
+        [indexes setObject:[NSNumber numberWithInt:i] forKey:[contact.number sha1]];
+        i++;
     }
+    
+    NSLog(@"hashedNumbers count: %lu", [hashedNumbers count]);
     
     PFQuery *query = [PFUser query];
     [query whereKey:@"phoneHash" containedIn:hashedNumbers];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        
+        for(PFUser *user in objects){
+            NSString *phoneHash = user[@"phoneHash"];
+            NSString *myPhoneHash = [PFUser currentUser][@"phoneHash"];
+            
+            if(![phoneHash isEqualToString:myPhoneHash]){
+                NSUInteger index = [(NSNumber *)indexes[phoneHash] unsignedIntegerValue];
+                
+                CContact *o = self.data[2][index];
+                [self.data[2] removeObject:o];
+                [self.data[1] addObject:o];
+                NSUInteger newRow = [(NSArray *)(self.data[1]) count] - 1;
+                
+                NSIndexPath *oldIndexPath = [NSIndexPath indexPathForRow:index inSection:2];
+                NSIndexPath *newIndexPath = [NSIndexPath indexPathForRow:newRow inSection:1];
+                
+                [self.list moveRowAtIndexPath:oldIndexPath toIndexPath:newIndexPath];
+                //    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
+            }
+        }
+        [self.list reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationFade];
+        
+
+        
         NSLog(@"%lu", [objects count]);
 
         NSLog(@"done!");
@@ -364,7 +369,8 @@
                           cancelButtonTitle:@"Not Now"
                           otherButtonTitles:@"Invite", nil]
          show];
-        self.messageView = [MFMessageComposeViewController new];
+        self.messageView = [[MFMessageComposeViewController alloc] init];
+        [self addToClique:indexPath];
     } else {
         [self.list deselectRowAtIndexPath:indexPath animated:YES];
         if(indexPath.section == 1){
