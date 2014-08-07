@@ -39,7 +39,7 @@
 {
     [super viewDidLoad];
     [self.view setBackgroundColor:[UIColor whiteColor]];
-    UINavigationBar *navBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, 0, 320, 44 + 10)];
+    UINavigationBar *navBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 44 + 10)];
     
     UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithTitle:@"Done"
                                                                     style:UIBarButtonItemStyleDone target:nil action:@selector(donePressed)];
@@ -63,12 +63,12 @@
     NSLog(@"clique view controller did loaed");
     
     self.data = [@[
-                   [@[@"Kobe Bryant", @"Michael Jordan"] mutableCopy],
-                   [@[@"Steve Jobs", @"Mark Zuckerberg"] mutableCopy],
+                   [@[] mutableCopy],
+                   [@[] mutableCopy],
                    [@[] mutableCopy]
                    ] mutableCopy];
 
-    self.list = [[UITableView alloc] initWithFrame:CGRectMake(0, 44 + 10, 320, VIEW_HEIGHT-44 - 10)];
+    self.list = [[UITableView alloc] initWithFrame:CGRectMake(0, 44 + 10, VIEW_WIDTH, VIEW_HEIGHT-44 - 10)];
     [self.list setScrollsToTop:YES];
     [self.view addSubview:self.list];
     [self.list setBackgroundColor:[UIColor whiteColor]];
@@ -101,6 +101,7 @@
     [self dismissViewControllerAnimated:YES completion:^{
         //
     }];
+    
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -136,12 +137,13 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Cell"];
     }
     
+    CContact *contact = self.data[indexPath.section][indexPath.row];
+
     if(indexPath.section == 2){
-        CContact *contact = self.data[indexPath.section][indexPath.row];
-        [cell.textLabel setText:contact.name];
+            [cell.textLabel setText:contact.name];
         [cell.detailTextLabel setText:[contact readableNumber]];
     } else {
-        [cell.textLabel setText:self.data[indexPath.section][indexPath.row]];
+        [cell.textLabel setText:contact.name];
         [cell.detailTextLabel setText:@""];
     }
     
@@ -228,7 +230,14 @@
                         current.name = contact.compositeName;
                         current.number = num;
                         current.firstName = contact.firstName;
-                        [self.data[2] addObject:current];
+                        
+                        if([(NSMutableDictionary *)[PFUser currentUser][@"clique"] objectForKey:[current.number sha1]]){
+                            NSLog(@"in clique!");
+                            [self.data[0] addObject:current];
+                        } else {
+                            NSLog(@"not in clique!");
+                            [self.data[2] addObject:current];
+                        }
                     }
                 }
             }
@@ -238,9 +247,16 @@
 //                }
 //                [self.data[2] addObject:contact];
 //            }
+            
+//            [self.list reloadData];
             NSLog(@"contacts count: %lu", [contacts count]);
-            NSIndexSet *set = [[NSIndexSet alloc] initWithIndex:2];
-            [self.list reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
+            [self.list reloadData];
+            
+//            NSMutableIndexSet *set = [[NSMutableIndexSet alloc] init];
+//            [set addIndex:0];
+//            [set addIndex:1];
+//            [set addIndex:2];
+//            [self.list reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
             
             // do something with contacts array
             [self afterContactsLoaded];
@@ -303,7 +319,6 @@
     [query whereKey:@"phoneHash" containedIn:hashedNumbers];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
         NSLog(@"%lu", [objects count]);
-        NSLog(@"username: %@", ((PFUser *)[objects firstObject]).username);
 
         NSLog(@"done!");
         NSDate *methodFinish = [NSDate date];
@@ -361,7 +376,7 @@
 }
 
 - (void)addToClique:(NSIndexPath *)indexPath {
-    NSObject *o = self.data[indexPath.section][indexPath.row];
+    CContact *o = self.data[indexPath.section][indexPath.row];
     [self.data[indexPath.section] removeObject:o];
     [self.data[0] addObject:o];
     NSUInteger newRow = [(NSArray *)(self.data[0]) count] - 1;
@@ -369,17 +384,51 @@
     [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:newRow inSection:0]];
 //    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
     [self.list reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
+    
+    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
+    if(!clique){
+        clique = [@{} mutableCopy];
+    }
+    
+    [clique setObject:@1 forKey:[[o number] sha1]];
+    
+    [PFUser currentUser][@"clique"] = clique;
+    [[PFUser currentUser] saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        NSLog(@"%@", error);
+        NSLog(@"succeded? %@", succeeded ? @"true" : @"false");
+    }];
 }
 
 - (void)removeFromClique:(NSIndexPath *)indexPath {
-    NSObject *o = self.data[indexPath.section][indexPath.row];
+    CContact *o = self.data[indexPath.section][indexPath.row];
+    
+    NSUInteger newRow = [self.data[1] indexOfObject:o
+                                 inSortedRange:(NSRange){0, [self.data[1] count]}
+                                       options:NSBinarySearchingInsertionIndex
+                                      usingComparator:(NSComparator) ^(CContact *first, CContact *second){
+                                          return (NSComparisonResult)[first.name compare:second.name];
+                                      }];
+    
     [self.data[indexPath.section] removeObject:o];
-    [self.data[1] addObject:o];
-    NSUInteger newRow = [(NSArray *)(self.data[1]) count] - 1;
+    [self.data[1] insertObject:o atIndex:newRow];
     
     [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:newRow inSection:1]];
     [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:1]] withRowAnimation:UITableViewRowAnimationFade];
     [self.list reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
+    
+    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
+    if(!clique){
+        clique = [@{} mutableCopy];
+    }
+    
+    [clique removeObjectForKey:[[o number] sha1]];
+    
+    [PFUser currentUser][@"clique"] = clique;
+    [[PFUser currentUser] saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        NSLog(@"%@", error);
+        NSLog(@"succeded? %@", succeeded ? @"true" : @"false");
+    }];
+
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {

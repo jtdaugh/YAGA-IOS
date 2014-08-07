@@ -108,6 +108,7 @@
                                  defaultRegion:@"US" error:&aError];
     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
     
+    user.objectId = [num sha1];
     
     
     user[@"phoneHash"] = [num sha1];
@@ -142,7 +143,6 @@
     [self.navigationController dismissViewControllerAnimated:NO completion:^{
         //
     }];
-    
 }
 
 - (UITextField *)textFieldSkeleton:(int)i {
@@ -150,7 +150,7 @@
     int top_padding = 8;
     int margin = 16;
     
-    UITextField *v = [[UITextField alloc] initWithFrame:CGRectMake(0, top_padding + (size + margin)*i, 320, size)];
+    UITextField *v = [[UITextField alloc] initWithFrame:CGRectMake(0, top_padding + (size + margin)*i, VIEW_WIDTH, size)];
     [v setBackgroundColor:[UIColor whiteColor]];
     [v setFont:[UIFont fontWithName:BIG_FONT size:18]];
     

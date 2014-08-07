@@ -243,7 +243,7 @@
 
 - (void)initFirebase {
     
-    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@", DATA]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", STREAM, [PFUser currentUser][@"phoneHash"]]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"children count: %lu", snapshot.childrenCount);
         NSString *lastUid;
         for (FDataSnapshot* child in snapshot.children) {
