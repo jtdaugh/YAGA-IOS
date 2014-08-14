@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CBE1999CE6A0094C57F /* UIColor+Expanded.m */; };
+		411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC01999D0DA0094C57F /* NSMutableArray+Shuffle.h */; };
+		411A2CC31999D10A0094C57F /* NSMutableArray+Shuffle.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC21999D10A0094C57F /* NSMutableArray+Shuffle.m */; };
 		41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41373A1A19734DAD00F41895 /* CliqueViewController.m */; };
 		415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415AEFE3196638D600F6A8B1 /* OverlayViewController.m */; };
 		415DE46D197766A5000DD3C7 /* 0.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41A5F545197765E100E6A1F5 /* 0.mp4 */; };
@@ -14,6 +17,7 @@
 		415DE47319777609000DD3C7 /* OnboardingNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415DE47219777609000DD3C7 /* OnboardingNavigationController.m */; };
 		416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 416D52C5197E107100769721 /* AVCamPreviewView.m */; };
 		418954BE19687DD2009C17E2 /* NSString+File.m in Sources */ = {isa = PBXBuildFile; fileRef = 418954BD19687DD2009C17E2 /* NSString+File.m */; };
+		418CDE3F199D5CE200693733 /* ListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 418CDE3E199D5CE200693733 /* ListViewController.m */; };
 		41A2EC6A197F887F008DF482 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A2EC69197F887F008DF482 /* Crashlytics.framework */; };
 		41A308A619819D1000D30349 /* CNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 41A308A519819D1000D30349 /* CNetworking.m */; };
 		41B404941974CA6700F9EE3F /* CContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B404931974CA6700F9EE3F /* CContact.m */; };
@@ -62,6 +66,10 @@
 
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		411A2CBD1999CE580094C57F /* UIColor+Expanded.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Expanded.h"; sourceTree = "<group>"; };
+		411A2CBE1999CE6A0094C57F /* UIColor+Expanded.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Expanded.m"; sourceTree = "<group>"; };
+		411A2CC01999D0DA0094C57F /* NSMutableArray+Shuffle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Shuffle.h"; sourceTree = "<group>"; };
+		411A2CC21999D10A0094C57F /* NSMutableArray+Shuffle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Shuffle.m"; sourceTree = "<group>"; };
 		41373A1919734DAD00F41895 /* CliqueViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliqueViewController.h; sourceTree = "<group>"; };
 		41373A1A19734DAD00F41895 /* CliqueViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CliqueViewController.m; sourceTree = "<group>"; };
 		415AEFE2196638D600F6A8B1 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
@@ -74,6 +82,8 @@
 		416D52C5197E107100769721 /* AVCamPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVCamPreviewView.m; sourceTree = "<group>"; };
 		418954BC19687DD2009C17E2 /* NSString+File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+File.h"; sourceTree = "<group>"; };
 		418954BD19687DD2009C17E2 /* NSString+File.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+File.m"; sourceTree = "<group>"; };
+		418CDE3D199D5CE200693733 /* ListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListViewController.h; sourceTree = "<group>"; };
+		418CDE3E199D5CE200693733 /* ListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListViewController.m; sourceTree = "<group>"; };
 		41A2EC69197F887F008DF482 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		41A308A419819D1000D30349 /* CNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CNetworking.h; sourceTree = "<group>"; };
 		41A308A519819D1000D30349 /* CNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CNetworking.m; sourceTree = "<group>"; };
@@ -161,6 +171,8 @@
 		41373A181973459600F41895 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				418CDE3D199D5CE200693733 /* ListViewController.h */,
+				418CDE3E199D5CE200693733 /* ListViewController.m */,
 				71D0F5A0190D99A700C7DEE0 /* GridViewController.h */,
 				71D0F5A1190D99A700C7DEE0 /* GridViewController.m */,
 				415AEFE2196638D600F6A8B1 /* OverlayViewController.h */,
@@ -232,6 +244,10 @@
 				715455D0190E01D600ABE2BE /* UIImage+Resize.m */,
 				7154774A1941119B00133083 /* AVPlayer+AVPlayer_Async.h */,
 				7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */,
+				411A2CBD1999CE580094C57F /* UIColor+Expanded.h */,
+				411A2CBE1999CE6A0094C57F /* UIColor+Expanded.m */,
+				411A2CC01999D0DA0094C57F /* NSMutableArray+Shuffle.h */,
+				411A2CC21999D10A0094C57F /* NSMutableArray+Shuffle.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -486,6 +502,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */,
+				411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */,
+				418CDE3F199D5CE200693733 /* ListViewController.m in Sources */,
 				41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */,
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
 				41DCA6B61975D7550055910F /* SplashViewController.m in Sources */,
@@ -498,8 +516,10 @@
 				415DE4701977759B000DD3C7 /* SignupViewController.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
 				716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */,
+				411A2CC31999D10A0094C57F /* NSMutableArray+Shuffle.m in Sources */,
 				71D0F5A2190D99A700C7DEE0 /* GridViewController.m in Sources */,
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
+				411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */,
 				416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */,
 				41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */,
 				41A308A619819D1000D30349 /* CNetworking.m in Sources */,

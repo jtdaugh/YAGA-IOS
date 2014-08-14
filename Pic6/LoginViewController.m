@@ -18,7 +18,6 @@
     NSLog(@"poo");
     
     [self.view setBackgroundColor:SECONDARY_COLOR];
-    [self setTitle:@"Log In"];
     
     int size = 50;
     int top_padding = 8;

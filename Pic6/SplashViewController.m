@@ -11,6 +11,7 @@
 #import "SignupViewController.h"
 #import "AVPlayer+AVPlayer_Async.h"
 #import "TileCell.h"
+#import "MPFlipTransition.h"
 
 @implementation SplashViewController
 
@@ -101,11 +102,16 @@
 
 - (void)loginPressed {
     NSLog(@"login pressed");
-    [self.navigationController pushViewController:[LoginViewController new] animated:YES];
+    LoginViewController *vc = [[LoginViewController alloc] init];
+    [vc setTitle:@"Log In"];
+    [self.navigationController pushViewController:vc flipStyle:MPFlipStyleDefault];
 }
 
 - (void)signupPressed {
-    [self.navigationController pushViewController:[SignupViewController new] animated:YES];
+    SignupViewController *vc = [[SignupViewController alloc] init];
+    [vc setTitle:@"Sign Up"];
+//    [self.navigationController pushViewController:vc animated:YES];
+    [self.navigationController pushViewController:vc flipStyle:MPFlipStyleDefault];
     NSLog(@"signup pressed");
 }
 

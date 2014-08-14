@@ -29,6 +29,7 @@
 @property (strong, nonatomic) UIView *loader;
 
 @property (strong, nonatomic) NSMutableArray *boxes;
+@property (strong, nonatomic) NSArray *colors;
 
 - (void)setVideoFrame:(CGRect)frame;
 - (void)showLoader;

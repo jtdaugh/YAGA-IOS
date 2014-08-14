@@ -10,6 +10,7 @@ PODS:
   - Firebase (1.1.9)
   - libPhoneNumber-iOS (0.7.3)
   - Mixpanel (2.4.1)
+  - MPFoldTransition (0.0.1)
   - Parse (1.2.20):
     - Facebook-iOS-SDK (~> 3.11)
 
@@ -18,6 +19,7 @@ DEPENDENCIES:
   - APAddressBook (~> 0.0.7)
   - Firebase (>= 1.1)
   - libPhoneNumber-iOS (~> 0.7)
+  - MPFoldTransition
   - Parse
 
 SPEC CHECKSUMS:
@@ -28,6 +30,7 @@ SPEC CHECKSUMS:
   Firebase: 389b4d1f1a8f4b9ed53abec2aa62a3ceeafd7fcd
   libPhoneNumber-iOS: 98fc07d70c8fdb5e6a8e3442c37e97353065c20e
   Mixpanel: a29ff32db93936dea24162f0dc4fecc4a8f17071
+  MPFoldTransition: 054a50b55f0e20f26e58d9b3090a7c4c2e55a3da
   Parse: 28c0dc54f30201a369d29a2f76c09fa43b2add16
 
 COCOAPODS: 0.33.1

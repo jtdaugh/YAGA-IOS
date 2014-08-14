@@ -7,7 +7,9 @@
 //
 
 #import "TileCell.h"
+#import "UIColor+Expanded.h"
 #import "AVPlayer+AVPlayer_Async.h"
+#import "NSMutableArray+Shuffle.h"
 
 @implementation TileCell
 
@@ -23,7 +25,7 @@
         self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         
         for(int i = 0; i < LOADER_HEIGHT * LOADER_WIDTH; i++){
-            UIView *box = [[UIView alloc] initWithFrame:CGRectMake((i%4) * TILE_WIDTH/LOADER_WIDTH, (i/LOADER_HEIGHT) * TILE_HEIGHT/LOADER_HEIGHT, width, height)];
+            UIView *box = [[UIView alloc] initWithFrame:CGRectMake((i%4) * self.frame.size.width/LOADER_WIDTH, (i/LOADER_HEIGHT) * self.frame.size.height/LOADER_HEIGHT, width, height)];
             [self.boxes addObject:box];
             [self.loader addSubview:box];
         }
@@ -41,6 +43,7 @@
         [self.image setContentMode:UIViewContentModeScaleAspectFill];
         [self.image setClipsToBounds:YES];
         [self addSubview:self.image];
+        
     }
     return self;
 }
@@ -59,9 +62,26 @@
 }
 
 - (void)loaderTick:(NSTimer *) timer {
+    NSMutableArray *colors = [self.colors mutableCopy];
+    [colors shuffle];
+    
     for(UIView *box in self.boxes){
-        [box setBackgroundColor:[UIColor colorWithRed:((float)arc4random() / ARC4RANDOM_MAX) green:((float)arc4random() / ARC4RANDOM_MAX) blue:((float)arc4random() / ARC4RANDOM_MAX) alpha:0.5]];
+        if([colors count] > 0){
+            NSString *next = [colors lastObject];
+            UIColor *color = [UIColor colorWithHexString:next];
+//            NSLog(@"next: %@", next);
+            
+//            UIColor *randomColor = [UIColor randomColor];
+//            UIColor *randomColor = [UIColor randomLightColor:0.3];
+            [box setBackgroundColor:color];
+            
+//            [box setBackgroundColor:[UIColor whiteColor]];
+            [colors removeLastObject];
+        } else {
+            [box setBackgroundColor:[UIColor whiteColor]];
+        }
     }
+    
 }
 
 - (void)showImage {

@@ -42,6 +42,12 @@
 #define COCOAPODS_VERSION_MINOR_Firebase 1
 #define COCOAPODS_VERSION_PATCH_Firebase 9
 
+// MPFoldTransition
+#define COCOAPODS_POD_AVAILABLE_MPFoldTransition
+#define COCOAPODS_VERSION_MAJOR_MPFoldTransition 0
+#define COCOAPODS_VERSION_MINOR_MPFoldTransition 0
+#define COCOAPODS_VERSION_PATCH_MPFoldTransition 1
+
 // Mixpanel
 #define COCOAPODS_POD_AVAILABLE_Mixpanel
 #define COCOAPODS_VERSION_MAJOR_Mixpanel 2

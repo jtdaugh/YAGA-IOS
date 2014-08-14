@@ -42,7 +42,6 @@
 {
     [super viewDidLoad];
     [self.view setBackgroundColor:TERTIARY_COLOR];
-    [self setTitle:@"Sign Up"];
     
     int size = 50;
     int top_padding = 8;
