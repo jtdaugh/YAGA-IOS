@@ -34,8 +34,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [PFUser logOut];
-    
+//    [PFUser logOut];
+//    
     if([PFUser currentUser]){
         NSLog(@"current user is set!");
         [self setupView];
@@ -144,7 +144,8 @@
                 for(GroupInfo *info in currentUser.groupInfo){
                     if([info.groupId isEqualToString:child.name]){
                         [info setLatestSnapshot:mediaSnapshot];
-                        [self.groups reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForItem:i inSection:0] ]];
+                        [self.groups reloadData];
+//                        [self.groups reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForItem:i inSection:0] ]];
                     }
                     i++;
                 }

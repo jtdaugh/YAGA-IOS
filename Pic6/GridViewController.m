@@ -186,6 +186,12 @@
     [self.cameraAccessories addObject:self.flashButton];
     [self.plaque addSubview:self.flashButton];
     
+    UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0,0,TILE_WIDTH/2, TILE_HEIGHT/2)];
+    [backButton addTarget:self action:@selector(dismiss) forControlEvents:UIControlEventTouchUpInside];
+    [backButton setImage:[UIImage imageNamed:@"Back"] forState:UIControlStateNormal];
+    [backButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.plaque addSubview:backButton];
+    
     [self.gridView addSubview:self.plaque];
 }
 
@@ -980,6 +986,12 @@
 //            [tile play];
 //        }
 //    }
+}
+
+- (void)dismiss {
+    [self dismissViewControllerAnimated:YES completion:^{
+        //
+    }];
 }
 
 -(BOOL)prefersStatusBarHidden {
