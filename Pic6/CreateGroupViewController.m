@@ -1,12 +1,12 @@
 //
-//  CliqueViewController.m
+//  CreateGroupViewController.m
 //  Pic6
 //
-//  Created by Raj Vir on 7/13/14.
+//  Created by Raj Vir on 8/14/14.
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "CliqueViewController.h"
+#import "CreateGroupViewController.h"
 #import "APAddressBook.h"
 #import "APContact.h"
 #import "APPhoneWithLabel.h"
@@ -15,12 +15,13 @@
 #import "NSString+Hash.h"
 #import "CNetworking.h"
 #import <Parse/Parse.h>
+#import "CliqueTextField.h"
 
-@interface CliqueViewController ()
+@interface CreateGroupViewController ()
 
 @end
 
-@implementation CliqueViewController
+@implementation CreateGroupViewController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -31,82 +32,70 @@
     return self;
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self.view setBackgroundColor:[UIColor whiteColor]];
+    NSLog(@"yoo");
+    
+    [self.view setBackgroundColor:[UIColor lightGrayColor]];
+    
     UINavigationBar *navBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 44 + 10)];
     
     UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithTitle:@"Done"
                                                                     style:UIBarButtonItemStyleDone target:nil action:@selector(donePressed)];
     
-    UIButton *leftButtonTemp = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 34, 34)];
-    [leftButtonTemp addTarget:self action:@selector(logoutPressed) forControlEvents:UIControlEventTouchUpInside];
-    [leftButtonTemp setImage:[UIImage imageNamed:@"Logout"] forState:UIControlStateNormal];
-    [leftButtonTemp setContentMode:UIViewContentModeScaleAspectFit];
+    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithTitle:@"Cancel"
+                                                                    style:UIBarButtonItemStylePlain
+                                                                  target:nil action:@selector(cancelPressed)];
     
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithCustomView:leftButtonTemp];
-    
-    
-    UINavigationItem *item = [[UINavigationItem alloc] initWithTitle:@"Manage Clique"];
+    UINavigationItem *item = [[UINavigationItem alloc] initWithTitle:@"Create Group"];
     item.rightBarButtonItem = rightButton;
     item.leftBarButtonItem = leftButton;
     item.hidesBackButton = YES;
     [navBar pushNavigationItem:item animated:NO];
     [navBar setTranslucent:NO];
     [navBar setTitleTextAttributes:@{
-                                    NSForegroundColorAttributeName: [UIColor whiteColor]
-                                    }];
+                                     NSForegroundColorAttributeName: [UIColor whiteColor]
+                                     }];
     
     [self.view addSubview:navBar];
     [navBar setTintColor:[UIColor whiteColor]];
-    [navBar setBarTintColor:PRIMARY_COLOR];
+    [navBar setBarTintColor:TERTIARY_COLOR];
     NSLog(@"clique view controller did loaed");
+    
+    self.groupName = [[CliqueTextField alloc] initWithPosition:1];
+    [self.groupName setFrame:CGRectMake(0, 44 + 10 + 10, self.groupName.frame.size.width, self.groupName.frame.size.height)];
+    [self.groupName setPlaceholder:@"Name"];
+    [self.groupName setAutocorrectionType:UITextAutocorrectionTypeNo];
+    [self.groupName setAutocapitalizationType:UITextAutocapitalizationTypeNone];
+    [self.groupName setReturnKeyType:UIReturnKeyDone];
+    self.groupName.delegate = self;
+    [self.view addSubview:self.groupName];
+
+    // Do any additional setup after loading the view.
+    
     
     self.data = [@[
                    [@[] mutableCopy],
                    [@[] mutableCopy],
                    [@[] mutableCopy]
                    ] mutableCopy];
-
-    self.list = [[UITableView alloc] initWithFrame:CGRectMake(0, 44 + 10, VIEW_WIDTH, VIEW_HEIGHT-44 - 10)];
+    
+    CGFloat top = 44 + 10 + 10 + self.groupName.frame.size.height + 10;
+    self.list = [[UITableView alloc] initWithFrame:CGRectMake(0, top, VIEW_WIDTH, VIEW_HEIGHT-top)];
     [self.list setScrollsToTop:YES];
     [self.view addSubview:self.list];
     [self.list setBackgroundColor:[UIColor whiteColor]];
     [self.list setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     self.list.dataSource = self;
     self.list.delegate = self;
-//    [self.list registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
     
-    // Do any additional setup after loading the view.
+    [self.groupName becomeFirstResponder];
+    [self.list setAlpha:0.0];
+
     
     [self importAddressBook];
-    
-//    self.messageView = [MFMessageComposeViewController new];
-}
 
-- (void)donePressed {
-    NSLog(@"done motherfuckers");
-    [self dismissViewControllerAnimated:YES completion:^{
-        //
-    }];
-}
-
-- (void)logoutPressed {
-    [PFUser logOut];
-    
-    // request all friends here. see what happens.
-    
-    
-//    [[CNetworking currentUser] saveUserData:[NSNumber numberWithBool:NO] forKey:@"onboarded"];
-    [self dismissViewControllerAnimated:YES completion:^{
-        //
-    }];
-    
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -120,7 +109,7 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch (section) {
         case 0:
-            return [NSString stringWithFormat:@"My Clique (%lu/12)", [self.data[section] count]];
+            return @"Members";
             break;
         case 1:
             return @"Contacts on Clique";
@@ -143,9 +132,9 @@
     }
     
     CContact *contact = self.data[indexPath.section][indexPath.row];
-
+    
     if(indexPath.section == 2){
-            [cell.textLabel setText:contact.name];
+        [cell.textLabel setText:contact.name];
         [cell.detailTextLabel setText:[contact readableNumber]];
     } else {
         [cell.textLabel setText:contact.name];
@@ -156,7 +145,7 @@
     
     UIButton *accessory = [[UIButton alloc] initWithFrame:CGRectMake(240, 5, 34, 34)];
     [accessory setUserInteractionEnabled:NO];
-//    [accessory addTarget:self action:@selector(accessoryButtonTapped:withEvent:)forControlEvents:UIControlEventTouchUpInside];
+    //    [accessory addTarget:self action:@selector(accessoryButtonTapped:withEvent:)forControlEvents:UIControlEventTouchUpInside];
     switch (indexPath.section) {
         case 0:
             // @"My Clique";
@@ -188,14 +177,14 @@
     addressBook.fieldsMask = APContactFieldCompositeName | APContactFieldPhones | APContactFieldFirstName;
     addressBook.filterBlock = ^BOOL(APContact *contact){
         return
-            // has a #
-            (contact.phones.count > 0) &&
+        // has a #
+        (contact.phones.count > 0) &&
         
-            // has a name
-            contact.compositeName &&
+        // has a name
+        contact.compositeName &&
         
-            // name does not contain "GroupMe"
-            ([contact.compositeName rangeOfString:@"GroupMe:"].location == NSNotFound);
+        // name does not contain "GroupMe"
+        ([contact.compositeName rangeOfString:@"GroupMe:"].location == NSNotFound);
     };
     addressBook.sortDescriptors = @[
                                     [NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]
@@ -212,10 +201,10 @@
                     NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j]
                                                  defaultRegion:@"US" error:&aError];
                     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
-
-
+                    
+                    
                     int dupe = 0;
-
+                    
                     //crawl backwards
                     int k = (int)[self.data[2] count] - 1;
                     while(k > 0){
@@ -229,41 +218,22 @@
                         }
                         k = k-1;
                     }
-                                        
+                    
                     if(dupe == 0){
                         CContact *current = [CContact new];
                         current.name = contact.compositeName;
                         current.number = num;
                         current.firstName = contact.firstName;
+                        current.registered = [NSNumber numberWithBool:NO];
                         
-                        if([(NSMutableDictionary *)[PFUser currentUser][@"clique"] objectForKey:[current.number crypt]]){
-                            NSLog(@"in clique!");
-                            [self.data[0] addObject:current];
-                        } else {
-                            NSLog(@"not in clique!");
-                            [self.data[2] addObject:current];
-                        }
+                        [self.data[2] addObject:current];
                     }
                 }
             }
-//            for(APContact *contact in contacts){
-//                for(APPhoneWithLabel *phone in contact.phonesWithLabels){
-//                    
-//                }
-//                [self.data[2] addObject:contact];
-//            }
-            
-//            [self.list reloadData];
+
             NSLog(@"contacts count: %lu", [contacts count]);
             [self.list reloadData];
             
-//            NSMutableIndexSet *set = [[NSMutableIndexSet alloc] init];
-//            [set addIndex:0];
-//            [set addIndex:1];
-//            [set addIndex:2];
-//            [self.list reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
-            
-            // do something with contacts array
             [self afterContactsLoaded];
         }
         else
@@ -271,10 +241,7 @@
             // show error
         }
     }];
-
-//[[NSOperationQueue mainQueue] addOperationWithBlock:^{
-//}];
-
+    
 }
 
 - (void)afterContactsLoaded {
@@ -308,6 +275,7 @@
                 NSUInteger index = [(NSNumber *)indexes[phoneHash] unsignedIntegerValue];
                 
                 CContact *o = self.data[2][index];
+                o.registered = [NSNumber numberWithBool:YES];
                 [self.data[2] removeObject:o];
                 [self.data[1] addObject:o];
                 NSUInteger newRow = [(NSArray *)(self.data[1]) count] - 1;
@@ -320,23 +288,16 @@
             }
         }
         [self.list reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationFade];
-        
-
+        [self.list reloadSections:[NSIndexSet indexSetWithIndex:2] withRowAnimation:UITableViewRowAnimationFade];
         
         NSLog(@"%lu", [objects count]);
-
+        
         NSLog(@"done!");
         NSDate *methodFinish = [NSDate date];
         NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:start];
-
+        
         NSLog(@"Execution Time: %f", executionTime);
     }];
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void) accessoryButtonTapped: (UIControl *) button withEvent: (UIEvent *) event
@@ -350,34 +311,22 @@
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"tapped");
-//    CContact *contact = self.data[indexPath.section][indexPath.row];
-//    [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
-//                                message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
-//                               delegate: nil
-//                      cancelButtonTitle:@"Invite"
-//                      otherButtonTitles:@"Not now", nil]
-//     show];
+    //    CContact *contact = self.data[indexPath.section][indexPath.row];
+    //    [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
+    //                                message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
+    //                               delegate: nil
+    //                      cancelButtonTitle:@"Invite"
+    //                      otherButtonTitles:@"Not now", nil]
+    //     show];
     [self.list selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(indexPath.section == 2){
-        CContact *contact = self.data[indexPath.section][indexPath.row];
-        [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
-                                    message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
-                                   delegate: self
-                          cancelButtonTitle:@"Not Now"
-                          otherButtonTitles:@"Invite", nil]
-         show];
-        self.messageView = [[MFMessageComposeViewController alloc] init];
+    [self.list deselectRowAtIndexPath:indexPath animated:YES];
+    if(indexPath.section == 2 || indexPath.section == 1){
         [self addToClique:indexPath];
     } else {
-        [self.list deselectRowAtIndexPath:indexPath animated:YES];
-        if(indexPath.section == 1){
-            [self addToClique:indexPath];
-        } else if(indexPath.section == 0){
-            [self removeFromClique:indexPath];
-        }
+        [self removeFromClique:indexPath];
     }
 }
 
@@ -388,78 +337,84 @@
     NSUInteger newRow = [(NSArray *)(self.data[0]) count] - 1;
     
     [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:newRow inSection:0]];
-//    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
+    //    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
     [self.list reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
     
-    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
-    if(!clique){
-        clique = [@{} mutableCopy];
-    }
-    
-    [clique setObject:@1 forKey:[[o number] crypt]];
-    
-    [PFUser currentUser][@"clique"] = clique;
-    [[PFUser currentUser] saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-        NSLog(@"%@", error);
-        NSLog(@"succeded? %@", succeeded ? @"true" : @"false");
-    }];
 }
 
 - (void)removeFromClique:(NSIndexPath *)indexPath {
     CContact *o = self.data[indexPath.section][indexPath.row];
+    int newSection;
+    if([o.registered boolValue]){
+        newSection = 1;
+    } else {
+        newSection = 2;
+    }
     
-    NSUInteger newRow = [self.data[1] indexOfObject:o
-                                 inSortedRange:(NSRange){0, [self.data[1] count]}
-                                       options:NSBinarySearchingInsertionIndex
-                                      usingComparator:(NSComparator) ^(CContact *first, CContact *second){
-                                          return (NSComparisonResult)[first.name compare:second.name];
-                                      }];
+    NSUInteger newRow = [self.data[newSection] indexOfObject:o
+                                      inSortedRange:(NSRange){0, [self.data[newSection] count]}
+                                            options:NSBinarySearchingInsertionIndex
+                                    usingComparator:(NSComparator) ^(CContact *first, CContact *second){
+                                        return (NSComparisonResult)[first.name compare:second.name];
+                                    }];
     
     [self.data[indexPath.section] removeObject:o];
-    [self.data[1] insertObject:o atIndex:newRow];
+    [self.data[newSection] insertObject:o atIndex:newRow];
     
-    [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:newRow inSection:1]];
-    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:1]] withRowAnimation:UITableViewRowAnimationFade];
-    [self.list reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
-    
-    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
-    if(!clique){
-        clique = [@{} mutableCopy];
-    }
-    
-    [clique removeObjectForKey:[[o number] crypt]];
-    
-    [PFUser currentUser][@"clique"] = clique;
-    [[PFUser currentUser] saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-        NSLog(@"%@", error);
-        NSLog(@"succeded? %@", succeeded ? @"true" : @"false");
-    }];
-
+    [self.list moveRowAtIndexPath:indexPath toIndexPath:[NSIndexPath indexPathForRow:newRow inSection:newSection]];
+    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:newSection]] withRowAnimation:UITableViewRowAnimationFade];
+//    [self.list reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
 }
 
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    NSIndexPath *indexPath = [self.list indexPathForSelectedRow];
-    [self.list deselectRowAtIndexPath:indexPath animated:YES];
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [self.list setAlpha:1.0];
+    [textField resignFirstResponder];
+    return YES;
+}
 
-    if(buttonIndex == 0){
-        NSLog(@"cancel");
-    } else {
-        NSLog(@"invite");
-        CContact *contact = self.data[indexPath.section][indexPath.row];
-        self.messageView.messageComposeDelegate = self;
-        [self.messageView setRecipients:@[contact.number]];
-        [self.messageView setBody:@"I just added you to my Clique. Add me back! http://clique.com/download"];
-        [self presentViewController:self.messageView animated:YES completion:^{
+- (void)donePressed {
+    NSLog(@"done motherfuckers");
+    if(([self.data[0] count] > 0) && ([self.groupName.text length] > 0)){
+        
+        [self dismissViewControllerAnimated:YES completion:^{
             
+            Firebase *group = [[[[CNetworking currentUser] firebase] childByAppendingPath:@"groups"] childByAutoId];
+            
+            NSMutableArray *members = [[NSMutableArray alloc] init];
+            for(CContact *user in self.data[0]){
+                [members addObject:[user.number crypt]];
+            }
+            
+            [members addObject:[PFUser currentUser][@"phoneHash"]];
+            
+            [[group childByAppendingPath:@"data"] setValue:@{
+                                                            @"name": self.groupName.text,
+                                                            @"members":members,
+                                                            @"admin": [PFUser currentUser][@"phoneHash"]
+                                                            }];
+            
+            
+            for(NSString *member in members){
+                NSString *path = [NSString stringWithFormat:@"users/%@/groups/%@", member, group.name];
+                
+                [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:group.name];
+            }
         }];
     }
+    
 }
 
-- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result {
-    NSLog(@"result %u", result);
-    [controller dismissViewControllerAnimated:YES completion:^{
+- (void)cancelPressed {
+    NSLog(@"cancelled motherfuckers");
+    [self dismissViewControllerAnimated:YES completion:^{
         //
     }];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
 }
 
 /*

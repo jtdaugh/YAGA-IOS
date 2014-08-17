@@ -7,5 +7,6 @@
 //
 #define SALT @"CliqueMotherFucker"
 @interface NSString (Hash)
-- (NSString *) sha1;
++ (NSString *) hashString :(NSString *) data withSalt: (NSString *) salt;
+- (NSString *) crypt;
 @end

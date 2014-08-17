@@ -53,7 +53,7 @@
     [self.nameField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
     [self.nameField setReturnKeyType:UIReturnKeyNext];
     [self.view addSubview:self.nameField];
-        
+
     self.phoneField = [self textFieldSkeleton:1];
     [self.phoneField setPlaceholder:@"Phone Number"];
     [self.phoneField setKeyboardType:UIKeyboardTypePhonePad];
@@ -107,7 +107,9 @@
                                  defaultRegion:@"US" error:&aError];
     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
     
-    user[@"phoneHash"] = [num sha1];
+    NSLog(@"number: %@", num);
+    
+    user[@"phoneHash"] = [num crypt];
     
     [user signUpInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
         if (!error) {

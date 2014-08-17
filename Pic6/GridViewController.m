@@ -77,13 +77,8 @@
 {
     [super viewDidLoad];
     
-    NSString *redString = [[UIColor redColor] stringValue];
-    
-    UIColor *redColor = [UIColor colorWithString:redString];
-    
-    NSLog(@"red: %@", [redColor stringValue]);
-    
     if([PFUser currentUser]){
+        NSLog(@"group id: %@", self.groupId);
         NSLog(@"current user is set!");
         [self setupView];
     }
@@ -107,8 +102,7 @@
     if(error){
         NSLog(@"error: %@", error);
     }
-    NSLog(@"heyoo: %@", [self humanName]);
-    [Crashlytics setUserIdentifier:[self humanName]];
+    [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:@"username"]];
     
     [self initOverlay];
     [self initGridView];
@@ -210,7 +204,6 @@
     [layout setMinimumInteritemSpacing:0.0];
     [layout setMinimumLineSpacing:0.0];
     self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*3 + tile_buffer*TILE_HEIGHT) collectionViewLayout:layout];
-    [self.gridTiles setBackgroundColor:[UIColor blackColor]];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
@@ -250,10 +243,10 @@
 
 - (void)initFirebase {
 
-    NSString *hash = [PFUser currentUser][@"phoneHash"];
-    NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+//    NSString *hash = [PFUser currentUser][@"phoneHash"];
+//    NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 
-    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", STREAM, escapedHash]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupId, STREAM]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"children count: %lu", snapshot.childrenCount);
         NSString *lastUid;
         for (FDataSnapshot* child in snapshot.children) {
@@ -268,11 +261,7 @@
 
 - (void)listenForChanges {
     
-    //new child added
-    NSString *hash = [PFUser currentUser][@"phoneHash"];
-    NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    
-    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", STREAM, escapedHash]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupId, STREAM]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [self newTile:snapshot];
     }];
 }
@@ -331,7 +320,6 @@
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [self.gridData objectAtIndex:indexPath.row];
-//    cell.state = [NSNumber numberWithInt:LIMBO];
     
     if(![cell.uid isEqualToString:snapshot.name]){
 
@@ -819,6 +807,7 @@
 
 - (void) stopRecordingVideo {
     [self.movieFileOutput stopRecording];
+    NSLog(@"stop recording video");
 }
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
@@ -839,6 +828,8 @@
         
         NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
         [self uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
+    } else {
+        NSLog(@"wtf is going on");
     }
     
 }
@@ -874,12 +865,18 @@
     NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
     [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
     
-    for(NSString *hash in clique){
-        NSLog(@"hash: %@", hash);
-        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
-        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":[self humanName], @"colors":colors}];
-    }
+//    for(NSString *hash in clique){
+//        NSLog(@"hash: %@", hash);
+//        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+//        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
+//        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
+//    }
+    
+    PFUser *pfUser = [PFUser currentUser];
+    NSLog(@"group id: %@", self.groupId);
+    NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", self.groupId, STREAM, dataPath];
+//    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
+    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":pfUser.username, @"colors":colors}];
     
     NSFileManager * fm = [[NSFileManager alloc] init];
     NSError *err = nil;
@@ -943,24 +940,6 @@
     if (alpha) return YES;
     else return NO;
     
-}
-
-- (NSString *)humanName {
-    
-    NSString *deviceName = [[UIDevice currentDevice].name lowercaseString];
-    for (NSString *string in @[@"’s iphone", @"’s ipad", @"’s ipod touch", @"’s ipod",
-                               @"'s iphone", @"'s ipad", @"'s ipod touch", @"'s ipod",
-                               @"s iphone", @"s ipad", @"s ipod touch", @"s ipod", @"iphone"]) {
-        NSRange ownershipRange = [deviceName rangeOfString:string];
-        
-        if (ownershipRange.location != NSNotFound) {
-            return [[[deviceName substringToIndex:ownershipRange.location] componentsSeparatedByString:@" "][0]
-                    stringByReplacingCharactersInRange:NSMakeRange(0,1)
-                    withString:[[deviceName substringToIndex:1] capitalizedString]];
-        }
-    }
-    
-    return [UIDevice currentDevice].name;
 }
 
 - (void)willResignActive {

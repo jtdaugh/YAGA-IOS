@@ -39,6 +39,8 @@
 
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
+@property (strong, nonatomic) NSString *groupId;
+
 @property (strong, nonatomic) UIView *gridView;
 @property (strong, nonatomic) UICollectionView *gridTiles;
 @property (strong, nonatomic) NSMutableArray *gridData;

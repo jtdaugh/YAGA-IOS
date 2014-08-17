@@ -24,6 +24,7 @@
         [self loadUserData];
         self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];
         NSLog(@"just inited firebase");
+//        [self saveUserData:[self humanName] forKey:@"username"];
     }
     
     return self;
@@ -47,6 +48,24 @@
 - (void)loadUserData {
     NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
     self.userData = [[defaults dictionaryRepresentation] mutableCopy];
+}
+
+- (NSString *)humanName {
+    
+    NSString *deviceName = [[UIDevice currentDevice].name lowercaseString];
+    for (NSString *string in @[@"’s iphone", @"’s ipad", @"’s ipod touch", @"’s ipod",
+                               @"'s iphone", @"'s ipad", @"'s ipod touch", @"'s ipod",
+                               @"s iphone", @"s ipad", @"s ipod touch", @"s ipod", @"iphone"]) {
+        NSRange ownershipRange = [deviceName rangeOfString:string];
+        
+        if (ownershipRange.location != NSNotFound) {
+            return [[[deviceName substringToIndex:ownershipRange.location] componentsSeparatedByString:@" "][0]
+                    stringByReplacingCharactersInRange:NSMakeRange(0,1)
+                    withString:[[deviceName substringToIndex:1] capitalizedString]];
+        }
+    }
+    
+    return [UIDevice currentDevice].name;
 }
 
 @end

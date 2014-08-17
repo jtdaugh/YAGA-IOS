@@ -33,8 +33,8 @@
 // Facebook-iOS-SDK
 #define COCOAPODS_POD_AVAILABLE_Facebook_iOS_SDK
 #define COCOAPODS_VERSION_MAJOR_Facebook_iOS_SDK 3
-#define COCOAPODS_VERSION_MINOR_Facebook_iOS_SDK 16
-#define COCOAPODS_VERSION_PATCH_Facebook_iOS_SDK 2
+#define COCOAPODS_VERSION_MINOR_Facebook_iOS_SDK 17
+#define COCOAPODS_VERSION_PATCH_Facebook_iOS_SDK 0
 
 // Firebase
 #define COCOAPODS_POD_AVAILABLE_Firebase
@@ -53,6 +53,12 @@
 #define COCOAPODS_VERSION_MAJOR_Mixpanel 2
 #define COCOAPODS_VERSION_MINOR_Mixpanel 4
 #define COCOAPODS_VERSION_PATCH_Mixpanel 1
+
+// OrderedDictionary
+#define COCOAPODS_POD_AVAILABLE_OrderedDictionary
+#define COCOAPODS_VERSION_MAJOR_OrderedDictionary 1
+#define COCOAPODS_VERSION_MINOR_OrderedDictionary 1
+#define COCOAPODS_VERSION_PATCH_OrderedDictionary 1
 
 // Parse
 #define COCOAPODS_POD_AVAILABLE_Parse

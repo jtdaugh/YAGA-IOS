@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <Firebase/Firebase.h>
+#import "OrderedDictionary.h"
+#import "GroupInfo.h"
 
 @class CNetworking;
 
@@ -20,6 +22,8 @@
 @property (nonatomic,assign)id delegate;
 @property (strong, nonatomic) NSMutableDictionary *userData;
 @property (strong, nonatomic) Firebase *firebase;
+@property (strong, nonatomic) NSMutableArray *groupInfo;
+@property (strong, nonatomic) NSMutableDictionary *messages;
 
 + (id)currentUser;
 

@@ -5,12 +5,13 @@ PODS:
     - Mixpanel
   - APAddressBook (0.0.10)
   - Bolts (1.1.1)
-  - Facebook-iOS-SDK (3.16.2):
+  - Facebook-iOS-SDK (3.17.0):
     - Bolts
   - Firebase (1.1.9)
   - libPhoneNumber-iOS (0.7.3)
   - Mixpanel (2.4.1)
   - MPFoldTransition (0.0.1)
+  - OrderedDictionary (1.1.1)
   - Parse (1.2.20):
     - Facebook-iOS-SDK (~> 3.11)
 
@@ -20,17 +21,19 @@ DEPENDENCIES:
   - Firebase (>= 1.1)
   - libPhoneNumber-iOS (~> 0.7)
   - MPFoldTransition
+  - OrderedDictionary
   - Parse
 
 SPEC CHECKSUMS:
   AnalyticsKit: 1dd92c8ca0b713263c613235615d001790f359db
   APAddressBook: d176555d6b845a3c900f3f3c3787c1b98d83151d
   Bolts: 0ca796081c3e7c139bd86d6903c27f1b83036a5d
-  Facebook-iOS-SDK: 34eef640c2cc4c8618ba0f574ad2b290e07f1b4e
+  Facebook-iOS-SDK: f20274d809f112ba540842e2b6cbe50128d51b7b
   Firebase: 389b4d1f1a8f4b9ed53abec2aa62a3ceeafd7fcd
   libPhoneNumber-iOS: 98fc07d70c8fdb5e6a8e3442c37e97353065c20e
   Mixpanel: a29ff32db93936dea24162f0dc4fecc4a8f17071
   MPFoldTransition: 054a50b55f0e20f26e58d9b3090a7c4c2e55a3da
+  OrderedDictionary: aedfe4b61c0642f18820fa05f5367d1d2147d82d
   Parse: 28c0dc54f30201a369d29a2f76c09fa43b2add16
 
 COCOAPODS: 0.33.1

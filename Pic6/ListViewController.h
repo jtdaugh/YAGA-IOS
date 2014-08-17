@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ListViewController : UIViewController
-
+@interface ListViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
+@property (strong, nonatomic) NSNumber *appeared;
+@property (strong, nonatomic) NSNumber *setup;
+@property (strong, nonatomic) UICollectionView *groups;
+@property (strong, nonatomic) NSNumber *scrolling;
 @end

@@ -76,7 +76,7 @@
     NBPhoneNumber *myNumber = [phoneUtil parse:self.phoneField.text
                                  defaultRegion:@"US" error:&aError];
     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
-    NSString *phoneHash = [num sha1];
+    NSString *phoneHash = [num crypt];
     
     PFQuery *query = [PFUser query];
     [query whereKey:@"phoneHash" equalTo:phoneHash];

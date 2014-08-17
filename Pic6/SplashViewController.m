@@ -12,6 +12,7 @@
 #import "AVPlayer+AVPlayer_Async.h"
 #import "TileCell.h"
 #import "MPFlipTransition.h"
+#import "NSString+Hash.h"
 
 @implementation SplashViewController
 
@@ -20,7 +21,8 @@
 }
 
 - (void)viewDidLoad {
-    NSLog(@"yooo splashery");
+
+    NSLog(@"yooo splashery, %@", [@"+13107753248" crypt]);
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
     

@@ -12,5 +12,6 @@
 @property (strong, nonatomic) NSString *name;
 @property (strong, nonatomic) NSString *firstName;
 @property (strong, nonatomic) NSString *number;
+@property (strong, nonatomic) NSNumber *registered;
 - (NSString *) readableNumber;
 @end

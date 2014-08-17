@@ -46,8 +46,8 @@
 
 #define BIG_FONT @"Avenir-Light"
 
-//#define NODE_NAME @"dev8"
-#define NODE_NAME @"production9"
+#define VERSION @"2"
+#define NODE_NAME [NSString stringWithFormat: @"v%@/%@", VERSION, @"production"]
 #define MEDIA @"media"
 #define DATA @"data"
 #define STREAM @"stream"

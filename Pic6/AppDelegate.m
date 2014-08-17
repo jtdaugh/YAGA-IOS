@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import <AVFoundation/AVFoundation.h>
 #import "GridViewController.h"
+#import "ListViewController.h"
 #import "OnboardingNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
 #import "AnalyticsKit.h"
@@ -43,7 +44,7 @@
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
         self.window.rootViewController = vc;
     } else {
-        GridViewController *vc = [[GridViewController alloc] init];
+        ListViewController *vc = [[ListViewController alloc] init];
         self.window.rootViewController = vc;
     }
   

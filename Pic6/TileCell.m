@@ -22,6 +22,7 @@
         int width = self.frame.size.width / LOADER_WIDTH;
         int height = self.frame.size.height / LOADER_HEIGHT;
         [self.loader removeFromSuperview];
+        
         self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         
         for(int i = 0; i < LOADER_HEIGHT * LOADER_WIDTH; i++){
@@ -78,7 +79,11 @@
 //            [box setBackgroundColor:[UIColor whiteColor]];
             [colors removeLastObject];
         } else {
-            [box setBackgroundColor:[UIColor whiteColor]];
+            CGFloat hue = ( arc4random() % 256 / 256.0 );  //  0.0 to 1.0
+            CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from white
+            CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
+            UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:arc4random() % 128 / 256.0 + 0.5];
+            [box setBackgroundColor:color];
         }
     }
     
