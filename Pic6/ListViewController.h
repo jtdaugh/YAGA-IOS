@@ -7,10 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "GridViewController.h"
 
-@interface ListViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
+@interface ListViewController : GridViewController <UICollectionViewDataSource, UICollectionViewDelegate>
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *setup;
 @property (strong, nonatomic) UICollectionView *groups;
 @property (strong, nonatomic) NSNumber *scrolling;
+
 @end

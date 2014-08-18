@@ -8,8 +8,7 @@
 
 #import "ListViewController.h"
 #import "OnboardingNavigationController.h"
-#import "CreateGroupViewController.h"
-#import "GridViewController.h"
+#import "GroupViewController.h"
 #import "PlaqueView.h"
 #import "TileCell.h"
 #import "CNetworking.h"
@@ -68,21 +67,14 @@
     
     PlaqueView *plaque = [[PlaqueView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
     //    [self.view addSubview:plaque];
-    
-    UIButton *createGroup = [[UIButton alloc] initWithFrame:CGRectMake(20, 20, 50, 50)];
-    [createGroup addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
-    [createGroup.titleLabel setFont:[UIFont systemFontOfSize:30]];
-    [createGroup setTitle:@"+" forState:UIControlStateNormal];
-    [createGroup setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.view addSubview:createGroup];
-    
+        
     int tile_buffer = 0;
     
     UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
     [layout setSectionInset:UIEdgeInsetsMake(0, 0, TILE_HEIGHT*tile_buffer, 0)];
     [layout setMinimumInteritemSpacing:0.0];
     [layout setMinimumLineSpacing:0.0];
-    self.groups = [[UICollectionView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT - TILE_HEIGHT) collectionViewLayout:layout];
+    self.groups = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT - TILE_HEIGHT) collectionViewLayout:layout];
     self.groups.dataSource = self;
     self.groups.delegate = self;
     
@@ -93,14 +85,6 @@
     
     [self setupFirebase];
 
-}
-
-- (void)createGroup {
-    NSLog(@"create group pressed");
-    CreateGroupViewController *vc = [[CreateGroupViewController alloc] init];
-    [self presentViewController:vc animated:YES completion:^{
-        //
-    }];
 }
 
 - (void) setupFirebase {
@@ -152,6 +136,7 @@
             }];
         }
     }];
+    
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -233,18 +218,20 @@
 }
 
 - (void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"yoo");
+    NSLog(@"yoo didSelect");
     CNetworking *currentUser = [CNetworking currentUser];
     
-    GridViewController *vc = [[GridViewController alloc] init];
+    GroupViewController *vc = [[GroupViewController alloc] init];
     
     GroupInfo *info = (GroupInfo *) currentUser.groupInfo[indexPath.row];
     
     vc.groupId = info.groupId;
     
-    [self presentViewController:vc animated:YES completion:^{
-        //
-    }];
+    [self.cameraViewController customPresentViewController:vc];
+    
+//    [self presentViewController:vc animated:YES completion:^{
+//        //
+//    }];
 }
 
 - (void)didReceiveMemoryWarning

@@ -7,7 +7,7 @@
 //
 
 #import "SignupViewController.h"
-#import "GridViewController.h"
+#import "GroupViewController.h"
 #import "CNetworking.h"
 #import "AppDelegate.h"
 #import <Parse/Parse.h>
@@ -132,7 +132,7 @@
 }
 
 - (void)exit {
-//    GridViewController *grid = [[GridViewController alloc] init];
+//    GroupViewController *grid = [[GroupViewController alloc] init];
 //    grid.onboarding = [NSNumber numberWithBool:YES];
 //    [self.navigationController pushViewController:grid animated:YES];
 //    [self.navigationController dismissViewControllerAnimated:YES completion:^{

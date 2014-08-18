@@ -7,7 +7,7 @@
 //
 
 #import "LoginViewController.h"
-#import "GridViewController.h"
+#import "GroupViewController.h"
 #import <Parse/Parse.h>
 #import "NBPhoneNumberUtil.h"
 #import "NSString+Hash.h"
