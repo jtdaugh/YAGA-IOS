@@ -8,37 +8,15 @@
 
 #import <UIKit/UIKit.h>
 #import <Firebase/Firebase.h>
-#import "AVCamPreviewView.h"
 #import "TileCell.h"
 #import "CNetworking.h"
 #import "GridViewController.h"
-@import AVFoundation;
 
-@interface GroupViewController : GridViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate>
-
-@property (strong, nonatomic) AVCamPreviewView *cameraView;
-@property (strong, nonatomic) UIButton *cameraButton;
-@property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
-@property (strong, nonatomic) UIView *instructions;
-@property (strong, nonatomic) UIView *indicator;
-@property (strong, nonatomic) UIView *white;
-@property (strong, nonatomic) NSNumber *recording;
-@property (strong, nonatomic) NSNumber *FrontCamera;
-@property (strong, nonatomic) NSNumber *flash;
-@property (strong, nonatomic) NSNumber *previousBrightness;
-@property (strong, nonatomic) NSMutableArray *cameraAccessories;
+@interface GroupViewController : GridViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate, CameraReceiver>
 
 @property (strong, nonatomic) NSNumber *setup;
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *onboarding;
-
-@property (strong, nonatomic) AVCaptureSession *session;
-@property (nonatomic) dispatch_queue_t sessionQueue;
-
-@property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
-@property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
-
-@property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
 @property (strong, nonatomic) NSString *groupId;
 
@@ -48,10 +26,6 @@
 @property (strong, nonatomic) NSNumber *scrolling;
 @property (strong, nonatomic) UIRefreshControl *pull;
 @property (strong, nonatomic) UIActivityIndicatorView *loader;
-
-@property (strong, nonatomic) UIView *plaque;
-@property (strong, nonatomic) UIButton *switchButton;
-@property (strong, nonatomic) UIButton *flashButton;
 
 @property (strong, nonatomic) UIView *overlay;
 

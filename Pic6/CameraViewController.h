@@ -7,8 +7,37 @@
 //
 
 #import <UIKit/UIKit.h>
+@class GridViewController;
+#import "AVCamPreviewView.h"
+@import AVFoundation;
 
 @interface CameraViewController : UIViewController
-@property (strong, nonatomic) UIViewController *currentViewController;
+@property (strong, nonatomic) GridViewController *currentViewController;
+
+@property (strong, nonatomic) AVCamPreviewView *cameraView;
+@property (strong, nonatomic) UIButton *cameraButton;
+@property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
+@property (strong, nonatomic) UIView *instructions;
+@property (strong, nonatomic) UIView *indicator;
+@property (strong, nonatomic) UIView *white;
+@property (strong, nonatomic) NSNumber *recording;
+@property (strong, nonatomic) NSNumber *FrontCamera;
+@property (strong, nonatomic) NSNumber *flash;
+@property (strong, nonatomic) NSNumber *previousBrightness;
+@property (strong, nonatomic) NSMutableArray *cameraAccessories;
+
+@property (strong, nonatomic) AVCaptureSession *session;
+@property (nonatomic) dispatch_queue_t sessionQueue;
+
+@property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
+@property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
+
+@property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
+
+@property (strong, nonatomic) UIView *plaque;
+@property (strong, nonatomic) UIButton *switchButton;
+@property (strong, nonatomic) UIButton *flashButton;
+
 - (void)customPresentViewController:(UIViewController *)viewControllerToPresent;
+
 @end

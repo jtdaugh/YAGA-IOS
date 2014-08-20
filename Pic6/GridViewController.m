@@ -7,6 +7,7 @@
 //
 
 #import "GridViewController.h"
+#import "CameraViewController.h"
 
 @interface GridViewController ()
 
@@ -33,6 +34,10 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
+    NSLog(@"uploaded");
 }
 
 /*

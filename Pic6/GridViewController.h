@@ -7,8 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CameraViewController.h"
+@class CameraViewController;
+
+@protocol CameraReceiver <NSObject>
+- (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL;
+@end
 
 @interface GridViewController : UIViewController
+@property (strong, nonatomic) GridViewController *previousViewController;
 @property (strong, nonatomic) CameraViewController *cameraViewController;
+- (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL;
 @end

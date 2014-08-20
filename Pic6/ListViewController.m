@@ -14,6 +14,7 @@
 #import "CNetworking.h"
 #import <Parse/Parse.h>
 #import "NSString+File.h"
+#import "CameraViewController.h"
 
 @interface ListViewController ()
 
