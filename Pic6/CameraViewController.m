@@ -94,7 +94,7 @@
 - (void)initPlaque {
     self.plaque = [[UIView alloc] init];
     [self.plaque setFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-    [self.plaque setBackgroundColor:PRIMARY_COLOR];
+    [self.plaque setBackgroundColor:SECONDARY_COLOR];
     
     UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(8, 8, TILE_WIDTH-16, 36)];
     [logo setText:APP_NAME]; // 🔥

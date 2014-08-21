@@ -9,7 +9,7 @@
 #ifndef Pic6_Constants_h
 #define Pic6_Constants_h
 
-#define APP_NAME @"Cliq"
+#define APP_NAME @"Crew"
 
 #define NUM_TILES 96
 #define TILE_WIDTH 640/4
