@@ -10,11 +10,13 @@
 #import "OnboardingNavigationController.h"
 #import "GroupViewController.h"
 #import "PlaqueView.h"
-#import "TileCell.h"
 #import "CNetworking.h"
 #import <Parse/Parse.h>
 #import "NSString+File.h"
 #import "CameraViewController.h"
+#import "ListTileCell.h"
+#import "UIImage+Resize.h"
+#import "UIColor+Expanded.h"
 
 @interface ListViewController ()
 
@@ -79,7 +81,7 @@
     self.groups.dataSource = self;
     self.groups.delegate = self;
     
-    [self.groups registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
+    [self.groups registerClass:[ListTileCell class] forCellWithReuseIdentifier:@"Cell"];
     [self.groups setBackgroundColor:PRIMARY_COLOR];
     
     [self.view addSubview:self.groups];
@@ -124,7 +126,7 @@
             }];
             
             NSString *mediaPath = [NSString stringWithFormat:@"groups/%@/%@", child.name, STREAM];
-            [[[currentUser.firebase childByAppendingPath:mediaPath] queryLimitedToNumberOfChildren:1] observeSingleEventOfType:FEventTypeChildAdded withBlock:^(FDataSnapshot *mediaSnapshot) {
+            [[[currentUser.firebase childByAppendingPath:mediaPath] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *mediaSnapshot) {
                 int i = 0;
                 for(GroupInfo *info in currentUser.groupInfo){
                     if([info.groupId isEqualToString:child.name]){
@@ -152,7 +154,7 @@
     
     CNetworking *currentUser = [CNetworking currentUser];
     
-    TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
+    ListTileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     
     GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:indexPath.row];
     
@@ -160,7 +162,7 @@
         
         NSLog(@"id? %@", groupInfo.latestSnapshot.name);
         [cell setUid:groupInfo.latestSnapshot.name];
-
+        [cell.groupTitle setText:groupInfo.name];
         NSArray *colors = (NSArray *) groupInfo.latestSnapshot.value[@"colors"];
         
         [cell setColors:colors];
@@ -211,7 +213,7 @@
 }
 
 - (void) finishedLoading:(NSString *)uid {
-    for(TileCell *tile in [self.groups visibleCells]){
+    for(ListTileCell *tile in [self.groups visibleCells]){
         if([tile.uid isEqualToString:uid]){
             [self.groups reloadItemsAtIndexPaths:@[[self.groups indexPathForCell:tile]]];
         }
@@ -233,6 +235,98 @@
 //    [self presentViewController:vc animated:YES completion:^{
 //        //
 //    }];
+}
+
+- (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
+    // measure size of data
+    NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
+    
+    // set up data object
+    NSString *videoData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    Firebase *dataObject = [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
+    NSString *dataPath = dataObject.name;
+    
+    AVURLAsset* asset = [AVURLAsset URLAssetWithURL:outputURL options:nil];
+    AVAssetImageGenerator* imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+    [imageGenerator setAppliesPreferredTrackTransform:YES];
+    //    UIImage* image = [UIImage imageWithCGImage:[imageGenerator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil]];
+    CGImageRef imageRef = [imageGenerator copyCGImageAtTime:CMTimeMake(0,1) actualTime:nil error:nil];
+    
+    UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(TILE_WIDTH*2, TILE_HEIGHT*2)];
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
+    NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    
+    NSArray *colors = [self getColors:image];
+    
+    //    for(NSString *color in colors){
+    //        NSLog(@"color: %@", color);
+    //    }
+    
+    [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
+    }];
+    
+    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
+    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
+    
+    //    for(NSString *hash in clique){
+    //        NSLog(@"hash: %@", hash);
+    //        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    //        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
+    //        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
+    //    }
+    
+    PFUser *pfUser = [PFUser currentUser];
+    CNetworking *currentUser = [CNetworking currentUser];
+    
+    NSString *groupId = [(GroupInfo *)currentUser.groupInfo[0] groupId];
+    
+    NSLog(@"group id: %@", groupId);
+    NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", groupId, STREAM, dataPath];
+    //    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
+    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":pfUser.username, @"colors":colors}];
+    
+    NSFileManager * fm = [[NSFileManager alloc] init];
+    NSError *err = nil;
+    [fm moveItemAtURL:outputURL toURL:[dataPath movieUrl] error:&err];
+    [imageData writeToURL:[dataPath imageUrl] options:NSDataWritingAtomic error:&err];
+    
+    if(err){
+        NSLog(@"error: %@", err);
+    }
+    
+}
+
+- (NSArray *) getColors: (UIImage *) image {
+    CFDataRef pixelData = CGDataProviderCopyData(CGImageGetDataProvider(image.CGImage));
+    CGFloat width = image.size.width;
+    CGFloat height = image.size.height;
+    const UInt8* data = CFDataGetBytePtr(pixelData);
+    
+    NSLog(@"width: %f, height:%f", width, height);
+    
+    NSMutableArray *colors = [[NSMutableArray alloc] init];
+    for(int i = 0; i < 16; i++){
+        int col = i % 4;
+        int row = i / 4;
+        
+        CGFloat x = col * (width/4) + width/8;
+        CGFloat y = row * (height/4) + height/8;
+        
+        NSLog(@"x: %f, y: %f", x, y);
+        
+        int pixelInfo = (int) ((width * y) + x) * 4;
+        
+        UInt8 blue = data[pixelInfo];         // If you need this info, enable it
+        UInt8 green = data[(pixelInfo + 1)]; // If you need this info, enable it
+        UInt8 red = data[pixelInfo + 2];    // If you need this info, enable it
+        
+        UIColor* color = [UIColor colorWithRed:red/255.0f green:green/255.0f blue:blue/255.0f alpha:255.0f/255.0f]; // The pixel color info
+        
+        [colors addObject:[color hexStringValue]];
+        NSLog(@"color as string: %@", [color closestColorName]);
+    }
+    
+    return colors;
 }
 
 - (void)didReceiveMemoryWarning

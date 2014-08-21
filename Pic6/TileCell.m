@@ -103,7 +103,7 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.image setImage:[UIImage imageWithData:imageData]];
-            [self addSubview:self.image];
+            [self insertSubview:self.image aboveSubview:self.loader];
         });
     });
     
@@ -141,8 +141,10 @@
             // play video in frame
             [self.playerContainer.layer addSublayer: self.playerLayer];
             //        [self.loader removeFromSuperview];
-            [self addSubview:self.playerContainer];
-            [self bringSubviewToFront:self.playerContainer];
+//            [self addSubview:self.playerContainer];
+            [self insertSubview:self.playerContainer aboveSubview:self.image];
+            
+//            [self bringSubviewToFront:self.playerContainer];
             
             [self.player setVolume:0.0];
             [self.player asyncPlay];

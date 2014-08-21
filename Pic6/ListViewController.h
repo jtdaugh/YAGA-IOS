@@ -9,10 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "GridViewController.h"
 
-@interface ListViewController : GridViewController <UICollectionViewDataSource, UICollectionViewDelegate>
+@interface ListViewController : GridViewController <UICollectionViewDataSource, UICollectionViewDelegate, CameraReceiver>
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *setup;
 @property (strong, nonatomic) UICollectionView *groups;
 @property (strong, nonatomic) NSNumber *scrolling;
+
+- (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL;
 
 @end
