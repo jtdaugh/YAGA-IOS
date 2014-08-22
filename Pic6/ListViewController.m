@@ -112,7 +112,6 @@
                 
                 GroupInfo *info = [[GroupInfo alloc] init];
                 info.name = dataSnapshot.value[@"name"];
-                info.latestSnapshot = nil;
                 info.groupId = child.name;
                 
                 [currentUser.groupInfo addObject:info];
@@ -130,7 +129,8 @@
                 int i = 0;
                 for(GroupInfo *info in currentUser.groupInfo){
                     if([info.groupId isEqualToString:child.name]){
-                        [info setLatestSnapshot:mediaSnapshot];
+                        [[currentUser gridDataForGroupId:info.groupId] insertObject:mediaSnapshot atIndex:0];
+                        // that indexpath to the fucking top!!!
                         [self.groups reloadData];
 //                        [self.groups reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForItem:i inSection:0] ]];
                     }
@@ -157,13 +157,22 @@
     ListTileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     
     GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:indexPath.row];
+    NSMutableArray *gridData = [currentUser gridDataForGroupId:groupInfo.groupId];
     
-    if(![cell.uid isEqualToString:groupInfo.latestSnapshot.name]){
+    FDataSnapshot *snapshot;
+    
+    if([gridData count] > 0){
+        snapshot = [gridData objectAtIndex:0];
+    } else {
+        snapshot = nil;
+    }
+    
+    if(![cell.uid isEqualToString:snapshot.name]){
         
-        NSLog(@"id? %@", groupInfo.latestSnapshot.name);
-        [cell setUid:groupInfo.latestSnapshot.name];
+        NSLog(@"id? %@", snapshot.name);
+        [cell setUid:snapshot.name];
         [cell.groupTitle setText:groupInfo.name];
-        NSArray *colors = (NSArray *) groupInfo.latestSnapshot.value[@"colors"];
+        NSArray *colors = (NSArray *) snapshot.value[@"colors"];
         
         [cell setColors:colors];
         

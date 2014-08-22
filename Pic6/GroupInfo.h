@@ -11,6 +11,5 @@
 
 @interface GroupInfo : NSObject
 @property (strong, nonatomic) NSString *name;
-@property (strong, nonatomic) FDataSnapshot *latestSnapshot;
 @property (strong, nonatomic) NSString *groupId;
 @end
