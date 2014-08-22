@@ -21,6 +21,7 @@
         groupTitle.translatesAutoresizingMaskIntoConstraints = NO;
         groupTitle.textColor = [UIColor whiteColor];
         groupTitle.textAlignment = NSTextAlignmentCenter;
+        groupTitle.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.3];
 
         [self.titleContainer addSubview:groupTitle];
         self.groupTitle = groupTitle;

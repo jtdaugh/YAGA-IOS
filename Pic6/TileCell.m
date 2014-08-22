@@ -106,7 +106,8 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.image setImage:[UIImage imageWithData:imageData]];
-            [self.container insertSubview:self.image aboveSubview:self.loader];
+            [self.container addSubview:self.image];
+            [self.container bringSubviewToFront:self.image];
         });
     });
     
@@ -145,9 +146,10 @@
             [self.playerContainer.layer addSublayer: self.playerLayer];
             //        [self.loader removeFromSuperview];
 //            [self addSubview:self.playerContainer];
-            [self.container insertSubview:self.playerContainer aboveSubview:self.image];
+            [self.container addSubview:self.playerContainer];
+            [self.container bringSubviewToFront:self.playerContainer];
+//            [self.container insertSubview:self.playerContainer aboveSubview:self.image];
             
-//            [self bringSubviewToFront:self.playerContainer];
             
             [self.player setVolume:0.0];
             [self.player asyncPlay];

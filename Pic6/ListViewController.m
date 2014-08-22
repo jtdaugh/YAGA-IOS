@@ -130,7 +130,7 @@
                 for(GroupInfo *info in currentUser.groupInfo){
                     if([info.groupId isEqualToString:child.name]){
                         [[currentUser gridDataForGroupId:info.groupId] insertObject:mediaSnapshot atIndex:0];
-                        // that indexpath to the fucking top!!!
+                        // bump that indexpath to the fucking top!!!
                         [self.groups reloadData];
 //                        [self.groups reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForItem:i inSection:0] ]];
                     }
