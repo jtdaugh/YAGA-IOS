@@ -26,19 +26,22 @@
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
-    self.title = @" ";
-    
     UIView *plaque = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
     [plaque setBackgroundColor:PRIMARY_COLOR];
+    [self.view addSubview:plaque];
     
-    UILabel *logo = [[UILabel alloc] initWithFrame:CGRectMake(20, 12, TILE_WIDTH - 40, 50)];
+    UILabel *logo = [[UILabel alloc] init];
+    [logo setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
+    logo.translatesAutoresizingMaskIntoConstraints = NO;
     [logo setText:APP_NAME];
     [logo setFont:[UIFont fontWithName:BIG_FONT size:28]];
     [logo setTextColor:[UIColor whiteColor]];
     [logo setTextAlignment:NSTextAlignmentCenter];
     [plaque addSubview:logo];
     
-    UILabel *slogan = [[UILabel alloc] initWithFrame:CGRectMake(25, 48, TILE_WIDTH - 50, 80)];
+    UILabel *slogan = [[UILabel alloc] init];
+    [slogan setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
+    slogan.translatesAutoresizingMaskIntoConstraints = NO;
     [slogan setText:@"Share with those who care"];
     [slogan setFont:[UIFont fontWithName:BIG_FONT size:16]];
     [slogan setTextColor:[UIColor whiteColor]];
@@ -46,21 +49,28 @@
     [slogan setNumberOfLines:0];
     [plaque addSubview:slogan];
     
-    [self.view addSubview:plaque];
+    NSDictionary *views = NSDictionaryOfVariableBindings(logo, slogan);
+    [plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[logo]|" options:0 metrics:nil views:views]];
+    [plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-5-[slogan]-5-|" options:0 metrics:nil views:views]];
+    [plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-20-[logo]-12-[slogan]" options:0 metrics:nil views:views]];
 
     self.container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.view addSubview:self.container];
 
-    UIButton *loginButton = [[UIButton alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT*2, TILE_WIDTH, TILE_HEIGHT)];
+    UIButton *loginButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    loginButton.frame = CGRectMake(0, TILE_HEIGHT*2, TILE_WIDTH, TILE_HEIGHT);
     [loginButton addTarget:self action:@selector(loginPressed) forControlEvents:UIControlEventTouchUpInside];
     [loginButton setTitle:@"Log In" forState:UIControlStateNormal];
+    [loginButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [loginButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:28]];
     [loginButton setBackgroundColor:SECONDARY_COLOR];
     [self.view addSubview:loginButton];
     
-    UIButton *signupButton = [[UIButton alloc] initWithFrame:CGRectMake(TILE_WIDTH, TILE_HEIGHT*2, TILE_WIDTH, TILE_HEIGHT)];
+    UIButton *signupButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    signupButton.frame = CGRectMake(TILE_WIDTH, TILE_HEIGHT*2, TILE_WIDTH, TILE_HEIGHT);
     [signupButton addTarget:self action:@selector(signupPressed) forControlEvents:UIControlEventTouchUpInside];
     [signupButton setTitle:@"Sign Up" forState:UIControlStateNormal];
+    [signupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [signupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:28]];
     [signupButton setBackgroundColor:TERTIARY_COLOR];
     [self.view addSubview:signupButton];
