@@ -11,7 +11,7 @@
 #import "AVCamPreviewView.h"
 @import AVFoundation;
 
-@interface CameraViewController : UIViewController
+@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate>
 @property (strong, nonatomic) GridViewController *currentViewController;
 
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
