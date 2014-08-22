@@ -14,16 +14,19 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        CGFloat width = self.frame.size.width;
-        CGFloat height = 36;
-        CGFloat y = self.frame.size.height - height;
+        UILabel *groupTitle = [[UILabel alloc] init];
+        groupTitle.translatesAutoresizingMaskIntoConstraints = NO;
+        groupTitle.textColor = [UIColor whiteColor];
+        groupTitle.textAlignment = NSTextAlignmentCenter;
+
+        [self addSubview:groupTitle];
+        [self bringSubviewToFront:groupTitle];
+        self.groupTitle = groupTitle;
         
-        self.groupTitle = [[UILabel alloc] initWithFrame:CGRectMake(0, y, width, height)];
-        [self.groupTitle setTextColor:[UIColor whiteColor]];
-        [self addSubview:self.groupTitle];
-        [self bringSubviewToFront:self.groupTitle];
+        NSDictionary *views = NSDictionaryOfVariableBindings(groupTitle);
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[groupTitle]|" options:0 metrics:nil views:views]];
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[groupTitle(36)]|" options:0 metrics:nil views:views]];
         
-        [self.groupTitle setTextAlignment:NSTextAlignmentCenter];
         // Initialization code
     }
     return self;
