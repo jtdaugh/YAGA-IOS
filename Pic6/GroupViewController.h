@@ -12,7 +12,7 @@
 #import "CNetworking.h"
 #import "GridViewController.h"
 
-@interface GroupViewController : GridViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate, CameraReceiver>
+@interface GroupViewController : GridViewController<UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate, CameraReceiver>
 
 @property (strong, nonatomic) NSNumber *setup;
 @property (strong, nonatomic) NSNumber *appeared;

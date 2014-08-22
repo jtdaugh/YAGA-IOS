@@ -8,13 +8,13 @@
 
 #import "GroupViewController.h"
 #import "UIImage+Resize.h"
+#import "UIImage+Colors.h"
 #import "NSString+File.h"
 #import "TileCell.h"
 #import "AVPlayer+AVPlayer_Async.h"
 #import "OverlayViewController.h"
 #import "CliqueViewController.h"
 #import "OnboardingNavigationController.h"
-#import "UIColor+Expanded.h"
 #import <Crashlytics/Crashlytics.h>
 #import <Parse/Parse.h>
 
@@ -371,7 +371,7 @@
     NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
     NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     
-    NSArray *colors = [self getColors:image];
+    NSArray *colors = [image getColors];
     
 //    for(NSString *color in colors){
 //        NSLog(@"color: %@", color);
@@ -404,59 +404,6 @@
     if(err){
         NSLog(@"error: %@", err);
     }
-    
-}
-
-- (NSArray *) getColors: (UIImage *) image {
-    CFDataRef pixelData = CGDataProviderCopyData(CGImageGetDataProvider(image.CGImage));
-    CGFloat width = image.size.width;
-    CGFloat height = image.size.height;
-    const UInt8* data = CFDataGetBytePtr(pixelData);
-    
-    NSLog(@"width: %f, height:%f", width, height);
-    
-    NSMutableArray *colors = [[NSMutableArray alloc] init];
-    for(int i = 0; i < 16; i++){
-        int col = i % 4;
-        int row = i / 4;
-        
-        CGFloat x = col * (width/4) + width/8;
-        CGFloat y = row * (height/4) + height/8;
-        
-        NSLog(@"x: %f, y: %f", x, y);
-        
-        int pixelInfo = (int) ((width * y) + x) * 4;
-        
-        UInt8 blue = data[pixelInfo];         // If you need this info, enable it
-        UInt8 green = data[(pixelInfo + 1)]; // If you need this info, enable it
-        UInt8 red = data[pixelInfo + 2];    // If you need this info, enable it
-        
-        UIColor* color = [UIColor colorWithRed:red/255.0f green:green/255.0f blue:blue/255.0f alpha:255.0f/255.0f]; // The pixel color info
-
-        [colors addObject:[color hexStringValue]];
-        NSLog(@"color as string: %@", [color closestColorName]);
-    }
-    
-    return colors;
-}
-
-- (BOOL)isWallPixel: (UIImage *) image xCor: (int) x yCor:(int) y {
-    
-    CFDataRef pixelData = CGDataProviderCopyData(CGImageGetDataProvider(image.CGImage));
-    const UInt8* data = CFDataGetBytePtr(pixelData);
-    
-    int pixelInfo = ((image.size.width  * y) + x ) * 4; // The image is png
-    
-    //UInt8 red = data[pixelInfo];         // If you need this info, enable it
-    //UInt8 green = data[(pixelInfo + 1)]; // If you need this info, enable it
-    //UInt8 blue = data[pixelInfo + 2];    // If you need this info, enable it
-    UInt8 alpha = data[pixelInfo + 3];     // I need only this info for my maze game
-    CFRelease(pixelData);
-    
-    //UIColor* color = [UIColor colorWithRed:red/255.0f green:green/255.0f blue:blue/255.0f alpha:alpha/255.0f]; // The pixel color info
-    
-    if (alpha) return YES;
-    else return NO;
     
 }
 

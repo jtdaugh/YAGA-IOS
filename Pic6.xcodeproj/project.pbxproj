@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4110BC4619A6BB96001A98AF /* UIImage+Colors.m in Sources */ = {isa = PBXBuildFile; fileRef = 4110BC4519A6BB96001A98AF /* UIImage+Colors.m */; };
 		411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CBE1999CE6A0094C57F /* UIColor+Expanded.m */; };
 		411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC01999D0DA0094C57F /* NSMutableArray+Shuffle.h */; };
 		411A2CC31999D10A0094C57F /* NSMutableArray+Shuffle.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC21999D10A0094C57F /* NSMutableArray+Shuffle.m */; };
@@ -73,6 +74,8 @@
 
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4110BC4519A6BB96001A98AF /* UIImage+Colors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Colors.m"; sourceTree = "<group>"; };
+		4110BC4719A6BBAB001A98AF /* UIImage+Colors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Colors.h"; sourceTree = "<group>"; };
 		411A2CBD1999CE580094C57F /* UIColor+Expanded.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Expanded.h"; sourceTree = "<group>"; };
 		411A2CBE1999CE6A0094C57F /* UIColor+Expanded.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Expanded.m"; sourceTree = "<group>"; };
 		411A2CC01999D0DA0094C57F /* NSMutableArray+Shuffle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Shuffle.h"; sourceTree = "<group>"; };
@@ -287,6 +290,8 @@
 				418954BD19687DD2009C17E2 /* NSString+File.m */,
 				715455CF190E01D600ABE2BE /* UIImage+Resize.h */,
 				715455D0190E01D600ABE2BE /* UIImage+Resize.m */,
+				4110BC4719A6BBAB001A98AF /* UIImage+Colors.h */,
+				4110BC4519A6BB96001A98AF /* UIImage+Colors.m */,
 				7154774A1941119B00133083 /* AVPlayer+AVPlayer_Async.h */,
 				7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */,
 				411A2CBD1999CE580094C57F /* UIColor+Expanded.h */,
@@ -574,6 +579,7 @@
 				418CDE4D199EE5EF00693733 /* GroupInfo.m in Sources */,
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
 				4187C2FF19A460C200A929EA /* ListTileCell.m in Sources */,
+				4110BC4619A6BB96001A98AF /* UIImage+Colors.m in Sources */,
 				411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */,
 				416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */,
 				41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */,
