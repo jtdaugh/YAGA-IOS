@@ -14,13 +14,15 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
+        self.titleContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+        [self addSubview:self.titleContainer];
+        
         UILabel *groupTitle = [[UILabel alloc] init];
         groupTitle.translatesAutoresizingMaskIntoConstraints = NO;
         groupTitle.textColor = [UIColor whiteColor];
         groupTitle.textAlignment = NSTextAlignmentCenter;
 
-        [self addSubview:groupTitle];
-        [self bringSubviewToFront:groupTitle];
+        [self.titleContainer addSubview:groupTitle];
         self.groupTitle = groupTitle;
         
         NSDictionary *views = NSDictionaryOfVariableBindings(groupTitle);

@@ -18,15 +18,18 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
+        self.container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+        [self addSubview:self.container];
+        
         self.boxes = [NSMutableArray array];
         int width = self.frame.size.width / LOADER_WIDTH;
         int height = self.frame.size.height / LOADER_HEIGHT;
         [self.loader removeFromSuperview];
         
-        self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+        self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.container.frame.size.width, self.container.frame.size.height)];
         
         for(int i = 0; i < LOADER_HEIGHT * LOADER_WIDTH; i++){
-            UIView *box = [[UIView alloc] initWithFrame:CGRectMake((i%4) * self.frame.size.width/LOADER_WIDTH, (i/LOADER_HEIGHT) * self.frame.size.height/LOADER_HEIGHT, width, height)];
+            UIView *box = [[UIView alloc] initWithFrame:CGRectMake((i%4) * self.loader.frame.size.width/LOADER_WIDTH, (i/LOADER_HEIGHT) * self.loader.frame.size.height/LOADER_HEIGHT, width, height)];
             [self.boxes addObject:box];
             [self.loader addSubview:box];
         }
@@ -38,12 +41,12 @@
         
         [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
         [self loaderTick:nil];
-        [self addSubview:self.loader];
+        [self.container addSubview:self.loader];
         
         self.image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         [self.image setContentMode:UIViewContentModeScaleAspectFill];
         [self.image setClipsToBounds:YES];
-        [self addSubview:self.image];
+        [self.container addSubview:self.image];
         
     }
     return self;
@@ -103,7 +106,7 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.image setImage:[UIImage imageWithData:imageData]];
-            [self insertSubview:self.image aboveSubview:self.loader];
+            [self.container insertSubview:self.image aboveSubview:self.loader];
         });
     });
     
@@ -142,7 +145,7 @@
             [self.playerContainer.layer addSublayer: self.playerLayer];
             //        [self.loader removeFromSuperview];
 //            [self addSubview:self.playerContainer];
-            [self insertSubview:self.playerContainer aboveSubview:self.image];
+            [self.container insertSubview:self.playerContainer aboveSubview:self.image];
             
 //            [self bringSubviewToFront:self.playerContainer];
             
@@ -178,7 +181,7 @@
         // play video in frame
         [self.playerContainer.layer addSublayer: self.playerLayer];
         //        [self.loader removeFromSuperview];
-        [self addSubview:self.playerContainer];
+        [self.container addSubview:self.playerContainer];
         
         [self.player setVolume:0.0];
         [self.player asyncPlay];

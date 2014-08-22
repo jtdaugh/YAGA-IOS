@@ -16,6 +16,8 @@
 
 @interface TileCell : UICollectionViewCell
 
+@property (strong, nonatomic) UIView *container;
+
 @property (strong, nonatomic) NSNumber *state;
 @property (strong, nonatomic) NSString *uid;
 @property (strong, nonatomic) NSString *username;

@@ -9,5 +9,6 @@
 #import "TileCell.h"
 
 @interface ListTileCell : TileCell
+@property (strong, nonatomic) UIView *titleContainer;
 @property (strong, nonatomic) UILabel *groupTitle;
 @end
