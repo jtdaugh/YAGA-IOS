@@ -142,7 +142,6 @@
     [self.gridTiles addSubview:self.loader];
     [self.loader startAnimating];
     
-    self.gridData = [NSMutableArray array];
 }
 
 - (void) initLoader {
@@ -164,12 +163,14 @@
 //    NSString *hash = [PFUser currentUser][@"phoneHash"];
 //    NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 
-    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupId, STREAM]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+    CNetworking *currentUser = [CNetworking currentUser];
+    
+    [[[[currentUser firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupId, STREAM]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"children count: %lu", snapshot.childrenCount);
-        NSString *lastUid;
         for (FDataSnapshot* child in snapshot.children) {
-            [self.gridData insertObject:child atIndex:0];
-            lastUid = child.name;
+            
+            NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupId];
+            [gridData insertObject:child atIndex:0];
         }
         [self.loader stopAnimating];
         [self.gridTiles reloadData];
@@ -180,14 +181,18 @@
 - (void)listenForChanges {
     
     [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupId, STREAM]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        [self newTile:snapshot];
+//        [self newTile:snapshot];
     }];
 }
 
 - (void) newTile:(FDataSnapshot *)snapshot {
-    if(!([self.gridData count] > 0 && [[(FDataSnapshot *)self.gridData[0] name] isEqualToString:snapshot.name])){
-        [self.gridData insertObject:snapshot atIndex:0];
+    NSLog(@"newtile called?");
+    CNetworking *currentUser = [CNetworking currentUser];
+    NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupId];
+    if(!([gridData count] > 0 && [[(FDataSnapshot *) gridData[0] name] isEqualToString:snapshot.name])){
+        [gridData insertObject:snapshot atIndex:0];
         [self.gridTiles insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+        NSLog(@"wtf conditional!!");
     }
 }
 
@@ -228,7 +233,9 @@
 }
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return [self.gridData count];
+    NSUInteger count = [[[CNetworking currentUser] gridDataForGroupId:self.groupId] count];
+    NSLog(@"count: %lu", count);
+    return count;
 }
 
 -(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -237,7 +244,7 @@
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
-    FDataSnapshot *snapshot = [self.gridData objectAtIndex:indexPath.row];
+    FDataSnapshot *snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupId] objectAtIndex:indexPath.row];
     
     if(![cell.uid isEqualToString:snapshot.name]){
 

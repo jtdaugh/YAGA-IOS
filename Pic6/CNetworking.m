@@ -22,6 +22,15 @@
 - (id)init {
     if (self = [super init]) {
         [self loadUserData];
+        
+        if(!self.messages){
+            self.messages = [[NSMutableDictionary alloc] init];
+        }
+        
+        if(!self.groupInfo){
+            self.groupInfo = [[NSMutableArray alloc] init];
+        }
+        
         self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];
         NSLog(@"just inited firebase");
 //        [self saveUserData:[self humanName] forKey:@"username"];
@@ -66,6 +75,13 @@
     }
     
     return [UIDevice currentDevice].name;
+}
+
+- (NSMutableArray *)gridDataForGroupId:(NSString *)groupId {
+    if(!self.messages[groupId]){
+        self.messages[groupId] = [@[] mutableCopy];
+    }
+    return (NSMutableArray *) self.messages[groupId];
 }
 
 @end

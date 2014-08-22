@@ -30,7 +30,7 @@
 - (void) saveUserData:(NSObject *)value forKey:(NSString *)key;
 - (void) loadUserData;
 - (NSObject *) userDataForKey:(NSString *)key;
-
+- (NSMutableArray *)gridDataForGroupId:(NSString *)groupId;
 - (void)trySomething;
 
 @end
