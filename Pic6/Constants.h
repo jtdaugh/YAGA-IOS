@@ -12,24 +12,16 @@
 #define APP_NAME @"Crew"
 
 #define NUM_TILES 96
-#define TILE_WIDTH 640/4
-#define TILE_HEIGHT 1136/8
+#define TILE_WIDTH ([[UIScreen mainScreen] bounds].size.width)/2
+#define TILE_HEIGHT ([[UIScreen mainScreen] bounds].size.height)/4
 
 #define ENLARGED_MULTIPLIER 1.85
 
 #define ENLARGED_WIDTH TILE_WIDTH*ENLARGED_MULTIPLIER
 #define ENLARGED_HEIGHT TILE_HEIGHT*ENLARGED_MULTIPLIER
 
-#define CAROUSEL_MULTIPLIER ENLARGED_MULTIPLIER //1.75
-
-#define CAROUSEL_WIDTH TILE_WIDTH*CAROUSEL_MULTIPLIER
-#define CAROUSEL_HEIGHT TILE_HEIGHT*CAROUSEL_MULTIPLIER
-
-#define CAROUSEL_MARGIN 5
-#define CAROUSEL_GUTTER (VIEW_WIDTH - ENLARGED_WIDTH - CAROUSEL_MARGIN*2)/2
-
-#define VIEW_HEIGHT [[UIScreen mainScreen] applicationFrame].size.height //568 //self.view.frame.size.height
-#define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width //320 //self.view.frame.size.width
+#define VIEW_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
+#define VIEW_WIDTH ([[UIScreen mainScreen] bounds].size.width)
 
 #define LOADER_WIDTH 4
 #define LOADER_HEIGHT 4
