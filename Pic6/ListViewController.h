@@ -12,6 +12,11 @@
 @interface ListViewController : GridViewController <UICollectionViewDataSource, UICollectionViewDelegate, CameraReceiver>
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *setup;
+
+@property (strong, nonatomic) NSNumber *picking;
+@property (strong, nonatomic) NSString *pickingId;
+@property (strong, nonatomic) NSDictionary *pickingData;
+
 @property (strong, nonatomic) UICollectionView *groups;
 @property (strong, nonatomic) NSNumber *scrolling;
 

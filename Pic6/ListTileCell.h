@@ -11,4 +11,7 @@
 @interface ListTileCell : TileCell
 @property (strong, nonatomic) UIView *titleContainer;
 @property (strong, nonatomic) UILabel *groupTitle;
+
+- (void)showPicker;
+- (void)hidePicker;
 @end

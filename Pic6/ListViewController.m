@@ -65,7 +65,8 @@
 - (void)setupView {
     
     self.setup = [NSNumber numberWithBool:YES];
-
+    self.picking = [NSNumber numberWithBool:NO];
+    
     [self.view setBackgroundColor:PRIMARY_COLOR];
     
     PlaqueView *plaque = [[PlaqueView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
@@ -142,11 +143,40 @@
                     
                     received = [NSNumber numberWithInt:[received intValue] + 1];
                     
+                    [self listenForUpdates:info.groupId];
+                    
                 }];
 
             }];
             
         }
+    }];
+    
+}
+
+- (void) listenForUpdates:(NSString *)groupId {
+    CNetworking *currentUser = [CNetworking currentUser];
+    
+    NSString *mediaPath = [NSString stringWithFormat:@"groups/%@/%@", groupId, STREAM];
+    [[[currentUser.firebase childByAppendingPath:mediaPath] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *mediaSnapshot) {
+        NSInteger index = -1;
+        for(GroupInfo *group in currentUser.groupInfo){
+            if([group.groupId isEqualToString:groupId]){
+                index = [currentUser.groupInfo indexOfObject:group];
+                break;
+            }
+        }
+        
+        if(index != -1){
+            GroupInfo *tempGroup = [currentUser.groupInfo objectAtIndex:index];
+            [currentUser.groupInfo removeObjectAtIndex:index];
+            [currentUser.groupInfo insertObject:tempGroup atIndex:0];
+            [self.groups moveItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0] toIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+            
+            [[currentUser gridDataForGroupId:groupId] insertObject:mediaSnapshot atIndex:0];
+            [self.groups reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForItem:0 inSection:0] ]];
+        }
+
     }];
     
 }
@@ -196,6 +226,13 @@
             [cell showLoader];
             [self triggerRemoteLoad:cell.uid];
         }
+        
+        if([self.picking boolValue]){
+            [cell showPicker];
+        } else {
+            [cell hidePicker];
+        }
+
     }
     
     return cell;
@@ -241,14 +278,19 @@
 - (void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"yoo didSelect");
     CNetworking *currentUser = [CNetworking currentUser];
-    
-    GroupViewController *vc = [[GroupViewController alloc] init];
-    
     GroupInfo *info = (GroupInfo *) currentUser.groupInfo[indexPath.row];
     
-    vc.groupId = info.groupId;
+    if([self.picking boolValue]){
+        [self finishUploadToGroup:info.groupId];
+    } else {
+        GroupViewController *vc = [[GroupViewController alloc] init];
+        
+        vc.groupId = info.groupId;
+        
+        [self.cameraViewController customPresentViewController:vc];
+
+    }
     
-    [self.cameraViewController customPresentViewController:vc];
     
 //    [self presentViewController:vc animated:YES completion:^{
 //        //
@@ -256,6 +298,13 @@
 }
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
+    
+    self.picking = [NSNumber numberWithBool:YES];
+    
+    for(ListTileCell *cell in [self.groups visibleCells]){
+        [cell showPicker];
+    }
+    
     // measure size of data
     NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
     
@@ -276,32 +325,8 @@
     
     NSArray *colors = [image getColors];
     
-    //    for(NSString *color in colors){
-    //        NSLog(@"color: %@", color);
-    //    }
-    
     [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
     }];
-    
-    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
-    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
-    
-    //    for(NSString *hash in clique){
-    //        NSLog(@"hash: %@", hash);
-    //        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    //        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
-    //        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
-    //    }
-    
-    PFUser *pfUser = [PFUser currentUser];
-    CNetworking *currentUser = [CNetworking currentUser];
-    
-    NSString *groupId = [(GroupInfo *)currentUser.groupInfo[0] groupId];
-    
-    NSLog(@"group id: %@", groupId);
-    NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", groupId, STREAM, dataPath];
-    //    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
-    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":pfUser.username, @"colors":colors}];
     
     NSFileManager * fm = [[NSFileManager alloc] init];
     NSError *err = nil;
@@ -312,6 +337,27 @@
         NSLog(@"error: %@", err);
     }
     
+    PFUser *pfUser = [PFUser currentUser];
+
+    self.pickingId = dataPath;
+    self.pickingData = @{@"type": type, @"user":pfUser.username, @"colors":colors};
+
+}
+
+- (void)finishUploadToGroup:(NSString *)groupId {
+    CNetworking *currentUser = [CNetworking currentUser];
+    
+//    NSString *groupId = [(GroupInfo *)currentUser.groupInfo[0] groupId];
+    NSString *dataPath = self.pickingId;
+    NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", groupId, STREAM, dataPath];
+    //    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
+    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:self.pickingData];
+    
+    self.picking = [NSNumber numberWithBool:NO];
+    
+    for(ListTileCell *cell in [self.groups visibleCells]){
+        [cell hidePicker];
+    }
 }
 
 - (void)didReceiveMemoryWarning

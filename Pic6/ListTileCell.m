@@ -20,6 +20,7 @@
         UILabel *groupTitle = [[UILabel alloc] init];
         groupTitle.translatesAutoresizingMaskIntoConstraints = NO;
         groupTitle.textColor = [UIColor whiteColor];
+        groupTitle.font = [UIFont fontWithName:BIG_FONT size:16];
         groupTitle.textAlignment = NSTextAlignmentCenter;
         groupTitle.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.3];
 
@@ -28,11 +29,23 @@
         
         NSDictionary *views = NSDictionaryOfVariableBindings(groupTitle);
         [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[groupTitle]|" options:0 metrics:nil views:views]];
-        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[groupTitle(36)]|" options:0 metrics:nil views:views]];
-        
-        // Initialization code
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[groupTitle]|" options:0 metrics:nil views:views]];
+
     }
     return self;
+}
+
+- (void)showPicker {
+    [UIView animateWithDuration:0.5 animations:^{
+        //
+        [self.groupTitle setBackgroundColor:[UIColor colorWithWhite:0.0 alpha:0.8]];
+    }];
+}
+
+- (void)hidePicker {
+    [UIView animateWithDuration:0.5 animations:^{
+        [self.groupTitle setBackgroundColor:[UIColor colorWithWhite:0.0 alpha:0.3]];
+    }];
 }
 
 /*

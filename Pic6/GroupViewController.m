@@ -461,7 +461,7 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    NSLog(@"memory warning?");
+    NSLog(@"memory warning in group controller?");
     // Dispose of any resources that can be recreated.
 }
 
