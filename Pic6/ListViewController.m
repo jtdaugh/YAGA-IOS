@@ -98,45 +98,54 @@
     
     NSLog(@"path: %@", path);
     
-    NSLog(@"setting up firebase");
-    
+    // fetching all of a users groups
     [[currentUser.firebase childByAppendingPath:path] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
 
+        __block NSNumber *received = [NSNumber numberWithInt:0];
         currentUser.groupInfo = [[NSMutableArray alloc] init];
+        
+        // iterate through returned groups
         for(FDataSnapshot *child in snapshot.children){
             
             NSLog(@"group id: %@", child.name);
             
+            // fetch group meta data
             NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
             [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
-                
+            
+                // saving group data
                 GroupInfo *info = [[GroupInfo alloc] init];
                 info.name = dataSnapshot.value[@"name"];
                 info.groupId = child.name;
                 
-                [currentUser.groupInfo addObject:info];
-                
-                if([currentUser.groupInfo count] == snapshot.childrenCount){
-                    // reload list view.
-                    // done!
-                    NSLog(@"done loading group metadata");
-                    [self.groups reloadData];
-                }
+                [currentUser.groupInfo insertObject:info atIndex:0];
+
+                NSLog(@"fetching something!");
+                // fetch most recent post from each group
+                NSString *mediaPath = [NSString stringWithFormat:@"groups/%@/%@", child.name, STREAM];
+                [[[currentUser.firebase childByAppendingPath:mediaPath] queryLimitedToNumberOfChildren:1] observeSingleEventOfType:FEventTypeChildAdded withBlock:^(FDataSnapshot *mediaSnapshot) {
+                    
+                    [[currentUser gridDataForGroupId:info.groupId] insertObject:mediaSnapshot atIndex:0];
+                    
+                    // add group to object
+                    
+//                    [self.groups reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForItem:0 inSection:0] ]];
+                    
+                    if([received intValue] == (snapshot.childrenCount - 1)){
+                        // reload list view.
+                        // done!
+                        NSLog(@"done loading group metadata");
+                        [self.groups reloadData];
+                    } else {
+                        NSLog(@"never reached count! %i", [received intValue]);
+                    }
+                    
+                    received = [NSNumber numberWithInt:[received intValue] + 1];
+                    
+                }];
+
             }];
             
-            NSString *mediaPath = [NSString stringWithFormat:@"groups/%@/%@", child.name, STREAM];
-            [[[currentUser.firebase childByAppendingPath:mediaPath] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *mediaSnapshot) {
-                int i = 0;
-                for(GroupInfo *info in currentUser.groupInfo){
-                    if([info.groupId isEqualToString:child.name]){
-                        [[currentUser gridDataForGroupId:info.groupId] insertObject:mediaSnapshot atIndex:0];
-                        // bump that indexpath to the fucking top!!!
-                        [self.groups reloadData];
-//                        [self.groups reloadItemsAtIndexPaths:@[ [NSIndexPath indexPathForItem:i inSection:0] ]];
-                    }
-                    i++;
-                }
-            }];
         }
     }];
     

@@ -181,7 +181,7 @@
 - (void)listenForChanges {
     
     [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupId, STREAM]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-//        [self newTile:snapshot];
+        [self newTile:snapshot];
     }];
 }
 
