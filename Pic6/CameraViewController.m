@@ -24,9 +24,13 @@
     [self setup];
     [self setupGroups];
     
+    [self.view setBackgroundColor:SECONDARY_COLOR];
+    
     self.fakeIDs = [[NSMutableArray alloc] initWithArray:@[@"-JU_atBiYRKrafH3Qaa", @"-JU_3hzCGZbVw7MKRHxO"]];
     
-    self.pageViewController = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:nil];
+    NSDictionary* options = @{ UIPageViewControllerOptionInterPageSpacingKey : [NSNumber numberWithFloat:16.0f] };
+    
+    self.pageViewController = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:options];
     
     self.pageViewController.delegate = self;
     self.pageViewController.dataSource = self;
@@ -56,7 +60,6 @@
     if(error){
         NSLog(@"error: %@", error);
     }
-    [self.view setBackgroundColor:[UIColor greenColor]];
     
     [self initPlaque];
     [self initCameraView];
@@ -163,6 +166,19 @@
     groupViewController.cameraViewController = self;
     groupViewController.groupId = [self.fakeIDs objectAtIndex:currentIndex + 1];
     return groupViewController;
+}
+
+- (void)pageViewController:(UIPageViewController *)pageViewController willTransitionToViewControllers:(NSArray *)pendingViewControllers {
+    for(GroupViewController *groupViewController in pendingViewControllers){
+        groupViewController.scrolling = [NSNumber numberWithBool:YES];
+    }
+}
+
+- (void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray *)previousViewControllers transitionCompleted:(BOOL)completed {
+    for(GroupViewController *groupViewController in pageViewController.viewControllers){
+        groupViewController.scrolling = [NSNumber numberWithBool:NO];
+        [groupViewController scrollingEnded];
+    }
 }
 
 - (void)afterCameraInit {
@@ -640,7 +656,7 @@
         
         NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
         
-        GroupViewController *groupViewController = (GroupViewController *)[self.pageViewController.viewControllers objectAtIndex:self.vcIndex];
+        GroupViewController *groupViewController = (GroupViewController *)[self.pageViewController.viewControllers objectAtIndex:0];
         
         [groupViewController uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
     } else {

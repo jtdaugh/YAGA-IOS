@@ -39,7 +39,6 @@
 - (void)viewDidAppear:(BOOL)animated {
     
     if([PFUser currentUser]){
-        NSLog(@"current user is set in View Did Appear!");
         if(![self.appeared boolValue]){
             self.appeared = [NSNumber numberWithBool:YES];
             if(![self.setup boolValue]){
