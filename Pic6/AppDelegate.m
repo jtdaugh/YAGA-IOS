@@ -9,7 +9,6 @@
 #import "AppDelegate.h"
 #import <AVFoundation/AVFoundation.h>
 #import "GroupViewController.h"
-#import "ListViewController.h"
 #import "CameraViewController.h"
 #import "OnboardingNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
@@ -46,7 +45,6 @@
         self.window.rootViewController = vc;
     } else {
         CameraViewController *vc = [[CameraViewController alloc] init];
-//        ListViewController *vc = [[ListViewController alloc] init];
         self.window.rootViewController = vc;
     }
   

@@ -19,7 +19,6 @@
 		416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 416D52C5197E107100769721 /* AVCamPreviewView.m */; };
 		4187C2FF19A460C200A929EA /* ListTileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4187C2FE19A460C200A929EA /* ListTileCell.m */; };
 		418954BE19687DD2009C17E2 /* NSString+File.m in Sources */ = {isa = PBXBuildFile; fileRef = 418954BD19687DD2009C17E2 /* NSString+File.m */; };
-		418CDE3F199D5CE200693733 /* ListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 418CDE3E199D5CE200693733 /* ListViewController.m */; };
 		418CDE44199D6F8F00693733 /* PlaqueView.m in Sources */ = {isa = PBXBuildFile; fileRef = 418CDE43199D6F8F00693733 /* PlaqueView.m */; };
 		418CDE47199D86C600693733 /* CreateGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 418CDE46199D86C600693733 /* CreateGroupViewController.m */; };
 		418CDE4A199D8B9C00693733 /* CliqueTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 418CDE49199D8B9C00693733 /* CliqueTextField.m */; };
@@ -36,7 +35,6 @@
 		41EC820A1977218A002AE4BF /* 3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82051977218A002AE4BF /* 3.mp4 */; };
 		41EC820B1977218A002AE4BF /* 4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82061977218A002AE4BF /* 4.mp4 */; };
 		41F1F01F19A2A24B00A35825 /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41F1F01E19A2A24B00A35825 /* CameraViewController.m */; };
-		41F1F02219A2B57D00A35825 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41F1F02119A2B57D00A35825 /* GridViewController.m */; };
 		71106D88192444A30083C64A /* PData.m in Sources */ = {isa = PBXBuildFile; fileRef = 71106D87192444A30083C64A /* PData.m */; };
 		715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 715455D0190E01D600ABE2BE /* UIImage+Resize.m */; };
 		7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */ = {isa = PBXBuildFile; fileRef = 7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */; };
@@ -94,8 +92,6 @@
 		4187C2FE19A460C200A929EA /* ListTileCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListTileCell.m; sourceTree = "<group>"; };
 		418954BC19687DD2009C17E2 /* NSString+File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+File.h"; sourceTree = "<group>"; };
 		418954BD19687DD2009C17E2 /* NSString+File.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+File.m"; sourceTree = "<group>"; };
-		418CDE3D199D5CE200693733 /* ListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListViewController.h; sourceTree = "<group>"; };
-		418CDE3E199D5CE200693733 /* ListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListViewController.m; sourceTree = "<group>"; };
 		418CDE42199D6F8F00693733 /* PlaqueView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaqueView.h; sourceTree = "<group>"; };
 		418CDE43199D6F8F00693733 /* PlaqueView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaqueView.m; sourceTree = "<group>"; };
 		418CDE45199D86C600693733 /* CreateGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateGroupViewController.h; sourceTree = "<group>"; };
@@ -123,8 +119,6 @@
 		41EC82061977218A002AE4BF /* 4.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 4.mp4; sourceTree = "<group>"; };
 		41F1F01D19A2A24B00A35825 /* CameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraViewController.h; sourceTree = "<group>"; };
 		41F1F01E19A2A24B00A35825 /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
-		41F1F02019A2B57D00A35825 /* GridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridViewController.h; sourceTree = "<group>"; };
-		41F1F02119A2B57D00A35825 /* GridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridViewController.m; sourceTree = "<group>"; };
 		71106D86192444A30083C64A /* PData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PData.h; sourceTree = "<group>"; };
 		71106D87192444A30083C64A /* PData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PData.m; sourceTree = "<group>"; };
 		71404FA819121A78002F4B92 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -207,10 +201,6 @@
 			children = (
 				41F1F01D19A2A24B00A35825 /* CameraViewController.h */,
 				41F1F01E19A2A24B00A35825 /* CameraViewController.m */,
-				41F1F02019A2B57D00A35825 /* GridViewController.h */,
-				41F1F02119A2B57D00A35825 /* GridViewController.m */,
-				418CDE3D199D5CE200693733 /* ListViewController.h */,
-				418CDE3E199D5CE200693733 /* ListViewController.m */,
 				71D0F5A0190D99A700C7DEE0 /* GroupViewController.h */,
 				71D0F5A1190D99A700C7DEE0 /* GroupViewController.m */,
 				415AEFE2196638D600F6A8B1 /* OverlayViewController.h */,
@@ -560,7 +550,6 @@
 				418CDE4A199D8B9C00693733 /* CliqueTextField.m in Sources */,
 				7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */,
 				411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */,
-				418CDE3F199D5CE200693733 /* ListViewController.m in Sources */,
 				41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */,
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
 				41DCA6B61975D7550055910F /* SplashViewController.m in Sources */,
@@ -583,7 +572,6 @@
 				411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */,
 				416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */,
 				41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */,
-				41F1F02219A2B57D00A35825 /* GridViewController.m in Sources */,
 				41F1F01F19A2A24B00A35825 /* CameraViewController.m in Sources */,
 				418CDE47199D86C600693733 /* CreateGroupViewController.m in Sources */,
 				41A308A619819D1000D30349 /* CNetworking.m in Sources */,

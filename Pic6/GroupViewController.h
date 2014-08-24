@@ -10,9 +10,11 @@
 #import <Firebase/Firebase.h>
 #import "TileCell.h"
 #import "CNetworking.h"
-#import "GridViewController.h"
+#import "CameraViewController.h"
 
-@interface GroupViewController : GridViewController<UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate, CameraReceiver>
+@interface GroupViewController : UIViewController <UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate>
+
+@property (strong, nonatomic) CameraViewController *cameraViewController;
 
 @property (strong, nonatomic) NSNumber *setup;
 @property (strong, nonatomic) NSNumber *appeared;
@@ -29,12 +31,13 @@
 
 @property (strong, nonatomic) UIView *overlay;
 
-//@property (strong, nonatomic) Tile *enlargedTile;
-
 @property (strong, nonatomic) Firebase *firebase;
 
 @property (strong, nonatomic) TileCell *loaderTile;
 
 - (void)collapse:(TileCell *)tile speed:(CGFloat)speed;
+
+- (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL;
+
 
 @end

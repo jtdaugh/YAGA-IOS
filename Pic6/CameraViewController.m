@@ -7,38 +7,46 @@
 //
 
 #import "CameraViewController.h"
-#import "ListViewController.h"
 #import "GroupViewController.h"
 #import "CreateGroupViewController.h"
-#import "GridViewController.h"
+#import <Parse/Parse.h>
 
-@interface CameraViewController ()
+
+@interface CameraViewController () <UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate>
 
 @end
 
 @implementation CameraViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     [self setup];
+    [self setupGroups];
     
-    GridViewController *vc = [[ListViewController alloc] init];
+    self.fakeIDs = [[NSMutableArray alloc] initWithArray:@[@"-JU_atBiYRKrafH3Qaa", @"-JU_3hzCGZbVw7MKRHxO"]];
     
-//    [self displayContentController:vc];
-    [self displayContentController:vc];
-    self.currentViewController = vc;
+    self.pageViewController = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:nil];
     
-    // Do any additional setup after loading the view.
+    self.pageViewController.delegate = self;
+    self.pageViewController.dataSource = self;
+    self.pageViewController.view.frame = [self frameForContentController];
+    
+    GroupViewController *groupViewController = [[GroupViewController alloc] init];
+    groupViewController.cameraViewController = self;
+    //GroupInfo *info = (GroupInfo *)[[CNetworking currentUser] groupInfo][0];
+    groupViewController.groupId = [self.fakeIDs objectAtIndex:0];
+    NSArray *viewControllers = [NSArray arrayWithObject:groupViewController];
+    
+    [self.pageViewController setViewControllers:viewControllers
+                                      direction:UIPageViewControllerNavigationDirectionForward
+                                       animated:NO
+                                     completion:nil];
+    
+    [self addChildViewController:self.pageViewController];
+    [self.view addSubview:self.pageViewController.view];
+    
+    [self.pageViewController didMoveToParentViewController:self];
 }
 
 - (void)setup {
@@ -83,6 +91,78 @@
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
 
+}
+
+- (void)setupGroups {
+    CNetworking *currentUser = [CNetworking currentUser];
+    PFUser *pfUser = [PFUser currentUser];
+    
+    NSString *path = [NSString stringWithFormat:@"users/%@/groups", pfUser[@"phoneHash"]];
+    
+    NSLog(@"path: %@", path);
+    
+    // fetching all of a users groups
+    [[currentUser.firebase childByAppendingPath:path] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        
+        currentUser.groupInfo = [[NSMutableArray alloc] init];
+        
+        // iterate through returned groups
+        for(FDataSnapshot *child in snapshot.children){
+            
+            NSLog(@"group id: %@", child.name);
+            
+            // fetch group meta data
+            NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
+            [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
+                
+                // saving group data
+                GroupInfo *info = [[GroupInfo alloc] init];
+                info.name = dataSnapshot.value[@"name"];
+                info.groupId = child.name;
+                
+                [currentUser.groupInfo insertObject:info atIndex:0];
+            }];
+        }
+    }];
+}
+
+#pragma mark -
+#pragma mark - UIPageViewControllerDelegate Method
+
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController
+{
+    GroupViewController *contentVc = (GroupViewController *)viewController;
+    
+    NSUInteger currentIndex = [self.fakeIDs indexOfObject:contentVc.groupId];
+    self.vcIndex = currentIndex;
+    
+    if (currentIndex == 0)
+    {
+        return nil;
+    }
+    
+    GroupViewController *groupViewController = [[GroupViewController alloc] init];
+    groupViewController.cameraViewController = self;
+    groupViewController.groupId = [self.fakeIDs objectAtIndex:currentIndex - 1];
+    return groupViewController;
+}
+
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController
+{
+    GroupViewController *contentVc = (GroupViewController *)viewController;
+    
+    NSUInteger currentIndex = [self.fakeIDs indexOfObject:contentVc.groupId];
+    self.vcIndex = currentIndex;
+    
+    if (currentIndex == [self.fakeIDs count] - 1)
+    {
+        return nil;
+    }
+    
+    GroupViewController *groupViewController = [[GroupViewController alloc] init];
+    groupViewController.cameraViewController = self;
+    groupViewController.groupId = [self.fakeIDs objectAtIndex:currentIndex + 1];
+    return groupViewController;
 }
 
 - (void)afterCameraInit {
@@ -135,41 +215,14 @@
     [self.cameraAccessories addObject:self.flashButton];
     [self.plaque addSubview:self.flashButton];
     
-    UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0,0,TILE_WIDTH/2, TILE_HEIGHT/2)];
-    [backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
-    [backButton setImage:[UIImage imageNamed:@"Back"] forState:UIControlStateNormal];
-    [backButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [self.plaque addSubview:backButton];
-    
     [self.view addSubview:self.plaque];
 }
 
-- (void)backPressed {
-    [self customDismissViewController];
-}
-
-- (void) displayContentController: (GridViewController*) content;
-{
-    [self addChildViewController:content];                 // 1
-    content.view.frame = [self frameForContentController]; // 2
-    [self.view addSubview:content.view];
-    [content didMoveToParentViewController:self];          // 3
-    
-    content.previousViewController = self.currentViewController;
-    
-    content.cameraViewController = self;
-    
-    self.currentViewController = content;
-    
-}
-
-- (void) hideContentController: (UIViewController*) content
+- (void)hideContentController:(UIViewController *)content
 {
     [content willMoveToParentViewController:nil];  // 1
     [content.view removeFromSuperview];            // 2
     [content removeFromParentViewController];      // 3
-
-    self.currentViewController = nil;
 }
 
 - (void)createGroup {
@@ -193,42 +246,6 @@
 
 - (CGRect) frameForContentController {
     return CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, VIEW_HEIGHT - TILE_HEIGHT);
-}
-
-- (void)customPresentViewController:(GridViewController *)viewControllerToPresent {
-//    [self cycleFromViewController:self.currentViewController toViewController:viewControllerToPresent];
-    // [self hideContentController:self.currentViewController];
-    // [self displayContentController:viewControllerToPresent];
-    [self cycleFromViewController:self.currentViewController toViewController:viewControllerToPresent];
-    viewControllerToPresent.previousViewController = self.currentViewController;
-    self.currentViewController = viewControllerToPresent;
-}
-
-- (void)customDismissViewController {
-    [self cycleFromViewController:self.currentViewController toViewController:self.currentViewController.previousViewController];
-    self.currentViewController = self.currentViewController.previousViewController;
-}
-
-- (void) cycleFromViewController: (UIViewController*) oldC
-                toViewController: (UIViewController*) newC
-{
-    [oldC willMoveToParentViewController:nil];                        // 1
-    [self addChildViewController:newC];
-    
-    newC.view.frame = [self newViewStartFrame];                       // 2
-    CGRect endFrame = [self oldViewEndFrame];
-    
-    [self transitionFromViewController: oldC toViewController: newC   // 3
-                              duration: 0.25 options:0
-                            animations:^{
-                                newC.view.frame = oldC.view.frame;                       // 4
-                                oldC.view.frame = endFrame;
-                            }
-                            completion:^(BOOL finished) {
-                                [oldC removeFromParentViewController];                   // 5
-                                [newC didMoveToParentViewController:self];
-
-                            }];
 }
 
 - (void) switchCamera:(id)sender { //switch cameras front and rear cameras
@@ -431,9 +448,7 @@
     //    NSLog(@"tapped");
 }
 - (void)checkDeviceAuthorizationStatus
-{
-    NSString *mediaType = AVMediaTypeAudio;
-    
+{    
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
         if (granted)
         {
@@ -624,7 +639,10 @@
         //----- RECORDED SUCESSFULLY -----
         
         NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
-        [self.currentViewController uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
+        
+        GroupViewController *groupViewController = (GroupViewController *)[self.pageViewController.viewControllers objectAtIndex:self.vcIndex];
+        
+        [groupViewController uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
     } else {
         NSLog(@"wtf is going on");
     }
@@ -673,17 +691,5 @@
     
     return captureDevice;
 }
-
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

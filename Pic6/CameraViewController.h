@@ -7,12 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-@class GridViewController;
 #import "AVCamPreviewView.h"
 @import AVFoundation;
 
 @interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate>
-@property (strong, nonatomic) GridViewController *currentViewController;
+
+@property (nonatomic, strong) UIPageViewController *pageViewController;
+@property (nonatomic, strong) NSMutableArray *fakeIDs;
+@property (nonatomic) NSInteger vcIndex;
 
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
 @property (strong, nonatomic) UIButton *cameraButton;
@@ -37,7 +39,5 @@
 @property (strong, nonatomic) UIView *plaque;
 @property (strong, nonatomic) UIButton *switchButton;
 @property (strong, nonatomic) UIButton *flashButton;
-
-- (void)customPresentViewController:(UIViewController *)viewControllerToPresent;
 
 @end
