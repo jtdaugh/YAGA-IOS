@@ -13,7 +13,6 @@
 @interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate>
 
 @property (nonatomic, strong) UIPageViewController *pageViewController;
-@property (nonatomic, strong) NSMutableArray *fakeIDs;
 @property (nonatomic) NSInteger vcIndex;
 
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
