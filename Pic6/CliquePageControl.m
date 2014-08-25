@@ -28,7 +28,7 @@
         
         NSDictionary *views = NSDictionaryOfVariableBindings(pageControl);
         [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[pageControl]|" options:0 metrics:nil views:views]];
-        []
+        
     }
     return self;
 }

@@ -137,10 +137,10 @@
 
     CNetworking *currentUser = [CNetworking currentUser];
     
-    [[[[currentUser firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupId, STREAM]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+    [[[[currentUser firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         for (FDataSnapshot* child in snapshot.children) {
             
-            NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupId];
+            NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupInfo.groupId];
             [gridData insertObject:child atIndex:0];
         }
         [self.loader stopAnimating];
@@ -151,14 +151,14 @@
 
 - (void)listenForChanges {
     
-    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupId, STREAM]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+    [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [self newTile:snapshot];
     }];
 }
 
 - (void) newTile:(FDataSnapshot *)snapshot {
     CNetworking *currentUser = [CNetworking currentUser];
-    NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupId];
+    NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupInfo.groupId];
     if(!([gridData count] > 0 && [[(FDataSnapshot *) gridData[0] name] isEqualToString:snapshot.name])){
         [gridData insertObject:snapshot atIndex:0];
         [self.gridTiles insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
@@ -202,7 +202,7 @@
 }
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    NSUInteger count = [[[CNetworking currentUser] gridDataForGroupId:self.groupId] count];
+    NSUInteger count = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] count];
     return count;
 }
 
@@ -212,7 +212,7 @@
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
-    FDataSnapshot *snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupId] objectAtIndex:indexPath.row];
+    FDataSnapshot *snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
     
     if(![cell.uid isEqualToString:snapshot.name]){
 
@@ -258,14 +258,19 @@
 
 - (void)scrollingEnded {
     if(![self.scrolling boolValue]){
+        NSLog(@"visible cells count: %lu", [[self.gridTiles visibleCells] count]);
+        
         for(TileCell *cell in [self.gridTiles visibleCells]){
+            
             if([cell.state isEqualToNumber:[NSNumber numberWithInt: LOADED]]){
                 [cell play];
-            } else {
-                
             }
         }
     }
+}
+
+- (void)pagingEnded {
+//    [self.gridTiles reloadData];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -366,8 +371,8 @@
 //    }
     
     PFUser *pfUser = [PFUser currentUser];
-    NSLog(@"group id: %@", self.groupId);
-    NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", self.groupId, STREAM, dataPath];
+    NSLog(@"group id: %@", self.groupInfo.groupId);
+    NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, dataPath];
 //    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
     [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":pfUser.username, @"colors":colors}];
     
@@ -378,6 +383,17 @@
 
     if(err){
         NSLog(@"error: %@", err);
+    }
+    
+}
+
+- (void)conserveTiles {
+    for(TileCell *tile in [self.gridTiles visibleCells]){
+        if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]]){
+            tile.state = [NSNumber numberWithInt:LOADED];
+            tile.player = nil;
+            [tile.player removeObservers];
+        }
     }
     
 }
@@ -396,13 +412,7 @@
 - (void)didEnterBackground {
 //    NSLog(@"did enter background");
 //    [self.view setAlpha:0.0];
-    for(TileCell *tile in [self.gridTiles visibleCells]){
-        if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]]){
-            tile.state = [NSNumber numberWithInt:LOADED];
-            tile.player = nil;
-            [tile.player removeObservers];
-        }
-    }
+    [self conserveTiles];
 }
 
 - (void)willEnterForeground {
@@ -429,7 +439,7 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    NSLog(@"memory warning in group controller?");
+    NSLog(@"memory warning in group controller? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
     // Dispose of any resources that can be recreated.
 }
 

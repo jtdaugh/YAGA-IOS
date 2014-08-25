@@ -128,7 +128,7 @@
     GroupViewController *groupViewController = [[GroupViewController alloc] init];
     groupViewController.cameraViewController = self;
     //GroupInfo *info = (GroupInfo *)[[CNetworking currentUser] groupInfo][0];
-    groupViewController.groupId = [(GroupInfo *) [currentUser.groupInfo objectAtIndex:0] groupId];
+    groupViewController.groupInfo = (GroupInfo *) [currentUser.groupInfo objectAtIndex:0];
     self.vcIndex = 0;
     NSArray *viewControllers = [NSArray arrayWithObject:groupViewController];
     
@@ -140,13 +140,14 @@
     [self addChildViewController:self.pageViewController];
     [self.view addSubview:self.pageViewController.view];
     [self.pageViewController didMoveToParentViewController:self];
+    
 }
 
 #pragma mark -
 #pragma mark - UIPageViewControllerDelegate Method
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController
-{
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController {
+    
     CNetworking *currentUser = [CNetworking currentUser];
     
     if (self.vcIndex == 0)
@@ -158,12 +159,12 @@
     groupViewController.cameraViewController = self;
     
     GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:self.vcIndex - 1];
-    groupViewController.groupId = groupInfo.groupId;
+    groupViewController.groupInfo = groupInfo;
     return groupViewController;
 }
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController
-{
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController {
+    
     CNetworking *currentUser = [CNetworking currentUser];
     
     if (self.vcIndex == ([currentUser.groupInfo count] - 1))
@@ -175,7 +176,7 @@
     groupViewController.cameraViewController = self;
     
     GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:self.vcIndex + 1];
-    groupViewController.groupId = groupInfo.groupId;
+    groupViewController.groupInfo = groupInfo;
     return groupViewController;
 }
 
@@ -187,15 +188,22 @@
 
 - (void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray *)previousViewControllers transitionCompleted:(BOOL)completed {
     GroupViewController *groupViewController = [pageViewController.viewControllers objectAtIndex:0];
-    
+
     groupViewController.scrolling = [NSNumber numberWithBool:NO];
     [groupViewController scrollingEnded];
-        
+
     if(completed){
         CNetworking *currentUser = [CNetworking currentUser];
-        self.vcIndex = [currentUser groupIndexForGroupId:groupViewController.groupId];
+        self.vcIndex = [currentUser.groupInfo indexOfObject:groupViewController.groupInfo];
     }
+    
+    NSLog(@"previous view controllers count: %lu", [previousViewControllers count]);
+    NSLog(@"view controllers count: %lu", [pageViewController.viewControllers count]);
 }
+
+
+#pragma mark -
+#pragma mark - Camera Shit
 
 - (void)afterCameraInit {
     //    if(![[CNetworking currentUser] firebase]){
@@ -233,7 +241,7 @@
     [self.plaque addSubview:self.switchButton];
     
     UIButton *cliqueButton = [[UIButton alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT/2, TILE_WIDTH/2, TILE_HEIGHT/2)];
-    [cliqueButton addTarget:self action:@selector(manageClique:) forControlEvents:UIControlEventTouchUpInside];
+    [cliqueButton addTarget:self action:@selector(manageClique) forControlEvents:UIControlEventTouchUpInside];
     //    [cliqueButton setTitle:@"👥" forState:UIControlStateNormal]; //🔃
     //    [cliqueButton.titleLabel setFont:[UIFont systemFontOfSize:48]];
     [cliqueButton setImage:[UIImage imageNamed:@"Clique"] forState:UIControlStateNormal];
@@ -266,6 +274,10 @@
     [self presentViewController:vc animated:YES completion:^{
         //
     }];
+}
+
+- (void)manageClique {
+    NSLog(@"yoo");
 }
 
 - (CGRect) newViewStartFrame {

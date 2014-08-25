@@ -20,7 +20,7 @@
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *onboarding;
 
-@property (strong, nonatomic) NSString *groupId;
+@property (strong, nonatomic) GroupInfo *groupInfo;
 
 @property (strong, nonatomic) UIView *gridView;
 @property (strong, nonatomic) UICollectionView *gridTiles;
@@ -41,6 +41,9 @@
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL;
 
+- (void)pagingEnded;
 - (void)scrollingEnded;
+
+- (void)conserveTiles;
 
 @end
