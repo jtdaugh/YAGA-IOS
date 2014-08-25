@@ -29,6 +29,8 @@
 @property (strong, nonatomic) UIRefreshControl *pull;
 @property (strong, nonatomic) UIActivityIndicatorView *loader;
 
+@property (strong, nonatomic) UIView *banner;
+
 @property (strong, nonatomic) UIView *overlay;
 
 @property (strong, nonatomic) Firebase *firebase;

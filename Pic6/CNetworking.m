@@ -37,7 +37,6 @@
     }
     
     return self;
-
 }
 
 - (void)trySomething {
@@ -82,6 +81,17 @@
         self.messages[groupId] = [@[] mutableCopy];
     }
     return (NSMutableArray *) self.messages[groupId];
+}
+
+- (NSUInteger) groupIndexForGroupId:(NSString *)groupId {
+    NSUInteger index = 0;
+    for(GroupInfo *groupInfo in self.groupInfo){
+        if([groupInfo.groupId isEqualToString: groupId]){
+            return index;
+        }
+        index++;
+    }
+    return -1;
 }
 
 @end

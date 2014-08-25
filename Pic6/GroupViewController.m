@@ -33,7 +33,6 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -52,24 +51,9 @@
             //
         }];
     }
+}
 
-////    [currentUser saveUserData:[NSNumber numberWithBool:NO] forKey:@"onboarded"];
-//    CNetworking *currentUser = [CNetworking currentUser];
-//
-//    if([(NSNumber *)[currentUser userDataForKey:@"onboarded"] boolValue]){
-//        if(![self.appeared boolValue]){
-//            self.appeared = [NSNumber numberWithBool:YES];
-//            if(![self.setup boolValue]){
-//                [self setupView];
-//            }
-//        }
-//    } else {
-//        OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
-//        [self presentViewController:vc animated:NO completion:^{
-//            //
-//        }];
-//    }
-
+- (void)viewWillDisappear:(BOOL)animated {
 }
 
 - (void)viewDidLoad
@@ -77,21 +61,11 @@
     [super viewDidLoad];
     
     if([PFUser currentUser]){
-        NSLog(@"group id: %@", self.groupId);
-        NSLog(@"current user is set!");
         [self setupView];
     }
-//    [currentUser saveUserData:[NSNumber numberWithBool:NO] forKey:@"onboarded"];
-//    
-//    if([(NSNumber *)[currentUser userDataForKey:@"onboarded"] boolValue]){
-//        [currentUser saveUserData:[NSNumber numberWithBool:YES] forKey:@"onboarded"];
-//        [self setupView];
-//    }
 }
 
 - (void)setupView {
-    
-    NSLog(@"setting up muthafuckas");
     
     self.setup = [NSNumber numberWithBool:YES];
         
@@ -144,7 +118,6 @@
 }
 
 - (void) initLoader {
-    NSLog(@"initing loader");
     UIView *loader = [[UIView alloc] initWithFrame:self.gridTiles.frame];
     [self.gridView insertSubview:loader belowSubview:self.gridTiles];
 }
@@ -165,7 +138,6 @@
     CNetworking *currentUser = [CNetworking currentUser];
     
     [[[[currentUser firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupId, STREAM]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        NSLog(@"children count: %lu", snapshot.childrenCount);
         for (FDataSnapshot* child in snapshot.children) {
             
             NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupId];
@@ -185,13 +157,11 @@
 }
 
 - (void) newTile:(FDataSnapshot *)snapshot {
-    NSLog(@"newtile called?");
     CNetworking *currentUser = [CNetworking currentUser];
     NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupId];
     if(!([gridData count] > 0 && [[(FDataSnapshot *) gridData[0] name] isEqualToString:snapshot.name])){
         [gridData insertObject:snapshot atIndex:0];
         [self.gridTiles insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
-        NSLog(@"wtf conditional!!");
     }
 }
 
@@ -233,7 +203,6 @@
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     NSUInteger count = [[[CNetworking currentUser] gridDataForGroupId:self.groupId] count];
-    NSLog(@"count: %lu", count);
     return count;
 }
 

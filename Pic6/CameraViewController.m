@@ -12,11 +12,15 @@
 #import <Parse/Parse.h>
 
 
-@interface CameraViewController () <UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate>
+@interface CameraViewController ()
 
 @end
 
 @implementation CameraViewController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+}
 
 - (void)viewDidLoad
 {
@@ -26,31 +30,6 @@
     
     [self.view setBackgroundColor:SECONDARY_COLOR];
     
-    self.fakeIDs = [[NSMutableArray alloc] initWithArray:@[@"-JU_atBiYRKrafH3Qaa", @"-JU_3hzCGZbVw7MKRHxO"]];
-    
-    NSDictionary* options = @{ UIPageViewControllerOptionInterPageSpacingKey : [NSNumber numberWithFloat:16.0f] };
-    
-    self.pageViewController = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:options];
-    
-    self.pageViewController.delegate = self;
-    self.pageViewController.dataSource = self;
-    self.pageViewController.view.frame = [self frameForContentController];
-    
-    GroupViewController *groupViewController = [[GroupViewController alloc] init];
-    groupViewController.cameraViewController = self;
-    //GroupInfo *info = (GroupInfo *)[[CNetworking currentUser] groupInfo][0];
-    groupViewController.groupId = [self.fakeIDs objectAtIndex:0];
-    NSArray *viewControllers = [NSArray arrayWithObject:groupViewController];
-    
-    [self.pageViewController setViewControllers:viewControllers
-                                      direction:UIPageViewControllerNavigationDirectionForward
-                                       animated:NO
-                                     completion:nil];
-    
-    [self addChildViewController:self.pageViewController];
-    [self.view addSubview:self.pageViewController.view];
-    
-    [self.pageViewController didMoveToParentViewController:self];
 }
 
 - (void)setup {
@@ -124,9 +103,43 @@
                 info.groupId = child.name;
                 
                 [currentUser.groupInfo insertObject:info atIndex:0];
+                
+                if([currentUser.groupInfo count] == snapshot.childrenCount){
+                    NSLog(@"about to setup pages");
+                    [self setupPages];
+                }
             }];
         }
     }];
+}
+
+- (void)setupPages {
+
+    CNetworking *currentUser = [CNetworking currentUser];
+    
+    NSDictionary* options = @{ UIPageViewControllerOptionInterPageSpacingKey : [NSNumber numberWithFloat:16.0f] };
+    
+    self.pageViewController = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:options];
+    
+    self.pageViewController.delegate = self;
+    self.pageViewController.dataSource = self;
+    self.pageViewController.view.frame = [self frameForContentController];
+    
+    GroupViewController *groupViewController = [[GroupViewController alloc] init];
+    groupViewController.cameraViewController = self;
+    //GroupInfo *info = (GroupInfo *)[[CNetworking currentUser] groupInfo][0];
+    groupViewController.groupId = [(GroupInfo *) [currentUser.groupInfo objectAtIndex:0] groupId];
+    self.vcIndex = 0;
+    NSArray *viewControllers = [NSArray arrayWithObject:groupViewController];
+    
+    [self.pageViewController setViewControllers:viewControllers
+                                      direction:UIPageViewControllerNavigationDirectionForward
+                                       animated:NO
+                                     completion:nil];
+    
+    [self addChildViewController:self.pageViewController];
+    [self.view addSubview:self.pageViewController.view];
+    [self.pageViewController didMoveToParentViewController:self];
 }
 
 #pragma mark -
@@ -134,37 +147,35 @@
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController
 {
-    GroupViewController *contentVc = (GroupViewController *)viewController;
+    CNetworking *currentUser = [CNetworking currentUser];
     
-    NSUInteger currentIndex = [self.fakeIDs indexOfObject:contentVc.groupId];
-    self.vcIndex = currentIndex;
-    
-    if (currentIndex == 0)
+    if (self.vcIndex == 0)
     {
         return nil;
     }
     
     GroupViewController *groupViewController = [[GroupViewController alloc] init];
     groupViewController.cameraViewController = self;
-    groupViewController.groupId = [self.fakeIDs objectAtIndex:currentIndex - 1];
+    
+    GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:self.vcIndex - 1];
+    groupViewController.groupId = groupInfo.groupId;
     return groupViewController;
 }
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController
 {
-    GroupViewController *contentVc = (GroupViewController *)viewController;
+    CNetworking *currentUser = [CNetworking currentUser];
     
-    NSUInteger currentIndex = [self.fakeIDs indexOfObject:contentVc.groupId];
-    self.vcIndex = currentIndex;
-    
-    if (currentIndex == [self.fakeIDs count] - 1)
+    if (self.vcIndex == ([currentUser.groupInfo count] - 1))
     {
         return nil;
     }
     
     GroupViewController *groupViewController = [[GroupViewController alloc] init];
     groupViewController.cameraViewController = self;
-    groupViewController.groupId = [self.fakeIDs objectAtIndex:currentIndex + 1];
+    
+    GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:self.vcIndex + 1];
+    groupViewController.groupId = groupInfo.groupId;
     return groupViewController;
 }
 
@@ -175,9 +186,14 @@
 }
 
 - (void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray *)previousViewControllers transitionCompleted:(BOOL)completed {
-    for(GroupViewController *groupViewController in pageViewController.viewControllers){
-        groupViewController.scrolling = [NSNumber numberWithBool:NO];
-        [groupViewController scrollingEnded];
+    GroupViewController *groupViewController = [pageViewController.viewControllers objectAtIndex:0];
+    
+    groupViewController.scrolling = [NSNumber numberWithBool:NO];
+    [groupViewController scrollingEnded];
+        
+    if(completed){
+        CNetworking *currentUser = [CNetworking currentUser];
+        self.vcIndex = [currentUser groupIndexForGroupId:groupViewController.groupId];
     }
 }
 

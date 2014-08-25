@@ -10,7 +10,7 @@
 #import "AVCamPreviewView.h"
 @import AVFoundation;
 
-@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate>
+@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate>
 
 @property (nonatomic, strong) UIPageViewController *pageViewController;
 @property (nonatomic, strong) NSMutableArray *fakeIDs;

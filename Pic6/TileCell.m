@@ -221,7 +221,6 @@
 
 - (void)prepareForReuse {
     if(self.player){
-        NSLog(@"preparing for reuse!");
         [self.player removeObservers];
     }
 }

@@ -27,10 +27,11 @@
 
 + (id)currentUser;
 
-- (void) saveUserData:(NSObject *)value forKey:(NSString *)key;
 - (void) loadUserData;
+- (void) saveUserData:(NSObject *)value forKey:(NSString *)key;
 - (NSObject *) userDataForKey:(NSString *)key;
 - (NSMutableArray *)gridDataForGroupId:(NSString *)groupId;
+- (NSUInteger) groupIndexForGroupId:(NSString *)groupId;
 - (void)trySomething;
 
 @end
