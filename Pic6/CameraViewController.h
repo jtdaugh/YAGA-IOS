@@ -8,12 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "AVCamPreviewView.h"
+#import "CliquePageControl.h"
 @import AVFoundation;
 
 @interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate>
 
 @property (nonatomic, strong) UIPageViewController *pageViewController;
 @property (nonatomic) NSInteger vcIndex;
+@property (strong, nonatomic) UIPageControl *pageControl;
 
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
 @property (strong, nonatomic) UIButton *cameraButton;

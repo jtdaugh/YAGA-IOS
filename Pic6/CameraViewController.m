@@ -11,7 +11,6 @@
 #import "CreateGroupViewController.h"
 #import <Parse/Parse.h>
 
-
 @interface CameraViewController ()
 
 @end
@@ -144,8 +143,13 @@
     [self.view addSubview:self.pageViewController.view];
     [self.pageViewController didMoveToParentViewController:self];
     
-    
-    
+    CGFloat height = 36;
+    self.pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - height, self.view.frame.size.width, height)];
+//    self.pageControl.backgroundColor = [UIColor yellowColor];
+    self.pageControl.numberOfPages = [currentUser.groupInfo count];
+    self.pageControl.currentPage = 0;
+    [self.view addSubview:self.pageControl];
+
 }
 
 #pragma mark -
@@ -205,6 +209,8 @@
     if(completed){
         CNetworking *currentUser = [CNetworking currentUser];
         self.vcIndex = [currentUser.groupInfo indexOfObject:groupViewController.groupInfo];
+        
+        [self.pageControl setCurrentPage:self.vcIndex];
     }
     
 //    GroupViewController *gvc = [previousViewControllers objectAtIndex:0];
