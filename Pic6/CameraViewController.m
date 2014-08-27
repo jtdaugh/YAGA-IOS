@@ -91,8 +91,6 @@
         // iterate through returned groups
         for(FDataSnapshot *child in snapshot.children){
             
-            NSLog(@"group id: %@", child.name);
-            
             // fetch group meta data
             NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
             [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
@@ -101,6 +99,11 @@
                 GroupInfo *info = [[GroupInfo alloc] init];
                 info.name = dataSnapshot.value[@"name"];
                 info.groupId = child.name;
+                info.members = [[NSMutableArray alloc] init];
+                
+                for(NSString *member in dataSnapshot.value[@"members"]){
+                    [info.members addObject:member];
+                }
                 
                 [currentUser.groupInfo insertObject:info atIndex:0];
                 
@@ -140,6 +143,8 @@
     [self addChildViewController:self.pageViewController];
     [self.view addSubview:self.pageViewController.view];
     [self.pageViewController didMoveToParentViewController:self];
+    
+    
     
 }
 
@@ -181,6 +186,10 @@
 }
 
 - (void)pageViewController:(UIPageViewController *)pageViewController willTransitionToViewControllers:(NSArray *)pendingViewControllers {
+    
+    GroupViewController *currentViewController = [pageViewController.viewControllers objectAtIndex:0];
+    [currentViewController pagingStarted];
+    
     for(GroupViewController *groupViewController in pendingViewControllers){
         groupViewController.scrolling = [NSNumber numberWithBool:YES];
     }
@@ -190,15 +199,20 @@
     GroupViewController *groupViewController = [pageViewController.viewControllers objectAtIndex:0];
 
     groupViewController.scrolling = [NSNumber numberWithBool:NO];
-    [groupViewController scrollingEnded];
+    [groupViewController pagingEnded];
+//    [groupViewController scrollingEnded];
 
     if(completed){
         CNetworking *currentUser = [CNetworking currentUser];
         self.vcIndex = [currentUser.groupInfo indexOfObject:groupViewController.groupInfo];
     }
     
-    NSLog(@"previous view controllers count: %lu", [previousViewControllers count]);
-    NSLog(@"view controllers count: %lu", [pageViewController.viewControllers count]);
+//    GroupViewController *gvc = [previousViewControllers objectAtIndex:0];
+//    gvc = nil;
+//    [previousViewControllers objectAtIndex:0] = nil;
+    
+//    NSLog(@"previous view controllers count: %lu", [previousViewControllers count]);
+//    NSLog(@"view controllers count: %lu", [pageViewController.viewControllers count]);
 }
 
 
@@ -277,7 +291,9 @@
 }
 
 - (void)manageClique {
-    NSLog(@"yoo");
+    
+    GroupInfo *groupInfo = [(GroupViewController *)[self.pageViewController.viewControllers objectAtIndex:0] groupInfo];
+    NSLog(@"members: %@", groupInfo.members);
 }
 
 - (CGRect) newViewStartFrame {

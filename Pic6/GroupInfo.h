@@ -12,4 +12,5 @@
 @interface GroupInfo : NSObject
 @property (strong, nonatomic) NSString *name;
 @property (strong, nonatomic) NSString *groupId;
+@property (strong, nonatomic) NSMutableArray *members;
 @end

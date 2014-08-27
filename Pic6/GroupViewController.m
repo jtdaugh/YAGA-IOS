@@ -33,10 +33,12 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    NSLog(@"will appear? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    
+    NSLog(@"did appear? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
+
     if([PFUser currentUser]){
         if(![self.appeared boolValue]){
             self.appeared = [NSNumber numberWithBool:YES];
@@ -53,12 +55,18 @@
     }
 }
 
+- (void)printMessage:(NSString *)message {
+    NSLog(@"%@ -- %lu", message, [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
+    NSLog(@"will disappear? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    NSLog(@"view did load? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
     
     if([PFUser currentUser]){
         [self setupView];
@@ -256,23 +264,6 @@
     }
 }
 
-- (void)scrollingEnded {
-    if(![self.scrolling boolValue]){
-        NSLog(@"visible cells count: %lu", [[self.gridTiles visibleCells] count]);
-        
-        for(TileCell *cell in [self.gridTiles visibleCells]){
-            
-            if([cell.state isEqualToNumber:[NSNumber numberWithInt: LOADED]]){
-                [cell play];
-            }
-        }
-    }
-}
-
-- (void)pagingEnded {
-//    [self.gridTiles reloadData];
-}
-
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
@@ -387,16 +378,51 @@
     
 }
 
+- (void)scrollingEnded {
+    if(![self.scrolling boolValue]){
+        NSLog(@"visible cells count: %lu", [[self.gridTiles visibleCells] count]);
+        
+        for(TileCell *cell in [self.gridTiles visibleCells]){
+            
+            if([cell.state isEqualToNumber:[NSNumber numberWithInt: LOADED]]){
+                [cell play];
+            }
+        }
+    }
+}
+
+- (void)pagingStarted {
+    [self printMessage:@"paging started?"];
+    
+//    [self conserveTiles];
+}
+
 - (void)conserveTiles {
+    
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]]){
-            tile.state = [NSNumber numberWithInt:LOADED];
+//            [tile showImage];
             tile.player = nil;
             [tile.player removeObservers];
         }
     }
-    
 }
+
+- (void)pagingEnded {
+    [self printMessage:@"paging ended?"];
+    //    [self.gridTiles reloadData];
+    
+    for(TileCell *tile in [self.gridTiles visibleCells]){
+        if([tile.state isEqualToNumber:[NSNumber numberWithInt:LOADED]]){
+            [tile play];
+        }
+    }
+}
+
+- (void)playLoadedTiles {
+    [self.gridTiles reloadData];
+}
+
 
 - (void)willResignActive {
 //    [self removeAudioInput];

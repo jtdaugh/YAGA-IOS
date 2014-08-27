@@ -41,6 +41,7 @@
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL;
 
+- (void)pagingStarted;
 - (void)pagingEnded;
 - (void)scrollingEnded;
 
