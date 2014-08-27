@@ -10,8 +10,11 @@
 #import "GroupViewController.h"
 #import "CreateGroupViewController.h"
 #import <Parse/Parse.h>
+#import "CliquePageControl.h"
 
 @interface CameraViewController ()
+
+@property (nonatomic, strong) CliquePageControl *pageControl;
 
 @end
 
@@ -142,17 +145,22 @@
     [self addChildViewController:self.pageViewController];
     [self.view addSubview:self.pageViewController.view];
     [self.pageViewController didMoveToParentViewController:self];
-    
-    CGFloat height = 36;
-    self.pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - height, self.view.frame.size.width, height)];
-//    self.pageControl.backgroundColor = [UIColor yellowColor];
-    self.pageControl.numberOfPages = [currentUser.groupInfo count];
-    self.pageControl.currentPage = 0;
-    [self.view addSubview:self.pageControl];
 
+    CliquePageControl *pageControl = [[CliquePageControl alloc] init];
+    [pageControl setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
+    pageControl.translatesAutoresizingMaskIntoConstraints = NO;
+    pageControl.numberOfPages = currentUser.groupInfo.count;
+    pageControl.currentPage = 0;
+    pageControl.groupTitle = [[[currentUser groupInfo] objectAtIndex:0] name];
+    [self.view addSubview:pageControl];
+    self.pageControl = pageControl;
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(pageControl);
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[pageControl]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[pageControl]|" options:0 metrics:nil views:views]];
+    
 }
 
-#pragma mark -
 #pragma mark - UIPageViewControllerDelegate Method
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController {
@@ -207,10 +215,9 @@
 //    [groupViewController scrollingEnded];
 
     if(completed){
-        CNetworking *currentUser = [CNetworking currentUser];
-        self.vcIndex = [currentUser.groupInfo indexOfObject:groupViewController.groupInfo];
-        
-        [self.pageControl setCurrentPage:self.vcIndex];
+        self.vcIndex = [[[CNetworking currentUser] groupInfo] indexOfObject:groupViewController.groupInfo];
+        self.pageControl.currentPage = self.vcIndex;
+        self.pageControl.groupTitle = [[[[CNetworking currentUser] groupInfo] objectAtIndex:self.vcIndex] name];
     }
     
 //    GroupViewController *gvc = [previousViewControllers objectAtIndex:0];

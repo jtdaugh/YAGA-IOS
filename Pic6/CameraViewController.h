@@ -15,7 +15,6 @@
 
 @property (nonatomic, strong) UIPageViewController *pageViewController;
 @property (nonatomic) NSInteger vcIndex;
-@property (strong, nonatomic) UIPageControl *pageControl;
 
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
 @property (strong, nonatomic) UIButton *cameraButton;
