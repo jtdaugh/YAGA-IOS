@@ -19,7 +19,6 @@
 		416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 416D52C5197E107100769721 /* AVCamPreviewView.m */; };
 		4187C2FF19A460C200A929EA /* ListTileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4187C2FE19A460C200A929EA /* ListTileCell.m */; };
 		418954BE19687DD2009C17E2 /* NSString+File.m in Sources */ = {isa = PBXBuildFile; fileRef = 418954BD19687DD2009C17E2 /* NSString+File.m */; };
-		418CDE44199D6F8F00693733 /* PlaqueView.m in Sources */ = {isa = PBXBuildFile; fileRef = 418CDE43199D6F8F00693733 /* PlaqueView.m */; };
 		418CDE47199D86C600693733 /* CreateGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 418CDE46199D86C600693733 /* CreateGroupViewController.m */; };
 		418CDE4A199D8B9C00693733 /* CliqueTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 418CDE49199D8B9C00693733 /* CliqueTextField.m */; };
 		418CDE4D199EE5EF00693733 /* GroupInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 418CDE4C199EE5EF00693733 /* GroupInfo.m */; };
@@ -93,8 +92,6 @@
 		4187C2FE19A460C200A929EA /* ListTileCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListTileCell.m; sourceTree = "<group>"; };
 		418954BC19687DD2009C17E2 /* NSString+File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+File.h"; sourceTree = "<group>"; };
 		418954BD19687DD2009C17E2 /* NSString+File.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+File.m"; sourceTree = "<group>"; };
-		418CDE42199D6F8F00693733 /* PlaqueView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaqueView.h; sourceTree = "<group>"; };
-		418CDE43199D6F8F00693733 /* PlaqueView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaqueView.m; sourceTree = "<group>"; };
 		418CDE45199D86C600693733 /* CreateGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateGroupViewController.h; sourceTree = "<group>"; };
 		418CDE46199D86C600693733 /* CreateGroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreateGroupViewController.m; sourceTree = "<group>"; };
 		418CDE48199D8B9C00693733 /* CliqueTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliqueTextField.h; sourceTree = "<group>"; };
@@ -304,8 +301,6 @@
 				716CFA35192EC1F500E6ED17 /* TileCell.m */,
 				4187C2FD19A460C200A929EA /* ListTileCell.h */,
 				4187C2FE19A460C200A929EA /* ListTileCell.m */,
-				418CDE42199D6F8F00693733 /* PlaqueView.h */,
-				418CDE43199D6F8F00693733 /* PlaqueView.m */,
 				418CDE48199D8B9C00693733 /* CliqueTextField.h */,
 				418CDE49199D8B9C00693733 /* CliqueTextField.m */,
 				F152A07F19AA28A50090A9C7 /* CliquePageControl.h */,
@@ -450,7 +445,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = V947KF58NW;
+						DevelopmentTeam = M483QLX2GK;
 					};
 					71D0F588190D998000C7DEE0 = {
 						TestTargetID = 71D0F567190D998000C7DEE0;
@@ -564,7 +559,6 @@
 				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,
 				418954BE19687DD2009C17E2 /* NSString+File.m in Sources */,
 				41B404941974CA6700F9EE3F /* CContact.m in Sources */,
-				418CDE44199D6F8F00693733 /* PlaqueView.m in Sources */,
 				F152A08119AA28A50090A9C7 /* CliquePageControl.m in Sources */,
 				415DE4701977759B000DD3C7 /* SignupViewController.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,

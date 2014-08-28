@@ -39,6 +39,8 @@
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
 @property (strong, nonatomic) UIView *plaque;
+@property (nonatomic, strong) CliquePageControl *pageControl;
+@property (strong, nonatomic) UILabel *text;
 @property (strong, nonatomic) UIButton *switchButton;
 @property (strong, nonatomic) UIButton *flashButton;
 
