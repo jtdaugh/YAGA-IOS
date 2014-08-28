@@ -423,6 +423,23 @@
     [self.gridTiles reloadData];
 }
 
+- (void)pauseVideos {
+    for(TileCell *tile in [self.gridTiles visibleCells]){
+        if([tile.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]){
+            tile.state = [NSNumber numberWithInt:PAUSED];
+            [tile.player pause];
+        }
+    }
+}
+
+- (void)unpauseVideos {
+    for(TileCell *tile in [self.gridTiles visibleCells]){
+        if([tile.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]){
+            tile.state = [NSNumber numberWithInt:PLAYING];
+            [tile.player play];
+        }
+    }
+}
 
 - (void)willResignActive {
 //    [self removeAudioInput];
