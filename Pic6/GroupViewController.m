@@ -72,7 +72,7 @@
     [self initGridView];
     [self initGridTiles];
     [self initLoader];
-    [self initFirebase];
+//    [self initFirebase];
     // look at afterCameraInit to see what happens after the camera gets initialized. eg initFirebase.
 
 }
@@ -134,11 +134,20 @@
 
     CNetworking *currentUser = [CNetworking currentUser];
     
+    NSLog(@"%@", [NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]);
+    
     [[[[currentUser firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        
+        NSLog(@"snapshot: %@", snapshot);
+        
+        NSLog(@"children count? %lu", snapshot.childrenCount);
+        
         for (FDataSnapshot* child in snapshot.children) {
             
-            NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupInfo.groupId];
-            [gridData insertObject:child atIndex:0];
+//            NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupInfo.groupId];
+//            [gridData insertObject:child atIndex:0];
+            
+            [[currentUser gridDataForGroupId:self.groupInfo.groupId] insertObject:child atIndex:0];
         }
         [self.loader stopAnimating];
         [self.gridTiles reloadData];
@@ -148,16 +157,25 @@
 
 - (void)listenForChanges {
     
+    NSLog(@"%@", [NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]);
+
+    
     [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [self newTile:snapshot];
     }];
 }
 
 - (void) newTile:(FDataSnapshot *)snapshot {
+    
+    
     CNetworking *currentUser = [CNetworking currentUser];
-    NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupInfo.groupId];
-    if(!([gridData count] > 0 && [[(FDataSnapshot *) gridData[0] name] isEqualToString:snapshot.name])){
-        [gridData insertObject:snapshot atIndex:0];
+    NSMutableArray *gridData = (NSMutableArray *) [currentUser gridDataForGroupId:self.groupInfo.groupId];
+    FDataSnapshot *firstObject = [gridData firstObject];
+    NSLog(@"grid data count: %lu", [gridData count]);
+    
+    NSLog(@"firstobject name:%@", firstObject.name);
+    if(!([gridData count] > 0 && [firstObject.name isEqualToString:snapshot.name])){
+        [[currentUser gridDataForGroupId:self.groupInfo.groupId] insertObject:snapshot atIndex:0];
         [self.gridTiles insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
     }
 }
@@ -460,6 +478,14 @@
 //            [tile play];
 //        }
 //    }
+}
+
+- (void)removeFromSuperview {
+    [super removeFromSuperview];
+    for(TileCell *tile in [self.gridTiles visibleCells]){
+        tile.player = nil;
+        [tile.player removeObservers];
+    }
 }
 
 - (void)dismiss {

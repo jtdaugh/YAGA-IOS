@@ -41,6 +41,8 @@
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL;
 
+- (void)initFirebase;
+
 - (void)pagingStarted;
 - (void)pagingEnded;
 - (void)scrollingEnded;

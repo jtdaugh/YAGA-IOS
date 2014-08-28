@@ -9,14 +9,14 @@
 #import <UIKit/UIKit.h>
 #import "AVCamPreviewView.h"
 #import "CliquePageControl.h"
+#import "SwipeView.h"
 @import AVFoundation;
 
-@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate>
+@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate, SwipeViewDataSource, SwipeViewDelegate>
 
 @property (nonatomic, strong) UIPageViewController *pageViewController;
 @property (nonatomic) NSInteger vcIndex;
-
-
+@property (strong, nonatomic) SwipeView *swipeView;
 
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
 @property (strong, nonatomic) UIButton *cameraButton;

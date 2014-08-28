@@ -11,7 +11,6 @@
 #import "CreateGroupViewController.h"
 #import <Parse/Parse.h>
 #import "CliquePageControl.h"
-#import "SwipeView.h"
 
 @interface CameraViewController ()
 
@@ -122,7 +121,14 @@
 }
 
 - (void)setupPages {
-    CNetworking *currentUser = [CNetworking currentUser]; 
+    CNetworking *currentUser = [CNetworking currentUser];
+    
+    self.swipeView = [[SwipeView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT-TILE_HEIGHT)];
+    self.swipeView.delegate = self;
+    self.swipeView.dataSource = self;
+    
+    [self.view addSubview:self.swipeView];
+    
 }
 
 - (void)setupPages2 {
@@ -165,6 +171,27 @@
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[pageControl]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[pageControl]|" options:0 metrics:nil views:views]];
     
+}
+
+#pragma mark - SwipeViewDataSource Method
+
+- (NSInteger)numberOfItemsInSwipeView:(SwipeView *)swipeView
+{
+    //return the total number of items in the carousel
+    return [[[CNetworking currentUser] groupInfo] count];
+}
+
+- (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
+{
+    CNetworking *currentUser = [CNetworking currentUser];
+
+    GroupViewController *groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
+    groupViewController.cameraViewController = self;
+    
+    GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
+    groupViewController.groupInfo = groupInfo;
+    [groupViewController initFirebase];
+    return groupViewController;
 }
 
 #pragma mark - UIPageViewControllerDelegate Method
