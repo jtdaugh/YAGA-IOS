@@ -151,7 +151,6 @@
     pageControl.translatesAutoresizingMaskIntoConstraints = NO;
     pageControl.numberOfPages = currentUser.groupInfo.count;
     pageControl.currentPage = 0;
-    pageControl.groupTitle = [[[currentUser groupInfo] objectAtIndex:0] name];
     [self.view addSubview:pageControl];
     self.pageControl = pageControl;
     
@@ -217,7 +216,6 @@
     if(completed){
         self.vcIndex = [[[CNetworking currentUser] groupInfo] indexOfObject:groupViewController.groupInfo];
         self.pageControl.currentPage = self.vcIndex;
-        self.pageControl.groupTitle = [[[[CNetworking currentUser] groupInfo] objectAtIndex:self.vcIndex] name];
     }
     
 //    GroupViewController *gvc = [previousViewControllers objectAtIndex:0];
