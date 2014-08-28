@@ -47,4 +47,7 @@
 
 - (void)conserveTiles;
 
+- (void)pauseVideos;
+- (void)unpauseVideos;
+
 @end
