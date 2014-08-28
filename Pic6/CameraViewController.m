@@ -11,6 +11,7 @@
 #import "CreateGroupViewController.h"
 #import <Parse/Parse.h>
 #import "CliquePageControl.h"
+#import "SwipeView.h"
 
 @interface CameraViewController ()
 
@@ -26,6 +27,8 @@
 
 - (void)viewDidLoad
 {
+    NSLog(@"test!!!");
+    
     [super viewDidLoad];
     [self setup];
     [self setupGroups];
@@ -119,6 +122,10 @@
 }
 
 - (void)setupPages {
+    CNetworking *currentUser = [CNetworking currentUser]; 
+}
+
+- (void)setupPages2 {
 
     CNetworking *currentUser = [CNetworking currentUser];
     

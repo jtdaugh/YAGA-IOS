@@ -12,7 +12,7 @@
 #import "CNetworking.h"
 #import "CameraViewController.h"
 
-@interface GroupViewController : UIViewController <UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate>
+@interface GroupViewController : UIView <UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate>
 
 @property (strong, nonatomic) CameraViewController *cameraViewController;
 

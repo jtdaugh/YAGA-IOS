@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <Firebase/Firebase.h>
-#import "OrderedDictionary.h"
 #import "GroupInfo.h"
 
 @class CNetworking;

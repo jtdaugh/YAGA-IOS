@@ -23,17 +23,12 @@
 
 @implementation GroupViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
+- (id)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if(self){
+        [self setupView];
     }
     return self;
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    NSLog(@"will appear? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -49,7 +44,7 @@
     } else {
         NSLog(@"poop. not logged in.");
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
-        [self presentViewController:vc animated:NO completion:^{
+        [self.cameraViewController presentViewController:vc animated:NO completion:^{
             //
         }];
     }
@@ -59,19 +54,13 @@
     NSLog(@"%@ -- %lu", message, [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    NSLog(@"will disappear? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
-}
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    NSLog(@"view did load? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
-    
-    if([PFUser currentUser]){
-        [self setupView];
-    }
-}
+//- (void)viewDidLoad {
+//    [super viewDidLoad];
+//    NSLog(@"view did load? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
+//    
+//    if([PFUser currentUser]){
+//    }
+//}
 
 - (void)setupView {
     
@@ -79,7 +68,7 @@
         
     [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:@"username"]];
     
-    [self initOverlay];
+//    [self initOverlay];
     [self initGridView];
     [self initGridTiles];
     [self initLoader];
@@ -92,7 +81,7 @@
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
     [self.gridView setBackgroundColor:PRIMARY_COLOR];
     
-    [self.view addSubview:self.gridView];
+    [self addSubview:self.gridView];
 }
 
 - (void) initGridTiles {
@@ -135,7 +124,7 @@
     [self.overlay setBackgroundColor:[UIColor blackColor]];
     [self.overlay setAlpha:0.0];
 
-    [self.view addSubview:self.overlay];
+//    [self.view addSubview:self.overlay];
 }
 
 - (void)initFirebase {
@@ -321,9 +310,9 @@
 
 - (void)manageClique:(id)sender { //switch cameras front and rear cameras
     CliqueViewController *vc = [[CliqueViewController alloc] init];
-    [self presentViewController:vc animated:YES completion:^{
-        //
-    }];
+//    [self presentViewController:vc animated:YES completion:^{
+//        //
+//    }];
 }
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
@@ -474,9 +463,9 @@
 }
 
 - (void)dismiss {
-    [self dismissViewControllerAnimated:YES completion:^{
-        //
-    }];
+//    [self dismissViewControllerAnimated:YES completion:^{
+//        //
+//    }];
 }
 
 -(BOOL)prefersStatusBarHidden {
@@ -484,7 +473,7 @@
 }
 
 - (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
+//    [super didReceiveMemoryWarning];
     NSLog(@"memory warning in group controller? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
     // Dispose of any resources that can be recreated.
 }
