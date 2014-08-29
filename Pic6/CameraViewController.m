@@ -117,6 +117,7 @@
     self.swipeView = [[SwipeView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT-TILE_HEIGHT)];
     self.swipeView.delegate = self;
     self.swipeView.dataSource = self;
+    self.pageControl.numberOfPages = [[[CNetworking currentUser] groupInfo] count];
     
     [self.view addSubview:self.swipeView];
     
@@ -139,7 +140,7 @@
     //GroupInfo *info = (GroupInfo *)[[CNetworking currentUser] groupInfo][0];
     groupViewController.groupInfo = (GroupInfo *) [currentUser.groupInfo objectAtIndex:0];
     self.vcIndex = 0;
-    self.pageControl.numberOfPages = currentUser.groupInfo.count;
+    //self.pageControl.numberOfPages = currentUser.groupInfo.count;
     self.text.text = [[[currentUser groupInfo] objectAtIndex:0] name];
     NSArray *viewControllers = [NSArray arrayWithObject:groupViewController];
     
@@ -172,6 +173,22 @@
     groupViewController.groupInfo = groupInfo;
     [groupViewController initFirebase];
     return groupViewController;
+}
+
+#pragma mark - SwipeViewDelegate Method
+
+- (void)swipeViewDidScroll:(SwipeView *)swipeView {
+    [(GroupViewController *)swipeView.currentItemView setScrolling:[NSNumber numberWithBool:YES]];
+}
+
+- (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView {
+    self.pageControl.currentPage = swipeView.currentItemIndex;
+    self.text.text =  [[[[CNetworking currentUser] groupInfo] objectAtIndex:swipeView.currentItemIndex] name];
+}
+
+- (void)swipeViewDidEndScrollingAnimation:(SwipeView *)swipeView {
+    [(GroupViewController *)swipeView.currentItemView setScrolling:[NSNumber numberWithBool:NO]];
+    [(GroupViewController *)swipeView.currentItemView scrollingEnded];
 }
 
 #pragma mark - UIPageViewControllerDelegate Method

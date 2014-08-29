@@ -118,7 +118,6 @@ that will automatically be populated by the Firebase Server.
 
 #define kFirebaseServerValueTimestamp @{ @".sv": @"timestamp" }
 
-
 /**
  * The same as setValue: with a block that gets triggered after the write operation has
  * been committed to the Firebase servers.
@@ -234,13 +233,13 @@ Use removeObserverWithHandle: to stop receiving updates.
  
 Supported events types for all realtime observers are specified in FEventType as:
 
-    typedef enum {
+    typedef NS_ENUM(NSInteger, FEventType) {
       FEventTypeChildAdded,    // 0, fired when a new child node is added to a location
       FEventTypeChildRemoved,  // 1, fired when a child node is removed from a location
       FEventTypeChildChanged,  // 2, fired when a child node at a location changes
       FEventTypeChildMoved,    // 3, fired when a child node moves relative to the other child nodes at a location
       FEventTypeValue          // 4, fired when any data changes at a location and, recursively, any children
-    } FEventType;
+    };
 
 @param eventType The type of event to listen for.
 @param block The block that should be called with initial data and updates as a FDataSnapshot.
@@ -404,6 +403,29 @@ Supported events types for all realtime observers are specified in FEventType as
  */
 - (FQuery *) queryEndingAtPriority:(id)endPriority andChildName:(NSString *)childName;
 
+
+/**
+ * queryEqualToPriority: is used to generate a reference to a limited view of the data at this location.
+ * The FQuery instance returned by queryEqualToPriority: will respond to events at nodes with a priority equal to
+ * supplied argument.
+ *
+ * @param priority The priority that the data returned by this FQuery will have
+ * @return An Fquery instance, limited to data with the supplied priority.
+ */
+- (FQuery *) queryEqualToPriority:(id)priority;
+
+
+/**
+* queryEqualToPriority:andChildName: is used to generate a reference to a limited view of the data at this location.
+* The FQuery instance returned by queryEqualToPriority:andChildNAme will respond to events at nodes with a priority
+* equal to the supplied argument with a name equal to childName. There will be at most one node that matches because
+* child names are unique.
+*
+* @param priority The priority that the data returned by this FQuery will have
+* @param childName The name of nodes with the right priority
+* @return An FQuery instance, limited to data with the supplied priority and the name.
+*/
+- (FQuery *) queryEqualToPriority:(id)priority andChildName:(NSString *)childName;
 
 
 /**
