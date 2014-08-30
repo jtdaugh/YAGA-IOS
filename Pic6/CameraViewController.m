@@ -147,37 +147,6 @@
     
 }
 
-- (void)setupPages2 {
-
-    CNetworking *currentUser = [CNetworking currentUser];
-    
-    NSDictionary* options = @{ UIPageViewControllerOptionInterPageSpacingKey : [NSNumber numberWithFloat:16.0f] };
-    
-    self.pageViewController = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:options];
-    
-    self.pageViewController.delegate = self;
-    self.pageViewController.dataSource = self;
-    self.pageViewController.view.frame = [self frameForContentController];
-    
-    GroupViewController *groupViewController = [[GroupViewController alloc] init];
-    groupViewController.cameraViewController = self;
-    //GroupInfo *info = (GroupInfo *)[[CNetworking currentUser] groupInfo][0];
-    groupViewController.groupInfo = (GroupInfo *) [currentUser.groupInfo objectAtIndex:0];
-    self.vcIndex = 0;
-    //self.pageControl.numberOfPages = currentUser.groupInfo.count;
-    self.text.text = [[[currentUser groupInfo] objectAtIndex:0] name];
-    NSArray *viewControllers = [NSArray arrayWithObject:groupViewController];
-    
-    [self.pageViewController setViewControllers:viewControllers
-                                      direction:UIPageViewControllerNavigationDirectionForward
-                                       animated:NO
-                                     completion:nil];
-    
-    [self addChildViewController:self.pageViewController];
-    [self.view addSubview:self.pageViewController.view];
-    [self.pageViewController didMoveToParentViewController:self];
-}
-
 #pragma mark - SwipeViewDataSource Method
 
 - (NSInteger)numberOfItemsInSwipeView:(SwipeView *)swipeView
@@ -189,13 +158,25 @@
 - (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
 {
     CNetworking *currentUser = [CNetworking currentUser];
-
-    GroupViewController *groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
-    groupViewController.cameraViewController = self;
+    GroupViewController *groupViewController;
     
-    GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
-    groupViewController.groupInfo = groupInfo;
-    [groupViewController initFirebase];
+    if(view){
+        groupViewController = (GroupViewController *) view;
+        GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
+        
+        groupViewController.groupInfo = groupInfo;
+        [groupViewController initFirebase];
+        [groupViewController.gridTiles reloadData];
+        
+    } else {
+        groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
+        groupViewController.cameraViewController = self;
+        
+        GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
+        groupViewController.groupInfo = groupInfo;
+        [groupViewController initFirebase];
+    }
+    
     return groupViewController;
 }
 
@@ -210,78 +191,18 @@
     self.text.text =  [[[[CNetworking currentUser] groupInfo] objectAtIndex:swipeView.currentItemIndex] name];
 }
 
-- (void)swipeViewDidEndScrollingAnimation:(SwipeView *)swipeView {
-    [(GroupViewController *)swipeView.currentItemView setScrolling:[NSNumber numberWithBool:NO]];
-    [(GroupViewController *)swipeView.currentItemView scrollingEnded];
+- (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate {
+    [self doneScrolling];
 }
 
-#pragma mark - UIPageViewControllerDelegate Method
-
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController {
-    
-    CNetworking *currentUser = [CNetworking currentUser];
-    
-    if (self.vcIndex == 0)
-    {
-        return nil;
-    }
-    
-    GroupViewController *groupViewController = [[GroupViewController alloc] init];
-    groupViewController.cameraViewController = self;
-    
-    GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:self.vcIndex - 1];
-    groupViewController.groupInfo = groupInfo;
-    return groupViewController;
+- (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView {
+    [self doneScrolling];
 }
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController {
-    
-    CNetworking *currentUser = [CNetworking currentUser];
-    
-    if (self.vcIndex == ([currentUser.groupInfo count] - 1))
-    {
-        return nil;
-    }
-    
-    GroupViewController *groupViewController = [[GroupViewController alloc] init];
-    groupViewController.cameraViewController = self;
-    
-    GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:self.vcIndex + 1];
-    groupViewController.groupInfo = groupInfo;
-    return groupViewController;
+- (void)doneScrolling {
+    [(GroupViewController *)self.swipeView.currentItemView setScrolling:[NSNumber numberWithBool:NO]];
+    [(GroupViewController *)self.swipeView.currentItemView scrollingEnded];
 }
-
-- (void)pageViewController:(UIPageViewController *)pageViewController willTransitionToViewControllers:(NSArray *)pendingViewControllers {
-    
-    GroupViewController *currentViewController = [pageViewController.viewControllers objectAtIndex:0];
-    [currentViewController pagingStarted];
-    
-    for(GroupViewController *groupViewController in pendingViewControllers){
-        groupViewController.scrolling = [NSNumber numberWithBool:YES];
-    }
-}
-
-- (void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray *)previousViewControllers transitionCompleted:(BOOL)completed {
-    GroupViewController *groupViewController = [pageViewController.viewControllers objectAtIndex:0];
-
-    groupViewController.scrolling = [NSNumber numberWithBool:NO];
-    [groupViewController pagingEnded];
-//    [groupViewController scrollingEnded];
-
-    if(completed){
-        self.vcIndex = [[[CNetworking currentUser] groupInfo] indexOfObject:groupViewController.groupInfo];
-        self.pageControl.currentPage = self.vcIndex;
-        self.text.text = [[[[CNetworking currentUser] groupInfo] objectAtIndex:self.vcIndex] name];
-    }
-    
-//    GroupViewController *gvc = [previousViewControllers objectAtIndex:0];
-//    gvc = nil;
-//    [previousViewControllers objectAtIndex:0] = nil;
-    
-//    NSLog(@"previous view controllers count: %lu", [previousViewControllers count]);
-//    NSLog(@"view controllers count: %lu", [pageViewController.viewControllers count]);
-}
-
 
 #pragma mark -
 #pragma mark - Camera Shit
