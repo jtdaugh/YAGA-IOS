@@ -192,7 +192,9 @@
 }
 
 - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate {
-    [self doneScrolling];
+    if(!decelerate){
+        [self doneScrolling];        
+    }
 }
 
 - (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView {
