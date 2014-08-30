@@ -11,6 +11,7 @@
 #import "CreateGroupViewController.h"
 #import <Parse/Parse.h>
 #import "CliquePageControl.h"
+#import "OnboardingNavigationController.h"
 
 @interface CameraViewController ()
 
@@ -22,19 +23,38 @@
     [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    if([PFUser currentUser]){
+        if(![self.appeared boolValue]){
+            self.appeared = [NSNumber numberWithBool:YES];
+            if(![self.setup boolValue]){
+                [self setupView];
+            }
+        }
+    } else {
+        NSLog(@"poop. not logged in.");
+        OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
+        [self presentViewController:vc animated:NO completion:^{
+            //
+        }];
+    }
+}
+
 - (void)viewDidLoad
 {
     NSLog(@"test!!!");
     
     [super viewDidLoad];
-    [self setup];
-    [self setupGroups];
+    if([PFUser currentUser]){
+        [self setupView];
+    }
     
     [self.view setBackgroundColor:SECONDARY_COLOR];
     
 }
 
-- (void)setup {
+- (void)setupView {
+    self.setup = [NSNumber numberWithBool:YES];
     // Do any additional setup after loading the view.
     self.cameraAccessories = [[NSMutableArray alloc] init];
     NSError *error = nil;
@@ -67,6 +87,7 @@
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
+    [self setupGroups];
 
 }
 
@@ -88,6 +109,8 @@
             
             // fetch group meta data
             NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
+            NSLog(@"datapath: %@", dataPath);
+            
             [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
                 
                 // saving group data
@@ -109,6 +132,7 @@
             }];
         }
     }];
+    
 }
 
 - (void)setupPages {

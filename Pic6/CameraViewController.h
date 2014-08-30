@@ -14,6 +14,9 @@
 
 @interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate, SwipeViewDataSource, SwipeViewDelegate>
 
+@property (strong, nonatomic) NSNumber *appeared;
+@property (strong, nonatomic) NSNumber *setup;
+
 @property (nonatomic, strong) UIPageViewController *pageViewController;
 @property (nonatomic) NSInteger vcIndex;
 @property (strong, nonatomic) SwipeView *swipeView;

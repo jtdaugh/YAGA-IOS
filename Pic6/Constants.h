@@ -9,7 +9,7 @@
 #ifndef Pic6_Constants_h
 #define Pic6_Constants_h
 
-#define APP_NAME @"Crew"
+#define APP_NAME @"Yaga"
 
 #define NUM_TILES 96
 #define TILE_WIDTH ([[UIScreen mainScreen] bounds].size.width)/2
