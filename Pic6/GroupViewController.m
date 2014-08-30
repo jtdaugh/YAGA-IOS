@@ -151,6 +151,7 @@
         }
         [self.loader stopAnimating];
         [self.gridTiles reloadData];
+        NSLog(@"scrolling? %@", [self.scrolling boolValue] ? @"yes" : @"no");
         [self listenForChanges];
     }];
 }

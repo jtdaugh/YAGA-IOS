@@ -164,6 +164,8 @@
         groupViewController = (GroupViewController *) view;
         GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
         
+        [groupViewController setScrolling:[NSNumber numberWithBool:YES]];
+        
         groupViewController.groupInfo = groupInfo;
         [groupViewController initFirebase];
         [groupViewController.gridTiles reloadData];
@@ -172,6 +174,8 @@
         groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
         groupViewController.cameraViewController = self;
         
+        [groupViewController setScrolling:[NSNumber numberWithBool:YES]];
+
         GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
         groupViewController.groupInfo = groupInfo;
         [groupViewController initFirebase];
@@ -183,7 +187,10 @@
 #pragma mark - SwipeViewDelegate Method
 
 - (void)swipeViewDidScroll:(SwipeView *)swipeView {
-    [(GroupViewController *)swipeView.currentItemView setScrolling:[NSNumber numberWithBool:YES]];
+}
+
+- (void)swipeViewWillBeginDragging:(SwipeView *)swipeView {
+    [(GroupViewController *)swipeView.currentItemView setScrolling:[NSNumber numberWithBool:YES]];    
 }
 
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView {
@@ -193,7 +200,7 @@
 
 - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate {
     if(!decelerate){
-        [self doneScrolling];        
+        [self doneScrolling];
     }
 }
 
@@ -218,7 +225,7 @@
 - (void)initPlaque {
     UIView *plaque = [[UIView alloc] init];
     plaque.translatesAutoresizingMaskIntoConstraints = NO;
-    plaque.backgroundColor = SECONDARY_COLOR;
+    plaque.backgroundColor = PRIMARY_COLOR;
     [self.view addSubview:plaque];
     self.plaque = plaque;
     
