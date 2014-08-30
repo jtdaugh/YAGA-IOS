@@ -13,8 +13,8 @@
 @property (nonatomic, strong) UIPageControl *pageControl;
 @property (nonatomic, strong) UILabel *titleLabel;
 
-@property (nonatomic, strong) UIVisualEffectView *blurEffectView;
-@property (nonatomic, strong) UIVisualEffectView *vibrancyEffectView;
+//@property (nonatomic, strong) UIVisualEffectView *blurEffectView;
+//@property (nonatomic, strong) UIVisualEffectView *vibrancyEffectView;
 
 @property (nonatomic, strong) NSLayoutConstraint *heightConstraint;
 
