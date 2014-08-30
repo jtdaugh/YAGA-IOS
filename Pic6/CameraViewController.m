@@ -174,7 +174,7 @@
         groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
         groupViewController.cameraViewController = self;
         
-        [groupViewController setScrolling:[NSNumber numberWithBool:YES]];
+//        [groupViewController setScrolling:[NSNumber numberWithBool:YES]];
 
         GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
         groupViewController.groupInfo = groupInfo;
@@ -185,9 +185,6 @@
 }
 
 #pragma mark - SwipeViewDelegate Method
-
-- (void)swipeViewDidScroll:(SwipeView *)swipeView {
-}
 
 - (void)swipeViewWillBeginDragging:(SwipeView *)swipeView {
     [(GroupViewController *)swipeView.currentItemView setScrolling:[NSNumber numberWithBool:YES]];    
