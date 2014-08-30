@@ -32,7 +32,6 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    NSLog(@"did appear? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
 
     if([PFUser currentUser]){
         if(![self.appeared boolValue]){
@@ -375,6 +374,9 @@
     PFUser *pfUser = [PFUser currentUser];
     NSLog(@"group id: %@", self.groupInfo.groupId);
     NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, dataPath];
+    
+    NSLog(@"path: %@", path);
+    
 //    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
     [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":pfUser.username, @"colors":colors}];
     

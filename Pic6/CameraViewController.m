@@ -723,6 +723,8 @@
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
     
+    NSLog(@"anyone here?");
+    
     BOOL RecordedSuccessfully = YES;
     if ([error code] != noErr)
     {
@@ -739,7 +741,7 @@
         
         NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
         
-        GroupViewController *groupViewController = (GroupViewController *)[self.pageViewController.viewControllers objectAtIndex:0];
+        GroupViewController *groupViewController = (GroupViewController *)[self.swipeView currentItemView];
         
         [groupViewController uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
     } else {
