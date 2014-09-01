@@ -141,10 +141,25 @@
     self.swipeView = [[SwipeView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT-TILE_HEIGHT)];
     self.swipeView.delegate = self;
     self.swipeView.dataSource = self;
-    self.pageControl.numberOfPages = [[[CNetworking currentUser] groupInfo] count];
-    
     [self.view addSubview:self.swipeView];
     
+    CliquePageControl *pageControl = [[CliquePageControl alloc] init];
+    [pageControl setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
+    pageControl.translatesAutoresizingMaskIntoConstraints = NO;
+    pageControl.currentPage = 0;
+    pageControl.numberOfPages = [[[CNetworking currentUser] groupInfo] count];
+    [self.view addSubview:pageControl];
+    self.pageControl = pageControl;
+    
+    GroupDetailView *detailView = [[GroupDetailView alloc] initWithFrame:self.swipeView.frame];
+    detailView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:detailView];
+    self.detailView = detailView;
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(pageControl);
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[pageControl]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[pageControl]|" options:0 metrics:nil views:views]];
+
 }
 
 #pragma mark - SwipeViewDataSource Method
@@ -192,7 +207,7 @@
 
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView {
     self.pageControl.currentPage = swipeView.currentItemIndex;
-    self.text.text =  [[[[CNetworking currentUser] groupInfo] objectAtIndex:swipeView.currentItemIndex] name];
+    self.detailView.text =  [[[[CNetworking currentUser] groupInfo] objectAtIndex:swipeView.currentItemIndex] name];
 }
 
 - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate {
@@ -203,6 +218,8 @@
 
 - (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView {
     [self doneScrolling];
+    self.detailView.info = [[[CNetworking currentUser] groupInfo] objectAtIndex:swipeView.currentItemIndex];
+    [self.detailView flash];
 }
 
 - (void)doneScrolling {
@@ -226,26 +243,43 @@
     [self.view addSubview:plaque];
     self.plaque = plaque;
     
-    UILabel *text = [[UILabel alloc] init];
-    text.translatesAutoresizingMaskIntoConstraints = NO;
-    text.adjustsFontSizeToFitWidth = YES;
-    text.textAlignment = NSTextAlignmentCenter;
-    [text setTextColor:[UIColor whiteColor]];
-    [text setFont:[UIFont fontWithName:BIG_FONT size:25]];
-    [text sizeToFit];
-    [self.plaque addSubview:text];
-    self.text = text;
+//    UILabel *text = [[UILabel alloc] init];
+//    text.translatesAutoresizingMaskIntoConstraints = NO;
+//    text.adjustsFontSizeToFitWidth = YES;
+//    text.textAlignment = NSTextAlignmentCenter;
+//    [text setTextColor:[UIColor whiteColor]];
+//    [text setFont:[UIFont fontWithName:BIG_FONT size:25]];
+//    [text sizeToFit];
+//    [self.plaque addSubview:text];
+//    self.text = text;
+//    
+
+    UIView *topLeftContainer = [[UIView alloc] init];
+    topLeftContainer.translatesAutoresizingMaskIntoConstraints = NO;
+    topLeftContainer.backgroundColor = self.plaque.backgroundColor;
+    [self.plaque addSubview:topLeftContainer];
     
-    CliquePageControl *pageControl = [[CliquePageControl alloc] init];
-    [pageControl setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
-    pageControl.translatesAutoresizingMaskIntoConstraints = NO;
-    pageControl.currentPage = 0;
-    [self.plaque addSubview:pageControl];
-    self.pageControl = pageControl;
+    UIView *topRightContainer = [[UIView alloc] init];
+    topRightContainer.translatesAutoresizingMaskIntoConstraints = NO;
+    topRightContainer.backgroundColor = PRIMARY_COLOR_ACCENT;
+    [self.plaque addSubview:topRightContainer];
     
-    UIView *buttonContainer = [[UIView alloc] init];
-    buttonContainer.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.plaque addSubview:buttonContainer];
+    UIView *bottomLeftContainer = [[UIView alloc] init];
+    bottomLeftContainer.translatesAutoresizingMaskIntoConstraints = NO;
+    bottomLeftContainer.backgroundColor = topRightContainer.backgroundColor;
+    [self.plaque addSubview:bottomLeftContainer];
+    
+    UIView *bottomRightContainer = [[UIView alloc] init];
+    bottomRightContainer.translatesAutoresizingMaskIntoConstraints = NO;
+    bottomRightContainer.backgroundColor = topLeftContainer.backgroundColor;
+    [self.plaque addSubview:bottomRightContainer];
+    
+    UIButton *addButton = [[UIButton alloc] init];
+    addButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [addButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
+    [addButton setImage:[UIImage imageNamed:@"Addv2"] forState:UIControlStateNormal];
+    [addButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [topLeftContainer addSubview:addButton];
     
     UIButton *switchButton = [[UIButton alloc] init];
     switchButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -253,7 +287,7 @@
     [switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
     [switchButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.cameraAccessories addObject:switchButton];
-    [buttonContainer addSubview:switchButton];
+    [topRightContainer addSubview:switchButton];
     self.switchButton = switchButton;
     
     UIButton *cliqueButton = [[UIButton alloc] init];
@@ -261,7 +295,7 @@
     [cliqueButton addTarget:self action:@selector(manageClique) forControlEvents:UIControlEventTouchUpInside];
     [cliqueButton setImage:[UIImage imageNamed:@"Clique"] forState:UIControlStateNormal];
     [cliqueButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [buttonContainer addSubview:cliqueButton];
+    [bottomLeftContainer addSubview:cliqueButton];
     
     UIButton *flashButton = [[UIButton alloc] init];
     flashButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -269,43 +303,41 @@
     [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
     [flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.cameraAccessories addObject:flashButton];
-    [buttonContainer addSubview:flashButton];
+    [bottomRightContainer addSubview:flashButton];
     self.flashButton = flashButton;
     
-    NSDictionary *views = NSDictionaryOfVariableBindings(plaque, text, pageControl, buttonContainer, switchButton, cliqueButton, flashButton);
-    NSDictionary *trix = @{@"TILE_WIDTH":@(TILE_WIDTH), @"HALF":@(TILE_WIDTH/2)};
+    NSDictionary *views = NSDictionaryOfVariableBindings(plaque, topLeftContainer, topRightContainer, bottomLeftContainer, bottomRightContainer, addButton, switchButton, cliqueButton, flashButton);
+    NSDictionary *trix = @{@"TILE_WIDTH":@(TILE_WIDTH), @"TILE_HEIGHT":@(TILE_HEIGHT), @"HALF_WIDTH":@(TILE_WIDTH/2), @"HALF_HEIGHT":@(TILE_HEIGHT/2)};
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[plaque(TILE_WIDTH)]" options:0 metrics:trix views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[plaque(TILE_WIDTH)]" options:0 metrics:trix views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[plaque(TILE_HEIGHT)]" options:0 metrics:trix views:views]];
+    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[topLeftContainer(HALF_WIDTH)]" options:0 metrics:trix views:views]];
+    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topLeftContainer(HALF_HEIGHT)]" options:0 metrics:trix views:views]];
+    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[topRightContainer(HALF_WIDTH)]|" options:0 metrics:trix views:views]];
+    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topRightContainer(HALF_HEIGHT)]" options:0 metrics:trix views:views]];
+    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[bottomLeftContainer(HALF_WIDTH)]" options:0 metrics:trix views:views]];
+    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[bottomLeftContainer(HALF_HEIGHT)]|" options:0 metrics:trix views:views]];
+    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[bottomRightContainer(HALF_WIDTH)]|" options:0 metrics:trix views:views]];
+    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[bottomRightContainer(HALF_HEIGHT)]|" options:0 metrics:trix views:views]];
     
-    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[text]|" options:0 metrics:nil views:views]];
-    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[pageControl]|" options:0 metrics:nil views:views]];
-    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-4-[buttonContainer]-4-|" options:0 metrics:nil views:views]];
+    [topLeftContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[addButton(HALF_WIDTH)]" options:0 metrics:trix views:views]];
+    [topLeftContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[addButton(HALF_HEIGHT)]" options:0 metrics:trix views:views]];
+    [topLeftContainer addConstraint:[NSLayoutConstraint constraintWithItem:addButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:topLeftContainer attribute:NSLayoutAttributeCenterX multiplier:1.0f constant:0.0f]];
+    [topLeftContainer addConstraint:[NSLayoutConstraint constraintWithItem:addButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:topLeftContainer attribute:NSLayoutAttributeCenterY multiplier:1.0f constant:0.0f]];
     
-    [self.plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[text][pageControl][buttonContainer(HALF)]-4-|" options:0 metrics:trix views:views]];
+    [topRightContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[switchButton(HALF_WIDTH)]" options:0 metrics:trix views:views]];
+    [topRightContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[switchButton(HALF_HEIGHT)]" options:0 metrics:trix views:views]];
+    [topRightContainer addConstraint:[NSLayoutConstraint constraintWithItem:switchButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:topRightContainer attribute:NSLayoutAttributeCenterX multiplier:1.0f constant:0.0f]];
+    [topRightContainer addConstraint:[NSLayoutConstraint constraintWithItem:switchButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:topRightContainer attribute:NSLayoutAttributeCenterY multiplier:1.0f constant:0.0f]];
     
-    [buttonContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[switchButton(HALF)]|" options:0 metrics:trix views:views]];
-    [buttonContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[cliqueButton(HALF)]|" options:0 metrics:trix views:views]];
-    [buttonContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[flashButton(HALF)]|" options:0 metrics:trix views:views]];
+    [bottomLeftContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[cliqueButton(HALF_WIDTH)]" options:0 metrics:trix views:views]];
+    [bottomLeftContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[cliqueButton(HALF_HEIGHT)]" options:0 metrics:trix views:views]];
+    [bottomLeftContainer addConstraint:[NSLayoutConstraint constraintWithItem:cliqueButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:bottomLeftContainer attribute:NSLayoutAttributeCenterX multiplier:1.0f constant:0.0f]];
+    [bottomLeftContainer addConstraint:[NSLayoutConstraint constraintWithItem:cliqueButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:bottomLeftContainer attribute:NSLayoutAttributeCenterY multiplier:1.0f constant:0.0f]];
     
-    [buttonContainer addConstraint:[NSLayoutConstraint constraintWithItem:cliqueButton
-                                                          attribute:NSLayoutAttributeLeft
-                                                          relatedBy:NSLayoutRelationEqual
-                                                             toItem:buttonContainer
-                                                          attribute:NSLayoutAttributeLeft
-                                                         multiplier:1
-                                                           constant:0]];
-
-    [buttonContainer addConstraint:[NSLayoutConstraint constraintWithItem:flashButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:buttonContainer attribute:NSLayoutAttributeCenterX multiplier:1.0f constant:0.0f]];
-    
-    [buttonContainer addConstraint:[NSLayoutConstraint constraintWithItem:switchButton
-                                                          attribute:NSLayoutAttributeRight
-                                                          relatedBy:NSLayoutRelationEqual
-                                                             toItem:buttonContainer
-                                                          attribute:NSLayoutAttributeRight
-                                                         multiplier:1
-                                                           constant:0]];
-
-
+    [bottomRightContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[flashButton(HALF_WIDTH)]" options:0 metrics:trix views:views]];
+    [bottomRightContainer addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[flashButton(HALF_HEIGHT)]" options:0 metrics:trix views:views]];
+    [bottomRightContainer addConstraint:[NSLayoutConstraint constraintWithItem:flashButton attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:bottomRightContainer attribute:NSLayoutAttributeCenterX multiplier:1.0f constant:0.0f]];
+    [bottomRightContainer addConstraint:[NSLayoutConstraint constraintWithItem:flashButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:bottomRightContainer attribute:NSLayoutAttributeCenterY multiplier:1.0f constant:0.0f]];
 }
 
 - (void)hideContentController:(UIViewController *)content
@@ -328,7 +360,7 @@
 
 - (void)manageClique {
     
-    GroupInfo *groupInfo = [(GroupViewController *)[self.pageViewController.viewControllers objectAtIndex:0] groupInfo];
+    GroupInfo *groupInfo = [(GroupViewController *)[self.swipeView currentItemView] groupInfo];
     NSLog(@"members: %@", groupInfo.members);
 }
 

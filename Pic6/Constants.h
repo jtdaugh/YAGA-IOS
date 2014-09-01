@@ -12,16 +12,16 @@
 #define APP_NAME @"Yaga"
 
 #define NUM_TILES 96
-#define TILE_WIDTH ([[UIScreen mainScreen] bounds].size.width)/2
-#define TILE_HEIGHT ([[UIScreen mainScreen] bounds].size.height)/4
+#define TILE_WIDTH [[UIScreen mainScreen] applicationFrame].size.width/2
+#define TILE_HEIGHT [[UIScreen mainScreen] applicationFrame].size.height/4
 
 #define ENLARGED_MULTIPLIER 1.85
 
 #define ENLARGED_WIDTH TILE_WIDTH*ENLARGED_MULTIPLIER
 #define ENLARGED_HEIGHT TILE_HEIGHT*ENLARGED_MULTIPLIER
 
-#define VIEW_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
-#define VIEW_WIDTH ([[UIScreen mainScreen] bounds].size.width)
+#define VIEW_HEIGHT [[UIScreen mainScreen] applicationFrame].size.height
+#define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width
 
 #define LOADER_WIDTH 4
 #define LOADER_HEIGHT 4
@@ -33,6 +33,7 @@
 //amethyst: rgb(155, 89, 182)
 
 #define PRIMARY_COLOR [UIColor colorWithRed: 255.0f/255.0f green: 168.0f/255.0f blue:0.0f/255.0f alpha:1.0]
+#define PRIMARY_COLOR_ACCENT [UIColor colorWithRed: 247.0f/255.0f green: 148.0f/255.0f blue:29.0f/255.0f alpha:1.0]
 #define SECONDARY_COLOR [UIColor colorWithRed: 5.0f/255.0f green: 135.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 

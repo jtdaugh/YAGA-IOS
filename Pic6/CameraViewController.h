@@ -10,6 +10,7 @@
 #import "AVCamPreviewView.h"
 #import "CliquePageControl.h"
 #import "SwipeView.h"
+#import "GroupDetailView.h"
 @import AVFoundation;
 
 @interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate, SwipeViewDataSource, SwipeViewDelegate>
@@ -43,7 +44,7 @@
 
 @property (strong, nonatomic) UIView *plaque;
 @property (nonatomic, strong) CliquePageControl *pageControl;
-@property (strong, nonatomic) UILabel *text;
+@property (strong, nonatomic) GroupDetailView *detailView;
 @property (strong, nonatomic) UIButton *switchButton;
 @property (strong, nonatomic) UIButton *flashButton;
 

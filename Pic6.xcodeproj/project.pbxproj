@@ -57,6 +57,7 @@
 		71D0F5AA190DCE4300C7DEE0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A9190DCE4300C7DEE0 /* Security.framework */; };
 		71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
+		F139A6C919B44A4000595951 /* GroupDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = F139A6C819B44A4000595951 /* GroupDetailView.m */; };
 		F152A08119AA28A50090A9C7 /* CliquePageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = F152A08019AA28A50090A9C7 /* CliquePageControl.m */; };
 /* End PBXBuildFile section */
 
@@ -150,6 +151,8 @@
 		71D0F5A9190DCE4300C7DEE0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		F0D41408002943EAA721B6BF /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
+		F139A6C719B44A4000595951 /* GroupDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupDetailView.h; sourceTree = "<group>"; };
+		F139A6C819B44A4000595951 /* GroupDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupDetailView.m; sourceTree = "<group>"; };
 		F152A07F19AA28A50090A9C7 /* CliquePageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliquePageControl.h; sourceTree = "<group>"; };
 		F152A08019AA28A50090A9C7 /* CliquePageControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CliquePageControl.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -305,6 +308,8 @@
 				418CDE49199D8B9C00693733 /* CliqueTextField.m */,
 				F152A07F19AA28A50090A9C7 /* CliquePageControl.h */,
 				F152A08019AA28A50090A9C7 /* CliquePageControl.m */,
+				F139A6C719B44A4000595951 /* GroupDetailView.h */,
+				F139A6C819B44A4000595951 /* GroupDetailView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -548,6 +553,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				418CDE4A199D8B9C00693733 /* CliqueTextField.m in Sources */,
+				F139A6C919B44A4000595951 /* GroupDetailView.m in Sources */,
 				7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */,
 				411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */,
 				41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */,
