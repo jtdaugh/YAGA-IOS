@@ -167,7 +167,6 @@
 
 - (void) newTile:(FDataSnapshot *)snapshot {
     
-    
     CNetworking *currentUser = [CNetworking currentUser];
     NSMutableArray *gridData = (NSMutableArray *) [currentUser gridDataForGroupId:self.groupInfo.groupId];
     FDataSnapshot *firstObject = [gridData firstObject];
@@ -279,6 +278,7 @@
         if(selected.player.rate == 1.0){
             [selected.player seekToTime:kCMTimeZero];
             [selected.player setVolume:1.0];
+            [selected showIndicator];
 
 //            selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
 //            [self.overlay addSubview:selected];

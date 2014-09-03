@@ -225,6 +225,30 @@
     }
 }
 
+- (void)showIndicator {
+    CGFloat height = 12;
+    if(!self.indicator){
+        self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, height)];
+        [self.indicator setBackgroundColor:SECONDARY_COLOR];
+        [self.indicator setAlpha:0.7];
+    }
+    
+    [self addSubview:self.indicator];
+    [self.indicator setFrame:CGRectMake(0, 0, 0, height)];
+    
+    CGFloat duration = CMTimeGetSeconds(self.player.currentItem.asset.duration);
+    
+    [UIView animateWithDuration:duration delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        //
+        [self.indicator setFrame:CGRectMake(0, 0, self.frame.size.width, height)];
+    } completion:^(BOOL finished) {
+        //
+        if(finished){
+            [self.indicator removeFromSuperview];
+        }
+    }];
+}
+
 //- (void)dealloc {
 //    if(self.player){
 //        NSLog(@"dealloc!");

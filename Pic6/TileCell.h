@@ -34,6 +34,8 @@
 @property (strong, nonatomic) NSMutableArray *boxes;
 @property (strong, nonatomic) NSArray *colors;
 
+@property (strong, nonatomic) UIView *indicator;
+
 - (void)setVideoFrame:(CGRect)frame;
 - (void)showLoader;
 - (void)showImage;
@@ -42,4 +44,5 @@
 //- (void)initLoaderWithSwatches:(NSArray *)swatches;
 - (BOOL)isLoaded;
 + (BOOL)isLoaded:(NSString *)uid;
+- (void)showIndicator;
 @end

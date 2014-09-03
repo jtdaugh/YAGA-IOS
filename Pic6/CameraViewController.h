@@ -13,7 +13,7 @@
 #import "GroupDetailView.h"
 @import AVFoundation;
 
-@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIPageViewControllerDataSource, UIPageViewControllerDelegate, SwipeViewDataSource, SwipeViewDelegate>
+@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, SwipeViewDataSource, SwipeViewDelegate>
 
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *setup;
