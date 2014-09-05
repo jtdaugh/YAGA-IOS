@@ -184,11 +184,10 @@
     
     if(view){
         groupViewController = (GroupViewController *) view;
-    
+        [groupViewController configureGroupInfo:groupInfo];
     } else {
         groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
         groupViewController.cameraViewController = self;
-        NSLog(@"configure group info");
         [groupViewController configureGroupInfo:groupInfo];
     }
     
