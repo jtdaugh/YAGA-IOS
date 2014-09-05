@@ -32,8 +32,8 @@
 //wisteria: rgba(142, 68, 173)
 //amethyst: rgb(155, 89, 182)
 
-#define PRIMARY_COLOR [UIColor colorWithRed: 255.0f/255.0f green: 168.0f/255.0f blue:0.0f/255.0f alpha:1.0]
-#define PRIMARY_COLOR_ACCENT [UIColor colorWithRed: 247.0f/255.0f green: 148.0f/255.0f blue:29.0f/255.0f alpha:1.0]
+#define PRIMARY_COLOR [UIColor colorWithRed: 236.0f/255.0f green: 0.0f/255.0f blue:140.0f/255.0f alpha:1.0]
+#define PRIMARY_COLOR_ACCENT [UIColor blackColor]
 #define SECONDARY_COLOR [UIColor colorWithRed: 5.0f/255.0f green: 135.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 

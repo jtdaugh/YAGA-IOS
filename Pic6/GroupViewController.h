@@ -29,6 +29,9 @@
 @property (strong, nonatomic) UIRefreshControl *pull;
 @property (strong, nonatomic) UIActivityIndicatorView *loader;
 
+@property FirebaseHandle valueQuery;
+@property FirebaseHandle childQuery;
+
 @property (strong, nonatomic) UIView *banner;
 
 @property (strong, nonatomic) UIView *overlay;
@@ -51,5 +54,7 @@
 
 - (void)pauseVideos;
 - (void)unpauseVideos;
+
+- (void)configureGroupInfo:(GroupInfo *)groupInfo;
 
 @end

@@ -17,6 +17,7 @@
 
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *setup;
+@property (strong, nonatomic) NSNumber *notInitial;
 
 @property (nonatomic, strong) UIPageViewController *pageViewController;
 @property (nonatomic) NSInteger vcIndex;

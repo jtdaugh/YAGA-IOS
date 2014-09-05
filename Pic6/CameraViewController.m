@@ -170,30 +170,34 @@
     return [[[CNetworking currentUser] groupInfo] count];
 }
 
+- (CGSize)swipeViewItemSize:(SwipeView *)swipeView {
+    return swipeView.frame.size;
+}
+
 - (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
 {
     CNetworking *currentUser = [CNetworking currentUser];
     GroupViewController *groupViewController;
+    GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
+    
+    NSLog(@"view for item at index: %lu, reuse: %@", index, view?@"true":@"false");
     
     if(view){
         groupViewController = (GroupViewController *) view;
-        GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
-        
-        [groupViewController setScrolling:[NSNumber numberWithBool:YES]];
-        
-        groupViewController.groupInfo = groupInfo;
-        [groupViewController initFirebase];
-        [groupViewController.gridTiles reloadData];
-        
+    
     } else {
         groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
         groupViewController.cameraViewController = self;
-        
-//        [groupViewController setScrolling:[NSNumber numberWithBool:YES]];
-
-        GroupInfo *groupInfo = [[currentUser groupInfo] objectAtIndex:index];
-        groupViewController.groupInfo = groupInfo;
-        [groupViewController initFirebase];
+        NSLog(@"configure group info");
+        [groupViewController configureGroupInfo:groupInfo];
+    }
+    
+    NSLog(@"groupInfo: %@", groupInfo.name);
+    if([self.notInitial boolValue]){
+        [groupViewController setScrolling:[NSNumber numberWithBool:YES]];
+    } else {
+        NSLog(@"not initial");
+        self.notInitial = [NSNumber numberWithBool:YES];
     }
     
     return groupViewController;
