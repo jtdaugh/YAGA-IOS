@@ -788,6 +788,9 @@
     }
     [self closeCamera];
 
+    for(GroupViewController *gridView in [self.swipeView visibleItemViews]){
+        [gridView conserveTiles];
+    }
 }
 
 - (void)willResignActive {
@@ -796,6 +799,9 @@
 
 - (void)willEnterForeground {
     [self initCamera:0];
+    for(GroupViewController *gridView in [self.swipeView visibleItemViews]){
+        [gridView.gridTiles reloadData];
+    }
 }
 
 - (void)didBecomeActive {
