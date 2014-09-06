@@ -11,6 +11,7 @@
 #import "CliquePageControl.h"
 #import "SwipeView.h"
 #import "GroupDetailView.h"
+#import "TileCell.h"
 @import AVFoundation;
 
 @interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, SwipeViewDataSource, SwipeViewDelegate>
@@ -48,5 +49,10 @@
 @property (strong, nonatomic) GroupDetailView *detailView;
 @property (strong, nonatomic) UIButton *switchButton;
 @property (strong, nonatomic) UIButton *flashButton;
+
+@property (strong, nonatomic) UIView *overlay;
+
+- (void) presentOverlay:(TileCell *)tile;
+- (void) collapse:(TileCell *)tile speed:(CGFloat)speed;
 
 @end

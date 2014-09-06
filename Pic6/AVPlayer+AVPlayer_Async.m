@@ -40,7 +40,6 @@
 - (void)playerItemDidReachEnd:(NSNotification *)notification {
     AVPlayerItem *p = [notification object];
     [p seekToTime:kCMTimeZero];
-    [self setVolume:0.0];
 }
 
 - (void)removeObservers {

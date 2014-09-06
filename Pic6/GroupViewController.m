@@ -302,9 +302,9 @@
     
     if([selected.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]) {
         if(selected.player.rate == 1.0){
-            [selected.player seekToTime:kCMTimeZero];
-            [selected.player setVolume:1.0];
-            [selected showIndicator];
+//            [selected.player seekToTime:kCMTimeZero];
+//            [selected.player setVolume:1.0];
+//            [selected showIndicator];
 
 //            selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
 //            [self.overlay addSubview:selected];
@@ -324,6 +324,7 @@
 //                    
 //                }];
 //            }];
+            [self.cameraViewController presentOverlay:selected];
         } else {
             [collectionView reloadItemsAtIndexPaths:@[indexPath]];
         }
