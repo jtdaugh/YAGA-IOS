@@ -79,7 +79,8 @@
 }
 
 - (void)initDetailView {
-    GroupDetailView *detailView = [[GroupDetailView alloc] initWithFrame:self.frame];
+    CGSize size = self.frame.size;
+    GroupDetailView *detailView = [[GroupDetailView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
     detailView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:detailView];
     self.detailView = detailView;
