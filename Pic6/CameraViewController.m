@@ -198,12 +198,7 @@
     pageControl.numberOfPages = [[[CNetworking currentUser] groupInfo] count];
     [self.view addSubview:pageControl];
     self.pageControl = pageControl;
-    
-    GroupDetailView *detailView = [[GroupDetailView alloc] initWithFrame:self.swipeView.frame];
-    detailView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.view addSubview:detailView];
-    self.detailView = detailView;
-    
+        
     NSDictionary *views = NSDictionaryOfVariableBindings(pageControl);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[pageControl]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[pageControl]|" options:0 metrics:nil views:views]];
@@ -237,7 +232,10 @@
         groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
         groupViewController.cameraViewController = self;
         [groupViewController configureGroupInfo:groupInfo];
+        
     }
+    
+    [groupViewController.detailView flash];
     
     NSLog(@"groupInfo: %@", groupInfo.name);
     if([self.notInitial boolValue]){
@@ -258,7 +256,6 @@
 
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView {
     self.pageControl.currentPage = swipeView.currentItemIndex;
-    self.detailView.text =  [[[[CNetworking currentUser] groupInfo] objectAtIndex:swipeView.currentItemIndex] name];
 }
 
 - (void)swipeViewDidEndDragging:(SwipeView *)swipeView willDecelerate:(BOOL)decelerate {
@@ -269,8 +266,6 @@
 
 - (void)swipeViewDidEndDecelerating:(SwipeView *)swipeView {
     [self doneScrolling];
-    self.detailView.info = [[[CNetworking currentUser] groupInfo] objectAtIndex:swipeView.currentItemIndex];
-    [self.detailView flash];
 }
 
 - (void)doneScrolling {
@@ -656,7 +651,6 @@
     
     [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
     [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-    
     //set still image output
     dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
     [self setSessionQueue:sessionQueue];

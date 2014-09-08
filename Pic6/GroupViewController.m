@@ -71,9 +71,18 @@
     [self initGridView];
     [self initGridTiles];
     [self initLoader];
+    [self initDetailView];
+    
     //    [self initFirebase];
     // look at afterCameraInit to see what happens after the camera gets initialized. eg initFirebase.
 
+}
+
+- (void)initDetailView {
+    GroupDetailView *detailView = [[GroupDetailView alloc] initWithFrame:self.frame];
+    detailView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self addSubview:detailView];
+    self.detailView = detailView;
 }
 
 - (void)initGridView {
@@ -137,6 +146,8 @@
     }
     
     self.groupInfo = groupInfo;
+    self.detailView.info = groupInfo;
+    
     [self initFirebase];
 }
 

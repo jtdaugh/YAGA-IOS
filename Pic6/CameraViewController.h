@@ -10,7 +10,6 @@
 #import "AVCamPreviewView.h"
 #import "CliquePageControl.h"
 #import "SwipeView.h"
-#import "GroupDetailView.h"
 #import "TileCell.h"
 @import AVFoundation;
 
@@ -46,7 +45,6 @@
 
 @property (strong, nonatomic) UIView *plaque;
 @property (nonatomic, strong) CliquePageControl *pageControl;
-@property (strong, nonatomic) GroupDetailView *detailView;
 @property (strong, nonatomic) UIButton *switchButton;
 @property (strong, nonatomic) UIButton *flashButton;
 

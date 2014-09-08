@@ -11,6 +11,7 @@
 #import "TileCell.h"
 #import "CNetworking.h"
 #import "CameraViewController.h"
+#import "GroupDetailView.h"
 
 @interface GroupViewController : UIView <UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate>
 
@@ -39,6 +40,8 @@
 @property (strong, nonatomic) Firebase *firebase;
 
 @property (strong, nonatomic) TileCell *loaderTile;
+
+@property (strong, nonatomic) GroupDetailView *detailView;
 
 - (void)collapse:(TileCell *)tile speed:(CGFloat)speed;
 
