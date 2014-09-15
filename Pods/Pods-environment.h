@@ -12,18 +12,6 @@
 #define COCOAPODS_VERSION_MINOR_APAddressBook 0
 #define COCOAPODS_VERSION_PATCH_APAddressBook 10
 
-// AnalyticsKit/Core
-#define COCOAPODS_POD_AVAILABLE_AnalyticsKit_Core
-#define COCOAPODS_VERSION_MAJOR_AnalyticsKit_Core 1
-#define COCOAPODS_VERSION_MINOR_AnalyticsKit_Core 2
-#define COCOAPODS_VERSION_PATCH_AnalyticsKit_Core 3
-
-// AnalyticsKit/Mixpanel
-#define COCOAPODS_POD_AVAILABLE_AnalyticsKit_Mixpanel
-#define COCOAPODS_VERSION_MAJOR_AnalyticsKit_Mixpanel 1
-#define COCOAPODS_VERSION_MINOR_AnalyticsKit_Mixpanel 2
-#define COCOAPODS_VERSION_PATCH_AnalyticsKit_Mixpanel 3
-
 // Bolts
 #define COCOAPODS_POD_AVAILABLE_Bolts
 #define COCOAPODS_VERSION_MAJOR_Bolts 1
@@ -42,23 +30,11 @@
 #define COCOAPODS_VERSION_MINOR_Firebase 1
 #define COCOAPODS_VERSION_PATCH_Firebase 12
 
-// MPFoldTransition
-#define COCOAPODS_POD_AVAILABLE_MPFoldTransition
-#define COCOAPODS_VERSION_MAJOR_MPFoldTransition 0
-#define COCOAPODS_VERSION_MINOR_MPFoldTransition 0
-#define COCOAPODS_VERSION_PATCH_MPFoldTransition 1
-
-// Mixpanel
-#define COCOAPODS_POD_AVAILABLE_Mixpanel
-#define COCOAPODS_VERSION_MAJOR_Mixpanel 2
-#define COCOAPODS_VERSION_MINOR_Mixpanel 5
-#define COCOAPODS_VERSION_PATCH_Mixpanel 0
-
 // Parse
 #define COCOAPODS_POD_AVAILABLE_Parse
 #define COCOAPODS_VERSION_MAJOR_Parse 1
-#define COCOAPODS_VERSION_MINOR_Parse 2
-#define COCOAPODS_VERSION_PATCH_Parse 21
+#define COCOAPODS_VERSION_MINOR_Parse 3
+#define COCOAPODS_VERSION_PATCH_Parse 0
 
 // SwipeView
 #define COCOAPODS_POD_AVAILABLE_SwipeView

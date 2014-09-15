@@ -1,7 +1,5 @@
 pod 'Firebase', '>=1.1'
 pod "APAddressBook", "~> 0.0.7"
 pod 'libPhoneNumber-iOS', '~> 0.7'
-pod 'AnalyticsKit/Mixpanel'
-pod 'MPFoldTransition'
-pod 'Parse'
-pod 'SwipeView'
+pod 'Parse', '~> 1.3.0'
+pod 'SwipeView', '~> 1.3.2'
