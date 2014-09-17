@@ -573,6 +573,25 @@
     //    [self.cameraView addSubview:self.instructions];
     //    [self.cameraAccessories addObject:self.instructions];
     
+    CGFloat size = 50;
+    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size-20, 10, size, size)];
+//    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
+    [switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
+    [switchButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.cameraAccessories addObject:switchButton];
+    self.switchButton = switchButton;
+    [self.cameraView addSubview:self.switchButton];
+    
+    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size, size)];
+//    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
+    [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
+    [flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.cameraAccessories addObject:flashButton];
+    self.flashButton = flashButton;
+    [self.cameraView addSubview:self.flashButton];
+
     
 }
 
@@ -749,7 +768,7 @@
     [self.cameraView addSubview:self.indicator];
     
     [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        [self.indicator setFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT/4)];
+        [self.indicator setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, TILE_HEIGHT/4)];
     } completion:^(BOOL finished) {
         if(finished){
             [self endHold];
