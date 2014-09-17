@@ -63,7 +63,7 @@
         NSLog(@"error: %@", error);
     }
     
-    [self initPlaque];
+//    [self initPlaque];
     [self initCameraView];
     [self initCamera:YES];
     [self initOverlay];
@@ -186,7 +186,7 @@
 - (void)setupPages {
     CNetworking *currentUser = [CNetworking currentUser];
     
-    self.swipeView = [[SwipeView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT-TILE_HEIGHT)];
+    self.swipeView = [[SwipeView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT*2, VIEW_WIDTH, VIEW_HEIGHT-TILE_HEIGHT*2)];
     self.swipeView.delegate = self;
     self.swipeView.dataSource = self;
     [self.view addSubview:self.swipeView];
@@ -533,7 +533,7 @@
 }
 
 - (void)initCameraView {
-    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT)];
+    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*2)];
     //    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.cameraView setBackgroundColor:PRIMARY_COLOR];
     [self.view addSubview:self.cameraView];

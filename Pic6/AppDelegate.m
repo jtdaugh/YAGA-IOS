@@ -12,8 +12,6 @@
 #import "CameraViewController.h"
 #import "OnboardingNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
-#import "AnalyticsKit.h"
-#import "AnalyticsKitMixpanelProvider.h"
 #import <Parse/Parse.h>
 
 @implementation AppDelegate
@@ -29,9 +27,9 @@
                   clientKey:@"Av1qzrSKppbGK4JAM3mEuksQKp9xeovLJQnROEWN"];
     [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
     
-    AnalyticsKitMixpanelProvider *mixpanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:MIXPANEL_TOKEN];
-    
-    [AnalyticsKit initializeLoggers:@[mixpanel]];
+//    AnalyticsKitMixpanelProvider *mixpanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:MIXPANEL_TOKEN];
+//    
+//    [AnalyticsKit initializeLoggers:@[mixpanel]];
     
     [self setupAudio];
     

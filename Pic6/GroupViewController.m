@@ -87,7 +87,7 @@
 }
 
 - (void)initGridView {
-    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
+    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 2)];
     [self.gridView setBackgroundColor:PRIMARY_COLOR];
     
     [self addSubview:self.gridView];
