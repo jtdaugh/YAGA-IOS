@@ -43,12 +43,14 @@
 
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
-@property (strong, nonatomic) UIView *plaque;
-@property (nonatomic, strong) CliquePageControl *pageControl;
 @property (strong, nonatomic) UIButton *switchButton;
 @property (strong, nonatomic) UIButton *flashButton;
 
 @property (strong, nonatomic) UIView *overlay;
+
+@property (strong, nonatomic) UIView *plaque;
+@property (nonatomic, strong) CliquePageControl *pageControl;
+
 
 - (void) presentOverlay:(TileCell *)tile;
 - (void) collapse:(TileCell *)tile speed:(CGFloat)speed;

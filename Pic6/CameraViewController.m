@@ -229,9 +229,9 @@
         groupViewController = (GroupViewController *) view;
         [groupViewController configureGroupInfo:groupInfo];
     } else {
-        groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
-        groupViewController.cameraViewController = self;
-        [groupViewController configureGroupInfo:groupInfo];
+//        groupViewController = [[GroupViewController alloc] initWithFrame:swipeView.frame];
+//        groupViewController.cameraViewController = self;
+//        [groupViewController configureGroupInfo:groupInfo];
         
     }
     
@@ -640,6 +640,7 @@
     //    [self setOnboarding:[NSNumber numberWithBool:NO]];
     //    NSLog(@"tapped");
 }
+
 - (void)checkDeviceAuthorizationStatus
 {    
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {

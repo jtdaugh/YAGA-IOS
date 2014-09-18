@@ -42,7 +42,7 @@
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
         self.window.rootViewController = vc;
     } else {
-        CameraViewController *vc = [[CameraViewController alloc] init];
+        GroupViewController *vc = [[GroupViewController alloc] init];
         self.window.rootViewController = vc;
     }
   

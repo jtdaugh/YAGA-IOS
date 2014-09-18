@@ -23,12 +23,10 @@
 
 @implementation GroupViewController
 
-- (id)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    if(self){
+- (void)viewDidLoad {
+    if([PFUser currentUser]){
         [self setupView];
     }
-    return self;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -69,38 +67,279 @@
     
 //    [self initOverlay];
     [self initGridView];
-    [self initGridTiles];
     [self initLoader];
-    [self initDetailView];
+    [self initCameraView];
+    [self initCamera:YES];
+    [self setupGroups];
+
     
     //    [self initFirebase];
     // look at afterCameraInit to see what happens after the camera gets initialized. eg initFirebase.
 
 }
 
-- (void)initDetailView {
-    CGSize size = self.frame.size;
-    GroupDetailView *detailView = [[GroupDetailView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
-    detailView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self addSubview:detailView];
-    self.detailView = detailView;
+- (void)initCameraView {
+    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*2)];
+    //    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [self.cameraView setBackgroundColor:PRIMARY_COLOR];
+    [self.view addSubview:self.cameraView];
+    
+    [self.cameraView setUserInteractionEnabled:YES];
+    
+    UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+    [longPressGestureRecognizer setMinimumPressDuration:0.2f];
+    longPressGestureRecognizer.delegate = self;
+    [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
+    
+    self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [self.white setBackgroundColor:[UIColor whiteColor]];
+    [self.white setAlpha:0.95];
+    
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchFlashMode:)];
+    tapGestureRecognizer.delegate = self;
+    [self.white addGestureRecognizer:tapGestureRecognizer];
+    
+    self.instructions = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT * 3 / 8, TILE_WIDTH, TILE_HEIGHT/4)];
+    [self.instructions setAlpha:0.6];
+    
+    UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
+    [instructionText setText:@"Hold to Record!"];
+    [instructionText setFont:[UIFont fontWithName:BIG_FONT size:14]];
+    [instructionText setTextAlignment:NSTextAlignmentCenter];
+    [instructionText setTextColor:[UIColor whiteColor]];
+    [instructionText setBackgroundColor:PRIMARY_COLOR];
+    [instructionText sizeToFit];
+    CGFloat newHeight = instructionText.frame.size.height * 1.2;
+    CGFloat newWidth = instructionText.frame.size.width * 1.2;
+    [instructionText setFrame:CGRectMake(.5 * (self.instructions.frame.size.width - newWidth), .5 * (self.instructions.frame.size.height - newHeight), newWidth, newHeight)];
+    
+    [self.instructions addSubview:instructionText];
+    //    [self.instructions setAlpha:0.0];
+    
+    //    [self.cameraView addSubview:self.instructions];
+    //    [self.cameraAccessories addObject:self.instructions];
+    
+    CGFloat size = 50;
+    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size-20, 10, size, size)];
+    //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
+    [switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
+    [switchButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.cameraAccessories addObject:switchButton];
+    self.switchButton = switchButton;
+    [self.cameraView addSubview:self.switchButton];
+    
+    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size, size)];
+    //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
+    [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
+    [flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.cameraAccessories addObject:flashButton];
+    self.flashButton = flashButton;
+    [self.cameraView addSubview:self.flashButton];
+    
+    
+}
+
+- (void)initCamera:(BOOL)initial {
+    
+    NSLog(@"init camera");
+    
+    self.session = [[AVCaptureSession alloc] init];
+    self.session.sessionPreset = AVCaptureSessionPresetMedium;
+    
+    [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
+    [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+    //set still image output
+    dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
+    [self setSessionQueue:sessionQueue];
+    //    [self setSessionQueue:sessionQueue];
+    
+    dispatch_async(sessionQueue, ^{
+        
+        NSError *error = nil;
+        
+        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+        AVCaptureDevice *captureDevice = [devices firstObject];
+        
+        for (AVCaptureDevice *device in devices)
+        {
+            if ([device position] == AVCaptureDevicePositionFront)
+            {
+                captureDevice = device;
+                break;
+            }
+        }
+        
+        self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+        
+        if (error)
+        {
+            NSLog(@"add video input error: %@", error);
+        }
+        
+        if ([self.session canAddInput:self.videoInput])
+        {
+            [self.session addInput:self.videoInput];
+        }
+        
+        AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
+        self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+        
+        if (error)
+        {
+            NSLog(@"add audio input error: %@", error);
+        }
+        
+        if ([self.session canAddInput:self.audioInput])
+        {
+            [self.session addInput:self.audioInput];
+        }
+        
+        self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+        if ([self.session canAddOutput:self.movieFileOutput])
+        {
+            [self.session addOutput:self.movieFileOutput];
+        }
+        
+        [self.session startRunning];
+        if(initial){
+            [self afterCameraInit];
+        }
+    });
+}
+
+- (void)afterCameraInit {
+    
+}
+
+- (void)addAudioInput {
+    
+    NSError *error = nil;
+    
+    if(error){
+        NSLog(@"set play and record error: %@", error);
+    }
+    
+    NSLog(@"audio input added!");
+}
+
+- (void)closeCamera {
+    [self.session beginConfiguration];
+    for(AVCaptureDeviceInput *input in self.session.inputs){
+        [self.session removeInput:input];
+    }
+    [self.session commitConfiguration];
+    [self.session stopRunning];
+}
+
+- (void)handleHold:(UITapGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateEnded) {
+        [self endHold];
+    } else if (recognizer.state == UIGestureRecognizerStateBegan){
+        [self startHold];
+    }
+}
+
+- (void)startHold {
+    
+    NSLog(@"starting hold");
+    
+    self.recording = [NSNumber numberWithBool:YES];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, TILE_HEIGHT/4)];
+    [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
+    [self.indicator setUserInteractionEnabled:NO];
+    [self.cameraView addSubview:self.indicator];
+    
+    [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        [self.indicator setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, TILE_HEIGHT/4)];
+    } completion:^(BOOL finished) {
+        if(finished){
+            [self endHold];
+        }
+        //
+    }];
+    
+    [self startRecordingVideo];
+    
+}
+
+- (void) endHold {
+    if([self.recording boolValue]){
+        [self.indicator removeFromSuperview];
+        [self stopRecordingVideo];
+        // Do Whatever You want on End of Gesture
+        self.recording = [NSNumber numberWithBool:NO];
+    }
+}
+
+- (void) startRecordingVideo {
+    //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+    
+    //Create temporary URL to record to
+    NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
+    NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:outputPath])
+    {
+        NSError *error;
+        if ([fileManager removeItemAtPath:outputPath error:&error] == NO)
+        {
+            //Error - handle if requried
+        }
+    }
+    //Start recording
+    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+    
+}
+
+- (void) stopRecordingVideo {
+    [self.movieFileOutput stopRecording];
+    NSLog(@"stop recording video");
+}
+
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
+    
+    NSLog(@"anyone here?");
+    
+    BOOL RecordedSuccessfully = YES;
+    if ([error code] != noErr)
+    {
+        // A problem occurred: Find out if the recording was successful.
+        id value = [[error userInfo] objectForKey:AVErrorRecordingSuccessfullyFinishedKey];
+        if (value)
+        {
+            RecordedSuccessfully = [value boolValue];
+        }
+    }
+    if (RecordedSuccessfully)
+    {
+        //----- RECORDED SUCESSFULLY -----
+        
+        NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
+        
+        [self uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
+    } else {
+        NSLog(@"wtf is going on");
+    }
+    
 }
 
 - (void)initGridView {
-    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 2)];
+    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
     [self.gridView setBackgroundColor:PRIMARY_COLOR];
     
-    [self addSubview:self.gridView];
+    [self.view addSubview:self.gridView];
 }
 
 - (void) initGridTiles {
     int tile_buffer = 0;
     
     UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
-    [layout setSectionInset:UIEdgeInsetsMake(0, 0, TILE_HEIGHT*tile_buffer, 0)];
+    [layout setSectionInset:UIEdgeInsetsMake(TILE_HEIGHT*2, 0, 0, 0)];
     [layout setMinimumInteritemSpacing:0.0];
     [layout setMinimumLineSpacing:0.0];
-    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*3 + tile_buffer*TILE_HEIGHT) collectionViewLayout:layout];
+    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*4) collectionViewLayout:layout];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
@@ -294,6 +533,21 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     self.scrolling = [NSNumber numberWithBool:YES];
+    CGFloat offset = 0;
+    
+    CGFloat gutter = 44;
+    
+    if(scrollView.contentOffset.y > TILE_HEIGHT*2 - gutter){
+        offset = TILE_HEIGHT*2 - gutter;
+    } else if(scrollView.contentOffset.y < 0){
+        offset = 0;
+    } else {
+        offset = scrollView.contentOffset.y;
+    }
+    
+    CGRect frame = self.cameraView.frame;
+    frame.origin.y = 0 - offset;
+    self.cameraView.frame = frame;
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -443,12 +697,6 @@
     }
 }
 
-- (void)pagingStarted {
-    [self printMessage:@"paging started?"];
-    
-//    [self conserveTiles];
-}
-
 - (void)conserveTiles {
     
     for(TileCell *tile in [self.gridTiles visibleCells]){
@@ -460,38 +708,56 @@
     }
 }
 
-- (void)pagingEnded {
-    [self printMessage:@"paging ended?"];
-    //    [self.gridTiles reloadData];
+- (void)setupGroups {
+    CNetworking *currentUser = [CNetworking currentUser];
+    PFUser *pfUser = [PFUser currentUser];
     
-    for(TileCell *tile in [self.gridTiles visibleCells]){
-        if([tile.state isEqualToNumber:[NSNumber numberWithInt:LOADED]]){
-            [tile play];
+    NSString *path = [NSString stringWithFormat:@"users/%@/groups", pfUser[@"phoneHash"]];
+    
+    NSLog(@"path: %@", path);
+    
+    // fetching all of a users groups
+    [[currentUser.firebase childByAppendingPath:path] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        
+        currentUser.groupInfo = [[NSMutableArray alloc] init];
+        
+        // iterate through returned groups
+        for(FDataSnapshot *child in snapshot.children){
+            
+            // fetch group meta data
+            NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
+            NSLog(@"datapath: %@", dataPath);
+            
+            [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
+                
+                // saving group data
+                GroupInfo *info = [[GroupInfo alloc] init];
+                info.name = dataSnapshot.value[@"name"];
+                info.groupId = child.name;
+                info.members = [[NSMutableArray alloc] init];
+                
+                for(NSString *member in dataSnapshot.value[@"members"]){
+                    [info.members addObject:member];
+                }
+                
+                [currentUser.groupInfo insertObject:info atIndex:0];
+                
+                if([currentUser.groupInfo count] == snapshot.childrenCount){
+                    NSLog(@"about to setup pages");
+                    [self.gridTiles reloadData];
+                    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+                    [self initGridTiles];
+
+//                    [self setGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+                    
+                    
+                }
+            }];
         }
-    }
+    }];
+    
 }
 
-- (void)playLoadedTiles {
-    [self.gridTiles reloadData];
-}
-
-- (void)pauseVideos {
-    for(TileCell *tile in [self.gridTiles visibleCells]){
-        if([tile.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]){
-            tile.state = [NSNumber numberWithInt:PAUSED];
-            [tile.player pause];
-        }
-    }
-}
-
-- (void)unpauseVideos {
-    for(TileCell *tile in [self.gridTiles visibleCells]){
-        if([tile.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]){
-            tile.state = [NSNumber numberWithInt:PLAYING];
-            [tile.player play];
-        }
-    }
-}
 
 - (void)willResignActive {
 //    [self removeAudioInput];
@@ -523,7 +789,7 @@
 }
 
 - (void)removeFromSuperview {
-    [super removeFromSuperview];
+//    [super removeFromSuperview];
     for(TileCell *tile in [self.gridTiles visibleCells]){
         tile.player = nil;
         [tile.player removeObservers];
