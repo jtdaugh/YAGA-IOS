@@ -43,7 +43,7 @@
         [self loaderTick:nil];
         [self.container addSubview:self.loader];
         
-        self.image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+        self.image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
         [self.image setContentMode:UIViewContentModeScaleAspectFill];
         [self.image setClipsToBounds:YES];
         [self.container addSubview:self.image];

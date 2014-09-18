@@ -41,7 +41,7 @@
     } else {
         NSLog(@"poop. not logged in.");
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
-        [self.cameraViewController presentViewController:vc animated:NO completion:^{
+        [self presentViewController:vc animated:NO completion:^{
             //
         }];
     }
@@ -325,9 +325,136 @@
     
 }
 
+- (void) switchCamera:(id)sender { //switch cameras front and rear cameras
+    //    int *x = NULL; *x = 42;
+    
+    dispatch_async([self sessionQueue], ^{
+        AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
+        AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
+        AVCaptureDevicePosition currentPosition = [currentVideoDevice position];
+        
+        switch (currentPosition)
+        {
+            case AVCaptureDevicePositionUnspecified:
+                preferredPosition = AVCaptureDevicePositionFront;
+                break;
+            case AVCaptureDevicePositionBack:
+                preferredPosition = AVCaptureDevicePositionFront;
+                break;
+            case AVCaptureDevicePositionFront:
+                preferredPosition = AVCaptureDevicePositionBack;
+                break;
+        }
+        
+        [self addAudioInput];
+        
+        AVCaptureDevice *videoDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:preferredPosition];
+        AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:nil];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self configureFlashButton:[NSNumber numberWithBool:NO]];
+        });
+        
+        [[self session] beginConfiguration];
+        
+        [[self session] removeInput:[self videoInput]];
+        if ([[self session] canAddInput:videoDeviceInput])
+        {
+            [[self session] addInput:videoDeviceInput];
+            [self setVideoInput:videoDeviceInput];
+        }
+        else
+        {
+            [[self session] addInput:[self videoInput]];
+        }
+        
+        [[self session] commitConfiguration];
+        
+    });
+    
+    //    [self.session beginConfiguration];
+    //    [self.session commitConfiguration];
+    
+}
+
+- (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
+    AVCaptureDevice *captureDevice = [devices firstObject];
+    
+    for (AVCaptureDevice *device in devices)
+    {
+        if ([device position] == position)
+        {
+            captureDevice = device;
+            break;
+        }
+    }
+    
+    return captureDevice;
+}
+
+- (void) switchFlashMode:(id)sender {
+    
+    NSLog(@"switching flash mode");
+    AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
+    
+    if([currentVideoDevice position] == AVCaptureDevicePositionBack){
+        // back camera
+        [currentVideoDevice lockForConfiguration:nil];
+        if([self.flash boolValue]){
+            //turn flash off
+            if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOff]){
+                [currentVideoDevice setTorchMode:AVCaptureTorchModeOff];
+            }
+            [self configureFlashButton:[NSNumber numberWithBool:NO]];
+        } else {
+            //turn flash on
+            NSError *error = nil;
+            if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOn]){
+                [currentVideoDevice setTorchModeOnWithLevel:0.8 error:&error];
+            }
+            if(error){
+                NSLog(@"error: %@", error);
+            }
+            
+            [self configureFlashButton:[NSNumber numberWithBool:YES]];
+        }
+        [currentVideoDevice unlockForConfiguration];
+        
+    } else if([currentVideoDevice position] == AVCaptureDevicePositionFront) {
+        //front camera
+        if([self.flash boolValue]){
+            // turn flash off
+            if(self.previousBrightness){
+                [[UIScreen mainScreen] setBrightness:[self.previousBrightness floatValue]];
+            }
+            [self.white removeFromSuperview];
+            [self configureFlashButton:[NSNumber numberWithBool:NO]];
+        } else {
+            // turn flash on
+            self.previousBrightness = [NSNumber numberWithFloat: [[UIScreen mainScreen] brightness]];
+            [[UIScreen mainScreen] setBrightness:1.0];
+            [self.view addSubview:self.white];
+            [self.view bringSubviewToFront:self.cameraView];
+            [self configureFlashButton:[NSNumber numberWithBool:YES]];
+        }
+        
+    }
+}
+
+- (void)configureFlashButton:(NSNumber *)flash {
+    self.flash = flash;
+    if([flash boolValue]){
+        [self.flashButton setImage:[UIImage imageNamed:@"TorchOn"] forState:UIControlStateNormal];
+    } else {
+        [self.flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
+    }
+}
+
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
-    [self.gridView setBackgroundColor:PRIMARY_COLOR];
+//    [self.gridView setBackgroundColor:[UIColor whiteColor]];
     
     [self.view addSubview:self.gridView];
 }
@@ -335,15 +462,16 @@
 - (void) initGridTiles {
     int tile_buffer = 0;
     
+    CGFloat spacing = 1.0f;
     UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
-    [layout setSectionInset:UIEdgeInsetsMake(TILE_HEIGHT*2, 0, 0, 0)];
-    [layout setMinimumInteritemSpacing:0.0];
-    [layout setMinimumLineSpacing:0.0];
+    [layout setSectionInset:UIEdgeInsetsMake(TILE_HEIGHT*2 + spacing, 0, 0, 0)];
+    [layout setMinimumInteritemSpacing:spacing];
+    [layout setMinimumLineSpacing:spacing];
     self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*4) collectionViewLayout:layout];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
-    [self.gridTiles setBackgroundColor:PRIMARY_COLOR];
+    [self.gridTiles setBackgroundColor:[UIColor whiteColor]];
     //    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
     
@@ -498,7 +626,7 @@
 }
 
 -(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return CGSizeMake(TILE_WIDTH, TILE_HEIGHT);
+    return CGSizeMake(TILE_WIDTH-1.0f, TILE_HEIGHT);
 }
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
