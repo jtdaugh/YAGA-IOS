@@ -65,7 +65,7 @@
         
     [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:@"username"]];
     
-//    [self initOverlay];
+    [self initOverlay];
     [self initGridView];
     [self initLoader];
     [self initCameraView];
@@ -496,11 +496,11 @@
 }
 
 - (void) initOverlay {
-    self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT*4)];
+    self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.overlay setBackgroundColor:[UIColor blackColor]];
     [self.overlay setAlpha:0.0];
 
-//    [self.view addSubview:self.overlay];
+    [self.view addSubview:self.overlay];
 }
 
 - (void)configureGroupInfo:(GroupInfo *)groupInfo {
@@ -718,7 +718,7 @@
 //                    
 //                }];
 //            }];
-            [self.cameraViewController presentOverlay:selected];
+            [self presentOverlay:selected];
         } else {
             [collectionView reloadItemsAtIndexPaths:@[indexPath]];
         }
@@ -729,11 +729,33 @@
     
 }
 
+- (void)presentOverlay:(TileCell *)tile {
+    tile.frame = CGRectMake(tile.frame.origin.x, tile.frame.origin.y - self.gridTiles.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+    [self.view bringSubviewToFront:self.overlay];
+    [self.overlay addSubview:tile];
+    
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+        [self.overlay setAlpha:1.0];
+        [tile.player setVolume:1.0];
+        [tile setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
+    } completion:^(BOOL finished) {
+        //
+        OverlayViewController *overlay = [[OverlayViewController alloc] init];
+        [overlay setTile:tile];
+        [overlay setPreviousViewController:self];
+        self.modalPresentationStyle = UIModalPresentationCurrentContext;
+        [self presentViewController:overlay animated:NO completion:^{
+            
+        }];
+    }];
+}
+
 - (void) collapse:(TileCell *)tile speed:(CGFloat)speed {
+    
     tile.frame = CGRectMake(0, self.gridTiles.contentOffset.y, TILE_WIDTH*2, TILE_HEIGHT*2);
     [self.gridTiles addSubview:tile];
     [self.overlay setAlpha:0.0];
-//    [self.gridTiles addSubview:self.overlay];
+    //    [self.gridTiles addSubview:self.overlay];
     [UIView animateWithDuration:speed delay:0.0 usingSpringWithDamping:0.9 initialSpringVelocity:0.7 options:0 animations:^{
         NSIndexPath *ip = [self.gridTiles indexPathForCell:tile];
         [tile setVideoFrame:[self.gridTiles layoutAttributesForItemAtIndexPath:ip].frame];
@@ -741,10 +763,6 @@
     } completion:^(BOOL finished) {
         //
     }];
-}
-
-- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
-    
 }
 
 - (void)manageClique:(id)sender { //switch cameras front and rear cameras

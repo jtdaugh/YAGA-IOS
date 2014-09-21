@@ -591,7 +591,6 @@
     [self.cameraAccessories addObject:flashButton];
     self.flashButton = flashButton;
     [self.cameraView addSubview:self.flashButton];
-
     
 }
 

@@ -45,6 +45,9 @@
         GroupViewController *vc = [[GroupViewController alloc] init];
         self.window.rootViewController = vc;
     }
+    
+    
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
   
     [self.window makeKeyAndVisible];
     
