@@ -70,6 +70,28 @@
     [self initLoader];
     [self initCameraView];
     [self initCamera:YES];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willResignActive)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didBecomeActive)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+
+    
     [self setupGroups];
 
     
@@ -919,12 +941,19 @@
 - (void)didEnterBackground {
 //    NSLog(@"did enter background");
 //    [self.view setAlpha:0.0];
+    
+    if([self.flash boolValue] && [[self.videoInput device] position] == AVCaptureDevicePositionFront){
+        [self switchFlashMode:nil];
+    }
+    [self closeCamera];
+
     [self conserveTiles];
 }
 
 - (void)willEnterForeground {
 //    NSLog(@"will enter foreground");
 //    [self.view setAlpha:1.0];
+    [self initCamera:0];
     [self.gridTiles reloadData];
 
 //    for(TileCell *tile in [self.gridTiles visibleCells]){
