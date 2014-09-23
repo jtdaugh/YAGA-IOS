@@ -33,7 +33,6 @@
 		41EC82091977218A002AE4BF /* 2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82041977218A002AE4BF /* 2.mp4 */; };
 		41EC820A1977218A002AE4BF /* 3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82051977218A002AE4BF /* 3.mp4 */; };
 		41EC820B1977218A002AE4BF /* 4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82061977218A002AE4BF /* 4.mp4 */; };
-		71106D88192444A30083C64A /* PData.m in Sources */ = {isa = PBXBuildFile; fileRef = 71106D87192444A30083C64A /* PData.m */; };
 		715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 715455D0190E01D600ABE2BE /* UIImage+Resize.m */; };
 		7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */ = {isa = PBXBuildFile; fileRef = 7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */; };
 		716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 716CFA35192EC1F500E6ED17 /* TileCell.m */; };
@@ -115,8 +114,6 @@
 		41EC82041977218A002AE4BF /* 2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 2.mp4; sourceTree = "<group>"; };
 		41EC82051977218A002AE4BF /* 3.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 3.mp4; sourceTree = "<group>"; };
 		41EC82061977218A002AE4BF /* 4.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 4.mp4; sourceTree = "<group>"; };
-		71106D86192444A30083C64A /* PData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PData.h; sourceTree = "<group>"; };
-		71106D87192444A30083C64A /* PData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PData.m; sourceTree = "<group>"; };
 		71404FA819121A78002F4B92 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		715455CF190E01D600ABE2BE /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
 		715455D0190E01D600ABE2BE /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
@@ -257,8 +254,6 @@
 		71106D85192434970083C64A /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				71106D86192444A30083C64A /* PData.h */,
-				71106D87192444A30083C64A /* PData.m */,
 				41B404921974CA6700F9EE3F /* CContact.h */,
 				41B404931974CA6700F9EE3F /* CContact.m */,
 				41A308A419819D1000D30349 /* CNetworking.h */,
@@ -556,7 +551,6 @@
 				41DCA6B61975D7550055910F /* SplashViewController.m in Sources */,
 				415DE47319777609000DD3C7 /* OnboardingNavigationController.m in Sources */,
 				41EC820119771320002AE4BF /* LoginViewController.m in Sources */,
-				71106D88192444A30083C64A /* PData.m in Sources */,
 				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,
 				418954BE19687DD2009C17E2 /* NSString+File.m in Sources */,
 				41B404941974CA6700F9EE3F /* CContact.m in Sources */,
