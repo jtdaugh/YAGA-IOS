@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "GroupViewController.h"
+#import "GridViewController.h"
 #import "UIImage+Resize.h"
 #import "UIImage+Colors.h"
 #import "NSString+File.h"
@@ -18,10 +18,10 @@
 #import <Crashlytics/Crashlytics.h>
 #import <Parse/Parse.h>
 
-@interface GroupViewController ()
+@interface GridViewController ()
 @end
 
-@implementation GroupViewController
+@implementation GridViewController
 
 - (void)viewDidLoad {
     if([PFUser currentUser]){
@@ -62,14 +62,18 @@
 - (void)setupView {
     
     self.setup = [NSNumber numberWithBool:YES];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
         
     [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:@"username"]];
+    
+    [[CNetworking currentUser] registerUser];
     
     [self initOverlay];
     [self initGridView];
     [self initLoader];
     [self initCameraView];
     [self initCamera:YES];
+    [self initBall];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -108,6 +112,8 @@
     
     [self.cameraView setUserInteractionEnabled:YES];
     
+    self.cameraAccessories = [@[] mutableCopy];
+    
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
     [longPressGestureRecognizer setMinimumPressDuration:0.2f];
     longPressGestureRecognizer.delegate = self;
@@ -142,23 +148,28 @@
     //    [self.cameraAccessories addObject:self.instructions];
     
     CGFloat size = 50;
-    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size-20, 10, size, size)];
+    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 20, self.cameraView.frame.size.height - size - 10, size, size)];
     //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
     [switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
     [switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
     [switchButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [self.cameraAccessories addObject:switchButton];
     self.switchButton = switchButton;
+    [self.cameraAccessories addObject:self.switchButton];
     [self.cameraView addSubview:self.switchButton];
     
-    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size, size)];
+    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, self.cameraView.frame.size.height - size - 10, size, size)];
     //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
     [flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
     [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
     [flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [self.cameraAccessories addObject:flashButton];
     self.flashButton = flashButton;
+    [self.cameraAccessories addObject:self.flashButton];
     [self.cameraView addSubview:self.flashButton];
+    
+//    self.cameraView.layer.shadowColor = [[UIColor redColor] CGColor];
+//    self.cameraView.layer.shadowRadius = 10.0f;
+//    self.cameraView.layer.shadowOpacity = 1;
+//    self.cameraView.layer.shadowOffset = CGSizeZero;
     
     
 }
@@ -478,7 +489,91 @@
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
 //    [self.gridView setBackgroundColor:[UIColor whiteColor]];
     
+    [self initGridTiles];
+    
+//    [self initBall];
+    
     [self.view addSubview:self.gridView];
+}
+
+- (void) initBall {
+    
+    CGFloat size = 50;
+    
+    self.basketball = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - size/2, VIEW_HEIGHT/2 - size/2, size, size)];
+    [self.basketball setBackgroundImage:[UIImage imageNamed:@"Ball"] forState:UIControlStateNormal];
+    [self.basketball addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchDown];
+    
+    [self.view addSubview:self.basketball];
+    
+}
+
+- (void) tappedBall {
+    NSLog(@"tappedBall");
+    
+    if(![self.scrolling boolValue]){
+        if(self.gridTiles.contentOffset.y > 0){
+            NSLog(@"wat");
+//            [self.gridTiles setContentOffset:CGPointZero animated:YES];
+        } else {
+            [self toggleElevator];
+        }
+    } else {
+        NSLog(@"wat 2");
+    }
+}
+
+- (void)toggleElevator {
+    NSLog(@"toggle elevator");
+    if([self.elevatorOpen boolValue]){
+        [self closeElevator];
+    } else {
+        [self openElevator];
+    }
+}
+
+- (void) openElevator {
+    
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:0 animations:^{
+        //
+        [self.cameraView setFrame:CGRectMake(0, -(TILE_HEIGHT*2)+50, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
+        CGRect ballFrame = self.basketball.frame;
+        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height/2;
+        [self.basketball setFrame:ballFrame];
+
+        CGRect frame = self.gridTiles.frame;
+        frame.origin.y += TILE_HEIGHT * 2 - 50;
+        [self.gridTiles setFrame:frame];
+        
+        for(UIView *view in self.cameraAccessories){
+            [view setAlpha:0.0];
+        }
+        
+    } completion:^(BOOL finished) {
+        self.elevatorOpen = [NSNumber numberWithBool:YES];
+    }];
+        
+}
+
+- (void) closeElevator {
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:0 animations:^{
+        //
+        [self.cameraView setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
+        CGRect ballFrame = self.basketball.frame;
+        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height/2;
+        [self.basketball setFrame:ballFrame];
+        
+        CGRect frame = self.gridTiles.frame;
+        frame.origin.y = 0;
+        [self.gridTiles setFrame:frame];
+        
+        for(UIView *view in self.cameraAccessories){
+            [view setAlpha:1.0];
+        }
+
+    } completion:^(BOOL finished) {
+        self.elevatorOpen = [NSNumber numberWithBool:NO];
+    }];
 }
 
 - (void) initGridTiles {
@@ -536,7 +631,6 @@
     }
     
     self.groupInfo = groupInfo;
-    self.detailView.info = groupInfo;
     
     [self initFirebase];
 }
@@ -698,6 +792,10 @@
     CGRect frame = self.cameraView.frame;
     frame.origin.y = 0 - offset;
     self.cameraView.frame = frame;
+    
+    frame = self.basketball.frame;
+    frame.origin.y = VIEW_HEIGHT / 2 - 50/2 - offset;
+    self.basketball.frame = frame;
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -756,6 +854,8 @@
     [self.view bringSubviewToFront:self.overlay];
     [self.overlay addSubview:tile];
     
+    [tile.loader setAlpha:0.0];
+    
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         [self.overlay setAlpha:1.0];
         [tile.player setVolume:1.0];
@@ -777,6 +877,9 @@
     tile.frame = CGRectMake(0, self.gridTiles.contentOffset.y, TILE_WIDTH*2, TILE_HEIGHT*2);
     [self.gridTiles addSubview:tile];
     [self.overlay setAlpha:0.0];
+    
+    [tile.loader setAlpha:1.0];
+
     //    [self.gridTiles addSubview:self.overlay];
     [UIView animateWithDuration:speed delay:0.0 usingSpringWithDamping:0.9 initialSpringVelocity:0.7 options:0 animations:^{
         NSIndexPath *ip = [self.gridTiles indexPathForCell:tile];
@@ -836,7 +939,7 @@
     NSLog(@"group id: %@", self.groupInfo.groupId);
     NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, dataPath];
     
-    NSLog(@"path: %@", path);
+//    NSLog(@"path: %@", path);
     
 //    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
     [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":pfUser.username, @"colors":colors}];
@@ -894,7 +997,7 @@
             
             // fetch group meta data
             NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
-            NSLog(@"datapath: %@", dataPath);
+//            NSLog(@"datapath: %@", dataPath);
             
             [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
                 
@@ -914,7 +1017,7 @@
                     NSLog(@"about to setup pages");
                     [self.gridTiles reloadData];
                     [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
-                    [self initGridTiles];
+//                    [self initGridTiles];
 
 //                    [self setGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
                     

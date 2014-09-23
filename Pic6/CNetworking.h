@@ -32,5 +32,6 @@
 - (NSMutableArray *)gridDataForGroupId:(NSString *)groupId;
 - (NSUInteger) groupIndexForGroupId:(NSString *)groupId;
 - (void)trySomething;
+- (void)registerUser;
 
 @end

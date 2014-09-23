@@ -11,17 +11,17 @@
 
 #define APP_NAME @"Yaga"
 
+#define VIEW_HEIGHT ([[UIScreen mainScreen] applicationFrame].size.height + (([UIApplication sharedApplication].statusBarHidden)?0:20))
+#define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width
+
 #define NUM_TILES 96
-#define TILE_WIDTH [[UIScreen mainScreen] applicationFrame].size.width/2
-#define TILE_HEIGHT [[UIScreen mainScreen] applicationFrame].size.height/4
+#define TILE_WIDTH (VIEW_WIDTH/2)
+#define TILE_HEIGHT VIEW_HEIGHT/4
 
 #define ENLARGED_MULTIPLIER 1.85
 
 #define ENLARGED_WIDTH TILE_WIDTH*ENLARGED_MULTIPLIER
 #define ENLARGED_HEIGHT TILE_HEIGHT*ENLARGED_MULTIPLIER
-
-#define VIEW_HEIGHT [[UIScreen mainScreen] applicationFrame].size.height
-#define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width
 
 #define LOADER_WIDTH 4
 #define LOADER_HEIGHT 4
@@ -50,5 +50,7 @@
 #define ARC4RANDOM_MAX 0x100000000
 
 #define MIXPANEL_TOKEN @"YOUR_TOKEN"
+
+#define BASE_API_URL @"http://127.0.0.1:5000"
 
 #endif

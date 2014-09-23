@@ -10,12 +10,9 @@
 #import <Firebase/Firebase.h>
 #import "TileCell.h"
 #import "CNetworking.h"
-#import "CameraViewController.h"
-#import "GroupDetailView.h"
+#import "AVCamPreviewView.h"
 
-@interface GroupViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate>
-
-@property (strong, nonatomic) CameraViewController *cameraViewController;
+@interface GridViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate>
 
 @property (strong, nonatomic) NSNumber *setup;
 @property (strong, nonatomic) NSNumber *appeared;
@@ -41,7 +38,9 @@
 
 @property (strong, nonatomic) TileCell *loaderTile;
 
-@property (strong, nonatomic) GroupDetailView *detailView;
+@property (strong, nonatomic) UIButton *basketball;
+@property (strong, nonatomic) UITableView *elevatorMenu;
+@property (strong, nonatomic) NSNumber *elevatorOpen;
 
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
 @property (strong, nonatomic) UIButton *cameraButton;

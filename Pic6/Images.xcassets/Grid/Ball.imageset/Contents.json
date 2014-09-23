@@ -1,21 +1,19 @@
 {
   "images" : [
     {
-      "idiom" : "universal"
-    },
-    {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "torchon-1.png"
+      "filename" : "basketball-2.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "torchon.png"
+      "filename" : "basketball.png"
     },
     {
       "idiom" : "universal",
-      "scale" : "3x"
+      "scale" : "3x",
+      "filename" : "basketball-1.png"
     }
   ],
   "info" : {

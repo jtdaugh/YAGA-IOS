@@ -7,6 +7,7 @@
 //
 
 #import "CNetworking.h"
+#import <AFNetworking/AFHTTPRequestOperationManager.h>
 
 @implementation CNetworking
 
@@ -77,6 +78,9 @@
 }
 
 - (NSMutableArray *)gridDataForGroupId:(NSString *)groupId {
+    if(!groupId){
+        return [@[] mutableCopy];
+    }
     if(!self.messages[groupId]){
         self.messages[groupId] = [@[] mutableCopy];
     }
@@ -92,6 +96,27 @@
         index++;
     }
     return -1;
+}
+- (void)registerUser {
+    
+    NSLog(@"signing up");
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    NSDictionary *params = @{
+                             @"name": @"raj",
+                             @"phone":@"13107753248",
+                             @"country":@"1",
+                             @"password":@"test"
+                             };
+    
+    [manager POST:[NSString stringWithFormat:@"%@/token", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        
+        NSLog(@"%@", [responseObject objectForKey:@"token"]);
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+    }];
 }
 
 @end

@@ -32,7 +32,6 @@
 		41EC82091977218A002AE4BF /* 2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82041977218A002AE4BF /* 2.mp4 */; };
 		41EC820A1977218A002AE4BF /* 3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82051977218A002AE4BF /* 3.mp4 */; };
 		41EC820B1977218A002AE4BF /* 4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41EC82061977218A002AE4BF /* 4.mp4 */; };
-		41F1F01F19A2A24B00A35825 /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41F1F01E19A2A24B00A35825 /* CameraViewController.m */; };
 		71106D88192444A30083C64A /* PData.m in Sources */ = {isa = PBXBuildFile; fileRef = 71106D87192444A30083C64A /* PData.m */; };
 		715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 715455D0190E01D600ABE2BE /* UIImage+Resize.m */; };
 		7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */ = {isa = PBXBuildFile; fileRef = 7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */; };
@@ -49,7 +48,7 @@
 		71D0F58D190D998000C7DEE0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56F190D998000C7DEE0 /* UIKit.framework */; };
 		71D0F595190D998000C7DEE0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 71D0F593190D998000C7DEE0 /* InfoPlist.strings */; };
 		71D0F597190D998000C7DEE0 /* Pic6Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 71D0F596190D998000C7DEE0 /* Pic6Tests.m */; };
-		71D0F5A2190D99A700C7DEE0 /* GroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 71D0F5A1190D99A700C7DEE0 /* GroupViewController.m */; };
+		71D0F5A2190D99A700C7DEE0 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 71D0F5A1190D99A700C7DEE0 /* GridViewController.m */; };
 		71D0F5A4190DCE2E00C7DEE0 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A3190DCE2E00C7DEE0 /* libicucore.dylib */; };
 		71D0F5A6190DCE3600C7DEE0 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A5190DCE3600C7DEE0 /* libc++.dylib */; };
 		71D0F5A8190DCE3D00C7DEE0 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */; };
@@ -113,8 +112,6 @@
 		41EC82041977218A002AE4BF /* 2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 2.mp4; sourceTree = "<group>"; };
 		41EC82051977218A002AE4BF /* 3.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 3.mp4; sourceTree = "<group>"; };
 		41EC82061977218A002AE4BF /* 4.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 4.mp4; sourceTree = "<group>"; };
-		41F1F01D19A2A24B00A35825 /* CameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraViewController.h; sourceTree = "<group>"; };
-		41F1F01E19A2A24B00A35825 /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
 		71106D86192444A30083C64A /* PData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PData.h; sourceTree = "<group>"; };
 		71106D87192444A30083C64A /* PData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PData.m; sourceTree = "<group>"; };
 		71404FA819121A78002F4B92 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -140,8 +137,8 @@
 		71D0F592190D998000C7DEE0 /* Pic6Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Pic6Tests-Info.plist"; sourceTree = "<group>"; };
 		71D0F594190D998000C7DEE0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		71D0F596190D998000C7DEE0 /* Pic6Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Pic6Tests.m; sourceTree = "<group>"; };
-		71D0F5A0190D99A700C7DEE0 /* GroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupViewController.h; sourceTree = "<group>"; };
-		71D0F5A1190D99A700C7DEE0 /* GroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupViewController.m; sourceTree = "<group>"; };
+		71D0F5A0190D99A700C7DEE0 /* GridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridViewController.h; sourceTree = "<group>"; };
+		71D0F5A1190D99A700C7DEE0 /* GridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridViewController.m; sourceTree = "<group>"; };
 		71D0F5A3190DCE2E00C7DEE0 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		71D0F5A5190DCE3600C7DEE0 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -199,10 +196,8 @@
 		418CDE40199D66F600693733 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				41F1F01D19A2A24B00A35825 /* CameraViewController.h */,
-				41F1F01E19A2A24B00A35825 /* CameraViewController.m */,
-				71D0F5A0190D99A700C7DEE0 /* GroupViewController.h */,
-				71D0F5A1190D99A700C7DEE0 /* GroupViewController.m */,
+				71D0F5A0190D99A700C7DEE0 /* GridViewController.h */,
+				71D0F5A1190D99A700C7DEE0 /* GridViewController.m */,
 				415AEFE2196638D600F6A8B1 /* OverlayViewController.h */,
 				415AEFE3196638D600F6A8B1 /* OverlayViewController.m */,
 			);
@@ -565,14 +560,13 @@
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
 				716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */,
 				411A2CC31999D10A0094C57F /* NSMutableArray+Shuffle.m in Sources */,
-				71D0F5A2190D99A700C7DEE0 /* GroupViewController.m in Sources */,
+				71D0F5A2190D99A700C7DEE0 /* GridViewController.m in Sources */,
 				418CDE4D199EE5EF00693733 /* GroupInfo.m in Sources */,
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
 				4110BC4619A6BB96001A98AF /* UIImage+Colors.m in Sources */,
 				411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */,
 				416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */,
 				41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */,
-				41F1F01F19A2A24B00A35825 /* CameraViewController.m in Sources */,
 				418CDE47199D86C600693733 /* CreateGroupViewController.m in Sources */,
 				41A308A619819D1000D30349 /* CNetworking.m in Sources */,
 			);
@@ -701,7 +695,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
 				INFOPLIST_FILE = "Pic6/Pic6-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -724,7 +718,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
 				INFOPLIST_FILE = "Pic6/Pic6-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;

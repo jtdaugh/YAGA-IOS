@@ -8,8 +8,7 @@
 
 #import "AppDelegate.h"
 #import <AVFoundation/AVFoundation.h>
-#import "GroupViewController.h"
-#import "CameraViewController.h"
+#import "GridViewController.h"
 #import "OnboardingNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
 #import <Parse/Parse.h>
@@ -42,7 +41,7 @@
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
         self.window.rootViewController = vc;
     } else {
-        GroupViewController *vc = [[GroupViewController alloc] init];
+        GridViewController *vc = [[GridViewController alloc] init];
         self.window.rootViewController = vc;
     }
     

@@ -7,7 +7,7 @@
 //
 
 #import "SignupViewController.h"
-#import "GroupViewController.h"
+#import "GridViewController.h"
 #import "CNetworking.h"
 #import "AppDelegate.h"
 #import <Parse/Parse.h>
