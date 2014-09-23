@@ -69,6 +69,7 @@
     [[CNetworking currentUser] registerUser];
     
     [self initOverlay];
+    [self initElevator];
     [self initGridView];
     [self initLoader];
     [self initCameraView];
@@ -470,6 +471,7 @@
             [[UIScreen mainScreen] setBrightness:1.0];
             [self.view addSubview:self.white];
             [self.view bringSubviewToFront:self.cameraView];
+            [self.view bringSubviewToFront:self.basketball];
             [self configureFlashButton:[NSNumber numberWithBool:YES]];
         }
         
@@ -487,10 +489,10 @@
 
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
+//    [self.gridView setBackgroundColor:[UIColor yellowColor]];
 //    [self.gridView setBackgroundColor:[UIColor whiteColor]];
     
     [self initGridTiles];
-    
 //    [self initBall];
     
     [self.view addSubview:self.gridView];
@@ -506,6 +508,34 @@
     
     [self.view addSubview:self.basketball];
     
+}
+
+- (void) initElevator {
+    
+    self.elevatorMenu = [[ElevatorTableView alloc] initWithFrame:CGRectMake(VIEW_WIDTH*.1, VIEW_HEIGHT*.15, VIEW_WIDTH*.8, VIEW_HEIGHT*.7)];
+
+    [self.elevatorMenu setScrollEnabled:YES];
+    [self.elevatorMenu setRowHeight:90];
+    [self.elevatorMenu setSeparatorColor:PRIMARY_COLOR];
+    [self.elevatorMenu setBackgroundColor:[UIColor clearColor]];
+    [self.elevatorMenu setSeparatorInset:UIEdgeInsetsZero];
+    [self.elevatorMenu setUserInteractionEnabled:YES];
+    
+    self.elevatorMenu.delegate = self;
+    
+    [self.view addSubview:self.elevatorMenu];
+//    [self.view sendSubviewToBack:self.elevatorMenu];
+    
+    [self.elevatorMenu reloadData];
+    
+    [self.elevatorMenu setAlpha:0.0];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"yoo");
+    
+    [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
+    [self closeElevator];
 }
 
 - (void) tappedBall {
@@ -534,6 +564,11 @@
 
 - (void) openElevator {
     
+    [self.elevatorMenu reloadData];
+    [self.elevatorMenu setAlpha:0.0];
+    [self.elevatorMenu setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
+    [self.view bringSubviewToFront:self.elevatorMenu];
+
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, -(TILE_HEIGHT*2)+50, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
@@ -549,6 +584,9 @@
             [view setAlpha:0.0];
         }
         
+        [self.elevatorMenu setTransform:CGAffineTransformIdentity];
+        [self.elevatorMenu setAlpha:1.0];
+        
     } completion:^(BOOL finished) {
         self.elevatorOpen = [NSNumber numberWithBool:YES];
     }];
@@ -556,6 +594,9 @@
 }
 
 - (void) closeElevator {
+    
+    [self.elevatorMenu setTransform:CGAffineTransformIdentity];
+
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
@@ -566,13 +607,17 @@
         CGRect frame = self.gridTiles.frame;
         frame.origin.y = 0;
         [self.gridTiles setFrame:frame];
-        
+        [self.elevatorMenu setAlpha:0.0];
+
         for(UIView *view in self.cameraAccessories){
             [view setAlpha:1.0];
         }
+        
+        [self.elevatorMenu setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
 
     } completion:^(BOOL finished) {
         self.elevatorOpen = [NSNumber numberWithBool:NO];
+        [self.view sendSubviewToBack:self.elevatorMenu];
     }];
 }
 

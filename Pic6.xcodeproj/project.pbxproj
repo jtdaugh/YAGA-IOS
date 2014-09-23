@@ -12,6 +12,7 @@
 		411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC01999D0DA0094C57F /* NSMutableArray+Shuffle.h */; };
 		411A2CC31999D10A0094C57F /* NSMutableArray+Shuffle.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC21999D10A0094C57F /* NSMutableArray+Shuffle.m */; };
 		41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41373A1A19734DAD00F41895 /* CliqueViewController.m */; };
+		414D8DF819D0F8C80067B88B /* ElevatorTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 414D8DF719D0F8C80067B88B /* ElevatorTableView.m */; };
 		415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415AEFE3196638D600F6A8B1 /* OverlayViewController.m */; };
 		415DE46D197766A5000DD3C7 /* 0.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41A5F545197765E100E6A1F5 /* 0.mp4 */; };
 		415DE4701977759B000DD3C7 /* SignupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415DE46F1977759B000DD3C7 /* SignupViewController.m */; };
@@ -79,6 +80,8 @@
 		411A2CC21999D10A0094C57F /* NSMutableArray+Shuffle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Shuffle.m"; sourceTree = "<group>"; };
 		41373A1919734DAD00F41895 /* CliqueViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliqueViewController.h; sourceTree = "<group>"; };
 		41373A1A19734DAD00F41895 /* CliqueViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CliqueViewController.m; sourceTree = "<group>"; };
+		414D8DF619D0F8C80067B88B /* ElevatorTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevatorTableView.h; sourceTree = "<group>"; };
+		414D8DF719D0F8C80067B88B /* ElevatorTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElevatorTableView.m; sourceTree = "<group>"; };
 		415AEFE2196638D600F6A8B1 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
 		415AEFE3196638D600F6A8B1 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
 		415DE46E1977759B000DD3C7 /* SignupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignupViewController.h; sourceTree = "<group>"; };
@@ -300,6 +303,8 @@
 				F152A08019AA28A50090A9C7 /* CliquePageControl.m */,
 				F139A6C719B44A4000595951 /* GroupDetailView.h */,
 				F139A6C819B44A4000595951 /* GroupDetailView.m */,
+				414D8DF619D0F8C80067B88B /* ElevatorTableView.h */,
+				414D8DF719D0F8C80067B88B /* ElevatorTableView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -561,6 +566,7 @@
 				716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */,
 				411A2CC31999D10A0094C57F /* NSMutableArray+Shuffle.m in Sources */,
 				71D0F5A2190D99A700C7DEE0 /* GridViewController.m in Sources */,
+				414D8DF819D0F8C80067B88B /* ElevatorTableView.m in Sources */,
 				418CDE4D199EE5EF00693733 /* GroupInfo.m in Sources */,
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
 				4110BC4619A6BB96001A98AF /* UIImage+Colors.m in Sources */,
