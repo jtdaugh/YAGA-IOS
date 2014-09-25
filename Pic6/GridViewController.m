@@ -821,26 +821,28 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    self.scrolling = [NSNumber numberWithBool:YES];
-    CGFloat offset = 0;
-    
-    CGFloat gutter = 44;
-    
-    if(scrollView.contentOffset.y > TILE_HEIGHT*2 - gutter){
-        offset = TILE_HEIGHT*2 - gutter;
-    } else if(scrollView.contentOffset.y < 0){
-        offset = 0;
-    } else {
-        offset = scrollView.contentOffset.y;
+    if([scrollView isEqual:self.gridTiles]){
+        self.scrolling = [NSNumber numberWithBool:YES];
+        CGFloat offset = 0;
+        
+        CGFloat gutter = 44;
+        
+        if(scrollView.contentOffset.y > TILE_HEIGHT*2 - gutter){
+            offset = TILE_HEIGHT*2 - gutter;
+        } else if(scrollView.contentOffset.y < 0){
+            offset = 0;
+        } else {
+            offset = scrollView.contentOffset.y;
+        }
+        
+        CGRect frame = self.cameraView.frame;
+        frame.origin.y = 0 - offset;
+        self.cameraView.frame = frame;
+        
+        frame = self.basketball.frame;
+        frame.origin.y = VIEW_HEIGHT / 2 - 50/2 - offset;
+        self.basketball.frame = frame;
     }
-    
-    CGRect frame = self.cameraView.frame;
-    frame.origin.y = 0 - offset;
-    self.cameraView.frame = frame;
-    
-    frame = self.basketball.frame;
-    frame.origin.y = VIEW_HEIGHT / 2 - 50/2 - offset;
-    self.basketball.frame = frame;
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {

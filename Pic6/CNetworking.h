@@ -33,5 +33,7 @@
 - (NSUInteger) groupIndexForGroupId:(NSString *)groupId;
 - (void)trySomething;
 - (void)registerUser;
+- (void)createCrew;
+- (void)meInfo;
 
 @end

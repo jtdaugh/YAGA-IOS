@@ -10,8 +10,10 @@
 #import <AVFoundation/AVFoundation.h>
 #import "GridViewController.h"
 #import "OnboardingNavigationController.h"
+#import "NetworkingTestViewController.h"
 #import <Crashlytics/Crashlytics.h>
 #import <Parse/Parse.h>
+
 
 @implementation AppDelegate
 
@@ -41,8 +43,15 @@
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
         self.window.rootViewController = vc;
     } else {
-        GridViewController *vc = [[GridViewController alloc] init];
-        self.window.rootViewController = vc;
+        if(1){
+            NetworkingTestViewController *vc = [[NetworkingTestViewController alloc] init];
+            self.window.rootViewController = vc;
+        } else {
+            GridViewController *vc = [[GridViewController alloc] init];
+            self.window.rootViewController = vc;
+            
+        }
+        
     }
     
     

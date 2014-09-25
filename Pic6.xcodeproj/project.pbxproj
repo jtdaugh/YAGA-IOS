@@ -13,6 +13,7 @@
 		411A2CC31999D10A0094C57F /* NSMutableArray+Shuffle.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC21999D10A0094C57F /* NSMutableArray+Shuffle.m */; };
 		41373A1B19734DAD00F41895 /* CliqueViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41373A1A19734DAD00F41895 /* CliqueViewController.m */; };
 		414D8DF819D0F8C80067B88B /* ElevatorTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 414D8DF719D0F8C80067B88B /* ElevatorTableView.m */; };
+		414D8DFC19D3C6E50067B88B /* NetworkingTestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 414D8DFB19D3C6E50067B88B /* NetworkingTestViewController.m */; };
 		415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415AEFE3196638D600F6A8B1 /* OverlayViewController.m */; };
 		415DE46D197766A5000DD3C7 /* 0.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41A5F545197765E100E6A1F5 /* 0.mp4 */; };
 		415DE4701977759B000DD3C7 /* SignupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415DE46F1977759B000DD3C7 /* SignupViewController.m */; };
@@ -81,6 +82,8 @@
 		41373A1A19734DAD00F41895 /* CliqueViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CliqueViewController.m; sourceTree = "<group>"; };
 		414D8DF619D0F8C80067B88B /* ElevatorTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevatorTableView.h; sourceTree = "<group>"; };
 		414D8DF719D0F8C80067B88B /* ElevatorTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElevatorTableView.m; sourceTree = "<group>"; };
+		414D8DFA19D3C6E50067B88B /* NetworkingTestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkingTestViewController.h; sourceTree = "<group>"; };
+		414D8DFB19D3C6E50067B88B /* NetworkingTestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkingTestViewController.m; sourceTree = "<group>"; };
 		415AEFE2196638D600F6A8B1 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
 		415AEFE3196638D600F6A8B1 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
 		415DE46E1977759B000DD3C7 /* SignupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignupViewController.h; sourceTree = "<group>"; };
@@ -186,11 +189,21 @@
 		41373A181973459600F41895 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				414D8DF919D3C6C90067B88B /* Dev */,
 				418CDE40199D66F600693733 /* Core */,
 				418CDE41199D670900693733 /* Management */,
 				41EC81FE197712F7002AE4BF /* Onboarding */,
 			);
 			name = "View Controllers";
+			sourceTree = "<group>";
+		};
+		414D8DF919D3C6C90067B88B /* Dev */ = {
+			isa = PBXGroup;
+			children = (
+				414D8DFA19D3C6E50067B88B /* NetworkingTestViewController.h */,
+				414D8DFB19D3C6E50067B88B /* NetworkingTestViewController.m */,
+			);
+			name = Dev;
 			sourceTree = "<group>";
 		};
 		418CDE40199D66F600693733 /* Core */ = {
@@ -554,6 +567,7 @@
 				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,
 				418954BE19687DD2009C17E2 /* NSString+File.m in Sources */,
 				41B404941974CA6700F9EE3F /* CContact.m in Sources */,
+				414D8DFC19D3C6E50067B88B /* NetworkingTestViewController.m in Sources */,
 				F152A08119AA28A50090A9C7 /* CliquePageControl.m in Sources */,
 				415DE4701977759B000DD3C7 /* SignupViewController.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
