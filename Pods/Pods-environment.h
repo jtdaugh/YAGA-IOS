@@ -78,6 +78,12 @@
 #define COCOAPODS_VERSION_MINOR_Parse 3
 #define COCOAPODS_VERSION_PATCH_Parse 0
 
+// Shimmer
+#define COCOAPODS_POD_AVAILABLE_Shimmer
+#define COCOAPODS_VERSION_MAJOR_Shimmer 1
+#define COCOAPODS_VERSION_MINOR_Shimmer 0
+#define COCOAPODS_VERSION_PATCH_Shimmer 1
+
 // SwipeView
 #define COCOAPODS_POD_AVAILABLE_SwipeView
 #define COCOAPODS_VERSION_MAJOR_SwipeView 1

@@ -12,6 +12,7 @@
 #import "CNetworking.h"
 #import "AVCamPreviewView.h"
 #import "ElevatorTableView.h"
+#import "FBShimmeringView.h"
 
 @interface GridViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate, UITableViewDelegate>
 
@@ -46,8 +47,9 @@
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
 @property (strong, nonatomic) UIButton *cameraButton;
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
-@property (strong, nonatomic) UIView *instructions;
+@property (strong, nonatomic) FBShimmeringView *instructions;
 @property (strong, nonatomic) UIView *indicator;
+@property (strong, nonatomic) UILabel *indicatorText;
 @property (strong, nonatomic) UIView *white;
 @property (strong, nonatomic) NSNumber *recording;
 @property (strong, nonatomic) NSNumber *FrontCamera;

@@ -128,25 +128,26 @@
     tapGestureRecognizer.delegate = self;
     [self.white addGestureRecognizer:tapGestureRecognizer];
     
-    self.instructions = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT * 3 / 8, TILE_WIDTH, TILE_HEIGHT/4)];
-    [self.instructions setAlpha:0.6];
+    CGFloat gutter = 40, height = 24;
+    self.instructions = [[FBShimmeringView alloc] initWithFrame:CGRectMake(gutter, 8, self.cameraView.frame.size.width - gutter*2, height)];
+    [self.instructions setUserInteractionEnabled:NO];
+//    [self.instructions setAlpha:0.6];
     
     UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
-    [instructionText setText:@"Hold to Record!"];
-    [instructionText setFont:[UIFont fontWithName:BIG_FONT size:14]];
+    [instructionText setText:@"Tap and hold to record"];
+    [instructionText setFont:[UIFont fontWithName:BIG_FONT size:18]];
     [instructionText setTextAlignment:NSTextAlignmentCenter];
     [instructionText setTextColor:[UIColor whiteColor]];
-    [instructionText setBackgroundColor:PRIMARY_COLOR];
-    [instructionText sizeToFit];
-    CGFloat newHeight = instructionText.frame.size.height * 1.2;
-    CGFloat newWidth = instructionText.frame.size.width * 1.2;
-    [instructionText setFrame:CGRectMake(.5 * (self.instructions.frame.size.width - newWidth), .5 * (self.instructions.frame.size.height - newHeight), newWidth, newHeight)];
+    instructionText.shadowColor = [UIColor blackColor];
+    instructionText.shadowOffset = CGSizeMake(0,1);
+    self.indicatorText = instructionText;
+//    [instructionText setBackgroundColor:PRIMARY_COLOR];
     
-    [self.instructions addSubview:instructionText];
-    //    [self.instructions setAlpha:0.0];
-    
-    //    [self.cameraView addSubview:self.instructions];
-    //    [self.cameraAccessories addObject:self.instructions];
+    [self.instructions setContentView:instructionText];
+    self.instructions.shimmering = YES;
+
+    [self.cameraView addSubview:self.instructions];
+    [self.cameraAccessories addObject:self.instructions];
     
     CGFloat size = 50;
     UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 20, self.cameraView.frame.size.height - size - 10, size, size)];
@@ -283,7 +284,9 @@
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, TILE_HEIGHT/4)];
     [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
     [self.indicator setUserInteractionEnabled:NO];
+    [self.indicatorText setText:@"Recording..."];
     [self.cameraView addSubview:self.indicator];
+    [self.cameraView bringSubviewToFront:self.instructions];
     
     [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, TILE_HEIGHT/4)];
@@ -300,6 +303,7 @@
 
 - (void) endHold {
     if([self.recording boolValue]){
+        [self.indicatorText setText:@""];
         [self.indicator removeFromSuperview];
         [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
