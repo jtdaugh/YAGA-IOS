@@ -18,17 +18,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSLog(@"view did loawd!");
-    
+    // Add the appropriate function from CNetworking.h that gets called when tapping the button
     [self newButtonWithTitle:@"/token" withTarget:@selector(registerUser)];
     [self newButtonWithTitle:@"/crew/create" withTarget:@selector(createCrew)];
     [self newButtonWithTitle:@"/me" withTarget:@selector(meInfo)];
-    // Do any additional setup after loading the view.
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (UIButton *)newButtonWithTitle:(NSString *)title withTarget:(SEL)sel {
@@ -45,17 +38,9 @@
     return newButton;
 }
 
-- (void)registerUser {
-    NSLog(@"wassaa");
-    [[CNetworking currentUser] registerUser];
-}
-
-- (void)meInfo {
-    [[CNetworking currentUser] meInfo];
-}
-
-- (void)createCrew {
-    [[CNetworking currentUser] createCrew];
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
 }
 
 /*

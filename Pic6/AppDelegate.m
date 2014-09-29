@@ -43,7 +43,7 @@
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
         self.window.rootViewController = vc;
     } else {
-        if(1){
+        if(0){
             NetworkingTestViewController *vc = [[NetworkingTestViewController alloc] init];
             self.window.rootViewController = vc;
         } else {

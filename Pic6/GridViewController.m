@@ -280,13 +280,13 @@
     NSLog(@"starting hold");
     
     self.recording = [NSNumber numberWithBool:YES];
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, TILE_HEIGHT/4)];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, TILE_HEIGHT/4)];
     [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
     [self.indicator setUserInteractionEnabled:NO];
     [self.cameraView addSubview:self.indicator];
     
     [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        [self.indicator setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, TILE_HEIGHT/4)];
+        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, TILE_HEIGHT/4)];
     } completion:^(BOOL finished) {
         if(finished){
             [self endHold];
