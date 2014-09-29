@@ -288,7 +288,7 @@
     [self.cameraView addSubview:self.indicator];
     [self.cameraView bringSubviewToFront:self.instructions];
     
-    [UIView animateWithDuration:6.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+    [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, TILE_HEIGHT/4)];
     } completion:^(BOOL finished) {
         if(finished){

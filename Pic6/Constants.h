@@ -26,6 +26,8 @@
 #define LOADER_WIDTH 4
 #define LOADER_HEIGHT 4
 
+#define MAX_VIDEO_DURATION 10.0 
+
 //emerald: rgb(26, 188, 156)
 //sunflower: rgb(241, 196, 15)
 //pomegranite: rgb(192, 57, 43)
