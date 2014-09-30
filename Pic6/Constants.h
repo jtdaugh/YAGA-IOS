@@ -39,7 +39,7 @@
 #define SECONDARY_COLOR [UIColor colorWithRed: 5.0f/255.0f green: 135.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 
-#define BIG_FONT @"Avenir-Light"
+#define BIG_FONT @"Avenir"
 
 #define VERSION @"2"
 #define NODE_NAME [NSString stringWithFormat: @"v%@/%@", VERSION, @"production"]

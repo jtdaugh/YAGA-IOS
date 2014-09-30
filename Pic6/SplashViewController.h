@@ -2,14 +2,16 @@
 //  SplashViewController.h
 //  Pic6
 //
-//  Created by Raj Vir on 7/15/14.
+//  Created by Raj Vir on 9/30/14.
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import <AVFoundation/AVFoundation.h>
 
-@interface SplashViewController : UIViewController
-@property (strong, nonatomic) NSMutableArray *players;
-@property (strong, nonatomic) UIView *container;
+@interface SplashViewController : UIViewController<UITextFieldDelegate>
+@property (strong, nonatomic) UIImageView *logo;
+@property (strong, nonatomic) UILabel *cta;
+@property (strong, nonatomic) UITextField *number;
+@property (strong, nonatomic) UIButton *country;
+@property (strong, nonatomic) UIButton *next;
 @end

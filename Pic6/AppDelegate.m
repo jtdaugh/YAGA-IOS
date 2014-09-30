@@ -39,11 +39,11 @@
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
     // self.window.backgroundColor = [UIColor whiteColor];
     
-    if(0){
+    if(1){
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
         self.window.rootViewController = vc;
     } else {
-        if(0){
+        if(TARGET_IPHONE_SIMULATOR){
             NetworkingTestViewController *vc = [[NetworkingTestViewController alloc] init];
             self.window.rootViewController = vc;
         } else {

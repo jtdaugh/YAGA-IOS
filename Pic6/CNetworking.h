@@ -35,5 +35,6 @@
 - (void)registerUser;
 - (void)createCrew;
 - (void)meInfo;
+- (void)myCrews;
 
 @end

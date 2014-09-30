@@ -50,7 +50,7 @@
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.requestSerializer = [AFJSONRequestSerializer serializer];
     NSDictionary *params = @{
-                             @"phone":@"13107753249",
+                             @"phone":@"13107753248",
                              @"name": @"raj vir",
                              @"password":@"test",
                              @"country":@"US"
@@ -72,7 +72,7 @@
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"Clique key=\"%@\"", [self userDataForKey:@"token"]] forHTTPHeaderField:@"Authorization"];
     NSDictionary *params = @{
                              @"name":@"my first crew",
-                             @"initial_members":@[@"6b64329364bd66f0aff931ea1e48b8e3"]
+                             @"initial_members":@[@"d55c4b053509d7a2bc4ffb34d3bb9db6"]
                              };
     
     [manager POST:[NSString stringWithFormat:@"%@/crew/create", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -108,15 +108,27 @@
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"Clique key=\"%@\"", [self userDataForKey:@"token"]] forHTTPHeaderField:@"Authorization"];
     
     
-    [manager POST:[NSString stringWithFormat:@"%@/me/crews", BASE_API_URL] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [manager GET:[NSString stringWithFormat:@"%@/me/crews", BASE_API_URL] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-        NSLog(@"%@", responseObject);
+        
+        NSArray *items = [responseObject objectForKey:@"items"];
+        for(id item in items){
+            
+            NSString *crewId = [item objectForKey:@"crew_id"];
+            
+            NSLog(@"raw crew id: %@", crewId);
+            [self saveUserData:crewId forKey:@"crew_id"];
+        }
+        
+        NSLog(@"%@", [responseObject objectForKey:@"items"]);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
     }];
     
 }
+
+//- (void)
 
 /**
  END AFNetworking Code

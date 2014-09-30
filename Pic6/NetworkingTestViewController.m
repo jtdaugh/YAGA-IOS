@@ -22,6 +22,7 @@
     [self newButtonWithTitle:@"/token" withTarget:@selector(registerUser)];
     [self newButtonWithTitle:@"/crew/create" withTarget:@selector(createCrew)];
     [self newButtonWithTitle:@"/me" withTarget:@selector(meInfo)];
+    [self newButtonWithTitle:@"/me/crews" withTarget:@selector(myCrews)];
 }
 
 - (UIButton *)newButtonWithTitle:(NSString *)title withTarget:(SEL)sel {

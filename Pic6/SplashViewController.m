@@ -2,154 +2,135 @@
 //  SplashViewController.m
 //  Pic6
 //
-//  Created by Raj Vir on 7/15/14.
+//  Created by Raj Vir on 9/30/14.
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
 #import "SplashViewController.h"
-#import "LoginViewController.h"
-#import "SignupViewController.h"
-#import "AVPlayer+AVPlayer_Async.h"
-#import "TileCell.h"
-#import "NSString+Hash.h"
+#import "NBPhoneNumberUtil.h"
+#import "VerifyViewController.h"
+#import "FBDialogs.h"
+
+@interface SplashViewController ()
+
+@end
 
 @implementation SplashViewController
 
-- (void)viewWillAppear:(BOOL)animated {
-    [self.navigationController setNavigationBarHidden:YES animated:YES];
-}
-
 - (void)viewDidLoad {
-
-    NSLog(@"yooo splashery, %@", [@"+13107753248" crypt]);
+    [super viewDidLoad];
+    [self.view setBackgroundColor:[UIColor blackColor]];
     
-    [self.view setBackgroundColor:[UIColor whiteColor]];
+    CGFloat width = VIEW_WIDTH * .8;
     
-    UIView *plaque = [[UIView alloc] initWithFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
-    [plaque setBackgroundColor:PRIMARY_COLOR];
-    [self.view addSubview:plaque];
+    NSLog(@" view width: %f", VIEW_WIDTH);
     
-    UILabel *logo = [[UILabel alloc] init];
-    [logo setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
-    logo.translatesAutoresizingMaskIntoConstraints = NO;
-    [logo setText:APP_NAME];
-    [logo setFont:[UIFont fontWithName:BIG_FONT size:28]];
-    [logo setTextColor:[UIColor whiteColor]];
-    [logo setTextAlignment:NSTextAlignmentCenter];
-    [plaque addSubview:logo];
     
-    UILabel *slogan = [[UILabel alloc] init];
-    [slogan setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
-    slogan.translatesAutoresizingMaskIntoConstraints = NO;
-    [slogan setText:@"Share with those who care"];
-    [slogan setFont:[UIFont fontWithName:BIG_FONT size:16]];
-    [slogan setTextColor:[UIColor whiteColor]];
-    [slogan setTextAlignment:NSTextAlignmentCenter];
-    [slogan setNumberOfLines:0];
-    [plaque addSubview:slogan];
+    self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 20, VIEW_WIDTH, 80)];
+    [self.logo setImage:[UIImage imageNamed:@"Logo"]];
+    [self.logo setContentMode:UIViewContentModeScaleAspectFit];
+//    [self.logo setAlpha:0.0];
+//    [self.logo setBackgroundColor:PRIMARY_COLOR];
+    [self.view addSubview:self.logo];
     
-    NSDictionary *views = NSDictionaryOfVariableBindings(logo, slogan);
-    [plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[logo]|" options:0 metrics:nil views:views]];
-    [plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-5-[slogan]-5-|" options:0 metrics:nil views:views]];
-    [plaque addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-20-[logo]-12-[slogan]" options:0 metrics:nil views:views]];
-
-    self.container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    [self.view addSubview:self.container];
-
-    UIButton *loginButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    loginButton.frame = CGRectMake(0, TILE_HEIGHT*2, TILE_WIDTH, TILE_HEIGHT);
-    [loginButton addTarget:self action:@selector(loginPressed) forControlEvents:UIControlEventTouchUpInside];
-    [loginButton setTitle:@"Log In" forState:UIControlStateNormal];
-    [loginButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [loginButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:28]];
-    [loginButton setBackgroundColor:SECONDARY_COLOR];
-    [self.view addSubview:loginButton];
+    self.cta = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, 145, width, 80)];
+    [self.cta setText:@"Enter your phone\n number to get started"];
+    [self.cta setNumberOfLines:2];
+    [self.cta setFont:[UIFont fontWithName:BIG_FONT size:24]];
+//    [self.cta setBackgroundColor:PRIMARY_COLOR];
+//    [self.cta sizeToFit];
+    [self.cta setTextAlignment:NSTextAlignmentCenter];
+    [self.cta setTextColor:[UIColor whiteColor]];
+    [self.view addSubview:self.cta];
+    // Do any additional setup after loading the view.
     
-    UIButton *signupButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    signupButton.frame = CGRectMake(TILE_WIDTH, TILE_HEIGHT*2, TILE_WIDTH, TILE_HEIGHT);
-    [signupButton addTarget:self action:@selector(signupPressed) forControlEvents:UIControlEventTouchUpInside];
-    [signupButton setTitle:@"Sign Up" forState:UIControlStateNormal];
-    [signupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [signupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:28]];
-    [signupButton setBackgroundColor:TERTIARY_COLOR];
-    [self.view addSubview:signupButton];
+    CGFloat formWidth = VIEW_WIDTH *.7;
+    CGFloat gutter = VIEW_WIDTH * .05;
+    self.number = [[UITextField alloc] initWithFrame:CGRectMake(VIEW_WIDTH-formWidth-gutter, 250, formWidth, 48)];
+    [self.number setBackgroundColor:[UIColor clearColor]];
+    [self.number setKeyboardType:UIKeyboardTypePhonePad];
+    [self.number setTextAlignment:NSTextAlignmentCenter];
+    [self.number setFont:[UIFont fontWithName:BIG_FONT size:36]];
+    [self.number setTextColor:[UIColor whiteColor]];
+    [self.number becomeFirstResponder];
+    [self.number setTintColor:[UIColor whiteColor]];
+    [self.number setReturnKeyType:UIReturnKeyDone];
+    [self.number addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
+//    self.number.delegate = self;
+    [self.view addSubview:self.number];
     
-    NSArray *positions = @[@0, @1, @3, @6, @7];
-    for(int i = 0; i < [positions count]; i++){
-        int position = [(NSNumber *)positions[i] intValue];
-        TileCell *tile = [[TileCell alloc] initWithFrame:CGRectMake(position%2 * TILE_WIDTH, (position/2) * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)];
-
-        NSString *filename = [NSString stringWithFormat:@"%i", i];
-        
-        NSString *path = [[NSBundle mainBundle] pathForResource:filename ofType:@"mp4"];
-        
-        tile.uid = path;
-        
-        [tile playLocal:path];
-        [self.container addSubview:tile];
-    }
+    self.country = [[UIButton alloc] initWithFrame:CGRectMake(gutter, 250, VIEW_WIDTH - formWidth - gutter*3, 48)];
+    [self.country setTitle:@"US" forState:UIControlStateNormal];
+    self.country.layer.borderColor = [[UIColor whiteColor] CGColor];
+    self.country.layer.borderWidth = 3.0f;
+    [self.country.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(willEnterForeground)
-                                                 name:UIApplicationWillEnterForegroundNotification
-                                               object:nil];
+    [self.country setBackgroundColor:[UIColor clearColor]];
+    [self.view addSubview:self.country];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(willResignActive)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
+    CGFloat buttonWidth = VIEW_WIDTH * 0.7;
+    self.next = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, 340, buttonWidth, 60)];
+    [self.next setBackgroundColor:PRIMARY_COLOR];
+    [self.next setTitle:@"Next" forState:UIControlStateNormal];
+    [self.next.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.next setAlpha:0.0];
+    [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.next];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didBecomeActive)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didEnterBackground)
-                                                 name:UIApplicationDidEnterBackgroundNotification
-                                               object:nil];
-
+    
 }
 
-- (void)loginPressed {
-    NSLog(@"login pressed");
-    LoginViewController *vc = [[LoginViewController alloc] init];
-    [vc setTitle:@"Log In"];
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)editingChanged {
+    
+    if([self.number.text length] > 6){
+        NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+        
+        NSLog(@"text: %@", self.number.text);
+        
+        NSError *anError = nil;
+        NBPhoneNumber *myNumber = [phoneUtil parse:self.number.text
+                                     defaultRegion:@"US" error:&anError];
+        
+        NSError *error = nil;
+        NSString *text = [phoneUtil format:myNumber
+                              numberFormat:NBEPhoneNumberFormatNATIONAL
+                                     error:&error];
+        
+        [self.number setText:text];
+        
+        [UIView animateWithDuration:0.3 animations:^{
+            [self.next setAlpha:1.0];
+        }];
+        
+    } else {
+        [UIView animateWithDuration:0.3 animations:^{
+            [self.next setAlpha:0.0];
+        }];
+
+    }
+    
+    
+}
+
+- (void)nextScreen {
+    VerifyViewController *vc = [[VerifyViewController alloc] init];
     [self.navigationController pushViewController:vc animated:YES];
 }
 
-- (void)signupPressed {
-    SignupViewController *vc = [[SignupViewController alloc] init];
-    [vc setTitle:@"Sign Up"];
-//    [self.navigationController pushViewController:vc animated:YES];
-    [self.navigationController pushViewController:vc animated:YES];
-    NSLog(@"signup pressed");
-}
+/*
+#pragma mark - Navigation
 
-- (void)willResignActive {
-    //    [self removeAudioInput];
-    // remove microphone
-    
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
 }
-
-- (void)didBecomeActive {
-    //    [self addAudioInput];
-    // add microphone
-}
-
-- (void)didEnterBackground {
-    //    NSLog(@"did enter background");
-}
-
-- (void)willEnterForeground {
-    NSLog(@"will enter foreground");
-    
-    for(TileCell *tile in self.container.subviews){
-        NSLog(@"yoo tiles");
-        if([[tile class] isSubclassOfClass:[TileCell class]]){
-            [tile playLocal:tile.uid];
-        }
-    }
-}
+*/
 
 @end
