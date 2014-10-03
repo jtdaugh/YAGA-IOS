@@ -8,6 +8,7 @@
 
 #import "OverlayViewController.h"
 #import "NSString+File.h"
+#import "CNetworking.h"
 
 @interface OverlayViewController ()
 @property (strong, nonatomic) NSArray *reactions;
@@ -139,7 +140,7 @@
 }
 
 - (void) settingsButtonPressed {
-    UIActionSheet *settings = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:[NSString stringWithFormat:@"Block %@", self.tile.username], [NSString stringWithFormat:@"Add %@ to Clique", self.tile.username], @"Save to Camera Roll", nil];
+    UIActionSheet *settings = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:@"Save to Camera Roll", nil];
     
     [settings setActionSheetStyle:UIActionSheetStyleBlackOpaque];
     [settings showInView:self.view];    
@@ -148,7 +149,27 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     switch (buttonIndex) {
-        case 3:
+        case 0:
+            // delete
+            if([self.tile.username isEqualToString:(NSString *)[[CNetworking currentUser] userDataForKey:nUsername]]){
+                // delete and collapse
+                [self.tile.player setVolume:0.0];
+                //    [self.bg removeFromSuperview];
+                [self.previousViewController.overlay addSubview:self.tile];
+                [self dismissViewControllerAnimated:NO completion:^{
+                    [self.previousViewController collapse:self.tile speed:0.3];
+                    [self.previousViewController deleteUid:self.tile.uid];
+                }];
+                
+            } else {
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Not your video"
+                                                                message:@"You can only delete your own videos"
+                                                               delegate:nil
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+                [alert show];
+            }
+        case 1:
             UISaveVideoAtPathToSavedPhotosAlbum([self.tile.uid moviePath],nil,nil,nil);
             break;
         default:

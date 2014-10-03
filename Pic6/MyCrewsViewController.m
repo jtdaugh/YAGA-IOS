@@ -7,6 +7,8 @@
 //
 
 #import "MyCrewsViewController.h"
+#import "CNetworking.h"
+#import "ElevatorTableView.h"
 
 @interface MyCrewsViewController ()
 
@@ -17,6 +19,60 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    CGFloat width = VIEW_WIDTH * .8;
+    
+    NSLog(@" view width: %f", VIEW_WIDTH);
+    
+    CGFloat origin = VIEW_HEIGHT *.025;
+    
+    self.cta = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
+    [self.cta setText:@"Looks like you're already a part of a group. Pick which one you'd like to go to now."];
+    [self.cta setNumberOfLines:4];
+    [self.cta setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    //    [self.cta setBackgroundColor:PRIMARY_COLOR];
+    //    [self.cta sizeToFit];
+    [self.cta setTextAlignment:NSTextAlignmentCenter];
+    [self.cta setTextColor:[UIColor whiteColor]];
+    [self.view addSubview:self.cta];
+
+    origin = [self getNewOrigin:self.cta];
+    
+    ElevatorTableView *elevator = [[ElevatorTableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
+    
+    [elevator setScrollEnabled:NO];
+    [elevator setRowHeight:90];
+    [elevator setSeparatorColor:PRIMARY_COLOR];
+    [elevator setBackgroundColor:[UIColor clearColor]];
+    [elevator setSeparatorInset:UIEdgeInsetsZero];
+    [elevator setUserInteractionEnabled:YES];
+    
+    elevator.delegate = self;
+
+    [self.view addSubview:elevator];
+    
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if(indexPath.row == ([tableView numberOfRowsInSection:0] - 1)){
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"broken"
+                                                        message:@"not working right now"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+        //        [self presentViewController:[[CreateGroupViewController alloc] init] animated:YES completion:nil];
+    } else {
+        [self.navigationController dismissViewControllerAnimated:YES completion:^{
+            //
+        }];
+//        [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
+//        [self closeElevator];
+    }
+}
+
+- (CGFloat) getNewOrigin:(UIView *) anchor {
+    return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
 }
 
 - (void)didReceiveMemoryWarning {

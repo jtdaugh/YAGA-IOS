@@ -8,6 +8,7 @@
 
 #import "UsernameViewController.h"
 #import "CNetworking.h"
+#import "MyCrewsViewController.h"
 
 @interface UsernameViewController ()
 
@@ -94,14 +95,32 @@
 }
 
 - (void)nextScreen {
+    
+    [self.next setTitle:@"" forState:UIControlStateNormal];
+    UIActivityIndicatorView *myIndicator = [[UIActivityIndicatorView alloc]
+                                            initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    
+    // Position the spinner
+    [self.next addSubview:myIndicator];
+    [myIndicator setCenter:CGPointMake(self.next.frame.size.width / 2, self.next.frame.size.height / 2)];
+    
+    // Start the animation
+    [myIndicator startAnimating];
+    
     CNetworking *currentUser = [CNetworking currentUser];
     [[CNetworking currentUser] saveUserData:self.username.text forKey:nUsername];
     
     [currentUser registerUserWithCompletionBlock:^(void){
         NSLog(@"completed! %@", (NSString *)[currentUser userDataForKey:nToken]);
-        [self.navigationController dismissViewControllerAnimated:YES completion:^{
-            //
-        }];
+        
+        if([[currentUser groupInfo] count] > 0){
+            MyCrewsViewController *vc = [[MyCrewsViewController alloc] init];
+            [self.navigationController pushViewController:vc animated:YES];
+        } else {
+            [self.navigationController dismissViewControllerAnimated:YES completion:^{
+                //
+            }];
+        }
     }];
     
 }

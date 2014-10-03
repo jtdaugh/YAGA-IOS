@@ -80,4 +80,6 @@
 
 - (void)configureGroupInfo:(GroupInfo *)groupInfo;
 
+- (void) deleteUid:(NSString *)uid;
+
 @end

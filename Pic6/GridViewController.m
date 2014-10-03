@@ -37,7 +37,7 @@
         if(![self.appeared boolValue]){
             self.appeared = [NSNumber numberWithBool:YES];
             if(![self.setup boolValue]){
-//                [self setupView];
+                [self setupView];
             }
         }
     } else {
@@ -68,13 +68,13 @@
         
     [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:@"username"]];
     
-//    [self initOverlay];
-//    [self initElevator];
+    [self initOverlay];
+    [self initElevator];
     [self initGridView];
-//    [self initLoader];
+    [self initLoader];
     [self initCameraView];
     [self initCamera:YES];
-//    [self initBall];
+    [self initBall];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -540,7 +540,13 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"yoo");
     if(indexPath.row == ([tableView numberOfRowsInSection:0] - 1)){
-        [self presentViewController:[[CreateGroupViewController alloc] init] animated:YES completion:nil];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"broken"
+                                                        message:@"not working right now"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+//        [self presentViewController:[[CreateGroupViewController alloc] init] animated:YES completion:nil];
     } else {
         [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
         [self closeElevator];
@@ -732,6 +738,25 @@
     }];
 }
 
+- (void) deleteUid:(NSString *)uid {
+    CNetworking *currentUser = [CNetworking currentUser];
+    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, uid]] removeValueWithCompletionBlock:^(NSError *error, Firebase *ref) {
+        
+        int index = 0;
+        int toDelete = -1;
+        for(FDataSnapshot *snapshot in [[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId]){
+            if([snapshot.name isEqualToString:uid]){
+                toDelete = index;
+            }
+            index++;
+        };
+        if(toDelete > -1){
+            [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] removeObjectAtIndex:toDelete];
+        }
+        [self.gridTiles reloadData];
+    }];
+}
+
 - (void) newTile:(FDataSnapshot *)snapshot {
     
     CNetworking *currentUser = [CNetworking currentUser];
@@ -782,7 +807,6 @@
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if([tile.uid isEqualToString:uid]){
             NSLog(@"finished loading?");
-            tile.state = [NSNumber numberWithInt:LOADED];
             [self.gridTiles reloadItemsAtIndexPaths:@[[self.gridTiles indexPathForCell:tile]]];
         }
     }
@@ -815,7 +839,7 @@
         
         [cell setColors:colors];
         
-        if([cell.state isEqualToNumber:[NSNumber numberWithInt:LOADED]]){
+        if([cell isLoaded]){
             if([self.scrolling boolValue]){
 //                [cell play];
                 [cell showImage];

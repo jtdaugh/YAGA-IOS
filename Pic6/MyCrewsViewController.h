@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MyCrewsViewController : UIViewController
-
+@interface MyCrewsViewController : UIViewController<UITableViewDelegate>
+@property (strong, nonatomic) UILabel *cta;
 @end
