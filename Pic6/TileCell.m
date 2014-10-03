@@ -59,6 +59,9 @@
 }
 
 - (void)showLoader {
+    
+    NSLog(@"showing loader! %@", self.uid);
+    
     self.state = [NSNumber numberWithInt:LOADING];
     [self.image removeFromSuperview];
     [self.playerContainer removeFromSuperview];

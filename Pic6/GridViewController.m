@@ -18,16 +18,16 @@
 #import "CreateGroupViewController.h"
 
 @interface GridViewController ()
+@property int count;
 @end
 
 @implementation GridViewController
-
 - (void)viewDidLoad {
     
 //    [[CNetworking currentUser] logout];
-    
+    self.count = 0;
     if([[CNetworking currentUser] loggedIn]){
-//        [self setupView];
+        [self setupView];
     }
 }
 
@@ -37,7 +37,7 @@
         if(![self.appeared boolValue]){
             self.appeared = [NSNumber numberWithBool:YES];
             if(![self.setup boolValue]){
-                [self setupView];
+//                [self setupView];
             }
         }
     } else {
@@ -68,13 +68,13 @@
         
     [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:@"username"]];
     
-    [self initOverlay];
-    [self initElevator];
+//    [self initOverlay];
+//    [self initElevator];
     [self initGridView];
-    [self initLoader];
+//    [self initLoader];
     [self initCameraView];
     [self initCamera:YES];
-    [self initBall];
+//    [self initBall];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -782,6 +782,7 @@
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if([tile.uid isEqualToString:uid]){
             NSLog(@"finished loading?");
+            tile.state = [NSNumber numberWithInt:LOADED];
             [self.gridTiles reloadItemsAtIndexPaths:@[[self.gridTiles indexPathForCell:tile]]];
         }
     }
@@ -802,6 +803,8 @@
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
+    
+    NSLog(@"cfaip count: %i", ++self.count);
     
     if(![cell.uid isEqualToString:snapshot.name]){
 
@@ -869,6 +872,8 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
+    NSLog(@"didSelect");
+    
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
     
     if([selected.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]) {
@@ -904,7 +909,7 @@
 //        [collectionView reloadItemsAtIndexPaths:@[[collectionView indexPathForCell:selected]]];
     }
     
-    NSLog(@"subviews: %lu", [[self.view subviews] count]);
+    NSLog(@"subviews: %lu", [[self.gridView subviews] count]);
     
 }
 
@@ -1032,6 +1037,9 @@
 }
 
 - (void)setupGroups {
+    
+    NSLog(@"setup groups");
+    
     CNetworking *currentUser = [CNetworking currentUser];
     [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
     [self.gridTiles reloadData];
