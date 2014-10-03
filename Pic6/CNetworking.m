@@ -170,7 +170,7 @@
 }
 
 - (BOOL)loggedIn {
-    if([self userDataForKey:@"username"]){
+    if([self userDataForKey:nUsername]){
         return YES;
     } else {
         return NO;

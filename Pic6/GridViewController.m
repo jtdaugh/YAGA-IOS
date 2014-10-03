@@ -66,7 +66,7 @@
     self.setup = [NSNumber numberWithBool:YES];
     [self.view setBackgroundColor:[UIColor whiteColor]];
         
-    [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:@"username"]];
+    [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:nUsername]];
     
     [self initOverlay];
     [self initElevator];
