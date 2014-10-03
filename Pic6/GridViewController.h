@@ -74,8 +74,6 @@
 
 - (void)initFirebase;
 
-- (void)pagingStarted;
-- (void)pagingEnded;
 - (void)scrollingEnded;
 
 - (void)conserveTiles;
