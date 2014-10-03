@@ -24,7 +24,7 @@
 @implementation GridViewController
 - (void)viewDidLoad {
     
-//    [[CNetworking currentUser] logout];
+    [[CNetworking currentUser] logout];
     self.count = 0;
     if([[CNetworking currentUser] loggedIn]){
         [self setupView];

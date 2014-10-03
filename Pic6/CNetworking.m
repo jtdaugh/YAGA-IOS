@@ -75,7 +75,7 @@
         }];        
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
-//        block();
+        block();
     }];
 }
 
@@ -146,7 +146,7 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
         
-//        block();
+        block();
     }];
 }
 
