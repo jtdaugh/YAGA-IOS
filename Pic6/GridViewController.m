@@ -13,10 +13,9 @@
 #import "TileCell.h"
 #import "AVPlayer+AVPlayer_Async.h"
 #import "OverlayViewController.h"
-#import "CliqueViewController.h"
 #import "OnboardingNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
-#import <Parse/Parse.h>
+#import "CreateGroupViewController.h"
 
 @interface GridViewController ()
 @end
@@ -24,18 +23,21 @@
 @implementation GridViewController
 
 - (void)viewDidLoad {
-    if([PFUser currentUser]){
-        [self setupView];
+    
+//    [[CNetworking currentUser] logout];
+    
+    if([[CNetworking currentUser] loggedIn]){
+//        [self setupView];
     }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
 
-    if([PFUser currentUser]){
+    if([[CNetworking currentUser] loggedIn]){
         if(![self.appeared boolValue]){
             self.appeared = [NSNumber numberWithBool:YES];
             if(![self.setup boolValue]){
-//                [self setupView];
+                [self setupView];
             }
         }
     } else {
@@ -66,8 +68,6 @@
         
     [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:@"username"]];
     
-    [[CNetworking currentUser] registerUser];
-    
     [self initOverlay];
     [self initElevator];
     [self initGridView];
@@ -95,9 +95,6 @@
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
-
-    
-    [self setupGroups];
 
     
     //    [self initFirebase];
@@ -134,12 +131,16 @@
 //    [self.instructions setAlpha:0.6];
     
     UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
-    [instructionText setText:@"Tap and hold to record"];
+    [instructionText setText:RECORD_INSTRUCTION];
     [instructionText setFont:[UIFont fontWithName:BIG_FONT size:18]];
     [instructionText setTextAlignment:NSTextAlignmentCenter];
     [instructionText setTextColor:[UIColor whiteColor]];
-    instructionText.shadowColor = [UIColor blackColor];
-    instructionText.shadowOffset = CGSizeMake(0,1);
+    
+    instructionText.layer.shadowColor = [[UIColor blackColor] CGColor];
+    instructionText.layer.shadowRadius = 1.0f;
+    instructionText.layer.shadowOpacity = 1.0;
+    instructionText.layer.shadowOffset = CGSizeZero;
+    
     self.indicatorText = instructionText;
 //    [instructionText setBackgroundColor:PRIMARY_COLOR];
     
@@ -245,6 +246,7 @@
 }
 
 - (void)afterCameraInit {
+    [self setupGroups];
     
 }
 
@@ -303,7 +305,7 @@
 
 - (void) endHold {
     if([self.recording boolValue]){
-        [self.indicatorText setText:@""];
+        [self.indicatorText setText:RECORD_INSTRUCTION];
         [self.indicator removeFromSuperview];
         [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
@@ -537,9 +539,12 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"yoo");
-    
-    [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
-    [self closeElevator];
+    if(indexPath.row == ([tableView numberOfRowsInSection:0] - 1)){
+        [self presentViewController:[[CreateGroupViewController alloc] init] animated:YES completion:nil];
+    } else {
+        [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
+        [self closeElevator];
+    }
 }
 
 - (void) tappedBall {
@@ -568,7 +573,7 @@
 
 - (void) openElevator {
     
-    [self.elevatorMenu reloadData];
+//    [self.elevatorMenu reloadData];
     [self.elevatorMenu setAlpha:0.0];
     [self.elevatorMenu setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
     [self.view bringSubviewToFront:self.elevatorMenu];
@@ -710,7 +715,6 @@
         [self.loader stopAnimating];
         [self.gridTiles reloadData];
         NSLog(@"scrolling? %@", [self.scrolling boolValue] ? @"yes" : @"no");
-        NSLog(@"changed?");
         
 //        [[[CNetworking currentUser] firebase] removeObserverWithHandle:self.valueQuery];
         [self listenForChanges];
@@ -777,6 +781,7 @@
 - (void) finishedLoading:(NSString *)uid {
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if([tile.uid isEqualToString:uid]){
+            NSLog(@"finished loading?");
             [self.gridTiles reloadItemsAtIndexPaths:@[[self.gridTiles indexPathForCell:tile]]];
         }
     }
@@ -807,7 +812,7 @@
         
         [cell setColors:colors];
         
-        if(cell.isLoaded){
+        if([cell.state isEqualToNumber:[NSNumber numberWithInt:LOADED]]){
             if([self.scrolling boolValue]){
 //                [cell play];
                 [cell showImage];
@@ -816,10 +821,11 @@
             }
         } else {
             [cell showLoader];
+            NSLog(@"whaaaat %lu, %@", indexPath.row, cell.uid);
             [self triggerRemoteLoad:cell.uid];
         }
     }
-        
+    
     return cell;
 }
 
@@ -898,6 +904,8 @@
 //        [collectionView reloadItemsAtIndexPaths:@[[collectionView indexPathForCell:selected]]];
     }
     
+    NSLog(@"subviews: %lu", [[self.view subviews] count]);
+    
 }
 
 - (void)presentOverlay:(TileCell *)tile {
@@ -941,13 +949,6 @@
     }];
 }
 
-- (void)manageClique:(id)sender { //switch cameras front and rear cameras
-    CliqueViewController *vc = [[CliqueViewController alloc] init];
-//    [self presentViewController:vc animated:YES completion:^{
-//        //
-//    }];
-}
-
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
     // measure size of data
     NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
@@ -976,8 +977,8 @@
     [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
     }];
     
-    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
-    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
+//    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
+//    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
     
 //    for(NSString *hash in clique){
 //        NSLog(@"hash: %@", hash);
@@ -986,14 +987,14 @@
 //        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
 //    }
     
-    PFUser *pfUser = [PFUser currentUser];
     NSLog(@"group id: %@", self.groupInfo.groupId);
     NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, dataPath];
     
 //    NSLog(@"path: %@", path);
     
 //    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
-    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":pfUser.username, @"colors":colors}];
+    NSString *username = (NSString *)[[CNetworking currentUser] userDataForKey:nUsername];
+    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":username, @"colors":colors}];
     
     NSFileManager * fm = [[NSFileManager alloc] init];
     NSError *err = nil;
@@ -1032,51 +1033,53 @@
 
 - (void)setupGroups {
     CNetworking *currentUser = [CNetworking currentUser];
-    PFUser *pfUser = [PFUser currentUser];
-    
-    NSString *path = [NSString stringWithFormat:@"users/%@/groups", pfUser[@"phoneHash"]];
-    
-    NSLog(@"path: %@", path);
-    
-    // fetching all of a users groups
-    [[currentUser.firebase childByAppendingPath:path] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        
-        currentUser.groupInfo = [[NSMutableArray alloc] init];
-        
-        // iterate through returned groups
-        for(FDataSnapshot *child in snapshot.children){
-            
-            // fetch group meta data
-            NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
-//            NSLog(@"datapath: %@", dataPath);
-            
-            [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
-                
-                // saving group data
-                GroupInfo *info = [[GroupInfo alloc] init];
-                info.name = dataSnapshot.value[@"name"];
-                info.groupId = child.name;
-                info.members = [[NSMutableArray alloc] init];
-                
-                for(NSString *member in dataSnapshot.value[@"members"]){
-                    [info.members addObject:member];
-                }
-                
-                [currentUser.groupInfo insertObject:info atIndex:0];
-                
-                if([currentUser.groupInfo count] == snapshot.childrenCount){
-                    NSLog(@"about to setup pages");
-                    [self.gridTiles reloadData];
-                    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
-//                    [self initGridTiles];
-
-//                    [self setGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
-                    
-                    
-                }
-            }];
-        }
-    }];
+    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+    [self.gridTiles reloadData];
+//    NSString *userid = (NSString *)[currentUser userDataForKey:nUserId];
+//    
+//    NSString *path = [NSString stringWithFormat:@"users/%@/groups", userid];
+//    
+//    NSLog(@"path: %@", path);
+//    
+//    // fetching all of a users groups
+//    [[currentUser.firebase childByAppendingPath:path] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+//        
+//        currentUser.groupInfo = [[NSMutableArray alloc] init];
+//        
+//        // iterate through returned groups
+//        for(FDataSnapshot *child in snapshot.children){
+//            
+//            // fetch group meta data
+//            NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
+////            NSLog(@"datapath: %@", dataPath);
+//            
+//            [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
+//                
+//                // saving group data
+//                GroupInfo *info = [[GroupInfo alloc] init];
+//                info.name = dataSnapshot.value[@"name"];
+//                info.groupId = child.name;
+//                info.members = [[NSMutableArray alloc] init];
+//                
+//                for(NSString *member in dataSnapshot.value[@"members"]){
+//                    [info.members addObject:member];
+//                }
+//                
+//                [currentUser.groupInfo insertObject:info atIndex:0];
+//                
+//                if([currentUser.groupInfo count] == snapshot.childrenCount){
+//                    NSLog(@"about to setup pages");
+//                    [self.gridTiles reloadData];
+//                    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+////                    [self initGridTiles];
+//
+////                    [self setGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+//                    
+//                    
+//                }
+//            }];
+//        }
+//    }];
     
 }
 

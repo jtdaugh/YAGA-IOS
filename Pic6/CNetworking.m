@@ -8,6 +8,7 @@
 
 #import "CNetworking.h"
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
+#import <PromiseKit.h>
 
 @implementation CNetworking
 
@@ -28,13 +29,8 @@
             self.messages = [[NSMutableDictionary alloc] init];
         }
         
-        if(!self.groupInfo){
-            self.groupInfo = [[NSMutableArray alloc] init];
-        }
-        
         self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];
         NSLog(@"just inited firebase");
-//        [self saveUserData:[self humanName] forKey:@"username"];
     }
     
     return self;
@@ -43,26 +39,43 @@
 /**
     AFNetworking Code is here
  **/
-- (void)registerUser {
-    
+
+- (void)registerUserWithCompletionBlock:(void (^)())block {
     NSLog(@"signing up");
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    
+    NSString *username = (NSString *)[self userDataForKey:nUsername];
+    NSString *phone = (NSString *)[self userDataForKey:nPhone];
+    NSString *countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
+    
     NSDictionary *params = @{
-                             @"phone":@"13107753248",
-                             @"name": @"raj vir",
+                             @"phone":phone,
+                             @"name": username,
                              @"password":@"test",
-                             @"country":@"US"
+                             @"country":countryCode
                              };
     
     [manager POST:[NSString stringWithFormat:@"%@/token", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSString *token = [responseObject objectForKey:@"token"];
+        NSString *userId = [responseObject objectForKey:@"user_id"];
         [self saveUserData:token forKey:@"token"];
+        [self saveUserData:userId forKey:nUserId];
         NSLog(@"%@", responseObject);
+
+//        NSString *crewId = @"077481791fd3431782279d23f8fae199";
+        NSString *crewId = @"bb72f20e-0051-4e85-8e12-e7a37cf77f37";
+
+        __block CNetworking *blockSelf = self;
         
+        [self addToCrew:crewId withCompletionBlock:^(){
+            NSLog(@"wat");
+            [blockSelf myCrewsWithCompletion:block];
+        }];        
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
+//        block();
     }];
 }
 
@@ -103,30 +116,73 @@
 }
 
 - (void)myCrews {
+    [self myCrewsWithCompletion:nil];
+}
+
+- (void)myCrewsWithCompletion:(void (^)())block {
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.requestSerializer = [AFJSONRequestSerializer serializer];
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"Clique key=\"%@\"", [self userDataForKey:@"token"]] forHTTPHeaderField:@"Authorization"];
     
-    
     [manager GET:[NSString stringWithFormat:@"%@/me/crews", BASE_API_URL] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-        
         NSArray *items = [responseObject objectForKey:@"items"];
+       [self saveUserData:[@[] mutableCopy] forKey:nGroupInfo];
         for(id item in items){
+            GroupInfo *groupInfo = [[GroupInfo alloc] init];
+            groupInfo.groupId = [item objectForKey:@"crew_id"];
+            groupInfo.name = [item objectForKey:@"name"];
             
-            NSString *crewId = [item objectForKey:@"crew_id"];
-            
-            NSLog(@"raw crew id: %@", crewId);
-            [self saveUserData:crewId forKey:@"crew_id"];
+//            [self.groupInfo addObject:groupInfo];
         }
         
+//        [self saveUserData:self.groupInfo forKey:nGroupInfo];
+        
+        block();
+        
         NSLog(@"%@", [responseObject objectForKey:@"items"]);
+        NSLog(@"groupinfo count: %lu", [self.groupInfo count]);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
+        
+//        block();
+    }];
+}
+
+- (void)addToCrew:(NSString *)crewId withCompletionBlock:(void (^)())block {
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    [manager.requestSerializer setValue:[NSString stringWithFormat:@"Clique key=\"%@\"", [self userDataForKey:@"token"]] forHTTPHeaderField:@"Authorization"];
+    
+    NSString *userId = (NSString *) [self userDataForKey:nUserId];
+    // bb72f20e-0051-4e85-8e12-e7a37cf77f37
+    
+    [manager POST:[NSString stringWithFormat:@"%@/crew/%@/member/%@", BASE_API_URL, crewId, userId] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        //
+        NSLog(@"added to crew! %@", responseObject);
+        block();
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        //
+        NSLog(@"here it is: %@", error);
     }];
     
 }
+
+- (BOOL)loggedIn {
+    if([self userDataForKey:@"username"]){
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (void)logout {
+    [[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
+    [self.userData removeAllObjects];
+}
+
+
 
 //- (void)
 
@@ -190,6 +246,18 @@
         index++;
     }
     return -1;
+}
+
+- (NSMutableArray *)groupInfo {
+    if(![self userDataForKey:nGroupInfo]){
+        [self saveUserData:[@[] mutableCopy] forKey:nGroupInfo];
+    }
+    GroupInfo *groupInfo = [[GroupInfo alloc] init];
+    groupInfo.name = @"LindenFest 2014";
+    groupInfo.groupId = @"yolo";
+    return [@[ groupInfo ] mutableCopy];
+    
+    return (NSMutableArray *)[self userDataForKey:nGroupInfo];
 }
 
 @end

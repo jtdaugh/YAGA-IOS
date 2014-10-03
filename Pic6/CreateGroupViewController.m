@@ -14,7 +14,6 @@
 #import "CContact.h"
 #import "NSString+Hash.h"
 #import "CNetworking.h"
-#import <Parse/Parse.h>
 #import "CliqueTextField.h"
 
 @interface CreateGroupViewController ()
@@ -263,41 +262,41 @@
     
     NSLog(@"hashedNumbers count: %lu", [hashedNumbers count]);
     
-    PFQuery *query = [PFUser query];
-    [query whereKey:@"phoneHash" containedIn:hashedNumbers];
-    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
-        
-        for(PFUser *user in objects){
-            NSString *phoneHash = user[@"phoneHash"];
-            NSString *myPhoneHash = [PFUser currentUser][@"phoneHash"];
-            
-            if(![phoneHash isEqualToString:myPhoneHash]){
-                NSUInteger index = [(NSNumber *)indexes[phoneHash] unsignedIntegerValue];
-                
-                CContact *o = self.data[2][index];
-                o.registered = [NSNumber numberWithBool:YES];
-                [self.data[2] removeObject:o];
-                [self.data[1] addObject:o];
-                NSUInteger newRow = [(NSArray *)(self.data[1]) count] - 1;
-                
-                NSIndexPath *oldIndexPath = [NSIndexPath indexPathForRow:index inSection:2];
-                NSIndexPath *newIndexPath = [NSIndexPath indexPathForRow:newRow inSection:1];
-                
-                [self.list moveRowAtIndexPath:oldIndexPath toIndexPath:newIndexPath];
-                //    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
-            }
-        }
-        [self.list reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationFade];
-        [self.list reloadSections:[NSIndexSet indexSetWithIndex:2] withRowAnimation:UITableViewRowAnimationFade];
-        
-        NSLog(@"%lu", [objects count]);
-        
-        NSLog(@"done!");
-        NSDate *methodFinish = [NSDate date];
-        NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:start];
-        
-        NSLog(@"Execution Time: %f", executionTime);
-    }];
+//    PFQuery *query = [PFUser query];
+//    [query whereKey:@"phoneHash" containedIn:hashedNumbers];
+//    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+//        
+//        for(PFUser *user in objects){
+//            NSString *phoneHash = user[@"phoneHash"];
+//            NSString *myPhoneHash = [PFUser currentUser][@"phoneHash"];
+//            
+//            if(![phoneHash isEqualToString:myPhoneHash]){
+//                NSUInteger index = [(NSNumber *)indexes[phoneHash] unsignedIntegerValue];
+//                
+//                CContact *o = self.data[2][index];
+//                o.registered = [NSNumber numberWithBool:YES];
+//                [self.data[2] removeObject:o];
+//                [self.data[1] addObject:o];
+//                NSUInteger newRow = [(NSArray *)(self.data[1]) count] - 1;
+//                
+//                NSIndexPath *oldIndexPath = [NSIndexPath indexPathForRow:index inSection:2];
+//                NSIndexPath *newIndexPath = [NSIndexPath indexPathForRow:newRow inSection:1];
+//                
+//                [self.list moveRowAtIndexPath:oldIndexPath toIndexPath:newIndexPath];
+//                //    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
+//            }
+//        }
+//        [self.list reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationFade];
+//        [self.list reloadSections:[NSIndexSet indexSetWithIndex:2] withRowAnimation:UITableViewRowAnimationFade];
+//        
+//        NSLog(@"%lu", [objects count]);
+//        
+//        NSLog(@"done!");
+//        NSDate *methodFinish = [NSDate date];
+//        NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:start];
+//        
+//        NSLog(@"Execution Time: %f", executionTime);
+//    }];
 }
 
 - (void) accessoryButtonTapped: (UIControl *) button withEvent: (UIEvent *) event
@@ -378,27 +377,14 @@
         
         [self dismissViewControllerAnimated:YES completion:^{
             
-            Firebase *group = [[[[CNetworking currentUser] firebase] childByAppendingPath:@"groups"] childByAutoId];
-            
             NSMutableArray *members = [[NSMutableArray alloc] init];
             for(CContact *user in self.data[0]){
-                [members addObject:[user.number crypt]];
+                [members addObject:user.number];
             }
             
-            [members addObject:[PFUser currentUser][@"phoneHash"]];
-            
-            [[group childByAppendingPath:@"data"] setValue:@{
-                                                            @"name": self.groupName.text,
-                                                            @"members":members,
-                                                            @"admin": [PFUser currentUser][@"phoneHash"]
-                                                            }];
+            // TODO: create group function call (CNetworking, initial members, etc)
             
             
-            for(NSString *member in members){
-                NSString *path = [NSString stringWithFormat:@"users/%@/groups/%@", member, group.name];
-                
-                [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:group.name];
-            }
         }];
     }
     

@@ -12,7 +12,6 @@
 #import "OnboardingNavigationController.h"
 #import "NetworkingTestViewController.h"
 #import <Crashlytics/Crashlytics.h>
-#import <Parse/Parse.h>
 
 
 @implementation AppDelegate
@@ -23,10 +22,6 @@
     [Firebase setOption:@"persistence" to:@YES];
     
     [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
-    
-    [Parse setApplicationId:@"fMGmvOq0PhaTtIIJe371Ra5nMuv7T0Ot1ulNx2oi"
-                  clientKey:@"Av1qzrSKppbGK4JAM3mEuksQKp9xeovLJQnROEWN"];
-    [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
     
 //    AnalyticsKitMixpanelProvider *mixpanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:MIXPANEL_TOKEN];
 //    
@@ -39,11 +34,11 @@
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
     // self.window.backgroundColor = [UIColor whiteColor];
     
-    if(1){
+    if(0){
         OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
         self.window.rootViewController = vc;
     } else {
-        if(TARGET_IPHONE_SIMULATOR){
+        if(TARGET_IPHONE_SIMULATOR && 0){
             NetworkingTestViewController *vc = [[NetworkingTestViewController alloc] init];
             self.window.rootViewController = vc;
         } else {

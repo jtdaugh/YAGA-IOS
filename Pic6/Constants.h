@@ -41,7 +41,7 @@
 
 #define BIG_FONT @"Avenir"
 
-#define VERSION @"2"
+#define VERSION @"3"
 #define NODE_NAME [NSString stringWithFormat: @"v%@/%@", VERSION, @"production"]
 #define MEDIA @"media"
 #define DATA @"data"
@@ -53,6 +53,9 @@
 
 #define MIXPANEL_TOKEN @"YOUR_TOKEN"
 
-#define BASE_API_URL @"http://127.0.0.1:5000"
+#define BASE_API_URL @"http://10.0.1.164:5000"
+//#define BASE_API_URL @"http://54.68.135.210:5000"
+
+#define RECORD_INSTRUCTION @"Tap and hold to record"
 
 #endif

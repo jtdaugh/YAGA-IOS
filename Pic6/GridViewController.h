@@ -80,9 +80,6 @@
 
 - (void)conserveTiles;
 
-- (void)pauseVideos;
-- (void)unpauseVideos;
-
 - (void)configureGroupInfo:(GroupInfo *)groupInfo;
 
 @end

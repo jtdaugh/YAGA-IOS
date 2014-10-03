@@ -12,8 +12,6 @@
 #define LOADING 0
 #define LOADED 1
 #define PLAYING 2
-#define PAUSED 3
-#define LIMBO 4
 
 @interface TileCell : UICollectionViewCell
 

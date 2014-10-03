@@ -32,7 +32,11 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [[[CNetworking currentUser] groupInfo] count];
+    
+    NSMutableArray *groupInfo = [[CNetworking currentUser] groupInfo];
+    
+    NSLog(@"number of rows: %lu", [groupInfo count] + 1);
+    return [groupInfo count] + 1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -40,10 +44,15 @@
     //    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     UITableViewCell *cell = [[UITableViewCell alloc] init];
     
-    GroupInfo *groupInfo = [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row];
-    
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(12, 12, self.frame.size.width, 70)];
-    [label setText:groupInfo.name];
+
+    if(indexPath.row == ([tableView numberOfRowsInSection:0] - 1)) {
+        [label setText:@"Create Group"];
+    } else {
+        GroupInfo *groupInfo = [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row];
+        [label setText:groupInfo.name];
+    }
+    
     [label setFont:[UIFont fontWithName:BIG_FONT size:28]];
     
     //    [label setFont:[UIFont systemFontOfSize:28]];
