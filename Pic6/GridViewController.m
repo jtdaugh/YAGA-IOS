@@ -103,7 +103,7 @@
 }
 
 - (void)initCameraView {
-    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*2)];
+    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, TILE_HEIGHT/2)];
     //    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.cameraView setBackgroundColor:PRIMARY_COLOR];
     [self.view addSubview:self.cameraView];

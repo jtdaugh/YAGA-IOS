@@ -165,6 +165,7 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         //
         NSLog(@"here it is: %@", error);
+        block();
     }];
     
 }
