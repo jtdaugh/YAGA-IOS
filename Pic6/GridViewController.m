@@ -70,8 +70,8 @@
     
     [self initOverlay];
     [self initElevator];
-    [self initGridView];
     [self initLoader];
+    [self initGridView];
     [self initCameraView];
     [self initCamera:YES];
     [self initBall];
@@ -103,8 +103,8 @@
 }
 
 - (void)initCameraView {
-    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, TILE_HEIGHT/2)];
-    //    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
+//    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.cameraView setBackgroundColor:PRIMARY_COLOR];
     [self.view addSubview:self.cameraView];
     
@@ -283,7 +283,7 @@
     NSLog(@"starting hold");
     
     self.recording = [NSNumber numberWithBool:YES];
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, TILE_HEIGHT/4)];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
     [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
     [self.indicator setUserInteractionEnabled:NO];
     [self.indicatorText setText:@"Recording..."];
@@ -291,7 +291,7 @@
     [self.cameraView bringSubviewToFront:self.instructions];
     
     [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, TILE_HEIGHT/4)];
+        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
     } completion:^(BOOL finished) {
         if(finished){
             [self endHold];
@@ -494,7 +494,7 @@
 }
 
 - (void)initGridView {
-    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH * 2, TILE_HEIGHT * 4)];
+    self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
 //    [self.gridView setBackgroundColor:[UIColor yellowColor]];
 //    [self.gridView setBackgroundColor:[UIColor whiteColor]];
     
@@ -508,7 +508,7 @@
     
     CGFloat size = 50;
     
-    self.basketball = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - size/2, VIEW_HEIGHT/2 - size/2, size, size)];
+    self.basketball = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - size/2, self.cameraView.frame.size.height - size/2, size, size)];
     [self.basketball setBackgroundImage:[UIImage imageNamed:@"Ball"] forState:UIControlStateNormal];
     [self.basketball addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchDown];
     
@@ -586,13 +586,13 @@
 
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:0 animations:^{
         //
-        [self.cameraView setFrame:CGRectMake(0, -(TILE_HEIGHT*2)+50, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
+        [self.cameraView setFrame:CGRectMake(0, -(VIEW_HEIGHT/2)+50, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
         CGRect ballFrame = self.basketball.frame;
         ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height/2;
         [self.basketball setFrame:ballFrame];
 
         CGRect frame = self.gridTiles.frame;
-        frame.origin.y += TILE_HEIGHT * 2 - 50;
+        frame.origin.y += VIEW_HEIGHT/2 - 50;
         [self.gridTiles setFrame:frame];
         
         for(UIView *view in self.cameraAccessories){
@@ -641,10 +641,10 @@
     
     CGFloat spacing = 1.0f;
     UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
-    [layout setSectionInset:UIEdgeInsetsMake(TILE_HEIGHT*2 + spacing, 0, 0, 0)];
+    [layout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + spacing, 0, 0, 0)];
     [layout setMinimumInteritemSpacing:spacing];
     [layout setMinimumLineSpacing:spacing];
-    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH*2, TILE_HEIGHT*4) collectionViewLayout:layout];
+    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) collectionViewLayout:layout];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
@@ -864,8 +864,8 @@
         
         CGFloat gutter = 44;
         
-        if(scrollView.contentOffset.y > TILE_HEIGHT*2 - gutter){
-            offset = TILE_HEIGHT*2 - gutter;
+        if(scrollView.contentOffset.y > VIEW_HEIGHT/2 - gutter){
+            offset = VIEW_HEIGHT/2 - gutter;
         } else if(scrollView.contentOffset.y < 0){
             offset = 0;
         } else {
@@ -947,7 +947,7 @@
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         [self.overlay setAlpha:1.0];
         [tile.player setVolume:1.0];
-        [tile setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
+        [tile setVideoFrame:CGRectMake(0, VIEW_HEIGHT/4, VIEW_WIDTH, VIEW_HEIGHT/2)];
     } completion:^(BOOL finished) {
         //
         OverlayViewController *overlay = [[OverlayViewController alloc] init];
@@ -962,7 +962,7 @@
 
 - (void) collapse:(TileCell *)tile speed:(CGFloat)speed {
     
-    tile.frame = CGRectMake(0, self.gridTiles.contentOffset.y, TILE_WIDTH*2, TILE_HEIGHT*2);
+    tile.frame = CGRectMake(0, self.gridTiles.contentOffset.y, VIEW_WIDTH, VIEW_HEIGHT/2);
     [self.gridTiles addSubview:tile];
     [self.overlay setAlpha:0.0];
     
@@ -993,7 +993,7 @@
 //    UIImage* image = [UIImage imageWithCGImage:[imageGenerator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil]];
     CGImageRef imageRef = [imageGenerator copyCGImageAtTime:CMTimeMake(0,1) actualTime:nil error:nil];
     
-    UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(TILE_WIDTH*2, TILE_HEIGHT*2)];
+    UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT/2)];
     NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
     NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     
