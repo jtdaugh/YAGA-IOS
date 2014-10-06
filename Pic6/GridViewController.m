@@ -24,7 +24,7 @@
 @implementation GridViewController
 - (void)viewDidLoad {
     
-//    [[CNetworking currentUser] logout];
+    [[CNetworking currentUser] logout];
     self.count = 0;
     if([[CNetworking currentUser] loggedIn]){
         [self setupView];
@@ -644,6 +644,7 @@
     [layout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + spacing, 0, 0, 0)];
     [layout setMinimumInteritemSpacing:spacing];
     [layout setMinimumLineSpacing:spacing];
+    [layout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
     self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) collectionViewLayout:layout];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
@@ -818,10 +819,6 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] count];
-}
-
--(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return CGSizeMake(TILE_WIDTH-1.0f, TILE_HEIGHT);
 }
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {

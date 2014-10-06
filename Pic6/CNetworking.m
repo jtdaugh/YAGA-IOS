@@ -64,15 +64,7 @@
         [self saveUserData:userId forKey:nUserId];
         NSLog(@"%@", responseObject);
 
-//        NSString *crewId = @"077481791fd3431782279d23f8fae199";
-        NSString *crewId = @"bb72f20e-0051-4e85-8e12-e7a37cf77f37";
-
-        __block CNetworking *blockSelf = self;
-        
-        [self addToCrew:crewId withCompletionBlock:^(){
-            NSLog(@"wat");
-            [blockSelf myCrewsWithCompletion:block];
-        }];        
+        block();
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
         block();

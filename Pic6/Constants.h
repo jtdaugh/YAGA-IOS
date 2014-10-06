@@ -53,8 +53,8 @@
 
 #define MIXPANEL_TOKEN @"YOUR_TOKEN"
 
-//#define BASE_API_URL @"http://10.0.1.164:5000"
-#define BASE_API_URL @"http://54.68.135.210:5000"
+//#define BASE_API_URL @"http://54.68.135.210:5000"
+#define BASE_API_URL @"http://10.0.1.164:5000"
 
 #define RECORD_INSTRUCTION @"Tap and hold to record"
 
