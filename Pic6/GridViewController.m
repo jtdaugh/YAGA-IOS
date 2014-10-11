@@ -24,7 +24,7 @@
 @implementation GridViewController
 - (void)viewDidLoad {
     
-    [[CNetworking currentUser] logout];
+//    [[CNetworking currentUser] logout];
     self.count = 0;
     if([[CNetworking currentUser] loggedIn]){
         [self setupView];
@@ -144,9 +144,9 @@
     self.indicatorText = instructionText;
 //    [instructionText setBackgroundColor:PRIMARY_COLOR];
     
-    [self.instructions setContentView:instructionText];
-    self.instructions.shimmering = YES;
-
+//    [self.instructions setContentView:instructionText];
+    self.instructions.shimmering = NO;
+    
     [self.cameraView addSubview:self.instructions];
     [self.cameraAccessories addObject:self.instructions];
     
@@ -477,7 +477,7 @@
             [[UIScreen mainScreen] setBrightness:1.0];
             [self.view addSubview:self.white];
             [self.view bringSubviewToFront:self.cameraView];
-            [self.view bringSubviewToFront:self.basketball];
+            [self.view bringSubviewToFront:self.groupButton];
             [self configureFlashButton:[NSNumber numberWithBool:YES]];
         }
         
@@ -506,14 +506,18 @@
 
 - (void) initBall {
     
-    CGFloat size = 50;
-    
-    self.basketball = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - size/2, self.cameraView.frame.size.height - size/2, size, size)];
-    [self.basketball setBackgroundImage:[UIImage imageNamed:@"Ball"] forState:UIControlStateNormal];
-    [self.basketball addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchDown];
-    
-    [self.view addSubview:self.basketball];
-    
+    CGFloat gutter = 96, height = 42;
+    CGFloat bottom = 28;
+    self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(gutter, self.cameraView.frame.size.height - height/2, self.cameraView.frame.size.width - gutter*2, height)];
+//    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
+    [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
+    [self.groupButton addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchUpInside];
+    [self.groupButton setBackgroundColor:PRIMARY_COLOR];
+    self.groupButton.layer.cornerRadius = height/2;
+    self.groupButton.clipsToBounds = YES;
+    self.groupButton.layer.borderWidth = 1.0f;
+    self.groupButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+    [self.view addSubview:self.groupButton];
 }
 
 - (void) initElevator {
@@ -587,9 +591,9 @@
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, -(VIEW_HEIGHT/2)+50, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
-        CGRect ballFrame = self.basketball.frame;
+        CGRect ballFrame = self.groupButton.frame;
         ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height/2;
-        [self.basketball setFrame:ballFrame];
+        [self.groupButton setFrame:ballFrame];
 
         CGRect frame = self.gridTiles.frame;
         frame.origin.y += VIEW_HEIGHT/2 - 50;
@@ -615,9 +619,9 @@
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
-        CGRect ballFrame = self.basketball.frame;
+        CGRect ballFrame = self.groupButton.frame;
         ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height/2;
-        [self.basketball setFrame:ballFrame];
+        [self.groupButton setFrame:ballFrame];
         
         CGRect frame = self.gridTiles.frame;
         frame.origin.y = 0;
@@ -692,6 +696,7 @@
     }
     
     self.groupInfo = groupInfo;
+    [self.groupButton setTitle:self.groupInfo.name forState:UIControlStateNormal];
     
     [self initFirebase];
 }
@@ -873,9 +878,9 @@
         frame.origin.y = 0 - offset;
         self.cameraView.frame = frame;
         
-        frame = self.basketball.frame;
+        frame = self.groupButton.frame;
         frame.origin.y = VIEW_HEIGHT / 2 - 50/2 - offset;
-        self.basketball.frame = frame;
+        self.groupButton.frame = frame;
     }
 }
 

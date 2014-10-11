@@ -44,6 +44,8 @@
 @property (strong, nonatomic) ElevatorTableView *elevatorMenu;
 @property (strong, nonatomic) NSNumber *elevatorOpen;
 
+@property (strong, nonatomic) UIButton *groupButton;
+
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
 @property (strong, nonatomic) UIButton *cameraButton;
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;

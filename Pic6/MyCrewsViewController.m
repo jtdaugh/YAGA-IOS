@@ -9,6 +9,7 @@
 #import "MyCrewsViewController.h"
 #import "CNetworking.h"
 #import "ElevatorTableView.h"
+#import "CreateGroupViewController.h"
 
 @interface MyCrewsViewController ()
 
@@ -55,13 +56,13 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if(indexPath.row == ([tableView numberOfRowsInSection:0] - 1)){
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"broken"
-                                                        message:@"not working right now"
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        [alert show];
-        //        [self presentViewController:[[CreateGroupViewController alloc] init] animated:YES completion:nil];
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"broken"
+//                                                        message:@"not working right now"
+//                                                       delegate:nil
+//                                              cancelButtonTitle:@"OK"
+//                                              otherButtonTitles:nil];
+//        [alert show];
+        [self presentViewController:[[CreateGroupViewController alloc] init] animated:YES completion:nil];
     } else {
         [self.navigationController dismissViewControllerAnimated:YES completion:^{
             //
