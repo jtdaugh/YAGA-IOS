@@ -27,7 +27,7 @@
 #import "VENBackspaceTextField.h"
 
 static const CGFloat VENTokenFieldDefaultVerticalInset      = 7.0;
-static const CGFloat VENTokenFieldDefaultHorizontalInset    = 16.0f;
+static const CGFloat VENTokenFieldDefaultHorizontalInset    = 15.0f;
 static const CGFloat VENTokenFieldDefaultToLabelPadding     = 0.0;
 static const CGFloat VENTokenFieldDefaultTokenPadding       = 0.0;
 static const CGFloat VENTokenFieldDefaultMinInputWidth      = 80.0;
@@ -149,7 +149,9 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 - (void)setPlaceholderText:(NSString *)placeholderText
 {
     _placeholderText = placeholderText;
-    self.inputTextField.placeholder = _placeholderText;
+    UIColor *color = [UIColor lightGrayColor];
+    self.inputTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:_placeholderText attributes:@{NSForegroundColorAttributeName: color}];
+//    self.inputTextField.placeholder = _placeholderText;
 }
 
 - (void)setInputTextFieldTextColor:(UIColor *)inputTextFieldTextColor
@@ -288,6 +290,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 - (void)layoutInvisibleTextField
 {
     self.invisibleTextField = [[VENBackspaceTextField alloc] initWithFrame:CGRectZero];
+    [self.invisibleTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
     self.invisibleTextField.delegate = self;
     [self addSubview:self.invisibleTextField];
 }
@@ -346,6 +349,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         _inputTextField.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
         _inputTextField.accessibilityLabel = NSLocalizedString(@"To", nil);
         _inputTextField.autocorrectionType = UITextAutocorrectionTypeNo;
+        _inputTextField.autocapitalizationType = UITextAutocapitalizationTypeWords;
+        _inputTextField.spellCheckingType = UITextSpellCheckingTypeNo;
         _inputTextField.tintColor = self.colorScheme;
         _inputTextField.delegate = self;
         _inputTextField.placeholder = self.placeholderText;

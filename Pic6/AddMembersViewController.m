@@ -34,13 +34,23 @@
     
     [self.view setBackgroundColor:[UIColor blackColor]];
     
-    self.searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0.0f, 0, VIEW_WIDTH, 42)];
+    UIView *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0.0f, 0, VIEW_WIDTH, 42)];
+    self.searchBar = searchBar;
+    [self.searchBar becomeFirstResponder];
     [self.searchBar setBackgroundColor:[UIColor blackColor]];
 //    [self.searchBar becomeFirstResponder];
     [self.searchBar setToLabelText:@""];
     [self.searchBar setPlaceholderText:SEARCH_INSTRUCTION];
     [self.searchBar setColorScheme:PRIMARY_COLOR];
     [self.searchBar setInputTextFieldTextColor:[UIColor whiteColor]];
+    
+    CALayer *bottomBorder = [CALayer layer];
+    
+    bottomBorder.frame = CGRectMake(0.0f, self.searchBar.frame.size.height, self.searchBar.frame.size.width, 1.0f);
+    
+    bottomBorder.backgroundColor = [UIColor darkGrayColor].CGColor;
+    
+    [self.searchBar.layer addSublayer:bottomBorder];
 //    self.searchBar set
 //    [self.searchBar setAutocapitalizationType:UITextAutocapitalizationTypeWords];
 //    [self.searchBar setAutocorrectionType:UITextAutocorrectionTypeNo];
@@ -63,16 +73,22 @@
     CGFloat origin = self.searchBar.frame.size.height + 8.0f;
 
     self.membersList = [[UITableView alloc] initWithFrame:CGRectMake(0, origin, VIEW_WIDTH, self.view.frame.size.height - origin) style:UITableViewStylePlain];
+    
+//    NSDictionary *views = NSDictionaryOfVariableBindings(searchBar, self.membersList);
+//    NSDictionary *metrics = @{@"padding":@15.0};
+    
     [self.membersList setBackgroundColor:[UIColor clearColor]];
     [self.membersList setDataSource:self];
     [self.membersList setDelegate:self];
-    
+//    self.membersList.autoresizingMask = UIViewAutoresizingFlexibleHeight;
 //    [self.membersList setContentInset:UIEdgeInsetsMake(0, 10.0f, 0, 0)];
 //    [self.membersList setSeparatorColor:PRIMARY_COLOR];
 //    [self.membersList setSeparatorInset:UIEdgeInsetsZero];
 
     self.membersList.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.view addSubview:self.membersList];
+    
+    
     
     [self importAddressBook];
     
@@ -128,6 +144,10 @@
     NSLog(@"did select");
     [self.selectedContacts addObject:self.filteredContacts[indexPath.row]];
     [self.searchBar reloadData];
+    CNetworking *currentUser = [CNetworking currentUser];
+    self.filteredContacts = [currentUser.contacts mutableCopy];
+    [self.membersList reloadData];
+
 }
 
 - (NSString *)tokenField:(VENTokenField *)tokenField titleForTokenAtIndex:(NSUInteger)index {
@@ -142,16 +162,42 @@
 
 -(void)tokenField:(VENTokenField *)tokenField didChangeText:(NSString *)text {
     CNetworking *currentUser = [CNetworking currentUser];
+    NSLog(@"wassup?");
     if([text isEqualToString:@""]){
         self.filteredContacts = [currentUser.contacts mutableCopy];
+        [self.membersList reloadData];
     } else {
         [self.filteredContacts removeAllObjects];
         // Filter the array using NSPredicate
         
         
+        NSArray *keys = [[text lowercaseString] componentsSeparatedByString:@" "];
         for(CContact *contact in currentUser.contacts){
-            NSRange r = [[contact.name lowercaseString] rangeOfString:[text lowercaseString]];
-            if(r.location != NSNotFound && r.location == 0){
+            NSArray *names = [[contact.name lowercaseString] componentsSeparatedByString:@" "];
+            
+            BOOL notDetected = false;
+            
+            for(NSString *key in keys){
+                if(![key isEqualToString:@""]){
+                    bool detected = false;
+                    
+                    for(NSString *name in names){
+                        NSRange r = [name rangeOfString:key];
+                        if(r.location == 0){
+                            detected = true;
+                        }
+                    }
+                    
+                    if(!detected){
+                        notDetected = true;
+                    }
+                }
+            }
+            
+//            NSRange r = [[contact.name lowercaseString] rangeOfString:[text lowercaseString]];
+//            if(r.location != NSNotFound && r.location == 0){
+            if(!notDetected){
+                
                 [self.filteredContacts addObject:contact];
             }
             
