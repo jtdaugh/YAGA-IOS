@@ -162,7 +162,6 @@
 
 -(void)tokenField:(VENTokenField *)tokenField didChangeText:(NSString *)text {
     CNetworking *currentUser = [CNetworking currentUser];
-    NSLog(@"wassup?");
     if([text isEqualToString:@""]){
         self.filteredContacts = [currentUser.contacts mutableCopy];
         [self.membersList reloadData];
