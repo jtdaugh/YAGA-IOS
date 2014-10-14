@@ -21,7 +21,7 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - APAddressBook (0.0.10)
-  - Firebase (1.1.12)
+  - Firebase (1.2.2)
   - FrameAccessor (1.3.2)
   - libPhoneNumber-iOS (0.7.3)
   - OMGHTTPURLRQ (2.1):
@@ -37,7 +37,7 @@ PODS:
   - OMGHTTPURLRQ/UserAgent (2.1):
     - OMGHTTPURLRQ/FormURLEncode
     - OMGHTTPURLRQ/UserAgent
-  - PromiseKit (0.9.18):
+  - PromiseKit (0.9.21):
     - PromiseKit/NSNotificationCenter
     - PromiseKit/NSURLConnection
     - PromiseKit/Pause
@@ -47,26 +47,26 @@ PODS:
     - PromiseKit/UIViewController
     - PromiseKit/Until
     - PromiseKit/When
-  - PromiseKit/NSNotificationCenter (0.9.18):
+  - PromiseKit/NSNotificationCenter (0.9.21):
     - PromiseKit/Promise
-  - PromiseKit/NSURLConnection (0.9.18):
+  - PromiseKit/NSURLConnection (0.9.21):
     - OMGHTTPURLRQ
     - PromiseKit/Promise
-  - PromiseKit/Pause (0.9.18):
+  - PromiseKit/Pause (0.9.21):
     - PromiseKit/Promise
-  - PromiseKit/Promise (0.9.18)
-  - PromiseKit/UIActionSheet (0.9.18):
+  - PromiseKit/Promise (0.9.21)
+  - PromiseKit/UIActionSheet (0.9.21):
     - PromiseKit/Promise
-  - PromiseKit/UIAlertView (0.9.18):
+  - PromiseKit/UIAlertView (0.9.21):
     - PromiseKit/Promise
-  - PromiseKit/UIView (0.9.18):
+  - PromiseKit/UIView (0.9.21):
     - PromiseKit/Promise
-  - PromiseKit/UIViewController (0.9.18):
+  - PromiseKit/UIViewController (0.9.21):
     - PromiseKit/Promise
-  - PromiseKit/Until (0.9.18):
+  - PromiseKit/Until (0.9.21):
     - PromiseKit/Promise
     - PromiseKit/When
-  - PromiseKit/When (0.9.18):
+  - PromiseKit/When (0.9.21):
     - PromiseKit/Promise
   - Shimmer (1.0.1)
   - SwipeView (1.3.2)
@@ -84,11 +84,11 @@ DEPENDENCIES:
 SPEC CHECKSUMS:
   AFNetworking: 0aabc6fae66d6e5d039eeb21c315843c7aae51ab
   APAddressBook: d176555d6b845a3c900f3f3c3787c1b98d83151d
-  Firebase: 26ca966dea982f29a4685f7fa8f596d56e5487ad
+  Firebase: 1a8b62e7562c167c445b681493c4d33b51606df8
   FrameAccessor: 5eec95b29b5e9a3afe72a7a2e9ed25b000d3bcc3
   libPhoneNumber-iOS: 98fc07d70c8fdb5e6a8e3442c37e97353065c20e
   OMGHTTPURLRQ: 16564bcee86d8dfa298b65cdf60015c3065f67df
-  PromiseKit: 6d82595668e5a8bfdf5d1015abe246d9d44ae82e
+  PromiseKit: 7dc63509abccf017f77fdccc4eef4bcd5762d9e5
   Shimmer: 35aa2a57b8fbc17f9e16706021665966fd93dbd1
   SwipeView: 0093c212acf3d715b09334c50d568a4418404150
 

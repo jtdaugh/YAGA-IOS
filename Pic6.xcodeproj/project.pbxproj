@@ -502,9 +502,10 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = V947KF58NW;
+						DevelopmentTeam = M483QLX2GK;
 					};
 					71D0F588190D998000C7DEE0 = {
+						DevelopmentTeam = M483QLX2GK;
 						TestTargetID = 71D0F567190D998000C7DEE0;
 					};
 				};

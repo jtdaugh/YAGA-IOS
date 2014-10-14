@@ -35,61 +35,50 @@
     
     [self.view setBackgroundColor:[UIColor blackColor]];
     
-    UIView *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0.0f, 0, VIEW_WIDTH, 42)];
+    VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0.0f, 0, VIEW_WIDTH, 42)];
+    searchBar.translatesAutoresizingMaskIntoConstraints = NO;
+    [searchBar setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
+    [searchBar becomeFirstResponder];
+    [searchBar setBackgroundColor:[UIColor blackColor]];
+    [searchBar setToLabelText:@""];
+    [searchBar setPlaceholderText:SEARCH_INSTRUCTION];
+    [searchBar setColorScheme:PRIMARY_COLOR];
+    [searchBar setInputTextFieldTextColor:[UIColor whiteColor]];
+    searchBar.delegate = self;
+    searchBar.dataSource = self;
+    
     self.searchBar = searchBar;
-    [self.searchBar becomeFirstResponder];
-    [self.searchBar setBackgroundColor:[UIColor blackColor]];
-//    [self.searchBar becomeFirstResponder];
-    [self.searchBar setToLabelText:@""];
-    [self.searchBar setPlaceholderText:SEARCH_INSTRUCTION];
-    [self.searchBar setColorScheme:PRIMARY_COLOR];
-    [self.searchBar setInputTextFieldTextColor:[UIColor whiteColor]];
-    
-//    self.searchBar set
-//    [self.searchBar setAutocapitalizationType:UITextAutocapitalizationTypeWords];
-//    [self.searchBar setAutocorrectionType:UITextAutocorrectionTypeNo];
-//    [self.searchBar setSpellCheckingType:UITextSpellCheckingTypeNo];
-//    [self.searchBar setFont:[UIFont fontWithName:BIG_FONT size:18]];
-//    [self.searchBar setTextColor:[UIColor whiteColor]];
-//    [self.searchBar setTintColor:[UIColor lightGrayColor]];
-//    [self.searchBar setScrollEnabled:NO];
-////    [self.searchBar setBackgroundColor:PRIMARY_COLOR];
-////    [self.searchBar setSelectable:NO];
-//    [self.searchBar setContentInset:UIEdgeInsetsZero];
-//    [self.searchBar setPlaceholder:SEARCH_INSTRUCTION];
-//    [self.searchBar becomeFirstResponder];
-    
-    self.searchBar.delegate = self;
-    self.searchBar.dataSource = self;
-    
     [self.view addSubview:self.searchBar];
     
-    CGFloat origin = self.searchBar.frame.size.height + 8.0f;
-
-    self.membersList = [[UITableView alloc] initWithFrame:CGRectMake(0, origin, VIEW_WIDTH, self.view.frame.size.height - origin) style:UITableViewStylePlain];
+    UIView *border = [[UIView alloc] init];
+    border.translatesAutoresizingMaskIntoConstraints = NO;
+    border.backgroundColor = [UIColor darkGrayColor];
+    [self.view addSubview:border];
+    
+    UITableView *membersList = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    membersList.translatesAutoresizingMaskIntoConstraints = NO;
     
 //    NSDictionary *views = NSDictionaryOfVariableBindings(searchBar, self.membersList);
 //    NSDictionary *metrics = @{@"padding":@15.0};
     
-    [self.membersList setBackgroundColor:[UIColor clearColor]];
-    [self.membersList setDataSource:self];
-    [self.membersList setDelegate:self];
+    [membersList setBackgroundColor:[UIColor clearColor]];
+    [membersList setDataSource:self];
+    [membersList setDelegate:self];
 //    self.membersList.autoresizingMask = UIViewAutoresizingFlexibleHeight;
 //    [self.membersList setContentInset:UIEdgeInsetsMake(0, 10.0f, 0, 0)];
 //    [self.membersList setSeparatorColor:PRIMARY_COLOR];
 //    [self.membersList setSeparatorInset:UIEdgeInsetsZero];
 
-    self.membersList.separatorStyle = UITableViewCellSeparatorStyleNone;
+    membersList.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.membersList = membersList;
     [self.view addSubview:self.membersList];
     
-    CALayer *topBorder = [CALayer layer];
-    
-    topBorder.frame = CGRectMake(0.0f, 0, self.membersList.frame.size.width, 1.0f);
-    
-    topBorder.backgroundColor = [UIColor darkGrayColor].CGColor;
-    
-    [self.membersList.layer addSublayer:topBorder];
+    NSDictionary *views = NSDictionaryOfVariableBindings(searchBar, border, membersList);
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[searchBar]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[border]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[membersList]|" options:0 metrics:nil views:views]];
 
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[searchBar][border(1)]-8-[membersList]|" options:0 metrics:nil views:views]];
     
     UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(nextScreen)];
     [anotherButton setTitleTextAttributes:@{
