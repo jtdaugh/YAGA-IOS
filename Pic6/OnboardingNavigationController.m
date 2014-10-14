@@ -8,6 +8,7 @@
 
 #import "OnboardingNavigationController.h"
 #import "SplashViewController.h"
+#import "AddMembersViewController.h"
 
 @interface OnboardingNavigationController ()
 
@@ -27,8 +28,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self setNavigationBarHidden:YES];
-    [self setViewControllers:@[[[SplashViewController alloc] init]]];
+    [self setNavigationBarHidden:NO];
+    [self setViewControllers:@[[[AddMembersViewController alloc] init]]];
     NSLog(@"hello navigation, it's the fuckin martian");
     
     [self.navigationBar setTranslucent:NO];
@@ -38,9 +39,11 @@
                                      NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:20]
                                      }];
     [self.navigationBar setShadowImage:[UIImage new]];
+    [self.navigationBar setBarTintColor:[UIColor blackColor]];
     [self.navigationBar setBackgroundImage:[UIImage new]
                        forBarPosition:UIBarPositionAny
                            barMetrics:UIBarMetricsDefault];
+//    [self.navigationBar setBackgroundColor:[UIColor blackColor]];
     // Do any additional setup after loading the view.
 }
 

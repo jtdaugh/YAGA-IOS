@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		41089D4B19ECE2910075F304 /* AddMembersViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41089D4A19ECE2910075F304 /* AddMembersViewController.m */; };
+		41089D5519ED96CD0075F304 /* VENBackspaceTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 41089D4F19ED96CD0075F304 /* VENBackspaceTextField.m */; };
+		41089D5619ED96CD0075F304 /* VENToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 41089D5119ED96CD0075F304 /* VENToken.m */; };
+		41089D5719ED96CD0075F304 /* VENToken.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41089D5219ED96CD0075F304 /* VENToken.xib */; };
+		41089D5819ED96CD0075F304 /* VENTokenField.m in Sources */ = {isa = PBXBuildFile; fileRef = 41089D5419ED96CD0075F304 /* VENTokenField.m */; };
 		4110BC4619A6BB96001A98AF /* UIImage+Colors.m in Sources */ = {isa = PBXBuildFile; fileRef = 4110BC4519A6BB96001A98AF /* UIImage+Colors.m */; };
 		411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CBE1999CE6A0094C57F /* UIColor+Expanded.m */; };
 		411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC01999D0DA0094C57F /* NSMutableArray+Shuffle.h */; };
@@ -73,6 +78,15 @@
 
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		41089D4919ECE2910075F304 /* AddMembersViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddMembersViewController.h; sourceTree = "<group>"; };
+		41089D4A19ECE2910075F304 /* AddMembersViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddMembersViewController.m; sourceTree = "<group>"; };
+		41089D4E19ED96CD0075F304 /* VENBackspaceTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENBackspaceTextField.h; sourceTree = "<group>"; };
+		41089D4F19ED96CD0075F304 /* VENBackspaceTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VENBackspaceTextField.m; sourceTree = "<group>"; };
+		41089D5019ED96CD0075F304 /* VENToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENToken.h; sourceTree = "<group>"; };
+		41089D5119ED96CD0075F304 /* VENToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VENToken.m; sourceTree = "<group>"; };
+		41089D5219ED96CD0075F304 /* VENToken.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VENToken.xib; sourceTree = "<group>"; };
+		41089D5319ED96CD0075F304 /* VENTokenField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENTokenField.h; sourceTree = "<group>"; };
+		41089D5419ED96CD0075F304 /* VENTokenField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VENTokenField.m; sourceTree = "<group>"; };
 		4110BC4519A6BB96001A98AF /* UIImage+Colors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Colors.m"; sourceTree = "<group>"; };
 		4110BC4719A6BBAB001A98AF /* UIImage+Colors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Colors.h"; sourceTree = "<group>"; };
 		411A2CBD1999CE580094C57F /* UIColor+Expanded.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Expanded.h"; sourceTree = "<group>"; };
@@ -189,6 +203,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		41089D4C19ED96BF0075F304 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				41089D4D19ED96CD0075F304 /* VENTokenField */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+		41089D4D19ED96CD0075F304 /* VENTokenField */ = {
+			isa = PBXGroup;
+			children = (
+				41089D4E19ED96CD0075F304 /* VENBackspaceTextField.h */,
+				41089D4F19ED96CD0075F304 /* VENBackspaceTextField.m */,
+				41089D5019ED96CD0075F304 /* VENToken.h */,
+				41089D5119ED96CD0075F304 /* VENToken.m */,
+				41089D5219ED96CD0075F304 /* VENToken.xib */,
+				41089D5319ED96CD0075F304 /* VENTokenField.h */,
+				41089D5419ED96CD0075F304 /* VENTokenField.m */,
+			);
+			path = VENTokenField;
+			sourceTree = "<group>";
+		};
 		41373A181973459600F41895 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -225,6 +261,8 @@
 			children = (
 				418CDE45199D86C600693733 /* CreateViewController.h */,
 				418CDE46199D86C600693733 /* CreateViewController.m */,
+				41089D4919ECE2910075F304 /* AddMembersViewController.h */,
+				41089D4A19ECE2910075F304 /* AddMembersViewController.m */,
 			);
 			name = Management;
 			sourceTree = "<group>";
@@ -364,6 +402,7 @@
 		71D0F571190D998000C7DEE0 /* Pic6 */ = {
 			isa = PBXGroup;
 			children = (
+				41089D4C19ED96BF0075F304 /* Libraries */,
 				41DCA6B7197624780055910F /* Assets */,
 				71106D85192434970083C64A /* Models */,
 				71B827D8191B0445008C4048 /* Views */,
@@ -496,6 +535,7 @@
 				415DE46D197766A5000DD3C7 /* 0.mp4 in Resources */,
 				41EC820A1977218A002AE4BF /* 3.mp4 in Resources */,
 				71D0F576190D998000C7DEE0 /* InfoPlist.strings in Resources */,
+				41089D5719ED96CD0075F304 /* VENToken.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -571,11 +611,15 @@
 				419852D719DE650200A5E5F6 /* MyCrewsViewController.m in Sources */,
 				4179A08319DA8E74005D18D8 /* VerifyViewController.m in Sources */,
 				415DE47319777609000DD3C7 /* OnboardingNavigationController.m in Sources */,
+				41089D5519ED96CD0075F304 /* VENBackspaceTextField.m in Sources */,
 				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,
 				418954BE19687DD2009C17E2 /* NSString+File.m in Sources */,
 				41B404941974CA6700F9EE3F /* CContact.m in Sources */,
+				41089D5619ED96CD0075F304 /* VENToken.m in Sources */,
 				414D8DFC19D3C6E50067B88B /* NetworkingTestViewController.m in Sources */,
 				F152A08119AA28A50090A9C7 /* CliquePageControl.m in Sources */,
+				41089D4B19ECE2910075F304 /* AddMembersViewController.m in Sources */,
+				41089D5819ED96CD0075F304 /* VENTokenField.m in Sources */,
 				71D0F578190D998000C7DEE0 /* main.m in Sources */,
 				716CFA36192EC1F500E6ED17 /* TileCell.m in Sources */,
 				411A2CC31999D10A0094C57F /* NSMutableArray+Shuffle.m in Sources */,

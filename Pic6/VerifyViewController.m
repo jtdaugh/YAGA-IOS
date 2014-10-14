@@ -16,6 +16,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.title = @"";
+
     NSLog(@"verifying");
     [self.view setBackgroundColor:PRIMARY_COLOR];
     // Do any additional setup after loading the view.

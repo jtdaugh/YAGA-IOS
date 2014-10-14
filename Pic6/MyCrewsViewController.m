@@ -9,7 +9,7 @@
 #import "MyCrewsViewController.h"
 #import "CNetworking.h"
 #import "ElevatorTableView.h"
-#import "CreateGroupViewController.h"
+#import "CreateViewController.h"
 
 @interface MyCrewsViewController ()
 
@@ -63,7 +63,7 @@
 //                                              cancelButtonTitle:@"OK"
 //                                              otherButtonTitles:nil];
 //        [alert show];
-        [self presentViewController:[[CreateGroupViewController alloc] init] animated:YES completion:nil];
+        [self presentViewController:[[CreateViewController alloc] init] animated:YES completion:nil];
     } else {
         [self.navigationController dismissViewControllerAnimated:YES completion:^{
             //

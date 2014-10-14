@@ -57,5 +57,6 @@
 #define BASE_API_URL @"http://10.0.1.164:5000"
 
 #define RECORD_INSTRUCTION @"Tap and hold to record"
+#define SEARCH_INSTRUCTION @"Search contacts and usernames"
 
 #endif

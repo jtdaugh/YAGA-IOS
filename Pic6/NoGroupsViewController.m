@@ -7,7 +7,7 @@
 //
 
 #import "NoGroupsViewController.h"
-#import "CreateGroupViewController.h"
+#import "AddMembersViewController.h"
 
 @interface NoGroupsViewController ()
 
@@ -18,6 +18,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    self.title = @"";
+    
+    [self.navigationController.navigationItem setHidesBackButton:YES];
     
     CGFloat width = VIEW_WIDTH * .8;
     [self.view setBackgroundColor:[UIColor blackColor]];
@@ -62,7 +66,7 @@
 }
 
 - (void)nextScreen {
-    CreateGroupViewController *vc = [[CreateGroupViewController alloc] init];
+    AddMembersViewController *vc = [[AddMembersViewController alloc] init];
     [self.navigationController pushViewController:vc animated:YES];
     NSLog(@"watup");
 }

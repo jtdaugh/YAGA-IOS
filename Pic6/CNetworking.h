@@ -29,6 +29,7 @@
 @property (strong, nonatomic) NSMutableDictionary *userData;
 @property (strong, nonatomic) Firebase *firebase;
 @property (strong, nonatomic) NSMutableDictionary *messages;
+@property (strong, nonatomic) NSMutableArray *contacts;
 
 + (id)currentUser;
 
