@@ -30,7 +30,7 @@
     self.selectedContacts = [[NSMutableArray alloc] init];
     
     self.title = @"Add Members";
-    [self.navigationController setNavigationBarHidden:NO];
+//    [self.navigationController setNavigationBarHidden:NO];
     
     [self.view setBackgroundColor:[UIColor blackColor]];
     
@@ -44,13 +44,6 @@
     [self.searchBar setColorScheme:PRIMARY_COLOR];
     [self.searchBar setInputTextFieldTextColor:[UIColor whiteColor]];
     
-    CALayer *bottomBorder = [CALayer layer];
-    
-    bottomBorder.frame = CGRectMake(0.0f, self.searchBar.frame.size.height, self.searchBar.frame.size.width, 1.0f);
-    
-    bottomBorder.backgroundColor = [UIColor darkGrayColor].CGColor;
-    
-    [self.searchBar.layer addSublayer:bottomBorder];
 //    self.searchBar set
 //    [self.searchBar setAutocapitalizationType:UITextAutocapitalizationTypeWords];
 //    [self.searchBar setAutocorrectionType:UITextAutocorrectionTypeNo];
@@ -88,7 +81,22 @@
     self.membersList.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.view addSubview:self.membersList];
     
+    CALayer *topBorder = [CALayer layer];
     
+    topBorder.frame = CGRectMake(0.0f, 0, self.membersList.frame.size.width, 1.0f);
+    
+    topBorder.backgroundColor = [UIColor darkGrayColor].CGColor;
+    
+    [self.membersList.layer addSublayer:topBorder];
+
+    
+    UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(reloadSearchBox)];
+    [anotherButton setTitleTextAttributes:@{
+                                            NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
+                                            } forState:UIControlStateNormal];
+    [anotherButton setEnabled:NO];
+    [anotherButton setTintColor:[UIColor lightGrayColor]];
+    self.navigationItem.rightBarButtonItem = anotherButton;
     
     [self importAddressBook];
     
@@ -140,10 +148,24 @@
     return cell;
 }
 
+- (void)reloadSearchBox {
+    [self.searchBar reloadData];
+    if([self numberOfTokensInTokenField:self.searchBar] > 0){
+        [self.navigationItem.rightBarButtonItem setEnabled:YES];
+        [self.navigationItem.rightBarButtonItem setTintColor:PRIMARY_COLOR];
+    } else {
+        [self.navigationItem.rightBarButtonItem setEnabled:NO];
+        [self.navigationItem.rightBarButtonItem setTintColor:[UIColor lightGrayColor]];
+    }
+//    CGRect frame = self.searchBar.frame;
+//    [self.membersList setFrame:CGRectMake(0, frame.size.height, VIEW_WIDTH, self.view.frame.size.height - frame.size.height)];
+    
+}
+
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"did select");
     [self.selectedContacts addObject:self.filteredContacts[indexPath.row]];
-    [self.searchBar reloadData];
+    [self reloadSearchBox];
     CNetworking *currentUser = [CNetworking currentUser];
     self.filteredContacts = [currentUser.contacts mutableCopy];
     [self.membersList reloadData];
@@ -157,7 +179,7 @@
 
 - (void)tokenField:(VENTokenField *)tokenField didDeleteTokenAtIndex:(NSUInteger)index {
     [self.selectedContacts removeObjectAtIndex:index];
-    [tokenField reloadData];
+    [self reloadSearchBox];
 }
 
 -(void)tokenField:(VENTokenField *)tokenField didChangeText:(NSString *)text {
