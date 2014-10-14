@@ -33,7 +33,7 @@
     NSLog(@"hello navigation, it's the fuckin martian");
     
     [self.navigationBar setTranslucent:NO];
-    [self.navigationBar setTintColor:PRIMARY_COLOR];
+    [self.navigationBar setTintColor:[UIColor whiteColor]];
     [self.navigationBar setTitleTextAttributes:@{
                                      NSForegroundColorAttributeName: [UIColor whiteColor],
                                      NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:20]
