@@ -26,6 +26,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWasShown:)
+                                                 name:UIKeyboardDidShowNotification
+                                               object:nil];
+    
     // if no contacts permissions, ask for contact permissions
     
     self.selectedContacts = [[NSMutableArray alloc] init];
@@ -38,7 +43,6 @@
     VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0.0f, 0, VIEW_WIDTH, 42)];
     searchBar.translatesAutoresizingMaskIntoConstraints = NO;
     [searchBar setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
-    [searchBar becomeFirstResponder];
     [searchBar setBackgroundColor:[UIColor blackColor]];
     [searchBar setToLabelText:@""];
     [searchBar setPlaceholderText:SEARCH_INSTRUCTION];
@@ -64,6 +68,7 @@
     [membersList setBackgroundColor:[UIColor clearColor]];
     [membersList setDataSource:self];
     [membersList setDelegate:self];
+    [membersList setContentInset:UIEdgeInsetsMake(0, 0, 216, 0)];
 //    self.membersList.autoresizingMask = UIViewAutoresizingFlexibleHeight;
 //    [self.membersList setContentInset:UIEdgeInsetsMake(0, 10.0f, 0, 0)];
 //    [self.membersList setSeparatorColor:PRIMARY_COLOR];
@@ -78,7 +83,7 @@
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[border]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[membersList]|" options:0 metrics:nil views:views]];
 
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[searchBar][border(1)]-8-[membersList]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[searchBar][border(1)]-0-[membersList]|" options:0 metrics:nil views:views]];
     
     UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(nextScreen)];
     [anotherButton setTitleTextAttributes:@{
@@ -88,8 +93,19 @@
     [anotherButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.rightBarButtonItem = anotherButton;
     
+    [searchBar becomeFirstResponder];
+
     [self importAddressBook];
     
+}
+
+- (void)keyboardWasShown:(NSNotification *)notification {
+    // Get the size of the keyboard.
+    NSDictionary* keyboardInfo = [notification userInfo];
+    NSValue* keyboardFrameBegin = [keyboardInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
+    CGRect keyboardFrameBeginRect = [keyboardFrameBegin CGRectValue];
+    CGSize keyboardSize = keyboardFrameBeginRect.size;
+    [self.membersList setContentInset:UIEdgeInsetsMake(0, 0, keyboardSize.height, 0)];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -159,7 +175,6 @@
     CNetworking *currentUser = [CNetworking currentUser];
     self.filteredContacts = [currentUser.contacts mutableCopy];
     [self.membersList reloadData];
-
 }
 
 - (NSString *)tokenField:(VENTokenField *)tokenField titleForTokenAtIndex:(NSUInteger)index {
@@ -205,8 +220,6 @@
                 }
             }
             
-//            NSRange r = [[contact.name lowercaseString] rangeOfString:[text lowercaseString]];
-//            if(r.location != NSNotFound && r.location == 0){
             if(!notDetected){
                 
                 [self.filteredContacts addObject:contact];
@@ -214,7 +227,6 @@
             
         }
         [self.membersList reloadData];
-        //    NSLog(@"changed");
         
     }
 
