@@ -9,6 +9,7 @@
 #import "UsernameViewController.h"
 #import "CNetworking.h"
 #import "MyCrewsViewController.h"
+#import "NoGroupsViewController.h"
 
 @interface UsernameViewController ()
 
@@ -113,13 +114,15 @@
     [currentUser registerUserWithCompletionBlock:^(void){
         NSLog(@"completed! %@", (NSString *)[currentUser userDataForKey:nToken]);
         
-        if([[currentUser groupInfo] count] > 0){
+        if([[currentUser groupInfo] count] > 0 && 0){
             MyCrewsViewController *vc = [[MyCrewsViewController alloc] init];
             [self.navigationController pushViewController:vc animated:YES];
         } else {
-            [self.navigationController dismissViewControllerAnimated:YES completion:^{
-                //
-            }];
+            NoGroupsViewController *vc = [[NoGroupsViewController alloc] init];
+            [self.navigationController pushViewController:vc animated:YES];
+//            [self.navigationController dismissViewControllerAnimated:YES completion:^{
+//                //
+//            }];
         }
     }];
     

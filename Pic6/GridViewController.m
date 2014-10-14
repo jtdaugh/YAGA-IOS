@@ -15,7 +15,7 @@
 #import "OverlayViewController.h"
 #import "OnboardingNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
-#import "CreateGroupViewController.h"
+#import "CreateViewController.h"
 
 @interface GridViewController ()
 @property int count;
@@ -24,7 +24,7 @@
 @implementation GridViewController
 - (void)viewDidLoad {
     
-//    [[CNetworking currentUser] logout];
+    [[CNetworking currentUser] logout];
     self.count = 0;
     if([[CNetworking currentUser] loggedIn]){
         [self setupView];
@@ -247,7 +247,6 @@
 
 - (void)afterCameraInit {
     [self setupGroups];
-    
 }
 
 - (void)addAudioInput {

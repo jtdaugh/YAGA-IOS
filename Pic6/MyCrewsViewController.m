@@ -22,6 +22,7 @@
     // Do any additional setup after loading the view.
     
     CGFloat width = VIEW_WIDTH * .8;
+    [self.view setBackgroundColor:[UIColor blackColor]];
     
     NSLog(@" view width: %f", VIEW_WIDTH);
     
