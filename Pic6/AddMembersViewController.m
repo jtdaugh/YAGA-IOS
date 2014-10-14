@@ -14,6 +14,7 @@
 #import "CContact.h"
 #import "NSString+Hash.h"
 #import "CNetworking.h"
+#import "NameGroupViewController.h"
 
 @interface AddMembersViewController ()
 
@@ -90,7 +91,7 @@
     [self.membersList.layer addSublayer:topBorder];
 
     
-    UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(reloadSearchBox)];
+    UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(nextScreen)];
     [anotherButton setTitleTextAttributes:@{
                                             NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
                                             } forState:UIControlStateNormal];
@@ -374,6 +375,11 @@
     
 }
 
+- (void)nextScreen {
+    NameGroupViewController *vc = [[NameGroupViewController alloc] init];
+    vc.members = self.selectedContacts;
+    [self.navigationController pushViewController:vc animated:YES];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

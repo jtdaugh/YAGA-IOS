@@ -12,6 +12,7 @@
 		41089D5619ED96CD0075F304 /* VENToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 41089D5119ED96CD0075F304 /* VENToken.m */; };
 		41089D5719ED96CD0075F304 /* VENToken.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41089D5219ED96CD0075F304 /* VENToken.xib */; };
 		41089D5819ED96CD0075F304 /* VENTokenField.m in Sources */ = {isa = PBXBuildFile; fileRef = 41089D5419ED96CD0075F304 /* VENTokenField.m */; };
+		41089D5B19EDCB440075F304 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41089D5A19EDCB440075F304 /* NameGroupViewController.m */; };
 		4110BC4619A6BB96001A98AF /* UIImage+Colors.m in Sources */ = {isa = PBXBuildFile; fileRef = 4110BC4519A6BB96001A98AF /* UIImage+Colors.m */; };
 		411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CBE1999CE6A0094C57F /* UIColor+Expanded.m */; };
 		411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC01999D0DA0094C57F /* NSMutableArray+Shuffle.h */; };
@@ -87,6 +88,8 @@
 		41089D5219ED96CD0075F304 /* VENToken.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VENToken.xib; sourceTree = "<group>"; };
 		41089D5319ED96CD0075F304 /* VENTokenField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENTokenField.h; sourceTree = "<group>"; };
 		41089D5419ED96CD0075F304 /* VENTokenField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VENTokenField.m; sourceTree = "<group>"; };
+		41089D5919EDCB440075F304 /* NameGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NameGroupViewController.h; sourceTree = "<group>"; };
+		41089D5A19EDCB440075F304 /* NameGroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NameGroupViewController.m; sourceTree = "<group>"; };
 		4110BC4519A6BB96001A98AF /* UIImage+Colors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Colors.m"; sourceTree = "<group>"; };
 		4110BC4719A6BBAB001A98AF /* UIImage+Colors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Colors.h"; sourceTree = "<group>"; };
 		411A2CBD1999CE580094C57F /* UIColor+Expanded.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Expanded.h"; sourceTree = "<group>"; };
@@ -263,6 +266,8 @@
 				418CDE46199D86C600693733 /* CreateViewController.m */,
 				41089D4919ECE2910075F304 /* AddMembersViewController.h */,
 				41089D4A19ECE2910075F304 /* AddMembersViewController.m */,
+				41089D5919EDCB440075F304 /* NameGroupViewController.h */,
+				41089D5A19EDCB440075F304 /* NameGroupViewController.m */,
 			);
 			name = Management;
 			sourceTree = "<group>";
@@ -609,6 +614,7 @@
 				4193DD8E19DDDBF40011728F /* UsernameViewController.m in Sources */,
 				71D0F57C190D998000C7DEE0 /* AppDelegate.m in Sources */,
 				419852D719DE650200A5E5F6 /* MyCrewsViewController.m in Sources */,
+				41089D5B19EDCB440075F304 /* NameGroupViewController.m in Sources */,
 				4179A08319DA8E74005D18D8 /* VerifyViewController.m in Sources */,
 				415DE47319777609000DD3C7 /* OnboardingNavigationController.m in Sources */,
 				41089D5519ED96CD0075F304 /* VENBackspaceTextField.m in Sources */,
