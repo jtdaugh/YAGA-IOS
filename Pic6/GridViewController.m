@@ -18,14 +18,12 @@
 #import "CreateViewController.h"
 
 @interface GridViewController ()
-@property int count;
 @end
 
 @implementation GridViewController
 - (void)viewDidLoad {
     
     [[CNetworking currentUser] logout];
-    self.count = 0;
     if([[CNetworking currentUser] loggedIn]){
         [self setupView];
     }
@@ -828,8 +826,6 @@
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
-    
-    NSLog(@"cfaip count: %i", ++self.count);
     
     if(![cell.uid isEqualToString:snapshot.name]){
 

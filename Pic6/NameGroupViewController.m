@@ -91,6 +91,18 @@
 }
 
 - (void)nextScreen {
+    
+    [self.next setTitle:@"" forState:UIControlStateNormal];
+    UIActivityIndicatorView *myIndicator = [[UIActivityIndicatorView alloc]
+                                            initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    
+    // Position the spinner
+    [self.next addSubview:myIndicator];
+    [myIndicator setCenter:CGPointMake(self.next.frame.size.width / 2, self.next.frame.size.height / 2)];
+    
+    // Start the animation
+    [myIndicator startAnimating];
+
     if(![MFMessageComposeViewController canSendText]) {
         UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your device doesn't support SMS!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [warningAlert show];
@@ -134,7 +146,12 @@
             break;
     }
     
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [self dismissViewControllerAnimated:YES completion:^{
+        //
+        [self.navigationController dismissViewControllerAnimated:YES completion:^{
+            //
+        }];
+    }];
 }
 
 

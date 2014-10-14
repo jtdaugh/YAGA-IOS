@@ -29,7 +29,7 @@
 {
     [super viewDidLoad];
     [self setNavigationBarHidden:NO];
-    [self setViewControllers:@[[[AddMembersViewController alloc] init]]];
+    [self setViewControllers:@[[[SplashViewController alloc] init]]];
     NSLog(@"hello navigation, it's the fuckin martian");
     
     [self.navigationBar setTranslucent:NO];

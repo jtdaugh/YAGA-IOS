@@ -93,10 +93,12 @@
     [anotherButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.rightBarButtonItem = anotherButton;
     
-    [searchBar becomeFirstResponder];
-
     [self importAddressBook];
     
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [self.searchBar becomeFirstResponder];
 }
 
 - (void)keyboardWasShown:(NSNotification *)notification {
