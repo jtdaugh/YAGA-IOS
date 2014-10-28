@@ -115,16 +115,19 @@
     [currentUser registerUserWithCompletionBlock:^(void){
         NSLog(@"completed! %@", (NSString *)[currentUser userDataForKey:nToken]);
         
-        if([[currentUser groupInfo] count] > 0 && 0){
-            MyCrewsViewController *vc = [[MyCrewsViewController alloc] init];
-            [self.navigationController pushViewController:vc animated:YES];
-        } else {
-            NoGroupsViewController *vc = [[NoGroupsViewController alloc] init];
-            [self.navigationController pushViewController:vc animated:YES];
-//            [self.navigationController dismissViewControllerAnimated:YES completion:^{
-//                //
-//            }];
-        }
+        [currentUser myCrewsWithCompletion:^{
+            
+            NSLog(@"my groupinfo count: %lu", [[currentUser groupInfo] count]);
+            
+            if([[currentUser groupInfo] count] > 0){
+                MyCrewsViewController *vc = [[MyCrewsViewController alloc] init];
+                [self.navigationController pushViewController:vc animated:YES];
+            } else {
+                NoGroupsViewController *vc = [[NoGroupsViewController alloc] init];
+                [self.navigationController pushViewController:vc animated:YES];
+            }
+        }];
+        
     }];
     
 }

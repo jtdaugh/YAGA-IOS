@@ -10,4 +10,13 @@
 
 @implementation GroupInfo
 
++ (NSDictionary *)JSONKeyPathsByPropertyKey {
+    
+    return @{
+             @"name": @"name",
+             @"groupId": @"groupId",
+             @"members": @"members"
+             };
+}
+
 @end

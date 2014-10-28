@@ -6,15 +6,15 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "OnboardingNavigationController.h"
+#import "YagaNavigationController.h"
 #import "SplashViewController.h"
 #import "AddMembersViewController.h"
 
-@interface OnboardingNavigationController ()
+@interface YagaNavigationController ()
 
 @end
 
-@implementation OnboardingNavigationController
+@implementation YagaNavigationController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -29,7 +29,6 @@
 {
     [super viewDidLoad];
     [self setNavigationBarHidden:NO];
-    [self setViewControllers:@[[[SplashViewController alloc] init]]];
     NSLog(@"hello navigation, it's the fuckin martian");
     
     [self.navigationBar setTranslucent:NO];

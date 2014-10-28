@@ -8,8 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <Firebase/Firebase.h>
+#import "MTLModel.h"
+#import "MTLJSONAdapter.h"
 
-@interface GroupInfo : NSObject
+@interface GroupInfo : MTLModel <MTLJSONSerializing>
 @property (strong, nonatomic) NSString *name;
 @property (strong, nonatomic) NSString *groupId;
 @property (strong, nonatomic) NSMutableArray *members;

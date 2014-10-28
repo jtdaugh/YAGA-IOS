@@ -11,6 +11,7 @@
 #import "VerifyViewController.h"
 #import "UsernameViewController.h"
 #import "CNetworking.h"
+#import "NSString+Hash.h"
 
 @interface SplashViewController ()
 
@@ -89,6 +90,8 @@
     [self.next setAlpha:0.0];
     [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.next];
+    
+    
     
 }
 

@@ -21,7 +21,7 @@
 		414D8DFC19D3C6E50067B88B /* NetworkingTestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 414D8DFB19D3C6E50067B88B /* NetworkingTestViewController.m */; };
 		415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415AEFE3196638D600F6A8B1 /* OverlayViewController.m */; };
 		415DE46D197766A5000DD3C7 /* 0.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41A5F545197765E100E6A1F5 /* 0.mp4 */; };
-		415DE47319777609000DD3C7 /* OnboardingNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415DE47219777609000DD3C7 /* OnboardingNavigationController.m */; };
+		415DE47319777609000DD3C7 /* YagaNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 415DE47219777609000DD3C7 /* YagaNavigationController.m */; };
 		416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 416D52C5197E107100769721 /* AVCamPreviewView.m */; };
 		4179A08019DA7AAD005D18D8 /* SplashViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4179A07F19DA7AAD005D18D8 /* SplashViewController.m */; };
 		4179A08319DA8E74005D18D8 /* VerifyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4179A08219DA8E74005D18D8 /* VerifyViewController.m */; };
@@ -102,8 +102,8 @@
 		414D8DFB19D3C6E50067B88B /* NetworkingTestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkingTestViewController.m; sourceTree = "<group>"; };
 		415AEFE2196638D600F6A8B1 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
 		415AEFE3196638D600F6A8B1 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
-		415DE47119777609000DD3C7 /* OnboardingNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnboardingNavigationController.h; sourceTree = "<group>"; };
-		415DE47219777609000DD3C7 /* OnboardingNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnboardingNavigationController.m; sourceTree = "<group>"; };
+		415DE47119777609000DD3C7 /* YagaNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YagaNavigationController.h; sourceTree = "<group>"; };
+		415DE47219777609000DD3C7 /* YagaNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YagaNavigationController.m; sourceTree = "<group>"; };
 		416D52C4197E107100769721 /* AVCamPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVCamPreviewView.h; sourceTree = "<group>"; };
 		416D52C5197E107100769721 /* AVCamPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVCamPreviewView.m; sourceTree = "<group>"; };
 		4179A07E19DA7AAD005D18D8 /* SplashViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplashViewController.h; sourceTree = "<group>"; };
@@ -255,6 +255,8 @@
 				71D0F5A1190D99A700C7DEE0 /* GridViewController.m */,
 				415AEFE2196638D600F6A8B1 /* OverlayViewController.h */,
 				415AEFE3196638D600F6A8B1 /* OverlayViewController.m */,
+				415DE47119777609000DD3C7 /* YagaNavigationController.h */,
+				415DE47219777609000DD3C7 /* YagaNavigationController.m */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -293,8 +295,6 @@
 				4194DDA119ECB0AD0037F161 /* NoGroupsViewController.m */,
 				419852D519DE650200A5E5F6 /* MyCrewsViewController.h */,
 				419852D619DE650200A5E5F6 /* MyCrewsViewController.m */,
-				415DE47119777609000DD3C7 /* OnboardingNavigationController.h */,
-				415DE47219777609000DD3C7 /* OnboardingNavigationController.m */,
 			);
 			name = Onboarding;
 			sourceTree = "<group>";
@@ -407,13 +407,13 @@
 		71D0F571190D998000C7DEE0 /* Pic6 */ = {
 			isa = PBXGroup;
 			children = (
+				71404FA819121A78002F4B92 /* Constants.h */,
 				41089D4C19ED96BF0075F304 /* Libraries */,
 				41DCA6B7197624780055910F /* Assets */,
 				71106D85192434970083C64A /* Models */,
 				71B827D8191B0445008C4048 /* Views */,
 				715455D3191063F500ABE2BE /* Categories */,
 				41373A181973459600F41895 /* View Controllers */,
-				71404FA819121A78002F4B92 /* Constants.h */,
 				71D0F57A190D998000C7DEE0 /* AppDelegate.h */,
 				71D0F57B190D998000C7DEE0 /* AppDelegate.m */,
 				71D0F583190D998000C7DEE0 /* Images.xcassets */,
@@ -617,7 +617,7 @@
 				419852D719DE650200A5E5F6 /* MyCrewsViewController.m in Sources */,
 				41089D5B19EDCB440075F304 /* NameGroupViewController.m in Sources */,
 				4179A08319DA8E74005D18D8 /* VerifyViewController.m in Sources */,
-				415DE47319777609000DD3C7 /* OnboardingNavigationController.m in Sources */,
+				415DE47319777609000DD3C7 /* YagaNavigationController.m in Sources */,
 				41089D5519ED96CD0075F304 /* VENBackspaceTextField.m in Sources */,
 				415AEFE4196638D600F6A8B1 /* OverlayViewController.m in Sources */,
 				418954BE19687DD2009C17E2 /* NSString+File.m in Sources */,

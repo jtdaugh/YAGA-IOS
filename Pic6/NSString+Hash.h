@@ -9,4 +9,6 @@
 @interface NSString (Hash)
 + (NSString *) hashString :(NSString *) data withSalt: (NSString *) salt;
 - (NSString *) crypt;
+- (NSString *) md5;
+- (NSString *) clean;
 @end

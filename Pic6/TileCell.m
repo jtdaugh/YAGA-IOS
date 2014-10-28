@@ -164,37 +164,40 @@
 
 - (void)playLocal:(NSString *)path {
     self.state = [NSNumber numberWithInt:PLAYING];
-    
-    NSString *moviePath = path;
-//    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self.uid];
-    NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    
-    if ([fileManager fileExistsAtPath:moviePath]){
+    @autoreleasepool {
         
-        self.player = [AVPlayer playerWithURL:movieURL];
-        self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+        NSString *moviePath = path;
+    //    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self.uid];
+        NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
         
-        [self.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-        
-        // set video sizing
-        [self.playerContainer removeFromSuperview];
-        self.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-        //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
-        self.playerLayer.frame = self.playerContainer.frame;
-        
-        // play video in frame
-        [self.playerContainer.layer addSublayer: self.playerLayer];
-        //        [self.loader removeFromSuperview];
-        [self.container addSubview:self.playerContainer];
-        
-        [self.player setVolume:0.0];
-        [self.player asyncPlay];
-        
-        [self.player setLooping];
-        // set looping
-    } else {
-        NSLog(@"wtf?");
+        if ([fileManager fileExistsAtPath:moviePath]){
+            
+            self.player = [AVPlayer playerWithURL:movieURL];
+            self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+            
+            [self.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+            
+            // set video sizing
+            [self.playerContainer removeFromSuperview];
+            self.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+            //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
+            self.playerLayer.frame = self.playerContainer.frame;
+            
+            // play video in frame
+            [self.playerContainer.layer addSublayer: self.playerLayer];
+            //        [self.loader removeFromSuperview];
+            [self.container addSubview:self.playerContainer];
+            
+            [self.player setVolume:0.0];
+            [self.player asyncPlay];
+            
+            [self.player setLooping];
+            // set looping
+        } else {
+            NSLog(@"wtf?");
+        }
+            
     }
 }
 

@@ -11,6 +11,16 @@
 
 @implementation CContact
 
++ (NSDictionary *)JSONKeyPathsByPropertyKey {
+    
+    return @{
+             @"name": @"name",
+             @"firstName": @"firstName",
+             @"number": @"number",
+             @"registered": @"registered"
+             };
+}
+
 - (NSString *)readableNumber {
     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
     NSError *aError = nil;

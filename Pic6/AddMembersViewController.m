@@ -369,13 +369,18 @@
     
     int i = 0;
     for(CContact *contact in currentUser.contacts){
-        [hashedNumbers addObject:[contact.number crypt]];
-        [indexes setObject:[NSNumber numberWithInt:i] forKey:[contact.number crypt]];
+        [hashedNumbers addObject:[contact.number md5]];
+        [indexes setObject:[NSNumber numberWithInt:i] forKey:[contact.number md5]];
         i++;
     }
     
+    // request /match
+    [currentUser findFriends:hashedNumbers withCompletionBlock:^{
+        //
+        NSLog(@"completed?");
+    }];
+
     NSLog(@"hashedNumbers count: %lu", [hashedNumbers count]);
-    
 }
 
 - (void)nextScreen {

@@ -9,7 +9,7 @@
 #import "AppDelegate.h"
 #import <AVFoundation/AVFoundation.h>
 #import "GridViewController.h"
-#import "OnboardingNavigationController.h"
+#import "YagaNavigationController.h"
 #import "NetworkingTestViewController.h"
 #import <Crashlytics/Crashlytics.h>
 
@@ -35,7 +35,7 @@
     // self.window.backgroundColor = [UIColor whiteColor];
     
     if(0){
-        OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
+        YagaNavigationController *vc = [[YagaNavigationController alloc] init];
         self.window.rootViewController = vc;
     } else {
         if(TARGET_IPHONE_SIMULATOR && 0){

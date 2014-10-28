@@ -7,8 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MTLModel.h"
+#import "MTLJSONAdapter.h"
 
-@interface CContact : NSObject
+@interface CContact : MTLModel <MTLJSONSerializing>
 @property (strong, nonatomic) NSString *name;
 @property (strong, nonatomic) NSString *firstName;
 @property (strong, nonatomic) NSString *number;

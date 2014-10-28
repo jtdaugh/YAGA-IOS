@@ -7,7 +7,10 @@
 //
 
 #import "NameGroupViewController.h"
+#import "CNetworking.h"
 #import "CContact.h"
+#import "NSString+Hash.h"
+
 @interface NameGroupViewController ()
 
 @end
@@ -102,28 +105,47 @@
     
     // Start the animation
     [myIndicator startAnimating];
+    
+    CNetworking *currentUser = [CNetworking currentUser];
+    
+    NSMutableArray *hashes = [[NSMutableArray alloc] init];
+    
+    for(CContact *member in self.members){
+        [hashes addObject:[member.number md5]];
+    }
+    
+    [currentUser createCrew:self.groupTitle.text withMembers:hashes withCompletionBlock:^{
+        //
+        
+        [currentUser myCrewsWithCompletion:^{
+            [self.navigationController dismissViewControllerAnimated:YES completion:^{
+                NSLog(@"completed?");
+            }];
+        }];
+        
+//        if(![MFMessageComposeViewController canSendText]) {
+//            UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your device doesn't support SMS!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//            [warningAlert show];
+//            return;
+//        }
+//        
+//        NSMutableArray *recipients = [[NSMutableArray alloc] init];
+//        for(CContact *contact in self.members){
+//            [recipients addObject:contact.number];
+//        }
+//        
+//        //    NSArray *recipents = @[@"12345678", @"72345524"];
+//        NSString *message = [NSString stringWithFormat:@"Hey, come join my Yaga group, %@. http://getyaga.com", self.groupTitle.text];
+//        
+//        MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
+//        messageController.messageComposeDelegate = self;
+//        [messageController setRecipients:recipients];
+//        [messageController setBody:message];
+//        
+//        // Present message view controller on screen
+//        [self presentViewController:messageController animated:YES completion:nil];
+    }];
 
-    if(![MFMessageComposeViewController canSendText]) {
-        UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your device doesn't support SMS!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-        [warningAlert show];
-        return;
-    }
-    
-    NSMutableArray *recipients = [[NSMutableArray alloc] init];
-    for(CContact *contact in self.members){
-        [recipients addObject:contact.number];
-    }
-    
-//    NSArray *recipents = @[@"12345678", @"72345524"];
-    NSString *message = [NSString stringWithFormat:@"Watup Niggas, come join me on Yaga."];
-    
-    MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
-    messageController.messageComposeDelegate = self;
-    [messageController setRecipients:recipients];
-    [messageController setBody:message];
-    
-    // Present message view controller on screen
-    [self presentViewController:messageController animated:YES completion:nil];
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result

@@ -13,9 +13,11 @@
 #import "TileCell.h"
 #import "AVPlayer+AVPlayer_Async.h"
 #import "OverlayViewController.h"
-#import "OnboardingNavigationController.h"
+#import "YagaNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
 #import "CreateViewController.h"
+#import "SplashViewController.h"
+#import "AddMembersViewController.h"
 
 @interface GridViewController ()
 @end
@@ -23,10 +25,15 @@
 @implementation GridViewController
 - (void)viewDidLoad {
     
-    [[CNetworking currentUser] logout];
+//    [[CNetworking currentUser] logout];
     if([[CNetworking currentUser] loggedIn]){
         [self setupView];
     }
+}
+
+- (void)logout {
+    [[CNetworking currentUser] logout];
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -40,7 +47,9 @@
         }
     } else {
         NSLog(@"poop. not logged in.");
-        OnboardingNavigationController *vc = [[OnboardingNavigationController alloc] init];
+        YagaNavigationController *vc = [[YagaNavigationController alloc] init];
+        [vc setViewControllers:@[[[SplashViewController alloc] init]]];
+
         [self presentViewController:vc animated:NO completion:^{
             //
         }];
@@ -530,6 +539,13 @@
     
     self.elevatorMenu.delegate = self;
     
+    UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(50, 400, 200, 40)];
+    [logoutButton setBackgroundColor:[UIColor greenColor]];
+    [logoutButton setTitle:@"Logout" forState:UIControlStateNormal];
+    [logoutButton.titleLabel setTextColor:[UIColor redColor]];
+    [logoutButton addTarget:self action:@selector(logout) forControlEvents:UIControlEventTouchUpInside];
+    [self.elevatorMenu addSubview:logoutButton];
+    
     [self.view addSubview:self.elevatorMenu];
 //    [self.view sendSubviewToBack:self.elevatorMenu];
     
@@ -541,12 +557,20 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"yoo");
     if(indexPath.row == ([tableView numberOfRowsInSection:0] - 1)){
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"broken"
-                                                        message:@"not working right now"
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        [alert show];
+        YagaNavigationController *vc = [[YagaNavigationController alloc] init];
+        [vc setViewControllers:@[[[AddMembersViewController alloc] init]]];
+        
+        [self presentViewController:vc animated:NO completion:^{
+            //
+        }];
+
+        
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"broken"
+//                                                        message:@"not working right now"
+//                                                       delegate:nil
+//                                              cancelButtonTitle:@"OK"
+//                                              otherButtonTitles:nil];
+//        [alert show];
 //        [self presentViewController:[[CreateGroupViewController alloc] init] animated:YES completion:nil];
     } else {
         [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
@@ -1062,6 +1086,9 @@
     NSLog(@"setup groups");
     
     CNetworking *currentUser = [CNetworking currentUser];
+    
+    NSLog(@"groupinfo count? %lu", [[currentUser groupInfo] count]);
+    
     [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
     [self.gridTiles reloadData];
 //    NSString *userid = (NSString *)[currentUser userDataForKey:nUserId];

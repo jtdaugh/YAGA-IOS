@@ -30,6 +30,7 @@
 @property (strong, nonatomic) Firebase *firebase;
 @property (strong, nonatomic) NSMutableDictionary *messages;
 @property (strong, nonatomic) NSMutableArray *contacts;
+@property (strong, nonatomic) NSMutableArray *groupInfo;
 
 + (id)currentUser;
 
@@ -38,10 +39,12 @@
 - (NSObject *) userDataForKey:(NSString *)key;
 - (NSMutableArray *)gridDataForGroupId:(NSString *)groupId;
 - (NSUInteger) groupIndexForGroupId:(NSString *)groupId;
-- (NSMutableArray *)groupInfo;
+//- (NSMutableArray *)groupInfo;
 - (void)trySomething;
 - (void)registerUserWithCompletionBlock:(void (^)())block;
-- (void)createCrew;
+- (void)findFriends:(NSArray *)numbers withCompletionBlock:(void (^)())block;
+- (void)createCrew:(NSString *)name withMembers:(NSArray *)hashes withCompletionBlock:(void (^)())block;
+- (void)myCrewsWithCompletion:(void (^)())block;
 - (void)meInfo;
 - (void)myCrews;
 - (BOOL)loggedIn;

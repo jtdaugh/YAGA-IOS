@@ -7,6 +7,8 @@
 //
 
 #import "CNetworking.h"
+#import "CContact.h"
+#import "NSString+Hash.h"
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
 #import <PromiseKit.h>
 
@@ -33,6 +35,10 @@
             self.contacts = [[NSMutableArray alloc] init];
         }
         
+        if(!self.groupInfo){
+            self.groupInfo = [[NSMutableArray alloc] init];
+        }
+
         self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];
         NSLog(@"just inited firebase");
     }
@@ -61,37 +67,47 @@
                              @"country":countryCode
                              };
     
+    
+    NSLog(@"params: %@", params);
+    
+    NSLog(@"phone: %@", phone);
+    
+    NSLog(@"phone hash: %@", [phone md5]);
+    
     [manager POST:[NSString stringWithFormat:@"%@/token", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSString *token = [responseObject objectForKey:@"token"];
         NSString *userId = [responseObject objectForKey:@"user_id"];
         [self saveUserData:token forKey:@"token"];
         [self saveUserData:userId forKey:nUserId];
-        NSLog(@"%@", responseObject);
+        NSLog(@"/token response: %@", responseObject);
 
         block();
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-        block();
+        NSLog(@"register user Error: %@", error);
     }];
 }
 
-- (void)createCrew {
+- (void)createCrew:(NSString *)name withMembers:(NSArray *)hashes withCompletionBlock:(void (^)())block {
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.requestSerializer = [AFJSONRequestSerializer serializer];
     [manager.requestSerializer setValue:[NSString stringWithFormat:@"Clique key=\"%@\"", [self userDataForKey:@"token"]] forHTTPHeaderField:@"Authorization"];
+    
     NSDictionary *params = @{
-                             @"name":@"my first crew",
-                             @"initial_members":@[@"d55c4b053509d7a2bc4ffb34d3bb9db6"]
+                             @"name":name,
+                             @"initial_members":hashes
                              };
+    
+//    NSLog(@"params: %@", params);
     
     [manager POST:[NSString stringWithFormat:@"%@/crew/create", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         NSLog(@"%@", responseObject);
-        
+        block();
         //        NSLog(@"%@", [responseObject objectForKey:@"crew_id"]);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
+        NSLog(@"create crew Error: %@", error);
+        
     }];
 }
 
@@ -103,7 +119,7 @@
     
     [manager GET:[NSString stringWithFormat:@"%@/me", BASE_API_URL] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-        NSLog(@"%@", responseObject);
+        NSLog(@"meInfo: %@", responseObject);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
@@ -122,27 +138,29 @@
     
     [manager GET:[NSString stringWithFormat:@"%@/me/crews", BASE_API_URL] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
+        self.groupInfo = [[NSMutableArray alloc] init];
+        
         NSArray *items = [responseObject objectForKey:@"items"];
-       [self saveUserData:[@[] mutableCopy] forKey:nGroupInfo];
         for(id item in items){
             GroupInfo *groupInfo = [[GroupInfo alloc] init];
             groupInfo.groupId = [item objectForKey:@"crew_id"];
             groupInfo.name = [item objectForKey:@"name"];
             
-//            [self.groupInfo addObject:groupInfo];
+            [self.groupInfo addObject:groupInfo];
         }
         
+        NSData *groupData = [NSKeyedArchiver archivedDataWithRootObject:self.groupInfo];
+        [self saveObject:groupData forKey:nGroupInfo];
 //        [self saveUserData:self.groupInfo forKey:nGroupInfo];
         
+        NSLog(@"groups: %@", responseObject);
+        NSLog(@"groupinfo count: %lu", [self.groupInfo count]);
         block();
         
-        NSLog(@"%@", [responseObject objectForKey:@"items"]);
-        NSLog(@"groupinfo count: %lu", [self.groupInfo count]);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
+        NSLog(@"my crews Error: %@", error);
         
-        block();
     }];
 }
 
@@ -165,6 +183,30 @@
     }];
     
 }
+
+- (void)findFriends:(NSArray *)numbers withCompletionBlock:(void (^)())block {
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    [manager.requestSerializer setValue:[NSString stringWithFormat:@"Clique key=\"%@\"", [self userDataForKey:@"token"]] forHTTPHeaderField:@"Authorization"];
+    
+    NSDictionary *params = @{
+                             @"hashes":numbers
+                             };
+    
+    NSLog(@"hashes params: %@", params);
+    
+    [manager POST:[NSString stringWithFormat:@"%@/match", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        //
+        NSLog(@"matches: %@", responseObject);
+        block();
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        //
+        NSLog(@"here's the damn error: %@", error);
+        block();
+    }];
+}
+
+
 
 - (BOOL)loggedIn {
     if([self userDataForKey:nUsername]){
@@ -193,6 +235,10 @@
 
 - (void)saveUserData:(NSObject *)value forKey:(NSString *)key {
     [self.userData setObject:value forKey:key];
+    [self saveObject:value forKey:key];
+}
+
+- (void)saveObject:(NSObject *)value forKey:(NSString *)key {
     [[NSUserDefaults standardUserDefaults] setObject:value forKey:key];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
@@ -204,6 +250,12 @@
 - (void)loadUserData {
     NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
     self.userData = [[defaults dictionaryRepresentation] mutableCopy];
+        
+    if([defaults objectForKey:nGroupInfo]){
+        NSLog(@"groupInfo");
+        NSData *data = [defaults objectForKey:nGroupInfo];
+        self.groupInfo = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    }
 }
 
 - (NSString *)humanName {
@@ -245,16 +297,16 @@
     return -1;
 }
 
-- (NSMutableArray *)groupInfo {
-    if(![self userDataForKey:nGroupInfo]){
-        [self saveUserData:[@[] mutableCopy] forKey:nGroupInfo];
-    }
-    GroupInfo *groupInfo = [[GroupInfo alloc] init];
-    groupInfo.name = @"LindenFest 2014";
-    groupInfo.groupId = @"yolo";
-    return [@[ groupInfo ] mutableCopy];
-    
-    return (NSMutableArray *)[self userDataForKey:nGroupInfo];
-}
+//- (NSMutableArray *)groupInfo {
+//    if(![self userDataForKey:nGroupInfo]){
+//        [self saveUserData:[@[] mutableCopy] forKey:nGroupInfo];
+//    }
+//    GroupInfo *groupInfo = [[GroupInfo alloc] init];
+//    groupInfo.name = @"LindenFest 2014";
+//    groupInfo.groupId = @"yolo";
+//    return [@[ groupInfo ] mutableCopy];
+//    
+//    return (NSMutableArray *)[self userDataForKey:nGroupInfo];
+//}
 
 @end
