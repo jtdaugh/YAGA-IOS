@@ -83,7 +83,7 @@
 
         block();
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"register user Error: %@", error);
+        NSLog(@"register user Error: %@", [operation responseString]);
     }];
 }
 
@@ -122,7 +122,7 @@
         NSLog(@"meInfo: %@", responseObject);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
+        NSLog(@"Error: %@", [operation responseString]);
     }];
     
 }
