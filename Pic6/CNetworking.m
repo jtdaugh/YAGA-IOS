@@ -106,7 +106,7 @@
         //        NSLog(@"%@", [responseObject objectForKey:@"crew_id"]);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"create crew Error: %@", error);
+        NSLog(@"create crew Error: %@", [operation responseString]);
         
     }];
 }

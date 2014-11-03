@@ -44,7 +44,8 @@
 @property (strong, nonatomic) ElevatorTableView *elevatorMenu;
 @property (strong, nonatomic) NSNumber *elevatorOpen;
 
-@property (strong, nonatomic) UIButton *groupButton;
+@property (strong, nonatomic) UIButton *switchGroups;
+@property (strong, nonatomic) UILabel *groupTitle;
 
 @property (strong, nonatomic) AVCamPreviewView *cameraView;
 @property (strong, nonatomic) UIButton *cameraButton;

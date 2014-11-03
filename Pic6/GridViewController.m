@@ -25,7 +25,7 @@
 @implementation GridViewController
 - (void)viewDidLoad {
     
-    [[CNetworking currentUser] logout];
+//    [[CNetworking currentUser] logout];
     if([[CNetworking currentUser] loggedIn]){
         [self setupView];
     }
@@ -33,6 +33,13 @@
 
 - (void)logout {
     [[CNetworking currentUser] logout];
+    
+    YagaNavigationController *vc = [[YagaNavigationController alloc] init];
+    [vc setViewControllers:@[[[SplashViewController alloc] init]]];
+    
+    [self presentViewController:vc animated:NO completion:^{
+        //
+    }];
     
 }
 
@@ -43,6 +50,8 @@
             self.appeared = [NSNumber numberWithBool:YES];
             if(![self.setup boolValue]){
                 [self setupView];
+            } else {
+                [self.gridTiles reloadData];
             }
         }
     } else {
@@ -71,7 +80,7 @@
 - (void)setupView {
     
     self.setup = [NSNumber numberWithBool:YES];
-    [self.view setBackgroundColor:[UIColor whiteColor]];
+    [self.view setBackgroundColor:[UIColor blackColor]];
         
     [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:nUsername]];
     
@@ -157,8 +166,8 @@
     [self.cameraView addSubview:self.instructions];
     [self.cameraAccessories addObject:self.instructions];
     
-    CGFloat size = 50;
-    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 20, self.cameraView.frame.size.height - size - 10, size, size)];
+    CGFloat size = 44;
+    UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
     //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
     [switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
     [switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
@@ -167,7 +176,7 @@
     [self.cameraAccessories addObject:self.switchButton];
     [self.cameraView addSubview:self.switchButton];
     
-    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, self.cameraView.frame.size.height - size - 10, size, size)];
+    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size, size)];
     //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
     [flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
     [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
@@ -483,7 +492,7 @@
             [[UIScreen mainScreen] setBrightness:1.0];
             [self.view addSubview:self.white];
             [self.view bringSubviewToFront:self.cameraView];
-            [self.view bringSubviewToFront:self.groupButton];
+            [self.view bringSubviewToFront:self.switchGroups];
             [self configureFlashButton:[NSNumber numberWithBool:YES]];
         }
         
@@ -514,16 +523,17 @@
     
     CGFloat gutter = 96, height = 42;
     CGFloat bottom = 28;
-    self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(gutter, self.cameraView.frame.size.height - height/2, self.cameraView.frame.size.width - gutter*2, height)];
+    self.switchGroups = [[UIButton alloc] initWithFrame:CGRectMake(gutter, self.cameraView.frame.size.height - height, self.cameraView.frame.size.width - gutter*2, height)];
 //    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
-    [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
-    [self.groupButton addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchUpInside];
-    [self.groupButton setBackgroundColor:PRIMARY_COLOR];
-    self.groupButton.layer.cornerRadius = height/2;
-    self.groupButton.clipsToBounds = YES;
-    self.groupButton.layer.borderWidth = 1.0f;
-    self.groupButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-    [self.view addSubview:self.groupButton];
+    [self.switchGroups.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
+    [self.switchGroups addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchUpInside];
+    [self.switchGroups setTitle:@"Switch Groups" forState:UIControlStateNormal];
+//    [self.switchGroups setBackgroundColor:PRIMARY_COLOR];
+//    self.switchGroups.layer.cornerRadius = height/2;
+//    self.switchGroups.clipsToBounds = YES;
+//    self.switchGroups.layer.borderWidth = 1.0f;
+//    self.switchGroups.layer.borderColor = [[UIColor blackColor] CGColor];
+    [self.view addSubview:self.switchGroups];
 }
 
 - (void) initElevator {
@@ -606,15 +616,15 @@
     
 //    [self.elevatorMenu reloadData];
     [self.elevatorMenu setAlpha:0.0];
-    [self.elevatorMenu setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
+    [self.elevatorMenu setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
     [self.view bringSubviewToFront:self.elevatorMenu];
 
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:0 animations:^{
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, -(VIEW_HEIGHT/2)+50, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
-        CGRect ballFrame = self.groupButton.frame;
-        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height/2;
-        [self.groupButton setFrame:ballFrame];
+        CGRect ballFrame = self.switchGroups.frame;
+        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
+        [self.switchGroups setFrame:ballFrame];
 
         CGRect frame = self.gridTiles.frame;
         frame.origin.y += VIEW_HEIGHT/2 - 50;
@@ -637,12 +647,12 @@
     
     [self.elevatorMenu setTransform:CGAffineTransformIdentity];
 
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:0 animations:^{
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
-        CGRect ballFrame = self.groupButton.frame;
-        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height/2;
-        [self.groupButton setFrame:ballFrame];
+        CGRect ballFrame = self.switchGroups.frame;
+        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
+        [self.switchGroups setFrame:ballFrame];
         
         CGRect frame = self.gridTiles.frame;
         frame.origin.y = 0;
@@ -653,7 +663,7 @@
             [view setAlpha:1.0];
         }
         
-        [self.elevatorMenu setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
+        [self.elevatorMenu setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
 
     } completion:^(BOOL finished) {
         self.elevatorOpen = [NSNumber numberWithBool:NO];
@@ -674,7 +684,7 @@
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
-    [self.gridTiles setBackgroundColor:[UIColor whiteColor]];
+    [self.gridTiles setBackgroundColor:[UIColor blackColor]];
     //    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
     
@@ -717,7 +727,16 @@
     }
     
     self.groupInfo = groupInfo;
-    [self.groupButton setTitle:self.groupInfo.name forState:UIControlStateNormal];
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+        
+        //Your code goes in here
+//        NSLog(@"Main Thread Code");
+//        [self.switchGroups setTitle:self.groupInfo.name forState:UIControlStateNormal];
+        // set title here
+        
+    }];
+    
     
     [self initFirebase];
 }
@@ -897,9 +916,9 @@
         frame.origin.y = 0 - offset;
         self.cameraView.frame = frame;
         
-        frame = self.groupButton.frame;
-        frame.origin.y = VIEW_HEIGHT / 2 - 50/2 - offset;
-        self.groupButton.frame = frame;
+        frame = self.switchGroups.frame;
+        frame.origin.y = self.cameraView.frame.size.height - self.switchGroups.frame.size.height - offset;
+        self.switchGroups.frame = frame;
     }
 }
 
