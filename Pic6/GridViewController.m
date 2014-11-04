@@ -80,7 +80,7 @@
 - (void)setupView {
     
     self.setup = [NSNumber numberWithBool:YES];
-    [self.view setBackgroundColor:[UIColor blackColor]];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
         
     [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:nUsername]];
     
@@ -528,6 +528,11 @@
     [self.switchGroups.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
     [self.switchGroups addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchUpInside];
     [self.switchGroups setTitle:@"Switch Groups" forState:UIControlStateNormal];
+    self.switchGroups.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.switchGroups.layer.shadowRadius = 1.0f;
+    self.switchGroups.layer.shadowOpacity = 1.0;
+    self.switchGroups.layer.shadowOffset = CGSizeZero;
+
 //    [self.switchGroups setBackgroundColor:PRIMARY_COLOR];
 //    self.switchGroups.layer.cornerRadius = height/2;
 //    self.switchGroups.clipsToBounds = YES;
@@ -684,7 +689,7 @@
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
-    [self.gridTiles setBackgroundColor:[UIColor blackColor]];
+    [self.gridTiles setBackgroundColor:[UIColor whiteColor]];
     //    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
     
@@ -987,7 +992,8 @@
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         [self.overlay setAlpha:1.0];
         [tile.player setVolume:1.0];
-        [tile setVideoFrame:CGRectMake(0, VIEW_HEIGHT/4, VIEW_WIDTH, VIEW_HEIGHT/2)];
+//        [tile setVideoFrame:CGRectMake(0, VIEW_HEIGHT/4, VIEW_WIDTH, VIEW_HEIGHT/2)];
+        [tile setVideoFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     } completion:^(BOOL finished) {
         //
         OverlayViewController *overlay = [[OverlayViewController alloc] init];

@@ -36,8 +36,8 @@
     [self.view addSubview:self.tile];
 
     [self initUserLabel];
-    [self initLikeButton];
-    [self initSettingsButton];
+//    [self initLikeButton];
+//    [self initSettingsButton];
     
 //    [self initCaptionLabel];
     
@@ -82,12 +82,19 @@
 }
 
 - (void) initUserLabel {
-    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, TILE_HEIGHT*3 + 8, TILE_WIDTH, 48)];
+    CGFloat height = 48;
+    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(16, VIEW_HEIGHT-height, TILE_WIDTH, height)];
     [self.userLabel setTextAlignment:NSTextAlignmentLeft];
     [self.userLabel setTextColor:[UIColor whiteColor]];
-    [self.userLabel setFont:[UIFont systemFontOfSize:36]];
+    [self.userLabel setFont:[UIFont systemFontOfSize:24]];
     [self.userLabel setText:self.tile.username];
     [self.userLabel setAlpha:0.0];
+    
+    self.userLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.userLabel.layer.shadowRadius = 1.0f;
+    self.userLabel.layer.shadowOpacity = 1.0;
+    self.userLabel.layer.shadowOffset = CGSizeZero;
+
     [self.view addSubview:self.userLabel];
 }
 
