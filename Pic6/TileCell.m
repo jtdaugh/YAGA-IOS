@@ -176,7 +176,7 @@
             self.player = [AVPlayer playerWithURL:movieURL];
             self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
             
-            [self.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+            [self.playerLayer setVideoGravity:AVLayerVideoGravityResizeAspect];
             
             // set video sizing
             [self.playerContainer removeFromSuperview];

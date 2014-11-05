@@ -198,8 +198,8 @@
     NSLog(@"init camera");
     
     self.session = [[AVCaptureSession alloc] init];
-    self.session.sessionPreset = AVCaptureSessionPresetMedium;
-    
+//    self.session.sessionPreset = AVCaptureSessionPreset
+
     [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
     [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
     //set still image output
@@ -249,6 +249,7 @@
         }
         
         self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+        
         if ([self.session canAddOutput:self.movieFileOutput])
         {
             [self.session addOutput:self.movieFileOutput];
