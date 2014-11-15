@@ -11,10 +11,11 @@
 #import "TileCell.h"
 #import "CNetworking.h"
 #import "AVCamPreviewView.h"
-#import "ElevatorTableView.h"
+#import "GroupListTableView.h"
 #import "FBShimmeringView.h"
+#import "ElevatorView.h"
 
-@interface GridViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate, UITableViewDelegate>
+@interface GridViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate, UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate>
 
 @property (strong, nonatomic) NSNumber *setup;
 @property (strong, nonatomic) NSNumber *appeared;
@@ -41,7 +42,8 @@
 @property (strong, nonatomic) TileCell *loaderTile;
 
 @property (strong, nonatomic) UIButton *basketball;
-@property (strong, nonatomic) ElevatorTableView *elevatorMenu;
+@property (strong, nonatomic) GroupListTableView *elevatorMenu;
+@property (strong, nonatomic) ElevatorView *elevator;
 @property (strong, nonatomic) NSNumber *elevatorOpen;
 
 @property (strong, nonatomic) UIButton *switchGroups;

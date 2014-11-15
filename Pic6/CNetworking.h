@@ -23,6 +23,7 @@
 #define nToken @"token"
 #define nUserId @"user_id"
 #define nGroupInfo @"group_info"
+#define nCurrentGroup @"current_group"
 
 @interface CNetworking : NSObject
 @property (nonatomic,assign)id delegate;

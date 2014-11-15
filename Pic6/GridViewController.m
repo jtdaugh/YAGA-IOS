@@ -18,6 +18,8 @@
 #import "CreateViewController.h"
 #import "SplashViewController.h"
 #import "AddMembersViewController.h"
+#import "ElevatorView.h"
+#import "GroupListCell.h"
 
 @interface GridViewController ()
 @end
@@ -36,6 +38,8 @@
     
     YagaNavigationController *vc = [[YagaNavigationController alloc] init];
     [vc setViewControllers:@[[[SplashViewController alloc] init]]];
+    
+    [self closeElevator];
     
     [self presentViewController:vc animated:NO completion:^{
         //
@@ -89,7 +93,9 @@
     [self initLoader];
     [self initGridView];
     [self initCameraView];
-    [self initCamera:YES];
+    [self initCamera:^{
+        [self setupGroups];
+    }];
     [self initBall];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -193,12 +199,13 @@
     
 }
 
-- (void)initCamera:(BOOL)initial {
+- (void)initCamera:(void (^)())block {
     
     NSLog(@"init camera");
     
     self.session = [[AVCaptureSession alloc] init];
 //    self.session.sessionPreset = AVCaptureSessionPreset
+    self.session.sessionPreset = AVCaptureSessionPreset1280x720;
 
     [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
     [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
@@ -256,9 +263,9 @@
         }
         
         [self.session startRunning];
-        if(initial){
-            [self afterCameraInit];
-        }
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+            block();
+        }];
     });
 }
 
@@ -533,6 +540,8 @@
     self.switchGroups.layer.shadowRadius = 1.0f;
     self.switchGroups.layer.shadowOpacity = 1.0;
     self.switchGroups.layer.shadowOffset = CGSizeZero;
+    
+    [self.cameraAccessories addObject:self.switchGroups];
 
 //    [self.switchGroups setBackgroundColor:PRIMARY_COLOR];
 //    self.switchGroups.layer.cornerRadius = height/2;
@@ -544,54 +553,116 @@
 
 - (void) initElevator {
     
-    self.elevatorMenu = [[ElevatorTableView alloc] initWithFrame:CGRectMake(VIEW_WIDTH*.1, VIEW_HEIGHT*.15, VIEW_WIDTH*.8, VIEW_HEIGHT*.7)];
+    self.elevator = [[ElevatorView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    
+//    [self.elevator setBackgroundColor:[UIColor colorWithWhite:0.8 alpha:0.8]];
+    
+    self.elevator.groupsList = [[GroupListTableView alloc] initWithFrame:CGRectMake(0, ELEVATOR_MARGIN + 2, VIEW_WIDTH, VIEW_HEIGHT - ELEVATOR_MARGIN*2 - 84)];
 
-    [self.elevatorMenu setScrollEnabled:YES];
-    [self.elevatorMenu setRowHeight:90];
-    [self.elevatorMenu setSeparatorColor:PRIMARY_COLOR];
-    [self.elevatorMenu setBackgroundColor:[UIColor clearColor]];
-    [self.elevatorMenu setSeparatorInset:UIEdgeInsetsZero];
-    [self.elevatorMenu setUserInteractionEnabled:YES];
+    [self.elevator.groupsList setScrollEnabled:YES];
+    [self.elevator.groupsList setRowHeight:96];
+//    [self.elevator.groupsList setSeparatorColor:PRIMARY_COLOR];
+    [self.elevator.groupsList setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    [self.elevator.groupsList setBackgroundColor:[UIColor clearColor]];
+    [self.elevator.groupsList setUserInteractionEnabled:YES];
+    [self.elevator.groupsList setContentInset:UIEdgeInsetsMake(44, 0, 0, 0)];
+    [self.elevator.groupsList registerClass:[GroupListCell class] forCellReuseIdentifier:@"ElevatorCell"];
     
-    self.elevatorMenu.delegate = self;
+    self.elevator.groupsList.delegate = self;
+    self.elevator.groupsList.dataSource = self;
     
-    UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(50, 400, 200, 40)];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeElevator)];
+    tap.delegate = self;
+    [self.elevator.tapOut addGestureRecognizer:tap];
+
+    [self.elevator addSubview:self.elevator.groupsList];
+    
+    self.elevator.border = [[UIView alloc] initWithFrame:CGRectMake(0, self.elevator.groupsList.frame.size.height + self.elevator.groupsList.frame.origin.y, self.elevator.frame.size.width, 0.5)];
+    [self.elevator.border setBackgroundColor:[UIColor colorWithWhite:0.80 alpha:1.0]];
+    [self.elevator addSubview:self.elevator.border];
+    
+    
+    UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(50, 600, 200, 40)];
     [logoutButton setBackgroundColor:[UIColor greenColor]];
-    [logoutButton setTitle:@"Logout" forState:UIControlStateNormal];
+    [logoutButton setTitle:@"Reload Groups" forState:UIControlStateNormal];
     [logoutButton.titleLabel setTextColor:[UIColor redColor]];
-    [logoutButton addTarget:self action:@selector(logout) forControlEvents:UIControlEventTouchUpInside];
-    [self.elevatorMenu addSubview:logoutButton];
+    [logoutButton addTarget:self action:@selector(reloadGroups) forControlEvents:UIControlEventTouchUpInside];
     
-    [self.view addSubview:self.elevatorMenu];
+    self.elevator.createGroup = [[UIButton alloc] initWithFrame:
+                                 CGRectMake(44,
+                                            self.elevator.groupsList.frame.size.height + self.elevator.groupsList.frame.origin.y,
+                                            VIEW_WIDTH - 44,
+                                            VIEW_HEIGHT - self.elevator.groupsList.frame.size.height - ELEVATOR_MARGIN*2 - 2 - self.elevator.border.frame.size.height)
+                                 ];
+    [self.elevator addSubview:self.elevator.createGroup];
+    [self.elevator.createGroup setTitle:@"Create Group  〉" forState:UIControlStateNormal];
+    [self.elevator.createGroup.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
+    [self.elevator.createGroup setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    [self.elevator.createGroup setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+    [self.elevator.createGroup addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
+//    [self.elevator addSubview:logoutButton];
+    
+    
+    
+    [self.view addSubview:self.elevator];
 //    [self.view sendSubviewToBack:self.elevatorMenu];
     
-    [self.elevatorMenu reloadData];
+    [self.elevator.groupsList reloadData];
     
-    [self.elevatorMenu setAlpha:0.0];
+    [self.elevator setAlpha:0.0];
+}
+
+- (void)reloadGroups {
+    [[CNetworking currentUser] myCrewsWithCompletion:^{
+        NSLog(@"completed?!");
+    }];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"yoo");
-    if(indexPath.row == ([tableView numberOfRowsInSection:0] - 1)){
-        YagaNavigationController *vc = [[YagaNavigationController alloc] init];
-        [vc setViewControllers:@[[[AddMembersViewController alloc] init]]];
-        
-        [self presentViewController:vc animated:NO completion:^{
-            //
-        }];
+    [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
+    [[CNetworking currentUser] saveUserData:[NSNumber numberWithInteger:indexPath.row] forKey:nCurrentGroup];
+    [self closeElevator];
+}
 
-        
-//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"broken"
-//                                                        message:@"not working right now"
-//                                                       delegate:nil
-//                                              cancelButtonTitle:@"OK"
-//                                              otherButtonTitles:nil];
-//        [alert show];
-//        [self presentViewController:[[CreateGroupViewController alloc] init] animated:YES completion:nil];
-    } else {
-        [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
-        [self closeElevator];
-    }
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    NSMutableArray *groupInfo = [[CNetworking currentUser] groupInfo];
+    
+    NSLog(@"number of rows: %lu", [groupInfo count]);
+    return [groupInfo count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *CellIdentifier = @"ElevatorCell";
+    GroupListCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    
+    GroupInfo *groupInfo = [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row];
+    [cell.title setText:groupInfo.name];
+    [cell.subtitle setText:@"rjvir, kyle, and b9speed"];
+    
+    [cell.icon setTag:indexPath.row];
+    [cell.icon addTarget:self action:@selector(groupSettings:) forControlEvents:UIControlEventTouchUpInside];
+    
+    return cell;
+}
+
+- (void)groupSettings:(UIButton *)sender {
+    NSInteger index = sender.tag;
+    
+    GroupInfo *groupInfo = [[[CNetworking currentUser] groupInfo] objectAtIndex:index];
+    
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:groupInfo.name delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Edit Title", @"Edit Members", @"Mute Group", @"Leave Group", nil];
+    
+    [actionSheet showInView:self.view];
+}
+
+- (void)createGroup {
+    YagaNavigationController *vc = [[YagaNavigationController alloc] init];
+    [vc setViewControllers:@[[[AddMembersViewController alloc] init]]];
+    
+    [self presentViewController:vc animated:NO completion:^{
+        //
+    }];
 }
 
 - (void) tappedBall {
@@ -621,27 +692,27 @@
 - (void) openElevator {
     
 //    [self.elevatorMenu reloadData];
-    [self.elevatorMenu setAlpha:0.0];
-    [self.elevatorMenu setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
-    [self.view bringSubviewToFront:self.elevatorMenu];
+    [self.elevator setAlpha:0.0];
+    [self.elevator setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
+    [self.view bringSubviewToFront:self.elevator];
 
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
-        [self.cameraView setFrame:CGRectMake(0, -(VIEW_HEIGHT/2)+50, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
+        [self.cameraView setFrame:CGRectMake(0, -(VIEW_HEIGHT/2)+ELEVATOR_MARGIN, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
         CGRect ballFrame = self.switchGroups.frame;
         ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
         [self.switchGroups setFrame:ballFrame];
 
         CGRect frame = self.gridTiles.frame;
-        frame.origin.y += VIEW_HEIGHT/2 - 50;
+        frame.origin.y += VIEW_HEIGHT/2 - ELEVATOR_MARGIN;
         [self.gridTiles setFrame:frame];
         
         for(UIView *view in self.cameraAccessories){
             [view setAlpha:0.0];
         }
         
-        [self.elevatorMenu setTransform:CGAffineTransformIdentity];
-        [self.elevatorMenu setAlpha:1.0];
+        [self.elevator setTransform:CGAffineTransformIdentity];
+        [self.elevator setAlpha:1.0];
         
     } completion:^(BOOL finished) {
         self.elevatorOpen = [NSNumber numberWithBool:YES];
@@ -651,7 +722,9 @@
 
 - (void) closeElevator {
     
-    [self.elevatorMenu setTransform:CGAffineTransformIdentity];
+    NSLog(@"test");
+    
+    [self.elevator setTransform:CGAffineTransformIdentity];
 
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
@@ -663,17 +736,17 @@
         CGRect frame = self.gridTiles.frame;
         frame.origin.y = 0;
         [self.gridTiles setFrame:frame];
-        [self.elevatorMenu setAlpha:0.0];
+        [self.elevator setAlpha:0.0];
 
         for(UIView *view in self.cameraAccessories){
             [view setAlpha:1.0];
         }
         
-        [self.elevatorMenu setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
+        [self.elevator setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
 
     } completion:^(BOOL finished) {
         self.elevatorOpen = [NSNumber numberWithBool:NO];
-        [self.view sendSubviewToBack:self.elevatorMenu];
+        [self.view sendSubviewToBack:self.elevator];
     }];
 }
 
@@ -1085,7 +1158,7 @@
 
 - (void)scrollingEnded {
     if(![self.scrolling boolValue]){
-        NSLog(@"visible cells count: %lu", [[self.gridTiles visibleCells] count]);
+//        NSLog(@"visible cells count: %lu", [[self.gridTiles visibleCells] count]);
         
         for(TileCell *cell in [self.gridTiles visibleCells]){
             
@@ -1115,7 +1188,13 @@
     
     NSLog(@"groupinfo count? %lu", [[currentUser groupInfo] count]);
     
-    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+    
+    int cur = 0;
+    if([currentUser userDataForKey:nCurrentGroup]){
+        NSNumber *currentIndex = (NSNumber *)[currentUser userDataForKey:nCurrentGroup];
+        cur = [currentIndex intValue];
+    }
+    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:cur]];
     [self.gridTiles reloadData];
 //    NSString *userid = (NSString *)[currentUser userDataForKey:nUserId];
 //    
@@ -1192,8 +1271,9 @@
 - (void)willEnterForeground {
 //    NSLog(@"will enter foreground");
 //    [self.view setAlpha:1.0];
-    [self initCamera:0];
-    [self.gridTiles reloadData];
+    [self initCamera:^{
+        [self.gridTiles reloadData];
+    }];
 
 //    for(TileCell *tile in [self.gridTiles visibleCells]){
 //        if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]] || [tile.state  isEqualToNumber:[NSNumber numberWithInt:  LOADED]]){

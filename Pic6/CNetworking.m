@@ -145,6 +145,7 @@
             GroupInfo *groupInfo = [[GroupInfo alloc] init];
             groupInfo.groupId = [item objectForKey:@"crew_id"];
             groupInfo.name = [item objectForKey:@"name"];
+            groupInfo.members = [[NSMutableArray alloc] initWithObjects:@"rjvir", @"b9speed", @"kyle", nil];
             
             [self.groupInfo addObject:groupInfo];
         }

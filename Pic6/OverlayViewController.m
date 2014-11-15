@@ -35,15 +35,16 @@
     
     [self.view addSubview:self.tile];
 
-    [self initUserLabel];
+    [self initLabels];
 //    [self initLikeButton];
 //    [self initSettingsButton];
     
 //    [self initCaptionLabel];
     
     [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        [self.userLabel setAlpha:1.0];
-        [self.likeButton setAlpha:1.0];
+        for(UIView *label in self.labels){
+            [label setAlpha:1.0];
+        }
 //        [self.captionField setAlpha:1.0];
     } completion:^(BOOL finished) {
         //
@@ -78,15 +79,18 @@
                                              selector:@selector(didBecomeActive)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    
+    self.labels = [[NSMutableArray alloc] init];
 
 }
 
-- (void) initUserLabel {
-    CGFloat height = 48;
-    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(16, VIEW_HEIGHT-height, TILE_WIDTH, height)];
-    [self.userLabel setTextAlignment:NSTextAlignmentLeft];
+- (void) initLabels {
+    CGFloat height = 30;
+    CGFloat gutter = 48;
+    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, 12, VIEW_WIDTH - gutter*2, height)];
+    [self.userLabel setTextAlignment:NSTextAlignmentCenter];
     [self.userLabel setTextColor:[UIColor whiteColor]];
-    [self.userLabel setFont:[UIFont systemFontOfSize:24]];
+    [self.userLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
     [self.userLabel setText:self.tile.username];
     [self.userLabel setAlpha:0.0];
     
@@ -95,36 +99,44 @@
     self.userLabel.layer.shadowOpacity = 1.0;
     self.userLabel.layer.shadowOffset = CGSizeZero;
 
-    [self.view addSubview:self.userLabel];
-}
-
-- (void) initLikeButton {
-    float size = 60.0f;
+    [self.labels addObject:self.userLabel];
     
-    self.reactionIndex = 0;
+    CGFloat timeHeight = 24;
+    self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, height + 12, VIEW_WIDTH - gutter*2, timeHeight)];
+    [self.timestampLabel setTextAlignment:NSTextAlignmentCenter];
+    [self.timestampLabel setTextColor:[UIColor whiteColor]];
+    [self.timestampLabel setFont:[UIFont fontWithName:BIG_FONT size:14]];
+    [self.timestampLabel setText:@"6:18 pm"];
+    [self.timestampLabel setAlpha:0.0];
     
-    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-4-size, TILE_HEIGHT*3 + 4, size, size)];
-    [self.likeButton setTitle:self.reactions[self.reactionIndex] forState:UIControlStateNormal];
-    [self.likeButton.titleLabel setTextAlignment:NSTextAlignmentRight];
-    [self.likeButton setContentVerticalAlignment:UIControlContentVerticalAlignmentTop];
-    [self.likeButton.titleLabel setFont:[UIFont systemFontOfSize:44]];
+    self.timestampLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.timestampLabel.layer.shadowRadius = 1.0f;
+    self.timestampLabel.layer.shadowOpacity = 1.0;
+    self.timestampLabel.layer.shadowOffset = CGSizeZero;
+    [self.labels addObject:self.timestampLabel];
+    
+    CGFloat likeSize = 42;
+    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
+    [self.likeButton setBackgroundImage:[UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.likeButton setAlpha:0.0];
-    [self.view addSubview:self.likeButton];
+    [self.labels addObject:self.likeButton];
+    
+    
+    for(UIView *view in self.labels){
+        [view setAlpha:0.0];
+        [self.view addSubview:view];
+    }
+
 }
 
 - (void)likeButtonPressed {
-    self.reactionIndex++;
-    if(self.reactionIndex >= [self.reactions count]){
-        self.reactionIndex = 0;
-    }
-    
-    [self.likeButton setTitle:self.reactions[self.reactionIndex] forState:UIControlStateNormal];
     
     [UIView animateKeyframesWithDuration:0.5 delay:0 options:0 animations:^{
         [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
             self.likeButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
         }];
+        
+        [self.likeButton setBackgroundImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateNormal];
         
         [UIView addKeyframeWithRelativeStartTime:0.6 relativeDuration:0.4 animations:^{
             self.likeButton.transform = CGAffineTransformIdentity;
@@ -133,17 +145,6 @@
     } completion:^(BOOL finished) {
         //
     }];
-}
-
-- (void) initSettingsButton {
-    CGFloat size = 60.0f;
-    self.settingsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - size, TILE_HEIGHT - 4 - size, size, size)];
-    [self.settingsButton setTitle:@"🔧" forState:UIControlStateNormal];
-    [self.settingsButton.titleLabel setFont:[UIFont systemFontOfSize:36]];
-//    [self.settingsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
-    [self.settingsButton addTarget:self action:@selector(settingsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.settingsButton];
-    
 }
 
 - (void) settingsButtonPressed {

@@ -8,7 +8,7 @@
 
 #import "MyCrewsViewController.h"
 #import "CNetworking.h"
-#import "ElevatorTableView.h"
+#import "GroupListTableView.h"
 #import "CreateViewController.h"
 
 @interface MyCrewsViewController ()
@@ -40,7 +40,7 @@
 
     origin = [self getNewOrigin:self.cta];
     
-    ElevatorTableView *elevator = [[ElevatorTableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
+    GroupListTableView *elevator = [[GroupListTableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
     
     [elevator setScrollEnabled:NO];
     [elevator setRowHeight:90];
