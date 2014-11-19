@@ -1186,16 +1186,20 @@
     
     CNetworking *currentUser = [CNetworking currentUser];
     
-    NSLog(@"groupinfo count? %lu", [[currentUser groupInfo] count]);
+//    [currentUser myCrewsWithCompletion:^{
+//        //
+        NSLog(@"groupinfo count? %lu", [[currentUser groupInfo] count]);
+        
+        
+        int cur = 0;
+        if([currentUser userDataForKey:nCurrentGroup]){
+            NSNumber *currentIndex = (NSNumber *)[currentUser userDataForKey:nCurrentGroup];
+            cur = [currentIndex intValue];
+        }
+        [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:cur]];
+        [self.gridTiles reloadData];
+//    }];
     
-    
-    int cur = 0;
-    if([currentUser userDataForKey:nCurrentGroup]){
-        NSNumber *currentIndex = (NSNumber *)[currentUser userDataForKey:nCurrentGroup];
-        cur = [currentIndex intValue];
-    }
-    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:cur]];
-    [self.gridTiles reloadData];
 //    NSString *userid = (NSString *)[currentUser userDataForKey:nUserId];
 //    
 //    NSString *path = [NSString stringWithFormat:@"users/%@/groups", userid];

@@ -11,14 +11,14 @@
 #import "GridViewController.h"
 #import <Firebase/Firebase.h>
 
-@interface OverlayViewController : UIViewController <UIActionSheetDelegate>
+@interface OverlayViewController : UIViewController <UIActionSheetDelegate, UITextFieldDelegate>
 @property (strong, nonatomic) TileCell *tile;
 @property (strong, nonatomic) UIView *bg;
 @property (strong, nonatomic) GridViewController *previousViewController;
 
 @property (strong, nonatomic) UILabel *userLabel;
 @property (strong, nonatomic) UILabel *timestampLabel;
-@property (strong, nonatomic) UITextView *captionField;
+@property (strong, nonatomic) UITextField *captionField;
 @property (strong, nonatomic) UIButton *likeButton;
 @property (strong, nonatomic) UIButton *captionButton;
 @property (strong, nonatomic) UIButton *saveButton;

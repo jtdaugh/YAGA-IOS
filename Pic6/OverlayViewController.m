@@ -115,12 +115,36 @@
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
     [self.labels addObject:self.timestampLabel];
     
+    CGFloat captionHeight = 30;
+    CGFloat captionGutter = 2;
+    self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    [self.captionField setBackgroundColor:[UIColor clearColor]];
+    [self.captionField setTextAlignment:NSTextAlignmentCenter];
+    [self.captionField setTextColor:[UIColor whiteColor]];
+    [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    
+    self.captionField.delegate = self;
+    [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
+//    [self.captionField addTarget:self action:@selector(textChanged) forControlEvents:UIControlEventEditingChanged];
+    
+    self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.captionField.layer.shadowRadius = 1.0f;
+    self.captionField.layer.shadowOpacity = 1.0;
+    self.captionField.layer.shadowOffset = CGSizeZero;
+    [self.labels addObject:self.captionField];
+    
+    
     CGFloat likeSize = 42;
     self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
     [self.likeButton setBackgroundImage:[UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.labels addObject:self.likeButton];
     
+    CGFloat tSize = 36;
+    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize - 12, 12, tSize, tSize)];
+    [self.captionButton setBackgroundImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
+    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.labels addObject:self.captionButton];
     
     for(UIView *view in self.labels){
         [view setAlpha:0.0];
@@ -128,6 +152,40 @@
     }
 
 }
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    NSDictionary *attributes = @{NSFontAttributeName: textField.font};
+    
+//    CGRect rect = [text boundingRectWithSize:CGSizeMake(textField.frame.size.width, CGFLOAT_MAX)
+//                                              options:NSStringDrawingUsesLineFragmentOrigin
+//                                           attributes:attributes
+//                                              context:nil];
+
+    CGFloat width = [text sizeWithAttributes:attributes].width;
+//    CGFloat width =  [text sizeWithFont:textField.font].width;
+    
+    if(width <= self.captionField.frame.size.width){
+        return YES;
+    } else {
+        return NO;
+    }
+
+}
+
+- (void)textChanged {
+    CGFloat width =  [self.captionField.text sizeWithFont:self.captionField.font].width;
+    if(width > self.captionField.frame.size.width){
+        
+    }
+}
+
+- (void)textButtonPressed {
+    NSLog(@"test");
+    [self.captionField becomeFirstResponder];
+}
+
+
 
 - (void)likeButtonPressed {
     
