@@ -10,7 +10,7 @@
 #import "CContact.h"
 #import "NSString+Hash.h"
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
-#import <PromiseKit.h>
+//#import <PromiseKit.h>
 
 @implementation CNetworking
 
