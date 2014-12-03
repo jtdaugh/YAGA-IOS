@@ -27,7 +27,7 @@
 @implementation GridViewController
 - (void)viewDidLoad {
     
-//    [[CNetworking currentUser] logout];
+    //    [[CNetworking currentUser] logout];
     if([[CNetworking currentUser] loggedIn]){
         [self setupView];
     }
@@ -48,7 +48,7 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-
+    
     if([[CNetworking currentUser] loggedIn]){
         if(![self.appeared boolValue]){
             self.appeared = [NSNumber numberWithBool:YES];
@@ -62,7 +62,7 @@
         NSLog(@"poop. not logged in.");
         YagaNavigationController *vc = [[YagaNavigationController alloc] init];
         [vc setViewControllers:@[[[SplashViewController alloc] init]]];
-
+        
         [self presentViewController:vc animated:NO completion:^{
             //
         }];
@@ -76,7 +76,7 @@
 //- (void)viewDidLoad {
 //    [super viewDidLoad];
 //    NSLog(@"view did load? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
-//    
+//
 //    if([PFUser currentUser]){
 //    }
 //}
@@ -85,7 +85,7 @@
     
     self.setup = [NSNumber numberWithBool:YES];
     [self.view setBackgroundColor:[UIColor whiteColor]];
-        
+    
     [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:nUsername]];
     
     [self initOverlay];
@@ -117,16 +117,16 @@
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
-
+    
     
     //    [self initFirebase];
     // look at afterCameraInit to see what happens after the camera gets initialized. eg initFirebase.
-
+    
 }
 
 - (void)initCameraView {
     self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
-//    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    //    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.cameraView setBackgroundColor:PRIMARY_COLOR];
     [self.view addSubview:self.cameraView];
     
@@ -150,7 +150,7 @@
     CGFloat gutter = 40, height = 24;
     self.instructions = [[FBShimmeringView alloc] initWithFrame:CGRectMake(gutter, 8, self.cameraView.frame.size.width - gutter*2, height)];
     [self.instructions setUserInteractionEnabled:NO];
-//    [self.instructions setAlpha:0.6];
+    //    [self.instructions setAlpha:0.6];
     
     UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
     [instructionText setText:RECORD_INSTRUCTION];
@@ -164,9 +164,9 @@
     instructionText.layer.shadowOffset = CGSizeZero;
     
     self.indicatorText = instructionText;
-//    [instructionText setBackgroundColor:PRIMARY_COLOR];
+    //    [instructionText setBackgroundColor:PRIMARY_COLOR];
     
-//    [self.instructions setContentView:instructionText];
+    //    [self.instructions setContentView:instructionText];
     self.instructions.shimmering = NO;
     
     [self.cameraView addSubview:self.instructions];
@@ -191,10 +191,10 @@
     [self.cameraAccessories addObject:self.flashButton];
     [self.cameraView addSubview:self.flashButton];
     
-//    self.cameraView.layer.shadowColor = [[UIColor redColor] CGColor];
-//    self.cameraView.layer.shadowRadius = 10.0f;
-//    self.cameraView.layer.shadowOpacity = 1;
-//    self.cameraView.layer.shadowOffset = CGSizeZero;
+    //    self.cameraView.layer.shadowColor = [[UIColor redColor] CGColor];
+    //    self.cameraView.layer.shadowRadius = 10.0f;
+    //    self.cameraView.layer.shadowOpacity = 1;
+    //    self.cameraView.layer.shadowOffset = CGSizeZero;
     
     
 }
@@ -204,9 +204,9 @@
     NSLog(@"init camera");
     
     self.session = [[AVCaptureSession alloc] init];
-//    self.session.sessionPreset = AVCaptureSessionPreset
+    //    self.session.sessionPreset = AVCaptureSessionPreset
     self.session.sessionPreset = AVCaptureSessionPresetMedium;
-
+    
     [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
     [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
     //set still image output
@@ -518,11 +518,11 @@
 
 - (void)initGridView {
     self.gridView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-//    [self.gridView setBackgroundColor:[UIColor yellowColor]];
-//    [self.gridView setBackgroundColor:[UIColor whiteColor]];
+    //    [self.gridView setBackgroundColor:[UIColor yellowColor]];
+    //    [self.gridView setBackgroundColor:[UIColor whiteColor]];
     
     [self initGridTiles];
-//    [self initBall];
+    //    [self initBall];
     
     [self.view addSubview:self.gridView];
 }
@@ -532,7 +532,7 @@
     CGFloat gutter = 96, height = 42;
     CGFloat bottom = 28;
     self.switchGroups = [[UIButton alloc] initWithFrame:CGRectMake(gutter, self.cameraView.frame.size.height - height, self.cameraView.frame.size.width - gutter*2, height)];
-//    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
+    //    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
     [self.switchGroups.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
     [self.switchGroups addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchUpInside];
     [self.switchGroups setTitle:@"Switch Groups" forState:UIControlStateNormal];
@@ -542,12 +542,12 @@
     self.switchGroups.layer.shadowOffset = CGSizeZero;
     
     [self.cameraAccessories addObject:self.switchGroups];
-
-//    [self.switchGroups setBackgroundColor:PRIMARY_COLOR];
-//    self.switchGroups.layer.cornerRadius = height/2;
-//    self.switchGroups.clipsToBounds = YES;
-//    self.switchGroups.layer.borderWidth = 1.0f;
-//    self.switchGroups.layer.borderColor = [[UIColor blackColor] CGColor];
+    
+    //    [self.switchGroups setBackgroundColor:PRIMARY_COLOR];
+    //    self.switchGroups.layer.cornerRadius = height/2;
+    //    self.switchGroups.clipsToBounds = YES;
+    //    self.switchGroups.layer.borderWidth = 1.0f;
+    //    self.switchGroups.layer.borderColor = [[UIColor blackColor] CGColor];
     [self.view addSubview:self.switchGroups];
 }
 
@@ -555,13 +555,13 @@
     
     self.elevator = [[ElevatorView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     
-//    [self.elevator setBackgroundColor:[UIColor colorWithWhite:0.8 alpha:0.8]];
+    //    [self.elevator setBackgroundColor:[UIColor colorWithWhite:0.8 alpha:0.8]];
     
     self.elevator.groupsList = [[GroupListTableView alloc] initWithFrame:CGRectMake(0, ELEVATOR_MARGIN + 2, VIEW_WIDTH, VIEW_HEIGHT - ELEVATOR_MARGIN*2 - 84)];
-
+    
     [self.elevator.groupsList setScrollEnabled:YES];
     [self.elevator.groupsList setRowHeight:96];
-//    [self.elevator.groupsList setSeparatorColor:PRIMARY_COLOR];
+    //    [self.elevator.groupsList setSeparatorColor:PRIMARY_COLOR];
     [self.elevator.groupsList setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.elevator.groupsList setBackgroundColor:[UIColor clearColor]];
     [self.elevator.groupsList setUserInteractionEnabled:YES];
@@ -574,7 +574,7 @@
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeElevator)];
     tap.delegate = self;
     [self.elevator.tapOut addGestureRecognizer:tap];
-
+    
     [self.elevator addSubview:self.elevator.groupsList];
     
     self.elevator.border = [[UIView alloc] initWithFrame:CGRectMake(0, self.elevator.groupsList.frame.size.height + self.elevator.groupsList.frame.origin.y, self.elevator.frame.size.width, 0.5)];
@@ -600,12 +600,12 @@
     [self.elevator.createGroup setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
     [self.elevator.createGroup setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
     [self.elevator.createGroup addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
-//    [self.elevator addSubview:logoutButton];
+    //    [self.elevator addSubview:logoutButton];
     
     
     
     [self.view addSubview:self.elevator];
-//    [self.view sendSubviewToBack:self.elevatorMenu];
+    //    [self.view sendSubviewToBack:self.elevatorMenu];
     
     [self.elevator.groupsList reloadData];
     
@@ -671,7 +671,7 @@
     if(![self.scrolling boolValue]){
         if(self.gridTiles.contentOffset.y > 0){
             NSLog(@"wat");
-//            [self.gridTiles setContentOffset:CGPointZero animated:YES];
+            //            [self.gridTiles setContentOffset:CGPointZero animated:YES];
         } else {
             [self toggleElevator];
         }
@@ -691,18 +691,18 @@
 
 - (void) openElevator {
     
-//    [self.elevatorMenu reloadData];
+    //    [self.elevatorMenu reloadData];
     [self.elevator setAlpha:0.0];
     [self.elevator setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
     [self.view bringSubviewToFront:self.elevator];
-
+    
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, -(VIEW_HEIGHT/2)+ELEVATOR_MARGIN, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
         CGRect ballFrame = self.switchGroups.frame;
         ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
         [self.switchGroups setFrame:ballFrame];
-
+        
         CGRect frame = self.gridTiles.frame;
         frame.origin.y += VIEW_HEIGHT/2 - ELEVATOR_MARGIN;
         [self.gridTiles setFrame:frame];
@@ -717,7 +717,7 @@
     } completion:^(BOOL finished) {
         self.elevatorOpen = [NSNumber numberWithBool:YES];
     }];
-        
+    
 }
 
 - (void) closeElevator {
@@ -725,7 +725,7 @@
     NSLog(@"test");
     
     [self.elevator setTransform:CGAffineTransformIdentity];
-
+    
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
@@ -737,13 +737,13 @@
         frame.origin.y = 0;
         [self.gridTiles setFrame:frame];
         [self.elevator setAlpha:0.0];
-
+        
         for(UIView *view in self.cameraAccessories){
             [view setAlpha:1.0];
         }
         
         [self.elevator setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
-
+        
     } completion:^(BOOL finished) {
         self.elevatorOpen = [NSNumber numberWithBool:NO];
         [self.view sendSubviewToBack:self.elevator];
@@ -791,7 +791,7 @@
     self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.overlay setBackgroundColor:[UIColor blackColor]];
     [self.overlay setAlpha:0.0];
-
+    
     [self.view addSubview:self.overlay];
 }
 
@@ -800,7 +800,7 @@
     
     if(self.groupInfo){
         //remove all listening observers at current index
-
+        
         [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] removeAllObservers];
         
     }
@@ -810,8 +810,8 @@
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
         
         //Your code goes in here
-//        NSLog(@"Main Thread Code");
-//        [self.switchGroups setTitle:self.groupInfo.name forState:UIControlStateNormal];
+        //        NSLog(@"Main Thread Code");
+        [self.switchGroups setTitle:[NSString stringWithFormat:@"%@ · %@", self.groupInfo.name, @"Switch"] forState:UIControlStateNormal];
         // set title here
         
     }];
@@ -821,25 +821,25 @@
 }
 
 - (void)initFirebase {
-
-//    NSString *hash = [PFUser currentUser][@"phoneHash"];
-//    NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-
+    
+    //    NSString *hash = [PFUser currentUser][@"phoneHash"];
+    //    NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    
     CNetworking *currentUser = [CNetworking currentUser];
     NSLog(@"init firebase");
-//    NSLog(@"%@", [NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]);
-
-//    [[[CNetworking currentUser] firebase] removeObserverWithHandle:self.valueQuery];
+    //    NSLog(@"%@", [NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]);
+    
+    //    [[[CNetworking currentUser] firebase] removeObserverWithHandle:self.valueQuery];
     [[[[currentUser firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         
-//        NSLog(@"snapshot: %@", snapshot);
+        //        NSLog(@"snapshot: %@", snapshot);
         
         NSLog(@"children count? %lu", snapshot.childrenCount);
         
         for (FDataSnapshot* child in snapshot.children) {
             
-//            NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupInfo.groupId];
-//            [gridData insertObject:child atIndex:0];
+            //            NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupInfo.groupId];
+            //            [gridData insertObject:child atIndex:0];
             
             [[currentUser gridDataForGroupId:self.groupInfo.groupId] insertObject:child atIndex:0];
         }
@@ -847,7 +847,7 @@
         [self.gridTiles reloadData];
         NSLog(@"scrolling? %@", [self.scrolling boolValue] ? @"yes" : @"no");
         
-//        [[[CNetworking currentUser] firebase] removeObserverWithHandle:self.valueQuery];
+        //        [[[CNetworking currentUser] firebase] removeObserverWithHandle:self.valueQuery];
         [self listenForChanges];
     }];
 }
@@ -855,7 +855,7 @@
 - (void)listenForChanges {
     
     NSLog(@"listening for changes: %@", [NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]);
-
+    
     [[[CNetworking currentUser] firebase] removeObserverWithHandle:self.childQuery];
     self.childQuery = [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"newtile? %@", snapshot.name);
@@ -892,11 +892,11 @@
     NSLog(@"firstobject name:%@", firstObject.name);
     if(!([gridData count] > 0 && [firstObject.name isEqualToString:snapshot.name])){
         NSLog(@"count: %lu", [gridData count]);
-//        currentUser.messages[self.groupInfo.groupId]
+        //        currentUser.messages[self.groupInfo.groupId]
         [[currentUser gridDataForGroupId:self.groupInfo.groupId] insertObject:snapshot atIndex:0];
-//        [gridData insertObject:snapshot atIndex:0];
-//        [self.gridTiles insertItemsAtIndexPaths:@[ [NSIndexPath indexPathWithIndex:0] ]];
-//        [self.gridTiles reloadData];
+        //        [gridData insertObject:snapshot atIndex:0];
+        //        [self.gridTiles insertItemsAtIndexPaths:@[ [NSIndexPath indexPathWithIndex:0] ]];
+        //        [self.gridTiles reloadData];
         NSLog(@"new count: %lu", [[currentUser gridDataForGroupId:self.groupInfo.groupId] count]);
         NSArray *indexPaths = @[ [NSIndexPath indexPathForItem:0 inSection:0] ];
         
@@ -913,11 +913,11 @@
             NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"video"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
             
             NSData *imageData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"thumb"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
-
+            
             if(videoData != nil && imageData != nil){
                 NSURL *movieURL = [uid movieUrl];
                 [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
-
+                
                 NSURL *imageURL = [uid imageUrl];
                 [imageData writeToURL:imageURL options:NSDataWritingAtomic error:&error];
             }
@@ -951,18 +951,19 @@
     
     // if cell uid is not correct
     if(![cell.uid isEqualToString:snapshot.name]){
-
+        
         [cell setUid:snapshot.name];
         [cell setUsername:snapshot.value[@"user"]];
+        [cell setSnapshot: snapshot];
         
         // set colors for loader tiles
-//        NSArray *colors = (NSArray *) snapshot.value[@"colors"];
-//        
-//        [cell setColors:colors];
+        //        NSArray *colors = (NSArray *) snapshot.value[@"colors"];
+        //
+        //        [cell setColors:colors];
         
         if([cell isLoaded]){
             if([self.scrolling boolValue]){
-//                [cell play];
+                //                [cell play];
                 [cell showImage];
             } else {
                 [cell play];
@@ -1023,35 +1024,35 @@
     
     if([selected.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]) {
         if(selected.player.rate == 1.0){
-//            [selected.player seekToTime:kCMTimeZero];
-//            [selected.player setVolume:1.0];
-//            [selected showIndicator];
-
-//            selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
-//            [self.overlay addSubview:selected];
-//            
-//            [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-//                [self.view bringSubviewToFront:self.overlay];
-//                [self.overlay setAlpha:1.0];
-//                [selected.player setVolume:1.0];
-//                [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
-//            } completion:^(BOOL finished) {
-//                //
-//                OverlayViewController *overlay = [[OverlayViewController alloc] init];
-//                [overlay setTile:selected];
-//                [overlay setPreviousViewController:self];
-//                self.modalPresentationStyle = UIModalPresentationCurrentContext;
-//                [self presentViewController:overlay animated:NO completion:^{
-//                    
-//                }];
-//            }];
+            //            [selected.player seekToTime:kCMTimeZero];
+            //            [selected.player setVolume:1.0];
+            //            [selected showIndicator];
+            
+            //            selected.frame = CGRectMake(selected.frame.origin.x, selected.frame.origin.y - collectionView.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+            //            [self.overlay addSubview:selected];
+            //
+            //            [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+            //                [self.view bringSubviewToFront:self.overlay];
+            //                [self.overlay setAlpha:1.0];
+            //                [selected.player setVolume:1.0];
+            //                [selected setVideoFrame:CGRectMake(0, TILE_HEIGHT, TILE_WIDTH*2, TILE_HEIGHT*2)];
+            //            } completion:^(BOOL finished) {
+            //                //
+            //                OverlayViewController *overlay = [[OverlayViewController alloc] init];
+            //                [overlay setTile:selected];
+            //                [overlay setPreviousViewController:self];
+            //                self.modalPresentationStyle = UIModalPresentationCurrentContext;
+            //                [self presentViewController:overlay animated:NO completion:^{
+            //
+            //                }];
+            //            }];
             [self presentOverlay:selected];
         } else {
             [collectionView reloadItemsAtIndexPaths:@[indexPath]];
         }
     } else {
         NSLog(@"state: %@", selected.state);
-//        [collectionView reloadItemsAtIndexPaths:@[[collectionView indexPathForCell:selected]]];
+        //        [collectionView reloadItemsAtIndexPaths:@[[collectionView indexPathForCell:selected]]];
     }
     
     NSLog(@"subviews: %lu", [[self.gridView subviews] count]);
@@ -1068,7 +1069,7 @@
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         [self.overlay setAlpha:1.0];
         [tile.player setVolume:1.0];
-//        [tile setVideoFrame:CGRectMake(0, VIEW_HEIGHT/4, VIEW_WIDTH, VIEW_HEIGHT/2)];
+        //        [tile setVideoFrame:CGRectMake(0, VIEW_HEIGHT/4, VIEW_WIDTH, VIEW_HEIGHT/2)];
         [tile setVideoFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     } completion:^(BOOL finished) {
         //
@@ -1089,7 +1090,7 @@
     [self.overlay setAlpha:0.0];
     
     [tile.loader setAlpha:1.0];
-
+    
     //    [self.gridTiles addSubview:self.overlay];
     [UIView animateWithDuration:speed delay:0.0 usingSpringWithDamping:0.9 initialSpringVelocity:0.7 options:0 animations:^{
         NSIndexPath *ip = [self.gridTiles indexPathForCell:tile];
@@ -1112,7 +1113,7 @@
     AVURLAsset* asset = [AVURLAsset URLAssetWithURL:outputURL options:nil];
     AVAssetImageGenerator* imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
     [imageGenerator setAppliesPreferredTrackTransform:YES];
-//    UIImage* image = [UIImage imageWithCGImage:[imageGenerator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil]];
+    //    UIImage* image = [UIImage imageWithCGImage:[imageGenerator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil]];
     CGImageRef imageRef = [imageGenerator copyCGImageAtTime:CMTimeMake(0,1) actualTime:nil error:nil];
     
     UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT/2)];
@@ -1121,37 +1122,40 @@
     
     NSArray *colors = [image getColors];
     
-//    for(NSString *color in colors){
-//        NSLog(@"color: %@", color);
-//    }
+    //    for(NSString *color in colors){
+    //        NSLog(@"color: %@", color);
+    //    }
     
     [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
     }];
     
-//    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
-//    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
+    //    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
+    //    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
     
-//    for(NSString *hash in clique){
-//        NSLog(@"hash: %@", hash);
-//        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-//        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
-//        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
-//    }
+    //    for(NSString *hash in clique){
+    //        NSLog(@"hash: %@", hash);
+    //        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    //        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
+    //        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
+    //    }
     
     NSLog(@"group id: %@", self.groupInfo.groupId);
     NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, dataPath];
     
-//    NSLog(@"path: %@", path);
+    //    NSLog(@"path: %@", path);
     
-//    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
+    //    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
     NSString *username = (NSString *)[[CNetworking currentUser] userDataForKey:nUsername];
-    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":username, @"colors":colors}];
+    
+    
+    NSNumber *date = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":username, @"colors":colors, @"time":date}];
     
     NSFileManager * fm = [[NSFileManager alloc] init];
     NSError *err = nil;
     [fm moveItemAtURL:outputURL toURL:[dataPath movieUrl] error:&err];
     [imageData writeToURL:[dataPath imageUrl] options:NSDataWritingAtomic error:&err];
-
+    
     if(err){
         NSLog(@"error: %@", err);
     }
@@ -1160,7 +1164,7 @@
 
 - (void)scrollingEnded {
     if(![self.scrolling boolValue]){
-//        NSLog(@"visible cells count: %lu", [[self.gridTiles visibleCells] count]);
+        //        NSLog(@"visible cells count: %lu", [[self.gridTiles visibleCells] count]);
         
         for(TileCell *cell in [self.gridTiles visibleCells]){
             
@@ -1175,7 +1179,7 @@
     
     for(TileCell *tile in [self.gridTiles visibleCells]){
         if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]]){
-//            [tile showImage];
+            //            [tile showImage];
             tile.player = nil;
             [tile.player removeObservers];
         }
@@ -1188,108 +1192,108 @@
     
     CNetworking *currentUser = [CNetworking currentUser];
     
-//    [currentUser myCrewsWithCompletion:^{
-//        //
-        NSLog(@"groupinfo count? %lu", [[currentUser groupInfo] count]);
-        
-        
-        int cur = 0;
-        if([currentUser userDataForKey:nCurrentGroup]){
-            NSNumber *currentIndex = (NSNumber *)[currentUser userDataForKey:nCurrentGroup];
-            cur = [currentIndex intValue];
-        }
-        [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:cur]];
-        [self.gridTiles reloadData];
-//    }];
+    //    [currentUser myCrewsWithCompletion:^{
+    //        //
+    NSLog(@"groupinfo count? %lu", [[currentUser groupInfo] count]);
     
-//    NSString *userid = (NSString *)[currentUser userDataForKey:nUserId];
-//    
-//    NSString *path = [NSString stringWithFormat:@"users/%@/groups", userid];
-//    
-//    NSLog(@"path: %@", path);
-//    
-//    // fetching all of a users groups
-//    [[currentUser.firebase childByAppendingPath:path] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-//        
-//        currentUser.groupInfo = [[NSMutableArray alloc] init];
-//        
-//        // iterate through returned groups
-//        for(FDataSnapshot *child in snapshot.children){
-//            
-//            // fetch group meta data
-//            NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
-////            NSLog(@"datapath: %@", dataPath);
-//            
-//            [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
-//                
-//                // saving group data
-//                GroupInfo *info = [[GroupInfo alloc] init];
-//                info.name = dataSnapshot.value[@"name"];
-//                info.groupId = child.name;
-//                info.members = [[NSMutableArray alloc] init];
-//                
-//                for(NSString *member in dataSnapshot.value[@"members"]){
-//                    [info.members addObject:member];
-//                }
-//                
-//                [currentUser.groupInfo insertObject:info atIndex:0];
-//                
-//                if([currentUser.groupInfo count] == snapshot.childrenCount){
-//                    NSLog(@"about to setup pages");
-//                    [self.gridTiles reloadData];
-//                    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
-////                    [self initGridTiles];
-//
-////                    [self setGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
-//                    
-//                    
-//                }
-//            }];
-//        }
-//    }];
+    
+    int cur = 0;
+    if([currentUser userDataForKey:nCurrentGroup]){
+        NSNumber *currentIndex = (NSNumber *)[currentUser userDataForKey:nCurrentGroup];
+        cur = [currentIndex intValue];
+    }
+    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:cur]];
+    [self.gridTiles reloadData];
+    //    }];
+    
+    //    NSString *userid = (NSString *)[currentUser userDataForKey:nUserId];
+    //
+    //    NSString *path = [NSString stringWithFormat:@"users/%@/groups", userid];
+    //
+    //    NSLog(@"path: %@", path);
+    //
+    //    // fetching all of a users groups
+    //    [[currentUser.firebase childByAppendingPath:path] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+    //
+    //        currentUser.groupInfo = [[NSMutableArray alloc] init];
+    //
+    //        // iterate through returned groups
+    //        for(FDataSnapshot *child in snapshot.children){
+    //
+    //            // fetch group meta data
+    //            NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
+    ////            NSLog(@"datapath: %@", dataPath);
+    //
+    //            [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
+    //
+    //                // saving group data
+    //                GroupInfo *info = [[GroupInfo alloc] init];
+    //                info.name = dataSnapshot.value[@"name"];
+    //                info.groupId = child.name;
+    //                info.members = [[NSMutableArray alloc] init];
+    //
+    //                for(NSString *member in dataSnapshot.value[@"members"]){
+    //                    [info.members addObject:member];
+    //                }
+    //
+    //                [currentUser.groupInfo insertObject:info atIndex:0];
+    //
+    //                if([currentUser.groupInfo count] == snapshot.childrenCount){
+    //                    NSLog(@"about to setup pages");
+    //                    [self.gridTiles reloadData];
+    //                    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+    ////                    [self initGridTiles];
+    //
+    ////                    [self setGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+    //
+    //
+    //                }
+    //            }];
+    //        }
+    //    }];
     
 }
 
 
 - (void)willResignActive {
-//    [self removeAudioInput];
-// remove microphone
-
+    //    [self removeAudioInput];
+    // remove microphone
+    
 }
 
 - (void)didBecomeActive {
-//    [self addAudioInput];
-// add microphone
+    //    [self addAudioInput];
+    // add microphone
 }
 
 - (void)didEnterBackground {
-//    NSLog(@"did enter background");
-//    [self.view setAlpha:0.0];
+    //    NSLog(@"did enter background");
+    //    [self.view setAlpha:0.0];
     
     if([self.flash boolValue] && [[self.videoInput device] position] == AVCaptureDevicePositionFront){
         [self switchFlashMode:nil];
     }
     [self closeCamera];
-
+    
     [self conserveTiles];
 }
 
 - (void)willEnterForeground {
-//    NSLog(@"will enter foreground");
-//    [self.view setAlpha:1.0];
+    //    NSLog(@"will enter foreground");
+    //    [self.view setAlpha:1.0];
     [self initCamera:^{
         [self.gridTiles reloadData];
     }];
-
-//    for(TileCell *tile in [self.gridTiles visibleCells]){
-//        if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]] || [tile.state  isEqualToNumber:[NSNumber numberWithInt:  LOADED]]){
-//            [tile play];
-//        }
-//    }
+    
+    //    for(TileCell *tile in [self.gridTiles visibleCells]){
+    //        if([tile.state isEqualToNumber:[NSNumber numberWithInt: PLAYING]] || [tile.state  isEqualToNumber:[NSNumber numberWithInt:  LOADED]]){
+    //            [tile play];
+    //        }
+    //    }
 }
 
 - (void)removeFromSuperview {
-//    [super removeFromSuperview];
+    //    [super removeFromSuperview];
     for(TileCell *tile in [self.gridTiles visibleCells]){
         tile.player = nil;
         [tile.player removeObservers];
@@ -1297,9 +1301,9 @@
 }
 
 - (void)dismiss {
-//    [self dismissViewControllerAnimated:YES completion:^{
-//        //
-//    }];
+    //    [self dismissViewControllerAnimated:YES completion:^{
+    //        //
+    //    }];
 }
 
 -(BOOL)prefersStatusBarHidden {
@@ -1307,20 +1311,20 @@
 }
 
 - (void)didReceiveMemoryWarning {
-//    [super didReceiveMemoryWarning];
+    //    [super didReceiveMemoryWarning];
     NSLog(@"memory warning in group controller? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
     // Dispose of any resources that can be recreated.
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+ {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

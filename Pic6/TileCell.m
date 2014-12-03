@@ -34,14 +34,14 @@
             [self.loader addSubview:box];
         }
         
-//        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
-//                                                          target:self
-//                                                        selector:@selector(loaderTick:)
-//                                                        userInfo:nil
-//                                                         repeats:YES];
-//        
-//        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-//        [self loaderTick:nil];
+        //        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
+        //                                                          target:self
+        //                                                        selector:@selector(loaderTick:)
+        //                                                        userInfo:nil
+        //                                                         repeats:YES];
+        //
+        //        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+        //        [self loaderTick:nil];
         [self.container addSubview:self.loader];
         
         self.image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
@@ -77,13 +77,13 @@
         if([colors count] > 0){
             NSString *next = [colors lastObject];
             UIColor *color = [UIColor colorWithHexString:next];
-//            NSLog(@"next: %@", next);
+            //            NSLog(@"next: %@", next);
             
-//            UIColor *randomColor = [UIColor randomColor];
-//            UIColor *randomColor = [UIColor randomLightColor:0.3];
+            //            UIColor *randomColor = [UIColor randomColor];
+            //            UIColor *randomColor = [UIColor randomLightColor:0.3];
             [box setBackgroundColor:color];
             
-//            [box setBackgroundColor:[UIColor whiteColor]];
+            //            [box setBackgroundColor:[UIColor whiteColor]];
             [colors removeLastObject];
         } else {
             CGFloat hue = ( arc4random() % 256 / 256.0 );  //  0.0 to 1.0
@@ -127,7 +127,7 @@
     self.state = [NSNumber numberWithInt:PLAYING];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
+        
         NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self.uid];
         NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
         
@@ -142,17 +142,17 @@
             // set video sizing
             [self.playerContainer removeFromSuperview];
             self.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
-
-//            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
+            
+            //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
             self.playerLayer.frame = self.playerContainer.frame;
             
             // play video in frame
             [self.playerContainer.layer addSublayer: self.playerLayer];
             //        [self.loader removeFromSuperview];
-//            [self addSubview:self.playerContainer];
+            //            [self addSubview:self.playerContainer];
             [self.container addSubview:self.playerContainer];
             [self.container bringSubviewToFront:self.playerContainer];
-//            [self.container insertSubview:self.playerContainer aboveSubview:self.image];
+            //            [self.container insertSubview:self.playerContainer aboveSubview:self.image];
             
             
             [self.player setVolume:0.0];
@@ -168,7 +168,7 @@
     @autoreleasepool {
         
         NSString *moviePath = path;
-    //    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self.uid];
+        //    NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), self.uid];
         NSURL *movieURL = [[NSURL alloc] initFileURLWithPath:moviePath];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         
@@ -198,7 +198,7 @@
         } else {
             NSLog(@"wtf?");
         }
-            
+        
     }
 }
 
@@ -260,17 +260,17 @@
 //- (void)dealloc {
 //    if(self.player){
 //        NSLog(@"dealloc!");
-////        [self.player removeObservers];        
+////        [self.player removeObservers];
 //    }
 //}
 
 /*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-}
-*/
+ // Only override drawRect: if you perform custom drawing.
+ // An empty implementation adversely affects performance during animation.
+ - (void)drawRect:(CGRect)rect
+ {
+ // Drawing code
+ }
+ */
 
 @end

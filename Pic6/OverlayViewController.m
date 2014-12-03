@@ -9,6 +9,7 @@
 #import "OverlayViewController.h"
 #import "NSString+File.h"
 #import "CNetworking.h"
+//#import "NSDate+TimeAgo.h"
 
 @interface OverlayViewController ()
 @property (strong, nonatomic) NSArray *reactions;
@@ -27,25 +28,25 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-
+    
     //add background for tap gesture recognizer
     self.bg = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.bg setBackgroundColor:[UIColor blackColor]];
     [self.view addSubview:self.bg];
     
     [self.view addSubview:self.tile];
-
-    [self initLabels];
-//    [self initLikeButton];
-//    [self initSettingsButton];
     
-//    [self initCaptionLabel];
+    [self initLabels];
+    //    [self initLikeButton];
+    //    [self initSettingsButton];
+    
+    //    [self initCaptionLabel];
     
     [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         for(UIView *label in self.labels){
             [label setAlpha:1.0];
         }
-//        [self.captionField setAlpha:1.0];
+        //        [self.captionField setAlpha:1.0];
     } completion:^(BOOL finished) {
         //
     }];
@@ -64,7 +65,7 @@
     [self.view addGestureRecognizer:doubleTap];
     
     [tap requireGestureRecognizerToFail:doubleTap];
-
+    
     self.reactions = @[@"❤️", @"💙", @"💜", @"💚", @"💛"]; //😐", @"😄", @"😍", @"😜", @"😂", @"😎", @"😮"];
     // Do any additional setup after loading the view.
     
@@ -72,12 +73,12 @@
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willResignActive)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
                                                  name:UIApplicationWillEnterForegroundNotification
@@ -88,7 +89,7 @@
                                                object:nil];
     
     self.labels = [[NSMutableArray alloc] init];
-
+    
 }
 
 - (void) initLabels {
@@ -105,7 +106,7 @@
     self.userLabel.layer.shadowRadius = 1.0f;
     self.userLabel.layer.shadowOpacity = 1.0;
     self.userLabel.layer.shadowOffset = CGSizeZero;
-
+    
     [self.labels addObject:self.userLabel];
     
     CGFloat timeHeight = 24;
@@ -113,7 +114,21 @@
     [self.timestampLabel setTextAlignment:NSTextAlignmentCenter];
     [self.timestampLabel setTextColor:[UIColor whiteColor]];
     [self.timestampLabel setFont:[UIFont fontWithName:BIG_FONT size:14]];
-    [self.timestampLabel setText:@"6:18 pm"];
+    
+    if(self.tile.snapshot.value[@"time"]){
+        NSNumber *time = self.tile.snapshot.value[@"time"];
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:[time doubleValue]];
+        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+        [dateFormat setDateFormat:@"MM/dd hh:mma"];
+        NSString *dateString = [dateFormat stringFromDate:date];
+        //        NSLog(@"date: %@", dateString);
+        [self.timestampLabel setText:dateString];
+    } else {
+        [self.timestampLabel setText:@"00:00"];
+    }
+    
+    
+    
     [self.timestampLabel setAlpha:0.0];
     
     self.timestampLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
@@ -132,7 +147,7 @@
     
     self.captionField.delegate = self;
     [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
-//    [self.captionField addTarget:self action:@selector(textChanged) forControlEvents:UIControlEventEditingChanged];
+    //    [self.captionField addTarget:self action:@selector(textChanged) forControlEvents:UIControlEventEditingChanged];
     
     self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.captionField.layer.shadowRadius = 1.0f;
@@ -157,27 +172,27 @@
         [view setAlpha:0.0];
         [self.view addSubview:view];
     }
-
+    
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
     NSDictionary *attributes = @{NSFontAttributeName: textField.font};
     
-//    CGRect rect = [text boundingRectWithSize:CGSizeMake(textField.frame.size.width, CGFLOAT_MAX)
-//                                              options:NSStringDrawingUsesLineFragmentOrigin
-//                                           attributes:attributes
-//                                              context:nil];
-
+    //    CGRect rect = [text boundingRectWithSize:CGSizeMake(textField.frame.size.width, CGFLOAT_MAX)
+    //                                              options:NSStringDrawingUsesLineFragmentOrigin
+    //                                           attributes:attributes
+    //                                              context:nil];
+    
     CGFloat width = [text sizeWithAttributes:attributes].width;
-//    CGFloat width =  [text sizeWithFont:textField.font].width;
+    //    CGFloat width =  [text sizeWithFont:textField.font].width;
     
     if(width <= self.captionField.frame.size.width){
         return YES;
     } else {
         return NO;
     }
-
+    
 }
 
 - (void)textChanged {
@@ -216,7 +231,7 @@
     UIActionSheet *settings = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Delete" otherButtonTitles:@"Save to Camera Roll", nil];
     
     [settings setActionSheetStyle:UIActionSheetStyleBlackOpaque];
-    [settings showInView:self.view];    
+    [settings showInView:self.view];
     
 }
 
@@ -254,7 +269,7 @@
 - (void) initCaptionLabel {
     self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(5, TILE_HEIGHT*3 + 8 + 48, VIEW_WIDTH - 16, 76)];
     
-//    [self.captionLabel setTextAlignment:NSTextAlignmentLeft];
+    //    [self.captionLabel setTextAlignment:NSTextAlignmentLeft];
     [self.captionField setText:@"Add caption"];
     [self.captionField setTextColor:[UIColor grayColor]];
     [self.captionField setFont:[UIFont systemFontOfSize:18]];
@@ -296,27 +311,27 @@
 }
 
 - (void)didEnterBackground {
-//    [self.view setAlpha:0.0];
-//    [self collapse:0.0f];
-//    [self.view setAlpha:0.0f];
-//    [self.previousViewController.view setAlpha:0.0f];
-//    [self.previousViewController.gridTiles reloadItemsAtIndexPaths:@[[self.previousViewController.gridTiles indexPathForCell:self.tile]]];
-
-//    [self.view setAlpha:0.0];
-//    [self.tile setVideoFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+    //    [self.view setAlpha:0.0];
+    //    [self collapse:0.0f];
+    //    [self.view setAlpha:0.0f];
+    //    [self.previousViewController.view setAlpha:0.0f];
+    //    [self.previousViewController.gridTiles reloadItemsAtIndexPaths:@[[self.previousViewController.gridTiles indexPathForCell:self.tile]]];
+    
+    //    [self.view setAlpha:0.0];
+    //    [self.tile setVideoFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
 }
 
 - (void)willEnterForeground {
-//    [self tapped:[UITapGestureRecognizer new]];
+    //    [self tapped:[UITapGestureRecognizer new]];
 }
 
 - (void)willResignActive {
-//    [self.view setAlpha:0.0];
+    //    [self.view setAlpha:0.0];
     [self collapse:0.2f];
 }
 
 - (void)didBecomeActive {
-//    [self.view setAlpha:1.0];
+    //    [self.view setAlpha:1.0];
 }
 
 - (void)didReceiveMemoryWarning
@@ -326,14 +341,14 @@
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+ {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end
