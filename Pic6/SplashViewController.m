@@ -68,7 +68,6 @@
 //    self.number.delegate = self;
     [self.view addSubview:self.number];
     
-    
     NSString *countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
 
     self.country = [[UIButton alloc] initWithFrame:CGRectMake(gutter, origin, VIEW_WIDTH - formWidth - gutter*3, VIEW_HEIGHT*.08)];
@@ -90,8 +89,6 @@
     [self.next setAlpha:0.0];
     [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.next];
-    
-    
     
 }
 

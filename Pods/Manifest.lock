@@ -27,6 +27,7 @@ PODS:
   - Mantle (1.5.1):
     - Mantle/extobjc (= 1.5.1)
   - Mantle/extobjc (1.5.1)
+  - NSDate+TimeAgo (1.0.3)
   - Shimmer (1.0.2)
   - SwipeView (1.3.2)
 
@@ -37,6 +38,7 @@ DEPENDENCIES:
   - FrameAccessor (~> 1.0)
   - libPhoneNumber-iOS (~> 0.7)
   - Mantle (~> 1.5.1)
+  - NSDate+TimeAgo (~> 1)
   - Shimmer
   - SwipeView (~> 1.3.2)
 
@@ -47,6 +49,7 @@ SPEC CHECKSUMS:
   FrameAccessor: 5eec95b29b5e9a3afe72a7a2e9ed25b000d3bcc3
   libPhoneNumber-iOS: 98fc07d70c8fdb5e6a8e3442c37e97353065c20e
   Mantle: d7c5ac734579ec751c58fecbf56189853056c58c
+  NSDate+TimeAgo: f3533e0198fab05b716368b19f8c2185d53d6f3b
   Shimmer: 057fcfe9c1c978d69d50b64fce93a61080cd08ec
   SwipeView: 0093c212acf3d715b09334c50d568a4418404150
 

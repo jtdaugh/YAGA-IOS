@@ -57,7 +57,14 @@
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
     [self.view addGestureRecognizer:tap];
+    tap.numberOfTapsRequired = 1;
     
+    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapped:)];
+    [doubleTap setNumberOfTapsRequired:2];
+    [self.view addGestureRecognizer:doubleTap];
+    
+    [tap requireGestureRecognizerToFail:doubleTap];
+
     self.reactions = @[@"❤️", @"💙", @"💜", @"💚", @"💛"]; //😐", @"😄", @"😍", @"😜", @"😂", @"😎", @"😮"];
     // Do any additional setup after loading the view.
     
@@ -245,7 +252,7 @@
 }
 
 - (void) initCaptionLabel {
-    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(5, TILE_HEIGHT*3 + 8 + 48, VIEW_WIDTH - 16, 76)];
+    self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(5, TILE_HEIGHT*3 + 8 + 48, VIEW_WIDTH - 16, 76)];
     
 //    [self.captionLabel setTextAlignment:NSTextAlignmentLeft];
     [self.captionField setText:@"Add caption"];
@@ -253,16 +260,30 @@
     [self.captionField setFont:[UIFont systemFontOfSize:18]];
     [self.captionField setBackgroundColor:[UIColor clearColor]];
     [self.captionField setAlpha:0.0];
+    [self.captionField setReturnKeyType:UIReturnKeyDone];
     [self.view addSubview:self.captionField];
     
     NSLog(@"%@", NSStringFromCGRect(self.captionField.bounds));
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return YES;
 }
 
 - (void) getCaptionText:(NSString *)uid {
 }
 
 - (void)tapped:(UITapGestureRecognizer *)gesture {
-    [self collapse:0.3f];
+    if([self.captionField isFirstResponder]){
+        [self.captionField resignFirstResponder];
+    } else {
+        [self collapse:0.3f];
+    }
+}
+
+- (void)doubleTapped:(UITapGestureRecognizer *)gesture {
+    [self.captionField becomeFirstResponder];
 }
 
 - (void)collapse:(CGFloat)speed {

@@ -33,14 +33,15 @@
             [self.boxes addObject:box];
             [self.loader addSubview:box];
         }
-        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
-                                                          target:self
-                                                        selector:@selector(loaderTick:)
-                                                        userInfo:nil
-                                                         repeats:YES];
         
-        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-        [self loaderTick:nil];
+//        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
+//                                                          target:self
+//                                                        selector:@selector(loaderTick:)
+//                                                        userInfo:nil
+//                                                         repeats:YES];
+//        
+//        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+//        [self loaderTick:nil];
         [self.container addSubview:self.loader];
         
         self.image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
@@ -202,6 +203,7 @@
 }
 
 + (BOOL)isLoaded:(NSString *)uid {
+    // make this less laggy; use a dictionary
     NSString *moviePath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), uid];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // init loader

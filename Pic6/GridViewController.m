@@ -205,7 +205,7 @@
     
     self.session = [[AVCaptureSession alloc] init];
 //    self.session.sessionPreset = AVCaptureSessionPreset
-    self.session.sessionPreset = AVCaptureSessionPreset1280x720;
+    self.session.sessionPreset = AVCaptureSessionPresetMedium;
 
     [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
     [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
@@ -307,7 +307,7 @@
     
     self.recording = [NSNumber numberWithBool:YES];
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
-    [self.indicator setBackgroundColor:[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.75]];
+    [self.indicator setBackgroundColor:PRIMARY_COLOR];
     [self.indicator setUserInteractionEnabled:NO];
     [self.indicatorText setText:@"Recording..."];
     [self.cameraView addSubview:self.indicator];
@@ -945,18 +945,20 @@
     return [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] count];
 }
 
--(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
     
+    // if cell uid is not correct
     if(![cell.uid isEqualToString:snapshot.name]){
 
         [cell setUid:snapshot.name];
         [cell setUsername:snapshot.value[@"user"]];
         
-        NSArray *colors = (NSArray *) snapshot.value[@"colors"];
-        
-        [cell setColors:colors];
+        // set colors for loader tiles
+//        NSArray *colors = (NSArray *) snapshot.value[@"colors"];
+//        
+//        [cell setColors:colors];
         
         if([cell isLoaded]){
             if([self.scrolling boolValue]){
