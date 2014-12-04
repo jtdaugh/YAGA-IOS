@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
+#import <Firebase/Firebase.h>
 
 #define LOADING 0
 #define LOADED 1
@@ -20,6 +21,7 @@
 @property (strong, nonatomic) NSNumber *state;
 @property (strong, nonatomic) NSString *uid;
 @property (strong, nonatomic) NSString *username;
+@property (strong, nonatomic) FDataSnapshot *snapshot;
 
 @property (strong, nonatomic) UIView *playerContainer;
 @property (strong, nonatomic) AVPlayerLayer *playerLayer;

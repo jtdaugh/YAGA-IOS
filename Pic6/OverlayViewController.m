@@ -147,6 +147,15 @@
     
     self.captionField.delegate = self;
     [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
+    
+    [self.tile.snapshot.ref observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        [self.captionField setText:snapshot.value[@"caption"]];
+    }];
+//    [[self.tile.snapshot.ref childByAppendingPath:@"caption"] setValue:self.captionField.text
+//    if(self.tile.snapshot.value[@"caption"]){
+//        [self.captionField setText:self.tile.snapshot.value[@"caption"]];
+//    }
+    
     //    [self.captionField addTarget:self action:@selector(textChanged) forControlEvents:UIControlEventEditingChanged];
     
     self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
@@ -282,7 +291,8 @@
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [textField resignFirstResponder];
+//    [textField resignFirstResponder];
+    [self collapseCaption];
     return YES;
 }
 
@@ -291,10 +301,25 @@
 
 - (void)tapped:(UITapGestureRecognizer *)gesture {
     if([self.captionField isFirstResponder]){
-        [self.captionField resignFirstResponder];
+        [self collapseCaption];
     } else {
         [self collapse:0.3f];
     }
+}
+
+- (void)collapseCaption {
+    if([[self.captionField text] length] > 0) {
+        [[self.tile.snapshot.ref childByAppendingPath:@"caption"] setValue:self.captionField.text withCompletionBlock:^(NSError *error, Firebase *ref) {
+            //
+//            [ref observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+//                self.tile.snapshot = snapshot;
+////                [CNetworking currentUser] gridDataForGroupId:<#(NSString *)#>
+//            }];
+        }];
+//        [self.tile.snapshot.ref setValue:self.captionField.text forKeyPath:@"caption"];
+//        [[CNetworking currentUser] firebase] childByAppendingPath:<#(NSString *)#>
+    }
+    [self.captionField resignFirstResponder];
 }
 
 - (void)doubleTapped:(UITapGestureRecognizer *)gesture {
