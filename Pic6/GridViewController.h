@@ -25,6 +25,9 @@
 
 @property (strong, nonatomic) UIView *gridView;
 @property (strong, nonatomic) UICollectionView *gridTiles;
+@property (strong, nonatomic) NSIndexPath *selectedIndex;
+@property (strong, nonatomic) UICollectionViewFlowLayout *gridLayout;
+@property (strong, nonatomic) UICollectionViewFlowLayout *swipeLayout;
 @property (strong, nonatomic) NSMutableArray *gridData;
 @property (strong, nonatomic) NSNumber *scrolling;
 @property (strong, nonatomic) UIRefreshControl *pull;

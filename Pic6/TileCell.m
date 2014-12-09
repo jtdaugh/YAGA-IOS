@@ -44,10 +44,12 @@
         //        [self loaderTick:nil];
         [self.container addSubview:self.loader];
         
-        self.image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+        self.image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         [self.image setContentMode:UIViewContentModeScaleAspectFill];
         [self.image setClipsToBounds:YES];
         [self.container addSubview:self.image];
+        
+//        [self setBackgroundColor:[UIColor redColor]];
         
     }
     return self;
@@ -102,6 +104,8 @@
     [self.playerContainer removeFromSuperview];
     [self.image removeFromSuperview];
     
+    [self.image setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+    
     NSString *imagePath = [[NSString alloc] initWithFormat:@"%@%@.jpg", NSTemporaryDirectory(), self.uid];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -123,7 +127,7 @@
 }
 
 //LOAD IT UP
-- (void)play {
+- (void)play:(void (^)())block {
     self.state = [NSNumber numberWithInt:PLAYING];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -141,7 +145,7 @@
             
             // set video sizing
             [self.playerContainer removeFromSuperview];
-            self.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, TILE_WIDTH, TILE_HEIGHT)];
+            self.playerContainer = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
             
             //            [cell.playerContainer setBackgroundColor:[UIColor redColor]];
             self.playerLayer.frame = self.playerContainer.frame;
@@ -156,6 +160,9 @@
             
             
             [self.player setVolume:0.0];
+            if(block){
+                block();
+            }
             [self.player asyncPlay];
             
             [self.player setLooping];

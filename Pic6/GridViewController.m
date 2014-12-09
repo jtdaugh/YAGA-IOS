@@ -230,6 +230,11 @@
             }
         }
         
+//        [captureDevice lockForConfiguration:nil];
+//        [captureDevice setActiveVideoMaxFrameDuration:CMTimeMake(1, 1)];
+//        [captureDevice setActiveVideoMinFrameDuration:CMTimeMake(1, 1)];
+//        [captureDevice unlockForConfiguration];
+        
         self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
         
         if (error)
@@ -548,7 +553,7 @@
     //    self.switchGroups.clipsToBounds = YES;
     //    self.switchGroups.layer.borderWidth = 1.0f;
     //    self.switchGroups.layer.borderColor = [[UIColor blackColor] CGColor];
-    [self.view addSubview:self.switchGroups];
+    [self.cameraView addSubview:self.switchGroups];
 }
 
 - (void) initElevator {
@@ -754,12 +759,21 @@
     int tile_buffer = 0;
     
     CGFloat spacing = 1.0f;
-    UICollectionViewFlowLayout *layout= [[UICollectionViewFlowLayout alloc] init];
-    [layout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + spacing, 0, 0, 0)];
-    [layout setMinimumInteritemSpacing:spacing];
-    [layout setMinimumLineSpacing:spacing];
-    [layout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
-    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) collectionViewLayout:layout];
+    self.gridLayout= [[UICollectionViewFlowLayout alloc] init];
+    [self.gridLayout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + spacing, 0, 0, 0)];
+    [self.gridLayout setMinimumInteritemSpacing:spacing];
+    [self.gridLayout setMinimumLineSpacing:spacing];
+    [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
+    
+    self.swipeLayout= [[UICollectionViewFlowLayout alloc] init];
+    CGFloat swipeSpacing = 0.0f;
+    [self.swipeLayout setSectionInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+    [self.swipeLayout setMinimumInteritemSpacing:swipeSpacing];
+    [self.swipeLayout setMinimumLineSpacing:swipeSpacing];
+    [self.swipeLayout setItemSize:CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT)];
+    [self.swipeLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
+    
+    self.gridTiles = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) collectionViewLayout:self.gridLayout];
     self.gridTiles.delegate = self;
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
@@ -949,6 +963,10 @@
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
     
+//    if(self.selectedIndex){
+//        [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, VIEW_WIDTH, VIEW_HEIGHT/2)];
+//    }
+
     // if cell uid is not correct
     if(![cell.uid isEqualToString:snapshot.name]){
         
@@ -966,7 +984,8 @@
                 //                [cell play];
                 [cell showImage];
             } else {
-                [cell play];
+                [cell play:nil];
+                
             }
         } else {
             [cell showLoader];
@@ -1001,6 +1020,10 @@
         frame = self.switchGroups.frame;
         frame.origin.y = self.cameraView.frame.size.height - self.switchGroups.frame.size.height - offset;
         self.switchGroups.frame = frame;
+        
+        if(self.selectedIndex){
+            
+        }
     }
 }
 
@@ -1046,7 +1069,40 @@
             //
             //                }];
             //            }];
-            [self presentOverlay:selected];
+            
+            
+//            [collectionView setContentSize:CGSizeMake(VIEW_WIDTH + spacing*2, VIEW_HEIGHT/2)];
+            
+            if(!self.selectedIndex){
+                self.selectedIndex = indexPath;
+                
+                [collectionView setCollectionViewLayout:self.swipeLayout animated:YES completion:^(BOOL finished) {
+                    //
+//                    [collectionView reloadData];
+                    for(TileCell *cell in self.gridTiles.visibleCells){
+                        [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, self.swipeLayout.itemSize.width, self.swipeLayout.itemSize.height)];
+                    }
+                }];
+                
+                //            [collectionView reloadData];
+                
+                [collectionView setPagingEnabled:YES];
+                [self.cameraView removeFromSuperview];
+            } else {
+                self.selectedIndex = nil;
+                [collectionView setCollectionViewLayout:self.gridLayout animated:YES completion:^(BOOL finished) {
+                    //
+                    for(TileCell *cell in self.gridTiles.visibleCells){
+                        [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, self.gridLayout.itemSize.width, self.gridLayout.itemSize.height)];
+                    }
+                }];
+                
+                [collectionView setPagingEnabled:NO];
+                [self.view addSubview:self.cameraView];
+//                [self.cameraView removeFromSuperview];
+
+            }
+//            [self presentOverlay:selected];
         } else {
             [collectionView reloadItemsAtIndexPaths:@[indexPath]];
         }
@@ -1057,6 +1113,9 @@
     
     NSLog(@"subviews: %lu", [[self.gridView subviews] count]);
     
+}
+
+- (void) collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
 }
 
 - (void)presentOverlay:(TileCell *)tile {
@@ -1169,7 +1228,14 @@
         for(TileCell *cell in [self.gridTiles visibleCells]){
             
             if([cell.state isEqualToNumber:[NSNumber numberWithInt: LOADED]]){
-                [cell play];
+                [cell play:^{
+                    if(self.selectedIndex){
+                        [cell.player setVolume:0.0];
+                        [((TileCell *)[self.gridTiles cellForItemAtIndexPath:self.selectedIndex]).player setVolume:0.0];
+                        self.selectedIndex = [self.gridTiles indexPathForCell:cell];
+                        [self.gridTiles selectItemAtIndexPath:[self.gridTiles indexPathForCell:cell] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+                    }
+                }];
             }
         }
     }

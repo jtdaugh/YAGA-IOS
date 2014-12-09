@@ -39,7 +39,7 @@
 - (void)setVideoFrame:(CGRect)frame;
 - (void)showLoader;
 - (void)showImage;
-- (void)play;
+- (void)play:(void (^)())block;
 - (void)playLocal:(NSString *)path;
 //- (void)initLoaderWithSwatches:(NSArray *)swatches;
 - (BOOL)isLoaded;

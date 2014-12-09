@@ -37,10 +37,10 @@
     [self.view addSubview:self.tile];
     
     [self initLabels];
-    //    [self initLikeButton];
-    //    [self initSettingsButton];
-    
-    //    [self initCaptionLabel];
+//    [self initLikeButton];
+//    [self initSettingsButton];
+//
+//    [self initCaptionLabel];
     
     [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         for(UIView *label in self.labels){
