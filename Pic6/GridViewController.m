@@ -778,6 +778,7 @@
     self.gridTiles.dataSource = self;
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
     [self.gridTiles setBackgroundColor:[UIColor whiteColor]];
+    [self.gridTiles setAllowsMultipleSelection:NO];
     //    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
     
@@ -1041,8 +1042,6 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    NSLog(@"didSelect");
-    
     TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
     
     if([selected.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]) {
@@ -1079,12 +1078,10 @@
                 [collectionView setCollectionViewLayout:self.swipeLayout animated:YES completion:^(BOOL finished) {
                     //
 //                    [collectionView reloadData];
-                    for(TileCell *cell in self.gridTiles.visibleCells){
-                        [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, self.swipeLayout.itemSize.width, self.swipeLayout.itemSize.height)];
-                    }
                 }];
-                
-                //            [collectionView reloadData];
+                for(TileCell *cell in self.gridTiles.visibleCells){
+                    [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, self.swipeLayout.itemSize.width, self.swipeLayout.itemSize.height)];
+                }
                 
                 [collectionView setPagingEnabled:YES];
                 [self.cameraView removeFromSuperview];
@@ -1092,14 +1089,18 @@
                 self.selectedIndex = nil;
                 [collectionView setCollectionViewLayout:self.gridLayout animated:YES completion:^(BOOL finished) {
                     //
-                    for(TileCell *cell in self.gridTiles.visibleCells){
-                        [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, self.gridLayout.itemSize.width, self.gridLayout.itemSize.height)];
-                    }
                 }];
+                for(TileCell *cell in self.gridTiles.visibleCells){
+                    [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, self.gridLayout.itemSize.width, self.gridLayout.itemSize.height)];
+                    if([cell.state isEqualToNumber:[NSNumber numberWithInt:LOADED]]){
+                        [cell play:^{
+                            
+                        }];
+                    }
+                }
                 
                 [collectionView setPagingEnabled:NO];
                 [self.view addSubview:self.cameraView];
-//                [self.cameraView removeFromSuperview];
 
             }
 //            [self presentOverlay:selected];
@@ -1111,11 +1112,12 @@
         //        [collectionView reloadItemsAtIndexPaths:@[[collectionView indexPathForCell:selected]]];
     }
     
-    NSLog(@"subviews: %lu", [[self.gridView subviews] count]);
+//    NSLog(@"subviews: %lu", [[self.gridView subviews] count]);
     
 }
 
 - (void) collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
 }
 
 - (void)presentOverlay:(TileCell *)tile {
@@ -1225,15 +1227,18 @@
     if(![self.scrolling boolValue]){
         //        NSLog(@"visible cells count: %lu", [[self.gridTiles visibleCells] count]);
         
+        NSLog(@"scrolling ended count: %lu", [[self.gridTiles visibleCells] count]);
+        
         for(TileCell *cell in [self.gridTiles visibleCells]){
             
             if([cell.state isEqualToNumber:[NSNumber numberWithInt: LOADED]]){
                 [cell play:^{
                     if(self.selectedIndex){
-                        [cell.player setVolume:0.0];
-                        [((TileCell *)[self.gridTiles cellForItemAtIndexPath:self.selectedIndex]).player setVolume:0.0];
-                        self.selectedIndex = [self.gridTiles indexPathForCell:cell];
-                        [self.gridTiles selectItemAtIndexPath:[self.gridTiles indexPathForCell:cell] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+                        [cell setSelected:YES];
+//                        [cell.player setVolume:0.0];
+//                        [((TileCell *)[self.gridTiles cellForItemAtIndexPath:self.selectedIndex]).player setVolume:0.0];
+//                        self.selectedIndex = [self.gridTiles indexPathForCell:cell];
+//                        [self.gridTiles selectItemAtIndexPath:[self.gridTiles indexPathForCell:cell] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
                     }
                 }];
             }

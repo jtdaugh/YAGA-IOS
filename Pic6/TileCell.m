@@ -57,6 +57,7 @@
 
 - (void)setVideoFrame:(CGRect)frame {
     [self setFrame:frame];
+    [self.image setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
     [self.playerLayer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
     [self.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
 }
@@ -262,6 +263,20 @@
             [self.indicator removeFromSuperview];
         }
     }];
+}
+
+- (void) setSelected:(BOOL)selected {
+    if(selected){
+        NSLog(@"playing");
+        CGFloat scrollOffset = ((UICollectionView *)[self superview]).contentOffset.x;
+        
+        if(self.frame.origin.x - scrollOffset == 0){
+            [self.player setVolume:1.0];
+        }
+    } else {
+        NSLog(@"muting");
+        [self.player setVolume:0.0];
+    }
 }
 
 //- (void)dealloc {
