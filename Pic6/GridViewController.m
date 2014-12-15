@@ -300,6 +300,7 @@
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
+    NSLog(@"%ld", recognizer.state);
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         [self endHold];
     } else if (recognizer.state == UIGestureRecognizerStateBegan){

@@ -64,6 +64,7 @@
 		71D0F5AA190DCE4300C7DEE0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A9190DCE4300C7DEE0 /* Security.framework */; };
 		71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */; };
 		8691B31F1A3EFAAD002E3E65 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8691B31E1A3EFAAD002E3E65 /* MainStoryboard.storyboard */; };
+		8691B3221A3F198F002E3E65 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8691B3211A3F198F002E3E65 /* NetworkManager.swift */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 		F139A6C919B44A4000595951 /* GroupDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = F139A6C819B44A4000595951 /* GroupDetailView.m */; };
 		F152A08119AA28A50090A9C7 /* CliquePageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = F152A08019AA28A50090A9C7 /* CliquePageControl.m */; };
@@ -176,6 +177,8 @@
 		71D0F5A9190DCE4300C7DEE0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		8691B31E1A3EFAAD002E3E65 /* MainStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainStoryboard.storyboard; path = "User Interface /MainStoryboard.storyboard"; sourceTree = "<group>"; };
+		8691B3201A3F198E002E3E65 /* Pic6-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Pic6-Bridging-Header.h"; sourceTree = "<group>"; };
+		8691B3211A3F198F002E3E65 /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NetworkManager.swift; path = Models/Core/NetworkManager.swift; sourceTree = "<group>"; };
 		F139A6C719B44A4000595951 /* GroupDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupDetailView.h; sourceTree = "<group>"; };
 		F139A6C819B44A4000595951 /* GroupDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupDetailView.m; sourceTree = "<group>"; };
 		F152A07F19AA28A50090A9C7 /* CliquePageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliquePageControl.h; sourceTree = "<group>"; };
@@ -332,6 +335,7 @@
 		71106D85192434970083C64A /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				8691B3231A3F19B2002E3E65 /* Core */,
 				41B404921974CA6700F9EE3F /* CContact.h */,
 				41B404931974CA6700F9EE3F /* CContact.m */,
 				41A308A419819D1000D30349 /* CNetworking.h */,
@@ -447,6 +451,7 @@
 		71D0F572190D998000C7DEE0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				8691B3201A3F198E002E3E65 /* Pic6-Bridging-Header.h */,
 				71D0F573190D998000C7DEE0 /* Pic6-Info.plist */,
 				71D0F574190D998000C7DEE0 /* InfoPlist.strings */,
 				71D0F577190D998000C7DEE0 /* main.m */,
@@ -479,6 +484,14 @@
 				8691B31E1A3EFAAD002E3E65 /* MainStoryboard.storyboard */,
 			);
 			name = "User Interface";
+			sourceTree = "<group>";
+		};
+		8691B3231A3F19B2002E3E65 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				8691B3211A3F198F002E3E65 /* NetworkManager.swift */,
+			);
+			name = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -669,6 +682,7 @@
 				715455D1190E01D600ABE2BE /* UIImage+Resize.m in Sources */,
 				4110BC4619A6BB96001A98AF /* UIImage+Colors.m in Sources */,
 				411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */,
+				8691B3221A3F198F002E3E65 /* NetworkManager.swift in Sources */,
 				416D52C6197E107100769721 /* AVCamPreviewView.m in Sources */,
 				418CDE47199D86C600693733 /* CreateViewController.m in Sources */,
 				41A308A619819D1000D30349 /* CNetworking.m in Sources */,
@@ -789,6 +803,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -799,8 +814,11 @@
 				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
 				INFOPLIST_FILE = "Pic6/Pic6-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Pic6/Pic6-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -812,6 +830,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -822,8 +841,10 @@
 				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
 				INFOPLIST_FILE = "Pic6/Pic6-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Pic6/Pic6-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
