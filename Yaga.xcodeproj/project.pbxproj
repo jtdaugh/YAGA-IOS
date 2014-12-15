@@ -153,20 +153,20 @@
 		7154774B1941119B00133083 /* AVPlayer+AVPlayer_Async.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVPlayer+AVPlayer_Async.m"; sourceTree = "<group>"; };
 		716CFA34192EC1F500E6ED17 /* TileCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileCell.h; sourceTree = "<group>"; };
 		716CFA35192EC1F500E6ED17 /* TileCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileCell.m; sourceTree = "<group>"; };
-		71D0F568190D998000C7DEE0 /* Pic6.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pic6.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		71D0F568190D998000C7DEE0 /* Yaga.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yaga.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71D0F56B190D998000C7DEE0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		71D0F56F190D998000C7DEE0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		71D0F573190D998000C7DEE0 /* Pic6-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Pic6-Info.plist"; sourceTree = "<group>"; };
+		71D0F573190D998000C7DEE0 /* Yaga-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Yaga-Info.plist"; sourceTree = "<group>"; };
 		71D0F575190D998000C7DEE0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		71D0F577190D998000C7DEE0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		71D0F579190D998000C7DEE0 /* Pic6-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Pic6-Prefix.pch"; sourceTree = "<group>"; };
+		71D0F579190D998000C7DEE0 /* Yaga-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Yaga-Prefix.pch"; sourceTree = "<group>"; };
 		71D0F57A190D998000C7DEE0 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		71D0F57B190D998000C7DEE0 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		71D0F583190D998000C7DEE0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		71D0F589190D998000C7DEE0 /* Pic6Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Pic6Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		71D0F589190D998000C7DEE0 /* YagaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YagaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		71D0F58A190D998000C7DEE0 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		71D0F592190D998000C7DEE0 /* Pic6Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Pic6Tests-Info.plist"; sourceTree = "<group>"; };
+		71D0F592190D998000C7DEE0 /* YagaTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "YagaTests-Info.plist"; sourceTree = "<group>"; };
 		71D0F594190D998000C7DEE0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		71D0F596190D998000C7DEE0 /* Pic6Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Pic6Tests.m; sourceTree = "<group>"; };
 		71D0F5A0190D99A700C7DEE0 /* GridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridViewController.h; sourceTree = "<group>"; };
@@ -177,8 +177,8 @@
 		71D0F5A9190DCE4300C7DEE0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		8691B31E1A3EFAAD002E3E65 /* MainStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainStoryboard.storyboard; path = "User Interface /MainStoryboard.storyboard"; sourceTree = "<group>"; };
-		8691B3201A3F198E002E3E65 /* Pic6-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Pic6-Bridging-Header.h"; sourceTree = "<group>"; };
 		8691B3211A3F198F002E3E65 /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NetworkManager.swift; path = Models/Core/NetworkManager.swift; sourceTree = "<group>"; };
+		8691B3241A3F24E9002E3E65 /* Yaga-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Yaga-Bridging-Header.h"; path = "Supporting Files/Yaga-Bridging-Header.h"; sourceTree = "<group>"; };
 		F139A6C719B44A4000595951 /* GroupDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupDetailView.h; sourceTree = "<group>"; };
 		F139A6C819B44A4000595951 /* GroupDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupDetailView.m; sourceTree = "<group>"; };
 		F152A07F19AA28A50090A9C7 /* CliquePageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliquePageControl.h; sourceTree = "<group>"; };
@@ -404,8 +404,8 @@
 		71D0F569190D998000C7DEE0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				71D0F568190D998000C7DEE0 /* Pic6.app */,
-				71D0F589190D998000C7DEE0 /* Pic6Tests.xctest */,
+				71D0F568190D998000C7DEE0 /* Yaga.app */,
+				71D0F589190D998000C7DEE0 /* YagaTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -451,11 +451,11 @@
 		71D0F572190D998000C7DEE0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				8691B3201A3F198E002E3E65 /* Pic6-Bridging-Header.h */,
-				71D0F573190D998000C7DEE0 /* Pic6-Info.plist */,
+				8691B3241A3F24E9002E3E65 /* Yaga-Bridging-Header.h */,
+				71D0F573190D998000C7DEE0 /* Yaga-Info.plist */,
 				71D0F574190D998000C7DEE0 /* InfoPlist.strings */,
 				71D0F577190D998000C7DEE0 /* main.m */,
-				71D0F579190D998000C7DEE0 /* Pic6-Prefix.pch */,
+				71D0F579190D998000C7DEE0 /* Yaga-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -472,7 +472,7 @@
 		71D0F591190D998000C7DEE0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				71D0F592190D998000C7DEE0 /* Pic6Tests-Info.plist */,
+				71D0F592190D998000C7DEE0 /* YagaTests-Info.plist */,
 				71D0F593190D998000C7DEE0 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
@@ -497,9 +497,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		71D0F567190D998000C7DEE0 /* Pic6 */ = {
+		71D0F567190D998000C7DEE0 /* Yaga */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 71D0F59A190D998000C7DEE0 /* Build configuration list for PBXNativeTarget "Pic6" */;
+			buildConfigurationList = 71D0F59A190D998000C7DEE0 /* Build configuration list for PBXNativeTarget "Yaga" */;
 			buildPhases = (
 				915B11AD40DF490E8902CE6F /* Check Pods Manifest.lock */,
 				71D0F564190D998000C7DEE0 /* Sources */,
@@ -512,14 +512,14 @@
 			);
 			dependencies = (
 			);
-			name = Pic6;
+			name = Yaga;
 			productName = Pic6;
-			productReference = 71D0F568190D998000C7DEE0 /* Pic6.app */;
+			productReference = 71D0F568190D998000C7DEE0 /* Yaga.app */;
 			productType = "com.apple.product-type.application";
 		};
-		71D0F588190D998000C7DEE0 /* Pic6Tests */ = {
+		71D0F588190D998000C7DEE0 /* YagaTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 71D0F59D190D998000C7DEE0 /* Build configuration list for PBXNativeTarget "Pic6Tests" */;
+			buildConfigurationList = 71D0F59D190D998000C7DEE0 /* Build configuration list for PBXNativeTarget "YagaTests" */;
 			buildPhases = (
 				71D0F585190D998000C7DEE0 /* Sources */,
 				71D0F586190D998000C7DEE0 /* Frameworks */,
@@ -530,9 +530,9 @@
 			dependencies = (
 				71D0F58F190D998000C7DEE0 /* PBXTargetDependency */,
 			);
-			name = Pic6Tests;
+			name = YagaTests;
 			productName = Pic6Tests;
-			productReference = 71D0F589190D998000C7DEE0 /* Pic6Tests.xctest */;
+			productReference = 71D0F589190D998000C7DEE0 /* YagaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -553,7 +553,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 71D0F563190D998000C7DEE0 /* Build configuration list for PBXProject "Pic6" */;
+			buildConfigurationList = 71D0F563190D998000C7DEE0 /* Build configuration list for PBXProject "Yaga" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -566,8 +566,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				71D0F567190D998000C7DEE0 /* Pic6 */,
-				71D0F588190D998000C7DEE0 /* Pic6Tests */,
+				71D0F567190D998000C7DEE0 /* Yaga */,
+				71D0F588190D998000C7DEE0 /* YagaTests */,
 			);
 		};
 /* End PBXProject section */
@@ -702,7 +702,7 @@
 /* Begin PBXTargetDependency section */
 		71D0F58F190D998000C7DEE0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 71D0F567190D998000C7DEE0 /* Pic6 */;
+			target = 71D0F567190D998000C7DEE0 /* Yaga */;
 			targetProxy = 71D0F58E190D998000C7DEE0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -811,13 +811,13 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
-				INFOPLIST_FILE = "Pic6/Pic6-Info.plist";
+				GCC_PREFIX_HEADER = "Pic6/Yaga-Prefix.pch";
+				INFOPLIST_FILE = "Pic6/Yaga-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Yaga;
 				PROVISIONING_PROFILE = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Pic6/Pic6-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Pic6/Supporting Files/Yaga-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
@@ -838,13 +838,13 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
-				INFOPLIST_FILE = "Pic6/Pic6-Info.plist";
+				GCC_PREFIX_HEADER = "Pic6/Yaga-Prefix.pch";
+				INFOPLIST_FILE = "Pic6/Yaga-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Yaga;
 				PROVISIONING_PROFILE = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Pic6/Pic6-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Pic6/Supporting Files/Yaga-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -860,13 +860,13 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
+				GCC_PREFIX_HEADER = "Pic6/Yaga-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "Pic6Tests/Pic6Tests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				INFOPLIST_FILE = "Pic6Tests/YagaTests-Info.plist";
+				PRODUCT_NAME = YagaTests;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -882,9 +882,9 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Pic6/Pic6-Prefix.pch";
-				INFOPLIST_FILE = "Pic6Tests/Pic6Tests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_PREFIX_HEADER = "Pic6/Yaga-Prefix.pch";
+				INFOPLIST_FILE = "Pic6Tests/YagaTests-Info.plist";
+				PRODUCT_NAME = YagaTests;
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -893,7 +893,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		71D0F563190D998000C7DEE0 /* Build configuration list for PBXProject "Pic6" */ = {
+		71D0F563190D998000C7DEE0 /* Build configuration list for PBXProject "Yaga" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				71D0F598190D998000C7DEE0 /* Debug */,
@@ -902,7 +902,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		71D0F59A190D998000C7DEE0 /* Build configuration list for PBXNativeTarget "Pic6" */ = {
+		71D0F59A190D998000C7DEE0 /* Build configuration list for PBXNativeTarget "Yaga" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				71D0F59B190D998000C7DEE0 /* Debug */,
@@ -911,7 +911,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		71D0F59D190D998000C7DEE0 /* Build configuration list for PBXNativeTarget "Pic6Tests" */ = {
+		71D0F59D190D998000C7DEE0 /* Build configuration list for PBXNativeTarget "YagaTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				71D0F59E190D998000C7DEE0 /* Debug */,

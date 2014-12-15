@@ -8,11 +8,11 @@
 
 #import <XCTest/XCTest.h>
 
-@interface Pic6Tests : XCTestCase
+@interface YagaTests : XCTestCase
 
 @end
 
-@implementation Pic6Tests
+@implementation YagaTests
 
 - (void)setUp
 {

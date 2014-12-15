@@ -21,6 +21,9 @@
 #import "ElevatorView.h"
 #import "GroupListCell.h"
 
+//Swift headers
+#import "Yaga-Swift.h"
+
 @interface GridViewController ()
 @end
 
