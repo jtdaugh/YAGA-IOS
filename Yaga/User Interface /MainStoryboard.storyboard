@@ -52,12 +52,13 @@
                         <viewControllerLayoutGuide type="bottom" id="VgQ-B3-kKX"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="aaq-NM-mPh">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" id="3AL-UU-eRo"/>
                     <connections>
-                        <segue destination="Xo8-xg-cRY" kind="show" identifier="NextScreen" id="DKm-MF-TJ2"/>
+                        <segue destination="bQu-BG-DTg" kind="show" identifier="NextScreen" id="bMB-tQ-nNw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SFT-g8-vve" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -89,6 +90,7 @@
                         <viewControllerLayoutGuide type="bottom" id="h6T-vx-O7B"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="KO4-YO-FCe">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
@@ -101,6 +103,27 @@
             </objects>
             <point key="canvasLocation" x="-111" y="771"/>
         </scene>
+        <!--Authentification View Controller-->
+        <scene sceneID="Zcb-su-0aa">
+            <objects>
+                <viewController id="bQu-BG-DTg" customClass="YASMSAuthentificationViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="gYx-1W-MeR"/>
+                        <viewControllerLayoutGuide type="bottom" id="9hG-Oy-qwJ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="HzW-aU-Wi9">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <segue destination="Xo8-xg-cRY" kind="show" identifier="NextScreen" id="2A8-ou-e1j"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dTj-X0-Iz4" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-815" y="1519"/>
+        </scene>
         <!--My Crews View Controller-->
         <scene sceneID="PG1-gJ-s8x">
             <objects>
@@ -110,6 +133,7 @@
                         <viewControllerLayoutGuide type="bottom" id="HMg-br-RDJ"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="sAc-Py-24G">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
@@ -127,6 +151,7 @@
                         <viewControllerLayoutGuide type="bottom" id="mh0-3c-biC"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="v5l-Z5-nLm">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
@@ -147,6 +172,7 @@
                         <viewControllerLayoutGuide type="bottom" id="S2h-3j-7pA"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="5ue-44-JUl">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
@@ -167,6 +193,7 @@
                         <viewControllerLayoutGuide type="bottom" id="4h2-ya-LdD"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="vUH-cR-JB4">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>

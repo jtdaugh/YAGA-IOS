@@ -62,6 +62,7 @@
 		71D0F5A8190DCE3D00C7DEE0 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */; };
 		71D0F5AA190DCE4300C7DEE0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A9190DCE4300C7DEE0 /* Security.framework */; };
 		71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */; };
+		8691B3291A3F303A002E3E65 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8691B3281A3F303A002E3E65 /* YASMSAuthentificationViewController.m */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -163,6 +164,8 @@
 		71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		71D0F5A9190DCE4300C7DEE0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		8691B3271A3F303A002E3E65 /* YASMSAuthentificationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YASMSAuthentificationViewController.h; path = ViewControllers/Onboarding/YASMSAuthentificationViewController.h; sourceTree = "<group>"; };
+		8691B3281A3F303A002E3E65 /* YASMSAuthentificationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YASMSAuthentificationViewController.m; path = ViewControllers/Onboarding/YASMSAuthentificationViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -233,6 +236,7 @@
 				6E9187821A3F2C270034AB63 /* GroupListTableView.m */,
 				6E9187831A3F2C270034AB63 /* Images.xcassets */,
 				6E9187841A3F2C270034AB63 /* main.m */,
+				8691B3251A3F2FD7002E3E65 /* ViewControllers  */,
 				6E9187851A3F2C270034AB63 /* Models */,
 				6E9187881A3F2C270034AB63 /* MyCrewsViewController.h */,
 				6E9187891A3F2C270034AB63 /* MyCrewsViewController.m */,
@@ -370,6 +374,23 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		8691B3251A3F2FD7002E3E65 /* ViewControllers  */ = {
+			isa = PBXGroup;
+			children = (
+				8691B3261A3F2FE8002E3E65 /* Onboarding */,
+			);
+			name = "ViewControllers ";
+			sourceTree = "<group>";
+		};
+		8691B3261A3F2FE8002E3E65 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				8691B3271A3F303A002E3E65 /* YASMSAuthentificationViewController.h */,
+				8691B3281A3F303A002E3E65 /* YASMSAuthentificationViewController.m */,
+			);
+			name = Onboarding;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -403,7 +424,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = JE26HLJZLX;
+						DevelopmentTeam = 8V4V36C528;
 					};
 				};
 			};
@@ -495,6 +516,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8691B3291A3F303A002E3E65 /* YASMSAuthentificationViewController.m in Sources */,
 				6E9187C51A3F2C270034AB63 /* ElevatorView.m in Sources */,
 				6E9187DE1A3F2C270034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9187D51A3F2C270034AB63 /* NSString+Hash.m in Sources */,
