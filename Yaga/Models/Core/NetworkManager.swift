@@ -11,13 +11,21 @@ import UIKit
 private let _NetworkManagerSharedInstance = NetworkManager()
 
 class NetworkManager: NSObject {
-    class var sharedInstance : NetworkManager {
+    class var sharedManager : NetworkManager {
         get {
             return _NetworkManagerSharedInstance
         }
     }
     
+    var userData = Dictionary<String, AnyObject>()
+    
     func userIsLoggedIn() -> Bool {
-        return true
+        return false
+    }
+    
+    func saveData(data: AnyObject?, key: String) {
+        if let newData: AnyObject = data {
+            self.userData[key] = newData
+        }
     }
 }

@@ -32,7 +32,8 @@
     [super viewDidLoad];
     
     //    [[CNetworking currentUser] logout];
-    if([[CNetworking currentUser] loggedIn]){
+    //if([[CNetworking currentUser] loggedIn]){
+    if ([[NetworkManager sharedManager] userIsLoggedIn]) {
         [self setupView];
     }
 }
