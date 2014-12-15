@@ -205,7 +205,7 @@
 }
 
 - (void)textChanged {
-    CGFloat width =  [self.captionField.text sizeWithFont:self.captionField.font].width;
+    CGFloat width = [self.captionField.text sizeWithAttributes:@{NSFontAttributeName:self.captionField.font}].width;
     if(width > self.captionField.frame.size.width){
         
     }

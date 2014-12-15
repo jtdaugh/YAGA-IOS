@@ -16,7 +16,6 @@
 		4110BC4619A6BB96001A98AF /* UIImage+Colors.m in Sources */ = {isa = PBXBuildFile; fileRef = 4110BC4519A6BB96001A98AF /* UIImage+Colors.m */; };
 		41112E1F1A0C18A700478ECD /* ElevatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41112E1E1A0C18A700478ECD /* ElevatorView.m */; };
 		411A2CBF1999CE6A0094C57F /* UIColor+Expanded.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CBE1999CE6A0094C57F /* UIColor+Expanded.m */; };
-		411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC01999D0DA0094C57F /* NSMutableArray+Shuffle.h */; };
 		411A2CC31999D10A0094C57F /* NSMutableArray+Shuffle.m in Sources */ = {isa = PBXBuildFile; fileRef = 411A2CC21999D10A0094C57F /* NSMutableArray+Shuffle.m */; };
 		414D8DF819D0F8C80067B88B /* GroupListTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 414D8DF719D0F8C80067B88B /* GroupListTableView.m */; };
 		414D8DFC19D3C6E50067B88B /* NetworkingTestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 414D8DFB19D3C6E50067B88B /* NetworkingTestViewController.m */; };
@@ -643,7 +642,6 @@
 				4194DDA219ECB0AD0037F161 /* NoGroupsViewController.m in Sources */,
 				F139A6C919B44A4000595951 /* GroupDetailView.m in Sources */,
 				7154774C1941119B00133083 /* AVPlayer+AVPlayer_Async.m in Sources */,
-				411A2CC11999D0DA0094C57F /* NSMutableArray+Shuffle.h in Sources */,
 				41DCA6B21974E30F0055910F /* NSString+Hash.m in Sources */,
 				41716D681A101DE000D6BC7D /* GroupListCell.m in Sources */,
 				4193DD8E19DDDBF40011728F /* UsernameViewController.m in Sources */,
