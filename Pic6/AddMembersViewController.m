@@ -98,6 +98,7 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
     [self.searchBar becomeFirstResponder];
 }
 
@@ -358,7 +359,7 @@
     [self.membersList reloadData];
 
     
-    NSDate *start = [NSDate date];
+    //NSDate *start = [NSDate date];
     
     // a considerable amount of difficult processing here
     // a considerable amount of difficult processing here

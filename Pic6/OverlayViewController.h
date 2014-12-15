@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "TileCell.h"
 #import "GridViewController.h"
-#import <Firebase/Firebase.h>
 
 @interface OverlayViewController : UIViewController <UIActionSheetDelegate, UITextFieldDelegate>
 @property (strong, nonatomic) TileCell *tile;
@@ -26,6 +25,6 @@
 
 @property (strong, nonatomic) NSMutableArray *labels;
 
-@property (strong, nonatomic) Firebase *firebase;
+
 
 @end

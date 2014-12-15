@@ -39,7 +39,7 @@
             self.groupInfo = [[NSMutableArray alloc] init];
         }
 
-        self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];
+//        self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];
         NSLog(@"just inited firebase");
     }
     

@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Firebase/Firebase.h>
 #import "GroupInfo.h"
 
 @class CNetworking;
@@ -28,7 +27,7 @@
 @interface CNetworking : NSObject
 @property (nonatomic,assign)id delegate;
 @property (strong, nonatomic) NSMutableDictionary *userData;
-@property (strong, nonatomic) Firebase *firebase;
+//@property (strong, nonatomic) Firebase *firebase;
 @property (strong, nonatomic) NSMutableDictionary *messages;
 @property (strong, nonatomic) NSMutableArray *contacts;
 @property (strong, nonatomic) NSMutableArray *groupInfo;

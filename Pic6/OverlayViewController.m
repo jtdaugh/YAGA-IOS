@@ -28,6 +28,7 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     
     //add background for tap gesture recognizer
     self.bg = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
@@ -115,17 +116,21 @@
     [self.timestampLabel setTextColor:[UIColor whiteColor]];
     [self.timestampLabel setFont:[UIFont fontWithName:BIG_FONT size:14]];
     
-    if(self.tile.snapshot.value[@"time"]){
-        NSNumber *time = self.tile.snapshot.value[@"time"];
-        NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:[time doubleValue]];
-        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-        [dateFormat setDateFormat:@"MM/dd hh:mma"];
-        NSString *dateString = [dateFormat stringFromDate:date];
-        //        NSLog(@"date: %@", dateString);
-        [self.timestampLabel setText:dateString];
-    } else {
-        [self.timestampLabel setText:@"00:00"];
-    }
+//val TODO:
+    
+//    if(self.tile.snapshot.value[@"time"]){
+//        NSNumber *time = self.tile.snapshot.value[@"time"];
+//        NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:[time doubleValue]];
+//        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+//        [dateFormat setDateFormat:@"MM/dd hh:mma"];
+//        NSString *dateString = [dateFormat stringFromDate:date];
+//        //        NSLog(@"date: %@", dateString);
+//        [self.timestampLabel setText:dateString];
+//    } else {
+//        [self.timestampLabel setText:@"00:00"];
+//    }
+    
+
     
     
     
@@ -147,10 +152,11 @@
     
     self.captionField.delegate = self;
     [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
-    
-    [self.tile.snapshot.ref observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        [self.captionField setText:snapshot.value[@"caption"]];
-    }];
+
+    //val TODO:
+//    [self.tile.snapshot.ref observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+//        [self.captionField setText:snapshot.value[@"caption"]];
+//    }];
 //    [[self.tile.snapshot.ref childByAppendingPath:@"caption"] setValue:self.captionField.text
 //    if(self.tile.snapshot.value[@"caption"]){
 //        [self.captionField setText:self.tile.snapshot.value[@"caption"]];
@@ -308,17 +314,19 @@
 }
 
 - (void)collapseCaption {
-    if([[self.captionField text] length] > 0) {
-        [[self.tile.snapshot.ref childByAppendingPath:@"caption"] setValue:self.captionField.text withCompletionBlock:^(NSError *error, Firebase *ref) {
-            //
-//            [ref observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-//                self.tile.snapshot = snapshot;
-////                [CNetworking currentUser] gridDataForGroupId:<#(NSString *)#>
-//            }];
-        }];
-//        [self.tile.snapshot.ref setValue:self.captionField.text forKeyPath:@"caption"];
-//        [[CNetworking currentUser] firebase] childByAppendingPath:<#(NSString *)#>
-    }
+    //val TODO:
+    
+//    if([[self.captionField text] length] > 0) {
+//        [[self.tile.snapshot.ref childByAppendingPath:@"caption"] setValue:self.captionField.text withCompletionBlock:^(NSError *error, Firebase *ref) {
+//            //
+////            [ref observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+////                self.tile.snapshot = snapshot;
+//////                [CNetworking currentUser] gridDataForGroupId:<#(NSString *)#>
+////            }];
+//        }];
+////        [self.tile.snapshot.ref setValue:self.captionField.text forKeyPath:@"caption"];
+////        [[CNetworking currentUser] firebase] childByAppendingPath:<#(NSString *)#>
+//    }
     [self.captionField resignFirstResponder];
 }
 

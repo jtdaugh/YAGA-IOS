@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Firebase/Firebase.h>
 #import "MTLModel.h"
 #import "MTLJSONAdapter.h"
 

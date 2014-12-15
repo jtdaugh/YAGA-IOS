@@ -26,7 +26,7 @@ UIColor *RandomColor()
     if (!seeded)
     {
         seeded = YES;
-        srandom(time(0));
+        srandom((unsigned int)time(0));
     }
     return [UIColor colorWithRed:random() / (CGFloat) LONG_MAX
                            green:random() / (CGFloat) LONG_MAX
@@ -1102,8 +1102,8 @@ void HSPtoRGB(
     // getRed:green:blue:alpha: now has contractual 0.0 to 1.0 according to docs, so removed clamping
     
     // Thanks gwynne
-    // return (((int)roundf(r * 0xFF)) << 16) | (((int)roundf(g * 0xFF)) << 8) | (((int)roundf(b * 0xFF)));
-    return (lrint(r * 0xFF) << 16) | (lrint(g * 0xFF) << 8) | (lrint(b * 0xFF));
+    long int result = (lrint(r * 0xFF) << 16) | (lrint(g * 0xFF) << 8) | (lrint(b * 0xFF));
+    return (uint32_t)result;
 }
 
 - (NSString *) stringValue
@@ -1165,7 +1165,7 @@ void HSPtoRGB(
     CGFloat c[kMaxComponents];
     NSUInteger i = 0;
     
-    if (![scanner scanFloat: &c[i++]]) return nil;
+    if (![scanner scanFloat: (float*)&c[i++]]) return nil;
     
     while (1)
     {
@@ -1173,7 +1173,7 @@ void HSPtoRGB(
         if (i >= kMaxComponents) return nil;
         if ([scanner scanString:@"," intoString:NULL])
         {
-            if (![scanner scanFloat: &c[i++]]) return nil;
+            if (![scanner scanFloat: (float*)&c[i++]]) return nil;
         }
         else
         {
@@ -1328,7 +1328,7 @@ NSDictionary *kelvin = nil;
     if (!seeded)
     {
         seeded = YES;
-        srandom(time(0));
+        srandom((unsigned int)time(0));
     }
     return [UIColor colorWithRed:random() / (CGFloat) LONG_MAX
                            green:random() / (CGFloat) LONG_MAX
@@ -1342,7 +1342,7 @@ NSDictionary *kelvin = nil;
     if (!seeded)
     {
         seeded = YES;
-        srandom(time(0));
+        srandom((unsigned int)time(0));
     }
     return [UIColor colorWithRed:scaleFactor * random() / (CGFloat) LONG_MAX
                            green:scaleFactor * random() / (CGFloat) LONG_MAX
@@ -1356,7 +1356,7 @@ NSDictionary *kelvin = nil;
     if (!seeded)
     {
         seeded = YES;
-        srandom(time(0));
+        srandom((unsigned int)time(0));
     }
     CGFloat difference = 1.0f - scaleFactor;
     return [UIColor colorWithRed:difference + scaleFactor * random() / (CGFloat) LONG_MAX

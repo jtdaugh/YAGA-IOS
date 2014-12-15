@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Firebase/Firebase.h>
 #import "TileCell.h"
 #import "CNetworking.h"
 #import "AVCamPreviewView.h"
@@ -33,14 +32,9 @@
 @property (strong, nonatomic) UIRefreshControl *pull;
 @property (strong, nonatomic) UIActivityIndicatorView *loader;
 
-@property FirebaseHandle valueQuery;
-@property FirebaseHandle childQuery;
-
 @property (strong, nonatomic) UIView *banner;
 
 @property (strong, nonatomic) UIView *overlay;
-
-@property (strong, nonatomic) Firebase *firebase;
 
 @property (strong, nonatomic) TileCell *loaderTile;
 
@@ -80,7 +74,6 @@
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL;
 
-- (void)initFirebase;
 
 - (void)scrollingEnded;
 

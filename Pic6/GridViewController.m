@@ -26,6 +26,7 @@
 
 @implementation GridViewController
 - (void)viewDidLoad {
+    [super viewDidLoad];
     
     //    [[CNetworking currentUser] logout];
     if([[CNetworking currentUser] loggedIn]){
@@ -48,6 +49,7 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
     
     if([[CNetworking currentUser] loggedIn]){
         if(![self.appeared boolValue]){
@@ -97,6 +99,7 @@
     [self initCamera:^{
         [self setupGroups];
     }];
+    
     [self initBall];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -814,13 +817,6 @@
 - (void)configureGroupInfo:(GroupInfo *)groupInfo {
     NSLog(@"configure group info 2");
     
-    if(self.groupInfo){
-        //remove all listening observers at current index
-        
-        [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] removeAllObservers];
-        
-    }
-    
     self.groupInfo = groupInfo;
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
@@ -831,117 +827,53 @@
         // set title here
         
     }];
-    
-    
-    [self initFirebase];
-}
-
-- (void)initFirebase {
-    
-    //    NSString *hash = [PFUser currentUser][@"phoneHash"];
-    //    NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    
-    CNetworking *currentUser = [CNetworking currentUser];
-    NSLog(@"init firebase");
-    //    NSLog(@"%@", [NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]);
-    
-    //    [[[CNetworking currentUser] firebase] removeObserverWithHandle:self.valueQuery];
-    [[[[currentUser firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] queryLimitedToNumberOfChildren:NUM_TILES] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        
-        //        NSLog(@"snapshot: %@", snapshot);
-        
-        NSLog(@"children count? %lu", snapshot.childrenCount);
-        
-        for (FDataSnapshot* child in snapshot.children) {
-            
-            //            NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupInfo.groupId];
-            //            [gridData insertObject:child atIndex:0];
-            
-            [[currentUser gridDataForGroupId:self.groupInfo.groupId] insertObject:child atIndex:0];
-        }
-        [self.loader stopAnimating];
-        [self.gridTiles reloadData];
-        NSLog(@"scrolling? %@", [self.scrolling boolValue] ? @"yes" : @"no");
-        
-        //        [[[CNetworking currentUser] firebase] removeObserverWithHandle:self.valueQuery];
-        [self listenForChanges];
-    }];
-}
-
-- (void)listenForChanges {
-    
-    NSLog(@"listening for changes: %@", [NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]);
-    
-    [[[CNetworking currentUser] firebase] removeObserverWithHandle:self.childQuery];
-    self.childQuery = [[[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@", self.groupInfo.groupId, STREAM]] queryLimitedToNumberOfChildren:1] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        NSLog(@"newtile? %@", snapshot.name);
-        [self newTile:snapshot];
-    }];
 }
 
 - (void) deleteUid:(NSString *)uid {
-    CNetworking *currentUser = [CNetworking currentUser];
-    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, uid]] removeValueWithCompletionBlock:^(NSError *error, Firebase *ref) {
-        
-        int index = 0;
-        int toDelete = -1;
-        for(FDataSnapshot *snapshot in [[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId]){
-            if([snapshot.name isEqualToString:uid]){
-                toDelete = index;
-            }
-            index++;
-        };
-        if(toDelete > -1){
-            [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] removeObjectAtIndex:toDelete];
-        }
-        [self.gridTiles reloadData];
-    }];
+//val TODO:
+    
+//    CNetworking *currentUser = [CNetworking currentUser];
+//    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, uid]] removeValueWithCompletionBlock:^(NSError *error, Firebase *ref) {
+//        
+//        int index = 0;
+//        int toDelete = -1;
+//        for(FDataSnapshot *snapshot in [[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId]){
+//            if([snapshot.name isEqualToString:uid]){
+//                toDelete = index;
+//            }
+//            index++;
+//        };
+//        if(toDelete > -1){
+//            [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] removeObjectAtIndex:toDelete];
+//        }
+//        [self.gridTiles reloadData];
+//    }];
 }
 
-- (void) newTile:(FDataSnapshot *)snapshot {
-    
-    CNetworking *currentUser = [CNetworking currentUser];
-    NSMutableArray *gridData = [currentUser gridDataForGroupId:self.groupInfo.groupId];
-    FDataSnapshot *firstObject = [gridData firstObject];
-    NSLog(@"grid data count: %lu", [gridData count]);
-    
-    NSLog(@"firstobject name:%@", firstObject.name);
-    if(!([gridData count] > 0 && [firstObject.name isEqualToString:snapshot.name])){
-        NSLog(@"count: %lu", [gridData count]);
-        //        currentUser.messages[self.groupInfo.groupId]
-        [[currentUser gridDataForGroupId:self.groupInfo.groupId] insertObject:snapshot atIndex:0];
-        //        [gridData insertObject:snapshot atIndex:0];
-        //        [self.gridTiles insertItemsAtIndexPaths:@[ [NSIndexPath indexPathWithIndex:0] ]];
-        //        [self.gridTiles reloadData];
-        NSLog(@"new count: %lu", [[currentUser gridDataForGroupId:self.groupInfo.groupId] count]);
-        NSArray *indexPaths = @[ [NSIndexPath indexPathForItem:0 inSection:0] ];
-        
-        [self.gridTiles insertItemsAtIndexPaths:indexPaths];
-    }
-}
 
 - (void) triggerRemoteLoad:(NSString *)uid {
     
-    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, uid]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
-        if(dataSnapshot.value != [NSNull null]){
-            NSError *error = nil;
-            
-            NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"video"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
-            
-            NSData *imageData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"thumb"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
-            
-            if(videoData != nil && imageData != nil){
-                NSURL *movieURL = [uid movieUrl];
-                [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
-                
-                NSURL *imageURL = [uid imageUrl];
-                [imageData writeToURL:imageURL options:NSDataWritingAtomic error:&error];
-            }
-            
-            [self finishedLoading:uid];
-            
-        }
-    }];
+    //val TODO
+//    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, uid]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
+//        if(dataSnapshot.value != [NSNull null]){
+//            NSError *error = nil;
+//            
+//            NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"video"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
+//            
+//            NSData *imageData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"thumb"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
+//            
+//            if(videoData != nil && imageData != nil){
+//                NSURL *movieURL = [uid movieUrl];
+//                [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
+//                
+//                NSURL *imageURL = [uid imageUrl];
+//                [imageData writeToURL:imageURL options:NSDataWritingAtomic error:&error];
+//            }
+//            
+//            [self finishedLoading:uid];
+//            
+//        }
+//    }];
 }
 
 - (void) finishedLoading:(NSString *)uid {
@@ -963,39 +895,41 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
-    FDataSnapshot *snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
-    
-//    if(self.selectedIndex){
-//        [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, VIEW_WIDTH, VIEW_HEIGHT/2)];
+    //val TODO
+    return cell;
+//    id snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
+//    
+////    if(self.selectedIndex){
+////        [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, VIEW_WIDTH, VIEW_HEIGHT/2)];
+////    }
+//
+//    // if cell uid is not correct
+//    if(![cell.uid isEqualToString:snapshot.name]){
+//        
+//        [cell setUid:snapshot.name];
+//        [cell setUsername:snapshot.value[@"user"]];
+//        [cell setSnapshot: snapshot];
+//        
+//        // set colors for loader tiles
+//        //        NSArray *colors = (NSArray *) snapshot.value[@"colors"];
+//        //
+//        //        [cell setColors:colors];
+//        
+//        if([cell isLoaded]){
+//            if([self.scrolling boolValue]){
+//                //                [cell play];
+//                [cell showImage];
+//            } else {
+//                [cell play:nil];
+//                
+//            }
+//        } else {
+//            [cell showLoader];
+//            NSLog(@"whaaaat %lu, %@", indexPath.row, cell.uid);
+//            [self triggerRemoteLoad:cell.uid];
+//        }
 //    }
-
-    // if cell uid is not correct
-    if(![cell.uid isEqualToString:snapshot.name]){
-        
-        [cell setUid:snapshot.name];
-        [cell setUsername:snapshot.value[@"user"]];
-        [cell setSnapshot: snapshot];
-        
-        // set colors for loader tiles
-        //        NSArray *colors = (NSArray *) snapshot.value[@"colors"];
-        //
-        //        [cell setColors:colors];
-        
-        if([cell isLoaded]){
-            if([self.scrolling boolValue]){
-                //                [cell play];
-                [cell showImage];
-            } else {
-                [cell play:nil];
-                
-            }
-        } else {
-            [cell showLoader];
-            NSLog(@"whaaaat %lu, %@", indexPath.row, cell.uid);
-            [self triggerRemoteLoad:cell.uid];
-        }
-    }
-    
+//    
     return cell;
 }
 
@@ -1139,64 +1073,60 @@
 }
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
-    // measure size of data
-    NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
+    //val TODO:
     
-    // set up data object
-    NSString *videoData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    Firebase *dataObject = [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
-    NSString *dataPath = dataObject.name;
-    
-    AVURLAsset* asset = [AVURLAsset URLAssetWithURL:outputURL options:nil];
-    AVAssetImageGenerator* imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
-    [imageGenerator setAppliesPreferredTrackTransform:YES];
-    //    UIImage* image = [UIImage imageWithCGImage:[imageGenerator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil]];
-    CGImageRef imageRef = [imageGenerator copyCGImageAtTime:CMTimeMake(0,1) actualTime:nil error:nil];
-    
-    UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT/2)];
-    NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
-    NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    
-    NSArray *colors = [image getColors];
-    
-    //    for(NSString *color in colors){
-    //        NSLog(@"color: %@", color);
-    //    }
-    
-    [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
-    }];
-    
-    //    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
-    //    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
-    
-    //    for(NSString *hash in clique){
-    //        NSLog(@"hash: %@", hash);
-    //        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    //        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
-    //        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
-    //    }
-    
-    NSLog(@"group id: %@", self.groupInfo.groupId);
-    NSString *path = [NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, dataPath];
-    
-    //    NSLog(@"path: %@", path);
-    
-    //    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@"yooollooo"];
-    NSString *username = (NSString *)[[CNetworking currentUser] userDataForKey:nUsername];
-    
-    
-    NSNumber *date = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
-    [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":username, @"colors":colors, @"time":date}];
-    
-    NSFileManager * fm = [[NSFileManager alloc] init];
-    NSError *err = nil;
-    [fm moveItemAtURL:outputURL toURL:[dataPath movieUrl] error:&err];
-    [imageData writeToURL:[dataPath imageUrl] options:NSDataWritingAtomic error:&err];
-    
-    if(err){
-        NSLog(@"error: %@", err);
-    }
-    
+//    // measure size of data
+//    NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
+//    
+//    // set up data object
+//    NSString *videoData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+////    Firebase *dataObject = [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
+////    NSString *dataPath = dataObject.name;
+//    
+//    AVURLAsset* asset = [AVURLAsset URLAssetWithURL:outputURL options:nil];
+//    AVAssetImageGenerator* imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+//    [imageGenerator setAppliesPreferredTrackTransform:YES];
+//    //    UIImage* image = [UIImage imageWithCGImage:[imageGenerator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil]];
+//    CGImageRef imageRef = [imageGenerator copyCGImageAtTime:CMTimeMake(0,1) actualTime:nil error:nil];
+//    
+//    UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT/2)];
+//    NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
+//    //NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+//    
+//    NSArray *colors = [image getColors];
+//    
+//    //    for(NSString *color in colors){
+//    //        NSLog(@"color: %@", color);
+//    //    }
+//    
+////    [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
+////    }];
+//    
+//    //    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
+//    //    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
+//    
+//    //    for(NSString *hash in clique){
+//    //        NSLog(@"hash: %@", hash);
+//    //        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+//    //        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
+//    //        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
+//    //    }
+//    
+//    NSLog(@"group id: %@", self.groupInfo.groupId);
+//    
+//    NSFileManager * fm = [[NSFileManager alloc] init];
+//    NSError *err = nil;
+//    [fm moveItemAtURL:outputURL toURL:[[self tempFilename] movieUrl] error:&err];
+//    [imageData writeToURL:[[self tempFilename] imageUrl] options:NSDataWritingAtomic error:&err];
+//    
+//    if(err){
+//        NSLog(@"error: %@", err);
+//    }
+//    
+}
+
+- (NSString*)tempFilename {
+    return [NSString stringWithFormat:@"file %f", [[NSDate date] timeIntervalSince1970]];
 }
 
 - (void)scrollingEnded {
@@ -1358,7 +1288,7 @@
 }
 
 - (void)didReceiveMemoryWarning {
-    //    [super didReceiveMemoryWarning];
+    [super didReceiveMemoryWarning];
     NSLog(@"memory warning in group controller? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
     // Dispose of any resources that can be recreated.
 }
