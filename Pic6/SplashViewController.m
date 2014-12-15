@@ -13,6 +13,8 @@
 #import "CNetworking.h"
 #import "NSString+Hash.h"
 
+#import "Yaga-Swift.h"
+
 @interface SplashViewController ()
 
 @end
@@ -143,9 +145,10 @@
     
     NSError *error = nil;
     NSString *formattedNumber = [phoneUtil format:myNumber
-                          numberFormat:NBEPhoneNumberFormatE164
-                                 error:&error];
+                                     numberFormat:NBEPhoneNumberFormatE164
+                                            error:&error];
     [[CNetworking currentUser] saveUserData:formattedNumber forKey:nPhone];
+    [[NetworkManager sharedManager] saveData:formattedNumber key:nPhone];
     
 //    UsernameViewController *vc = [[UsernameViewController alloc] init];
 ////    VerifyViewController *vc = [[VerifyViewController alloc] init];

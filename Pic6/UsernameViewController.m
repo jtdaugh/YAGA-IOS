@@ -10,7 +10,7 @@
 #import "CNetworking.h"
 #import "MyCrewsViewController.h"
 #import "NoGroupsViewController.h"
-
+#import "Yaga-Swift.h"
 @interface UsernameViewController ()
 
 @end
@@ -111,6 +111,7 @@
     
     CNetworking *currentUser = [CNetworking currentUser];
     [[CNetworking currentUser] saveUserData:self.username.text forKey:nUsername];
+    [[NetworkManager sharedManager] saveData:self.username.text key:nUsername];
     
     [currentUser registerUserWithCompletionBlock:^(void){
         NSLog(@"completed! %@", (NSString *)[currentUser userDataForKey:nToken]);
