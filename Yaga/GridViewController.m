@@ -900,9 +900,8 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
-    //val TODO
-    return cell;
-//    id snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
+    id snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
+    
 //    
 ////    if(self.selectedIndex){
 ////        [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, VIEW_WIDTH, VIEW_HEIGHT/2)];
@@ -1183,9 +1182,11 @@
     if([currentUser userDataForKey:nCurrentGroup]){
         NSNumber *currentIndex = (NSNumber *)[currentUser userDataForKey:nCurrentGroup];
         cur = [currentIndex intValue];
+        
+        [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:cur]];
+        [self.gridTiles reloadData];
     }
-    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:cur]];
-    [self.gridTiles reloadData];
+
     //    }];
     
     //    NSString *userid = (NSString *)[currentUser userDataForKey:nUserId];
