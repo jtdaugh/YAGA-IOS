@@ -122,7 +122,7 @@
     
     //    [self initFirebase];
     // look at afterCameraInit to see what happens after the camera gets initialized. eg initFirebase.
-    
+    [self.navigationController setNavigationBarHidden:YES];
 }
 
 - (void)initCameraView {
