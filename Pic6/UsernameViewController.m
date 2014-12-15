@@ -120,26 +120,18 @@
             NSLog(@"my groupinfo count: %lu", [[currentUser groupInfo] count]);
             
             if([[currentUser groupInfo] count] > 0){
-                MyCrewsViewController *vc = [[MyCrewsViewController alloc] init];
-                [self.navigationController pushViewController:vc animated:YES];
+                [self performSegueWithIdentifier:@"MyCrews" sender:self];
+//                MyCrewsViewController *vc = [[MyCrewsViewController alloc] init];
+//                [self.navigationController pushViewController:vc animated:YES];
             } else {
-                NoGroupsViewController *vc = [[NoGroupsViewController alloc] init];
-                [self.navigationController pushViewController:vc animated:YES];
+                [self performSegueWithIdentifier:@"NoGroups" sender:self];
+//                NoGroupsViewController *vc = [[NoGroupsViewController alloc] init];
+//                [self.navigationController pushViewController:vc animated:YES];
             }
         }];
         
     }];
     
 }
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

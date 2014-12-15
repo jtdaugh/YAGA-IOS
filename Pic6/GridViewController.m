@@ -60,12 +60,13 @@
         }
     } else {
         NSLog(@"poop. not logged in.");
-        YagaNavigationController *vc = [[YagaNavigationController alloc] init];
-        [vc setViewControllers:@[[[SplashViewController alloc] init]]];
-        
-        [self presentViewController:vc animated:NO completion:^{
-            //
-        }];
+//        YagaNavigationController *vc = [[YagaNavigationController alloc] init];
+//        [vc setViewControllers:@[[[SplashViewController alloc] init]]];
+//        
+//        [self presentViewController:vc animated:NO completion:^{
+//            //
+//        }];
+        [self performSegueWithIdentifier:@"SplashScreen" sender:self];
     }
 }
 

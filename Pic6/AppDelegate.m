@@ -27,32 +27,31 @@
 //    
 //    [AnalyticsKit initializeLoggers:@[mixpanel]];
     
-    [self setupAudio];
-    
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+//    [self setupAudio];
+//    
+//    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     // Your don't need specify window color if you add root controller, you will not see window because root controller will be above window.
     // self.window.backgroundColor = [UIColor whiteColor];
     
-    if(0){
-        YagaNavigationController *vc = [[YagaNavigationController alloc] init];
-        self.window.rootViewController = vc;
-    } else {
-        if(TARGET_IPHONE_SIMULATOR && 0){
-            NetworkingTestViewController *vc = [[NetworkingTestViewController alloc] init];
-            self.window.rootViewController = vc;
-        } else {
-            GridViewController *vc = [[GridViewController alloc] init];
-            self.window.rootViewController = vc;
-            
-        }
-        
-    }
-    
-    
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+//    if(0){
+//        YagaNavigationController *vc = [[YagaNavigationController alloc] init];
+//        self.window.rootViewController = vc;
+//    } else {
+//        if(TARGET_IPHONE_SIMULATOR && 0){
+//            NetworkingTestViewController *vc = [[NetworkingTestViewController alloc] init];
+//            self.window.rootViewController = vc;
+//        } else {
+//            GridViewController *vc = [[GridViewController alloc] init];
+//            self.window.rootViewController = vc;
+//        }
+//        
+//    }
+//    
+//    
+//    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
   
-    [self.window makeKeyAndVisible];
+//    [self.window makeKeyAndVisible];
     
     return YES;
 }

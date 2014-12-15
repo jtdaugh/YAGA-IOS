@@ -66,8 +66,9 @@
 }
 
 - (void)nextScreen {
-    AddMembersViewController *vc = [[AddMembersViewController alloc] init];
-    [self.navigationController pushViewController:vc animated:YES];
+    [self performSegueWithIdentifier:@"AddMembers" sender:self];
+//    AddMembersViewController *vc = [[AddMembersViewController alloc] init];
+//    [self.navigationController pushViewController:vc animated:YES];
     NSLog(@"watup");
 }
 

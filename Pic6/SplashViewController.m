@@ -147,9 +147,10 @@
                                  error:&error];
     [[CNetworking currentUser] saveUserData:formattedNumber forKey:nPhone];
     
-    UsernameViewController *vc = [[UsernameViewController alloc] init];
-//    VerifyViewController *vc = [[VerifyViewController alloc] init];
-    [self.navigationController pushViewController:vc animated:YES];
+//    UsernameViewController *vc = [[UsernameViewController alloc] init];
+////    VerifyViewController *vc = [[VerifyViewController alloc] init];
+//    [self.navigationController pushViewController:vc animated:YES];
+    [self performSegueWithIdentifier:@"NextScreen" sender:self];
 }
 
 /*

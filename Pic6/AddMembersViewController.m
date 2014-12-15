@@ -384,9 +384,10 @@
 }
 
 - (void)nextScreen {
-    NameGroupViewController *vc = [[NameGroupViewController alloc] init];
-    vc.members = self.selectedContacts;
-    [self.navigationController pushViewController:vc animated:YES];
+    [self performSegueWithIdentifier:@"NameGroup" sender:self];
+//    NameGroupViewController *vc = [[NameGroupViewController alloc] init];
+//    vc.members = self.selectedContacts;
+//    [self.navigationController pushViewController:vc animated:YES];
 }
 
 - (void)didReceiveMemoryWarning {

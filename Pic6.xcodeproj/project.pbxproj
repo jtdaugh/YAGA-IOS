@@ -64,6 +64,7 @@
 		71D0F5A8190DCE3D00C7DEE0 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */; };
 		71D0F5AA190DCE4300C7DEE0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A9190DCE4300C7DEE0 /* Security.framework */; };
 		71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */; };
+		8691B31F1A3EFAAD002E3E65 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8691B31E1A3EFAAD002E3E65 /* MainStoryboard.storyboard */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 		F139A6C919B44A4000595951 /* GroupDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = F139A6C819B44A4000595951 /* GroupDetailView.m */; };
 		F152A08119AA28A50090A9C7 /* CliquePageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = F152A08019AA28A50090A9C7 /* CliquePageControl.m */; };
@@ -175,6 +176,7 @@
 		71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		71D0F5A9190DCE4300C7DEE0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		8691B31E1A3EFAAD002E3E65 /* MainStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainStoryboard.storyboard; path = "User Interface /MainStoryboard.storyboard"; sourceTree = "<group>"; };
 		F139A6C719B44A4000595951 /* GroupDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupDetailView.h; sourceTree = "<group>"; };
 		F139A6C819B44A4000595951 /* GroupDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupDetailView.m; sourceTree = "<group>"; };
 		F152A07F19AA28A50090A9C7 /* CliquePageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliquePageControl.h; sourceTree = "<group>"; };
@@ -427,6 +429,7 @@
 		71D0F571190D998000C7DEE0 /* Pic6 */ = {
 			isa = PBXGroup;
 			children = (
+				8691B31D1A3EFA81002E3E65 /* User Interface */,
 				71404FA819121A78002F4B92 /* Constants.h */,
 				41089D4C19ED96BF0075F304 /* Libraries */,
 				41DCA6B7197624780055910F /* Assets */,
@@ -469,6 +472,14 @@
 				71D0F593190D998000C7DEE0 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		8691B31D1A3EFA81002E3E65 /* User Interface */ = {
+			isa = PBXGroup;
+			children = (
+				8691B31E1A3EFAAD002E3E65 /* MainStoryboard.storyboard */,
+			);
+			name = "User Interface";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -522,10 +533,10 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = V947KF58NW;
+						DevelopmentTeam = 8V4V36C528;
 					};
 					71D0F588190D998000C7DEE0 = {
-						DevelopmentTeam = M483QLX2GK;
+						DevelopmentTeam = 8V4V36C528;
 						TestTargetID = 71D0F567190D998000C7DEE0;
 					};
 				};
@@ -560,6 +571,7 @@
 				41EC82091977218A002AE4BF /* 2.mp4 in Resources */,
 				415DE46D197766A5000DD3C7 /* 0.mp4 in Resources */,
 				41EC820A1977218A002AE4BF /* 3.mp4 in Resources */,
+				8691B31F1A3EFAAD002E3E65 /* MainStoryboard.storyboard in Resources */,
 				71D0F576190D998000C7DEE0 /* InfoPlist.strings in Resources */,
 				41089D5719ED96CD0075F304 /* VENToken.xib in Resources */,
 			);
