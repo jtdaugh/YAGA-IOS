@@ -18,6 +18,7 @@
 @property (strong, nonatomic) UITableView *membersTableview;
 @property (strong, nonatomic) NSMutableArray *filteredContacts;
 @property (strong, nonatomic) NSArray *deviceContacts;
+- (void)cancelScreen;
 @end
 
 @implementation AddMembersViewController
@@ -82,6 +83,14 @@
     [anotherButton setEnabled:NO];
     [anotherButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.rightBarButtonItem = anotherButton;
+
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(cancelScreen)];
+    [cancelButton setTitleTextAttributes:@{
+                                            NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
+                                            } forState:UIControlStateNormal];
+    [cancelButton setEnabled:YES];
+    [cancelButton setTintColor:[UIColor lightGrayColor]];
+    self.navigationItem.leftBarButtonItem = cancelButton;
     
     __weak typeof(self) weakSelf = self;
     [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
@@ -224,15 +233,28 @@
     return [self.selectedContacts count];
 }
 
+#pragma mark - Navigation
 - (void)nextScreen {
     [self performSegueWithIdentifier:@"NameGroup" sender:self];
 }
-
-#pragma mark - Navigation
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if([segue.destinationViewController isKindOfClass:[NameGroupViewController class]]) {
         ((NameGroupViewController*)segue.destinationViewController).members = self.selectedContacts;
     }
 }
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Actions 
+- (void)cancelScreen
+{
+    [self dismissViewControllerAnimated:YES completion:^{
+    }];
+}
+
+
 @end

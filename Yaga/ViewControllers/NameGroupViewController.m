@@ -93,6 +93,9 @@
 }
 
 - (void)nextScreen {
+    return;
+    
+    //not implemented
     [self.next setTitle:@"" forState:UIControlStateNormal];
     UIActivityIndicatorView *myIndicator = [[UIActivityIndicatorView alloc]
                                             initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];

@@ -33,9 +33,9 @@
     
     //    [[CNetworking currentUser] logout];
     //if([[CNetworking currentUser] loggedIn]){
-    if ([[NetworkManager sharedManager] userIsLoggedIn]) {
+    //if ([[NetworkManager sharedManager] userIsLoggedIn]) {
         [self setupView];
-    }
+    //}
 }
 
 - (void)logout {
@@ -204,7 +204,6 @@
     NSLog(@"init camera");
     
     self.session = [[AVCaptureSession alloc] init];
-    //    self.session.sessionPreset = AVCaptureSessionPreset
     self.session.sessionPreset = AVCaptureSessionPresetMedium;
     
     [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
@@ -212,65 +211,92 @@
     //set still image output
     dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
     [self setSessionQueue:sessionQueue];
-    //    [self setSessionQueue:sessionQueue];
     
     dispatch_async(sessionQueue, ^{
         
         NSError *error = nil;
         
-        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-        AVCaptureDevice *captureDevice = [devices firstObject];
+        AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
         
-        for (AVCaptureDevice *device in devices)
-        {
-            if ([device position] == AVCaptureDevicePositionFront)
+        if(status != AVAuthorizationStatusAuthorized){ // not determined
+            
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                if(granted){ // Access has been granted ..do something
+                    NSLog(@"Granted");
+                } else { // Access denied ..do something
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSString *alertMessage = NSLocalizedString(@"NO CAMERA ALERT MESSAGE", nil);
+                        UIAlertController *alertController = [UIAlertController
+                                                              alertControllerWithTitle:NSLocalizedString(@"Warning", nil)
+                                                              message:alertMessage
+                                                              preferredStyle:UIAlertControllerStyleAlert];
+                        UIAlertAction *okAction = [UIAlertAction
+                                                   actionWithTitle:NSLocalizedString(@"OK", nil)
+                                                   style:UIAlertActionStyleDefault
+                                                   handler:^(UIAlertAction *action)
+                                                   {
+                                                   }];
+                        [alertController addAction:okAction];
+                        [self presentViewController:alertController animated:YES completion:nil];
+                    });
+                }
+            }];
+        } else {
+        
+            NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+            AVCaptureDevice *captureDevice = [devices firstObject];
+            
+            for (AVCaptureDevice *device in devices)
             {
-                captureDevice = device;
-                break;
+                if ([device position] == AVCaptureDevicePositionFront)
+                {
+                    captureDevice = device;
+                    break;
+                }
             }
+            
+    //        [captureDevice lockForConfiguration:nil];
+    //        [captureDevice setActiveVideoMaxFrameDuration:CMTimeMake(1, 1)];
+    //        [captureDevice setActiveVideoMinFrameDuration:CMTimeMake(1, 1)];
+    //        [captureDevice unlockForConfiguration];
+            
+            self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+            
+            if (error)
+            {
+                NSLog(@"add video input error: %@", error);
+            }
+            
+            if ([self.session canAddInput:self.videoInput])
+            {
+                [self.session addInput:self.videoInput];
+            }
+            
+            AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
+            self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+            
+            if (error)
+            {
+                NSLog(@"add audio input error: %@", error);
+            }
+            
+            if ([self.session canAddInput:self.audioInput])
+            {
+                [self.session addInput:self.audioInput];
+            }
+            
+            self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+            
+            if ([self.session canAddOutput:self.movieFileOutput])
+            {
+                [self.session addOutput:self.movieFileOutput];
+            }
+            
+            [self.session startRunning];
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+                block();
+            }];
         }
-        
-//        [captureDevice lockForConfiguration:nil];
-//        [captureDevice setActiveVideoMaxFrameDuration:CMTimeMake(1, 1)];
-//        [captureDevice setActiveVideoMinFrameDuration:CMTimeMake(1, 1)];
-//        [captureDevice unlockForConfiguration];
-        
-        self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-        
-        if (error)
-        {
-            NSLog(@"add video input error: %@", error);
-        }
-        
-        if ([self.session canAddInput:self.videoInput])
-        {
-            [self.session addInput:self.videoInput];
-        }
-        
-        AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
-        self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
-        
-        if (error)
-        {
-            NSLog(@"add audio input error: %@", error);
-        }
-        
-        if ([self.session canAddInput:self.audioInput])
-        {
-            [self.session addInput:self.audioInput];
-        }
-        
-        self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-        
-        if ([self.session canAddOutput:self.movieFileOutput])
-        {
-            [self.session addOutput:self.movieFileOutput];
-        }
-        
-        [self.session startRunning];
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-            block();
-        }];
     });
 }
 
@@ -660,12 +686,13 @@
 }
 
 - (void)createGroup {
-    YagaNavigationController *vc = [[YagaNavigationController alloc] init];
-    [vc setViewControllers:@[[[AddMembersViewController alloc] init]]];
-    
-    [self presentViewController:vc animated:NO completion:^{
-        //
-    }];
+//    YagaNavigationController *vc = [[YagaNavigationController alloc] init];
+//    [vc setViewControllers:@[[[AddMembersViewController alloc] init]]];
+//    
+//    [self presentViewController:vc animated:NO completion:^{
+//        //
+//    }];
+    [self performSegueWithIdentifier:@"CreateGroup" sender:self];
 }
 
 - (void) switchGroupsTapped:(id)sender {
@@ -1144,11 +1171,11 @@
 
 - (void)setupGroups {
     int cur = 0;
-    if([currentUser userDataForKey:nCurrentGroup]){
-        NSNumber *currentIndex = (NSNumber *)[currentUser userDataForKey:nCurrentGroup];
+    if([[YAUser currentUser] userDataForKey:nCurrentGroup]){
+        NSNumber *currentIndex = (NSNumber *)[[YAUser currentUser] userDataForKey:nCurrentGroup];
         cur = [currentIndex intValue];
         
-        [self configureGroup:[currentUser.groups objectAtIndex:cur]];
+        [self configureGroup:[[YAUser currentUser].groups objectAtIndex:cur]];
         [self.gridTiles reloadData];
     }
 
