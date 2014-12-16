@@ -226,6 +226,34 @@
         
         NSError *error = nil;
         
+        AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        
+        if(status != AVAuthorizationStatusAuthorized){ // not determined
+            
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                if(granted){ // Access has been granted ..do something
+                    NSLog(@"Granted");
+                } else { // Access denied ..do something
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSString *alertMessage = NSLocalizedString(@"NO CAMERA ALERT MESSAGE", nil);
+                        UIAlertController *alertController = [UIAlertController
+                                                              alertControllerWithTitle:NSLocalizedString(@"Warning", nil)
+                                                              message:alertMessage
+                                                              preferredStyle:UIAlertControllerStyleAlert];
+                        UIAlertAction *okAction = [UIAlertAction
+                                                   actionWithTitle:NSLocalizedString(@"OK", @"OK action")
+                                                   style:UIAlertActionStyleDefault
+                                                   handler:^(UIAlertAction *action)
+                                                   {
+                                                       NSLog(@"OK action");
+                                                   }];
+                        [alertController addAction:okAction];
+                        [self presentViewController:alertController animated:YES completion:nil];
+                    });
+                }
+            }];
+        }
+        
         NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
         AVCaptureDevice *captureDevice = [devices firstObject];
         

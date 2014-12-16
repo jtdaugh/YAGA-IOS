@@ -1,0 +1,9 @@
+/* 
+  Localizable.strings
+  Yaga
+
+  Created by Iegor on 12/16/14.
+  Copyright (c) 2014 Raj Vir. All rights reserved.
+*/
+"Warning" = "Warning";
+"NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";
