@@ -29,7 +29,6 @@
 {
     [super viewDidLoad];
     [self setNavigationBarHidden:NO];
-    NSLog(@"hello navigation, it's the fuckin martian");
     
     [self.navigationBar setTranslucent:NO];
     [self.navigationBar setTintColor:[UIColor whiteColor]];

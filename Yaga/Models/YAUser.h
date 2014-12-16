@@ -7,9 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "GroupInfo.h"
+#import "YAGroup.h"
 
-@class CNetworking;
+@class YAUser;
+
+typedef void (^contactsImportedBlock)(NSError *error, NSArray *contacts);
 
 @protocol CNetworkingDelegate <NSObject>
 @optional
@@ -21,25 +23,23 @@
 #define nCountry @"country"
 #define nToken @"token"
 #define nUserId @"user_id"
-#define nGroupInfo @"group_info"
+#define nCompositeName @"composite_name"
+#define nFirstname @"firstname"
+#define nRegistered @"registered"
 #define nCurrentGroup @"current_group"
 
-@interface CNetworking : NSObject
+@interface YAUser : NSObject
 @property (nonatomic,assign)id delegate;
 @property (strong, nonatomic) NSMutableDictionary *userData;
-//@property (strong, nonatomic) Firebase *firebase;
 @property (strong, nonatomic) NSMutableDictionary *messages;
-@property (strong, nonatomic) NSMutableArray *contacts;
-@property (strong, nonatomic) NSMutableArray *groupInfo;
+@property (strong, nonatomic) NSMutableArray *groups;
 
-+ (id)currentUser;
++ (YAUser*)currentUser;
 
-- (void) loadUserData;
-- (void) saveUserData:(NSObject *)value forKey:(NSString *)key;
-- (NSObject *) userDataForKey:(NSString *)key;
+- (void)saveUserData:(NSObject *)value forKey:(NSString *)key;
+- (NSObject *)userDataForKey:(NSString *)key;
 - (NSMutableArray *)gridDataForGroupId:(NSString *)groupId;
 - (NSUInteger) groupIndexForGroupId:(NSString *)groupId;
-//- (NSMutableArray *)groupInfo;
 - (void)trySomething;
 - (void)registerUserWithCompletionBlock:(void (^)())block;
 - (void)findFriends:(NSArray *)numbers withCompletionBlock:(void (^)())block;
@@ -49,5 +49,8 @@
 - (void)myCrews;
 - (BOOL)loggedIn;
 - (void)logout;
+
+//
+- (void)importContactsWithCompletion:(contactsImportedBlock)completion;
 
 @end

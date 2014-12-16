@@ -7,8 +7,8 @@
 //
 
 #import "NameGroupViewController.h"
-#import "CNetworking.h"
-#import "CContact.h"
+#import "YAUser.h"
+#import "YAContact.h"
 #import "NSString+Hash.h"
 
 @interface NameGroupViewController ()
@@ -72,7 +72,7 @@
     [self.view addSubview:self.next];
 }
 
-- (CGFloat) getNewOrigin:(UIView *) anchor {
+- (CGFloat)getNewOrigin:(UIView *) anchor {
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
 }
 
@@ -90,11 +90,9 @@
         }];
         
     }
-    
 }
 
 - (void)nextScreen {
-    
     [self.next setTitle:@"" forState:UIControlStateNormal];
     UIActivityIndicatorView *myIndicator = [[UIActivityIndicatorView alloc]
                                             initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
@@ -106,17 +104,15 @@
     // Start the animation
     [myIndicator startAnimating];
     
-    CNetworking *currentUser = [CNetworking currentUser];
+    YAUser *currentUser = [YAUser currentUser];
     
     NSMutableArray *hashes = [[NSMutableArray alloc] init];
     
-    for(CContact *member in self.members){
+    for(YAContact *member in self.members){
         [hashes addObject:[member.number md5]];
     }
     
     [currentUser createCrew:self.groupTitle.text withMembers:hashes withCompletionBlock:^{
-        //
-        
         [currentUser myCrewsWithCompletion:^{
             [self.navigationController dismissViewControllerAnimated:YES completion:^{
                 NSLog(@"completed?");
@@ -130,7 +126,7 @@
 //        }
 //        
 //        NSMutableArray *recipients = [[NSMutableArray alloc] init];
-//        for(CContact *contact in self.members){
+//        for(YAContact *contact in self.members){
 //            [recipients addObject:contact.number];
 //        }
 //        
@@ -182,14 +178,10 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+
 
 @end

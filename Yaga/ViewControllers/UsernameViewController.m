@@ -7,9 +7,7 @@
 //
 
 #import "UsernameViewController.h"
-#import "CNetworking.h"
-#import "MyCrewsViewController.h"
-#import "NoGroupsViewController.h"
+#import "YAUser.h"
 #import "Yaga-Swift.h"
 @interface UsernameViewController ()
 
@@ -88,7 +86,6 @@
         }];
         
     }
-    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -97,7 +94,6 @@
 }
 
 - (void)nextScreen {
-    
     [self.next setTitle:@"" forState:UIControlStateNormal];
     UIActivityIndicatorView *myIndicator = [[UIActivityIndicatorView alloc]
                                             initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
@@ -109,8 +105,8 @@
     // Start the animation
     [myIndicator startAnimating];
     
-    CNetworking *currentUser = [CNetworking currentUser];
-    [[CNetworking currentUser] saveUserData:self.username.text forKey:nUsername];
+    YAUser *currentUser = [YAUser currentUser];
+    [[YAUser currentUser] saveUserData:self.username.text forKey:nUsername];
     [[NetworkManager sharedManager] saveData:self.username.text key:nUsername];
     
     [currentUser registerUserWithCompletionBlock:^(void){
@@ -118,21 +114,16 @@
         
         [currentUser myCrewsWithCompletion:^{
             
-            NSLog(@"my groupinfo count: %lu", [[currentUser groupInfo] count]);
+            NSLog(@"my groups count: %lu", [currentUser.groups count]);
             
-            if([[currentUser groupInfo] count] > 0){
+            if([currentUser.groups count] > 0){
                 [self performSegueWithIdentifier:@"MyCrews" sender:self];
-//                MyCrewsViewController *vc = [[MyCrewsViewController alloc] init];
-//                [self.navigationController pushViewController:vc animated:YES];
             } else {
                 [self performSegueWithIdentifier:@"NoGroups" sender:self];
-//                NoGroupsViewController *vc = [[NoGroupsViewController alloc] init];
-//                [self.navigationController pushViewController:vc animated:YES];
             }
         }];
         
     }];
-    
 }
 
 @end

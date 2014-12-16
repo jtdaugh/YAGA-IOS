@@ -8,7 +8,7 @@
 
 #import "OverlayViewController.h"
 #import "NSString+File.h"
-#import "CNetworking.h"
+#import "YAUser.h"
 //#import "NSDate+TimeAgo.h"
 
 @interface OverlayViewController ()
@@ -254,7 +254,7 @@
     switch (buttonIndex) {
         case 0:
             // delete
-            if([self.tile.username isEqualToString:(NSString *)[[CNetworking currentUser] userDataForKey:nUsername]]){
+            if([self.tile.username isEqualToString:(NSString *)[[YAUser currentUser] userDataForKey:nUsername]]){
                 // delete and collapse
                 [self.tile.player setVolume:0.0];
                 //    [self.bg removeFromSuperview];

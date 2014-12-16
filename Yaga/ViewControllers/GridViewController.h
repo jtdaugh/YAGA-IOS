@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "TileCell.h"
-#import "CNetworking.h"
+#import "YAUser.h"
 #import "AVCamPreviewView.h"
 #import "GroupListTableView.h"
 #import "FBShimmeringView.h"
@@ -20,7 +20,7 @@
 @property (strong, nonatomic) NSNumber *appeared;
 @property (strong, nonatomic) NSNumber *onboarding;
 
-@property (strong, nonatomic) GroupInfo *groupInfo;
+@property (strong, nonatomic) YAGroup *group;
 
 @property (strong, nonatomic) UIView *gridView;
 @property (strong, nonatomic) UICollectionView *gridTiles;
@@ -79,7 +79,7 @@
 
 - (void)conserveTiles;
 
-- (void)configureGroupInfo:(GroupInfo *)groupInfo;
+- (void)configureGroup:(YAGroup *)group;
 
 - (void) deleteUid:(NSString *)uid;
 

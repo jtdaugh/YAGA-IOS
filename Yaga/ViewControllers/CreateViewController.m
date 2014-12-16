@@ -11,9 +11,9 @@
 #import "APContact.h"
 #import "APPhoneWithLabel.h"
 #import "NBPhoneNumberUtil.h"
-#import "CContact.h"
+#import "YAContact.h"
 #import "NSString+Hash.h"
-#import "CNetworking.h"
+#import "YAUser.h"
 #import "CliqueTextField.h"
 
 @interface CreateViewController ()
@@ -92,9 +92,6 @@
     [self.groupName becomeFirstResponder];
     [self.list setAlpha:0.0];
 
-    
-    [self importAddressBook];
-
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -130,7 +127,7 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Cell"];
     }
     
-    CContact *contact = self.data[indexPath.section][indexPath.row];
+    YAContact *contact = self.data[indexPath.section][indexPath.row];
     
     if(indexPath.section == 2){
         [cell.textLabel setText:contact.name];
@@ -170,135 +167,6 @@
     
 }
 
-- (void)importAddressBook {
-    
-    APAddressBook *addressBook = [[APAddressBook alloc] init];
-    addressBook.fieldsMask = APContactFieldCompositeName | APContactFieldPhones | APContactFieldFirstName;
-    addressBook.filterBlock = ^BOOL(APContact *contact){
-        return
-        // has a #
-        (contact.phones.count > 0) &&
-        
-        // has a name
-        contact.compositeName &&
-        
-        // name does not contain "GroupMe"
-        ([contact.compositeName rangeOfString:@"GroupMe:"].location == NSNotFound);
-    };
-    addressBook.sortDescriptors = @[
-                                    [NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]
-                                    ];
-    
-    [addressBook loadContacts:^(NSArray *contacts, NSError *error){
-        // hide activity
-        if (!error){
-            for(int i = 0; i<[contacts count]; i++){
-                APContact *contact = contacts[i];
-                for(int j = 0; j<[contact.phones count]; j++){
-                    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
-                    NSError *aError = nil;
-                    NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j]
-                                                 defaultRegion:@"US" error:&aError];
-                    NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
-                    
-                    
-                    int dupe = 0;
-                    
-                    //crawl backwards
-                    int k = (int)[self.data[2] count] - 1;
-                    while(k > 0){
-                        CContact *previous = self.data[2][k];
-                        if([previous.name isEqualToString:contact.compositeName]){
-                            if([previous.number isEqualToString:num]){
-                                dupe = 1;
-                            }
-                        } else {
-                            break;
-                        }
-                        k = k-1;
-                    }
-                    
-                    if(dupe == 0){
-                        CContact *current = [CContact new];
-                        current.name = contact.compositeName;
-                        current.number = num;
-                        current.firstName = contact.firstName;
-                        current.registered = [NSNumber numberWithBool:NO];
-                        
-                        [self.data[2] addObject:current];
-                    }
-                }
-            }
-
-            NSLog(@"contacts count: %lu", [contacts count]);
-            [self.list reloadData];
-            
-            [self afterContactsLoaded];
-        }
-        else
-        {
-            // show error
-        }
-    }];
-    
-}
-
-- (void)afterContactsLoaded {
-//    NSDate *start = [NSDate date];
-    
-    // a considerable amount of difficult processing here
-    // a considerable amount of difficult processing here
-    // a considerable amount of difficult processing here
-    
-    NSMutableArray *hashedNumbers = [@[] mutableCopy];
-    NSMutableDictionary *indexes = [@{} mutableCopy];
-    
-    int i = 0;
-    for(CContact *contact in self.data[2]){
-        [hashedNumbers addObject:[contact.number crypt]];
-        [indexes setObject:[NSNumber numberWithInt:i] forKey:[contact.number crypt]];
-        i++;
-    }
-    
-    NSLog(@"hashedNumbers count: %lu", [hashedNumbers count]);
-    
-//    PFQuery *query = [PFUser query];
-//    [query whereKey:@"phoneHash" containedIn:hashedNumbers];
-//    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
-//        
-//        for(PFUser *user in objects){
-//            NSString *phoneHash = user[@"phoneHash"];
-//            NSString *myPhoneHash = [PFUser currentUser][@"phoneHash"];
-//            
-//            if(![phoneHash isEqualToString:myPhoneHash]){
-//                NSUInteger index = [(NSNumber *)indexes[phoneHash] unsignedIntegerValue];
-//                
-//                CContact *o = self.data[2][index];
-//                o.registered = [NSNumber numberWithBool:YES];
-//                [self.data[2] removeObject:o];
-//                [self.data[1] addObject:o];
-//                NSUInteger newRow = [(NSArray *)(self.data[1]) count] - 1;
-//                
-//                NSIndexPath *oldIndexPath = [NSIndexPath indexPathForRow:index inSection:2];
-//                NSIndexPath *newIndexPath = [NSIndexPath indexPathForRow:newRow inSection:1];
-//                
-//                [self.list moveRowAtIndexPath:oldIndexPath toIndexPath:newIndexPath];
-//                //    [self.list reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:newRow inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
-//            }
-//        }
-//        [self.list reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationFade];
-//        [self.list reloadSections:[NSIndexSet indexSetWithIndex:2] withRowAnimation:UITableViewRowAnimationFade];
-//        
-//        NSLog(@"%lu", [objects count]);
-//        
-//        NSLog(@"done!");
-//        NSDate *methodFinish = [NSDate date];
-//        NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:start];
-//        
-//        NSLog(@"Execution Time: %f", executionTime);
-//    }];
-}
-
 - (void) accessoryButtonTapped: (UIControl *) button withEvent: (UIEvent *) event
 {
     NSIndexPath * indexPath = [self.list indexPathForRowAtPoint: [[[event touchesForView: button] anyObject] locationInView: self.list]];
@@ -310,7 +178,7 @@
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"tapped");
-    //    CContact *contact = self.data[indexPath.section][indexPath.row];
+    //    YAContact *contact = self.data[indexPath.section][indexPath.row];
     //    [[[UIAlertView alloc] initWithTitle: [NSString stringWithFormat:@"Invite %@", contact.firstName]
     //                                message: [NSString stringWithFormat:@"Would you like to invite %@ to your Clique?", contact.name] //, [contact readableNumber]]
     //                               delegate: nil
@@ -330,7 +198,7 @@
 }
 
 - (void)addToClique:(NSIndexPath *)indexPath {
-    CContact *o = self.data[indexPath.section][indexPath.row];
+    YAContact *o = self.data[indexPath.section][indexPath.row];
     [self.data[indexPath.section] removeObject:o];
     [self.data[0] addObject:o];
     NSUInteger newRow = [(NSArray *)(self.data[0]) count] - 1;
@@ -342,9 +210,9 @@
 }
 
 - (void)removeFromClique:(NSIndexPath *)indexPath {
-    CContact *o = self.data[indexPath.section][indexPath.row];
+    YAContact *o = self.data[indexPath.section][indexPath.row];
     int newSection;
-    if([o.registered boolValue]){
+    if(o.registered){
         newSection = 1;
     } else {
         newSection = 2;
@@ -353,7 +221,7 @@
     NSUInteger newRow = [self.data[newSection] indexOfObject:o
                                       inSortedRange:(NSRange){0, [self.data[newSection] count]}
                                             options:NSBinarySearchingInsertionIndex
-                                    usingComparator:(NSComparator) ^(CContact *first, CContact *second){
+                                    usingComparator:(NSComparator) ^(YAContact *first, YAContact *second){
                                         return (NSComparisonResult)[first.name compare:second.name];
                                     }];
     
@@ -378,7 +246,7 @@
         [self dismissViewControllerAnimated:YES completion:^{
             
             NSMutableArray *members = [[NSMutableArray alloc] init];
-            for(CContact *user in self.data[0]){
+            for(YAContact *user in self.data[0]){
                 [members addObject:user.number];
             }
             

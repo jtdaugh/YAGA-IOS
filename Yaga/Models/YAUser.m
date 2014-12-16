@@ -6,16 +6,18 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "CNetworking.h"
-#import "CContact.h"
+#import "YAUser.h"
+#import "YAContact.h"
 #import "NSString+Hash.h"
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
-//#import <PromiseKit.h>
+#import "APAddressBook.h"
+#import "APContact.h"
+#import "NBPhoneNumberUtil.h"
 
-@implementation CNetworking
+@implementation YAUser
 
-+ (id)currentUser {
-    static CNetworking *sharedCNetworking = nil;
++ (YAUser*)currentUser {
+    static YAUser *sharedCNetworking = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedCNetworking = [[self alloc] init];
@@ -24,28 +26,12 @@
 }
 
 - (id)init {
-    if (self = [super init]) {
-        [self loadUserData];
-        
-        if(!self.messages){
-            self.messages = [[NSMutableDictionary alloc] init];
-        }
-        
-        if(!self.contacts){
-            self.contacts = [[NSMutableArray alloc] init];
-        }
-        
-        if(!self.groupInfo){
-            self.groupInfo = [[NSMutableArray alloc] init];
-        }
-
-//        self.firebase = [[[Firebase alloc] initWithUrl:@"https://pic6.firebaseIO.com"] childByAppendingPath:NODE_NAME];
-        NSLog(@"just inited firebase");
+    self = [super init];
+    if(self) {
+        _userData = [NSMutableDictionary new];
     }
-    
     return self;
 }
-
 /**
     AFNetworking Code is here
  **/
@@ -132,37 +118,39 @@
 }
 
 - (void)myCrewsWithCompletion:(void (^)())block {
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    manager.requestSerializer = [AFJSONRequestSerializer serializer];
-    [manager.requestSerializer setValue:[NSString stringWithFormat:@"Clique key=\"%@\"", [self userDataForKey:@"token"]] forHTTPHeaderField:@"Authorization"];
-    
-    [manager GET:[NSString stringWithFormat:@"%@/me/crews", BASE_API_URL] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
-        self.groupInfo = [[NSMutableArray alloc] init];
-        
-        NSArray *items = [responseObject objectForKey:@"items"];
-        for(id item in items){
-            GroupInfo *groupInfo = [[GroupInfo alloc] init];
-            groupInfo.groupId = [item objectForKey:@"crew_id"];
-            groupInfo.name = [item objectForKey:@"name"];
-            groupInfo.members = [[NSMutableArray alloc] initWithObjects:@"rjvir", @"b9speed", @"kyle", nil];
-            
-            [self.groupInfo addObject:groupInfo];
-        }
-        
-        NSData *groupData = [NSKeyedArchiver archivedDataWithRootObject:self.groupInfo];
-        [self saveObject:groupData forKey:nGroupInfo];
-//        [self saveUserData:self.groupInfo forKey:nGroupInfo];
-        
-        NSLog(@"groups: %@", responseObject);
-        NSLog(@"groupinfo count: %lu", [self.groupInfo count]);
-        block();
-        
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"my crews Error: %@", error);
-        
-    }];
+    //val TODO:
+    block();//no crews for now
+//    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+//    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+//    [manager.requestSerializer setValue:[NSString stringWithFormat:@"Clique key=\"%@\"", [self userDataForKey:@"token"]] forHTTPHeaderField:@"Authorization"];
+//    
+//    [manager GET:[NSString stringWithFormat:@"%@/me/crews", BASE_API_URL] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+//        
+//        self.YAGroup = [[NSMutableArray alloc] init];
+//        
+//        NSArray *items = [responseObject objectForKey:@"items"];
+//        for(id item in items){
+//            YAGroup *YAGroup = [[YAGroup alloc] init];
+//            YAGroup.groupId = [item objectForKey:@"crew_id"];
+//            YAGroup.name = [item objectForKey:@"name"];
+//            YAGroup.members = [[NSMutableArray alloc] initWithObjects:@"rjvir", @"b9speed", @"kyle", nil];
+//            
+//            [self.YAGroup addObject:YAGroup];
+//        }
+//        
+//        NSData *groupData = [NSKeyedArchiver archivedDataWithRootObject:self.YAGroup];
+//        [self saveObject:groupData forKey:nYAGroup];
+////        [self saveUserData:self.YAGroup forKey:nYAGroup];
+//        
+//        NSLog(@"groups: %@", responseObject);
+//        NSLog(@"YAGroup count: %lu", [self.YAGroup count]);
+//        block();
+//        
+//        
+//    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+//        NSLog(@"my crews Error: %@", error);
+//        
+//    }];
 }
 
 - (void)addToCrew:(NSString *)crewId withCompletionBlock:(void (^)())block {
@@ -194,7 +182,7 @@
                              @"hashes":numbers
                              };
     
-    NSLog(@"hashes params: %@", params);
+    //NSLog(@"hashes params: %@", params);
     
     [manager POST:[NSString stringWithFormat:@"%@/match", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         //
@@ -206,8 +194,6 @@
         block();
     }];
 }
-
-
 
 - (BOOL)loggedIn {
     if([self userDataForKey:nUsername]){
@@ -221,14 +207,6 @@
     [[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
     [self.userData removeAllObjects];
 }
-
-
-
-//- (void)
-
-/**
- END AFNetworking Code
- **/
 
 - (void)trySomething {
     [self.delegate test];
@@ -246,17 +224,6 @@
 
 - (NSObject *)userDataForKey:(NSString *)key {
     return [self.userData objectForKey:key];
-}
-
-- (void)loadUserData {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-    self.userData = [[defaults dictionaryRepresentation] mutableCopy];
-        
-    if([defaults objectForKey:nGroupInfo]){
-        NSLog(@"groupInfo");
-        NSData *data = [defaults objectForKey:nGroupInfo];
-        self.groupInfo = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    }
 }
 
 - (NSString *)humanName {
@@ -289,8 +256,8 @@
 
 - (NSUInteger) groupIndexForGroupId:(NSString *)groupId {
     NSUInteger index = 0;
-    for(GroupInfo *groupInfo in self.groupInfo){
-        if([groupInfo.groupId isEqualToString: groupId]){
+    for(YAGroup *group in self.groups){
+        if([group.groupId isEqualToString: groupId]){
             return index;
         }
         index++;
@@ -298,16 +265,48 @@
     return -1;
 }
 
-//- (NSMutableArray *)groupInfo {
-//    if(![self userDataForKey:nGroupInfo]){
-//        [self saveUserData:[@[] mutableCopy] forKey:nGroupInfo];
-//    }
-//    GroupInfo *groupInfo = [[GroupInfo alloc] init];
-//    groupInfo.name = @"LindenFest 2014";
-//    groupInfo.groupId = @"yolo";
-//    return [@[ groupInfo ] mutableCopy];
-//    
-//    return (NSMutableArray *)[self userDataForKey:nGroupInfo];
-//}
+#pragma mark - Refactored - <delete me later
+- (void)importContactsWithCompletion:(contactsImportedBlock)completion {
+    
+    APAddressBook *addressBook = [[APAddressBook alloc] init];
+    addressBook.fieldsMask = APContactFieldCompositeName | APContactFieldPhones | APContactFieldFirstName;
+    addressBook.filterBlock = ^BOOL(APContact *contact){
+        return
+        // has a #
+        (contact.phones.count > 0) &&
+        
+        // has a name
+        contact.compositeName &&
+        
+        // name does not contain "GroupMe"
+        ([contact.compositeName rangeOfString:@"GroupMe:"].location == NSNotFound);
+    };
+    
+    addressBook.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]];
+    
+    __block NSMutableArray *result = [NSMutableArray new];
+    
+    [addressBook loadContacts:^(NSArray *contacts, NSError *error){
+        if (!error){
+            for(int i = 0; i<[contacts count]; i++){
+                APContact *contact = contacts[i];
+                for(int j = 0; j<[contact.phones count]; j++){
+                    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+                    NSError *aError = nil;
+                    NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j] defaultRegion:@"US" error:&aError];
+                    NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
+                    
+                    NSDictionary *item = @{nCompositeName:contact.compositeName, nPhone:num, nFirstname:[NSString stringWithFormat:@"%@", contact.firstName], nRegistered:[NSNumber numberWithBool:NO]};
+                    [result addObject:item];
+                }
+            }
+            completion(nil, result);
+        }
+        else
+        {
+            completion([NSError errorWithDomain:@"NO DOMAIN" code:0 userInfo:nil], nil);
+        }
+    }];
+}
 
 @end

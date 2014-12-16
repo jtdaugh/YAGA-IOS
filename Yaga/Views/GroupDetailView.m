@@ -23,7 +23,7 @@
     return self;
 }
 
-- (void)setInfo:(GroupInfo *)info {
+- (void)setInfo:(YAGroup *)info {
     _info = info;
     
     NSString *groupString = [NSString stringWithFormat:@"%@\n\n•%@", info.name, [info.members componentsJoinedByString:@"\n•"]];

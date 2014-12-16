@@ -7,13 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CNetworking.h"
+#import "YAUser.h"
 #import "VENTokenField.h"
 
-@interface AddMembersViewController : UIViewController<UITextViewDelegate, UITableViewDataSource, UITableViewDelegate, VENTokenFieldDelegate, VENTokenFieldDataSource>
-@property (strong, nonatomic) VENTokenField *searchBar;
-@property (strong, nonatomic) UILabel *placeHolder;
-@property (strong, nonatomic) UITableView *membersList;
+@interface AddMembersViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, VENTokenFieldDelegate, VENTokenFieldDataSource>
 @property (strong, nonatomic) NSMutableArray *selectedContacts;
-@property (strong, nonatomic) NSMutableArray *filteredContacts;
 @end

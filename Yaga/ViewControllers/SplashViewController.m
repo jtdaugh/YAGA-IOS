@@ -10,7 +10,7 @@
 #import "NBPhoneNumberUtil.h"
 #import "VerifyViewController.h"
 #import "UsernameViewController.h"
-#import "CNetworking.h"
+#import "YAUser.h"
 #import "NSString+Hash.h"
 
 #import "Yaga-Swift.h"
@@ -147,12 +147,8 @@
     NSString *formattedNumber = [phoneUtil format:myNumber
                                      numberFormat:NBEPhoneNumberFormatE164
                                             error:&error];
-    [[CNetworking currentUser] saveUserData:formattedNumber forKey:nPhone];
-    [[NetworkManager sharedManager] saveData:formattedNumber key:nPhone];
-    
-//    UsernameViewController *vc = [[UsernameViewController alloc] init];
-////    VerifyViewController *vc = [[VerifyViewController alloc] init];
-//    [self.navigationController pushViewController:vc animated:YES];
+    [[YAUser currentUser] saveUserData:formattedNumber forKey:nPhone];
+
     [self performSegueWithIdentifier:@"NextScreen" sender:self];
 }
 

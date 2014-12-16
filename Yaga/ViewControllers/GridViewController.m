@@ -39,12 +39,12 @@
 }
 
 - (void)logout {
-    [[CNetworking currentUser] logout];
+    [[YAUser currentUser] logout];
     
     YagaNavigationController *vc = [[YagaNavigationController alloc] init];
     [vc setViewControllers:@[[[SplashViewController alloc] init]]];
     
-    [self closeElevator];
+    [self closeGroups];
     
     [self presentViewController:vc animated:NO completion:^{
         //
@@ -55,7 +55,7 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    if([[CNetworking currentUser] loggedIn]){
+    if([[YAUser currentUser] loggedIn]){
         if(![self.appeared boolValue]){
             self.appeared = [NSNumber numberWithBool:YES];
             if(![self.setup boolValue]){
@@ -77,23 +77,15 @@
 }
 
 - (void)printMessage:(NSString *)message {
-    NSLog(@"%@ -- %lu", message, [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
+    NSLog(@"%@ -- %lu", message, [[[YAUser currentUser] groups] indexOfObject:self.group]);
 }
-
-//- (void)viewDidLoad {
-//    [super viewDidLoad];
-//    NSLog(@"view did load? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
-//
-//    if([PFUser currentUser]){
-//    }
-//}
 
 - (void)setupView {
     
     self.setup = [NSNumber numberWithBool:YES];
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
-    [Crashlytics setUserIdentifier:(NSString *) [[CNetworking currentUser] userDataForKey:nUsername]];
+    [Crashlytics setUserIdentifier:(NSString *) [[YAUser currentUser] userDataForKey:nUsername]];
     
     [self initOverlay];
     [self initElevator];
@@ -104,7 +96,7 @@
         [self setupGroups];
     }];
     
-    [self initBall];
+    [self initGroups];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -541,14 +533,14 @@
     [self.view addSubview:self.gridView];
 }
 
-- (void) initBall {
+- (void)initGroups {
     
     CGFloat gutter = 96, height = 42;
-    CGFloat bottom = 28;
+//    CGFloat bottom = 28;
     self.switchGroups = [[UIButton alloc] initWithFrame:CGRectMake(gutter, self.cameraView.frame.size.height - height, self.cameraView.frame.size.width - gutter*2, height)];
     //    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
     [self.switchGroups.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
-    [self.switchGroups addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchUpInside];
+    [self.switchGroups addTarget:self action:@selector(switchGroupsTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.switchGroups setTitle:@"Switch Groups" forState:UIControlStateNormal];
     self.switchGroups.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.switchGroups.layer.shadowRadius = 1.0f;
@@ -585,7 +577,7 @@
     self.elevator.groupsList.delegate = self;
     self.elevator.groupsList.dataSource = self;
     
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeElevator)];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeGroups)];
     tap.delegate = self;
     [self.elevator.tapOut addGestureRecognizer:tap];
     
@@ -627,31 +619,28 @@
 }
 
 - (void)reloadGroups {
-    [[CNetworking currentUser] myCrewsWithCompletion:^{
-        NSLog(@"completed?!");
+    [[YAUser currentUser] myCrewsWithCompletion:^{
+        NSLog(@"myCrewsWithCompletion completed");
     }];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
-    [[CNetworking currentUser] saveUserData:[NSNumber numberWithInteger:indexPath.row] forKey:nCurrentGroup];
-    [self closeElevator];
+    [self configureGroup:[[YAUser currentUser].groups objectAtIndex:indexPath.row]];
+    [[YAUser currentUser] saveUserData:[NSNumber numberWithInteger:indexPath.row] forKey:nCurrentGroup];
+    [self closeGroups];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    
-    NSMutableArray *groupInfo = [[CNetworking currentUser] groupInfo];
-    
-    NSLog(@"number of rows: %lu", [groupInfo count]);
-    return [groupInfo count];
+    NSMutableArray *groups = [YAUser currentUser].groups;
+    return groups.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"ElevatorCell";
     GroupListCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    GroupInfo *groupInfo = [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row];
-    [cell.title setText:groupInfo.name];
+    YAGroup *YAGroup = [[YAUser currentUser].groups objectAtIndex:indexPath.row];
+    [cell.title setText:YAGroup.name];
     [cell.subtitle setText:@"rjvir, kyle, and b9speed"];
     
     [cell.icon setTag:indexPath.row];
@@ -663,9 +652,9 @@
 - (void)groupSettings:(UIButton *)sender {
     NSInteger index = sender.tag;
     
-    GroupInfo *groupInfo = [[[CNetworking currentUser] groupInfo] objectAtIndex:index];
+    YAGroup *YAGroup = [[YAUser currentUser].groups objectAtIndex:index];
     
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:groupInfo.name delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Edit Title", @"Edit Members", @"Mute Group", @"Leave Group", nil];
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:YAGroup.name delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Edit Title", @"Edit Members", @"Mute Group", @"Leave Group", nil];
     
     [actionSheet showInView:self.view];
 }
@@ -679,31 +668,27 @@
     }];
 }
 
-- (void) tappedBall {
-    NSLog(@"tappedBall");
-    
+- (void) switchGroupsTapped:(id)sender {
     if(![self.scrolling boolValue]){
         if(self.gridTiles.contentOffset.y > 0){
-            NSLog(@"wat");
-            //            [self.gridTiles setContentOffset:CGPointZero animated:YES];
+            
         } else {
             [self toggleElevator];
         }
     } else {
-        NSLog(@"wat 2");
+        
     }
 }
 
 - (void)toggleElevator {
-    NSLog(@"toggle elevator");
     if([self.elevatorOpen boolValue]){
-        [self closeElevator];
+        [self closeGroups];
     } else {
-        [self openElevator];
+        [self openGroups];
     }
 }
 
-- (void) openElevator {
+- (void)openGroups {
     
     //    [self.elevatorMenu reloadData];
     [self.elevator setAlpha:0.0];
@@ -734,10 +719,7 @@
     
 }
 
-- (void) closeElevator {
-    
-    NSLog(@"test");
-    
+- (void) closeGroups {
     [self.elevator setTransform:CGAffineTransformIdentity];
     
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
@@ -819,18 +801,11 @@
     [self.view addSubview:self.overlay];
 }
 
-- (void)configureGroupInfo:(GroupInfo *)groupInfo {
-    NSLog(@"configure group info 2");
-    
-    self.groupInfo = groupInfo;
+- (void)configureGroup:(YAGroup *)group {
+    self.group = group;
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-        
-        //Your code goes in here
-        //        NSLog(@"Main Thread Code");
-        [self.switchGroups setTitle:[NSString stringWithFormat:@"%@ · %@", self.groupInfo.name, @"Switch"] forState:UIControlStateNormal];
-        // set title here
-        
+        [self.switchGroups setTitle:[NSString stringWithFormat:@"%@ · %@", self.group.name, @"Switch"] forState:UIControlStateNormal];
     }];
 }
 
@@ -838,18 +813,18 @@
 //val TODO:
     
 //    CNetworking *currentUser = [CNetworking currentUser];
-//    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@/%@", self.groupInfo.groupId, STREAM, uid]] removeValueWithCompletionBlock:^(NSError *error, Firebase *ref) {
+//    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@/%@", self.YAGroup.groupId, STREAM, uid]] removeValueWithCompletionBlock:^(NSError *error, Firebase *ref) {
 //        
 //        int index = 0;
 //        int toDelete = -1;
-//        for(FDataSnapshot *snapshot in [[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId]){
+//        for(FDataSnapshot *snapshot in [[CNetworking currentUser] gridDataForGroupId:self.YAGroup.groupId]){
 //            if([snapshot.name isEqualToString:uid]){
 //                toDelete = index;
 //            }
 //            index++;
 //        };
 //        if(toDelete > -1){
-//            [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] removeObjectAtIndex:toDelete];
+//            [[[CNetworking currentUser] gridDataForGroupId:self.YAGroup.groupId] removeObjectAtIndex:toDelete];
 //        }
 //        [self.gridTiles reloadData];
 //    }];
@@ -895,12 +870,12 @@
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] count];
+    return [[[YAUser currentUser] gridDataForGroupId:self.group.groupId] count];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
-    id snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
+    id snapshot = [[[YAUser currentUser] gridDataForGroupId:self.group.groupId] objectAtIndex:indexPath.row];
     
 //    
 ////    if(self.selectedIndex){
@@ -1116,7 +1091,7 @@
 //    //        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
 //    //    }
 //    
-//    NSLog(@"group id: %@", self.groupInfo.groupId);
+//    NSLog(@"group id: %@", self.YAGroup.groupId);
 //    
 //    NSFileManager * fm = [[NSFileManager alloc] init];
 //    NSError *err = nil;
@@ -1130,7 +1105,7 @@
 }
 
 - (NSString*)tempFilename {
-    return [NSString stringWithFormat:@"file %f", [[NSDate date] timeIntervalSince1970]];
+    return [NSString stringWithFormat:@"file%f.mov", [[NSDate date] timeIntervalSince1970]];
 }
 
 - (void)scrollingEnded {
@@ -1168,22 +1143,12 @@
 }
 
 - (void)setupGroups {
-    
-    NSLog(@"setup groups");
-    
-    CNetworking *currentUser = [CNetworking currentUser];
-    
-    //    [currentUser myCrewsWithCompletion:^{
-    //        //
-    NSLog(@"groupinfo count? %lu", [[currentUser groupInfo] count]);
-    
-    
     int cur = 0;
     if([currentUser userDataForKey:nCurrentGroup]){
         NSNumber *currentIndex = (NSNumber *)[currentUser userDataForKey:nCurrentGroup];
         cur = [currentIndex intValue];
         
-        [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:cur]];
+        [self configureGroup:[currentUser.groups objectAtIndex:cur]];
         [self.gridTiles reloadData];
     }
 
@@ -1198,7 +1163,7 @@
     //    // fetching all of a users groups
     //    [[currentUser.firebase childByAppendingPath:path] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
     //
-    //        currentUser.groupInfo = [[NSMutableArray alloc] init];
+    //        currentUser.YAGroup = [[NSMutableArray alloc] init];
     //
     //        // iterate through returned groups
     //        for(FDataSnapshot *child in snapshot.children){
@@ -1210,7 +1175,7 @@
     //            [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
     //
     //                // saving group data
-    //                GroupInfo *info = [[GroupInfo alloc] init];
+    //                YAGroup *info = [[YAGroup alloc] init];
     //                info.name = dataSnapshot.value[@"name"];
     //                info.groupId = child.name;
     //                info.members = [[NSMutableArray alloc] init];
@@ -1219,15 +1184,15 @@
     //                    [info.members addObject:member];
     //                }
     //
-    //                [currentUser.groupInfo insertObject:info atIndex:0];
+    //                [currentUser.YAGroup insertObject:info atIndex:0];
     //
-    //                if([currentUser.groupInfo count] == snapshot.childrenCount){
+    //                if([currentUser.YAGroup count] == snapshot.childrenCount){
     //                    NSLog(@"about to setup pages");
     //                    [self.gridTiles reloadData];
-    //                    [self configureGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+    //                    [self configureYAGroup:[currentUser.YAGroup objectAtIndex:0]];
     ////                    [self initGridTiles];
     //
-    ////                    [self setGroupInfo:[currentUser.groupInfo objectAtIndex:0]];
+    ////                    [self setYAGroup:[currentUser.YAGroup objectAtIndex:0]];
     //
     //
     //                }
@@ -1295,7 +1260,7 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    NSLog(@"memory warning in group controller? %lu", [[[CNetworking currentUser] groupInfo] indexOfObject:self.groupInfo]);
+    NSLog(@"memory warning in group controller? %lu", [[YAUser currentUser].groups indexOfObject:self.group]);
     // Dispose of any resources that can be recreated.
 }
 

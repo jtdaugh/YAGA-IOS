@@ -8,7 +8,7 @@
 
 #import "GroupListTableView.h"
 #import "GroupListCell.h"
-#import "CNetworking.h"
+#import "YAUser.h"
 
 @implementation GroupListTableView
 

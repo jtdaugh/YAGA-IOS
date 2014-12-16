@@ -7,7 +7,7 @@
 //
 
 #import "NetworkingTestViewController.h"
-#import "CNetworking.h"
+#import "YAUser.h"
 
 @interface NetworkingTestViewController ()
 @property int index;
@@ -34,7 +34,7 @@
     
     UIButton *newButton = [[UIButton alloc] initWithFrame:CGRectMake(20, 10 + (height+padding)*self.index++, width, height)];
     [newButton setTitle:title forState:UIControlStateNormal];
-    [newButton addTarget:[CNetworking currentUser] action:sel forControlEvents:UIControlEventTouchUpInside];
+    [newButton addTarget:[YAUser currentUser] action:sel forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:newButton];
     return newButton;
 }

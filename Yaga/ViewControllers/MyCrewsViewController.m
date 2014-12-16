@@ -7,7 +7,7 @@
 //
 
 #import "MyCrewsViewController.h"
-#import "CNetworking.h"
+#import "YAUser.h"
 #import "GroupListTableView.h"
 #import "CreateViewController.h"
 
@@ -68,7 +68,7 @@
         [self.navigationController dismissViewControllerAnimated:YES completion:^{
             //
         }];
-//        [self configureGroupInfo: [[[CNetworking currentUser] groupInfo] objectAtIndex:indexPath.row]];
+//        [self configureYAGroup: [[[CNetworking currentUser] YAGroup] objectAtIndex:indexPath.row]];
 //        [self closeElevator];
     }
 }

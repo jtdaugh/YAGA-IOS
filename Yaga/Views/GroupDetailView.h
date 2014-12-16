@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GroupInfo.h"
+#import "YAGroup.h"
 
 @interface GroupDetailView : UITextView
 
-@property (nonatomic, strong) GroupInfo *info;
+@property (nonatomic, strong) YAGroup *info;
 
 - (void)flash;
 
