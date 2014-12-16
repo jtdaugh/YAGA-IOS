@@ -33,7 +33,6 @@
 		6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889B1A3F3A5A0034AB63 /* GridViewController.m */; };
 		6E9188DE1A3F3A5A0034AB63 /* MyCrewsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889D1A3F3A5A0034AB63 /* MyCrewsViewController.m */; };
 		6E9188DF1A3F3A5A0034AB63 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */; };
-		6E9188E01A3F3A5A0034AB63 /* NetworkingTestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A11A3F3A5A0034AB63 /* NetworkingTestViewController.m */; };
 		6E9188E11A3F3A5A0034AB63 /* NoGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */; };
 		6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */; };
 		6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */; };
@@ -116,8 +115,6 @@
 		6E91889D1A3F3A5A0034AB63 /* MyCrewsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyCrewsViewController.m; sourceTree = "<group>"; };
 		6E91889E1A3F3A5A0034AB63 /* NameGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NameGroupViewController.h; sourceTree = "<group>"; };
 		6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NameGroupViewController.m; sourceTree = "<group>"; };
-		6E9188A01A3F3A5A0034AB63 /* NetworkingTestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkingTestViewController.h; sourceTree = "<group>"; };
-		6E9188A11A3F3A5A0034AB63 /* NetworkingTestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkingTestViewController.m; sourceTree = "<group>"; };
 		6E9188A21A3F3A5A0034AB63 /* NoGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoGroupsViewController.h; sourceTree = "<group>"; };
 		6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoGroupsViewController.m; sourceTree = "<group>"; };
 		6E9188A51A3F3A5A0034AB63 /* YASMSAuthentificationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASMSAuthentificationViewController.h; sourceTree = "<group>"; };
@@ -313,8 +310,6 @@
 				6E91889D1A3F3A5A0034AB63 /* MyCrewsViewController.m */,
 				6E91889E1A3F3A5A0034AB63 /* NameGroupViewController.h */,
 				6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */,
-				6E9188A01A3F3A5A0034AB63 /* NetworkingTestViewController.h */,
-				6E9188A11A3F3A5A0034AB63 /* NetworkingTestViewController.m */,
 				6E9188A21A3F3A5A0034AB63 /* NoGroupsViewController.h */,
 				6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */,
 				6E9188A41A3F3A5A0034AB63 /* Onboarding */,
@@ -448,7 +443,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = JE26HLJZLX;
+						DevelopmentTeam = 8V4V36C528;
 					};
 				};
 			};
@@ -574,7 +569,6 @@
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
 				6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */,
-				6E9188E01A3F3A5A0034AB63 /* NetworkingTestViewController.m in Sources */,
 				6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */,
 				6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */,
 				6E9188CA1A3F3A5A0034AB63 /* AVPlayer+AVPlayer_Async.m in Sources */,
