@@ -7,13 +7,17 @@
 //
 
 #import <Realm/Realm.h>
+#import "YAContact.h"
 
 @interface YAGroup : RLMObject
 @property NSString *name;
 @property NSString *groupId;
-@property NSMutableArray *members;
+@property RLMArray<YAContact> *members;
+
+- (NSString*)membersString;
 @end
 
 // This protocol enables typed collections. i.e.:
 // RLMArray<YAGroup>
 RLM_ARRAY_TYPE(YAGroup)
+

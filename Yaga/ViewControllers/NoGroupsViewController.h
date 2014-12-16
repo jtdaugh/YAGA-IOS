@@ -9,6 +9,4 @@
 #import <UIKit/UIKit.h>
 
 @interface NoGroupsViewController : UIViewController
-@property (strong, nonatomic) UILabel *cta;
-@property (strong, nonatomic) UIButton *next;
 @end

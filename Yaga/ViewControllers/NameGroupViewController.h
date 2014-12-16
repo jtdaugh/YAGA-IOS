@@ -10,8 +10,5 @@
 @import MessageUI;
 
 @interface NameGroupViewController : UIViewController <MFMessageComposeViewControllerDelegate>
-@property (strong, nonatomic) UILabel *cta;
-@property (strong, nonatomic) UITextField *groupTitle;
-@property (strong, nonatomic) UIButton *next;
-@property (strong, nonatomic) NSMutableArray *members;
+@property (strong, nonatomic) NSMutableArray *membersDic;
 @end

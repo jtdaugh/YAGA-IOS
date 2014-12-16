@@ -256,7 +256,7 @@
 
 - (NSUInteger) groupIndexForGroupId:(NSString *)groupId {
     NSUInteger index = 0;
-    for(YAGroup *group in self.groups){
+    for(YAGroup *group in [YAGroup allObjects]){
         if([group.groupId isEqualToString: groupId]){
             return index;
         }

@@ -23,12 +23,13 @@
     return self;
 }
 
-- (void)setInfo:(YAGroup *)info {
-    _info = info;
-    
-    NSString *groupString = [NSString stringWithFormat:@"%@\n\n•%@", info.name, [info.members componentsJoinedByString:@"\n•"]];
-    
-    self.text = groupString;
+- (void)setGroup:(YAGroup *)group {
+    _group = group;
+
+    [[NSException exceptionWithName:@"Test" reason:@"Not implemented" userInfo:nil] raise];
+//    NSString *groupString = [NSString stringWithFormat:@"%@\n\n•%@", group.name, [group.members componentsJoinedByString:@"\n•"]];
+//    
+//    self.text = groupString;
 }
 
 - (void)flash {

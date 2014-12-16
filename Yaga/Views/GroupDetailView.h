@@ -10,9 +10,7 @@
 #import "YAGroup.h"
 
 @interface GroupDetailView : UITextView
-
-@property (nonatomic, strong) YAGroup *info;
-
+@property (nonatomic, strong) YAGroup *group;
 - (void)flash;
 
 @end

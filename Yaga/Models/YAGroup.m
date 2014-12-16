@@ -24,4 +24,13 @@
 //    return @[];
 //}
 
+- (NSString*)membersString {
+    NSString *results = @"";
+    for(int i = 0; i < self.members.count; i++) {
+        YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
+        results = [results stringByAppendingFormat:@"%@\n", contact.name];
+    }
+    
+    return results;
+}
 @end

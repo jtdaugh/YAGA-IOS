@@ -240,7 +240,7 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if([segue.destinationViewController isKindOfClass:[NameGroupViewController class]]) {
-        ((NameGroupViewController*)segue.destinationViewController).members = self.selectedContacts;
+        ((NameGroupViewController*)segue.destinationViewController).membersDic = self.selectedContacts;
     }
 }
 

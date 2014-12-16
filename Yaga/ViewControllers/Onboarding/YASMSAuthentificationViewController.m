@@ -87,11 +87,8 @@
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
 }
 
-
 - (void)editingChanged {
-    
     if([self.number.text length] > 3){
-        
         [UIView animateWithDuration:0.3 animations:^{
             [self.next setAlpha:1.0];
         }];
@@ -100,9 +97,7 @@
         [UIView animateWithDuration:0.3 animations:^{
             [self.next setAlpha:0.0];
         }];
-        
     }
-    
 }
 
 - (void)nextScreen

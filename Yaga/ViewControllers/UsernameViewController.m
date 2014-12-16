@@ -60,7 +60,7 @@
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
     self.next = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
     [self.next setBackgroundColor:PRIMARY_COLOR];
-    [self.next setTitle:@"Finish" forState:UIControlStateNormal];
+    [self.next setTitle:NSLocalizedString(@"Finish", @"") forState:UIControlStateNormal];
     [self.next.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
     [self.next setAlpha:0.0];
     [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
@@ -95,7 +95,7 @@
 
 - (void)nextScreen {
     [self.next setTitle:@"" forState:UIControlStateNormal];
-    UIActivityIndicatorView *myIndicator = [[UIActivityIndicatorView alloc]
+    __block UIActivityIndicatorView *myIndicator = [[UIActivityIndicatorView alloc]
                                             initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     
     // Position the spinner
@@ -110,13 +110,17 @@
     [[NetworkManager sharedManager] saveData:self.username.text key:nUsername];
     
     [currentUser registerUserWithCompletionBlock:^(void){
-        NSLog(@"completed! %@", (NSString *)[currentUser userDataForKey:nToken]);
+        //user is able to get back so reseting the button
+        [self.next setTitle:NSLocalizedString(@"Finish", @"") forState:UIControlStateNormal];
+        [myIndicator removeFromSuperview];
+        
+        NSLog(@"registerUserWithCompletionBlock completed %@", (NSString *)[currentUser userDataForKey:nToken]);
         
         [currentUser myCrewsWithCompletion:^{
             
-            NSLog(@"my groups count: %lu", [currentUser.groups count]);
+            //TODO: fetch groups
             
-            if([currentUser.groups count] > 0){
+            if([[YAGroup allObjects] count] > 0){
                 [self performSegueWithIdentifier:@"MyCrews" sender:self];
             } else {
                 [self performSegueWithIdentifier:@"NoGroups" sender:self];

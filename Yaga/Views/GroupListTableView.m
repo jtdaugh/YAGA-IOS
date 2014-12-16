@@ -10,34 +10,40 @@
 #import "GroupListCell.h"
 #import "YAUser.h"
 
+@interface GroupListTableView ()
+@property (nonatomic, strong) RLMResults *groups;
+@end
+
 @implementation GroupListTableView
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-}
-*/
+static NSString *CellIdentifier = @"ElevatorCell";
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-//        self.dataSource = self;
+        self.dataSource = self;
         [self setContentInset:UIEdgeInsetsZero];
-//        self.delegate = self;
-        // Initialization code
+        self.groups = [YAGroup allObjects];
+        [self registerClass:[GroupListCell class] forCellReuseIdentifier:CellIdentifier];
     }
     return self;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 1;
+    return self.groups.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return nil;
+
+    GroupListCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    
+    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+    [cell.title setText:group.name];
+    [cell.subtitle setText:group.membersString];
+    
+    cell.icon = nil;
+    return cell;
 }
 
 @end

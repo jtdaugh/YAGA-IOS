@@ -25,6 +25,7 @@
 #import "Yaga-Swift.h"
 
 @interface GridViewController ()
+@property (nonatomic, strong) RLMResults *groups;
 @end
 
 @implementation GridViewController
@@ -74,10 +75,6 @@
 //        }];
         [self performSegueWithIdentifier:@"SplashScreen" sender:self];
     }
-}
-
-- (void)printMessage:(NSString *)message {
-    NSLog(@"%@ -- %lu", message, [[[YAUser currentUser] groups] indexOfObject:self.group]);
 }
 
 - (void)setupView {
@@ -560,6 +557,7 @@
 }
 
 - (void)initGroups {
+    self.groups = [YAGroup allObjects];
     
     CGFloat gutter = 96, height = 42;
 //    CGFloat bottom = 28;
@@ -581,6 +579,8 @@
     //    self.switchGroups.layer.borderWidth = 1.0f;
     //    self.switchGroups.layer.borderColor = [[UIColor blackColor] CGColor];
     [self.cameraView addSubview:self.switchGroups];
+    
+    
 }
 
 - (void) initElevator {
@@ -651,23 +651,24 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self configureGroup:[[YAUser currentUser].groups objectAtIndex:indexPath.row]];
-    [[YAUser currentUser] saveUserData:[NSNumber numberWithInteger:indexPath.row] forKey:nCurrentGroup];
+    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+    [self configureGroup:group];
+    [[YAUser currentUser] saveUserData:group.groupId forKey:nCurrentGroupId];
+    
     [self closeGroups];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSMutableArray *groups = [YAUser currentUser].groups;
-    return groups.count;
+    return self.groups.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"ElevatorCell";
     GroupListCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    YAGroup *YAGroup = [[YAUser currentUser].groups objectAtIndex:indexPath.row];
-    [cell.title setText:YAGroup.name];
-    [cell.subtitle setText:@"rjvir, kyle, and b9speed"];
+    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+    [cell.title setText:group.name];
+    [cell.subtitle setText:group.membersString];
     
     [cell.icon setTag:indexPath.row];
     [cell.icon addTarget:self action:@selector(groupSettings:) forControlEvents:UIControlEventTouchUpInside];
@@ -678,9 +679,9 @@
 - (void)groupSettings:(UIButton *)sender {
     NSInteger index = sender.tag;
     
-    YAGroup *YAGroup = [[YAUser currentUser].groups objectAtIndex:index];
+    YAGroup *group = [self.groups objectAtIndex:index];
     
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:YAGroup.name delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Edit Title", @"Edit Members", @"Mute Group", @"Leave Group", nil];
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:group.name delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Edit Title", @"Edit Members", @"Mute Group", @"Leave Group", nil];
     
     [actionSheet showInView:self.view];
 }
@@ -774,8 +775,6 @@
 }
 
 - (void) initGridTiles {
-    int tile_buffer = 0;
-    
     CGFloat spacing = 1.0f;
     self.gridLayout= [[UICollectionViewFlowLayout alloc] init];
     [self.gridLayout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + spacing, 0, 0, 0)];
@@ -902,7 +901,7 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
-    id snapshot = [[[YAUser currentUser] gridDataForGroupId:self.group.groupId] objectAtIndex:indexPath.row];
+    //id snapshot = [[[YAUser currentUser] gridDataForGroupId:self.group.groupId] objectAtIndex:indexPath.row];
     
 //    
 ////    if(self.selectedIndex){
@@ -1170,12 +1169,10 @@
 }
 
 - (void)setupGroups {
-    int cur = 0;
-    if([[YAUser currentUser] userDataForKey:nCurrentGroup]){
-        NSNumber *currentIndex = (NSNumber *)[[YAUser currentUser] userDataForKey:nCurrentGroup];
-        cur = [currentIndex intValue];
+    if([[YAUser currentUser] userDataForKey:nCurrentGroupId]){
+        YAGroup *group = [self groupWithId:(NSString*)[[YAUser currentUser] userDataForKey:nCurrentGroupId]];
         
-        [self configureGroup:[[YAUser currentUser].groups objectAtIndex:cur]];
+        [self configureGroup:group];
         [self.gridTiles reloadData];
     }
 
@@ -1285,12 +1282,6 @@
     return YES;
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    NSLog(@"memory warning in group controller? %lu", [[YAUser currentUser].groups indexOfObject:self.group]);
-    // Dispose of any resources that can be recreated.
-}
-
 /*
  #pragma mark - Navigation
  
@@ -1302,4 +1293,13 @@
  }
  */
 
+#pragma mark -
+- (YAGroup*)groupWithId:(NSString*)groupId {
+   RLMResults *results = [YAGroup objectsWhere:[NSString stringWithFormat:@"groupId = '%@'", groupId]];
+    if(results.count == 1)
+        return results[0];
+    
+    [NSException exceptionWithName:@"CAN'T BE TRUE" reason:@"Where did you get the id?" userInfo:nil];
+    return nil;
+}
 @end

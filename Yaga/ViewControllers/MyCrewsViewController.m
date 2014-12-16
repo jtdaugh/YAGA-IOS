@@ -28,48 +28,38 @@
     
     CGFloat origin = VIEW_HEIGHT *.025;
     
-    self.cta = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
-    [self.cta setText:@"Looks like you're already a part of a group. Pick which one you'd like to go to now."];
-    [self.cta setNumberOfLines:4];
-    [self.cta setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    //    [self.cta setBackgroundColor:PRIMARY_COLOR];
-    //    [self.cta sizeToFit];
-    [self.cta setTextAlignment:NSTextAlignmentCenter];
-    [self.cta setTextColor:[UIColor whiteColor]];
-    [self.view addSubview:self.cta];
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
+    [titleLabel setText:@"Looks like you're already a part of a group. Pick which one you'd like to go to now."];
+    [titleLabel setNumberOfLines:4];
+    [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [titleLabel setTextAlignment:NSTextAlignmentCenter];
+    [titleLabel setTextColor:[UIColor whiteColor]];
+    [self.view addSubview:titleLabel];
 
-    origin = [self getNewOrigin:self.cta];
+    origin = [self getNewOrigin:titleLabel];
     
-    GroupListTableView *elevator = [[GroupListTableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
+    GroupListTableView *groupsTableView = [[GroupListTableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
     
-    [elevator setScrollEnabled:NO];
-    [elevator setRowHeight:90];
-    [elevator setSeparatorColor:PRIMARY_COLOR];
-    [elevator setBackgroundColor:[UIColor clearColor]];
-    [elevator setSeparatorInset:UIEdgeInsetsZero];
-    [elevator setUserInteractionEnabled:YES];
+    [groupsTableView setScrollEnabled:NO];
+    [groupsTableView setRowHeight:90];
+    [groupsTableView setSeparatorColor:PRIMARY_COLOR];
+    [groupsTableView setBackgroundColor:[UIColor clearColor]];
+    [groupsTableView setSeparatorInset:UIEdgeInsetsZero];
+    [groupsTableView setUserInteractionEnabled:YES];
     
-    elevator.delegate = self;
+    groupsTableView.delegate = self;
 
-    [self.view addSubview:elevator];
+    [self.view addSubview:groupsTableView];
     
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if(indexPath.row == ([tableView numberOfRowsInSection:0] - 1)){
-//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"broken"
-//                                                        message:@"not working right now"
-//                                                       delegate:nil
-//                                              cancelButtonTitle:@"OK"
-//                                              otherButtonTitles:nil];
-//        [alert show];
         [self presentViewController:[[CreateViewController alloc] init] animated:YES completion:nil];
     } else {
         [self.navigationController dismissViewControllerAnimated:YES completion:^{
-            //
+            
         }];
-//        [self configureYAGroup: [[[CNetworking currentUser] YAGroup] objectAtIndex:indexPath.row]];
-//        [self closeElevator];
     }
 }
 

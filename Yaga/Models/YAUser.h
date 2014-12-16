@@ -26,13 +26,12 @@ typedef void (^contactsImportedBlock)(NSError *error, NSArray *contacts);
 #define nCompositeName @"composite_name"
 #define nFirstname @"firstname"
 #define nRegistered @"registered"
-#define nCurrentGroup @"current_group"
+#define nCurrentGroupId @"current_group_id"
 
 @interface YAUser : NSObject
 @property (nonatomic,assign)id delegate;
 @property (strong, nonatomic) NSMutableDictionary *userData;
 @property (strong, nonatomic) NSMutableDictionary *messages;
-@property (strong, nonatomic) NSMutableArray *groups;
 
 + (YAUser*)currentUser;
 
