@@ -37,6 +37,7 @@
                     <navigationItem key="navigationItem" id="D1z-Gu-9KB"/>
                     <connections>
                         <segue destination="RaH-tv-9ok" kind="presentation" identifier="SplashScreen" animates="NO" id="j7T-yz-DCi"/>
+                        <segue destination="DIa-5Z-moF" kind="presentation" identifier="CreateGroup" animates="NO" id="pQh-HD-Ggp"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="i4m-F9-tFP" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -80,6 +81,22 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Lle-qX-SkO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-2343" y="766.5"/>
+        </scene>
+        <!--Yaga Navigation Controller-->
+        <scene sceneID="zRe-Zz-IMA">
+            <objects>
+                <navigationController id="DIa-5Z-moF" customClass="YagaNavigationController" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="yOH-Z2-iSq">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="aCm-EC-oWm" kind="relationship" relationship="rootViewController" id="L8Z-y1-BlT"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="HGM-6r-QGF" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1005" y="-178.5"/>
         </scene>
         <!--Username View Controller-->
         <scene sceneID="CED-1p-zHV">
@@ -176,6 +193,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <navigationItem key="navigationItem" id="uHU-Xp-n1O"/>
                     <connections>
                         <segue destination="HLA-dy-d1e" kind="show" identifier="NameGroup" id="Ou0-GX-MAs"/>
                     </connections>
@@ -203,4 +221,7 @@
             <point key="canvasLocation" x="2283" y="1260"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="L8Z-y1-BlT"/>
+    </inferredMetricsTieBreakers>
 </document>

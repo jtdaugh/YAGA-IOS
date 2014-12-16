@@ -671,12 +671,13 @@
 }
 
 - (void)createGroup {
-    YagaNavigationController *vc = [[YagaNavigationController alloc] init];
-    [vc setViewControllers:@[[[AddMembersViewController alloc] init]]];
-    
-    [self presentViewController:vc animated:NO completion:^{
-        //
-    }];
+//    YagaNavigationController *vc = [[YagaNavigationController alloc] init];
+//    [vc setViewControllers:@[[[AddMembersViewController alloc] init]]];
+//    
+//    [self presentViewController:vc animated:NO completion:^{
+//        //
+//    }];
+    [self performSegueWithIdentifier:@"CreateGroup" sender:self];
 }
 
 - (void) tappedBall {

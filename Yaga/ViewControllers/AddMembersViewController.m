@@ -17,7 +17,7 @@
 #import "NameGroupViewController.h"
 
 @interface AddMembersViewController ()
-
+- (void)cancelScreen;
 @end
 
 @implementation AddMembersViewController
@@ -93,8 +93,15 @@
     [anotherButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.rightBarButtonItem = anotherButton;
     
-    [self importAddressBook];
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(cancelScreen)];
+    [cancelButton setTitleTextAttributes:@{
+                                            NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
+                                            } forState:UIControlStateNormal];
+    [cancelButton setEnabled:YES];
+    [cancelButton setTintColor:[UIColor lightGrayColor]];
+    self.navigationItem.leftBarButtonItem = cancelButton;
     
+    [self importAddressBook];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -384,11 +391,15 @@
     NSLog(@"hashedNumbers count: %lu", [hashedNumbers count]);
 }
 
-- (void)nextScreen {
-    [self performSegueWithIdentifier:@"NameGroup" sender:self];
-//    NameGroupViewController *vc = [[NameGroupViewController alloc] init];
-//    vc.members = self.selectedContacts;
-//    [self.navigationController pushViewController:vc animated:YES];
+
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    id vc = segue.destinationViewController;
+    if ([vc isKindOfClass:[NameGroupViewController class]]) {
+        NameGroupViewController *nameVC = (NameGroupViewController*)vc;
+        nameVC.members = self.selectedContacts;
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -396,14 +407,18 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+#pragma mark - Actions 
+- (void)cancelScreen
+{
+    [self dismissViewControllerAnimated:YES completion:^{
+    }];
 }
-*/
+
+- (void)nextScreen {
+    [self performSegueWithIdentifier:@"NameGroup" sender:self];
+    //    NameGroupViewController *vc = [[NameGroupViewController alloc] init];
+    //    vc.members = self.selectedContacts;
+    //    [self.navigationController pushViewController:vc animated:YES];
+}
 
 @end
