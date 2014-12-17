@@ -19,7 +19,7 @@
 #import "SplashViewController.h"
 #import "AddMembersViewController.h"
 #import "ElevatorView.h"
-#import "GroupListCell.h"
+#import "GroupsTableViewCell.h"
 
 //Swift headers
 //#import "Yaga-Swift.h"
@@ -89,11 +89,12 @@
     [self initLoader];
     [self initGridView];
     [self initCameraView];
+    [self initGroups];
     [self initCamera:^{
         [self setupGroups];
     }];
     
-    [self initGroups];
+
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -589,7 +590,7 @@
     
     //    [self.elevator setBackgroundColor:[UIColor colorWithWhite:0.8 alpha:0.8]];
     
-    self.elevator.groupsList = [[GroupListTableView alloc] initWithFrame:CGRectMake(0, ELEVATOR_MARGIN + 2, VIEW_WIDTH, VIEW_HEIGHT - ELEVATOR_MARGIN*2 - 84)];
+    //self.elevator.groupsList = [[GroupListTableView alloc] initWithFrame:CGRectMake(0, ELEVATOR_MARGIN + 2, VIEW_WIDTH, VIEW_HEIGHT - ELEVATOR_MARGIN*2 - 84)];
     
     [self.elevator.groupsList setScrollEnabled:YES];
     [self.elevator.groupsList setRowHeight:96];
@@ -598,7 +599,7 @@
     [self.elevator.groupsList setBackgroundColor:[UIColor clearColor]];
     [self.elevator.groupsList setUserInteractionEnabled:YES];
     [self.elevator.groupsList setContentInset:UIEdgeInsetsMake(44, 0, 0, 0)];
-    [self.elevator.groupsList registerClass:[GroupListCell class] forCellReuseIdentifier:@"ElevatorCell"];
+    [self.elevator.groupsList registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:@"ElevatorCell"];
     
     self.elevator.groupsList.delegate = self;
     self.elevator.groupsList.dataSource = self;
@@ -650,41 +651,32 @@
     }];
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
-    [self configureGroup:group];
-    [[YAUser currentUser] saveUserData:group.groupId forKey:nCurrentGroupId];
-    
-    [self closeGroups];
-}
+//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+//    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+//    [self configureGroup:group];
+//    [[YAUser currentUser] saveUserData:group.groupId forKey:nCurrentGroupId];
+//    
+//    [self closeGroups];
+//}
+//
+//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+//    return self.groups.count;
+//}
+//
+//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+//    static NSString *CellIdentifier = @"ElevatorCell";
+//    GroupsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+//    
+//    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+//    [cell.title setText:group.name];
+//    [cell.subtitle setText:group.membersString];
+//    
+//    [cell.icon setTag:indexPath.row];
+//    [cell.icon addTarget:self action:@selector(groupSettings:) forControlEvents:UIControlEventTouchUpInside];
+//    
+//    return cell;
+//}
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.groups.count;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"ElevatorCell";
-    GroupListCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    
-    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
-    [cell.title setText:group.name];
-    [cell.subtitle setText:group.membersString];
-    
-    [cell.icon setTag:indexPath.row];
-    [cell.icon addTarget:self action:@selector(groupSettings:) forControlEvents:UIControlEventTouchUpInside];
-    
-    return cell;
-}
-
-- (void)groupSettings:(UIButton *)sender {
-    NSInteger index = sender.tag;
-    
-    YAGroup *group = [self.groups objectAtIndex:index];
-    
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:group.name delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Edit Title", @"Edit Members", @"Mute Group", @"Leave Group", nil];
-    
-    [actionSheet showInView:self.view];
-}
 
 - (void)createGroup {
 //    YagaNavigationController *vc = [[YagaNavigationController alloc] init];
@@ -829,10 +821,7 @@
 
 - (void)configureGroup:(YAGroup *)group {
     self.group = group;
-    
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-        [self.switchGroups setTitle:[NSString stringWithFormat:@"%@ · %@", self.group.name, @"Switch"] forState:UIControlStateNormal];
-    }];
+    [self.switchGroups setTitle:[NSString stringWithFormat:@"%@ · %@", self.group.name, @"Switch"] forState:UIControlStateNormal];
 }
 
 - (void) deleteUid:(NSString *)uid {

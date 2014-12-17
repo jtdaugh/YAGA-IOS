@@ -31,7 +31,7 @@
 		6E9188DB1A3F3A5A0034AB63 /* AddMembersViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */; };
 		6E9188DC1A3F3A5A0034AB63 /* CreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188991A3F3A5A0034AB63 /* CreateViewController.m */; };
 		6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889B1A3F3A5A0034AB63 /* GridViewController.m */; };
-		6E9188DE1A3F3A5A0034AB63 /* MyCrewsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889D1A3F3A5A0034AB63 /* MyCrewsViewController.m */; };
+		6E9188DE1A3F3A5A0034AB63 /* MyGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889D1A3F3A5A0034AB63 /* MyGroupsViewController.m */; };
 		6E9188DF1A3F3A5A0034AB63 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */; };
 		6E9188E11A3F3A5A0034AB63 /* NoGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */; };
 		6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */; };
@@ -45,8 +45,7 @@
 		6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B71A3F3A5A0034AB63 /* CliqueTextField.m */; };
 		6E9188EB1A3F3A5A0034AB63 /* ElevatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B91A3F3A5A0034AB63 /* ElevatorView.m */; };
 		6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */; };
-		6E9188ED1A3F3A5A0034AB63 /* GroupListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupListCell.m */; };
-		6E9188EE1A3F3A5A0034AB63 /* GroupListTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BF1A3F3A5A0034AB63 /* GroupListTableView.m */; };
+		6E9188ED1A3F3A5A0034AB63 /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
 		6E9188EF1A3F3A5A0034AB63 /* TileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C11A3F3A5A0034AB63 /* TileCell.m */; };
 		6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C41A3F3A5A0034AB63 /* VENBackspaceTextField.m */; };
 		6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C61A3F3A5A0034AB63 /* VENToken.m */; };
@@ -111,8 +110,8 @@
 		6E9188991A3F3A5A0034AB63 /* CreateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreateViewController.m; sourceTree = "<group>"; };
 		6E91889A1A3F3A5A0034AB63 /* GridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridViewController.h; sourceTree = "<group>"; };
 		6E91889B1A3F3A5A0034AB63 /* GridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridViewController.m; sourceTree = "<group>"; };
-		6E91889C1A3F3A5A0034AB63 /* MyCrewsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyCrewsViewController.h; sourceTree = "<group>"; };
-		6E91889D1A3F3A5A0034AB63 /* MyCrewsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyCrewsViewController.m; sourceTree = "<group>"; };
+		6E91889C1A3F3A5A0034AB63 /* MyGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyGroupsViewController.h; sourceTree = "<group>"; };
+		6E91889D1A3F3A5A0034AB63 /* MyGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyGroupsViewController.m; sourceTree = "<group>"; };
 		6E91889E1A3F3A5A0034AB63 /* NameGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NameGroupViewController.h; sourceTree = "<group>"; };
 		6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NameGroupViewController.m; sourceTree = "<group>"; };
 		6E9188A21A3F3A5A0034AB63 /* NoGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoGroupsViewController.h; sourceTree = "<group>"; };
@@ -139,10 +138,8 @@
 		6E9188B91A3F3A5A0034AB63 /* ElevatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElevatorView.m; sourceTree = "<group>"; };
 		6E9188BA1A3F3A5A0034AB63 /* GroupDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupDetailView.h; sourceTree = "<group>"; };
 		6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupDetailView.m; sourceTree = "<group>"; };
-		6E9188BC1A3F3A5A0034AB63 /* GroupListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupListCell.h; sourceTree = "<group>"; };
-		6E9188BD1A3F3A5A0034AB63 /* GroupListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupListCell.m; sourceTree = "<group>"; };
-		6E9188BE1A3F3A5A0034AB63 /* GroupListTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupListTableView.h; sourceTree = "<group>"; };
-		6E9188BF1A3F3A5A0034AB63 /* GroupListTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupListTableView.m; sourceTree = "<group>"; };
+		6E9188BC1A3F3A5A0034AB63 /* GroupsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupsTableViewCell.h; sourceTree = "<group>"; };
+		6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupsTableViewCell.m; sourceTree = "<group>"; };
 		6E9188C01A3F3A5A0034AB63 /* TileCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileCell.h; sourceTree = "<group>"; };
 		6E9188C11A3F3A5A0034AB63 /* TileCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileCell.m; sourceTree = "<group>"; };
 		6E9188C31A3F3A5A0034AB63 /* VENBackspaceTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENBackspaceTextField.h; sourceTree = "<group>"; };
@@ -306,8 +303,8 @@
 				6E9188991A3F3A5A0034AB63 /* CreateViewController.m */,
 				6E91889A1A3F3A5A0034AB63 /* GridViewController.h */,
 				6E91889B1A3F3A5A0034AB63 /* GridViewController.m */,
-				6E91889C1A3F3A5A0034AB63 /* MyCrewsViewController.h */,
-				6E91889D1A3F3A5A0034AB63 /* MyCrewsViewController.m */,
+				6E91889C1A3F3A5A0034AB63 /* MyGroupsViewController.h */,
+				6E91889D1A3F3A5A0034AB63 /* MyGroupsViewController.m */,
 				6E91889E1A3F3A5A0034AB63 /* NameGroupViewController.h */,
 				6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */,
 				6E9188A21A3F3A5A0034AB63 /* NoGroupsViewController.h */,
@@ -349,10 +346,8 @@
 				6E9188B91A3F3A5A0034AB63 /* ElevatorView.m */,
 				6E9188BA1A3F3A5A0034AB63 /* GroupDetailView.h */,
 				6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */,
-				6E9188BC1A3F3A5A0034AB63 /* GroupListCell.h */,
-				6E9188BD1A3F3A5A0034AB63 /* GroupListCell.m */,
-				6E9188BE1A3F3A5A0034AB63 /* GroupListTableView.h */,
-				6E9188BF1A3F3A5A0034AB63 /* GroupListTableView.m */,
+				6E9188BC1A3F3A5A0034AB63 /* GroupsTableViewCell.h */,
+				6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */,
 				6E9188C01A3F3A5A0034AB63 /* TileCell.h */,
 				6E9188C11A3F3A5A0034AB63 /* TileCell.m */,
 				6E9188C21A3F3A5A0034AB63 /* VENTokenField */,
@@ -542,11 +537,10 @@
 				6E9188DC1A3F3A5A0034AB63 /* CreateViewController.m in Sources */,
 				6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* SplashViewController.m in Sources */,
-				6E9188EE1A3F3A5A0034AB63 /* GroupListTableView.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */,
 				6E9188EF1A3F3A5A0034AB63 /* TileCell.m in Sources */,
-				6E9188DE1A3F3A5A0034AB63 /* MyCrewsViewController.m in Sources */,
+				6E9188DE1A3F3A5A0034AB63 /* MyGroupsViewController.m in Sources */,
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
@@ -561,7 +555,7 @@
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
-				6E9188ED1A3F3A5A0034AB63 /* GroupListCell.m in Sources */,
+				6E9188ED1A3F3A5A0034AB63 /* GroupsTableViewCell.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
 				6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */,
 				6E9188E11A3F3A5A0034AB63 /* NoGroupsViewController.m in Sources */,
