@@ -13,10 +13,11 @@
 #import "YAUser.h"
 #import "NSString+Hash.h"
 
-#import "Yaga-Swift.h"
+//#import "Yaga-Swift.h"
+#import "YAAuthManager.h"
 
 @interface SplashViewController ()
-
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @end
 
 @implementation SplashViewController
@@ -36,8 +37,6 @@
     self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, origin, VIEW_WIDTH, VIEW_HEIGHT*.1)];
     [self.logo setImage:[UIImage imageNamed:@"Logo"]];
     [self.logo setContentMode:UIViewContentModeScaleAspectFit];
-//    [self.logo setAlpha:0.0];
-//    [self.logo setBackgroundColor:PRIMARY_COLOR];
     [self.view addSubview:self.logo];
     
     origin = [self getNewOrigin:self.logo];
@@ -46,8 +45,6 @@
     [self.cta setText:@"Enter your phone\n number to get started"];
     [self.cta setNumberOfLines:2];
     [self.cta setFont:[UIFont fontWithName:BIG_FONT size:24]];
-//    [self.cta setBackgroundColor:PRIMARY_COLOR];
-//    [self.cta sizeToFit];
     [self.cta setTextAlignment:NSTextAlignmentCenter];
     [self.cta setTextColor:[UIColor whiteColor]];
     [self.view addSubview:self.cta];
@@ -67,7 +64,6 @@
     [self.number setTintColor:[UIColor whiteColor]];
     [self.number setReturnKeyType:UIReturnKeyDone];
     [self.number addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
-//    self.number.delegate = self;
     [self.view addSubview:self.number];
     
     NSString *countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
@@ -91,16 +87,15 @@
     [self.next setAlpha:0.0];
     [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.next];
-    
+    //Init activity indicator
+    self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    self.activityIndicator.center = self.next.center;
+    self.activityIndicator.hidesWhenStopped = YES;
+    [self.view addSubview:self.activityIndicator];
 }
 
 - (CGFloat) getNewOrigin:(UIView *) anchor {
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)editingChanged {
@@ -148,8 +143,18 @@
                                      numberFormat:NBEPhoneNumberFormatE164
                                             error:&error];
     [[YAUser currentUser] saveUserData:formattedNumber forKey:nPhone];
-
-    [self performSegueWithIdentifier:@"NextScreen" sender:self];
+    
+    //Auth manager testing
+    [self.activityIndicator startAnimating];
+    __weak typeof(self) weakSelf = self;
+    [[YAAuthManager sharedManager] isPhoneNumberRegistered:formattedNumber completion:^(bool response, NSString *error) {
+        if (response) {
+           
+        } else {
+            [weakSelf performSegueWithIdentifier:@"NextScreen" sender:self];
+        }
+        [weakSelf.activityIndicator stopAnimating];
+    }];
 }
 
 /*
