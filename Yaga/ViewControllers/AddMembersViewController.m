@@ -167,7 +167,7 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.selectedContacts addObject:self.filteredContacts[indexPath.row]];
     [self reloadSearchBox];
-    
+
     [self.filteredContacts removeObject:self.filteredContacts[indexPath.row]];
     [self.membersTableview deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
@@ -192,39 +192,43 @@
     self.filteredContacts = [self.deviceContacts mutableCopy];
     [self.filteredContacts removeObjectsInArray:self.selectedContacts];
     
-    if([text isEqualToString:@""]){
+    if([text isEqualToString:@""]) {
         [self.membersTableview reloadData];
     } else {
+        [self.filteredContacts removeAllObjects];
+        [self.membersTableview reloadData];
+        
         NSArray *keys = [[text lowercaseString] componentsSeparatedByString:@" "];
-        NSMutableArray *objectsToRemove = [NSMutableArray array];
-        for(NSDictionary *contactDic in self.filteredContacts){
+        NSMutableSet *objectsToAdd = [NSMutableSet set];
+        
+        for(NSDictionary *contactDic in self.deviceContacts){
             NSArray *names = [[contactDic[nCompositeName] lowercaseString] componentsSeparatedByString:@" "];
             
-            BOOL notDetected = false;
+            BOOL notDetected = NO;
             
             for(NSString *key in keys){
                 if(![key isEqualToString:@""]){
-                    bool detected = false;
+                    BOOL detected = NO;
                     
                     for(NSString *name in names){
                         NSRange r = [name rangeOfString:key];
                         if(r.location == 0){
-                            detected = true;
+                            detected = YES;
                         }
                     }
                     
                     if(!detected){
-                        notDetected = true;
+                        notDetected = YES;
                     }
                 }
             }
             
-            if(notDetected){
-                [objectsToRemove addObject:contactDic];
+            if(!notDetected){
+                [objectsToAdd addObject:contactDic];
             }
         }
         
-        [self.filteredContacts removeObjectsInArray:objectsToRemove];
+        [self.filteredContacts addObjectsFromArray:[objectsToAdd allObjects]];
         [self.membersTableview reloadData];
     }
 }
