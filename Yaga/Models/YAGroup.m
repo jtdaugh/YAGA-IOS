@@ -28,7 +28,7 @@
     NSString *results = @"";
     for(int i = 0; i < self.members.count; i++) {
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
-        results = [results stringByAppendingFormat:@"%@\n", contact.name];
+        results = [results stringByAppendingFormat:@"%@%@", contact.name, (i < self.members.count - 1 ? @", " : @"")];
     }
     
     return results;

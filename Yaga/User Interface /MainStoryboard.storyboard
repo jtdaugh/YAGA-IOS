@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="54o-Be-McY">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6221" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="54o-Be-McY">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6213"/>
     </dependencies>
     <scenes>
         <!--Navigation Controller-->
@@ -112,7 +112,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
-                        <segue destination="owe-ug-5LR" kind="show" identifier="MyCrews" id="j7t-1O-Spt"/>
+                        <segue destination="owe-ug-5LR" kind="show" identifier="MyGroups" id="j7t-1O-Spt"/>
                         <segue destination="8kB-zq-qpz" kind="show" identifier="NoGroups" id="JW0-6p-qUQ"/>
                     </connections>
                 </viewController>
@@ -141,10 +141,10 @@
             </objects>
             <point key="canvasLocation" x="-815" y="1519"/>
         </scene>
-        <!--My Crews View Controller-->
+        <!--My Groups View Controller-->
         <scene sceneID="PG1-gJ-s8x">
             <objects>
-                <viewController id="owe-ug-5LR" customClass="MyCrewsViewController" sceneMemberID="viewController">
+                <viewController id="owe-ug-5LR" customClass="MyGroupsViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="pEP-hn-pWg"/>
                         <viewControllerLayoutGuide type="bottom" id="HMg-br-RDJ"/>

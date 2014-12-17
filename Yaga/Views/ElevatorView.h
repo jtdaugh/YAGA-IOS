@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GroupListTableView.h"
 
 @interface ElevatorView : UIView
 

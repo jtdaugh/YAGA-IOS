@@ -9,6 +9,8 @@
 #import "UsernameViewController.h"
 #import "YAUser.h"
 #import "Yaga-Swift.h"
+#import "MyGroupsViewController.h"
+
 @interface UsernameViewController ()
 
 @end
@@ -121,13 +123,20 @@
             //TODO: fetch groups
             
             if([[YAGroup allObjects] count] > 0){
-                [self performSegueWithIdentifier:@"MyCrews" sender:self];
+                [self performSegueWithIdentifier:@"MyGroups" sender:self];
             } else {
                 [self performSegueWithIdentifier:@"NoGroups" sender:self];
             }
         }];
         
     }];
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if([segue.destinationViewController isKindOfClass:[MyGroupsViewController class]]) {
+        ((MyGroupsViewController*)segue.destinationViewController).backgroundColor = [UIColor blackColor];
+        ((MyGroupsViewController*)segue.destinationViewController).showEditButton = NO;
+    }
 }
 
 @end
