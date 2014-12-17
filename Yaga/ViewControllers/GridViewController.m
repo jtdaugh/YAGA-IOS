@@ -22,7 +22,7 @@
 #import "GroupListCell.h"
 
 //Swift headers
-#import "Yaga-Swift.h"
+//#import "Yaga-Swift.h"
 
 @interface GridViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -409,8 +409,8 @@
         //----- RECORDED SUCESSFULLY -----
         
         NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
-        
-        [self uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
+
+        //[self uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
     } else {
         NSLog(@"wtf is going on");
     }

@@ -10,7 +10,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import "GridViewController.h"
 #import "YagaNavigationController.h"
-#import "NetworkingTestViewController.h"
 #import <Crashlytics/Crashlytics.h>
 
 
