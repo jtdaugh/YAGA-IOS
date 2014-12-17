@@ -7,6 +7,7 @@
 //
 
 #import "YASMSAuthentificationViewController.h"
+#import "YAAuthManager.h"
 
 @interface YASMSAuthentificationViewController ()
 @property (strong, nonatomic) UIImageView *logo;

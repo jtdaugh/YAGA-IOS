@@ -86,12 +86,19 @@
     [self.next.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
     [self.next setAlpha:0.0];
     [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
+    [self.next setTitle:@"" forState:UIControlStateDisabled];
     [self.view addSubview:self.next];
     //Init activity indicator
     self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     self.activityIndicator.center = self.next.center;
     self.activityIndicator.hidesWhenStopped = YES;
     [self.view addSubview:self.activityIndicator];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.next.enabled = YES;
 }
 
 - (CGFloat) getNewOrigin:(UIView *) anchor {
@@ -146,11 +153,15 @@
     
     //Auth manager testing
     [self.activityIndicator startAnimating];
+    self.next.enabled = NO;
     __weak typeof(self) weakSelf = self;
     [[YAAuthManager sharedManager] isPhoneNumberRegistered:formattedNumber completion:^(bool response, NSString *error) {
         if (response) {
            
         } else {
+            [[YAAuthManager sharedManager] sendSMSAuthRequestWithCompletion:^(bool response, NSString *error) {
+                NSLog(@"%@", error);
+            }];
             [weakSelf performSegueWithIdentifier:@"NextScreen" sender:self];
         }
         [weakSelf.activityIndicator stopAnimating];

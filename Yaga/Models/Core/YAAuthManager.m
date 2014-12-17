@@ -45,8 +45,25 @@
     NSString *api = [NSString stringWithFormat:@"%@/auth/info", self.base_api];
     [manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [[NSDictionary dictionaryFromResponseObject:responseObject withError:nil] objectForKey:RESULT];
-        NSNumber *result = [NSNumber numberWithInt:(int)dict[USER]];
-        completion(result.boolValue, nil);
+        NSNumber *result = [dict objectForKey:USER];
+        completion([result boolValue], nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(false, error.localizedDescription);
+    }];
+}
+
+- (void)sendSMSAuthRequestWithCompletion:(responseBlock)completion
+{
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    
+    NSDictionary *parameters = @{ @"phone" : @"+380938542758" };
+    
+    NSString *api = [NSString stringWithFormat:@"%@/auth/request", self.base_api];
+    [manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSDictionary *dict = [[NSDictionary dictionaryFromResponseObject:responseObject withError:nil] objectForKey:RESULT];
+        NSNumber *result = [dict objectForKey:USER];
+        completion([result boolValue], nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(false, error.localizedDescription);
     }];

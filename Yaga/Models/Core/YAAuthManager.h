@@ -12,4 +12,5 @@
 typedef void(^responseBlock)(bool response, NSString* error);
 + (instancetype)sharedManager; 
 - (void)isPhoneNumberRegistered:(NSString *)phoneNumber completion:(responseBlock)completion;
+- (void)sendSMSAuthRequestWithCompletion:(responseBlock)completion;
 @end
