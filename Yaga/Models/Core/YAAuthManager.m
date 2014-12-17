@@ -9,14 +9,19 @@
 #import "YAAuthManager.h"
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
 #import "NSDictionary+ResponseObject.h"
+#import "YAUser.h"
 #define HOST @"https://yaga-dev.herokuapp.com"
 #define API_ENDPOINT @"/api/v1"
 
 #define RESULT @"result"
 #define USER   @"user"
+#define TOKEN  @"token"
 
 @interface YAAuthManager ()
 @property (nonatomic, strong) NSString *base_api;
+@property (nonatomic, strong) NSString *phoneNumber;
+@property (nonatomic) AFHTTPRequestOperationManager *manager;
+@property (nonatomic, strong) NSString *token;
 @end
 
 @implementation YAAuthManager
@@ -32,18 +37,62 @@
 - (instancetype)init {
     if (self = [super init]) {
         _base_api = [NSString stringWithFormat:@"%@%@", HOST, API_ENDPOINT];
+        _manager = [AFHTTPRequestOperationManager manager];
+        _manager.requestSerializer = [AFJSONRequestSerializer serializer];
     }
     return self;
 }
 
-- (void)isPhoneNumberRegistered:(NSString *)phoneNumber completion:(responseBlock)completion {
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+- (void)setToken:(NSString *)token
+{
+    [[NSUserDefaults standardUserDefaults] setObject:token forKey:TOKEN];
+}
+
+- (NSString*)token {
+    return [[NSUserDefaults standardUserDefaults] objectForKey:TOKEN];
+}
+
+- (void)logout {
     
-    NSDictionary *parameters = @{ @"phone" : @"+380938542758" };
+}
+
+- (void)sendAboutRequestWithCompletion:(responseBlock)completion
+{
+    if (!self.token) return;
+    
+    NSDictionary *params = @{ @"Auth" : self.token };
+    
+    NSString *api = [NSString stringWithFormat:@"%@/auth/about", self.base_api];
+    [self.manager GET:api parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"%@", responseObject);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@", error);
+    }];
+}
+
+- (void)sendTokenRequestWithCompletion:(responseBlock)completion {
+    NSString *authCode = [[YAUser currentUser] authCode];
+    NSDictionary *parameters = @{@"phone": self.phoneNumber,
+                                 @"code" : authCode,
+                                 @"name" : @"Vasilij" };
+    
+    NSString *api = [NSString stringWithFormat:@"%@/auth/register", self.base_api];
+    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSDictionary *dict = [[NSDictionary dictionaryFromResponseObject:responseObject withError:nil] objectForKey:RESULT];
+        self.token = [dict objectForKey:TOKEN];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@", operation);        
+    }];
+}
+
+- (void)isPhoneNumberRegistered:(NSString *)aPhoneNumber completion:(responseBlock)completion {
+    
+    self.phoneNumber = aPhoneNumber;
+    
+    NSDictionary *parameters = @{ @"phone" : self.phoneNumber };
 
     NSString *api = [NSString stringWithFormat:@"%@/auth/info", self.base_api];
-    [manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [[NSDictionary dictionaryFromResponseObject:responseObject withError:nil] objectForKey:RESULT];
         NSNumber *result = [dict objectForKey:USER];
         completion([result boolValue], nil);
@@ -54,13 +103,12 @@
 
 - (void)sendSMSAuthRequestWithCompletion:(responseBlock)completion
 {
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    if (!self.phoneNumber) return;
     
-    NSDictionary *parameters = @{ @"phone" : @"+380938542758" };
+    NSDictionary *parameters = @{ @"phone" : self.phoneNumber };
     
     NSString *api = [NSString stringWithFormat:@"%@/auth/request", self.base_api];
-    [manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [[NSDictionary dictionaryFromResponseObject:responseObject withError:nil] objectForKey:RESULT];
         NSNumber *result = [dict objectForKey:USER];
         completion([result boolValue], nil);

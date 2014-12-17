@@ -143,7 +143,7 @@
     
     NSError *anError = nil;
     NBPhoneNumber *myNumber = [phoneUtil parse:self.number.text
-                                 defaultRegion:@"US" error:&anError];
+                                 defaultRegion:@"UA" error:&anError];
     
     NSError *error = nil;
     NSString *formattedNumber = [phoneUtil format:myNumber
@@ -157,7 +157,9 @@
     __weak typeof(self) weakSelf = self;
     [[YAAuthManager sharedManager] isPhoneNumberRegistered:formattedNumber completion:^(bool response, NSString *error) {
         if (response) {
-           
+           [[YAAuthManager sharedManager] sendAboutRequestWithCompletion:^(bool response, NSString *error) {
+               NSLog(@"sdf");
+           }];
         } else {
             [[YAAuthManager sharedManager] sendSMSAuthRequestWithCompletion:^(bool response, NSString *error) {
                 NSLog(@"%@", error);

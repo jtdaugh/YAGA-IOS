@@ -8,6 +8,7 @@
 
 #import "YASMSAuthentificationViewController.h"
 #import "YAAuthManager.h"
+#import "YAUser.h"
 
 @interface YASMSAuthentificationViewController ()
 @property (strong, nonatomic) UIImageView *logo;
@@ -103,6 +104,7 @@
 
 - (void)nextScreen
 {
+    [[YAUser currentUser] setAuthCode:self.number.text];
     [self performSegueWithIdentifier:@"NextScreen" sender:self];
 }
 
