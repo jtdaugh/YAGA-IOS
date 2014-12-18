@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SplashViewController : UIViewController<UITextFieldDelegate>
+@interface YAPhoneNumberViewController : UIViewController<UITextFieldDelegate>
 @property (strong, nonatomic) UIImageView *logo;
 @property (strong, nonatomic) UILabel *cta;
 @property (strong, nonatomic) UITextField *number;

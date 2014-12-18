@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "SplashViewController.h"
+#import "YAPhoneNumberViewController.h"
 #import "NBPhoneNumberUtil.h"
 #import "VerifyViewController.h"
 #import "UsernameViewController.h"
@@ -16,11 +16,11 @@
 //#import "Yaga-Swift.h"
 #import "YAAuthManager.h"
 
-@interface SplashViewController ()
+@interface YAPhoneNumberViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @end
 
-@implementation SplashViewController
+@implementation YAPhoneNumberViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];

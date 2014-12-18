@@ -15,7 +15,7 @@
 #import "YagaNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
 #import "CreateViewController.h"
-#import "SplashViewController.h"
+#import "YAPhoneNumberViewController.h"
 #import "AddMembersViewController.h"
 #import "YAUtils.h"
 #import "YAHideEmbeddedGroupsSegue.h"
@@ -92,7 +92,7 @@
     [[YAUser currentUser] logout];
     
     YagaNavigationController *vc = [[YagaNavigationController alloc] init];
-    [vc setViewControllers:@[[[SplashViewController alloc] init]]];
+    [vc setViewControllers:@[[[YAPhoneNumberViewController alloc] init]]];
     
     [self closeGroups];
     

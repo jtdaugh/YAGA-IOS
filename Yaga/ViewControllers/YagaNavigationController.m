@@ -7,7 +7,7 @@
 //
 
 #import "YagaNavigationController.h"
-#import "SplashViewController.h"
+#import "YAPhoneNumberViewController.h"
 #import "AddMembersViewController.h"
 
 @interface YagaNavigationController ()
