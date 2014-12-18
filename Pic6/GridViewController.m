@@ -201,7 +201,7 @@
     [self.recordButton setBackgroundColor:[UIColor redColor]];
     [self.recordButton.layer setCornerRadius:recordSize/2];
     [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
-    [self.recordButton.layer setBorderWidth:1.5f];
+    [self.recordButton.layer setBorderWidth:4.0f];
     
     UILongPressGestureRecognizer *buttonLongPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
     [buttonLongPressGestureRecognizer setMinimumPressDuration:0.2f];
@@ -340,10 +340,12 @@
     [self.cameraView bringSubviewToFront:self.instructions];
     
     [UIView animateWithDuration:0.2 animations:^{
-        [self.recordButton setAlpha:0.0];
+        for(UIView *v in self.cameraAccessories){
+            [v setAlpha:0.0];
+        }
+//        [self.recordButton setAlpha:0.0];
         [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     }];
-    
     
     [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
@@ -363,7 +365,9 @@
         [UIView animateWithDuration:0.2 animations:^{
             //
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
-            [self.recordButton setAlpha:1.0];
+            for(UIView *v in self.cameraAccessories){
+                [v setAlpha:1.0];
+            }
         }];
         
         [self.indicatorText setText:RECORD_INSTRUCTION];
@@ -996,6 +1000,7 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
     FDataSnapshot *snapshot = [[[CNetworking currentUser] gridDataForGroupId:self.groupInfo.groupId] objectAtIndex:indexPath.row];
+    //0]; //
     
 //    if(self.selectedIndex){
 //        [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, VIEW_WIDTH, VIEW_HEIGHT/2)];
