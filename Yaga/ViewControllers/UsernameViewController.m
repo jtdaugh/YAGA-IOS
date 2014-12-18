@@ -101,22 +101,22 @@
 
 - (void)nextButtonTapped:(id)sender {
     //Auth manager testing
-    [self.activityIndicator startAnimating];
-    self.nextButton.enabled = NO;
-    
+//    [self.activityIndicator startAnimating];
+//    self.nextButton.enabled = NO;
+//    
     __weak typeof(self) weakSelf = self;
-    [[YAAuthManager sharedManager] sendTokenRequestWithCompletion:^(bool response, NSString *error) {
+//    [[YAAuthManager sharedManager] sendTokenRequestWithCompletion:^(bool response, NSString *error) {
         [[YAUser currentUser] saveUserData:weakSelf.usernameTextField.text forKey:nUsername];
         [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
-        
+//
         if([[YAGroup allObjects] count] > 0){
             [weakSelf performSegueWithIdentifier:@"MyGroups" sender:weakSelf];
         } else {
             [weakSelf performSegueWithIdentifier:@"NoGroups" sender:weakSelf];
         }
-        
-        [weakSelf.activityIndicator stopAnimating];
-    }];
+//        
+//        [weakSelf.activityIndicator stopAnimating];
+//    }];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

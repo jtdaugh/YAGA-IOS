@@ -169,7 +169,10 @@
 }
 
 - (void)initCameraView {
-    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
+    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0,
+                                                                         -0,
+                                                                         VIEW_WIDTH,
+                                                                         VIEW_HEIGHT / 2 )];
     //    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.cameraView setBackgroundColor:PRIMARY_COLOR];
     [self.view addSubview:self.cameraView];
@@ -1074,14 +1077,15 @@
 }
 
 #pragma mark - Segues
-- (IBAction)unwindFromViewController:(UIStoryboardSegue *)sender {
-    
+- (UIViewController*)viewControllerForUnwindSegueAction:(SEL)action fromViewController:(UIViewController *)fromViewController withSender:(id)sender {
+    return fromViewController;
 }
 
 - (UIStoryboardSegue *)segueForUnwindingToViewController:(UIViewController *)toViewController fromViewController:(UIViewController *)fromViewController identifier:(NSString *)identifier {
     // Instantiate a new CustomUnwindSegue
     YAHideEmbeddedGroupsSegue *segue = [[YAHideEmbeddedGroupsSegue alloc] initWithIdentifier:identifier source:fromViewController destination:toViewController];
     // Set the target point for the animation to the center of the button in this VC
+    segue.gridViewController = self;
     return segue;
 }
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6221" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6213"/>
     </dependencies>
     <scenes>
         <!--Navigation Controller-->
@@ -176,7 +176,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zUg-0n-BZp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="877" y="-1637"/>
+            <point key="canvasLocation" x="399" y="-1611.75"/>
         </scene>
         <!--No Groups View Controller-->
         <scene sceneID="GaS-uY-5sY">
@@ -245,9 +245,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="j7t-1O-Spt"/>
+        <segue reference="JW0-6p-qUQ"/>
+        <segue reference="VSt-eZ-jNn"/>
         <segue reference="fvS-6s-erS"/>
-        <segue reference="Tvw-pK-akS"/>
-        <segue reference="ulu-fm-wh2"/>
+        <segue reference="ira-DT-4cj"/>
     </inferredMetricsTieBreakers>
 </document>

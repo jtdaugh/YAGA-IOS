@@ -190,6 +190,8 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
     }
 }
 
+- (IBAction)unwindFromViewController:(id)source {}
+
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     editingIndex = indexPath.row;
     [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
