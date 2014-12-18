@@ -12,6 +12,15 @@
 		6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */; };
 		6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */; };
 		6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */; };
+		6E73F4101A432498000B3A14 /* VideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F40D1A432498000B3A14 /* VideoPlayerView.m */; };
+		6E73F4111A432498000B3A14 /* VideoPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F40F1A432498000B3A14 /* VideoPlayerViewController.m */; };
+		6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4131A4324C0000B3A14 /* YAVideoCell.m */; };
+		6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4191A432713000B3A14 /* YACameraViewController.m */; };
+		6E73F4221A432FAC000B3A14 /* MyGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F41D1A432FAC000B3A14 /* MyGroupsViewController.m */; };
+		6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */; };
+		6E73F4241A432FAC000B3A14 /* NoGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */; };
+		6E73F42B1A43357D000B3A14 /* YACollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4261A43337D000B3A14 /* YACollectionViewController.m */; };
+		6E73F42E1A433679000B3A14 /* 5.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E73F42D1A433679000B3A14 /* 5.mp4 */; };
 		6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187651A3F2C270034AB63 /* AppDelegate.m */; };
 		6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E9187771A3F2C270034AB63 /* InfoPlist.strings */; };
 		6E9187CD1A3F2C270034AB63 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187841A3F2C270034AB63 /* main.m */; };
@@ -32,10 +41,7 @@
 		6E9188D91A3F3A5A0034AB63 /* 3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E9188921A3F3A5A0034AB63 /* 3.mp4 */; };
 		6E9188DA1A3F3A5A0034AB63 /* 4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E9188931A3F3A5A0034AB63 /* 4.mp4 */; };
 		6E9188DB1A3F3A5A0034AB63 /* AddMembersViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */; };
-		6E9188DC1A3F3A5A0034AB63 /* CreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188991A3F3A5A0034AB63 /* CreateViewController.m */; };
 		6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889B1A3F3A5A0034AB63 /* GridViewController.m */; };
-		6E9188DF1A3F3A5A0034AB63 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */; };
-		6E9188E11A3F3A5A0034AB63 /* NoGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */; };
 		6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */; };
 		6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */; };
 		6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */; };
@@ -46,7 +52,6 @@
 		6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B51A3F3A5A0034AB63 /* CliquePageControl.m */; };
 		6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B71A3F3A5A0034AB63 /* CliqueTextField.m */; };
 		6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */; };
-		6E9188EF1A3F3A5A0034AB63 /* TileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C11A3F3A5A0034AB63 /* TileCell.m */; };
 		6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C41A3F3A5A0034AB63 /* VENBackspaceTextField.m */; };
 		6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C61A3F3A5A0034AB63 /* VENToken.m */; };
 		6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E9188C71A3F3A5A0034AB63 /* VENToken.xib */; };
@@ -65,7 +70,6 @@
 		71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */; };
 		86B864991A41B7DE002256FF /* YAAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864981A41B7DE002256FF /* YAAuthManager.m */; };
 		86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */; };
-		86B8649D1A41D2F3002256FF /* MyGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889D1A3F3A5A0034AB63 /* MyGroupsViewController.m */; };
 		86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
 		86B864A01A43287C002256FF /* countries.json in Resources */ = {isa = PBXBuildFile; fileRef = 86B8649F1A43287C002256FF /* countries.json */; };
 		86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A51A433185002256FF /* YACountriesTableViewController.m */; };
@@ -87,6 +91,23 @@
 		6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAShowEmbeddedGroupsSegue.m; sourceTree = "<group>"; };
 		6E5E66811A4254EB00B58E49 /* YAGroupSelectedSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupSelectedSegue.h; sourceTree = "<group>"; };
 		6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupSelectedSegue.m; sourceTree = "<group>"; };
+		6E73F40C1A432498000B3A14 /* VideoPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerView.h; sourceTree = "<group>"; };
+		6E73F40D1A432498000B3A14 /* VideoPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerView.m; sourceTree = "<group>"; };
+		6E73F40E1A432498000B3A14 /* VideoPlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerViewController.h; sourceTree = "<group>"; };
+		6E73F40F1A432498000B3A14 /* VideoPlayerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerViewController.m; sourceTree = "<group>"; };
+		6E73F4121A4324C0000B3A14 /* YAVideoCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideoCell.h; sourceTree = "<group>"; };
+		6E73F4131A4324C0000B3A14 /* YAVideoCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideoCell.m; sourceTree = "<group>"; };
+		6E73F4181A432713000B3A14 /* YACameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraViewController.h; sourceTree = "<group>"; };
+		6E73F4191A432713000B3A14 /* YACameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACameraViewController.m; sourceTree = "<group>"; };
+		6E73F41C1A432FAC000B3A14 /* MyGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyGroupsViewController.h; sourceTree = "<group>"; };
+		6E73F41D1A432FAC000B3A14 /* MyGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyGroupsViewController.m; sourceTree = "<group>"; };
+		6E73F41E1A432FAC000B3A14 /* NameGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NameGroupViewController.h; sourceTree = "<group>"; };
+		6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NameGroupViewController.m; sourceTree = "<group>"; };
+		6E73F4201A432FAC000B3A14 /* NoGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoGroupsViewController.h; sourceTree = "<group>"; };
+		6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoGroupsViewController.m; sourceTree = "<group>"; };
+		6E73F4251A43337D000B3A14 /* YACollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACollectionViewController.h; sourceTree = "<group>"; };
+		6E73F4261A43337D000B3A14 /* YACollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACollectionViewController.m; sourceTree = "<group>"; };
+		6E73F42D1A433679000B3A14 /* 5.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 5.mp4; sourceTree = "<group>"; };
 		6E9187641A3F2C270034AB63 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		6E9187651A3F2C270034AB63 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		6E9187721A3F2C270034AB63 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -121,16 +142,8 @@
 		6E9188941A3F3A5A0034AB63 /* Yaga-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Yaga-Bridging-Header.h"; sourceTree = "<group>"; };
 		6E9188961A3F3A5A0034AB63 /* AddMembersViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddMembersViewController.h; sourceTree = "<group>"; };
 		6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddMembersViewController.m; sourceTree = "<group>"; };
-		6E9188981A3F3A5A0034AB63 /* CreateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateViewController.h; sourceTree = "<group>"; };
-		6E9188991A3F3A5A0034AB63 /* CreateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreateViewController.m; sourceTree = "<group>"; };
 		6E91889A1A3F3A5A0034AB63 /* GridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridViewController.h; sourceTree = "<group>"; };
 		6E91889B1A3F3A5A0034AB63 /* GridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridViewController.m; sourceTree = "<group>"; };
-		6E91889C1A3F3A5A0034AB63 /* MyGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyGroupsViewController.h; sourceTree = "<group>"; };
-		6E91889D1A3F3A5A0034AB63 /* MyGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyGroupsViewController.m; sourceTree = "<group>"; };
-		6E91889E1A3F3A5A0034AB63 /* NameGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NameGroupViewController.h; sourceTree = "<group>"; };
-		6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NameGroupViewController.m; sourceTree = "<group>"; };
-		6E9188A21A3F3A5A0034AB63 /* NoGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoGroupsViewController.h; sourceTree = "<group>"; };
-		6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoGroupsViewController.m; sourceTree = "<group>"; };
 		6E9188A51A3F3A5A0034AB63 /* YASMSAuthentificationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASMSAuthentificationViewController.h; sourceTree = "<group>"; };
 		6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASMSAuthentificationViewController.m; sourceTree = "<group>"; };
 		6E9188A71A3F3A5A0034AB63 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
@@ -153,8 +166,6 @@
 		6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupDetailView.m; sourceTree = "<group>"; };
 		6E9188BC1A3F3A5A0034AB63 /* GroupsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupsTableViewCell.h; sourceTree = "<group>"; };
 		6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupsTableViewCell.m; sourceTree = "<group>"; };
-		6E9188C01A3F3A5A0034AB63 /* TileCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileCell.h; sourceTree = "<group>"; };
-		6E9188C11A3F3A5A0034AB63 /* TileCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TileCell.m; sourceTree = "<group>"; };
 		6E9188C31A3F3A5A0034AB63 /* VENBackspaceTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENBackspaceTextField.h; sourceTree = "<group>"; };
 		6E9188C41A3F3A5A0034AB63 /* VENBackspaceTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VENBackspaceTextField.m; sourceTree = "<group>"; };
 		6E9188C51A3F3A5A0034AB63 /* VENToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENToken.h; sourceTree = "<group>"; };
@@ -235,6 +246,30 @@
 				6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */,
 			);
 			path = Segues;
+			sourceTree = "<group>";
+		};
+		6E73F40B1A432498000B3A14 /* Video Player */ = {
+			isa = PBXGroup;
+			children = (
+				6E73F40C1A432498000B3A14 /* VideoPlayerView.h */,
+				6E73F40D1A432498000B3A14 /* VideoPlayerView.m */,
+				6E73F40E1A432498000B3A14 /* VideoPlayerViewController.h */,
+				6E73F40F1A432498000B3A14 /* VideoPlayerViewController.m */,
+			);
+			path = "Video Player";
+			sourceTree = "<group>";
+		};
+		6E73F41B1A432FAC000B3A14 /* Groups */ = {
+			isa = PBXGroup;
+			children = (
+				6E73F41C1A432FAC000B3A14 /* MyGroupsViewController.h */,
+				6E73F41D1A432FAC000B3A14 /* MyGroupsViewController.m */,
+				6E73F41E1A432FAC000B3A14 /* NameGroupViewController.h */,
+				6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */,
+				6E73F4201A432FAC000B3A14 /* NoGroupsViewController.h */,
+				6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */,
+			);
+			path = Groups;
 			sourceTree = "<group>";
 		};
 		6E9187611A3F2C270034AB63 /* Yaga */ = {
@@ -336,6 +371,7 @@
 				6E9188911A3F3A5A0034AB63 /* 2.mp4 */,
 				6E9188921A3F3A5A0034AB63 /* 3.mp4 */,
 				6E9188931A3F3A5A0034AB63 /* 4.mp4 */,
+				6E73F42D1A433679000B3A14 /* 5.mp4 */,
 			);
 			path = vids;
 			sourceTree = "<group>";
@@ -343,20 +379,16 @@
 		6E9188951A3F3A5A0034AB63 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				6E73F41B1A432FAC000B3A14 /* Groups */,
+				6E73F40B1A432498000B3A14 /* Video Player */,
 				6E9188A41A3F3A5A0034AB63 /* Onboarding */,
 				6E5E667A1A424E3300B58E49 /* Segues */,
 				6E9188961A3F3A5A0034AB63 /* AddMembersViewController.h */,
 				6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */,
-				6E9188981A3F3A5A0034AB63 /* CreateViewController.h */,
-				6E9188991A3F3A5A0034AB63 /* CreateViewController.m */,
+				6E73F4251A43337D000B3A14 /* YACollectionViewController.h */,
+				6E73F4261A43337D000B3A14 /* YACollectionViewController.m */,
 				6E91889A1A3F3A5A0034AB63 /* GridViewController.h */,
 				6E91889B1A3F3A5A0034AB63 /* GridViewController.m */,
-				6E91889C1A3F3A5A0034AB63 /* MyGroupsViewController.h */,
-				6E91889D1A3F3A5A0034AB63 /* MyGroupsViewController.m */,
-				6E91889E1A3F3A5A0034AB63 /* NameGroupViewController.h */,
-				6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */,
-				6E9188A21A3F3A5A0034AB63 /* NoGroupsViewController.h */,
-				6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */,
 				6E9188A71A3F3A5A0034AB63 /* OverlayViewController.h */,
 				6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */,
 				6E9188AB1A3F3A5A0034AB63 /* UsernameViewController.h */,
@@ -365,6 +397,8 @@
 				6E9188AE1A3F3A5A0034AB63 /* VerifyViewController.m */,
 				6E9188AF1A3F3A5A0034AB63 /* YagaNavigationController.h */,
 				6E9188B01A3F3A5A0034AB63 /* YagaNavigationController.m */,
+				6E73F4181A432713000B3A14 /* YACameraViewController.h */,
+				6E73F4191A432713000B3A14 /* YACameraViewController.m */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -389,6 +423,8 @@
 		6E9188B11A3F3A5A0034AB63 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				6E73F4121A4324C0000B3A14 /* YAVideoCell.h */,
+				6E73F4131A4324C0000B3A14 /* YAVideoCell.m */,
 				6E9188B21A3F3A5A0034AB63 /* AVCamPreviewView.h */,
 				6E9188B31A3F3A5A0034AB63 /* AVCamPreviewView.m */,
 				6E9188B41A3F3A5A0034AB63 /* CliquePageControl.h */,
@@ -399,8 +435,6 @@
 				6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */,
 				6E9188BC1A3F3A5A0034AB63 /* GroupsTableViewCell.h */,
 				6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */,
-				6E9188C01A3F3A5A0034AB63 /* TileCell.h */,
-				6E9188C11A3F3A5A0034AB63 /* TileCell.m */,
 				6E9188C21A3F3A5A0034AB63 /* VENTokenField */,
 			);
 			path = Views;
@@ -516,6 +550,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E73F42E1A433679000B3A14 /* 5.mp4 in Resources */,
 				6E9188DA1A3F3A5A0034AB63 /* 4.mp4 in Resources */,
 				6E9188D81A3F3A5A0034AB63 /* 2.mp4 in Resources */,
 				6E9188D61A3F3A5A0034AB63 /* 0.mp4 in Resources */,
@@ -583,30 +618,31 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E73F42B1A43357D000B3A14 /* YACollectionViewController.m in Sources */,
 				6EA942161A404B00001803C5 /* YAGroup.m in Sources */,
 				6E9188DB1A3F3A5A0034AB63 /* AddMembersViewController.m in Sources */,
 				6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */,
 				6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */,
 				6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */,
 				6E9188D31A3F3A5A0034AB63 /* NetworkManager.swift in Sources */,
-				6E9188DC1A3F3A5A0034AB63 /* CreateViewController.m in Sources */,
 				6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */,
 				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
 				86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */,
-				6E9188EF1A3F3A5A0034AB63 /* TileCell.m in Sources */,
 				86B864991A41B7DE002256FF /* YAAuthManager.m in Sources */,
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
+				6E73F4241A432FAC000B3A14 /* NoGroupsViewController.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */,
-				86B8649D1A41D2F3002256FF /* MyGroupsViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
 				86B864AC1A433343002256FF /* CountryCell.m in Sources */,
+				6E73F4111A432498000B3A14 /* VideoPlayerViewController.m in Sources */,
+				6E73F4221A432FAC000B3A14 /* MyGroupsViewController.m in Sources */,
+				6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */,
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
 				6E9188E51A3F3A5A0034AB63 /* UsernameViewController.m in Sources */,
-				6E9188DF1A3F3A5A0034AB63 /* NameGroupViewController.m in Sources */,
 				6E9188E61A3F3A5A0034AB63 /* VerifyViewController.m in Sources */,
 				6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */,
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
@@ -616,8 +652,9 @@
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
 				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
+				6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */,
 				6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */,
-				6E9188E11A3F3A5A0034AB63 /* NoGroupsViewController.m in Sources */,
+				6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */,
 				6E9188D01A3F3A5A0034AB63 /* UIImage+Resize.m in Sources */,
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
@@ -627,6 +664,7 @@
 				6E9188CA1A3F3A5A0034AB63 /* AVPlayer+AVPlayer_Async.m in Sources */,
 				6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */,
 				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,
+				6E73F4101A432498000B3A14 /* VideoPlayerView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

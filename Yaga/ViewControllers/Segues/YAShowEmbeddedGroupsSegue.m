@@ -28,7 +28,7 @@
     groupsController.view.alpha = 0.0;
     
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-        [gridController.cameraView setFrame:CGRectMake(0, -gridController.cameraView.frame.size.height + ELEVATOR_MARGIN, gridController.cameraView.frame.size.width, gridController.cameraView.frame.size.height)];
+        [gridController.cameraViewController.view setFrame:CGRectMake(0, -gridController.cameraViewController.view.frame.size.height + ELEVATOR_MARGIN, gridController.cameraViewController.view.frame.size.width, gridController.cameraViewController.view.frame.size.height)];
         
         groupsController.view.frame = CGRectMake(0, ELEVATOR_MARGIN, groupsController.view.frame.size.width, gridController.view.bounds.size.height - ELEVATOR_MARGIN);
         //
