@@ -33,6 +33,8 @@ typedef void (^contactsImportedBlock)(NSError *error, NSOrderedSet *contacts);
 
 @property (nonatomic, strong) YAGroup *currentGroup;
 
+@property (nonatomic) BOOL phoneNumberIsRegistered;
+
 @property (nonatomic,assign)  id delegate;
 @property (strong, nonatomic) NSMutableDictionary *userData;
 @property (strong, nonatomic) NSMutableDictionary *messages;

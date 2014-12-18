@@ -155,17 +155,9 @@
     [self.activityIndicator startAnimating];
     self.next.enabled = NO;
     __weak typeof(self) weakSelf = self;
-    [[YAAuthManager sharedManager] isPhoneNumberRegistered:formattedNumber completion:^(bool response, NSString *error) {
-        if (response) {
-           [[YAAuthManager sharedManager] sendAboutRequestWithCompletion:^(bool response, NSString *error) {
-               NSLog(@"sdf");
-           }];
-        } else {
-            [[YAAuthManager sharedManager] sendSMSAuthRequestWithCompletion:^(bool response, NSString *error) {
-                NSLog(@"%@", error);
-            }];
-            [weakSelf performSegueWithIdentifier:@"NextScreen" sender:self];
-        }
+    [[YAAuthManager sharedManager] isPhoneNumberRegistered:formattedNumber completion:^(bool registered, NSString *error) {
+        [[YAUser currentUser] setPhoneNumberIsRegistered:registered];
+        [weakSelf performSegueWithIdentifier:@"AuthentificationViewController" sender:self];
         [weakSelf.activityIndicator stopAnimating];
     }];
 }
