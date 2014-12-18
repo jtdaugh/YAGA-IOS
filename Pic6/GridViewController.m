@@ -339,6 +339,12 @@
     [self.cameraView addSubview:self.indicator];
     [self.cameraView bringSubviewToFront:self.instructions];
     
+    [UIView animateWithDuration:0.2 animations:^{
+        [self.recordButton setAlpha:0.0];
+        [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    }];
+    
+    
     [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
     } completion:^(BOOL finished) {
@@ -354,6 +360,12 @@
 
 - (void) endHold {
     if([self.recording boolValue]){
+        [UIView animateWithDuration:0.2 animations:^{
+            //
+            [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+            [self.recordButton setAlpha:1.0];
+        }];
+        
         [self.indicatorText setText:RECORD_INSTRUCTION];
         [self.indicator removeFromSuperview];
         [self stopRecordingVideo];
@@ -1101,6 +1113,7 @@
                 
                 [collectionView setPagingEnabled:YES];
                 [self.cameraView removeFromSuperview];
+                [self.recordButton removeFromSuperview];
             } else {
                 self.selectedIndex = nil;
                 [collectionView setCollectionViewLayout:self.gridLayout animated:YES completion:^(BOOL finished) {
@@ -1118,6 +1131,7 @@
                 
                 [collectionView setPagingEnabled:NO];
                 [self.view addSubview:self.cameraView];
+                [self.view addSubview:self.recordButton];
 
             }
 //            [self presentOverlay:selected];
