@@ -29,11 +29,16 @@ typedef void (^contactsImportedBlock)(NSError *error, NSOrderedSet *contacts);
 
 #define nCurrentGroupId @"current_group_id"
 
+#define DIAL_CODE @"dial_code"
+#define COUNTRY_CODE @"code"
+
 @interface YAUser : NSObject
 
 @property (nonatomic, strong) YAGroup *currentGroup;
 
 @property (nonatomic) BOOL phoneNumberIsRegistered;
+@property (nonatomic, copy) NSString *dialCode;
+@property (nonatomic, copy) NSString *countryCode;
 
 @property (nonatomic,assign)  id delegate;
 @property (strong, nonatomic) NSMutableDictionary *userData;

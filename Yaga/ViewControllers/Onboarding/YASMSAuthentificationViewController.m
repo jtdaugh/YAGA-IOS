@@ -114,10 +114,11 @@
         }];
     } else {
         [[YAAuthManager sharedManager] loginWithCompletion:^(bool response, NSString *error) {
-            [[YAUser currentUser] saveUserData:@"None" forKey:nUsername];
-            //[[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
-            [self performSegueWithIdentifier:@"GridViewController" sender:self];
-            
+            if (response) {
+                [[YAUser currentUser] saveUserData:@"None" forKey:nUsername];
+                //[[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
+                [self performSegueWithIdentifier:@"GridViewController" sender:self];
+            }
         }];
     }
 }

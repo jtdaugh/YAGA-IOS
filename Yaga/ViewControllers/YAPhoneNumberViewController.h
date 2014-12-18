@@ -12,6 +12,6 @@
 @property (strong, nonatomic) UIImageView *logo;
 @property (strong, nonatomic) UILabel *cta;
 @property (strong, nonatomic) UITextField *number;
-@property (strong, nonatomic) UIButton *country;
+@property (strong, nonatomic) IBOutlet UIButton *country;
 @property (strong, nonatomic) UIButton *next;
 @end

@@ -21,6 +21,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedCNetworking = [[self alloc] init];
+        sharedCNetworking.countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
     });
     return sharedCNetworking;
 }

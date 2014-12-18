@@ -51,7 +51,6 @@
     
     origin = [self getNewOrigin:self.cta];
 
-    
     CGFloat formWidth = VIEW_WIDTH *.7;
     CGFloat gutter = VIEW_WIDTH * .05;
     self.number = [[UITextField alloc] initWithFrame:CGRectMake(VIEW_WIDTH-formWidth-gutter, origin, formWidth, VIEW_HEIGHT*.08)];
@@ -66,14 +65,12 @@
     [self.number addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
     [self.view addSubview:self.number];
     
-    NSString *countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
-
     self.country = [[UIButton alloc] initWithFrame:CGRectMake(gutter, origin, VIEW_WIDTH - formWidth - gutter*3, VIEW_HEIGHT*.08)];
-    [self.country setTitle:countryCode forState:UIControlStateNormal];
+    [self.country setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
     self.country.layer.borderColor = [[UIColor whiteColor] CGColor];
     self.country.layer.borderWidth = 3.0f;
     [self.country.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    
+    [self.country addTarget:self action:@selector(selectCountryTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.country setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:self.country];
     
@@ -88,6 +85,7 @@
     [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
     [self.next setTitle:@"" forState:UIControlStateDisabled];
     [self.view addSubview:self.next];
+    
     //Init activity indicator
     self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     self.activityIndicator.center = self.next.center;
@@ -98,6 +96,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self.country setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
     self.next.enabled = YES;
 }
 
@@ -114,7 +113,7 @@
         
         NSError *anError = nil;
         NBPhoneNumber *myNumber = [phoneUtil parse:self.number.text
-                                     defaultRegion:@"US" error:&anError];
+                                     defaultRegion:[YAUser currentUser].countryCode error:&anError];
         
         NSError *error = nil;
         NSString *text = [phoneUtil format:myNumber
@@ -131,9 +130,7 @@
         [UIView animateWithDuration:0.3 animations:^{
             [self.next setAlpha:0.0];
         }];
-
     }
-    
 }
 
 - (void)nextScreen {
@@ -143,7 +140,7 @@
     
     NSError *anError = nil;
     NBPhoneNumber *myNumber = [phoneUtil parse:self.number.text
-                                 defaultRegion:@"UA" error:&anError];
+                                 defaultRegion:[YAUser currentUser].countryCode error:&anError];
     
     NSError *error = nil;
     NSString *formattedNumber = [phoneUtil format:myNumber
@@ -169,14 +166,9 @@
     }];
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+#pragma mark - Actions 
+- (void)selectCountryTapped:(id)sender {
+    [self performSegueWithIdentifier:@"PresentCountriesModally" sender:nil];
 }
-*/
 
 @end

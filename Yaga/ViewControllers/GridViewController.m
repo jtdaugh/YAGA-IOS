@@ -697,13 +697,6 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:kYACloseGroupsNotification object:nil];
 }
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([segue.identifier isEqualToString:@"ShowEmbeddedUserGroups"]) {
-        
-    }
-}
-
 - (void) initGridTiles {
     CGFloat spacing = 1.0f;
     self.gridLayout= [[UICollectionViewFlowLayout alloc] init];

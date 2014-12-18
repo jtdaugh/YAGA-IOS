@@ -67,6 +67,10 @@
 		86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */; };
 		86B8649D1A41D2F3002256FF /* MyGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889D1A3F3A5A0034AB63 /* MyGroupsViewController.m */; };
 		86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
+		86B864A01A43287C002256FF /* countries.json in Resources */ = {isa = PBXBuildFile; fileRef = 86B8649F1A43287C002256FF /* countries.json */; };
+		86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A51A433185002256FF /* YACountriesTableViewController.m */; };
+		86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A81A43322F002256FF /* CountryListDataSource.m */; };
+		86B864AC1A433343002256FF /* CountryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864AB1A433343002256FF /* CountryCell.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -131,8 +135,8 @@
 		6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASMSAuthentificationViewController.m; sourceTree = "<group>"; };
 		6E9188A71A3F3A5A0034AB63 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
 		6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
-		6E9188A91A3F3A5A0034AB63 /* YAPhoneNumberViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPhoneNumberViewController.h; sourceTree = "<group>"; };
-		6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPhoneNumberViewController.m; sourceTree = "<group>"; };
+		6E9188A91A3F3A5A0034AB63 /* YAPhoneNumberViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YAPhoneNumberViewController.h; path = ../YAPhoneNumberViewController.h; sourceTree = "<group>"; };
+		6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YAPhoneNumberViewController.m; path = ../YAPhoneNumberViewController.m; sourceTree = "<group>"; };
 		6E9188AB1A3F3A5A0034AB63 /* UsernameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UsernameViewController.h; sourceTree = "<group>"; };
 		6E9188AC1A3F3A5A0034AB63 /* UsernameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UsernameViewController.m; sourceTree = "<group>"; };
 		6E9188AD1A3F3A5A0034AB63 /* VerifyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VerifyViewController.h; sourceTree = "<group>"; };
@@ -179,6 +183,13 @@
 		86B864981A41B7DE002256FF /* YAAuthManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAAuthManager.m; sourceTree = "<group>"; };
 		86B8649A1A41CA74002256FF /* NSDictionary+ResponseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ResponseObject.h"; sourceTree = "<group>"; };
 		86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+ResponseObject.m"; sourceTree = "<group>"; };
+		86B8649F1A43287C002256FF /* countries.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = countries.json; sourceTree = "<group>"; };
+		86B864A41A433185002256FF /* YACountriesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACountriesTableViewController.h; sourceTree = "<group>"; };
+		86B864A51A433185002256FF /* YACountriesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACountriesTableViewController.m; sourceTree = "<group>"; };
+		86B864A71A43322F002256FF /* CountryListDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CountryListDataSource.h; sourceTree = "<group>"; };
+		86B864A81A43322F002256FF /* CountryListDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CountryListDataSource.m; sourceTree = "<group>"; };
+		86B864AA1A433343002256FF /* CountryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CountryCell.h; sourceTree = "<group>"; };
+		86B864AB1A433343002256FF /* CountryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CountryCell.m; sourceTree = "<group>"; };
 		86EF0B8E1A40592F00FF4E3C /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -308,6 +319,7 @@
 		6E91888C1A3F3A5A0034AB63 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				86B8649F1A43287C002256FF /* countries.json */,
 				6E91888D1A3F3A5A0034AB63 /* Images.xcassets */,
 				6E91888E1A3F3A5A0034AB63 /* vids */,
 				6E9188941A3F3A5A0034AB63 /* Yaga-Bridging-Header.h */,
@@ -347,8 +359,6 @@
 				6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */,
 				6E9188A71A3F3A5A0034AB63 /* OverlayViewController.h */,
 				6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */,
-				6E9188A91A3F3A5A0034AB63 /* YAPhoneNumberViewController.h */,
-				6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */,
 				6E9188AB1A3F3A5A0034AB63 /* UsernameViewController.h */,
 				6E9188AC1A3F3A5A0034AB63 /* UsernameViewController.m */,
 				6E9188AD1A3F3A5A0034AB63 /* VerifyViewController.h */,
@@ -364,6 +374,14 @@
 			children = (
 				6E9188A51A3F3A5A0034AB63 /* YASMSAuthentificationViewController.h */,
 				6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */,
+				6E9188A91A3F3A5A0034AB63 /* YAPhoneNumberViewController.h */,
+				6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */,
+				86B864A41A433185002256FF /* YACountriesTableViewController.h */,
+				86B864A51A433185002256FF /* YACountriesTableViewController.m */,
+				86B864A71A43322F002256FF /* CountryListDataSource.h */,
+				86B864A81A43322F002256FF /* CountryListDataSource.m */,
+				86B864AA1A433343002256FF /* CountryCell.h */,
+				86B864AB1A433343002256FF /* CountryCell.m */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -506,6 +524,7 @@
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
 				6E9188D71A3F3A5A0034AB63 /* 1.mp4 in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
+				86B864A01A43287C002256FF /* countries.json in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
 				6E9188D91A3F3A5A0034AB63 /* 3.mp4 in Resources */,
 			);
@@ -584,6 +603,7 @@
 				86B8649D1A41D2F3002256FF /* MyGroupsViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
+				86B864AC1A433343002256FF /* CountryCell.m in Sources */,
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
 				6E9188E51A3F3A5A0034AB63 /* UsernameViewController.m in Sources */,
 				6E9188DF1A3F3A5A0034AB63 /* NameGroupViewController.m in Sources */,
@@ -592,6 +612,7 @@
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
+				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
 				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
@@ -605,6 +626,7 @@
 				6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */,
 				6E9188CA1A3F3A5A0034AB63 /* AVPlayer+AVPlayer_Async.m in Sources */,
 				6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */,
+				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -711,7 +733,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "57b119c8-6cdd-4974-b311-e1c2eda16716";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -738,7 +760,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "57b119c8-6cdd-4974-b311-e1c2eda16716";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
