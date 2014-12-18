@@ -196,6 +196,21 @@
     [self.cameraAccessories addObject:self.flashButton];
     [self.cameraView addSubview:self.flashButton];
     
+    float recordSize = 60;
+    self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2 - recordSize/2, self.cameraView.frame.size.height - recordSize/2, recordSize, recordSize)];
+    [self.recordButton setBackgroundColor:[UIColor redColor]];
+    [self.recordButton.layer setCornerRadius:recordSize/2];
+    [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
+    [self.recordButton.layer setBorderWidth:1.5f];
+    
+    UILongPressGestureRecognizer *buttonLongPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+    [buttonLongPressGestureRecognizer setMinimumPressDuration:0.2f];
+    buttonLongPressGestureRecognizer.delegate = self;
+    [self.recordButton addGestureRecognizer:longPressGestureRecognizer];
+    
+    [self.cameraAccessories addObject:self.recordButton];
+    
+    [self.view addSubview:self.recordButton];
     //    self.cameraView.layer.shadowColor = [[UIColor redColor] CGColor];
     //    self.cameraView.layer.shadowRadius = 10.0f;
     //    self.cameraView.layer.shadowOpacity = 1;
@@ -1043,6 +1058,9 @@
 //        frame = self.switchGroups.frame;
 //        frame.origin.y = self.cameraView.frame.size.height - self.switchGroups.frame.size.height - offset;
 //        self.switchGroups.frame = frame;
+        frame = self.recordButton.frame;
+        frame.origin.y = self.cameraView.frame.size.height - self.recordButton.frame.size.height/2 - offset;
+        self.recordButton.frame = frame;
         
         if(self.selectedIndex){
             

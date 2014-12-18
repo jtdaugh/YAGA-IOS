@@ -75,6 +75,7 @@
 
 @property (strong, nonatomic) UIButton *switchButton;
 @property (strong, nonatomic) UIButton *flashButton;
+@property (strong, nonatomic) UIButton *recordButton;
 
 - (void)collapse:(TileCell *)tile speed:(CGFloat)speed;
 
