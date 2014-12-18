@@ -331,6 +331,7 @@
 		6E9188951A3F3A5A0034AB63 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				6E9188A41A3F3A5A0034AB63 /* Onboarding */,
 				6E5E667A1A424E3300B58E49 /* Segues */,
 				6E9188961A3F3A5A0034AB63 /* AddMembersViewController.h */,
 				6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */,
@@ -344,7 +345,6 @@
 				6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */,
 				6E9188A21A3F3A5A0034AB63 /* NoGroupsViewController.h */,
 				6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */,
-				6E9188A41A3F3A5A0034AB63 /* Onboarding */,
 				6E9188A71A3F3A5A0034AB63 /* OverlayViewController.h */,
 				6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */,
 				6E9188A91A3F3A5A0034AB63 /* SplashViewController.h */,

@@ -118,6 +118,22 @@
             </objects>
             <point key="canvasLocation" x="257" y="1499"/>
         </scene>
+        <!--Yaga Navigation Controller-->
+        <scene sceneID="lG4-2c-b7K">
+            <objects>
+                <navigationController storyboardIdentifier="OnboardingNoGroupsNavigationController" id="u3c-T6-QEZ" customClass="YagaNavigationController" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="skR-Wr-a7e">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="8kB-zq-qpz" kind="relationship" relationship="rootViewController" id="Tvw-pK-akS"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="37V-Ju-VTr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="837" y="2847"/>
+        </scene>
         <!--Authentification View Controller-->
         <scene sceneID="Zcb-su-0aa">
             <objects>
@@ -175,13 +191,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <navigationItem key="navigationItem" id="7vC-9P-Arh"/>
                     <connections>
                         <segue destination="aCm-EC-oWm" kind="show" identifier="AddMembers" id="ulu-fm-wh2"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ayQ-ds-F9a" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1311" y="1436"/>
+            <point key="canvasLocation" x="1239" y="1044"/>
         </scene>
         <!--Add Members View Controller-->
         <scene sceneID="k4F-VU-T6d">
@@ -228,8 +245,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="j7t-1O-Spt"/>
         <segue reference="fvS-6s-erS"/>
-        <segue reference="VSt-eZ-jNn"/>
-        <segue reference="ira-DT-4cj"/>
+        <segue reference="Tvw-pK-akS"/>
+        <segue reference="ulu-fm-wh2"/>
     </inferredMetricsTieBreakers>
 </document>

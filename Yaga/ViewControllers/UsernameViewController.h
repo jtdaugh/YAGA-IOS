@@ -9,7 +9,4 @@
 #import <UIKit/UIKit.h>
 
 @interface UsernameViewController : UIViewController
-@property (strong, nonatomic) UILabel *cta;
-@property (strong, nonatomic) UITextField *username;
-@property (strong, nonatomic) UIButton *next;
 @end

@@ -9,8 +9,7 @@
 #import "AppDelegate.h"
 #import <Crashlytics/Crashlytics.h>
 #import "YAUser.h"
-//test
-#import "GridViewController.h"
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -21,7 +20,18 @@
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
     
-    UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:[[YAUser currentUser] loggedIn] ? @"LoggedInUserNavigationController" : @"OnboardingNavigationController"];
+    NSString *identifier;
+    if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
+        identifier = @"LoggedInUserNavigationController";
+    }
+    else if(![[YAUser currentUser] loggedIn]) {
+        identifier = @"OnboardingNavigationController";
+    }
+    else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup) {
+        identifier = @"OnboardingNoGroupsNavigationController";
+    }
+    
+    UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
     self.window.rootViewController = viewController;
     
     [self.window makeKeyAndVisible];
