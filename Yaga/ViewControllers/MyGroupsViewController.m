@@ -24,6 +24,12 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    if(self.showCreateGroupButton) {
+        UITapGestureRecognizer *tapToClose = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(close:)];
+        tapToClose.delegate = self;
+        [self.view addGestureRecognizer:tapToClose];
+    }
+    
     self.groups = [YAGroup allObjects];
     self.view.backgroundColor = self.backgroundColor;
     
@@ -61,10 +67,22 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
         self.tableView.layoutMargins = UIEdgeInsetsZero;
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    if([touch.view isKindOfClass:[UITableViewCell class]])
+        return NO;
+    // UITableViewCellContentView => UITableViewCell
+    if([touch.view.superview isKindOfClass:[UITableViewCell class]])
+        return NO;
+    // UITableViewCellContentView => UITableViewCellScrollView => UITableViewCell
+    if([touch.view.superview.superview isKindOfClass:[UITableViewCell class]])
+        return NO;
     
-    UITapGestureRecognizer *tapToClose = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(close:)];
-    tapToClose.delegate = self;
-    [self.view addGestureRecognizer:tapToClose];
+    if([touch.view isKindOfClass:[UIButton class]])
+        return NO;
+    
+    return YES;
 }
 
 - (void)close:(id)sender {
