@@ -101,8 +101,11 @@
     // Start the animation
     [myIndicator startAnimating];
 
+    RLMRealm *realm = [RLMRealm defaultRealm];
+    [realm beginWriteTransaction];
+    
     YAGroup *group = [YAGroup new];
-    group.groupId = [NSString stringWithFormat:@"%f", [NSDate timeIntervalSinceReferenceDate]];
+    group.groupId = [YAGroup generateGroupId];
     group.name = self.groupNameTextField.text;
     
     for(NSDictionary *memberDic in self.membersDic){
@@ -114,16 +117,15 @@
         
         [group.members addObject:contact];
     }
-    
-    RLMRealm *realm = [RLMRealm defaultRealm];
-    [realm beginWriteTransaction];
+
     [realm addObject:group];
     [realm commitWriteTransaction];
 
-    [[YAUser currentUser] saveUserData:group.groupId forKey:nCurrentGroupId];
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    [YAUser currentUser].currentGroup = group;
+    [[RLMRealm defaultRealm] commitWriteTransaction];
     
-    [self.navigationController dismissViewControllerAnimated:YES completion:^{}];
-    
+    [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
     
 //    [currentUser createCrew:self.groupTitle.text withMembers:hashes withCompletionBlock:^{
 //        [currentUser myCrewsWithCompletion:^{

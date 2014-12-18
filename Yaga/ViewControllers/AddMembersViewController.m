@@ -84,7 +84,7 @@
     [anotherButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.rightBarButtonItem = anotherButton;
 
-    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(cancelScreen)];
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", @"") style:UIBarButtonItemStylePlain target:self action:@selector(cancelScreen)];
     [cancelButton setTitleTextAttributes:@{
                                             NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
                                             } forState:UIControlStateNormal];
@@ -108,6 +108,11 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self.searchBar becomeFirstResponder];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
 }
 
 - (void)keyboardWasShown:(NSNotification *)notification {
@@ -256,8 +261,7 @@
 #pragma mark - Actions 
 - (void)cancelScreen
 {
-    [self dismissViewControllerAnimated:YES completion:^{
-    }];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 

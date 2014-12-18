@@ -10,6 +10,17 @@
 
 @implementation YAGroup
 
++ (RLMPropertyAttributes)attributesForProperty:(NSString *)propertyName {
+    RLMPropertyAttributes attributes = [super attributesForProperty:propertyName];
+    if ([propertyName isEqualToString:@"groupId"]) {
+        attributes |= RLMPropertyAttributeIndexed;
+    }
+    return attributes;
+}
+
++ (NSString *)primaryKey {
+    return @"groupId";
+}
 // Specify default values for properties
 
 //+ (NSDictionary *)defaultPropertyValues
@@ -33,4 +44,13 @@
     
     return results;
 }
+
++ (NSString*)generateGroupId {
+    CFUUIDRef theUUID = CFUUIDCreate(NULL);
+    CFStringRef string = CFUUIDCreateString(NULL, theUUID);
+    CFRelease(theUUID);
+    
+    return [NSString stringWithFormat:@"group_%@", (__bridge NSString *)string];
+}
+
 @end

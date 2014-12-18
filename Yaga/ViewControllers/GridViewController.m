@@ -12,31 +12,80 @@
 #import "NSString+File.h"
 #import "TileCell.h"
 #import "AVPlayer+AVPlayer_Async.h"
-#import "OverlayViewController.h"
 #import "YagaNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
 #import "CreateViewController.h"
 #import "SplashViewController.h"
 #import "AddMembersViewController.h"
-#import "ElevatorView.h"
-#import "GroupsTableViewCell.h"
+#import "YAUtils.h"
+#import "YAHideEmbeddedGroupsSegue.h"
 
 //Swift headers
 //#import "Yaga-Swift.h"
 
 @interface GridViewController ()
-@property (nonatomic, strong) RLMResults *groups;
+
+@property (nonatomic, strong) UIButton *switchGroupsButton;
+
+@property (strong, nonatomic) NSNumber *setup;
+@property (strong, nonatomic) NSNumber *appeared;
+@property (strong, nonatomic) NSNumber *onboarding;
+
+@property (strong, nonatomic) UIView *gridView;
+@property (strong, nonatomic) UICollectionView *gridTiles;
+@property (strong, nonatomic) NSIndexPath *selectedIndex;
+@property (strong, nonatomic) UICollectionViewFlowLayout *gridLayout;
+@property (strong, nonatomic) UICollectionViewFlowLayout *swipeLayout;
+@property (strong, nonatomic) NSMutableArray *gridData;
+@property (strong, nonatomic) NSNumber *scrolling;
+@property (strong, nonatomic) UIRefreshControl *pull;
+@property (strong, nonatomic) UIActivityIndicatorView *loader;
+
+@property (strong, nonatomic) UIView *banner;
+
+@property (strong, nonatomic) UIView *overlay;
+
+@property (strong, nonatomic) TileCell *loaderTile;
+
+@property (strong, nonatomic) UIButton *basketball;
+@property (strong, nonatomic) UIView *groupsView;
+
+
+@property (strong, nonatomic) UILabel *groupTitle;
+
+
+@property (strong, nonatomic) UIButton *cameraButton;
+@property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
+@property (strong, nonatomic) FBShimmeringView *instructions;
+@property (strong, nonatomic) UIView *indicator;
+@property (strong, nonatomic) UILabel *indicatorText;
+@property (strong, nonatomic) UIView *white;
+@property (strong, nonatomic) NSNumber *recording;
+@property (strong, nonatomic) NSNumber *FrontCamera;
+@property (strong, nonatomic) NSNumber *flash;
+@property (strong, nonatomic) NSNumber *previousBrightness;
+@property (strong, nonatomic) NSMutableArray *cameraAccessories;
+
+@property (strong, nonatomic) AVCaptureSession *session;
+@property (nonatomic) dispatch_queue_t sessionQueue;
+
+@property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
+@property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
+
+@property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
+
+@property (strong, nonatomic) UIButton *switchButton;
+@property (strong, nonatomic) UIButton *flashButton;
 @end
 
 @implementation GridViewController
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    [self setupView];
     
-    //    [[CNetworking currentUser] logout];
-    //if([[CNetworking currentUser] loggedIn]){
-    //if ([[NetworkManager sharedManager] userIsLoggedIn]) {
-        [self setupView];
-    //}
+
 }
 
 - (void)logout {
@@ -55,7 +104,7 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
+
     if([[YAUser currentUser] loggedIn]){
         if(![self.appeared boolValue]){
             self.appeared = [NSNumber numberWithBool:YES];
@@ -78,20 +127,17 @@
 }
 
 - (void)setupView {
-    
     self.setup = [NSNumber numberWithBool:YES];
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
-    [Crashlytics setUserIdentifier:(NSString *) [[YAUser currentUser] userDataForKey:nUsername]];
+    [Crashlytics setUserIdentifier:(NSString *) [[YAUser currentUser] objectForKey:nUsername]];
     
     [self initOverlay];
-    [self initElevator];
     [self initLoader];
     [self initGridView];
     [self initCameraView];
-    [self initGroups];
+    
     [self initCamera:^{
-        [self setupGroups];
     }];
     
 
@@ -189,12 +235,22 @@
     [self.cameraAccessories addObject:self.flashButton];
     [self.cameraView addSubview:self.flashButton];
     
-    //    self.cameraView.layer.shadowColor = [[UIColor redColor] CGColor];
-    //    self.cameraView.layer.shadowRadius = 10.0f;
-    //    self.cameraView.layer.shadowOpacity = 1;
-    //    self.cameraView.layer.shadowOffset = CGSizeZero;
     
+    //switch groups button
+    gutter = 96, height = 42;
+    self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, self.cameraView.frame.size.height - height, self.cameraView.frame.size.width , height)];
+    //    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
+    [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
+    [self.switchGroupsButton addTarget:self action:@selector(switchGroupsTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"%@ · %@", [YAUser currentUser].currentGroup.name, @"Switch"] forState:UIControlStateNormal];
     
+    self.switchGroupsButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.switchGroupsButton.layer.shadowRadius = 1.0f;
+    self.switchGroupsButton.layer.shadowOpacity = 1.0;
+    self.switchGroupsButton.layer.shadowOffset = CGSizeZero;
+    
+    [self.cameraAccessories addObject:self.switchGroupsButton];
+    [self.cameraView addSubview:self.switchGroupsButton];
 }
 
 - (void)initCamera:(void (^)())block {
@@ -296,10 +352,6 @@
             }];
         }
     });
-}
-
-- (void)afterCameraInit {
-    [self setupGroups];
 }
 
 - (void)addAudioInput {
@@ -408,17 +460,16 @@
     if (RecordedSuccessfully)
     {
         //----- RECORDED SUCESSFULLY -----
-        
-        NSData *videoData = [NSData dataWithContentsOfURL:outputFileURL];
-
-        //[self uploadData:videoData withType:@"video" withOutputURL:outputFileURL];
+        [YAUtils uploadVideoRecoringFromUrl:outputFileURL completion:^(NSError *error) {
+            
+        }];
     } else {
         NSLog(@"wtf is going on");
     }
     
 }
 
-- (void) switchCamera:(id)sender { //switch cameras front and rear cameras
+- (void)switchCamera:(id)sender { //switch cameras front and rear cameras
     //    int *x = NULL; *x = 42;
     
     dispatch_async([self sessionQueue], ^{
@@ -487,7 +538,7 @@
     return captureDevice;
 }
 
-- (void) switchFlashMode:(id)sender {
+- (void)switchFlashMode:(id)sender {
     
     NSLog(@"switching flash mode");
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
@@ -530,7 +581,7 @@
             [[UIScreen mainScreen] setBrightness:1.0];
             [self.view addSubview:self.white];
             [self.view bringSubviewToFront:self.cameraView];
-            [self.view bringSubviewToFront:self.switchGroups];
+            [self.view bringSubviewToFront:self.switchGroupsButton];
             [self configureFlashButton:[NSNumber numberWithBool:YES]];
         }
         
@@ -557,213 +608,90 @@
     [self.view addSubview:self.gridView];
 }
 
-- (void)initGroups {
-    self.groups = [YAGroup allObjects];
-    
-    CGFloat gutter = 96, height = 42;
-//    CGFloat bottom = 28;
-    self.switchGroups = [[UIButton alloc] initWithFrame:CGRectMake(gutter, self.cameraView.frame.size.height - height, self.cameraView.frame.size.width - gutter*2, height)];
-    //    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
-    [self.switchGroups.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
-    [self.switchGroups addTarget:self action:@selector(switchGroupsTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.switchGroups setTitle:@"Switch Groups" forState:UIControlStateNormal];
-    self.switchGroups.layer.shadowColor = [[UIColor blackColor] CGColor];
-    self.switchGroups.layer.shadowRadius = 1.0f;
-    self.switchGroups.layer.shadowOpacity = 1.0;
-    self.switchGroups.layer.shadowOffset = CGSizeZero;
-    
-    [self.cameraAccessories addObject:self.switchGroups];
-    
-    //    [self.switchGroups setBackgroundColor:PRIMARY_COLOR];
-    //    self.switchGroups.layer.cornerRadius = height/2;
-    //    self.switchGroups.clipsToBounds = YES;
-    //    self.switchGroups.layer.borderWidth = 1.0f;
-    //    self.switchGroups.layer.borderColor = [[UIColor blackColor] CGColor];
-    [self.cameraView addSubview:self.switchGroups];
-    
-    
-}
-
-- (void) initElevator {
-    
-    self.elevator = [[ElevatorView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    
-    //    [self.elevator setBackgroundColor:[UIColor colorWithWhite:0.8 alpha:0.8]];
-    
-    //self.elevator.groupsList = [[GroupListTableView alloc] initWithFrame:CGRectMake(0, ELEVATOR_MARGIN + 2, VIEW_WIDTH, VIEW_HEIGHT - ELEVATOR_MARGIN*2 - 84)];
-    
-    [self.elevator.groupsList setScrollEnabled:YES];
-    [self.elevator.groupsList setRowHeight:96];
-    //    [self.elevator.groupsList setSeparatorColor:PRIMARY_COLOR];
-    [self.elevator.groupsList setSeparatorStyle:UITableViewCellSeparatorStyleNone];
-    [self.elevator.groupsList setBackgroundColor:[UIColor clearColor]];
-    [self.elevator.groupsList setUserInteractionEnabled:YES];
-    [self.elevator.groupsList setContentInset:UIEdgeInsetsMake(44, 0, 0, 0)];
-    [self.elevator.groupsList registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:@"ElevatorCell"];
-    
-    self.elevator.groupsList.delegate = self;
-    self.elevator.groupsList.dataSource = self;
-    
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeGroups)];
-    tap.delegate = self;
-    [self.elevator.tapOut addGestureRecognizer:tap];
-    
-    [self.elevator addSubview:self.elevator.groupsList];
-    
-    self.elevator.border = [[UIView alloc] initWithFrame:CGRectMake(0, self.elevator.groupsList.frame.size.height + self.elevator.groupsList.frame.origin.y, self.elevator.frame.size.width, 0.5)];
-    [self.elevator.border setBackgroundColor:[UIColor colorWithWhite:0.80 alpha:1.0]];
-    [self.elevator addSubview:self.elevator.border];
-    
-    
-    UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(50, 600, 200, 40)];
-    [logoutButton setBackgroundColor:[UIColor greenColor]];
-    [logoutButton setTitle:@"Reload Groups" forState:UIControlStateNormal];
-    [logoutButton.titleLabel setTextColor:[UIColor redColor]];
-    [logoutButton addTarget:self action:@selector(reloadGroups) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.elevator.createGroup = [[UIButton alloc] initWithFrame:
-                                 CGRectMake(44,
-                                            self.elevator.groupsList.frame.size.height + self.elevator.groupsList.frame.origin.y,
-                                            VIEW_WIDTH - 44,
-                                            VIEW_HEIGHT - self.elevator.groupsList.frame.size.height - ELEVATOR_MARGIN*2 - 2 - self.elevator.border.frame.size.height)
-                                 ];
-    [self.elevator addSubview:self.elevator.createGroup];
-    [self.elevator.createGroup setTitle:@"Create Group  〉" forState:UIControlStateNormal];
-    [self.elevator.createGroup.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
-    [self.elevator.createGroup setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-    [self.elevator.createGroup setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
-    [self.elevator.createGroup addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
-    //    [self.elevator addSubview:logoutButton];
-    
-    
-    
-    [self.view addSubview:self.elevator];
-    //    [self.view sendSubviewToBack:self.elevatorMenu];
-    
-    [self.elevator.groupsList reloadData];
-    
-    [self.elevator setAlpha:0.0];
-}
-
-- (void)reloadGroups {
-    [[YAUser currentUser] myCrewsWithCompletion:^{
-        NSLog(@"myCrewsWithCompletion completed");
-    }];
-}
-
-//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-//    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
-//    [self configureGroup:group];
-//    [[YAUser currentUser] saveUserData:group.groupId forKey:nCurrentGroupId];
+//- (void) initElevator {
 //    
-//    [self closeGroups];
-//}
-//
-//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-//    return self.groups.count;
-//}
-//
-//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-//    static NSString *CellIdentifier = @"ElevatorCell";
-//    GroupsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+//    self.elevator = [[ElevatorView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
 //    
-//    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
-//    [cell.title setText:group.name];
-//    [cell.subtitle setText:group.membersString];
+//    //    [self.elevator setBackgroundColor:[UIColor colorWithWhite:0.8 alpha:0.8]];
 //    
-//    [cell.icon setTag:indexPath.row];
-//    [cell.icon addTarget:self action:@selector(groupSettings:) forControlEvents:UIControlEventTouchUpInside];
+//    //self.elevator.groupsList = [[GroupListTableView alloc] initWithFrame:CGRectMake(0, ELEVATOR_MARGIN + 2, VIEW_WIDTH, VIEW_HEIGHT - ELEVATOR_MARGIN*2 - 84)];
 //    
-//    return cell;
+//    [self.elevator.groupsList setScrollEnabled:YES];
+//    [self.elevator.groupsList setRowHeight:96];
+//    //    [self.elevator.groupsList setSeparatorColor:PRIMARY_COLOR];
+//    [self.elevator.groupsList setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+//    [self.elevator.groupsList setBackgroundColor:[UIColor clearColor]];
+//    [self.elevator.groupsList setUserInteractionEnabled:YES];
+//    [self.elevator.groupsList setContentInset:UIEdgeInsetsMake(44, 0, 0, 0)];
+//    [self.elevator.groupsList registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:@"ElevatorCell"];
+//    
+//    self.elevator.groupsList.delegate = self;
+//    self.elevator.groupsList.dataSource = self;
+//    
+//    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeGroups)];
+//    tap.delegate = self;
+//    [self.elevator.tapOut addGestureRecognizer:tap];
+//    
+//    [self.elevator addSubview:self.elevator.groupsList];
+//    
+//    self.elevator.border = [[UIView alloc] initWithFrame:CGRectMake(0, self.elevator.groupsList.frame.size.height + self.elevator.groupsList.frame.origin.y, self.elevator.frame.size.width, 0.5)];
+//    [self.elevator.border setBackgroundColor:[UIColor colorWithWhite:0.80 alpha:1.0]];
+//    [self.elevator addSubview:self.elevator.border];
+//    
+//    
+//    UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(50, 600, 200, 40)];
+//    [logoutButton setBackgroundColor:[UIColor greenColor]];
+//    [logoutButton setTitle:@"Reload Groups" forState:UIControlStateNormal];
+//    [logoutButton.titleLabel setTextColor:[UIColor redColor]];
+//    [logoutButton addTarget:self action:@selector(reloadGroups) forControlEvents:UIControlEventTouchUpInside];
+//    
+//    self.elevator.createGroup = [[UIButton alloc] initWithFrame:
+//                                 CGRectMake(44,
+//                                            self.elevator.groupsList.frame.size.height + self.elevator.groupsList.frame.origin.y,
+//                                            VIEW_WIDTH - 44,
+//                                            VIEW_HEIGHT - self.elevator.groupsList.frame.size.height - ELEVATOR_MARGIN*2 - 2 - self.elevator.border.frame.size.height)
+//                                 ];
+//    [self.elevator addSubview:self.elevator.createGroup];
+//    [self.elevator.createGroup setTitle:@"Create Group  〉" forState:UIControlStateNormal];
+//    [self.elevator.createGroup.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
+//    [self.elevator.createGroup setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+//    [self.elevator.createGroup setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+//    [self.elevator.createGroup addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
+//    //    [self.elevator addSubview:logoutButton];
+//    
+//    
+//    
+//    [self.view addSubview:self.elevator];
+//    //    [self.view sendSubviewToBack:self.elevatorMenu];
+//    
+//    [self.elevator.groupsList reloadData];
+//    
+//    [self.elevator setAlpha:0.0];
 //}
 
-
-- (void)createGroup {
-//    YagaNavigationController *vc = [[YagaNavigationController alloc] init];
-//    [vc setViewControllers:@[[[AddMembersViewController alloc] init]]];
-//    
-//    [self presentViewController:vc animated:NO completion:^{
-//        //
-//    }];
-    [self performSegueWithIdentifier:@"CreateGroup" sender:self];
-}
-
-- (void) switchGroupsTapped:(id)sender {
+- (void)switchGroupsTapped:(id)sender {
     if(![self.scrolling boolValue]){
         if(self.gridTiles.contentOffset.y > 0){
             
         } else {
-            [self toggleElevator];
+            if(self.elevatorOpen){
+                [self closeGroups];
+            } else {
+                [self openGroups];
+            }
+
         }
     } else {
         
-    }
-}
-
-- (void)toggleElevator {
-    if([self.elevatorOpen boolValue]){
-        [self closeGroups];
-    } else {
-        [self openGroups];
     }
 }
 
 - (void)openGroups {
-    
-    //    [self.elevatorMenu reloadData];
-    [self.elevator setAlpha:0.0];
-    [self.elevator setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
-    [self.view bringSubviewToFront:self.elevator];
-    
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-        //
-        [self.cameraView setFrame:CGRectMake(0, -(VIEW_HEIGHT/2)+ELEVATOR_MARGIN, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
-        CGRect ballFrame = self.switchGroups.frame;
-        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
-        [self.switchGroups setFrame:ballFrame];
-        
-        CGRect frame = self.gridTiles.frame;
-        frame.origin.y += VIEW_HEIGHT/2 - ELEVATOR_MARGIN;
-        [self.gridTiles setFrame:frame];
-        
-        for(UIView *view in self.cameraAccessories){
-            [view setAlpha:0.0];
-        }
-        
-        [self.elevator setTransform:CGAffineTransformIdentity];
-        [self.elevator setAlpha:1.0];
-        
-    } completion:^(BOOL finished) {
-        self.elevatorOpen = [NSNumber numberWithBool:YES];
-    }];
-    
+    [self performSegueWithIdentifier:@"ShowEmbeddedUserGroups" sender:self];
 }
 
-- (void) closeGroups {
-    [self.elevator setTransform:CGAffineTransformIdentity];
-    
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-        //
-        [self.cameraView setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
-        CGRect ballFrame = self.switchGroups.frame;
-        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
-        [self.switchGroups setFrame:ballFrame];
-        
-        CGRect frame = self.gridTiles.frame;
-        frame.origin.y = 0;
-        [self.gridTiles setFrame:frame];
-        [self.elevator setAlpha:0.0];
-        
-        for(UIView *view in self.cameraAccessories){
-            [view setAlpha:1.0];
-        }
-        
-        [self.elevator setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
-        
-    } completion:^(BOOL finished) {
-        self.elevatorOpen = [NSNumber numberWithBool:NO];
-        [self.view sendSubviewToBack:self.elevator];
-    }];
+- (void)closeGroups {
+     [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
 }
 
 - (void) initGridTiles {
@@ -817,11 +745,6 @@
     [self.overlay setAlpha:0.0];
     
     [self.view addSubview:self.overlay];
-}
-
-- (void)configureGroup:(YAGroup *)group {
-    self.group = group;
-    [self.switchGroups setTitle:[NSString stringWithFormat:@"%@ · %@", self.group.name, @"Switch"] forState:UIControlStateNormal];
 }
 
 - (void) deleteUid:(NSString *)uid {
@@ -885,7 +808,7 @@
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return [[[YAUser currentUser] gridDataForGroupId:self.group.groupId] count];
+    return [YAUser currentUser].currentGroup.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -929,32 +852,32 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    if([scrollView isEqual:self.gridTiles]){
-        self.scrolling = [NSNumber numberWithBool:YES];
-        CGFloat offset = 0;
-        
-        CGFloat gutter = 44;
-        
-        if(scrollView.contentOffset.y > VIEW_HEIGHT/2 - gutter){
-            offset = VIEW_HEIGHT/2 - gutter;
-        } else if(scrollView.contentOffset.y < 0){
-            offset = 0;
-        } else {
-            offset = scrollView.contentOffset.y;
-        }
-        
-        CGRect frame = self.cameraView.frame;
-        frame.origin.y = 0 - offset;
-        self.cameraView.frame = frame;
-        
-        frame = self.switchGroups.frame;
-        frame.origin.y = self.cameraView.frame.size.height - self.switchGroups.frame.size.height - offset;
-        self.switchGroups.frame = frame;
-        
-        if(self.selectedIndex){
-            
-        }
-    }
+//    if([scrollView isEqual:self.gridTiles]){
+//        self.scrolling = [NSNumber numberWithBool:YES];
+//        CGFloat offset = 0;
+//        
+//        CGFloat gutter = 44;
+//        
+//        if(scrollView.contentOffset.y > VIEW_HEIGHT/2 - gutter){
+//            offset = VIEW_HEIGHT/2 - gutter;
+//        } else if(scrollView.contentOffset.y < 0){
+//            offset = 0;
+//        } else {
+//            offset = scrollView.contentOffset.y;
+//        }
+//        
+//        CGRect frame = self.cameraView.frame;
+//        frame.origin.y = 0 - offset;
+//        self.cameraView.frame = frame;
+//        
+//        frame = self.switchGroups.frame;
+//        frame.origin.y = self.cameraView.frame.size.height - self.switchGroups.frame.size.height - offset;
+//        self.switchGroups.frame = frame;
+//        
+//        if(self.selectedIndex){
+//            
+//        }
+//    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -968,8 +891,6 @@
         [self performSelector:@selector(scrollingEnded) withObject:self afterDelay:0.1];
     }
 }
-
-
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -1025,27 +946,27 @@
 }
 
 - (void)presentOverlay:(TileCell *)tile {
-    tile.frame = CGRectMake(tile.frame.origin.x, tile.frame.origin.y - self.gridTiles.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
-    [self.view bringSubviewToFront:self.overlay];
-    [self.overlay addSubview:tile];
-    
-    [tile.loader setAlpha:0.0];
-    
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        [self.overlay setAlpha:1.0];
-        [tile.player setVolume:1.0];
-        //        [tile setVideoFrame:CGRectMake(0, VIEW_HEIGHT/4, VIEW_WIDTH, VIEW_HEIGHT/2)];
-        [tile setVideoFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    } completion:^(BOOL finished) {
-        //
-        OverlayViewController *overlay = [[OverlayViewController alloc] init];
-        [overlay setTile:tile];
-        [overlay setPreviousViewController:self];
-        self.modalPresentationStyle = UIModalPresentationCurrentContext;
-        [self presentViewController:overlay animated:NO completion:^{
-            
-        }];
-    }];
+//    tile.frame = CGRectMake(tile.frame.origin.x, tile.frame.origin.y - self.gridTiles.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+//    [self.view bringSubviewToFront:self.overlay];
+//    [self.overlay addSubview:tile];
+//    
+//    [tile.loader setAlpha:0.0];
+//    
+//    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+//        [self.overlay setAlpha:1.0];
+//        [tile.player setVolume:1.0];
+//        //        [tile setVideoFrame:CGRectMake(0, VIEW_HEIGHT/4, VIEW_WIDTH, VIEW_HEIGHT/2)];
+//        [tile setVideoFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+//    } completion:^(BOOL finished) {
+//        //
+//        OverlayViewController *overlay = [[OverlayViewController alloc] init];
+//        [overlay setTile:tile];
+//        [overlay setPreviousViewController:self];
+//        self.modalPresentationStyle = UIModalPresentationCurrentContext;
+//        [self presentViewController:overlay animated:NO completion:^{
+//            
+//        }];
+//    }];
 }
 
 - (void) collapse:(TileCell *)tile speed:(CGFloat)speed {
@@ -1064,59 +985,6 @@
     } completion:^(BOOL finished) {
         //
     }];
-}
-
-- (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
-    //val TODO:
-    
-//    // measure size of data
-//    NSLog(@"%@ size: %lu", type, (unsigned long)[data length]);
-//    
-//    // set up data object
-//    NSString *videoData = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-////    Firebase *dataObject = [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@", MEDIA]] childByAutoId];
-////    NSString *dataPath = dataObject.name;
-//    
-//    AVURLAsset* asset = [AVURLAsset URLAssetWithURL:outputURL options:nil];
-//    AVAssetImageGenerator* imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
-//    [imageGenerator setAppliesPreferredTrackTransform:YES];
-//    //    UIImage* image = [UIImage imageWithCGImage:[imageGenerator copyCGImageAtTime:CMTimeMake(0, 1) actualTime:nil error:nil]];
-//    CGImageRef imageRef = [imageGenerator copyCGImageAtTime:CMTimeMake(0,1) actualTime:nil error:nil];
-//    
-//    UIImage *image = [[UIImage imageWithCGImage:imageRef] imageScaledToFitSize:CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT/2)];
-//    NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
-//    //NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-//    
-//    NSArray *colors = [image getColors];
-//    
-//    //    for(NSString *color in colors){
-//    //        NSLog(@"color: %@", color);
-//    //    }
-//    
-////    [dataObject setValue:@{@"video":videoData, @"thumb":imageString} withCompletionBlock:^(NSError *error, Firebase *ref) {
-////    }];
-//    
-//    //    NSMutableDictionary *clique = (NSMutableDictionary *)[PFUser currentUser][@"clique"];
-//    //    [clique setObject:@1 forKeyedSubscript:[PFUser currentUser][@"phoneHash"]];
-//    
-//    //    for(NSString *hash in clique){
-//    //        NSLog(@"hash: %@", hash);
-//    //        NSString *escapedHash = [hash stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-//    //        NSString *path = [NSString stringWithFormat:@"%@/%@/%@", STREAM, escapedHash, dataPath];
-//    //        [[[[CNetworking currentUser] firebase] childByAppendingPath:path] setValue:@{@"type": type, @"user":(NSString *)[[CNetworking currentUser] userDataForKey:@"username"], @"colors":colors}];
-//    //    }
-//    
-//    NSLog(@"group id: %@", self.YAGroup.groupId);
-//    
-//    NSFileManager * fm = [[NSFileManager alloc] init];
-//    NSError *err = nil;
-//    [fm moveItemAtURL:outputURL toURL:[[self tempFilename] movieUrl] error:&err];
-//    [imageData writeToURL:[[self tempFilename] imageUrl] options:NSDataWritingAtomic error:&err];
-//    
-//    if(err){
-//        NSLog(@"error: %@", err);
-//    }
-//    
 }
 
 - (NSString*)tempFilename {
@@ -1157,65 +1025,6 @@
     }
 }
 
-- (void)setupGroups {
-    if([[YAUser currentUser] userDataForKey:nCurrentGroupId]){
-        YAGroup *group = [self groupWithId:(NSString*)[[YAUser currentUser] userDataForKey:nCurrentGroupId]];
-        
-        [self configureGroup:group];
-        [self.gridTiles reloadData];
-    }
-
-    //    }];
-    
-    //    NSString *userid = (NSString *)[currentUser userDataForKey:nUserId];
-    //
-    //    NSString *path = [NSString stringWithFormat:@"users/%@/groups", userid];
-    //
-    //    NSLog(@"path: %@", path);
-    //
-    //    // fetching all of a users groups
-    //    [[currentUser.firebase childByAppendingPath:path] observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-    //
-    //        currentUser.YAGroup = [[NSMutableArray alloc] init];
-    //
-    //        // iterate through returned groups
-    //        for(FDataSnapshot *child in snapshot.children){
-    //
-    //            // fetch group meta data
-    //            NSString *dataPath = [NSString stringWithFormat:@"groups/%@/data", child.name];
-    ////            NSLog(@"datapath: %@", dataPath);
-    //
-    //            [[currentUser.firebase childByAppendingPath:dataPath] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
-    //
-    //                // saving group data
-    //                YAGroup *info = [[YAGroup alloc] init];
-    //                info.name = dataSnapshot.value[@"name"];
-    //                info.groupId = child.name;
-    //                info.members = [[NSMutableArray alloc] init];
-    //
-    //                for(NSString *member in dataSnapshot.value[@"members"]){
-    //                    [info.members addObject:member];
-    //                }
-    //
-    //                [currentUser.YAGroup insertObject:info atIndex:0];
-    //
-    //                if([currentUser.YAGroup count] == snapshot.childrenCount){
-    //                    NSLog(@"about to setup pages");
-    //                    [self.gridTiles reloadData];
-    //                    [self configureYAGroup:[currentUser.YAGroup objectAtIndex:0]];
-    ////                    [self initGridTiles];
-    //
-    ////                    [self setYAGroup:[currentUser.YAGroup objectAtIndex:0]];
-    //
-    //
-    //                }
-    //            }];
-    //        }
-    //    }];
-    
-}
-
-
 - (void)willResignActive {
     //    [self removeAudioInput];
     // remove microphone
@@ -1254,41 +1063,28 @@
 }
 
 - (void)removeFromSuperview {
-    //    [super removeFromSuperview];
     for(TileCell *tile in [self.gridTiles visibleCells]){
         tile.player = nil;
         [tile.player removeObservers];
     }
 }
 
-- (void)dismiss {
-    //    [self dismissViewControllerAnimated:YES completion:^{
-    //        //
-    //    }];
-}
-
 -(BOOL)prefersStatusBarHidden {
     return YES;
 }
 
-/*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
- {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
-
-#pragma mark -
-- (YAGroup*)groupWithId:(NSString*)groupId {
-   RLMResults *results = [YAGroup objectsWhere:[NSString stringWithFormat:@"groupId = '%@'", groupId]];
-    if(results.count == 1)
-        return results[0];
+#pragma mark - Segues
+- (IBAction)unwindFromViewController:(UIStoryboardSegue *)sender {
     
-    [NSException exceptionWithName:@"CAN'T BE TRUE" reason:@"Where did you get the id?" userInfo:nil];
-    return nil;
 }
+
+- (UIStoryboardSegue *)segueForUnwindingToViewController:(UIViewController *)toViewController fromViewController:(UIViewController *)fromViewController identifier:(NSString *)identifier {
+    // Instantiate a new CustomUnwindSegue
+    YAHideEmbeddedGroupsSegue *segue = [[YAHideEmbeddedGroupsSegue alloc] initWithIdentifier:identifier source:fromViewController destination:toViewController];
+    // Set the target point for the animation to the center of the button in this VC
+    return segue;
+}
+
+
+
 @end

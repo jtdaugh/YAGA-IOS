@@ -11,7 +11,7 @@
 typedef void (^editButtonClickedBlock)(void);
 
 @interface GroupsTableViewCell : UITableViewCell
+
 @property (nonatomic, copy) editButtonClickedBlock editBlock;
-@property (nonatomic, assign) BOOL showEditButton;
 
 @end

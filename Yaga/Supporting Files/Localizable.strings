@@ -7,4 +7,6 @@
 */
 "OK" = "OK";
 "Warning" = "Warning";
+"Cancel" = "Cancel";
+"Back" = "Back";
 "NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";

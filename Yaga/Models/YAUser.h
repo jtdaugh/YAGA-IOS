@@ -26,10 +26,14 @@ typedef void (^contactsImportedBlock)(NSError *error, NSArray *contacts);
 #define nCompositeName @"composite_name"
 #define nFirstname @"firstname"
 #define nRegistered @"registered"
+
 #define nCurrentGroupId @"current_group_id"
 
 @interface YAUser : NSObject
-@property (nonatomic,assign)id delegate;
+
+@property (nonatomic, strong) YAGroup *currentGroup;
+
+@property (nonatomic,assign)  id delegate;
 @property (strong, nonatomic) NSMutableDictionary *userData;
 @property (strong, nonatomic) NSMutableDictionary *messages;
 
@@ -37,9 +41,11 @@ typedef void (^contactsImportedBlock)(NSError *error, NSArray *contacts);
 
 - (void)saveUserData:(NSObject *)value forKey:(NSString *)key;
 - (NSObject *)userDataForKey:(NSString *)key;
+
+- (void)saveObject:(NSObject *)value forKey:(NSString *)key;
+- (id)objectForKey:(NSString*)key;
+
 - (NSMutableArray *)gridDataForGroupId:(NSString *)groupId;
-- (NSUInteger) groupIndexForGroupId:(NSString *)groupId;
-- (void)trySomething;
 - (void)registerUserWithCompletionBlock:(void (^)())block;
 - (void)findFriends:(NSArray *)numbers withCompletionBlock:(void (^)())block;
 - (void)createCrew:(NSString *)name withMembers:(NSArray *)hashes withCompletionBlock:(void (^)())block;

@@ -8,13 +8,23 @@
 
 #import "AppDelegate.h"
 #import <Crashlytics/Crashlytics.h>
-
-
+#import "YAUser.h"
+//test
+#import "GridViewController.h"
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
+    
+    self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+    
+    UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:[[YAUser currentUser] loggedIn] ? @"LoggedInUserNavigationController" : @"OnboardingNavigationController"];
+    self.window.rootViewController = viewController;
+    
+    [self.window makeKeyAndVisible];
     
     return YES;
 }

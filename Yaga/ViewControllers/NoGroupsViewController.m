@@ -55,13 +55,12 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (CGFloat) getNewOrigin:(UIView *) anchor {
+- (CGFloat)getNewOrigin:(UIView *) anchor {
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
 }
 
 - (void)nextScreen {
     [self performSegueWithIdentifier:@"AddMembers" sender:self];
-    NSLog(@"watup");
 }
 
 /*

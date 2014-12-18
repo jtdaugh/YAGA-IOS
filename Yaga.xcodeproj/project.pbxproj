@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		41A2EC6A197F887F008DF482 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A2EC69197F887F008DF482 /* Crashlytics.framework */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
+		6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */; };
+		6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */; };
+		6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */; };
 		6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187651A3F2C270034AB63 /* AppDelegate.m */; };
 		6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E9187771A3F2C270034AB63 /* InfoPlist.strings */; };
 		6E9187CD1A3F2C270034AB63 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187841A3F2C270034AB63 /* main.m */; };
@@ -43,7 +46,6 @@
 		6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B31A3F3A5A0034AB63 /* AVCamPreviewView.m */; };
 		6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B51A3F3A5A0034AB63 /* CliquePageControl.m */; };
 		6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B71A3F3A5A0034AB63 /* CliqueTextField.m */; };
-		6E9188EB1A3F3A5A0034AB63 /* ElevatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B91A3F3A5A0034AB63 /* ElevatorView.m */; };
 		6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */; };
 		6E9188ED1A3F3A5A0034AB63 /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
 		6E9188EF1A3F3A5A0034AB63 /* TileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C11A3F3A5A0034AB63 /* TileCell.m */; };
@@ -54,6 +56,7 @@
 		6EA942131A403E1D001803C5 /* YAContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942121A403E1D001803C5 /* YAContact.m */; };
 		6EA942161A404B00001803C5 /* YAGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942151A404B00001803C5 /* YAGroup.m */; };
 		6EA942191A405C80001803C5 /* YAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942181A405C80001803C5 /* YAUtils.m */; };
+		6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA9421B1A41E5C9001803C5 /* YAVideo.m */; };
 		71D0F56C190D998000C7DEE0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56B190D998000C7DEE0 /* Foundation.framework */; };
 		71D0F56E190D998000C7DEE0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */; };
 		71D0F570190D998000C7DEE0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56F190D998000C7DEE0 /* UIKit.framework */; };
@@ -72,6 +75,12 @@
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		41A2EC69197F887F008DF482 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		6E5E667B1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAHideEmbeddedGroupsSegue.h; sourceTree = "<group>"; };
+		6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAHideEmbeddedGroupsSegue.m; sourceTree = "<group>"; };
+		6E5E667D1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAShowEmbeddedGroupsSegue.h; sourceTree = "<group>"; };
+		6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAShowEmbeddedGroupsSegue.m; sourceTree = "<group>"; };
+		6E5E66811A4254EB00B58E49 /* YAGroupSelectedSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupSelectedSegue.h; sourceTree = "<group>"; };
+		6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupSelectedSegue.m; sourceTree = "<group>"; };
 		6E9187641A3F2C270034AB63 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		6E9187651A3F2C270034AB63 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		6E9187721A3F2C270034AB63 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -134,8 +143,6 @@
 		6E9188B51A3F3A5A0034AB63 /* CliquePageControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CliquePageControl.m; sourceTree = "<group>"; };
 		6E9188B61A3F3A5A0034AB63 /* CliqueTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliqueTextField.h; sourceTree = "<group>"; };
 		6E9188B71A3F3A5A0034AB63 /* CliqueTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CliqueTextField.m; sourceTree = "<group>"; };
-		6E9188B81A3F3A5A0034AB63 /* ElevatorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevatorView.h; sourceTree = "<group>"; };
-		6E9188B91A3F3A5A0034AB63 /* ElevatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElevatorView.m; sourceTree = "<group>"; };
 		6E9188BA1A3F3A5A0034AB63 /* GroupDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupDetailView.h; sourceTree = "<group>"; };
 		6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupDetailView.m; sourceTree = "<group>"; };
 		6E9188BC1A3F3A5A0034AB63 /* GroupsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupsTableViewCell.h; sourceTree = "<group>"; };
@@ -155,6 +162,8 @@
 		6EA942151A404B00001803C5 /* YAGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroup.m; sourceTree = "<group>"; };
 		6EA942171A405C80001803C5 /* YAUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAUtils.h; sourceTree = "<group>"; };
 		6EA942181A405C80001803C5 /* YAUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAUtils.m; sourceTree = "<group>"; };
+		6EA9421A1A41E5C9001803C5 /* YAVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideo.h; sourceTree = "<group>"; };
+		6EA9421B1A41E5C9001803C5 /* YAVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideo.m; sourceTree = "<group>"; };
 		71D0F568190D998000C7DEE0 /* Yaga.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yaga.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71D0F56B190D998000C7DEE0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -196,6 +205,19 @@
 				0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		6E5E667A1A424E3300B58E49 /* Segues */ = {
+			isa = PBXGroup;
+			children = (
+				6E5E66811A4254EB00B58E49 /* YAGroupSelectedSegue.h */,
+				6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */,
+				6E5E667B1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.h */,
+				6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */,
+				6E5E667D1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.h */,
+				6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */,
+			);
+			path = Segues;
 			sourceTree = "<group>";
 		};
 		6E9187611A3F2C270034AB63 /* Yaga */ = {
@@ -259,6 +281,8 @@
 				6EA942151A404B00001803C5 /* YAGroup.m */,
 				6EA942171A405C80001803C5 /* YAUtils.h */,
 				6EA942181A405C80001803C5 /* YAUtils.m */,
+				6EA9421A1A41E5C9001803C5 /* YAVideo.h */,
+				6EA9421B1A41E5C9001803C5 /* YAVideo.m */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -297,6 +321,7 @@
 		6E9188951A3F3A5A0034AB63 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				6E5E667A1A424E3300B58E49 /* Segues */,
 				6E9188961A3F3A5A0034AB63 /* AddMembersViewController.h */,
 				6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */,
 				6E9188981A3F3A5A0034AB63 /* CreateViewController.h */,
@@ -342,8 +367,6 @@
 				6E9188B51A3F3A5A0034AB63 /* CliquePageControl.m */,
 				6E9188B61A3F3A5A0034AB63 /* CliqueTextField.h */,
 				6E9188B71A3F3A5A0034AB63 /* CliqueTextField.m */,
-				6E9188B81A3F3A5A0034AB63 /* ElevatorView.h */,
-				6E9188B91A3F3A5A0034AB63 /* ElevatorView.m */,
 				6E9188BA1A3F3A5A0034AB63 /* GroupDetailView.h */,
 				6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */,
 				6E9188BC1A3F3A5A0034AB63 /* GroupsTableViewCell.h */,
@@ -533,9 +556,13 @@
 			files = (
 				6EA942161A404B00001803C5 /* YAGroup.m in Sources */,
 				6E9188DB1A3F3A5A0034AB63 /* AddMembersViewController.m in Sources */,
+				6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */,
+				6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */,
+				6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */,
 				6E9188D31A3F3A5A0034AB63 /* NetworkManager.swift in Sources */,
 				6E9188DC1A3F3A5A0034AB63 /* CreateViewController.m in Sources */,
 				6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */,
+				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* SplashViewController.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */,
@@ -544,7 +571,6 @@
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
-				6E9188EB1A3F3A5A0034AB63 /* ElevatorView.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
 				6E9188E51A3F3A5A0034AB63 /* UsernameViewController.m in Sources */,

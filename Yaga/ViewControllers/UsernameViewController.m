@@ -109,7 +109,9 @@
     
     YAUser *currentUser = [YAUser currentUser];
     [[YAUser currentUser] saveUserData:self.username.text forKey:nUsername];
-    [[NetworkManager sharedManager] saveData:self.username.text key:nUsername];
+    
+    //val: remove me when networking code is done
+    [[YAUser currentUser] saveObject:self.username.text forKey:nUsername];
     
     [currentUser registerUserWithCompletionBlock:^(void){
         //user is able to get back so reseting the button
@@ -134,8 +136,11 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if([segue.destinationViewController isKindOfClass:[MyGroupsViewController class]]) {
-        ((MyGroupsViewController*)segue.destinationViewController).backgroundColor = [UIColor blackColor];
-        ((MyGroupsViewController*)segue.destinationViewController).showEditButton = NO;
+        MyGroupsViewController *groupsVC = ((MyGroupsViewController*)segue.destinationViewController);
+        groupsVC.titleText = @"Looks like you're already a part of a group. Pick which one you'd like to go to now.";
+        groupsVC.backgroundColor = [UIColor blackColor];
+        groupsVC.showEditButton = NO;
+        groupsVC.showCreateGroupButton = NO;
     }
 }
 

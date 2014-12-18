@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="54o-Be-McY">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
@@ -8,7 +8,7 @@
         <!--Navigation Controller-->
         <scene sceneID="5Hh-1e-NmB">
             <objects>
-                <navigationController id="54o-Be-McY" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="LoggedInUserNavigationController" id="54o-Be-McY" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="7xS-Dm-ddO">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -19,7 +19,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PC4-YF-qbz" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3135" y="105"/>
+            <point key="canvasLocation" x="-3671" y="-959"/>
         </scene>
         <!--Grid View Controller-->
         <scene sceneID="oE7-Pv-wfF">
@@ -36,13 +36,14 @@
                     </view>
                     <navigationItem key="navigationItem" id="D1z-Gu-9KB"/>
                     <connections>
-                        <segue destination="RaH-tv-9ok" kind="presentation" identifier="SplashScreen" animates="NO" id="j7T-yz-DCi"/>
                         <segue destination="DIa-5Z-moF" kind="presentation" identifier="CreateGroup" animates="NO" id="pQh-HD-Ggp"/>
+                        <segue destination="owe-ug-5LR" kind="custom" identifier="ShowEmbeddedUserGroups" customClass="YAShowEmbeddedGroupsSegue" id="VSt-eZ-jNn"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="i4m-F9-tFP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="Df3-gO-NpP" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="-2191.5" y="105"/>
+            <point key="canvasLocation" x="-2559" y="-1891"/>
         </scene>
         <!--Splash View Controller-->
         <scene sceneID="qnD-bq-jX5">
@@ -64,12 +65,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SFT-g8-vve" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1422" y="771"/>
+            <point key="canvasLocation" x="-1566" y="758"/>
         </scene>
         <!--Yaga Navigation Controller-->
         <scene sceneID="4eY-vY-THA">
             <objects>
-                <navigationController id="RaH-tv-9ok" customClass="YagaNavigationController" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="OnboardingNavigationController" id="RaH-tv-9ok" customClass="YagaNavigationController" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="uPV-14-nTb">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -90,13 +91,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
-                    <connections>
-                        <segue destination="aCm-EC-oWm" kind="relationship" relationship="rootViewController" id="L8Z-y1-BlT"/>
-                    </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HGM-6r-QGF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1005" y="-178.5"/>
+            <point key="canvasLocation" x="-1845" y="-3143"/>
         </scene>
         <!--Username View Controller-->
         <scene sceneID="CED-1p-zHV">
@@ -118,7 +116,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lgf-Jx-pmq" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-111" y="771"/>
+            <point key="canvasLocation" x="257" y="1499"/>
         </scene>
         <!--Authentification View Controller-->
         <scene sceneID="Zcb-su-0aa">
@@ -154,10 +152,15 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <connections>
+                        <segue destination="54o-Be-McY" kind="custom" identifier="SelectExistingGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="fvS-6s-erS"/>
+                        <segue destination="aCm-EC-oWm" kind="show" identifier="CreateNewGroup" id="ira-DT-4cj"/>
+                        <segue destination="Df3-gO-NpP" kind="unwind" identifier="HideEmbeddedUserGroups" unwindAction="unwindFromViewController:" id="aB8-gW-n0s"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zUg-0n-BZp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="759" y="595.5"/>
+            <point key="canvasLocation" x="877" y="-1637"/>
         </scene>
         <!--No Groups View Controller-->
         <scene sceneID="GaS-uY-5sY">
@@ -178,7 +181,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ayQ-ds-F9a" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="783" y="1260"/>
+            <point key="canvasLocation" x="1311" y="1436"/>
         </scene>
         <!--Add Members View Controller-->
         <scene sceneID="k4F-VU-T6d">
@@ -200,7 +203,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wON-sz-6d3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1587" y="1260"/>
+            <point key="canvasLocation" x="2113" y="-580"/>
         </scene>
         <!--Name Group View Controller-->
         <scene sceneID="HVo-lx-c04">
@@ -215,13 +218,18 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <connections>
+                        <segue destination="54o-Be-McY" kind="custom" identifier="NameNewGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="OXh-u4-OoS"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xwl-Cb-13J" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2283" y="1260"/>
+            <point key="canvasLocation" x="2129" y="563"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="L8Z-y1-BlT"/>
+        <segue reference="fvS-6s-erS"/>
+        <segue reference="VSt-eZ-jNn"/>
+        <segue reference="ira-DT-4cj"/>
     </inferredMetricsTieBreakers>
 </document>

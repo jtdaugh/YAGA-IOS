@@ -8,6 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+typedef void (^uploadDataCompletionBlock)(NSError *error);
+
 @interface YAUtils : NSObject
 + (NSString *)readableNumberFromString:(NSString*)input;
++ (void)uploadVideoRecoringFromUrl:(NSURL *)localUrl completion:(uploadDataCompletionBlock)completion;
++ (UIColor*)inverseColor:(UIColor*)color;
 @end

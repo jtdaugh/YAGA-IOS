@@ -8,8 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MyGroupsViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
+@interface MyGroupsViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate> {
+    NSUInteger editingIndex;
+}
+@property (nonatomic, strong) UITableView *tableView;
+
 @property (nonatomic, copy) NSString *titleText;
 @property (nonatomic, strong) UIColor *backgroundColor;
 @property (nonatomic, assign) BOOL showEditButton;
+@property (nonatomic, assign) BOOL showCreateGroupButton;
 @end

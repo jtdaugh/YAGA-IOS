@@ -29,48 +29,61 @@
     self = [super init];
     if(self) {
         _userData = [NSMutableDictionary new];
+        
+        NSString *selectedGroupId = [[NSUserDefaults standardUserDefaults] objectForKey:nCurrentGroupId];
+        if(selectedGroupId) {
+            self.currentGroup = [YAGroup objectInRealm:[RLMRealm defaultRealm] forPrimaryKey:selectedGroupId];
+        }
     }
     return self;
 }
+
+- (void)setCurrentGroup:(YAGroup *)currentGroup {
+    [self saveObject:currentGroup.groupId forKey:nCurrentGroupId];
+    _currentGroup = currentGroup;
+}
+
 /**
     AFNetworking Code is here
  **/
 
 - (void)registerUserWithCompletionBlock:(void (^)())block {
-    NSLog(@"signing up");
+    block();
     
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    manager.requestSerializer = [AFJSONRequestSerializer serializer];
-    
-    NSString *username = (NSString *)[self userDataForKey:nUsername];
-    NSString *phone = (NSString *)[self userDataForKey:nPhone];
-    NSString *countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
-    
-    NSDictionary *params = @{
-                             @"phone":phone,
-                             @"name": username,
-                             @"password":@"test",
-                             @"country":countryCode
-                             };
-    
-    
-    NSLog(@"params: %@", params);
-    
-    NSLog(@"phone: %@", phone);
-    
-    NSLog(@"phone hash: %@", [phone md5]);
-    
-    [manager POST:[NSString stringWithFormat:@"%@/token", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSString *token = [responseObject objectForKey:@"token"];
-        NSString *userId = [responseObject objectForKey:@"user_id"];
-        [self saveUserData:token forKey:@"token"];
-        [self saveUserData:userId forKey:nUserId];
-        NSLog(@"/token response: %@", responseObject);
-
-        block();
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"register user Error: %@", [operation responseString]);
-    }];
+//    NSLog(@"signing up");
+//    
+//    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+//    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+//    
+//    NSString *username = (NSString *)[self userDataForKey:nUsername];
+//    NSString *phone = (NSString *)[self userDataForKey:nPhone];
+//    NSString *countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
+//    
+//    NSDictionary *params = @{
+//                             @"phone":phone,
+//                             @"name": username,
+//                             @"password":@"test",
+//                             @"country":countryCode
+//                             };
+//    
+//    
+//    NSLog(@"params: %@", params);
+//    
+//    NSLog(@"phone: %@", phone);
+//    
+//    NSLog(@"phone hash: %@", [phone md5]);
+//    
+//    [manager POST:[NSString stringWithFormat:@"%@/token", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+//        NSString *token = [responseObject objectForKey:@"token"];
+//        NSString *userId = [responseObject objectForKey:@"user_id"];
+//        [self saveUserData:token forKey:@"token"];
+//        [self saveUserData:userId forKey:nUserId];
+//        NSLog(@"/token response: %@", responseObject);
+//
+//        block();
+//    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+//        NSLog(@"register user Error: %@", [operation responseString]);
+//    }];
 }
 
 - (void)createCrew:(NSString *)name withMembers:(NSArray *)hashes withCompletionBlock:(void (^)())block {
@@ -196,7 +209,7 @@
 }
 
 - (BOOL)loggedIn {
-    if([self userDataForKey:nUsername]){
+    if([self objectForKey:nUsername]){
         return YES;
     } else {
         return NO;
@@ -208,13 +221,13 @@
     [self.userData removeAllObjects];
 }
 
-- (void)trySomething {
-    [self.delegate test];
-}
-
 - (void)saveUserData:(NSObject *)value forKey:(NSString *)key {
     [self.userData setObject:value forKey:key];
     [self saveObject:value forKey:key];
+}
+
+- (NSObject *)userDataForKey:(NSString *)key {
+    return [self.userData objectForKey:key];
 }
 
 - (void)saveObject:(NSObject *)value forKey:(NSString *)key {
@@ -222,8 +235,8 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-- (NSObject *)userDataForKey:(NSString *)key {
-    return [self.userData objectForKey:key];
+- (id)objectForKey:(NSString*)key {
+    return [[NSUserDefaults standardUserDefaults] objectForKey:key];
 }
 
 - (NSString *)humanName {
@@ -252,17 +265,6 @@
         self.messages[groupId] = [@[] mutableCopy];
     }
     return (NSMutableArray *) self.messages[groupId];
-}
-
-- (NSUInteger) groupIndexForGroupId:(NSString *)groupId {
-    NSUInteger index = 0;
-    for(YAGroup *group in [YAGroup allObjects]){
-        if([group.groupId isEqualToString: groupId]){
-            return index;
-        }
-        index++;
-    }
-    return -1;
 }
 
 #pragma mark - Refactored - <delete me later

@@ -9,7 +9,6 @@
 #import "GroupsTableViewCell.h"
 
 @interface GroupsTableViewCell ()
-@property(nonatomic, strong) UIButton *editButton;
 @end
 
 @implementation GroupsTableViewCell
@@ -22,7 +21,7 @@
         CGFloat between_margin = 4;
         CGFloat margin = 44;
         CGFloat height = 44;
-
+        
         CGRect frame = self.frame;
         frame.size.width = VIEW_WIDTH;
         frame.size.height = 54;
@@ -40,11 +39,18 @@
         [self.detailTextLabel setBackgroundColor:[UIColor clearColor]];
         
         [self setBackgroundColor:[UIColor clearColor]];
+        self.textLabel.adjustsFontSizeToFitWidth = YES;
         
-        self.editButton = [[UIButton alloc] initWithFrame:CGRectMake(self.frame.size.width - margin - height, (self.frame.size.height - height)/2, height, height)];
-        [self.editButton setBackgroundImage:[UIImage imageNamed:@"Settings"] forState:UIControlStateNormal];
-        [self addSubview:self.editButton];
-        [self.editButton addTarget:self action:@selector(showGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
+        UIButton *accessorryButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        accessorryButton.frame = CGRectMake(self.frame.size.width - margin - height, (self.frame.size.height - height)/2, height, height);
+        [accessorryButton setBackgroundImage:[UIImage imageNamed:@"Settings"] forState:UIControlStateNormal];
+        self.accessoryView = accessorryButton;
+        
+        [accessorryButton addTarget:self action:@selector(showGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
+        UIView *editingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 50)];
+        [editingView setBackgroundColor:PRIMARY_COLOR];
+        self.editingAccessoryView = editingView;
+        
     }
     
     return self;
@@ -54,12 +60,15 @@
     [super layoutSubviews];
     
     [self.detailTextLabel sizeToFit];
-    self.editButton.hidden = !self.showEditButton;
 }
 
 - (void)showGroupOptions:(id)sender {
     if(self.editBlock)
         self.editBlock();
+}
+
+- (void)willTransitionToState:(UITableViewCellStateMask)state {
+    [super willTransitionToState:state];
 }
 
 @end
