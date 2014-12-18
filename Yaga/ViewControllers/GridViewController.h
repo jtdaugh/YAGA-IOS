@@ -7,13 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "TileCell.h"
 #import "YAUser.h"
 #import "AVCamPreviewView.h"
-#import "FBShimmeringView.h"
 
-@interface GridViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UIApplicationDelegate, CNetworkingDelegate>
+#import "YACollectionViewController.h"
+#import "YACameraViewController.h"
 
-@property (strong, nonatomic) AVCamPreviewView *cameraView;
+@interface GridViewController : UIViewController <UIApplicationDelegate>
+
 @property (assign, nonatomic) BOOL elevatorOpen;
+@property (nonatomic, readonly) YACameraViewController *cameraViewController;
+@property (nonatomic, readonly) YACollectionViewController *collectionViewController;
 @end

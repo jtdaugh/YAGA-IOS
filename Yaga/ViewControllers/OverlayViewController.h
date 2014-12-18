@@ -7,11 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "TileCell.h"
 #import "GridViewController.h"
 
 @interface OverlayViewController : UIViewController <UIActionSheetDelegate, UITextFieldDelegate>
-@property (strong, nonatomic) TileCell *tile;
 @property (strong, nonatomic) UIView *bg;
 @property (strong, nonatomic) GridViewController *previousViewController;
 
