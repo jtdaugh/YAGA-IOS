@@ -70,7 +70,23 @@
     }];
 }
 
-- (void)sendTokenRequestWithCompletion:(responseBlock)completion {
+- (void)loginWithCompletion:(responseBlock)completion {
+    NSString *authCode = [[YAUser currentUser] authCode];
+    NSDictionary *parameters = @{@"phone": self.phoneNumber,
+                                 @"code" : authCode,
+                                 @"name" : @"Vasilij" };
+    
+    NSString *api = [NSString stringWithFormat:@"%@/auth/login", self.base_api];
+    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSDictionary *dict = [[NSDictionary dictionaryFromResponseObject:responseObject withError:nil] objectForKey:RESULT];
+        self.token = [dict objectForKey:TOKEN];
+        completion(true, @"");
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(false, operation.description);
+    }];
+}
+
+- (void)registerWithCompletion:(responseBlock)completion {
     NSString *authCode = [[YAUser currentUser] authCode];
     NSDictionary *parameters = @{@"phone": self.phoneNumber,
                                  @"code" : authCode,
@@ -80,8 +96,9 @@
     [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [[NSDictionary dictionaryFromResponseObject:responseObject withError:nil] objectForKey:RESULT];
         self.token = [dict objectForKey:TOKEN];
+        completion(true, @"");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@", operation);        
+        completion(false, operation.description);
     }];
 }
 
@@ -92,7 +109,7 @@
     NSDictionary *parameters = @{ @"phone" : self.phoneNumber };
 
     NSString *api = [NSString stringWithFormat:@"%@/auth/info", self.base_api];
-    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.manager GET:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [[NSDictionary dictionaryFromResponseObject:responseObject withError:nil] objectForKey:RESULT];
         NSNumber *result = [dict objectForKey:USER];
         completion([result boolValue], nil);
