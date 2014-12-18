@@ -83,17 +83,17 @@
     [anotherButton setEnabled:NO];
     [anotherButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.rightBarButtonItem = anotherButton;
-
+    
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", @"") style:UIBarButtonItemStylePlain target:self action:@selector(cancelScreen)];
     [cancelButton setTitleTextAttributes:@{
-                                            NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
-                                            } forState:UIControlStateNormal];
+                                           NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
+                                           } forState:UIControlStateNormal];
     [cancelButton setEnabled:YES];
     [cancelButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.leftBarButtonItem = cancelButton;
     
     __weak typeof(self) weakSelf = self;
-    [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
+    [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSOrderedSet *contacts) {
         if (error) {
             //show error
         }
@@ -172,7 +172,7 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.selectedContacts addObject:self.filteredContacts[indexPath.row]];
     [self reloadSearchBox];
-
+    
     [self.filteredContacts removeObject:self.filteredContacts[indexPath.row]];
     [self.membersTableview deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
@@ -258,7 +258,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Actions 
+#pragma mark - Actions
 - (void)cancelScreen
 {
     [self.navigationController popViewControllerAnimated:YES];

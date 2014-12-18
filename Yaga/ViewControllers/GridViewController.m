@@ -375,7 +375,7 @@
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
-    NSLog(@"%ld", recognizer.state);
+    NSLog(@"%ld", (unsigned long)recognizer.state);
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         [self endHold];
     } else if (recognizer.state == UIGestureRecognizerStateBegan){
@@ -995,7 +995,7 @@
     if(![self.scrolling boolValue]){
         //        NSLog(@"visible cells count: %lu", [[self.gridTiles visibleCells] count]);
         
-        NSLog(@"scrolling ended count: %lu", [[self.gridTiles visibleCells] count]);
+        NSLog(@"scrolling ended count: %lu", (unsigned long)[[self.gridTiles visibleCells] count]);
         
         for(TileCell *cell in [self.gridTiles visibleCells]){
             

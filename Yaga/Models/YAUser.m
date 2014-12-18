@@ -251,10 +251,10 @@
     
     addressBook.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]];
     
-    __block NSMutableArray *result = [NSMutableArray new];
-    
     [addressBook loadContacts:^(NSArray *contacts, NSError *error){
         if (!error){
+            NSMutableOrderedSet *result = [NSMutableOrderedSet new];
+
             for(int i = 0; i<[contacts count]; i++){
                 APContact *contact = contacts[i];
                 for(int j = 0; j<[contact.phones count]; j++){

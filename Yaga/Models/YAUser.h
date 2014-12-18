@@ -11,7 +11,7 @@
 
 @class YAUser;
 
-typedef void (^contactsImportedBlock)(NSError *error, NSArray *contacts);
+typedef void (^contactsImportedBlock)(NSError *error, NSOrderedSet *contacts);
 
 @protocol CNetworkingDelegate <NSObject>
 @optional
