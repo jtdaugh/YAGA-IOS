@@ -34,7 +34,6 @@
 		6E9188DB1A3F3A5A0034AB63 /* AddMembersViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */; };
 		6E9188DC1A3F3A5A0034AB63 /* CreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188991A3F3A5A0034AB63 /* CreateViewController.m */; };
 		6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889B1A3F3A5A0034AB63 /* GridViewController.m */; };
-		6E9188DE1A3F3A5A0034AB63 /* MyGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889D1A3F3A5A0034AB63 /* MyGroupsViewController.m */; };
 		6E9188DF1A3F3A5A0034AB63 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889F1A3F3A5A0034AB63 /* NameGroupViewController.m */; };
 		6E9188E11A3F3A5A0034AB63 /* NoGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A31A3F3A5A0034AB63 /* NoGroupsViewController.m */; };
 		6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */; };
@@ -47,7 +46,6 @@
 		6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B51A3F3A5A0034AB63 /* CliquePageControl.m */; };
 		6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B71A3F3A5A0034AB63 /* CliqueTextField.m */; };
 		6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */; };
-		6E9188ED1A3F3A5A0034AB63 /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
 		6E9188EF1A3F3A5A0034AB63 /* TileCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C11A3F3A5A0034AB63 /* TileCell.m */; };
 		6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C41A3F3A5A0034AB63 /* VENBackspaceTextField.m */; };
 		6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C61A3F3A5A0034AB63 /* VENToken.m */; };
@@ -65,6 +63,10 @@
 		71D0F5A8190DCE3D00C7DEE0 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */; };
 		71D0F5AA190DCE4300C7DEE0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A9190DCE4300C7DEE0 /* Security.framework */; };
 		71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */; };
+		86B864991A41B7DE002256FF /* YAAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864981A41B7DE002256FF /* YAAuthManager.m */; };
+		86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */; };
+		86B8649D1A41D2F3002256FF /* MyGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889D1A3F3A5A0034AB63 /* MyGroupsViewController.m */; };
+		86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -173,6 +175,10 @@
 		71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		71D0F5A9190DCE4300C7DEE0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		86B864971A41B7DE002256FF /* YAAuthManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAAuthManager.h; sourceTree = "<group>"; };
+		86B864981A41B7DE002256FF /* YAAuthManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAAuthManager.m; sourceTree = "<group>"; };
+		86B8649A1A41CA74002256FF /* NSDictionary+ResponseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ResponseObject.h"; sourceTree = "<group>"; };
+		86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+ResponseObject.m"; sourceTree = "<group>"; };
 		86EF0B8E1A40592F00FF4E3C /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -265,6 +271,8 @@
 				6E9188801A3F3A5A0034AB63 /* UIImage+Colors.m */,
 				6E9188811A3F3A5A0034AB63 /* UIImage+Resize.h */,
 				6E9188821A3F3A5A0034AB63 /* UIImage+Resize.m */,
+				86B8649A1A41CA74002256FF /* NSDictionary+ResponseObject.h */,
+				86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */,
 			);
 			path = Categories;
 			sourceTree = "<group>";
@@ -291,6 +299,8 @@
 			isa = PBXGroup;
 			children = (
 				6E9188891A3F3A5A0034AB63 /* NetworkManager.swift */,
+				86B864971A41B7DE002256FF /* YAAuthManager.h */,
+				86B864981A41B7DE002256FF /* YAAuthManager.m */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -563,13 +573,15 @@
 				6E9188DC1A3F3A5A0034AB63 /* CreateViewController.m in Sources */,
 				6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */,
 				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
+				86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* SplashViewController.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */,
 				6E9188EF1A3F3A5A0034AB63 /* TileCell.m in Sources */,
-				6E9188DE1A3F3A5A0034AB63 /* MyGroupsViewController.m in Sources */,
+				86B864991A41B7DE002256FF /* YAAuthManager.m in Sources */,
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */,
+				86B8649D1A41D2F3002256FF /* MyGroupsViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
@@ -581,7 +593,7 @@
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
-				6E9188ED1A3F3A5A0034AB63 /* GroupsTableViewCell.m in Sources */,
+				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
 				6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */,
 				6E9188E11A3F3A5A0034AB63 /* NoGroupsViewController.m in Sources */,
@@ -687,8 +699,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Valentyn Kovalskyy (6TYCLCF2HD)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Valentyn Kovalskyy (6TYCLCF2HD)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -699,7 +711,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "b1b41414-b607-43e7-8849-fd35b49a8c2b";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -714,8 +726,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Valentyn Kovalskyy (6TYCLCF2HD)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Valentyn Kovalskyy (6TYCLCF2HD)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -726,7 +738,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "b1b41414-b607-43e7-8849-fd35b49a8c2b";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;

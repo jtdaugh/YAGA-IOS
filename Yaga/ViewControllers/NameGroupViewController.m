@@ -121,9 +121,8 @@
     [realm addObject:group];
     [realm commitWriteTransaction];
 
-    [[RLMRealm defaultRealm] beginWriteTransaction];
+
     [YAUser currentUser].currentGroup = group;
-    [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
     

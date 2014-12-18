@@ -96,13 +96,10 @@
                              @"initial_members":hashes
                              };
     
-//    NSLog(@"params: %@", params);
-    
     [manager POST:[NSString stringWithFormat:@"%@/crew/create", BASE_API_URL] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         NSLog(@"%@", responseObject);
         block();
-        //        NSLog(@"%@", [responseObject objectForKey:@"crew_id"]);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"create crew Error: %@", [operation responseString]);
@@ -131,39 +128,7 @@
 }
 
 - (void)myCrewsWithCompletion:(void (^)())block {
-    //val TODO:
-    block();//no crews for now
-//    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-//    manager.requestSerializer = [AFJSONRequestSerializer serializer];
-//    [manager.requestSerializer setValue:[NSString stringWithFormat:@"Clique key=\"%@\"", [self userDataForKey:@"token"]] forHTTPHeaderField:@"Authorization"];
-//    
-//    [manager GET:[NSString stringWithFormat:@"%@/me/crews", BASE_API_URL] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-//        
-//        self.YAGroup = [[NSMutableArray alloc] init];
-//        
-//        NSArray *items = [responseObject objectForKey:@"items"];
-//        for(id item in items){
-//            YAGroup *YAGroup = [[YAGroup alloc] init];
-//            YAGroup.groupId = [item objectForKey:@"crew_id"];
-//            YAGroup.name = [item objectForKey:@"name"];
-//            YAGroup.members = [[NSMutableArray alloc] initWithObjects:@"rjvir", @"b9speed", @"kyle", nil];
-//            
-//            [self.YAGroup addObject:YAGroup];
-//        }
-//        
-//        NSData *groupData = [NSKeyedArchiver archivedDataWithRootObject:self.YAGroup];
-//        [self saveObject:groupData forKey:nYAGroup];
-////        [self saveUserData:self.YAGroup forKey:nYAGroup];
-//        
-//        NSLog(@"groups: %@", responseObject);
-//        NSLog(@"YAGroup count: %lu", [self.YAGroup count]);
-//        block();
-//        
-//        
-//    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-//        NSLog(@"my crews Error: %@", error);
-//        
-//    }];
+    block();
 }
 
 - (void)addToCrew:(NSString *)crewId withCompletionBlock:(void (^)())block {

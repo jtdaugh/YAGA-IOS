@@ -12,6 +12,21 @@
 
 @implementation NSString (Hash)
 
++ (NSString *)stringFromHex:(NSString *)hexString {
+    NSMutableString * newString = [[NSMutableString alloc] init];
+    int i = 0;
+    NSString *hString = [hexString stringByReplacingOccurrencesOfString:@" " withString:@""];
+    while (i < [hString length])
+    {
+        NSString * hexChar = [hString substringWithRange: NSMakeRange(i, 2)];
+        int value = 0;
+        sscanf([hexChar cStringUsingEncoding:NSASCIIStringEncoding], "%x", &value);
+        [newString appendFormat:@"%c", (char)value];
+        i+=2;
+    }
+    return newString;
+}
+
 + (NSString *) hashString :(NSString *) data withSalt: (NSString *) salt {
     
     const char *cKey  = [salt cStringUsingEncoding:NSUTF8StringEncoding];

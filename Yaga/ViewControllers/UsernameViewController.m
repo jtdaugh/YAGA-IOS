@@ -8,18 +8,19 @@
 
 #import "UsernameViewController.h"
 #import "YAUser.h"
-#import "Yaga-Swift.h"
+//#import "Yaga-Swift.h"
 #import "MyGroupsViewController.h"
+#import "YAAuthManager.h"
 
 @interface UsernameViewController ()
-
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @end
 
 @implementation UsernameViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     self.title = @"";
     
     [self.view setBackgroundColor:[UIColor blackColor]];
@@ -66,7 +67,14 @@
     [self.next.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
     [self.next setAlpha:0.0];
     [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
+    [self.next setTitle:@"" forState:UIControlStateDisabled];
     [self.view addSubview:self.next];
+    
+    //Init activity indicator
+    self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    self.activityIndicator.center = self.next.center;
+    self.activityIndicator.hidesWhenStopped = YES;
+    [self.view addSubview:self.activityIndicator];
     
 }
 
@@ -96,41 +104,21 @@
 }
 
 - (void)nextScreen {
-    [self.next setTitle:@"" forState:UIControlStateNormal];
-    __block UIActivityIndicatorView *myIndicator = [[UIActivityIndicatorView alloc]
-                                            initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    
-    // Position the spinner
-    [self.next addSubview:myIndicator];
-    [myIndicator setCenter:CGPointMake(self.next.frame.size.width / 2, self.next.frame.size.height / 2)];
-    
-    // Start the animation
-    [myIndicator startAnimating];
-    
-    YAUser *currentUser = [YAUser currentUser];
-    [[YAUser currentUser] saveUserData:self.username.text forKey:nUsername];
-    
-    //val: remove me when networking code is done
-    [[YAUser currentUser] saveObject:self.username.text forKey:nUsername];
-    
-    [currentUser registerUserWithCompletionBlock:^(void){
-        //user is able to get back so reseting the button
-        [self.next setTitle:NSLocalizedString(@"Finish", @"") forState:UIControlStateNormal];
-        [myIndicator removeFromSuperview];
+    //Auth manager testing
+    [self.activityIndicator startAnimating];
+    self.next.enabled = NO;
+    __weak typeof(self) weakSelf = self;
+    [[YAAuthManager sharedManager] sendTokenRequestWithCompletion:^(bool response, NSString *error) {
         
-        NSLog(@"registerUserWithCompletionBlock completed %@", (NSString *)[currentUser userDataForKey:nToken]);
+        [[YAUser currentUser] saveUserData:self.username.text forKey:nUsername];
+        [[YAUser currentUser] saveObject:self.username.text forKey:nUsername];
         
-        [currentUser myCrewsWithCompletion:^{
-            
-            //TODO: fetch groups
-            
-            if([[YAGroup allObjects] count] > 0){
-                [self performSegueWithIdentifier:@"MyGroups" sender:self];
-            } else {
-                [self performSegueWithIdentifier:@"NoGroups" sender:self];
-            }
-        }];
-        
+        if([[YAGroup allObjects] count] > 0){
+            [self performSegueWithIdentifier:@"MyGroups" sender:self];
+        } else {
+            [self performSegueWithIdentifier:@"NoGroups" sender:self];
+        }
+        [weakSelf.activityIndicator stopAnimating];
     }];
 }
 

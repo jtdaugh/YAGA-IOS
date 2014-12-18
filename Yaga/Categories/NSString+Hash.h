@@ -11,4 +11,5 @@
 - (NSString *) crypt;
 - (NSString *) md5;
 - (NSString *) clean;
++ (NSString *)stringFromHex:(NSString *)hexString;
 @end
