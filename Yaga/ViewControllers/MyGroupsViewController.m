@@ -67,6 +67,13 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
         self.tableView.layoutMargins = UIEdgeInsetsZero;
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kYACloseGroupsNotification
+                                                      object:nil
+                                                       queue:[NSOperationQueue mainQueue]
+                                                  usingBlock:^(NSNotification *note) {
+                                                      [self close:nil];
+                                                  }];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {

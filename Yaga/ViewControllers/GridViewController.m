@@ -694,7 +694,14 @@
 }
 
 - (void)closeGroups {
-     [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kYACloseGroupsNotification object:nil];
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.identifier isEqualToString:@"ShowEmbeddedUserGroups"]) {
+        
+    }
 }
 
 - (void) initGridTiles {
