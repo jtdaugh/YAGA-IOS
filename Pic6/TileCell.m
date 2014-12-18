@@ -34,15 +34,20 @@
             [self.loader addSubview:box];
         }
         
-        //        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
-        //                                                          target:self
-        //                                                        selector:@selector(loaderTick:)
-        //                                                        userInfo:nil
-        //                                                         repeats:YES];
-        //
-        //        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-        //        [self loaderTick:nil];
+        [self initLabels];
+        
+        /* Loader Ticks */
+        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                          target:self
+                                                        selector:@selector(loaderTick:)
+                                                        userInfo:nil
+                                                         repeats:YES];
+
+        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+        [self loaderTick:nil];
+
         [self.container addSubview:self.loader];
+        /* End Loader Ticks */
         
         self.image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         [self.image setContentMode:UIViewContentModeScaleAspectFill];
@@ -55,8 +60,167 @@
     return self;
 }
 
+- (void)resizeLoader {
+    int width = self.frame.size.width / LOADER_WIDTH;
+    int height = self.frame.size.height / LOADER_HEIGHT;
+    
+    [self.loader setFrame:CGRectMake(0, 0, self.container.frame.size.width, self.container.frame.size.height)];
+    
+//    int i = 0;
+//    for (UIView *box in self.boxes){
+//        
+//    }
+
+    for(int i = 0; i < LOADER_HEIGHT * LOADER_WIDTH; i++){
+        UIView *box = [self.boxes objectAtIndex:i];
+        [box setFrame:CGRectMake((i%4) * self.loader.frame.size.width/LOADER_WIDTH, (i/LOADER_HEIGHT) * self.loader.frame.size.height/LOADER_HEIGHT, width, height)];
+    }
+}
+
+- (void) showLabels {
+    for(UIView *view in self.labels){
+        [view setAlpha:1.0];
+        [self addSubview:view];
+    }
+}
+
+- (void) hideLabels {
+    for(UIView *view in self.labels){
+        [view setAlpha:0.0];
+        [self addSubview:view];
+    }
+}
+
+- (void) fillLabels {
+    //time
+//    if(self.tile.snapshot.value[@"time"]){
+//        NSNumber *time = self.tile.snapshot.value[@"time"];
+//        NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:[time doubleValue]];
+//        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+//        [dateFormat setDateFormat:@"MM/dd hh:mma"];
+//        NSString *dateString = [dateFormat stringFromDate:date];
+//        //        NSLog(@"date: %@", dateString);
+//        [self.timestampLabel setText:dateString];
+//    } else {
+//        [self.timestampLabel setText:@"00:00"];
+//    }
+
+    //username
+    //caption
+}
+
+- (void) initLabels {
+    self.labels = [[NSMutableArray alloc] init];
+    
+    CGFloat height = 30;
+    CGFloat gutter = 48;
+    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, 12, VIEW_WIDTH - gutter*2, height)];
+    [self.userLabel setTextAlignment:NSTextAlignmentCenter];
+    [self.userLabel setTextColor:[UIColor whiteColor]];
+    [self.userLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    
+    self.userLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.userLabel.layer.shadowRadius = 1.0f;
+    self.userLabel.layer.shadowOpacity = 1.0;
+    self.userLabel.layer.shadowOffset = CGSizeZero;
+    
+    [self.labels addObject:self.userLabel];
+    
+    CGFloat timeHeight = 24;
+    self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, height + 12, VIEW_WIDTH - gutter*2, timeHeight)];
+    [self.timestampLabel setTextAlignment:NSTextAlignmentCenter];
+    [self.timestampLabel setTextColor:[UIColor whiteColor]];
+    [self.timestampLabel setFont:[UIFont fontWithName:BIG_FONT size:14]];
+    
+    self.timestampLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.timestampLabel.layer.shadowRadius = 1.0f;
+    self.timestampLabel.layer.shadowOpacity = 1.0;
+    self.timestampLabel.layer.shadowOffset = CGSizeZero;
+    [self.labels addObject:self.timestampLabel];
+    
+    CGFloat captionHeight = 30;
+    CGFloat captionGutter = 2;
+    self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    [self.captionField setBackgroundColor:[UIColor clearColor]];
+    [self.captionField setTextAlignment:NSTextAlignmentCenter];
+    [self.captionField setTextColor:[UIColor whiteColor]];
+    [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    
+    self.captionField.delegate = self;
+    [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
+    [self.captionField setReturnKeyType:UIReturnKeyDone];
+    
+    self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.captionField.layer.shadowRadius = 1.0f;
+    self.captionField.layer.shadowOpacity = 1.0;
+    self.captionField.layer.shadowOffset = CGSizeZero;
+    [self.labels addObject:self.captionField];
+    
+    
+    CGFloat likeSize = 42;
+    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
+    [self.likeButton setBackgroundImage:[UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
+    [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.labels addObject:self.likeButton];
+    
+    CGFloat tSize = 36;
+    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize - 12, 12, tSize, tSize)];
+    [self.captionButton setBackgroundImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
+    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.labels addObject:self.captionButton];
+    
+    [self hideLabels];
+    
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    NSDictionary *attributes = @{NSFontAttributeName: textField.font};
+    
+    CGFloat width = [text sizeWithAttributes:attributes].width;
+    //    CGFloat width =  [text sizeWithFont:textField.font].width;
+    
+    if(width <= self.captionField.frame.size.width){
+        return YES;
+    } else {
+        return NO;
+    }
+    
+}
+
+- (void)textButtonPressed {
+    NSLog(@"test");
+    [self.captionField becomeFirstResponder];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    //    [textField resignFirstResponder];
+    [self.captionField resignFirstResponder];
+    return YES;
+}
+
+- (void)likeButtonPressed {
+    
+    [UIView animateKeyframesWithDuration:0.5 delay:0 options:0 animations:^{
+        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
+            self.likeButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
+        }];
+        
+        [self.likeButton setBackgroundImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateNormal];
+        
+        [UIView addKeyframeWithRelativeStartTime:0.6 relativeDuration:0.4 animations:^{
+            self.likeButton.transform = CGAffineTransformIdentity;
+        }];
+        
+    } completion:^(BOOL finished) {
+        //
+    }];
+}
+
 - (void)setVideoFrame:(CGRect)frame {
     [self setFrame:frame];
+    [self.container setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+    [self resizeLoader];
     [self.image setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
     [self.playerLayer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
     [self.playerContainer setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];

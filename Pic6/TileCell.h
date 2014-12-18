@@ -14,7 +14,7 @@
 #define LOADED 1
 #define PLAYING 2
 
-@interface TileCell : UICollectionViewCell
+@interface TileCell : UICollectionViewCell <UITextFieldDelegate>
 
 @property (strong, nonatomic) UIView *container;
 
@@ -36,6 +36,16 @@
 
 @property (strong, nonatomic) UIView *indicator;
 
+@property (strong, nonatomic) UILabel *userLabel;
+@property (strong, nonatomic) UILabel *timestampLabel;
+@property (strong, nonatomic) UITextField *captionField;
+@property (strong, nonatomic) UIButton *likeButton;
+@property (strong, nonatomic) UIButton *captionButton;
+@property (strong, nonatomic) UIButton *saveButton;
+@property (strong, nonatomic) UIButton *deleteButton;
+
+@property (strong, nonatomic) NSMutableArray *labels;
+
 - (void)setVideoFrame:(CGRect)frame;
 - (void)showLoader;
 - (void)showImage;
@@ -45,4 +55,6 @@
 - (BOOL)isLoaded;
 + (BOOL)isLoaded:(NSString *)uid;
 - (void)showIndicator;
+- (void) showLabels;
+- (void) hideLabels;
 @end

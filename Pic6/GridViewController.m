@@ -511,7 +511,7 @@
             [[UIScreen mainScreen] setBrightness:1.0];
             [self.view addSubview:self.white];
             [self.view bringSubviewToFront:self.cameraView];
-            [self.view bringSubviewToFront:self.switchGroups];
+//            [self.view bringSubviewToFront:self.switchGroups];
             [self configureFlashButton:[NSNumber numberWithBool:YES]];
         }
         
@@ -542,7 +542,7 @@
     
     CGFloat gutter = 96, height = 42;
     CGFloat bottom = 28;
-    self.switchGroups = [[UIButton alloc] initWithFrame:CGRectMake(gutter, self.cameraView.frame.size.height - height, self.cameraView.frame.size.width - gutter*2, height)];
+    self.switchGroups = [[UIButton alloc] initWithFrame:CGRectMake(gutter, /* self.cameraView.frame.size.height - height */ 8, self.cameraView.frame.size.width - gutter*2, height)];
     //    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
     [self.switchGroups.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
     [self.switchGroups addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchUpInside];
@@ -710,9 +710,9 @@
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, -(VIEW_HEIGHT/2)+ELEVATOR_MARGIN, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
-        CGRect ballFrame = self.switchGroups.frame;
-        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
-        [self.switchGroups setFrame:ballFrame];
+//        CGRect ballFrame = self.switchGroups.frame;
+//        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
+//        [self.switchGroups setFrame:ballFrame];
         
         CGRect frame = self.gridTiles.frame;
         frame.origin.y += VIEW_HEIGHT/2 - ELEVATOR_MARGIN;
@@ -740,9 +740,9 @@
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         //
         [self.cameraView setFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height)];
-        CGRect ballFrame = self.switchGroups.frame;
-        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
-        [self.switchGroups setFrame:ballFrame];
+//        CGRect ballFrame = self.switchGroups.frame;
+//        ballFrame.origin.y = self.cameraView.frame.origin.y + self.cameraView.frame.size.height - ballFrame.size.height;
+//        [self.switchGroups setFrame:ballFrame];
         
         CGRect frame = self.gridTiles.frame;
         frame.origin.y = 0;
@@ -978,9 +978,20 @@
     if(![cell.uid isEqualToString:snapshot.name]){
         
         [cell setUid:snapshot.name];
-        [cell setUsername:snapshot.value[@"user"]];
-        [cell setSnapshot: snapshot];
-        
+
+        [cell.userLabel setText:snapshot.value[@"user"]];
+        if(snapshot.value[@"time"]){
+            NSNumber *time = snapshot.value[@"time"];
+            NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceReferenceDate:[time doubleValue]];
+            NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+            [dateFormat setDateFormat:@"MM/dd hh:mma"];
+            NSString *dateString = [dateFormat stringFromDate:date];
+            //        NSLog(@"date: %@", dateString);
+            [cell.timestampLabel setText:dateString];
+        } else {
+            [cell.timestampLabel setText:@"00:00"];
+        }
+
         // set colors for loader tiles
         //        NSArray *colors = (NSArray *) snapshot.value[@"colors"];
         //
@@ -992,12 +1003,17 @@
                 [cell showImage];
             } else {
                 [cell play:nil];
-                
             }
         } else {
             [cell showLoader];
             NSLog(@"whaaaat %lu, %@", indexPath.row, cell.uid);
             [self triggerRemoteLoad:cell.uid];
+        }
+        
+        if(self.selectedIndex){
+            [cell showLabels];
+        } else {
+            [cell hideLabels];
         }
     }
     
@@ -1024,9 +1040,9 @@
         frame.origin.y = 0 - offset;
         self.cameraView.frame = frame;
         
-        frame = self.switchGroups.frame;
-        frame.origin.y = self.cameraView.frame.size.height - self.switchGroups.frame.size.height - offset;
-        self.switchGroups.frame = frame;
+//        frame = self.switchGroups.frame;
+//        frame.origin.y = self.cameraView.frame.size.height - self.switchGroups.frame.size.height - offset;
+//        self.switchGroups.frame = frame;
         
         if(self.selectedIndex){
             
@@ -1062,6 +1078,7 @@
                 }];
                 for(TileCell *cell in self.gridTiles.visibleCells){
                     [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, self.swipeLayout.itemSize.width, self.swipeLayout.itemSize.height)];
+                    [cell showLabels];
                 }
                 
                 [collectionView setPagingEnabled:YES];
@@ -1073,6 +1090,7 @@
                 }];
                 for(TileCell *cell in self.gridTiles.visibleCells){
                     [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, self.gridLayout.itemSize.width, self.gridLayout.itemSize.height)];
+                    [cell hideLabels];
                     if([cell.state isEqualToNumber:[NSNumber numberWithInt:LOADED]]){
                         [cell play:^{
                             

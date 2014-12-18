@@ -100,7 +100,6 @@
     [self.userLabel setTextColor:[UIColor whiteColor]];
     [self.userLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
     [self.userLabel setText:self.tile.username];
-    [self.userLabel setAlpha:0.0];
     
     self.userLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.userLabel.layer.shadowRadius = 1.0f;
@@ -187,11 +186,6 @@
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
     NSDictionary *attributes = @{NSFontAttributeName: textField.font};
-    
-    //    CGRect rect = [text boundingRectWithSize:CGSizeMake(textField.frame.size.width, CGFLOAT_MAX)
-    //                                              options:NSStringDrawingUsesLineFragmentOrigin
-    //                                           attributes:attributes
-    //                                              context:nil];
     
     CGFloat width = [text sizeWithAttributes:attributes].width;
     //    CGFloat width =  [text sizeWithFont:textField.font].width;

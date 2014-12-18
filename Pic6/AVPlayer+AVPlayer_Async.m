@@ -20,8 +20,13 @@
 
     if(object == self && [keyPath isEqualToString:@"status"]){
         if(self.status == AVPlayerStatusReadyToPlay){
-            [self play];
             [self removeObserver:self forKeyPath:@"status"];
+            [self play];
+//            [self prerollAtRate:1.0 completionHandler:^(BOOL finished){
+//                if (finished) {
+//                    [self play];
+//                }
+//            }];
         }
     }
 }
