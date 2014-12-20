@@ -102,6 +102,7 @@
         [self setupGroups];
     }];
     [self initBall];
+    [self initGroupTitle];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -659,11 +660,25 @@
     [self.view addSubview:self.gridView];
 }
 
+- (void) initGroupTitle {
+    CGFloat gutter = 48, height = 42;
+    self.groupTitle = [[UILabel alloc] initWithFrame:CGRectMake(gutter, 8, self.cameraView.frame.size.width - gutter*2, height)];
+    [self.groupTitle setFont:[UIFont fontWithName:BIG_FONT size:16]];
+    [self.groupTitle setTextColor:[UIColor whiteColor]];
+    self.groupTitle.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.groupTitle.layer.shadowRadius = 1.0f;
+    self.groupTitle.layer.shadowOpacity = 1.0;
+    self.groupTitle.layer.shadowOffset = CGSizeZero;
+    [self.groupTitle setTextAlignment:NSTextAlignmentCenter];
+    
+    [self.cameraView addSubview:self.groupTitle];
+    [self.cameraAccessories addObject:self.groupTitle];
+}
+
 - (void) initBall {
     
-    CGFloat gutter = 96, height = 42;
-    CGFloat bottom = 28;
-    self.switchGroups = [[UIButton alloc] initWithFrame:CGRectMake(gutter, /* self.cameraView.frame.size.height - height */ 8, self.cameraView.frame.size.width - gutter*2, height)];
+    CGFloat gutter = 16, height = 42;
+    self.switchGroups = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2 + gutter, self.cameraView.frame.size.height - height, self.cameraView.frame.size.width/2 - gutter, height)];
     //    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
     [self.switchGroups.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
     [self.switchGroups addTarget:self action:@selector(tappedBall) forControlEvents:UIControlEventTouchUpInside];
@@ -672,6 +687,10 @@
     self.switchGroups.layer.shadowRadius = 1.0f;
     self.switchGroups.layer.shadowOpacity = 1.0;
     self.switchGroups.layer.shadowOffset = CGSizeZero;
+    [self.switchGroups setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
+    [self.switchGroups setContentEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 10)];
+    
+//    [self.switchGroups.titleLabel setTextAlignment:NSTextAlignmentRight];
     
     [self.cameraAccessories addObject:self.switchGroups];
     
@@ -953,7 +972,11 @@
         
         //Your code goes in here
         //        NSLog(@"Main Thread Code");
-        [self.switchGroups setTitle:[NSString stringWithFormat:@"%@ · %@", self.groupInfo.name, @"Switch"] forState:UIControlStateNormal];
+        /* SET GROUP TITLE HERE */
+        [self.groupTitle setText:self.groupInfo.name];
+        
+//
+// [self.switchGroups setTitle:[NSString stringWithFormat:@"%@ · %@", self.groupInfo.name, @"Switch"] forState:UIControlStateNormal];
         // set title here
         
     }];
