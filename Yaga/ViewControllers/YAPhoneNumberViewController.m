@@ -15,6 +15,7 @@
 
 //#import "Yaga-Swift.h"
 #import "YAAuthManager.h"
+#import "AZNotification.h"
 
 @interface YAPhoneNumberViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
@@ -153,8 +154,15 @@
     self.next.enabled = NO;
     __weak typeof(self) weakSelf = self;
     [[YAAuthManager sharedManager] isPhoneNumberRegistered:formattedNumber completion:^(bool registered, NSString *error) {
-        if (error) {
-            NSLog(@"%@", error);
+        if (error)
+        {
+            [AZNotification showNotificationWithTitle:error
+                                           controller:self
+                                     notificationType:AZNotificationTypeError
+                                         startedBlock:^{
+                                             [weakSelf.activityIndicator stopAnimating];
+                                             weakSelf.next.enabled = YES;
+                }];
         } else {
             [[YAUser currentUser] setPhoneNumberIsRegistered:registered];
             [[YAAuthManager sharedManager] sendSMSAuthRequestWithCompletion:^(bool response, NSString *error) {

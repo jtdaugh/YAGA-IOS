@@ -12,7 +12,9 @@ NSString *const SUCCESS_COLOR = @"17BF30";
 NSString *const ERROR_COLOR = @"BF1525";
 NSString *const WARNING_COLOR = @"BF3E12";
 NSString *const MESSAGE_COLOR = @"7F7978";
+@interface AZNotificationView ()
 
+@end
 @implementation AZNotificationView
 
 static const int NOTIFICATION_VIEW_HEIGHT = 64;
@@ -46,6 +48,7 @@ static const int NOTIFICATION_VIEW_HEIGHT = 64;
     int boundaryYAxis = _showNotificationUnderNavigationBar == YES ? 2 : 1;
     
     _animator = [[UIDynamicAnimator alloc] initWithReferenceView:_referenceView];
+    _animator.delegate = self;
     _gravity = [[UIGravityBehavior alloc] initWithItems:@[self]];
     _collision = [[UICollisionBehavior alloc] initWithItems:@[self]];
     _itemBehavior = [[UIDynamicItemBehavior alloc] initWithItems:@[self]];
@@ -105,6 +108,13 @@ static const int NOTIFICATION_VIEW_HEIGHT = 64;
     titleLabel.textColor = [UIColor whiteColor];
     
     [self addSubview:titleLabel];
+}
+
+#pragma mark - UIDynamicAnimatorDelegate 
+
+- (void)dynamicAnimatorWillResume:(UIDynamicAnimator *)animator
+{
+    self.startBlock();
 }
 
 @end

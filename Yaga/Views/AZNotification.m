@@ -10,6 +10,20 @@
 
 @implementation AZNotification
 
+
++(void) showNotificationWithTitle:(NSString *)title controller:(UIViewController *)controller notificationType:(AZNotificationType) notificationType startedBlock:(startedBlock)startedBlock
+{
+    controller = controller.navigationController ? controller.navigationController : controller;
+    
+    AZNotificationView *notificationView = [[AZNotificationView alloc] initWithTitle:title referenceView:controller.view notificationType:(AZNotificationType) notificationType];
+    
+    notificationView.startBlock = startedBlock;
+    
+    [controller.view addSubview:notificationView];
+    
+    [notificationView applyDynamics];
+}
+
 +(void) showNotificationWithTitle:(NSString *)title controller:(UIViewController *)controller notificationType:(AZNotificationType)notificationType shouldShowNotificationUnderNavigationBar:(BOOL)shouldShowNotificationUnderNavigationBar
 {
     AZNotificationView *notificationView = [[AZNotificationView alloc] initWithTitle:title referenceView:controller.view notificationType:(AZNotificationType) notificationType showNotificationUnderNavigationBar:YES];

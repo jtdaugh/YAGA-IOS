@@ -16,6 +16,7 @@ extern NSString *const ERROR_COLOR;
 extern NSString *const WARNING_COLOR;
 extern NSString *const MESSAGE_COLOR;
 
+typedef void (^startedBlock)();
 typedef NS_ENUM(NSInteger, AZNotificationType) {
     
     AZNotificationTypeSuccess = 0,
@@ -25,7 +26,7 @@ typedef NS_ENUM(NSInteger, AZNotificationType) {
 };
 
 
-@interface AZNotificationView : UIView
+@interface AZNotificationView : UIView <UIDynamicAnimatorDelegate>
 {
     NSString *_title;
     UIView *_referenceView;
@@ -40,6 +41,8 @@ typedef NS_ENUM(NSInteger, AZNotificationType) {
     
     int _collisionCount;
 }
+
+@property (nonatomic, copy) startedBlock startBlock;
 
 -(void) setup;
 -(void) applyDynamics;

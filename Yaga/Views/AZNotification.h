@@ -14,6 +14,8 @@
     
 }
 
++(void) showNotificationWithTitle:(NSString *)title controller:(UIViewController *)controller notificationType:(AZNotificationType) notificationType startedBlock:(startedBlock)startedBlock;
+
 +(void) showNotificationWithTitle:(NSString *)title controller:(UIViewController *)controller notificationType:(AZNotificationType) notificationType;
 
 
