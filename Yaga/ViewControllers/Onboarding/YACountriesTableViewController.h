@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YACountriesTableViewController : UITableViewController
+@interface YACountriesTableViewController : UITableViewController <UISearchBarDelegate>
 - (IBAction)dismiss:(id)sender;
 @end
