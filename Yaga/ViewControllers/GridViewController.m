@@ -61,9 +61,7 @@
     _collectionViewController = [YACollectionViewController new];
     [self addChildViewController:_collectionViewController];
     [self.view addSubview:_collectionViewController.view];
-<<<<<<< HEAD
-=======
-    
+
 //    _cameraViewController.view.backgroundColor = [UIColor blueColor];
 //    
 //    _cameraViewController = [YACameraViewController new];
@@ -74,7 +72,6 @@
 //    [self.view addSubview:_cameraViewController.view];
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
->>>>>>> FETCH_HEAD
     
 //    _cameraViewController.view.backgroundColor = [UIColor blueColor];
 //    
@@ -84,14 +81,11 @@
 //    
 //    [self addChildViewController:_cameraViewController];
 //    [self.view addSubview:_cameraViewController.view];
-    
-<<<<<<< HEAD
+
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
     [Crashlytics setUserIdentifier:(NSString *) [[YAUser currentUser] objectForKey:nUsername]];
     
-=======
->>>>>>> FETCH_HEAD
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
@@ -113,14 +107,10 @@
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     
-    
-    //    [self initFirebase];
-    // look at afterCameraInit to see what happens after the camera gets initialized. eg initFirebase.
     [self.navigationController setNavigationBarHidden:YES];
 }
 
 - (void)initCameraView {
-    
     //  self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     
 }
