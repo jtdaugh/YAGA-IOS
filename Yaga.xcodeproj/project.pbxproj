@@ -28,7 +28,6 @@
 		6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */; };
 		6E73F4241A432FAC000B3A14 /* NoGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */; };
 		6E73F42B1A43357D000B3A14 /* YACollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4261A43337D000B3A14 /* YACollectionViewController.m */; };
-		6E73F42E1A433679000B3A14 /* 5.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E73F42D1A433679000B3A14 /* 5.mp4 */; };
 		6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187651A3F2C270034AB63 /* AppDelegate.m */; };
 		6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E9187771A3F2C270034AB63 /* InfoPlist.strings */; };
 		6E9187CD1A3F2C270034AB63 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187841A3F2C270034AB63 /* main.m */; };
@@ -43,11 +42,6 @@
 		6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188871A3F3A5A0034AB63 /* YAUser.m */; };
 		6E9188D31A3F3A5A0034AB63 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188891A3F3A5A0034AB63 /* NetworkManager.swift */; };
 		6E9188D51A3F3A5A0034AB63 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6E91888D1A3F3A5A0034AB63 /* Images.xcassets */; };
-		6E9188D61A3F3A5A0034AB63 /* 0.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E91888F1A3F3A5A0034AB63 /* 0.mp4 */; };
-		6E9188D71A3F3A5A0034AB63 /* 1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E9188901A3F3A5A0034AB63 /* 1.mp4 */; };
-		6E9188D81A3F3A5A0034AB63 /* 2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E9188911A3F3A5A0034AB63 /* 2.mp4 */; };
-		6E9188D91A3F3A5A0034AB63 /* 3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E9188921A3F3A5A0034AB63 /* 3.mp4 */; };
-		6E9188DA1A3F3A5A0034AB63 /* 4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 6E9188931A3F3A5A0034AB63 /* 4.mp4 */; };
 		6E9188DB1A3F3A5A0034AB63 /* AddMembersViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */; };
 		6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889B1A3F3A5A0034AB63 /* GridViewController.m */; };
 		6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */; };
@@ -76,6 +70,9 @@
 		71D0F5A8190DCE3D00C7DEE0 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */; };
 		71D0F5AA190DCE4300C7DEE0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5A9190DCE4300C7DEE0 /* Security.framework */; };
 		71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */; };
+		865BD7A21A484543003B00DA /* UIColor+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79D1A484543003B00DA /* UIColor+Additions.m */; };
+		865BD7A31A484543003B00DA /* AZNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79F1A484543003B00DA /* AZNotification.m */; };
+		865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD7A11A484543003B00DA /* AZNotificationView.m */; };
 		86B864991A41B7DE002256FF /* YAAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864981A41B7DE002256FF /* YAAuthManager.m */; };
 		86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */; };
 		86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
@@ -129,7 +126,6 @@
 		6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoGroupsViewController.m; sourceTree = "<group>"; };
 		6E73F4251A43337D000B3A14 /* YACollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACollectionViewController.h; sourceTree = "<group>"; };
 		6E73F4261A43337D000B3A14 /* YACollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACollectionViewController.m; sourceTree = "<group>"; };
-		6E73F42D1A433679000B3A14 /* 5.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 5.mp4; sourceTree = "<group>"; };
 		6E9187641A3F2C270034AB63 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		6E9187651A3F2C270034AB63 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		6E9187721A3F2C270034AB63 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -156,11 +152,6 @@
 		6E9188871A3F3A5A0034AB63 /* YAUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAUser.m; sourceTree = "<group>"; };
 		6E9188891A3F3A5A0034AB63 /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		6E91888D1A3F3A5A0034AB63 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		6E91888F1A3F3A5A0034AB63 /* 0.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 0.mp4; sourceTree = "<group>"; };
-		6E9188901A3F3A5A0034AB63 /* 1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1.mp4; sourceTree = "<group>"; };
-		6E9188911A3F3A5A0034AB63 /* 2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 2.mp4; sourceTree = "<group>"; };
-		6E9188921A3F3A5A0034AB63 /* 3.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 3.mp4; sourceTree = "<group>"; };
-		6E9188931A3F3A5A0034AB63 /* 4.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 4.mp4; sourceTree = "<group>"; };
 		6E9188941A3F3A5A0034AB63 /* Yaga-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Yaga-Bridging-Header.h"; sourceTree = "<group>"; };
 		6E9188961A3F3A5A0034AB63 /* AddMembersViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddMembersViewController.h; sourceTree = "<group>"; };
 		6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddMembersViewController.m; sourceTree = "<group>"; };
@@ -212,6 +203,12 @@
 		71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		71D0F5A9190DCE4300C7DEE0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		865BD79C1A484543003B00DA /* UIColor+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Additions.h"; sourceTree = "<group>"; };
+		865BD79D1A484543003B00DA /* UIColor+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Additions.m"; sourceTree = "<group>"; };
+		865BD79E1A484543003B00DA /* AZNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZNotification.h; sourceTree = "<group>"; };
+		865BD79F1A484543003B00DA /* AZNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZNotification.m; sourceTree = "<group>"; };
+		865BD7A01A484543003B00DA /* AZNotificationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZNotificationView.h; sourceTree = "<group>"; };
+		865BD7A11A484543003B00DA /* AZNotificationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZNotificationView.m; sourceTree = "<group>"; };
 		86B864971A41B7DE002256FF /* YAAuthManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAAuthManager.h; sourceTree = "<group>"; };
 		86B864981A41B7DE002256FF /* YAAuthManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAAuthManager.m; sourceTree = "<group>"; };
 		86B8649A1A41CA74002256FF /* NSDictionary+ResponseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ResponseObject.h"; sourceTree = "<group>"; };
@@ -400,24 +397,10 @@
 			children = (
 				86B8649F1A43287C002256FF /* countries.json */,
 				6E91888D1A3F3A5A0034AB63 /* Images.xcassets */,
-				6E91888E1A3F3A5A0034AB63 /* vids */,
 				6E9188941A3F3A5A0034AB63 /* Yaga-Bridging-Header.h */,
 				86EF0B8E1A40592F00FF4E3C /* Localizable.strings */,
 			);
 			path = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		6E91888E1A3F3A5A0034AB63 /* vids */ = {
-			isa = PBXGroup;
-			children = (
-				6E91888F1A3F3A5A0034AB63 /* 0.mp4 */,
-				6E9188901A3F3A5A0034AB63 /* 1.mp4 */,
-				6E9188911A3F3A5A0034AB63 /* 2.mp4 */,
-				6E9188921A3F3A5A0034AB63 /* 3.mp4 */,
-				6E9188931A3F3A5A0034AB63 /* 4.mp4 */,
-				6E73F42D1A433679000B3A14 /* 5.mp4 */,
-			);
-			path = vids;
 			sourceTree = "<group>";
 		};
 		6E9188951A3F3A5A0034AB63 /* ViewControllers */ = {
@@ -467,6 +450,7 @@
 		6E9188B11A3F3A5A0034AB63 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				865BD7A51A484548003B00DA /* AZNotification */,
 				6E73F4121A4324C0000B3A14 /* YAVideoCell.h */,
 				6E73F4131A4324C0000B3A14 /* YAVideoCell.m */,
 				6E9188B21A3F3A5A0034AB63 /* AVCamPreviewView.h */,
@@ -535,6 +519,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		865BD7A51A484548003B00DA /* AZNotification */ = {
+			isa = PBXGroup;
+			children = (
+				865BD79C1A484543003B00DA /* UIColor+Additions.h */,
+				865BD79D1A484543003B00DA /* UIColor+Additions.m */,
+				865BD79E1A484543003B00DA /* AZNotification.h */,
+				865BD79F1A484543003B00DA /* AZNotification.m */,
+				865BD7A01A484543003B00DA /* AZNotificationView.h */,
+				865BD7A11A484543003B00DA /* AZNotificationView.m */,
+			);
+			name = AZNotification;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -595,19 +592,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E73F42E1A433679000B3A14 /* 5.mp4 in Resources */,
-				6E9188DA1A3F3A5A0034AB63 /* 4.mp4 in Resources */,
-				6E9188D81A3F3A5A0034AB63 /* 2.mp4 in Resources */,
-				6E9188D61A3F3A5A0034AB63 /* 0.mp4 in Resources */,
 				6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */,
 				6E9188D51A3F3A5A0034AB63 /* Images.xcassets in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
-				6E9188D71A3F3A5A0034AB63 /* 1.mp4 in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
 				6E19A72F1A497F210067D42C /* output.gif in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
-				6E9188D91A3F3A5A0034AB63 /* 3.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -670,6 +661,7 @@
 				6E9188DB1A3F3A5A0034AB63 /* AddMembersViewController.m in Sources */,
 				6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */,
 				6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */,
+				865BD7A21A484543003B00DA /* UIColor+Additions.m in Sources */,
 				6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */,
 				6E9188D31A3F3A5A0034AB63 /* NetworkManager.swift in Sources */,
 				6E6B08AD1A482E6F00224250 /* DirectoryWatcher.m in Sources */,
@@ -678,6 +670,7 @@
 				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
 				86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
+				865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */,
 				86B864991A41B7DE002256FF /* YAAuthManager.m in Sources */,
@@ -696,6 +689,7 @@
 				6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */,
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
+				865BD7A31A484543003B00DA /* AZNotification.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,

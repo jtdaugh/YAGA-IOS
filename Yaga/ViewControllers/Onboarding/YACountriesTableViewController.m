@@ -13,6 +13,7 @@
 
 @interface YACountriesTableViewController ()
 @property (strong, nonatomic) NSArray *dataRows;
+@property (strong, nonatomic) NSMutableArray *filteredCandyArray;
 @end
 
 @implementation YACountriesTableViewController
@@ -21,6 +22,8 @@
     [super viewDidLoad];
     CountryListDataSource *dataSource = [CountryListDataSource new];
     self.dataRows = [dataSource countries];
+    // Initialize the filteredCandyArray with a capacity equal to the candyArray's capacity
+    self.filteredCandyArray = [NSMutableArray arrayWithArray:self.dataRows];
     [self.tableView reloadData];
 }
 
@@ -31,7 +34,12 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.dataRows count];
+    if (tableView == self.searchDisplayController.searchResultsTableView) {
+        return [self.filteredCandyArray count];
+    }
+    else {
+        return [self.dataRows count];
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -42,7 +50,13 @@
     if(cell == nil) {
         cell = [[CountryCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:cellIdentifier];
     }
-    id obj = [_dataRows objectAtIndex:indexPath.row];
+    id obj;
+    if (tableView == self.searchDisplayController.searchResultsTableView) {
+        obj = [_filteredCandyArray objectAtIndex:indexPath.row];
+    } else {
+        obj = [_dataRows objectAtIndex:indexPath.row];
+    }
+    
     if (![obj isKindOfClass:[NSNull class]]) {
         cell.textLabel.text = [obj valueForKey:kCountryName];
 
@@ -57,15 +71,47 @@
 #pragma mark - UITableView Delegate methods
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+    NSDictionary *obj;
+    if (tableView == self.searchDisplayController.searchResultsTableView) {
+        obj = [_filteredCandyArray objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+    } else {
+        obj = [_dataRows objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+    }
+    [[YAUser currentUser] setDialCode:obj[DIAL_CODE]];
+    [[YAUser currentUser] setCountryCode:obj[COUNTRY_CODE]];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark Content Filtering
+-(void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope {
+    // Update the filtered array based on the search text and scope.
+    // Remove all objects from the filtered search array
+    [self.filteredCandyArray removeAllObjects];
+    // Filter the array using NSPredicate
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.name BEGINSWITH[c] %@",searchText];
+    _filteredCandyArray = [NSMutableArray arrayWithArray:[self.dataRows filteredArrayUsingPredicate:predicate]];
 }
 
 #pragma mark -
 #pragma mark Actions
 - (IBAction)dismiss:(id)sender {
-    NSDictionary *obj = [_dataRows objectAtIndex:[self.tableView indexPathForSelectedRow].row];
-    [[YAUser currentUser] setDialCode:obj[DIAL_CODE]];
-    [[YAUser currentUser] setCountryCode:obj[COUNTRY_CODE]];
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - UISearchDisplayController Delegate Methods
+-(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString {
+    // Tells the table data source to reload when text changes
+    [self filterContentForSearchText:searchString scope:
+     [[self.searchDisplayController.searchBar scopeButtonTitles] objectAtIndex:[self.searchDisplayController.searchBar selectedScopeButtonIndex]]];
+    // Return YES to cause the search result table view to be reloaded.
+    return YES;
+}
+
+-(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchScope:(NSInteger)searchOption {
+    // Tells the table data source to reload when scope bar selection changes
+    [self filterContentForSearchText:self.searchDisplayController.searchBar.text scope:
+     [[self.searchDisplayController.searchBar scopeButtonTitles] objectAtIndex:searchOption]];
+    // Return YES to cause the search result table view to be reloaded.
+    return YES;
 }
 @end

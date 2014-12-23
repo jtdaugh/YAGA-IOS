@@ -71,8 +71,27 @@
     [self addChildViewController:_cameraViewController];
     [self.view addSubview:_cameraViewController.view];
     
+
+//    _cameraViewController.view.backgroundColor = [UIColor blueColor];
+//    
+//    _cameraViewController = [YACameraViewController new];
+//    _cameraViewController.toggleGroupDelegate = self;
+//    _cameraViewController.toggleGroupSeletor = @selector(switchGroupsTapped:);
+//    
+//    [self addChildViewController:_cameraViewController];
+//    [self.view addSubview:_cameraViewController.view];
+    
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
+//    _cameraViewController.view.backgroundColor = [UIColor blueColor];
+//    
+//    _cameraViewController = [YACameraViewController new];
+//    _cameraViewController.toggleGroupDelegate = self;
+//    _cameraViewController.toggleGroupSeletor = @selector(switchGroupsTapped:);
+//    
+//    [self addChildViewController:_cameraViewController];
+//    [self.view addSubview:_cameraViewController.view];
+
     [Crashlytics setUserIdentifier:(NSString *) [[YAUser currentUser] objectForKey:nUsername]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -95,14 +114,10 @@
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     
-    
-    //    [self initFirebase];
-    // look at afterCameraInit to see what happens after the camera gets initialized. eg initFirebase.
     [self.navigationController setNavigationBarHidden:YES];
 }
 
 - (void)initCameraView {
-    
     //  self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     
 }
