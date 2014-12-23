@@ -90,20 +90,31 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - UICollectionView
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.cameraRollItems.count; //[YAUser currentUser].currentGroup.videos.count;
+    return 50;// //[YAUser currentUser].currentGroup.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     cell.backgroundColor = [UIColor yellowColor];
     
-    [[FICImageCache sharedImageCache] asynchronouslyRetrieveImageForEntity:self.cameraRollItems[indexPath.row] withFormatName:YAVideoImagesAtlas completionBlock:^(id<FICEntity> entity, NSString *formatName, UIImage *image) {
-        CGSize atlasSize = [[FICImageCache sharedImageCache] formatWithName:YAVideoImagesAtlas].imageSize;
-        NSArray *animationImages = [image spritesWithSpriteSheetImage:image spriteSize:atlasSize];
-        cell.gifView.animationImages = animationImages;
-        cell.gifView.animationDuration = 10000;
-    }];
-        
+//    [[FICImageCache sharedImageCache] asynchronouslyRetrieveImageForEntity:self.cameraRollItems[indexPath.row] withFormatName:YAVideoImagesAtlas completionBlock:^(id<FICEntity> entity, NSString *formatName, UIImage *image) {
+//        CGSize atlasSize = [[FICImageCache sharedImageCache] formatWithName:YAVideoImagesAtlas].imageSize;
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            NSArray *animationImages = [image spritesWithSpriteSheetImage:image spriteSize:atlasSize];
+//            cell.gifView.animationImages = animationImages;
+//            cell.gifView.animationDuration = 100;
+//        });
+//    }];
+
+    dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:@"output" withExtension:@"gif"];
+        NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
+        __block FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            cell.gifView.animatedImage = image;
+        });
+    });
+   
     return cell;
 }
 
