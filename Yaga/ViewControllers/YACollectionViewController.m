@@ -7,6 +7,7 @@
 //
 
 #import "YACollectionViewController.h"
+#import "YAImageAtlasGenerator.h"
 #import "VideoPlayerViewController.h"
 #import "YaVideoCell.h"
 #import "YAVideoCell.h"
@@ -25,6 +26,9 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic, strong) UIView *fastScrollingIndicatorView;
 @property (nonatomic, assign) BOOL disablePlayPause;
+
+@property (nonatomic, strong) NSMapTable *imageSetsModel;
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -90,7 +94,9 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - UICollectionView
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return 12;// //[YAUser currentUser].currentGroup.videos.count;
+    //return self.cameraRollItems.count;//return 12;// //[YAUser currentUser].currentGroup.videos.count;
+    NSLog(@"!!!!%lu", (unsigned long)self.cameraRollItems.count);
+    return self.cameraRollItems.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -104,13 +110,17 @@ static NSString *cellID = @"Cell";
 //            cell.gifView.animationDuration = 100;
 //        });
 //    }];
+    AVURLAsset *asset = (AVURLAsset*)[[self.cameraRollItems objectAtIndex:indexPath.row] asset];
+    NSArray *arr = [self.imageSetsModel objectForKey:asset];
     cell.gifView.animatedImage = nil;
     dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%d)", indexPath.row] withExtension:@"gif"];
-        NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
-        __block FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
+//        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%d)", indexPath.row] withExtension:@"gif"];
+//        NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
+        //__block FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
         dispatch_async(dispatch_get_main_queue(), ^{
-            cell.gifView.animatedImage = image;
+            cell.gifView.animationImages = arr;
+            cell.gifView.animationDuration = 10;
+            [cell.gifView startAnimating];
         });
     });
    
@@ -196,8 +206,25 @@ static NSString *cellID = @"Cell";
 
 - (void)assetBrowserSourceItemsDidChange:(AssetBrowserSource*)source {
     self.cameraRollItems = source.items;
-    [self.collectionView reloadData];
+    //[self.collectionView reloadData];
     NSLog(@"assets loaded, count: %d", self.cameraRollItems.count);
+    
+    
+    for (AssetBrowserItem* item in self.cameraRollItems)
+    {
+        YAImageAtlasGenerator *gen = [YAImageAtlasGenerator new];
+        AVURLAsset *asset = (AVURLAsset*)item.asset;
+        [gen crateArrayForURLAsset:asset ofSize:36 completionHandler:^(NSArray *array) {
+            NSLog(@"%@", array);
+            if (self.imageSetsModel) {
+                [self.imageSetsModel setObject:array forKey:asset];
+            } else {
+                self.imageSetsModel = [NSMapTable new];
+                [self.imageSetsModel setObject:array forKey:asset];
+            }
+            [self.collectionView reloadData];
+        }];
+    }
 
     //dispatch_async(dispatch_get_main_queue(), ^{
 

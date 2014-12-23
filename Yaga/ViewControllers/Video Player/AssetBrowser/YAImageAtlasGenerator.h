@@ -10,5 +10,6 @@
 
 @interface YAImageAtlasGenerator : NSObject
 - (void)createGifAtlasForURLAsset:(AVURLAsset*)asset ofSize:(NSUInteger)arraySize completionHandler:(void (^)(UIImage *img))handler;
+- (void)crateArrayForURLAsset:(AVURLAsset*)asset ofSize:(NSUInteger)arraySize completionHandler:(void (^)(NSArray *arr))handler;
 + (NSURL*)saveImage:(UIImage *)image toFolder:(NSString*)folderName withName:(NSString *)name;
 @end
