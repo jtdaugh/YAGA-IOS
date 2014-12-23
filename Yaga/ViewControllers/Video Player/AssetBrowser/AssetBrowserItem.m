@@ -483,7 +483,7 @@ CGRect makeRectWithAspectRatioOutsideRect(CGSize aspectRatio, CGRect containerRe
     YAImageAtlasGenerator *gen = [YAImageAtlasGenerator new];
     [gen createGifAtlasForURLAsset:self.asset ofSize:49 completionHandler:^(UIImage *atlasImage) {
         
-        self.atlasURL = [YAImageAtlasGenerator saveImage:atlasImage toFolder:@"hope" withName:@"new"];
+        self.atlasURL = [YAImageAtlasGenerator saveImage:atlasImage toFolder:@"hope" withName:[self sourceImageUUID]];
         handler(atlasImage);
     }];
 }

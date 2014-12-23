@@ -90,7 +90,7 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - UICollectionView
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return 250;//self.cameraRollItems.count; //[YAUser currentUser].currentGroup.videos.count;
+    return self.cameraRollItems.count; //[YAUser currentUser].currentGroup.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
