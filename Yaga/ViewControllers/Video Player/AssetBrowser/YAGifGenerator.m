@@ -33,12 +33,13 @@
                     imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
 
                     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
-                    NSUInteger framesCount = movieDuration * 20;
+                    NSUInteger framesCount = movieDuration * 10;
+                    NSLog(@"movie duration: %f", movieDuration);
                     
                     NSMutableArray *times = [NSMutableArray arrayWithCapacity:framesCount];
                     for (int i = 0; i < framesCount; i++) {
                         CGFloat frac = (CGFloat)i/(CGFloat)framesCount;
-                        [times addObject:[NSValue valueWithCMTime:CMTimeMakeWithSeconds(movieDuration*frac, 600)]];
+                        [times addObject:[NSValue valueWithCMTime:CMTimeMakeWithSeconds(movieDuration*frac, 30)]];
                     }
                     
                     self.array = [NSMutableArray arrayWithCapacity:framesCount];

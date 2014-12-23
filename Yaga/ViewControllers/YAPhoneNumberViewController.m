@@ -153,25 +153,25 @@
     [self.activityIndicator startAnimating];
     self.next.enabled = NO;
     __weak typeof(self) weakSelf = self;
-    [[YAAuthManager sharedManager] isPhoneNumberRegistered:formattedNumber completion:^(bool registered, NSString *error) {
-        if (error)
-        {
-            [AZNotification showNotificationWithTitle:error
-                                           controller:self
-                                     notificationType:AZNotificationTypeError
-                                         startedBlock:^{
-                                             [weakSelf.activityIndicator stopAnimating];
-                                             weakSelf.next.enabled = YES;
-                }];
-        } else {
-            [[YAUser currentUser] setPhoneNumberIsRegistered:registered];
-            [[YAAuthManager sharedManager] sendSMSAuthRequestWithCompletion:^(bool response, NSString *error) {
+//    [[YAAuthManager sharedManager] isPhoneNumberRegistered:formattedNumber completion:^(bool registered, NSString *error) {
+//        if (error)
+//        {
+//            [AZNotification showNotificationWithTitle:error
+//                                           controller:self
+//                                     notificationType:AZNotificationTypeError
+//                                         startedBlock:^{
+//                                             [weakSelf.activityIndicator stopAnimating];
+//                                             weakSelf.next.enabled = YES;
+//                }];
+//        } else {
+            [[YAUser currentUser] setPhoneNumberIsRegistered:YES];
+//            [[YAAuthManager sharedManager] sendSMSAuthRequestWithCompletion:^(bool response, NSString *error) {
                 
                 [weakSelf performSegueWithIdentifier:@"AuthentificationViewController" sender:self];
                 [weakSelf.activityIndicator stopAnimating];
-            }];
-        }
-    }];
+//            }];
+//        }
+//    }];
 }
 
 #pragma mark - Actions 

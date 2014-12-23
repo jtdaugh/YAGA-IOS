@@ -105,22 +105,22 @@
 - (void)nextScreen
 {
     [[YAUser currentUser] setAuthCode:self.number.text];
-    if (![[YAUser currentUser] phoneNumberIsRegistered]) {
-        [[YAAuthManager sharedManager] registerWithCompletion:^(bool response, NSString *error) {
+//    if (![[YAUser currentUser] phoneNumberIsRegistered]) {
+//        [[YAAuthManager sharedManager] registerWithCompletion:^(bool response, NSString *error) {
 
                     [[YAUser currentUser] setPhoneNumberIsRegistered:YES];
                     [self performSegueWithIdentifier:@"UserNameViewController" sender:self];
-
-        }];
-    } else {
-        [[YAAuthManager sharedManager] loginWithCompletion:^(bool response, NSString *error) {
-            if (response) {
-                [[YAUser currentUser] saveUserData:@"None" forKey:nUsername];
-                //[[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
-                [self performSegueWithIdentifier:@"GridViewController" sender:self];
-            }
-        }];
-    }
+//
+//        }];
+//    } else {
+//        [[YAAuthManager sharedManager] loginWithCompletion:^(bool response, NSString *error) {
+//            if (response) {
+//                [[YAUser currentUser] saveUserData:@"None" forKey:nUsername];
+//                //[[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
+//                [self performSegueWithIdentifier:@"GridViewController" sender:self];
+//            }
+//        }];
+//    }
 }
 
 @end

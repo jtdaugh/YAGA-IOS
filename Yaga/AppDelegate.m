@@ -33,7 +33,7 @@
     }
     
     UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
-    self.window.rootViewController = [YACollectionViewController new];
+    self.window.rootViewController = viewController;
     
     [self.window makeKeyAndVisible];
     

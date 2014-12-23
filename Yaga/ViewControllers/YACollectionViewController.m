@@ -201,9 +201,15 @@ static NSString *cellID = @"Cell";
     //[self.collectionView reloadData];
     NSLog(@"assets loaded, count: %lu", (unsigned long)self.cameraRollItems.count);
     
-    
+    [self createNextGif];
+}
+
+- (void)createNextGif {
     for (AssetBrowserItem* item in self.cameraRollItems)
     {
+        if([self.assetGifUrls objectForKey:[item asset]])
+            continue;
+        
         dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
             YAGifGenerator *gen = [YAGifGenerator new];
             AVURLAsset *asset = (AVURLAsset*)item.asset;
@@ -216,6 +222,7 @@ static NSString *cellID = @"Cell";
                 [self.assetGifUrls setObject:gifUrl forKey:asset];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.collectionView reloadData];
+                    [self createNextGif];
                 });
             }];
         });
@@ -223,7 +230,7 @@ static NSString *cellID = @"Cell";
         //test for just one item
         break;
     }
-    
+
 }
 
 #pragma mark - Pull down to refresh - Not implemented
