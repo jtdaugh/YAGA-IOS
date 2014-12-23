@@ -90,12 +90,11 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - UICollectionView
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return 50;// //[YAUser currentUser].currentGroup.videos.count;
+    return 12;// //[YAUser currentUser].currentGroup.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    cell.backgroundColor = [UIColor yellowColor];
     
 //    [[FICImageCache sharedImageCache] asynchronouslyRetrieveImageForEntity:self.cameraRollItems[indexPath.row] withFormatName:YAVideoImagesAtlas completionBlock:^(id<FICEntity> entity, NSString *formatName, UIImage *image) {
 //        CGSize atlasSize = [[FICImageCache sharedImageCache] formatWithName:YAVideoImagesAtlas].imageSize;
@@ -105,9 +104,9 @@ static NSString *cellID = @"Cell";
 //            cell.gifView.animationDuration = 100;
 //        });
 //    }];
-
+    cell.gifView.animatedImage = nil;
     dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:@"output" withExtension:@"gif"];
+        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%d)", indexPath.row] withExtension:@"gif"];
         NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
         __block FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
         dispatch_async(dispatch_get_main_queue(), ^{
