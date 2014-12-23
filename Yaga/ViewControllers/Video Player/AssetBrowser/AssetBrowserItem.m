@@ -455,33 +455,32 @@ CGRect makeRectWithAspectRatioOutsideRect(CGSize aspectRatio, CGRect containerRe
 }
 
 - (NSURL *)sourceImageURLWithFormatName:(NSString *)formatName {
-    return self.atlasURL;
+    return assetURL;
 }
 
 - (FICEntityImageDrawingBlock)drawingBlockForImage:(UIImage *)image withFormatName:(NSString *)formatName {
-//    FICEntityImageDrawingBlock drawingBlock = ^(CGContextRef context, CGSize contextSize) {
-//        CGRect contextBounds = CGRectZero;
-//        contextBounds.size = contextSize;
-//        CGContextClearRect(context, contextBounds);
-//        
+    FICEntityImageDrawingBlock drawingBlock = ^(CGContextRef context, CGSize contextSize) {
+        CGRect contextBounds = CGRectZero;
+        contextBounds.size = contextSize;
+        CGContextClearRect(context, contextBounds);
+        
 //        // Clip medium thumbnails so they have rounded corners
 //        if ([formatName isEqualToString:XXImageFormatNameUserThumbnailMedium]) {
 //            UIBezierPath clippingPath = [self _clippingPath];
 //            [clippingPath addClip];
 //        }
-//        
-//        UIGraphicsPushContext(context);
-//        [image drawInRect:contextBounds];
-//        UIGraphicsPopContext();
-//    };
-//    
-//    return drawingBlock;
-        return nil;
+        
+        UIGraphicsPushContext(context);
+        [image drawInRect:contextBounds];
+        UIGraphicsPopContext();
+    };
+    
+    return drawingBlock;
 }
 
 - (void)generateGifAtlasWithompletionHandler:(void (^)(UIImage *image))handler {
     YAImageAtlasGenerator *gen = [YAImageAtlasGenerator new];
-    [gen createGifAtlasForURLAsset:self.asset ofSize:49 completionHandler:^(UIImage *atlasImage) {
+    [gen createGifAtlasForURLAsset:(AVURLAsset*)self.asset ofSize:49 completionHandler:^(UIImage *atlasImage) {
         
         self.atlasURL = [YAImageAtlasGenerator saveImage:atlasImage toFolder:@"hope" withName:[self sourceImageUUID]];
         handler(atlasImage);

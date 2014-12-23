@@ -95,11 +95,13 @@ static NSString *cellID = @"Cell";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
+    cell.backgroundColor = [UIColor yellowColor];
     
     [[FICImageCache sharedImageCache] asynchronouslyRetrieveImageForEntity:self.cameraRollItems[indexPath.row] withFormatName:YAVideoImagesAtlas completionBlock:^(id<FICEntity> entity, NSString *formatName, UIImage *image) {
         CGSize atlasSize = [[FICImageCache sharedImageCache] formatWithName:YAVideoImagesAtlas].imageSize;
         NSArray *animationImages = [image spritesWithSpriteSheetImage:image spriteSize:atlasSize];
         cell.gifView.animationImages = animationImages;
+        cell.gifView.animationDuration = 10000;
     }];
         
     return cell;
