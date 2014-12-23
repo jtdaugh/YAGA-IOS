@@ -90,7 +90,7 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - UICollectionView
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return 12;// //[YAUser currentUser].currentGroup.videos.count;
+    return 200;// //[YAUser currentUser].currentGroup.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -106,7 +106,14 @@ static NSString *cellID = @"Cell";
 //    }];
     cell.gifView.animatedImage = nil;
     dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%d)", indexPath.row] withExtension:@"gif"];
+        NSUInteger gifIndex = indexPath.row;
+        NSUInteger localGifsCount = 25;
+        if(gifIndex > localGifsCount) {
+            NSUInteger n = indexPath.row / localGifsCount;
+            gifIndex = indexPath.row - n * localGifsCount;
+        }
+        
+        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%lu)", (unsigned long)gifIndex] withExtension:@"gif"];
         NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
         __block FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -140,7 +147,7 @@ static NSString *cellID = @"Cell";
     CGFloat scrollSpeedNotAbs = (distance * 10) / 1000; //in pixels per millisecond
     
     CGFloat scrollSpeed = fabsf(scrollSpeedNotAbs);
-    if (scrollSpeed > 0.1) {
+    if (scrollSpeed > 0.06) {
         result = YES;
         // NSLog(@"Fast");
     } else {
