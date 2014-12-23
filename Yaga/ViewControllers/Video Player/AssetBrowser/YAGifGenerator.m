@@ -31,11 +31,9 @@
                     
                     imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
                     imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
-                    //imageGenerator.appliesPreferredTrackTransform = YES;
-//                    imageGenerator.maximumSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2,
-//                                                                         [[UIScreen mainScreen] applicationFrame].size.height/4);
+
                     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
-                    NSUInteger framesCount = movieDuration * 10;
+                    NSUInteger framesCount = movieDuration * 20;
                     
                     NSMutableArray *times = [NSMutableArray arrayWithCapacity:framesCount];
                     for (int i = 0; i < framesCount; i++) {
@@ -96,10 +94,10 @@
                                              (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
                                              }
                                      };
-    
+
     NSDictionary *frameProperties = @{
                                       (__bridge id)kCGImagePropertyGIFDictionary: @{
-                                              (__bridge id)kCGImagePropertyGIFDelayTime: @0.0, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
+                                              (__bridge id)kCGImagePropertyGIFDelayTime: @0.02f, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
                                               }
                                       };
     
