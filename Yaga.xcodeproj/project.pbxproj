@@ -13,6 +13,7 @@
 		6E19A7321A49C81A0067D42C /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7311A49C81A0067D42C /* UIImage+Resize.m */; };
 		6E19A7351A49C82B0067D42C /* YAImageAtlasGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7341A49C82B0067D42C /* YAImageAtlasGenerator.m */; };
 		6E19A7381A49CB680067D42C /* UIImage+Sprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7371A49CB680067D42C /* UIImage+Sprite.m */; };
+		6E19A73B1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A73A1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m */; };
 		6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */; };
 		6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */; };
 		6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */; };
@@ -97,6 +98,8 @@
 		6E19A7341A49C82B0067D42C /* YAImageAtlasGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAImageAtlasGenerator.m; sourceTree = "<group>"; };
 		6E19A7361A49CB680067D42C /* UIImage+Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Sprite.h"; sourceTree = "<group>"; };
 		6E19A7371A49CB680067D42C /* UIImage+Sprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Sprite.m"; sourceTree = "<group>"; };
+		6E19A7391A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVPlayer+AVPlayer_Async.h"; sourceTree = "<group>"; };
+		6E19A73A1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVPlayer+AVPlayer_Async.m"; sourceTree = "<group>"; };
 		6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		6E5E667B1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAHideEmbeddedGroupsSegue.h; sourceTree = "<group>"; };
 		6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAHideEmbeddedGroupsSegue.m; sourceTree = "<group>"; };
@@ -344,6 +347,8 @@
 		6E9188741A3F3A5A0034AB63 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				6E19A7391A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.h */,
+				6E19A73A1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m */,
 				6E19A7361A49CB680067D42C /* UIImage+Sprite.h */,
 				6E19A7371A49CB680067D42C /* UIImage+Sprite.m */,
 				6E9188771A3F3A5A0034AB63 /* NSMutableArray+Shuffle.h */,
@@ -690,6 +695,7 @@
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				865BD7A31A484543003B00DA /* AZNotification.m in Sources */,
+				6E19A73B1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
 				6E19A7381A49CB680067D42C /* UIImage+Sprite.m in Sources */,
