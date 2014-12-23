@@ -198,7 +198,7 @@
 					  ALAssetRepresentation *defaultRepresentation = [asset defaultRepresentation];
 					  NSString *uti = [defaultRepresentation UTI];
 					  NSURL *URL = [[asset valueForProperty:ALAssetPropertyURLs] valueForKey:uti];
-					  NSString *title = [NSString stringWithFormat:@"%@ %u", NSLocalizedString(@"Video", nil), [assetItems count]+1];
+					  NSString *title = [NSString stringWithFormat:@"%@ %lu", NSLocalizedString(@"Video", nil), (unsigned long)[assetItems count]+1];
 					  AssetBrowserItem *item = [[AssetBrowserItem alloc] initWithURL:URL title:title];
 					  
 					  [assetItems addObject:item];

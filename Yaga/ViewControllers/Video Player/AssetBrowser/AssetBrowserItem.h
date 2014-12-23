@@ -49,7 +49,6 @@
 #import <UIKit/UIKit.h>
 
 #import <CoreMedia/CMTime.h>
-#import "FICImageCache.h"
 
 @class AVAsset;
 
@@ -59,7 +58,7 @@ enum {
 };
 typedef NSInteger AssetBrowserItemFillMode;
 
-@interface AssetBrowserItem : NSObject <NSCopying, FICEntity> {
+@interface AssetBrowserItem : NSObject <NSCopying> {
 @private	
 	NSURL *assetURL;
 	
@@ -95,9 +94,4 @@ typedef NSInteger AssetBrowserItemFillMode;
 
 - (void)clearThumbnailCache;
 - (void)clearAssetCache;
-
-- (void)generateGifAtlasWithompletionHandler:(void (^)(UIImage *image))handler;
-
-@property (nonatomic, strong) NSURL *atlasURL;
-
 @end

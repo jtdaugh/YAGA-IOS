@@ -21,7 +21,6 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - APAddressBook (0.0.10)
-  - FastImageCache (1.3)
   - FLAnimatedImage (1.0.7)
   - FrameAccessor (1.3.2)
   - libPhoneNumber-iOS (0.7.3)
@@ -35,7 +34,6 @@ PODS:
 DEPENDENCIES:
   - AFNetworking (~> 2.0)
   - APAddressBook (~> 0.0.7)
-  - FastImageCache (~> 1.0)
   - FLAnimatedImage (~> 1.0)
   - FrameAccessor (~> 1.0)
   - libPhoneNumber-iOS (~> 0.7)
@@ -47,7 +45,6 @@ DEPENDENCIES:
 SPEC CHECKSUMS:
   AFNetworking: 0aabc6fae66d6e5d039eeb21c315843c7aae51ab
   APAddressBook: d176555d6b845a3c900f3f3c3787c1b98d83151d
-  FastImageCache: f0897a850a1479a95b1415eb88ed1fdce708353a
   FLAnimatedImage: d9e8422a9e1d8ee9a657b7433b4a9b073ef3efb3
   FrameAccessor: 5eec95b29b5e9a3afe72a7a2e9ed25b000d3bcc3
   libPhoneNumber-iOS: 98fc07d70c8fdb5e6a8e3442c37e97353065c20e

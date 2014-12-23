@@ -52,9 +52,6 @@
 
 #include <AssertMacros.h>
 
-#import "FICUtilities.h"
-#import "YAImageAtlasGenerator.h"
-
 @interface AssetBrowserItem ()
 
 - (AVAsset*)copyAssetIfCreated;
@@ -154,7 +151,7 @@
 // Must be called on assetQueue. Will handle lazy asset creation.
 - (AVAsset*)getAssetInternal
 {
-	check( dispatch_get_current_queue() == assetQueue );
+	//check( dispatch_get_current_queue() == assetQueue );
 	
 	if (asset == nil) {
 		asset = [[AVURLAsset alloc] initWithURL:assetURL options:nil];
@@ -297,7 +294,7 @@ CGRect makeRectWithAspectRatioOutsideRect(CGSize aspectRatio, CGRect containerRe
 // Must be called on assetQueue.
 - (BOOL)assetHasVideoTrack:(AVAsset*)thumbnailAsset
 {	
-	check( dispatch_get_current_queue() == assetQueue );
+	//check( dispatch_get_current_queue() == assetQueue );
 	
 	NSArray *videoTracks = [thumbnailAsset tracksWithMediaType:AVMediaTypeVideo];
 	if ([videoTracks count] == 0) {
@@ -314,7 +311,7 @@ CGRect makeRectWithAspectRatioOutsideRect(CGSize aspectRatio, CGRect containerRe
 // Must be called on assetQueue.
 - (void)generateNonVideoThumbnailWithSize:(CGSize)size fillMode:(AssetBrowserItemFillMode)mode completionHandler:(void (^)(UIImage *thumbnail))handler
 {	
-	check( dispatch_get_current_queue() == assetQueue );
+	//check( dispatch_get_current_queue() == assetQueue );
 	
 	UIImage *thumb = nil;
 	if (audioOnly) {
@@ -348,7 +345,7 @@ CGRect makeRectWithAspectRatioOutsideRect(CGSize aspectRatio, CGRect containerRe
 // Must be called on assetQueue.
 - (void)generateThumbnailFromAsset:(AVAsset*)thumbnailAsset withSize:(CGSize)size fillMode:(AssetBrowserItemFillMode)mode completionHandler:(void (^)(UIImage *thumbnail))handler
 {	
-	check( dispatch_get_current_queue() == assetQueue );
+	//check( dispatch_get_current_queue() == assetQueue );
 	
 	AVAssetImageGenerator *imageGenerator = [[AVAssetImageGenerator alloc] initWithAsset:thumbnailAsset];
 	
@@ -438,54 +435,5 @@ CGRect makeRectWithAspectRatioOutsideRect(CGSize aspectRatio, CGRect containerRe
 {
 	return [NSString stringWithFormat:@"<AssetBrowserItem: %p, '%@'>", self, self.title];
 }
-
-#pragma mark - FICEntity
-- (NSString *)UUID {
-    CFUUIDBytes UUIDBytes = FICUUIDBytesFromMD5HashOfString(self.description);
-    NSString *UUID = FICStringWithUUIDBytes(UUIDBytes);
-    
-    return UUID;
-}
-
-- (NSString *)sourceImageUUID {
-    CFUUIDBytes sourceImageUUIDBytes = FICUUIDBytesFromMD5HashOfString(self.URL.absoluteString);
-    NSString *sourceImageUUID = FICStringWithUUIDBytes(sourceImageUUIDBytes);
-    
-    return sourceImageUUID;
-}
-
-- (NSURL *)sourceImageURLWithFormatName:(NSString *)formatName {
-    return assetURL;
-}
-
-- (FICEntityImageDrawingBlock)drawingBlockForImage:(UIImage *)image withFormatName:(NSString *)formatName {
-    FICEntityImageDrawingBlock drawingBlock = ^(CGContextRef context, CGSize contextSize) {
-        CGRect contextBounds = CGRectZero;
-        contextBounds.size = contextSize;
-        CGContextClearRect(context, contextBounds);
-        
-//        // Clip medium thumbnails so they have rounded corners
-//        if ([formatName isEqualToString:XXImageFormatNameUserThumbnailMedium]) {
-//            UIBezierPath clippingPath = [self _clippingPath];
-//            [clippingPath addClip];
-//        }
-        
-        UIGraphicsPushContext(context);
-        [image drawInRect:contextBounds];
-        UIGraphicsPopContext();
-    };
-    
-    return drawingBlock;
-}
-
-- (void)generateGifAtlasWithompletionHandler:(void (^)(UIImage *image))handler {
-    YAImageAtlasGenerator *gen = [YAImageAtlasGenerator new];
-    [gen createGifAtlasForURLAsset:(AVURLAsset*)self.asset ofSize:49 completionHandler:^(UIImage *atlasImage) {
-        
-        self.atlasURL = [YAImageAtlasGenerator saveImage:atlasImage toFolder:@"hope" withName:[self sourceImageUUID]];
-        handler(atlasImage);
-    }];
-}
-
 
 @end

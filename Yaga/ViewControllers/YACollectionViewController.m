@@ -7,10 +7,10 @@
 //
 
 #import "YACollectionViewController.h"
+#import "YAGifGenerator.h"
 #import "VideoPlayerViewController.h"
 #import "YaVideoCell.h"
 #import "YAVideoCell.h"
-#import "UIImage+Sprite.h"
 
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
@@ -25,6 +25,9 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic, strong) UIView *fastScrollingIndicatorView;
 @property (nonatomic, assign) BOOL disablePlayPause;
+
+@property (nonatomic, strong) NSMapTable *animationImagesMap;
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -65,21 +68,6 @@ static NSString *cellID = @"Cell";
     self.fastScrollingIndicatorView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
     self.fastScrollingIndicatorView.backgroundColor = [UIColor greenColor];
     [self.view addSubview:self.fastScrollingIndicatorView];
-    
-    //fast image cache
-    const NSUInteger atlasFramesCount = 49;
-    
-    FICImageFormat *imageFormatVideoThumbnail = [[FICImageFormat alloc] init];
-    imageFormatVideoThumbnail.name = YAVideoImagesAtlas;
-    imageFormatVideoThumbnail.family = YAVideoImagesAtlas;
-    imageFormatVideoThumbnail.style = FICImageFormatStyle32BitBGR;
-    imageFormatVideoThumbnail.imageSize = CGSizeMake(TILE_HEIGHT * sqrt(atlasFramesCount), TILE_HEIGHT * sqrt(atlasFramesCount));
-    imageFormatVideoThumbnail.maximumCount = 50;
-    imageFormatVideoThumbnail.devices = FICImageFormatDevicePhone;
-    imageFormatVideoThumbnail.protectionMode = FICImageFormatProtectionModeNone;
-    
-    [FICImageCache sharedImageCache].delegate = self;
-    [FICImageCache sharedImageCache].formats = @[imageFormatVideoThumbnail];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -90,34 +78,41 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - UICollectionView
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return 200;// //[YAUser currentUser].currentGroup.videos.count;
+    //--- TEST 1 (local gifs)
+//    return 200;
+    
+    return self.animationImagesMap.count; //[YAUser currentUser].currentGroup.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
+    cell.backgroundColor = [UIColor yellowColor];
     
-//    [[FICImageCache sharedImageCache] asynchronouslyRetrieveImageForEntity:self.cameraRollItems[indexPath.row] withFormatName:YAVideoImagesAtlas completionBlock:^(id<FICEntity> entity, NSString *formatName, UIImage *image) {
-//        CGSize atlasSize = [[FICImageCache sharedImageCache] formatWithName:YAVideoImagesAtlas].imageSize;
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            NSArray *animationImages = [image spritesWithSpriteSheetImage:image spriteSize:atlasSize];
-//            cell.gifView.animationImages = animationImages;
-//            cell.gifView.animationDuration = 100;
-//        });
-//    }];
     cell.gifView.animatedImage = nil;
     dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        NSUInteger gifIndex = indexPath.row;
-        NSUInteger localGifsCount = 25;
-        if(gifIndex > localGifsCount) {
-            NSUInteger n = indexPath.row / localGifsCount;
-            gifIndex = indexPath.row - n * localGifsCount;
-        }
+//--- TEST 1 (local gifs)
+//        NSUInteger gifIndex = indexPath.row;
+//        NSUInteger localGifsCount = 25;
+//        if(gifIndex > localGifsCount) {
+//            NSUInteger n = indexPath.row / localGifsCount;
+//            gifIndex = indexPath.row - n * localGifsCount;
+//        }
+//        
+//        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%lu)", (unsigned long)gifIndex] withExtension:@"gif"];
+//        NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
+//        FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            cell.gifView.animatedImage = image;
+//        });
         
-        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%lu)", (unsigned long)gifIndex] withExtension:@"gif"];
-        NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
-        __block FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
+// GENERATED GIFS
         dispatch_async(dispatch_get_main_queue(), ^{
-            cell.gifView.animatedImage = image;
+            AVURLAsset *asset = (AVURLAsset*)[self.cameraRollItems[indexPath.row] asset];
+            NSArray *images = [self.animationImagesMap objectForKey:asset][@"imagesArray"];
+            NSNumber *duration = [self.animationImagesMap objectForKey:asset][@"duration"];
+            cell.gifView.animationImages = images;
+            cell.gifView.animationDuration = duration.floatValue;
+            [cell.gifView startAnimating];
         });
     });
    
@@ -203,41 +198,35 @@ static NSString *cellID = @"Cell";
 
 - (void)assetBrowserSourceItemsDidChange:(AssetBrowserSource*)source {
     self.cameraRollItems = source.items;
-    [self.collectionView reloadData];
-    NSLog(@"assets loaded, count: %d", self.cameraRollItems.count);
-
-    //dispatch_async(dispatch_get_main_queue(), ^{
-
-    //    if(!self.vidControllers)
-    //        self.vidControllers = [@[] mutableCopy];
-    //
-    //        for(id item in self.cameraRollItems) {
-    //            VideoPlayerViewController *vc = [[VideoPlayerViewController alloc] init];
-    //            vc.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    //            vc.URL = [item URL];
-    //
-    //
-    //
-    //            [self.vidControllers addObject:vc];
-    //        }
-    //
-
-    // });
-    // [[NSNotificationCenter defaultCenter] postNotificationName:@"didReadCameraRoll" object:nil];
-}
-
-#pragma mark - FICImageCacheDelegate
-- (void)imageCache:(FICImageCache *)imageCache wantsSourceImageForEntity:(id <FICEntity>)entity withFormatName:(NSString *)formatName completionBlock:(FICImageRequestCompletionBlock)completionBlock {
+    //[self.collectionView reloadData];
+    NSLog(@"assets loaded, count: %lu", (unsigned long)self.cameraRollItems.count);
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    
+    for (AssetBrowserItem* item in self.cameraRollItems)
+    {
+        dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+            YAGifGenerator *gen = [YAGifGenerator new];
+            AVURLAsset *asset = (AVURLAsset*)item.asset;
+            [gen crateImagesArrayFromAsset:asset ofSize:10 completionHandler:^(NSArray *array, Float64 duration) {
+                NSLog(@"%@", array);
+                if (!self.animationImagesMap) {
+                    self.animationImagesMap = [NSMapTable new];
+                }
+
+                [self.animationImagesMap setObject:@{@"imagesArray":array, @"duration":[NSNumber numberWithFloat:duration]} forKey:asset];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.collectionView reloadData];
+                });
+                
+                //test for just one item
+                
+            }];
+        });
         
-        AssetBrowserItem *browserItem = (AssetBrowserItem*)entity;
-        [browserItem generateGifAtlasWithompletionHandler:^(UIImage *image) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(image);
-            });
-        }];
-    });
+        //test for just one item
+        break;
+    }
+
 }
 
 #pragma mark - Pull down to refresh - Not implemented

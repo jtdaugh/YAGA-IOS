@@ -5,11 +5,16 @@
 //  Created by Iegor on 12/23/14.
 //  Copyright (c) 2014 Iegor. All rights reserved.
 //
+#import "YAGifGenerator.h"
 #import "UIImage+Resize.h"
-#import "YAImageAtlasGenerator.h"
 
-@implementation YAImageAtlasGenerator
-- (void)createGifAtlasForURLAsset:(AVURLAsset*)asset ofSize:(NSUInteger)arraySize completionHandler:(void (^)(UIImage *img))handler {
+@interface YAGifGenerator ()
+@property (atomic, strong) NSMutableArray *array;
+@end
+
+@implementation YAGifGenerator
+
+- (void)crateImagesArrayFromAsset:(AVURLAsset*)asset ofSize:(NSUInteger)arraySize completionHandler:(void (^)(NSArray *arr, Float64 duration))handler {
     NSArray *keys = [NSArray arrayWithObject:@"duration"];
     [asset loadValuesAsynchronouslyForKeys:keys completionHandler:^() {
         NSError *error = nil;
@@ -26,7 +31,7 @@
                         [times addObject:[NSValue valueWithCMTime:CMTimeMakeWithSeconds(movieDuration*frac, 600)]];
                     }
                     
-                    NSMutableArray *resultArray = [NSMutableArray arrayWithCapacity:arraySize];
+                    self.array = [NSMutableArray arrayWithCapacity:arraySize];
                     [imageGenerator generateCGImagesAsynchronouslyForTimes:times completionHandler:^(CMTime requestedTime,
                                                                                                      CGImageRef image,
                                                                                                      CMTime actualTime,
@@ -34,23 +39,20 @@
                                                                                                      NSError *error) {
                         
                         if (result == AVAssetImageGeneratorSucceeded) {
-                            static int inc = 0;
-                            UIImage *newImage = [[UIImage alloc] initWithCGImage:image];
-                            CGSize size = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2,
-                                                     [[UIScreen mainScreen] applicationFrame].size.height/4);
                             
-                            UIImage *loverQualityImage = [newImage resizedImage:size interpolationQuality:kCGInterpolationMedium];
-
-                            [resultArray addObject:loverQualityImage];
-                            if (inc == arraySize-1)
-                            {
+                                UIImage *newImage = [[UIImage alloc] initWithCGImage:image];
+                                CGSize size = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2,
+                                                         [[UIScreen mainScreen] applicationFrame].size.height/4);
                                 
-                                handler([self mergeImages:resultArray]);
-                            }
-                            else
-                            {
-                                inc++;
-                            }
+                                UIImage *loverQualityImage = [newImage resizedImage:size interpolationQuality:kCGInterpolationMedium];
+                                
+                                [self.array addObject:loverQualityImage];
+                                if (self.array.count == arraySize)
+                                {
+                                    
+                                    handler(self.array.copy, movieDuration);
+                                }
+
                         }
                         
                         if (result == AVAssetImageGeneratorFailed) {
@@ -72,6 +74,13 @@
         }
     }];
 }
+
+
+//- (void)createGifAtlasForURLAsset:(AVURLAsset*)asset ofSize:(NSUInteger)arraySize completionHandler:(void (^)(UIImage *img))handler {
+//    [self crateArrayForURLAsset:asset ofSize:arraySize completionHandler:^(NSArray *resultArray) {
+//        handler([self mergeImages:resultArray]);
+//    }];
+//}
 
 - (UIImage *)mergeImages:(NSArray*)images
 {

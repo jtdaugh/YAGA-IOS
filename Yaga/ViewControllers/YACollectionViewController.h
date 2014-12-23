@@ -8,9 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import "AssetBrowserSource.h"
-#import "FICImageCache.h"
 
-@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, AssetBrowserSourceDelegate, FICImageCacheDelegate> {
+@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, AssetBrowserSourceDelegate> {
     CGPoint lastOffset;
     NSTimeInterval lastOffsetCapture;
     BOOL isScrollingFast;
