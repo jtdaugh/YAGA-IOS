@@ -39,7 +39,6 @@
                                              selector:@selector(playerItemDidReachEnd:)
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:[self currentItem]];
-    
 }
 
 - (void)playerItemDidReachEnd:(NSNotification *)notification {

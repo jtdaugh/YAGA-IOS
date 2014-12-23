@@ -10,6 +10,7 @@
 #import "UIColor+Expanded.h"
 #import "AVPlayer+AVPlayer_Async.h"
 #import "NSMutableArray+Shuffle.h"
+#import "NSString+File.h"
 
 @implementation TileCell
 
@@ -87,7 +88,6 @@
 - (void) hideLabels {
     for(UIView *view in self.labels){
         [view setAlpha:0.0];
-        [self addSubview:view];
     }
 }
 
@@ -169,6 +169,12 @@
     [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.labels addObject:self.captionButton];
     
+    CGFloat saveSize = 36;
+    self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
+    [self.saveButton setBackgroundImage:[UIImage imageNamed:@"Save"] forState:UIControlStateNormal];
+    [self.saveButton addTarget:self action:@selector(saveButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.labels addObject:self.saveButton];
+    
     [self hideLabels];
     
 }
@@ -215,6 +221,10 @@
     } completion:^(BOOL finished) {
         //
     }];
+}
+
+- (void)saveButtonPressed {
+    UISaveVideoAtPathToSavedPhotosAlbum([self.uid moviePath],nil,nil,nil);
 }
 
 - (void)setVideoFrame:(CGRect)frame {
@@ -324,7 +334,7 @@
             //            [self.container insertSubview:self.playerContainer aboveSubview:self.image];
             
             
-            [self.player setVolume:0.0];
+            [self.player setMuted:YES];
             if(block){
                 block();
             }
@@ -429,19 +439,19 @@
     }];
 }
 
-- (void) setSelected:(BOOL)selected {
-    if(selected){
-        NSLog(@"playing");
-        CGFloat scrollOffset = ((UICollectionView *)[self superview]).contentOffset.x;
-        
-        if(self.frame.origin.x - scrollOffset == 0){
-            [self.player setVolume:1.0];
-        }
-    } else {
-        NSLog(@"muting");
-        [self.player setVolume:0.0];
-    }
-}
+//- (void) setSelected:(BOOL)selected {
+//    if(selected){
+//        NSLog(@"playing");
+//        CGFloat scrollOffset = ((UICollectionView *)[self superview]).contentOffset.x;
+//        
+//        if(self.frame.origin.x - scrollOffset == 0){
+//            [self.player setVolume:1.0];
+//        }
+//    } else {
+//        NSLog(@"muting");
+//        [self.player setVolume:0.0];
+//    }
+//}
 
 //- (void)dealloc {
 //    if(self.player){

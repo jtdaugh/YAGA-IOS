@@ -567,8 +567,10 @@
         if([device isFocusPointOfInterestSupported]){
             NSLog(@"test");
 //            [device setFocusMode:AVCaptureFocusModeLocked];
+            [device setFocusMode:AVCaptureFocusModeLocked];
             [device setFocusPointOfInterest:focusPoint];
-            [device setExposurePointOfInterest:focusPoint];
+            [device setFocusMode:AVCaptureFocusModeLocked];
+//            [device setExposurePointOfInterest:focusPoint];
             //        [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
         }
         [device unlockForConfiguration];
@@ -925,8 +927,14 @@
     [self.gridTiles registerClass:[TileCell class] forCellWithReuseIdentifier:@"Cell"];
     [self.gridTiles setBackgroundColor:[UIColor whiteColor]];
     [self.gridTiles setAllowsMultipleSelection:NO];
+    [self.gridTiles setShowsHorizontalScrollIndicator:NO];
     //    [self.gridTiles setBounces:NO];
     [self.gridView addSubview:self.gridTiles];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(gridTapped:)];
+    tap.delegate = self;
+//    [self.gridTiles addGestureRecognizer:tap];
+    
     
     self.pull = [[UIRefreshControl alloc] init];
     [self.pull setTintColor:[UIColor whiteColor]];
@@ -1210,31 +1218,42 @@
     }
 }
 
+- (void)gridTapped:(UITapGestureRecognizer *)recognizer {
+    CGPoint location = [recognizer locationInView:[recognizer view]];
+//    NSLog(@"recognizer location x: %f, y: %f", location.x, location.y);
+    
+    NSIndexPath *indexPath = [self.gridTiles indexPathForItemAtPoint:location];
+//    NSLog(@"indexpath.row: %li", indexPath.row);
+    
+}
 
+- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"deselect? %lu", indexPath.row);
+}
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    TileCell *selected = (TileCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    TileCell *selected = (TileCell *)[self.gridTiles cellForItemAtIndexPath:indexPath];
     
     if([selected.state isEqualToNumber:[NSNumber numberWithInt:PLAYING]]) {
         if(selected.player.rate == 1.0){
             
             if(!self.selectedIndex){
                 self.selectedIndex = indexPath;
-                
-                [collectionView setCollectionViewLayout:self.swipeLayout animated:YES completion:^(BOOL finished) {
+
+                [self.gridTiles setCollectionViewLayout:self.swipeLayout animated:YES completion:^(BOOL finished) {
                 }];
                 for(TileCell *cell in self.gridTiles.visibleCells){
                     [cell setVideoFrame:CGRectMake(cell.frame.origin.x, cell.frame.origin.y, self.swipeLayout.itemSize.width, self.swipeLayout.itemSize.height)];
                     [cell showLabels];
                 }
                 
-                [collectionView setPagingEnabled:YES];
+                [self.gridTiles setPagingEnabled:YES];
                 [self.cameraView removeFromSuperview];
                 [self.recordButton removeFromSuperview];
             } else {
                 self.selectedIndex = nil;
-                [collectionView setCollectionViewLayout:self.gridLayout animated:YES completion:^(BOOL finished) {
+                [self.gridTiles setCollectionViewLayout:self.gridLayout animated:YES completion:^(BOOL finished) {
                     //
                 }];
                 for(TileCell *cell in self.gridTiles.visibleCells){
@@ -1247,68 +1266,18 @@
                     }
                 }
                 
-                [collectionView setPagingEnabled:NO];
+                [self.gridTiles setPagingEnabled:NO];
                 [self.view addSubview:self.cameraView];
                 [self.view addSubview:self.recordButton];
-
+                
             }
-//            [self presentOverlay:selected];
         } else {
-            [collectionView reloadItemsAtIndexPaths:@[indexPath]];
+            [self.gridTiles reloadItemsAtIndexPaths:@[indexPath]];
         }
     } else {
         NSLog(@"state: %@", selected.state);
         //        [collectionView reloadItemsAtIndexPaths:@[[collectionView indexPathForCell:selected]]];
     }
-    
-//    NSLog(@"subviews: %lu", [[self.gridView subviews] count]);
-    
-}
-
-- (void) collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
-    
-}
-
-- (void)presentOverlay:(TileCell *)tile {
-    tile.frame = CGRectMake(tile.frame.origin.x, tile.frame.origin.y - self.gridTiles.contentOffset.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
-    [self.view bringSubviewToFront:self.overlay];
-    [self.overlay addSubview:tile];
-    
-    [tile.loader setAlpha:0.0];
-    
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        [self.overlay setAlpha:1.0];
-        [tile.player setVolume:1.0];
-        //        [tile setVideoFrame:CGRectMake(0, VIEW_HEIGHT/4, VIEW_WIDTH, VIEW_HEIGHT/2)];
-        [tile setVideoFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    } completion:^(BOOL finished) {
-        //
-        OverlayViewController *overlay = [[OverlayViewController alloc] init];
-        [overlay setTile:tile];
-        [overlay setPreviousViewController:self];
-        self.modalPresentationStyle = UIModalPresentationCurrentContext;
-        [self presentViewController:overlay animated:NO completion:^{
-            
-        }];
-    }];
-}
-
-- (void) collapse:(TileCell *)tile speed:(CGFloat)speed {
-    
-    tile.frame = CGRectMake(0, self.gridTiles.contentOffset.y, VIEW_WIDTH, VIEW_HEIGHT/2);
-    [self.gridTiles addSubview:tile];
-    [self.overlay setAlpha:0.0];
-    
-    [tile.loader setAlpha:1.0];
-    
-    //    [self.gridTiles addSubview:self.overlay];
-    [UIView animateWithDuration:speed delay:0.0 usingSpringWithDamping:0.9 initialSpringVelocity:0.7 options:0 animations:^{
-        NSIndexPath *ip = [self.gridTiles indexPathForCell:tile];
-        [tile setVideoFrame:[self.gridTiles layoutAttributesForItemAtIndexPath:ip].frame];
-        //
-    } completion:^(BOOL finished) {
-        //
-    }];
 }
 
 - (void)uploadData:(NSData *)data withType:(NSString *)type withOutputURL:(NSURL *)outputURL {
@@ -1383,7 +1352,11 @@
             if([cell.state isEqualToNumber:[NSNumber numberWithInt: LOADED]]){
                 [cell play:^{
                     if(self.selectedIndex){
-                        [cell setSelected:YES];
+                        // if correct scroll, unmute
+                        
+                        
+                        
+//                        [cell setSelected:YES];
 //                        [cell.player setVolume:0.0];
 //                        [((TileCell *)[self.gridTiles cellForItemAtIndexPath:self.selectedIndex]).player setVolume:0.0];
 //                        self.selectedIndex = [self.gridTiles indexPathForCell:cell];
