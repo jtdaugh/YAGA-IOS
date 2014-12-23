@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "AssetBrowserSource.h"
 
-@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, AssetBrowserSourceDelegate> {
+@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate> {
     CGPoint lastOffset;
     NSTimeInterval lastOffsetCapture;
     BOOL isScrollingFast;

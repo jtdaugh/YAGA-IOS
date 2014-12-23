@@ -20,8 +20,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (strong, nonatomic) NSMutableArray *vidControllers;
 
-@property (nonatomic, strong) AssetBrowserSource *assetSource;
-
 @property (nonatomic, strong) UIView *fastScrollingIndicatorView;
 @property (nonatomic, assign) BOOL disablePlayPause;
 
@@ -59,10 +57,6 @@ static NSString *cellID = @"Cell";
     [self.collectionView setAllowsMultipleSelection:NO];
     //    [self.gridTiles setBounces:NO];
     [self.view addSubview:self.collectionView];
-    
-    self.assetSource = [[AssetBrowserSource alloc] initWithSourceType:AssetBrowserSourceTypeCameraRoll];
-    self.assetSource.delegate = self;
-    [self.assetSource buildSourceLibrary];
     
     self.fastScrollingIndicatorView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
     self.fastScrollingIndicatorView.backgroundColor = [UIColor greenColor];
