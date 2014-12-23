@@ -10,15 +10,27 @@
 
 @implementation YAVideoCell
 
-- (void)setVideoPlayer:(UIViewController *)videoPlayer {
-    _videoPlayer = videoPlayer;
-    [self addSubview:videoPlayer.view];
-    videoPlayer.view.frame = self.bounds;
-    videoPlayer.view.autoresizingMask  = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+- (id)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if(self) {
+        self.gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
+        self.gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        
+        self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [self.contentView addSubview:self.gifView];
+    }
+    return self;
+}
+
+- (void)setGifImage:(FLAnimatedImage *)gifImage {
+    if(_gifImage == gifImage)
+        return;
+    _gifImage = gifImage;
+    
+    self.gifView.animatedImage = gifImage;
 }
 
 - (void)dealloc {
-    
 }
 
 @end

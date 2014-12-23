@@ -7,8 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "AssetBrowserSource.h"
+#import "FICImageCache.h"
 
-@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate>
+@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, AssetBrowserSourceDelegate, FICImageCacheDelegate> {
+    CGPoint lastOffset;
+    NSTimeInterval lastOffsetCapture;
+    BOOL isScrollingFast;
+}
+
+@property (nonatomic, strong) NSArray *cameraRollItems;
 
 @property (strong, nonatomic) UICollectionView *collectionView;
 @property (nonatomic) BOOL scrolling;

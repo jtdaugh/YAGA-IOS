@@ -21,6 +21,8 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - APAddressBook (0.0.10)
+  - FastImageCache (1.3)
+  - FLAnimatedImage (1.0.7)
   - FrameAccessor (1.3.2)
   - libPhoneNumber-iOS (0.7.3)
   - NSDate+TimeAgo (1.0.3)
@@ -29,25 +31,32 @@ PODS:
   - Realm/Headers (0.88.0)
   - Shimmer (1.0.2)
   - SwipeView (1.3.2)
+  - UIImage+SpriteAdditions (1.0.0)
 
 DEPENDENCIES:
   - AFNetworking (~> 2.0)
   - APAddressBook (~> 0.0.7)
+  - FastImageCache (~> 1.0)
+  - FLAnimatedImage (~> 1.0)
   - FrameAccessor (~> 1.0)
   - libPhoneNumber-iOS (~> 0.7)
   - NSDate+TimeAgo (~> 1)
   - Realm
   - Shimmer
   - SwipeView (~> 1.3.2)
+  - UIImage+SpriteAdditions
 
 SPEC CHECKSUMS:
   AFNetworking: 0aabc6fae66d6e5d039eeb21c315843c7aae51ab
   APAddressBook: d176555d6b845a3c900f3f3c3787c1b98d83151d
+  FastImageCache: f0897a850a1479a95b1415eb88ed1fdce708353a
+  FLAnimatedImage: d9e8422a9e1d8ee9a657b7433b4a9b073ef3efb3
   FrameAccessor: 5eec95b29b5e9a3afe72a7a2e9ed25b000d3bcc3
   libPhoneNumber-iOS: 98fc07d70c8fdb5e6a8e3442c37e97353065c20e
   NSDate+TimeAgo: f3533e0198fab05b716368b19f8c2185d53d6f3b
   Realm: 56fd06bf4e97da2829f864e2bca229a060825c61
   Shimmer: 057fcfe9c1c978d69d50b64fce93a61080cd08ec
   SwipeView: 0093c212acf3d715b09334c50d568a4418404150
+  UIImage+SpriteAdditions: dd1e6d10ac0edaa02995543e3624e19277c0c3a2
 
 COCOAPODS: 0.35.0

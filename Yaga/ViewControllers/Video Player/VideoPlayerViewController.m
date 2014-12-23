@@ -17,6 +17,10 @@
 #import <AVFoundation/AVFoundation.h>
 #import "VideoPlayerView.h"
 
+@interface VideoPlayerViewController ()
+
+@end
+
 static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext;
 static void *AVPlayerDemoPlaybackViewControllerStatusObservationContext = &AVPlayerDemoPlaybackViewControllerStatusObservationContext;
 
@@ -43,6 +47,7 @@ static void *AVPlayerDemoPlaybackViewControllerStatusObservationContext = &AVPla
         NSError *error = nil;
         AVKeyValueStatus keyStatus = [asset statusOfValueForKey:thisKey error:&error];
         if (keyStatus == AVKeyValueStatusFailed) {
+            NSLog(@"failed %@", self.URL.absoluteString.lastPathComponent);
             return;
         }
     }
@@ -59,7 +64,13 @@ static void *AVPlayerDemoPlaybackViewControllerStatusObservationContext = &AVPla
                                                       object:self.playerItem];
     }
 
+    AVMutableComposition *comp = [[AVMutableComposition alloc] init];
+    for(int i = 0; i < 100; i++) {
+        [comp insertTimeRange:CMTimeRangeMake(CMTimeMake(0, 1), CMTimeMake(asset.duration.value, asset.duration.timescale)) ofAsset:asset atTime:comp.duration error:nil];
+    }
     
+    //self.playerItem = [AVPlayerItem playerItemWithAsset:comp];
+
     self.playerItem = [AVPlayerItem playerItemWithAsset:asset];
     
     [self.playerItem addObserver:self
@@ -91,8 +102,12 @@ static void *AVPlayerDemoPlaybackViewControllerStatusObservationContext = &AVPla
     if (context == AVPlayerDemoPlaybackViewControllerStatusObservationContext) {
         AVPlayerStatus status = [[change objectForKey:NSKeyValueChangeNewKey] integerValue];
         if (status == AVPlayerStatusReadyToPlay) {
-            [self.player play];
+            _readyToPlay = YES;
             self.player.volume = 0;
+            
+            NSLog(@"%@ ready to play", self.URL.absoluteString.lastPathComponent);
+            
+             [self.player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(stopped:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
         }
     } else if (context == AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext) {
@@ -138,7 +153,24 @@ static void *AVPlayerDemoPlaybackViewControllerStatusObservationContext = &AVPla
 
 - (void)stopped:(NSNotification*)notif {
     self.pendingReplay = YES;
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"startoverFinishedVids" object:nil];
+    
+    AVPlayerItem *p = [notif object];
+    [p seekToTime:kCMTimeZero];
 }
 
+- (void)play:(BOOL)value {
+    if(value && self.readyToPlay && !self.playing) {
+        [self.player play];
+        NSLog(@"playing - %@", [self.URL.absoluteString lastPathComponent]);
+        _playing = YES;
+    }
+    else if(!value && self.playing) {
+        [self.player pause];
+        _playing = NO;
+        NSLog(@"pausing - %@", [self.URL.absoluteString lastPathComponent]);
+    }
+    else {
+        
+    }
+}
 @end

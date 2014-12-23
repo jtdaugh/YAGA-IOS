@@ -61,37 +61,19 @@
     _collectionViewController = [YACollectionViewController new];
     [self addChildViewController:_collectionViewController];
     [self.view addSubview:_collectionViewController.view];
-<<<<<<< HEAD
-=======
     
-//    _cameraViewController.view.backgroundColor = [UIColor blueColor];
-//    
-//    _cameraViewController = [YACameraViewController new];
-//    _cameraViewController.toggleGroupDelegate = self;
-//    _cameraViewController.toggleGroupSeletor = @selector(switchGroupsTapped:);
-//    
-//    [self addChildViewController:_cameraViewController];
-//    [self.view addSubview:_cameraViewController.view];
+   _cameraViewController.view.backgroundColor = [UIColor blueColor];
     
-    [self.view setBackgroundColor:[UIColor whiteColor]];
->>>>>>> FETCH_HEAD
+    _cameraViewController = [YACameraViewController new];
+    _cameraViewController.toggleGroupDelegate = self;
+    _cameraViewController.toggleGroupSeletor = @selector(switchGroupsTapped:);
     
-//    _cameraViewController.view.backgroundColor = [UIColor blueColor];
-//    
-//    _cameraViewController = [YACameraViewController new];
-//    _cameraViewController.toggleGroupDelegate = self;
-//    _cameraViewController.toggleGroupSeletor = @selector(switchGroupsTapped:);
-//    
-//    [self addChildViewController:_cameraViewController];
-//    [self.view addSubview:_cameraViewController.view];
+    [self addChildViewController:_cameraViewController];
+    [self.view addSubview:_cameraViewController.view];
     
-<<<<<<< HEAD
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
     [Crashlytics setUserIdentifier:(NSString *) [[YAUser currentUser] objectForKey:nUsername]];
-    
-=======
->>>>>>> FETCH_HEAD
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)

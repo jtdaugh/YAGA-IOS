@@ -7,7 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "FLAnimatedImage.h"
 
 @interface YAVideoCell : UICollectionViewCell
-@property (nonatomic, weak) UIViewController *videoPlayer;
+@property (nonatomic, strong) FLAnimatedImageView *gifView;
+@property (nonatomic, strong) FLAnimatedImage *gifImage;
 @end

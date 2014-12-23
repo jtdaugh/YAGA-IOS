@@ -9,9 +9,17 @@
 /* Begin PBXBuildFile section */
 		41A2EC6A197F887F008DF482 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A2EC69197F887F008DF482 /* Crashlytics.framework */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
+		6E19A72F1A497F210067D42C /* output.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6E19A72E1A497F210067D42C /* output.gif */; };
+		6E19A7321A49C81A0067D42C /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7311A49C81A0067D42C /* UIImage+Resize.m */; };
+		6E19A7351A49C82B0067D42C /* YAImageAtlasGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7341A49C82B0067D42C /* YAImageAtlasGenerator.m */; };
+		6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */; };
 		6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */; };
 		6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */; };
 		6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */; };
+		6E6B08AB1A482E6F00224250 /* AssetBrowserItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6B08A61A482E6F00224250 /* AssetBrowserItem.m */; };
+		6E6B08AC1A482E6F00224250 /* AssetBrowserSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6B08A81A482E6F00224250 /* AssetBrowserSource.m */; };
+		6E6B08AD1A482E6F00224250 /* DirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6B08AA1A482E6F00224250 /* DirectoryWatcher.m */; };
+		6E6B08B01A482E9000224250 /* AssetsCatalogue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6B08AF1A482E9000224250 /* AssetsCatalogue.m */; };
 		6E73F4101A432498000B3A14 /* VideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F40D1A432498000B3A14 /* VideoPlayerView.m */; };
 		6E73F4111A432498000B3A14 /* VideoPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F40F1A432498000B3A14 /* VideoPlayerViewController.m */; };
 		6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4131A4324C0000B3A14 /* YAVideoCell.m */; };
@@ -85,12 +93,26 @@
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		41A2EC69197F887F008DF482 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		6E19A72E1A497F210067D42C /* output.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = output.gif; sourceTree = "<group>"; };
+		6E19A7301A49C81A0067D42C /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
+		6E19A7311A49C81A0067D42C /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
+		6E19A7331A49C82B0067D42C /* YAImageAtlasGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAImageAtlasGenerator.h; sourceTree = "<group>"; };
+		6E19A7341A49C82B0067D42C /* YAImageAtlasGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAImageAtlasGenerator.m; sourceTree = "<group>"; };
+		6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		6E5E667B1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAHideEmbeddedGroupsSegue.h; sourceTree = "<group>"; };
 		6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAHideEmbeddedGroupsSegue.m; sourceTree = "<group>"; };
 		6E5E667D1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAShowEmbeddedGroupsSegue.h; sourceTree = "<group>"; };
 		6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAShowEmbeddedGroupsSegue.m; sourceTree = "<group>"; };
 		6E5E66811A4254EB00B58E49 /* YAGroupSelectedSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupSelectedSegue.h; sourceTree = "<group>"; };
 		6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupSelectedSegue.m; sourceTree = "<group>"; };
+		6E6B08A51A482E6F00224250 /* AssetBrowserItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetBrowserItem.h; sourceTree = "<group>"; };
+		6E6B08A61A482E6F00224250 /* AssetBrowserItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetBrowserItem.m; sourceTree = "<group>"; };
+		6E6B08A71A482E6F00224250 /* AssetBrowserSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetBrowserSource.h; sourceTree = "<group>"; };
+		6E6B08A81A482E6F00224250 /* AssetBrowserSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetBrowserSource.m; sourceTree = "<group>"; };
+		6E6B08A91A482E6F00224250 /* DirectoryWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectoryWatcher.h; sourceTree = "<group>"; };
+		6E6B08AA1A482E6F00224250 /* DirectoryWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectoryWatcher.m; sourceTree = "<group>"; };
+		6E6B08AE1A482E9000224250 /* AssetsCatalogue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetsCatalogue.h; sourceTree = "<group>"; };
+		6E6B08AF1A482E9000224250 /* AssetsCatalogue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetsCatalogue.m; sourceTree = "<group>"; };
 		6E73F40C1A432498000B3A14 /* VideoPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerView.h; sourceTree = "<group>"; };
 		6E73F40D1A432498000B3A14 /* VideoPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerView.m; sourceTree = "<group>"; };
 		6E73F40E1A432498000B3A14 /* VideoPlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerViewController.h; sourceTree = "<group>"; };
@@ -209,6 +231,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */,
 				41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */,
 				71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */,
 				71D0F5AA190DCE4300C7DEE0 /* Security.framework in Frameworks */,
@@ -248,9 +271,29 @@
 			path = Segues;
 			sourceTree = "<group>";
 		};
+		6E6B08A41A482E6F00224250 /* AssetBrowser */ = {
+			isa = PBXGroup;
+			children = (
+				6E19A7331A49C82B0067D42C /* YAImageAtlasGenerator.h */,
+				6E19A7341A49C82B0067D42C /* YAImageAtlasGenerator.m */,
+				6E19A7301A49C81A0067D42C /* UIImage+Resize.h */,
+				6E19A7311A49C81A0067D42C /* UIImage+Resize.m */,
+				6E6B08AE1A482E9000224250 /* AssetsCatalogue.h */,
+				6E6B08AF1A482E9000224250 /* AssetsCatalogue.m */,
+				6E6B08A51A482E6F00224250 /* AssetBrowserItem.h */,
+				6E6B08A61A482E6F00224250 /* AssetBrowserItem.m */,
+				6E6B08A71A482E6F00224250 /* AssetBrowserSource.h */,
+				6E6B08A81A482E6F00224250 /* AssetBrowserSource.m */,
+				6E6B08A91A482E6F00224250 /* DirectoryWatcher.h */,
+				6E6B08AA1A482E6F00224250 /* DirectoryWatcher.m */,
+			);
+			path = AssetBrowser;
+			sourceTree = "<group>";
+		};
 		6E73F40B1A432498000B3A14 /* Video Player */ = {
 			isa = PBXGroup;
 			children = (
+				6E6B08A41A482E6F00224250 /* AssetBrowser */,
 				6E73F40C1A432498000B3A14 /* VideoPlayerView.h */,
 				6E73F40D1A432498000B3A14 /* VideoPlayerView.m */,
 				6E73F40E1A432498000B3A14 /* VideoPlayerViewController.h */,
@@ -275,6 +318,7 @@
 		6E9187611A3F2C270034AB63 /* Yaga */ = {
 			isa = PBXGroup;
 			children = (
+				6E19A72E1A497F210067D42C /* output.gif */,
 				6E9188741A3F3A5A0034AB63 /* Categories */,
 				6E9188831A3F3A5A0034AB63 /* Models */,
 				6E9188951A3F3A5A0034AB63 /* ViewControllers */,
@@ -475,6 +519,7 @@
 		71D0F56A190D998000C7DEE0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */,
 				41A2EC69197F887F008DF482 /* Crashlytics.framework */,
 				41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */,
 				71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */,
@@ -560,6 +605,7 @@
 				6E9188D71A3F3A5A0034AB63 /* 1.mp4 in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
+				6E19A72F1A497F210067D42C /* output.gif in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
 				6E9188D91A3F3A5A0034AB63 /* 3.mp4 in Resources */,
 			);
@@ -618,6 +664,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E6B08AB1A482E6F00224250 /* AssetBrowserItem.m in Sources */,
 				6E73F42B1A43357D000B3A14 /* YACollectionViewController.m in Sources */,
 				6EA942161A404B00001803C5 /* YAGroup.m in Sources */,
 				6E9188DB1A3F3A5A0034AB63 /* AddMembersViewController.m in Sources */,
@@ -625,7 +672,9 @@
 				6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */,
 				6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */,
 				6E9188D31A3F3A5A0034AB63 /* NetworkManager.swift in Sources */,
+				6E6B08AD1A482E6F00224250 /* DirectoryWatcher.m in Sources */,
 				6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */,
+				6E6B08B01A482E9000224250 /* AssetsCatalogue.m in Sources */,
 				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
 				86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
@@ -657,12 +706,15 @@
 				6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */,
 				6E9188D01A3F3A5A0034AB63 /* UIImage+Resize.m in Sources */,
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
+				6E6B08AC1A482E6F00224250 /* AssetBrowserSource.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
 				6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */,
 				6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */,
 				6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */,
+				6E19A7351A49C82B0067D42C /* YAImageAtlasGenerator.m in Sources */,
 				6E9188CA1A3F3A5A0034AB63 /* AVPlayer+AVPlayer_Async.m in Sources */,
 				6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */,
+				6E19A7321A49C81A0067D42C /* UIImage+Resize.m in Sources */,
 				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,
 				6E73F4101A432498000B3A14 /* VideoPlayerView.m in Sources */,
 			);
@@ -759,8 +811,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Valentyn Kovalskyy (6TYCLCF2HD)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Valentyn Kovalskyy (6TYCLCF2HD)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -771,7 +823,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "57b119c8-6cdd-4974-b311-e1c2eda16716";
+				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -786,8 +838,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Valentyn Kovalskyy (6TYCLCF2HD)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Valentyn Kovalskyy (6TYCLCF2HD)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -798,7 +850,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "57b119c8-6cdd-4974-b311-e1c2eda16716";
+				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;

@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import <Crashlytics/Crashlytics.h>
 #import "YAUser.h"
+#import "YACollectionViewController.h"
 
 @implementation AppDelegate
 
@@ -32,7 +33,7 @@
     }
     
     UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
-    self.window.rootViewController = viewController;
+    self.window.rootViewController = [YACollectionViewController new];
     
     [self.window makeKeyAndVisible];
     

@@ -25,7 +25,7 @@
 #define kStatusKey          @"status"
 #define kCurrentItemKey	 @"currentItem"
 
-@interface VideoPlayerViewController : UIViewController 
+@interface VideoPlayerViewController : UIViewController
 
 @property (nonatomic, copy) NSURL *URL;
 
@@ -36,4 +36,8 @@
 @property (nonatomic, assign) CGRect originalRect;
 @property (nonatomic, weak) UIView *originalParentView;
 @property (nonatomic, assign) BOOL pendingReplay;
+
+@property (nonatomic, readonly) BOOL readyToPlay;
+@property (nonatomic, readonly) BOOL playing;
+- (void)play:(BOOL)value;
 @end
