@@ -11,6 +11,8 @@
 
 #import "YAUser.h"
 #import "YAUtils.h"
+#import "AZNotification.h"
+#import "YAGifGenerator.h"
 
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
@@ -318,28 +320,79 @@
     NSLog(@"stop recording video");
 }
 
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections {
+    
+}
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
     
-    NSLog(@"anyone here?");
-    
     BOOL RecordedSuccessfully = YES;
-    if ([error code] != noErr)
-    {
+    if ([error code] != noErr) {
         // A problem occurred: Find out if the recording was successful.
         id value = [[error userInfo] objectForKey:AVErrorRecordingSuccessfullyFinishedKey];
-        if (value)
-        {
+        if (value) {
             RecordedSuccessfully = [value boolValue];
         }
     }
-    if (RecordedSuccessfully)
-    {
-        //----- RECORDED SUCESSFULLY -----
-        [YAUtils uploadVideoRecoringFromUrl:outputFileURL completion:^(NSError *error) {
+    if (RecordedSuccessfully) {
+        NSString *filename = [[[NSUUID UUID] UUIDString] stringByAppendingPathExtension:@"mov"];
+        NSURL *videoPathURL = [[YAUtils cachesDirectory] URLByAppendingPathComponent:filename];
+        
+        NSError *error;
+        [[NSFileManager defaultManager] moveItemAtURL:outputFileURL toURL:videoPathURL error:&error];
+        
+        if(error) {
+            [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
+                                     notificationType:AZNotificationTypeError
+                                         startedBlock:nil];
+            return;
+        }
+        
+        YAGifGenerator *gen = [YAGifGenerator new];
+        AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoPathURL options:nil];
+        NSURL *gifURL = [[videoPathURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"gif"];
+        
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+        
+        [gen crateGifAtUrl:gifURL fromAsset:asset completionHandler:^(NSError *error, NSURL *gifUrl) {
+            if(error) {
+                [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
+                                         notificationType:AZNotificationTypeError
+                                             startedBlock:nil];
+                return;
+            }
             
+            //save
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[RLMRealm defaultRealm] beginWriteTransaction];
+                
+                YAVideo *video = [YAVideo new];
+                video.movPath = videoPathURL.absoluteString;
+                video.gifPath = gifUrl.absoluteString;
+                [[YAUser currentUser].currentGroup.videos addObject:video];
+                [[RLMRealm defaultRealm] commitWriteTransaction];
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"new_video_taken" object:nil];
+                
+                //upload
+                [YAUtils uploadVideoRecoringFromUrl:outputFileURL completion:^(NSError *error) {
+                    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+                    if(error) {
+                        [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to upload recording, %@", error.localizedDescription] controller:self
+                                                 notificationType:AZNotificationTypeError
+                                                     startedBlock:nil];
+                    }
+                    
+                }];
+                
+            });
         }];
+        
+        
     } else {
-        NSLog(@"wtf is going on");
+        [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
+                                 notificationType:AZNotificationTypeError
+                                     startedBlock:nil];
     }
     
 }

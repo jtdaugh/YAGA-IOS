@@ -15,5 +15,5 @@ typedef void (^generatorCompletionHandler)(NSError *error,  NSURL *gifPath);
 
 //+ (NSURL*)saveImage:(UIImage *)image toFolder:(NSString*)folderName withName:(NSString *)name;
 
-- (void)crateGifFromAsset:(AVURLAsset*)asset completionHandler:(generatorCompletionHandler)handler;
+- (void)crateGifAtUrl:(NSURL*)gifURL fromAsset:(AVURLAsset*)asset completionHandler:(generatorCompletionHandler)handler;
 @end

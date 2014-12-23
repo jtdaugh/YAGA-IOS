@@ -7,10 +7,9 @@
 //
 
 #import "YACollectionViewController.h"
-#import "YAGifGenerator.h"
 #import "VideoPlayerViewController.h"
-#import "YaVideoCell.h"
 #import "YAVideoCell.h"
+#import "YAUser.h"
 
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
@@ -68,6 +67,8 @@ static NSString *cellID = @"Cell";
     self.fastScrollingIndicatorView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
     self.fastScrollingIndicatorView.backgroundColor = [UIColor greenColor];
     [self.view addSubview:self.fastScrollingIndicatorView];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self.collectionView selector:@selector(reloadData) name:@"new_video_taken" object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -76,40 +77,23 @@ static NSString *cellID = @"Cell";
     NSLog(@"memory warning!!");
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self.collectionView name:@"new_video_taken" object:nil];
+}
+
 #pragma mark - UICollectionView
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    //--- TEST 1 (local gifs)
-    //    return 200;
-    
-    return self.assetGifUrls.count; //[YAUser currentUser].currentGroup.videos.count;
-    //    if(!self.animationImagesMap.count)
-    //        return 0;
-    //
-    //    AVURLAsset *asset = (AVURLAsset*)[self.cameraRollItems[0] asset];
-    //    NSArray *images = [self.animationImagesMap objectForKey:asset][@"imagesArray"];
-    //    return images.count;
+    return [YAUser currentUser].currentGroup.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    cell.backgroundColor = [UIColor yellowColor];
     
     cell.gifView.animatedImage = nil;
-    //s    dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-    //--- TEST 1 (local gifs)
-    //        NSUInteger gifIndex = indexPath.row;
-    //        NSUInteger localGifsCount = 25;
-    //        if(gifIndex > localGifsCount) {
-    //            NSUInteger n = indexPath.row / localGifsCount;
-    //            gifIndex = indexPath.row - n * localGifsCount;
-    //        }
-    //
-    //        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%lu)", (unsigned long)gifIndex] withExtension:@"gif"];
+    NSString *gifPath = [[YAUser currentUser].currentGroup.videos[indexPath.row] gifPath];
     
     dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        AVURLAsset *asset = (AVURLAsset*)[self.cameraRollItems[indexPath.row] asset];
-        NSURL *gifUrl = [self.assetGifUrls objectForKey:asset];
-        NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
+        NSData *gifData = [NSData dataWithContentsOfURL:[NSURL URLWithString:gifPath]];
         FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
         dispatch_async(dispatch_get_main_queue(), ^{
             cell.gifView.animatedImage = image;
@@ -194,43 +178,6 @@ static NSString *cellID = @"Cell";
             }
         }
     }
-}
-
-- (void)assetBrowserSourceItemsDidChange:(AssetBrowserSource*)source {
-    self.cameraRollItems = source.items;
-    //[self.collectionView reloadData];
-    NSLog(@"assets loaded, count: %lu", (unsigned long)self.cameraRollItems.count);
-    
-    [self createNextGif];
-}
-
-- (void)createNextGif {
-    for (AssetBrowserItem* item in self.cameraRollItems)
-    {
-        if([self.assetGifUrls objectForKey:[item asset]])
-            continue;
-        
-        dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-            YAGifGenerator *gen = [YAGifGenerator new];
-            AVURLAsset *asset = (AVURLAsset*)item.asset;
-            [gen crateGifFromAsset:asset completionHandler:^(NSError *error, NSURL *gifUrl) {
-                
-                if (!self.assetGifUrls) {
-                    self.assetGifUrls = [NSMapTable new];
-                }
-                
-                [self.assetGifUrls setObject:gifUrl forKey:asset];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.collectionView reloadData];
-                    [self createNextGif];
-                });
-            }];
-        });
-        
-        //test for just one item
-        break;
-    }
-
 }
 
 #pragma mark - Pull down to refresh - Not implemented

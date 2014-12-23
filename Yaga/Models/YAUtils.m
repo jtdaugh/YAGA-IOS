@@ -20,7 +20,7 @@
 }
 
 + (void)uploadVideoRecoringFromUrl:(NSURL *)localUrl completion:(uploadDataCompletionBlock)completion {
-    
+    completion(nil);
     //NSData *videoData = [NSData dataWithContentsOfURL:localUrl];
     //val TODO:
     
@@ -80,5 +80,8 @@
     return [UIColor colorWithRed:1.-r green:1.-g blue:1.-b alpha:a];
 }
 
++ (NSURL*)cachesDirectory {
+    return [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+}
 
 @end

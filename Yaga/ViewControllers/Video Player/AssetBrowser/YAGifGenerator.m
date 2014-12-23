@@ -6,11 +6,12 @@
 //  Copyright (c) 2014 Iegor. All rights reserved.
 //
 #import "YAGifGenerator.h"
-#import "UIImage+Resize.h"
 ///
 #import <UIKit/UIKit.h>
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+
+#import "YAUtils.h"
 
 @interface YAGifGenerator ()
 @property (atomic, strong) NSMutableArray *array;
@@ -18,7 +19,7 @@
 
 @implementation YAGifGenerator
 
-- (void)crateGifFromAsset:(AVURLAsset*)asset completionHandler:(generatorCompletionHandler)handler {
+- (void)crateGifAtUrl:(NSURL*)gifURL fromAsset:(AVURLAsset*)asset completionHandler:(generatorCompletionHandler)handler {
     
     NSArray *keys = [NSArray arrayWithObject:@"duration"];
     [asset loadValuesAsynchronouslyForKeys:keys completionHandler:^() {
@@ -62,7 +63,7 @@
                             [self.array addObject:newImage];
                             
                             if (self.array.count == framesCount) {
-                                [self makeAnimatedGifFromArray:self.array completionHandler:handler];
+                                [self makeAnimatedGifAtUrl:gifURL fromArray:self.array completionHandler:handler];
                             }
                             
                         }
@@ -88,7 +89,7 @@
     }];
 }
 
-- (void)makeAnimatedGifFromArray:(NSArray*)images completionHandler:(generatorCompletionHandler)handler {
+- (void)makeAnimatedGifAtUrl:(NSURL*)fileURL fromArray:(NSArray*)images completionHandler:(generatorCompletionHandler)handler {
     
     NSDictionary *fileProperties = @{
                                      (__bridge id)kCGImagePropertyGIFDictionary: @{
@@ -102,11 +103,6 @@
                                               }
                                       };
     
-    NSURL *cachesDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
-    
-    NSURL *fileURL = [cachesDirectoryURL URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
-    
-
     CGImageDestinationRef destination = CGImageDestinationCreateWithURL((__bridge CFURLRef)fileURL, kUTTypeGIF, images.count, NULL);
     CGImageDestinationSetProperties(destination, (__bridge CFDictionaryRef)fileProperties);
     

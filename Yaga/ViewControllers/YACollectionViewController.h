@@ -15,8 +15,6 @@
     BOOL isScrollingFast;
 }
 
-@property (nonatomic, strong) NSArray *cameraRollItems;
-
 @property (strong, nonatomic) UICollectionView *collectionView;
 @property (nonatomic) BOOL scrolling;
 

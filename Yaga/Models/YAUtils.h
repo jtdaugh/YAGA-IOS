@@ -14,4 +14,5 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (NSString *)readableNumberFromString:(NSString*)input;
 + (void)uploadVideoRecoringFromUrl:(NSURL *)localUrl completion:(uploadDataCompletionBlock)completion;
 + (UIColor*)inverseColor:(UIColor*)color;
++ (NSURL*)cachesDirectory;
 @end
