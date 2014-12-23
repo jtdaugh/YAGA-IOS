@@ -8,11 +8,12 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Foundation/Foundation.h>
 
+typedef void (^generatorCompletionHandler)(NSError *error,  NSURL *gifPath);
+
 @interface YAGifGenerator : NSObject
 //- (void)createGifAtlasForURLAsset:(AVURLAsset*)asset ofSize:(NSUInteger)arraySize completionHandler:(void (^)(UIImage *img))handler;
 
-- (void)crateImagesArrayFromAsset:(AVURLAsset*)asset ofSize:(NSUInteger)arraySize completionHandler:(void (^)(NSArray *arr, Float64 duration))handler;
+//+ (NSURL*)saveImage:(UIImage *)image toFolder:(NSString*)folderName withName:(NSString *)name;
 
-+ (NSURL*)saveImage:(UIImage *)image toFolder:(NSString*)folderName withName:(NSString *)name;
-
+- (void)crateGifFromAsset:(AVURLAsset*)asset completionHandler:(generatorCompletionHandler)handler;
 @end

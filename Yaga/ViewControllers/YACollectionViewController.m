@@ -26,7 +26,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, strong) UIView *fastScrollingIndicatorView;
 @property (nonatomic, assign) BOOL disablePlayPause;
 
-@property (nonatomic, strong) NSMapTable *animationImagesMap;
+@property (nonatomic, strong) NSMapTable *assetGifUrls;
 
 @end
 
@@ -79,9 +79,15 @@ static NSString *cellID = @"Cell";
 #pragma mark - UICollectionView
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     //--- TEST 1 (local gifs)
-//    return 200;
+    //    return 200;
     
-    return self.animationImagesMap.count; //[YAUser currentUser].currentGroup.videos.count;
+    return self.assetGifUrls.count; //[YAUser currentUser].currentGroup.videos.count;
+    //    if(!self.animationImagesMap.count)
+    //        return 0;
+    //
+    //    AVURLAsset *asset = (AVURLAsset*)[self.cameraRollItems[0] asset];
+    //    NSArray *images = [self.animationImagesMap objectForKey:asset][@"imagesArray"];
+    //    return images.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -89,33 +95,27 @@ static NSString *cellID = @"Cell";
     cell.backgroundColor = [UIColor yellowColor];
     
     cell.gifView.animatedImage = nil;
+    //s    dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+    //--- TEST 1 (local gifs)
+    //        NSUInteger gifIndex = indexPath.row;
+    //        NSUInteger localGifsCount = 25;
+    //        if(gifIndex > localGifsCount) {
+    //            NSUInteger n = indexPath.row / localGifsCount;
+    //            gifIndex = indexPath.row - n * localGifsCount;
+    //        }
+    //
+    //        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%lu)", (unsigned long)gifIndex] withExtension:@"gif"];
+    
     dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-//--- TEST 1 (local gifs)
-//        NSUInteger gifIndex = indexPath.row;
-//        NSUInteger localGifsCount = 25;
-//        if(gifIndex > localGifsCount) {
-//            NSUInteger n = indexPath.row / localGifsCount;
-//            gifIndex = indexPath.row - n * localGifsCount;
-//        }
-//        
-//        NSURL *gifUrl = [[NSBundle mainBundle] URLForResource:[NSString stringWithFormat:@"200 (%lu)", (unsigned long)gifIndex] withExtension:@"gif"];
-//        NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
-//        FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            cell.gifView.animatedImage = image;
-//        });
-        
-// GENERATED GIFS
+        AVURLAsset *asset = (AVURLAsset*)[self.cameraRollItems[indexPath.row] asset];
+        NSURL *gifUrl = [self.assetGifUrls objectForKey:asset];
+        NSData *gifData = [NSData dataWithContentsOfURL:gifUrl];
+        FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
         dispatch_async(dispatch_get_main_queue(), ^{
-            AVURLAsset *asset = (AVURLAsset*)[self.cameraRollItems[indexPath.row] asset];
-            NSArray *images = [self.animationImagesMap objectForKey:asset][@"imagesArray"];
-            NSNumber *duration = [self.animationImagesMap objectForKey:asset][@"duration"];
-            cell.gifView.animationImages = images;
-            cell.gifView.animationDuration = duration.floatValue;
-            [cell.gifView startAnimating];
+            cell.gifView.animatedImage = image;
         });
     });
-   
+    
     return cell;
 }
 
@@ -207,26 +207,23 @@ static NSString *cellID = @"Cell";
         dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
             YAGifGenerator *gen = [YAGifGenerator new];
             AVURLAsset *asset = (AVURLAsset*)item.asset;
-            [gen crateImagesArrayFromAsset:asset ofSize:10 completionHandler:^(NSArray *array, Float64 duration) {
-                NSLog(@"%@", array);
-                if (!self.animationImagesMap) {
-                    self.animationImagesMap = [NSMapTable new];
+            [gen crateGifFromAsset:asset completionHandler:^(NSError *error, NSURL *gifUrl) {
+                
+                if (!self.assetGifUrls) {
+                    self.assetGifUrls = [NSMapTable new];
                 }
-
-                [self.animationImagesMap setObject:@{@"imagesArray":array, @"duration":[NSNumber numberWithFloat:duration]} forKey:asset];
+                
+                [self.assetGifUrls setObject:gifUrl forKey:asset];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.collectionView reloadData];
                 });
-                
-                //test for just one item
-                
             }];
         });
         
         //test for just one item
         break;
     }
-
+    
 }
 
 #pragma mark - Pull down to refresh - Not implemented
