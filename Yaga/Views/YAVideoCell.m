@@ -13,8 +13,8 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
-        self.gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
+        _gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
         self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         [self.contentView addSubview:self.gifView];
@@ -22,35 +22,25 @@
     return self;
 }
 
-- (void)setGifImage:(FLAnimatedImage *)gifImage {
-    if(_gifImage == gifImage)
-        return;
-    _gifImage = gifImage;
-    
-    self.gifView.animatedImage = gifImage;
-}
-
 - (void)dealloc {
+
 }
 
-- (void)setPlayerView:(VideoPlayerView *)playerView {
-    if(_playerView == playerView)
+- (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
+    if(_playerVC == playerVC)
         return;
     
-    if(playerView) {
-        self.gifView.hidden = NO;
-
-        [self.contentView addSubview:playerView];
+    if(playerVC) {
+        playerVC.view.frame = self.bounds;
+        [self.contentView addSubview:playerVC.view];
+        [self.gifView removeFromSuperview];
     }
     else {
-        self.gifView.hidden = NO;
-        [self.playerView removeFromSuperview];
-        self.playerView.player = nil;
+        [_playerVC.view removeFromSuperview];
+        [self.contentView addSubview:self.gifView];
     }
     
-    _playerView = playerView;
-    
-    _playerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
+    _playerVC = playerVC;
 }
 @end
+

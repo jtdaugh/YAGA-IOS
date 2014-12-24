@@ -11,12 +11,13 @@
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
 		6E19A73B1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A73A1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m */; };
 		6E19A7A71A4A374E0067D42C /* YAGifGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7A61A4A374E0067D42C /* YAGifGenerator.m */; };
+		6E19A7AC1A4AF23C0067D42C /* AVPlaybackView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7A91A4AF23C0067D42C /* AVPlaybackView.m */; };
+		6E19A7AD1A4AF23C0067D42C /* AVPlaybackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7AB1A4AF23C0067D42C /* AVPlaybackViewController.m */; };
+		6E19A7AF1A4AF34D0067D42C /* AVPlaybackView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E19A7AE1A4AF34D0067D42C /* AVPlaybackView.xib */; };
 		6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */; };
 		6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */; };
 		6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */; };
 		6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */; };
-		6E73F4101A432498000B3A14 /* VideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F40D1A432498000B3A14 /* VideoPlayerView.m */; };
-		6E73F4111A432498000B3A14 /* VideoPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F40F1A432498000B3A14 /* VideoPlayerViewController.m */; };
 		6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4131A4324C0000B3A14 /* YAVideoCell.m */; };
 		6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4191A432713000B3A14 /* YACameraViewController.m */; };
 		6E73F4221A432FAC000B3A14 /* MyGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F41D1A432FAC000B3A14 /* MyGroupsViewController.m */; };
@@ -88,6 +89,11 @@
 		6E19A73A1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVPlayer+AVPlayer_Async.m"; sourceTree = "<group>"; };
 		6E19A7A51A4A374E0067D42C /* YAGifGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGifGenerator.h; sourceTree = "<group>"; };
 		6E19A7A61A4A374E0067D42C /* YAGifGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGifGenerator.m; sourceTree = "<group>"; };
+		6E19A7A81A4AF23C0067D42C /* AVPlaybackView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlaybackView.h; sourceTree = "<group>"; };
+		6E19A7A91A4AF23C0067D42C /* AVPlaybackView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlaybackView.m; sourceTree = "<group>"; };
+		6E19A7AA1A4AF23C0067D42C /* AVPlaybackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlaybackViewController.h; sourceTree = "<group>"; };
+		6E19A7AB1A4AF23C0067D42C /* AVPlaybackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlaybackViewController.m; sourceTree = "<group>"; };
+		6E19A7AE1A4AF34D0067D42C /* AVPlaybackView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AVPlaybackView.xib; sourceTree = "<group>"; };
 		6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		6E5E667B1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAHideEmbeddedGroupsSegue.h; sourceTree = "<group>"; };
 		6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAHideEmbeddedGroupsSegue.m; sourceTree = "<group>"; };
@@ -95,10 +101,6 @@
 		6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAShowEmbeddedGroupsSegue.m; sourceTree = "<group>"; };
 		6E5E66811A4254EB00B58E49 /* YAGroupSelectedSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupSelectedSegue.h; sourceTree = "<group>"; };
 		6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupSelectedSegue.m; sourceTree = "<group>"; };
-		6E73F40C1A432498000B3A14 /* VideoPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerView.h; sourceTree = "<group>"; };
-		6E73F40D1A432498000B3A14 /* VideoPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerView.m; sourceTree = "<group>"; };
-		6E73F40E1A432498000B3A14 /* VideoPlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerViewController.h; sourceTree = "<group>"; };
-		6E73F40F1A432498000B3A14 /* VideoPlayerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerViewController.m; sourceTree = "<group>"; };
 		6E73F4121A4324C0000B3A14 /* YAVideoCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideoCell.h; sourceTree = "<group>"; };
 		6E73F4131A4324C0000B3A14 /* YAVideoCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideoCell.m; sourceTree = "<group>"; };
 		6E73F4181A432713000B3A14 /* YACameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraViewController.h; sourceTree = "<group>"; };
@@ -254,12 +256,13 @@
 		6E73F40B1A432498000B3A14 /* Video Player */ = {
 			isa = PBXGroup;
 			children = (
+				6E19A7A81A4AF23C0067D42C /* AVPlaybackView.h */,
+				6E19A7A91A4AF23C0067D42C /* AVPlaybackView.m */,
+				6E19A7AE1A4AF34D0067D42C /* AVPlaybackView.xib */,
+				6E19A7AA1A4AF23C0067D42C /* AVPlaybackViewController.h */,
+				6E19A7AB1A4AF23C0067D42C /* AVPlaybackViewController.m */,
 				6E19A7A51A4A374E0067D42C /* YAGifGenerator.h */,
 				6E19A7A61A4A374E0067D42C /* YAGifGenerator.m */,
-				6E73F40C1A432498000B3A14 /* VideoPlayerView.h */,
-				6E73F40D1A432498000B3A14 /* VideoPlayerView.m */,
-				6E73F40E1A432498000B3A14 /* VideoPlayerViewController.h */,
-				6E73F40F1A432498000B3A14 /* VideoPlayerViewController.m */,
 			);
 			path = "Video Player";
 			sourceTree = "<group>";
@@ -559,6 +562,7 @@
 				6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */,
 				6E9188D51A3F3A5A0034AB63 /* Images.xcassets in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
+				6E19A7AF1A4AF34D0067D42C /* AVPlaybackView.xib in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
@@ -638,9 +642,10 @@
 				6E73F4241A432FAC000B3A14 /* NoGroupsViewController.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
+				6E19A7AC1A4AF23C0067D42C /* AVPlaybackView.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
+				6E19A7AD1A4AF23C0067D42C /* AVPlaybackViewController.m in Sources */,
 				86B864AC1A433343002256FF /* CountryCell.m in Sources */,
-				6E73F4111A432498000B3A14 /* VideoPlayerViewController.m in Sources */,
 				6E73F4221A432FAC000B3A14 /* MyGroupsViewController.m in Sources */,
 				6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */,
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
@@ -667,7 +672,6 @@
 				6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */,
 				6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */,
 				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,
-				6E73F4101A432498000B3A14 /* VideoPlayerView.m in Sources */,
 				6E19A7A71A4A374E0067D42C /* YAGifGenerator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
