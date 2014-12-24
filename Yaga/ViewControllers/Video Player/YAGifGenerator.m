@@ -12,6 +12,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "YAUtils.h"
+#import "YAUser.h"
 
 @interface YAGifGenerator ()
 @property (atomic, strong) NSMutableArray *array;
@@ -20,6 +21,8 @@
 @implementation YAGifGenerator
 
 - (void)crateGifAtUrl:(NSURL*)gifURL fromAsset:(AVURLAsset*)asset completionHandler:(generatorCompletionHandler)handler {
+    
+    currentOrientation = [[UIDevice currentDevice] orientation];
     
     NSArray *keys = [NSArray arrayWithObject:@"duration"];
     [asset loadValuesAsynchronouslyForKeys:keys completionHandler:^() {
@@ -32,10 +35,18 @@
                     
                     imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
                     imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
-
+                    imageGenerator.appliesPreferredTrackTransform = YES;
+                    
                     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
-                    NSUInteger framesCount = movieDuration * 10;
+                    NSUInteger framesCount = movieDuration * 20;
                     NSLog(@"movie duration: %f", movieDuration);
+                    
+                    NSMutableDictionary *sizes = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:@"gifSizes"]];
+                    NSString *filename = [gifURL lastPathComponent];
+                    
+                    NSMutableDictionary *gifDataDic = [NSMutableDictionary new];
+                    gifDataDic[@"duration"] = [NSNumber numberWithFloat:movieDuration];
+                    gifDataDic[@"frames"] = [NSNumber numberWithLong:framesCount];
                     
                     NSMutableArray *times = [NSMutableArray arrayWithCapacity:framesCount];
                     for (int i = 0; i < framesCount; i++) {
@@ -44,6 +55,7 @@
                     }
                     
                     self.array = [NSMutableArray arrayWithCapacity:framesCount];
+
                     [imageGenerator generateCGImagesAsynchronouslyForTimes:times completionHandler:^(CMTime requestedTime,
                                                                                                      CGImageRef image,
                                                                                                      CMTime actualTime,
@@ -52,13 +64,17 @@
                         
                         if (result == AVAssetImageGeneratorSucceeded) {
                             
-                            UIImage *newImage = [[UIImage alloc] initWithCGImage:image];
-                            CGSize size = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2,
-                                                     [[UIScreen mainScreen] applicationFrame].size.height/4);
+                            UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:3 orientation:UIImageOrientationUp];
                             
-                            //UIImage *loverQualityImage = [newImage resizedImage:size interpolationQuality:kCGInterpolationMedium];
-                            
-                            newImage = [self imageWithImage:newImage scaledToSize:size];
+                            if(!gifDataDic[@"width"]) {
+
+                                gifDataDic[@"width"] = [NSNumber numberWithFloat:newImage.size.width];
+                                gifDataDic[@"height"] = [NSNumber numberWithFloat:newImage.size.height];
+                                
+                                [sizes setObject:gifDataDic forKey:filename];
+                                [[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"gifSizes"];
+                                [[NSUserDefaults standardUserDefaults] synchronize];
+                            }
                             
                             [self.array addObject:newImage];
                             
@@ -96,7 +112,7 @@
                                              (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
                                              }
                                      };
-
+    
     NSDictionary *frameProperties = @{
                                       (__bridge id)kCGImagePropertyGIFDictionary: @{
                                               (__bridge id)kCGImagePropertyGIFDelayTime: @0.05f, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
@@ -118,7 +134,7 @@
         CFRelease(destination);
         return;
     }
-  
+    
     CFRelease(destination);
     
     handler(nil, fileURL);
@@ -128,90 +144,15 @@
     //UIGraphicsBeginImageContext(newSize);
     // In next line, pass 0.0 to use the current device's pixel scaling factor (and thus account for Retina resolution).
     // Pass 1.0 to force exact pixel size.
+    
     UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    
     [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;
 }
-
-
-
-//- (void)createGifAtlasForURLAsset:(AVURLAsset*)asset ofSize:(NSUInteger)arraySize completionHandler:(void (^)(UIImage *img))handler {
-//    [self crateArrayForURLAsset:asset ofSize:arraySize completionHandler:^(NSArray *resultArray) {
-//        handler([self mergeImages:resultArray]);
-//    }];
-//}
-
-//- (UIImage *)mergeImages:(NSArray*)images
-//{
-//    UIImage *newImage = images[0];
-//    NSUInteger length = [images count];
-//    CGFloat width = newImage.size.width;
-//    CGFloat height = newImage.size.height;
-//    NSUInteger closestSquare = [self getTheClosestSquare:length];
-//
-//    CGRect bigRect = CGRectMake(0, 0, width*closestSquare, height*(closestSquare+1));
-//
-//
-//    UIGraphicsBeginImageContextWithOptions(bigRect.size, NO, 0);
-//    for (int i = 0; i < length; i++) {
-//        int row = i / closestSquare;
-//        CGRect rect = CGRectMake(width*(i%closestSquare), row*height, width, height);
-//        UIImage *image = images[i];
-//        [image drawInRect:rect];
-//    }
-//
-//    newImage = UIGraphicsGetImageFromCurrentImageContext();
-//    UIGraphicsEndImageContext();
-//
-//    return newImage;
-//}
-//
-//- (NSUInteger)getTheClosestSquare:(NSUInteger)entry
-//{
-//    float x = sqrtf((float)entry);
-//    return (NSUInteger)x;
-//}
-//
-
-//+ (NSURL*)saveImage:(UIImage *)image toFolder:(NSString*)folderName withName:(NSString *)name {
-//
-//    NSFileManager *fm = [[NSFileManager alloc] init];
-//
-//    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-//
-//    NSString *path = [docDir stringByAppendingPathComponent:folderName];
-//
-//    BOOL isDir;
-//    BOOL fileExists = [fm fileExistsAtPath:path isDirectory:&isDir];
-//
-//    if (!fileExists || !isDir)
-//    {
-//        [self createDirectory:folderName atFilePath:docDir];
-//    }
-//
-//
-//    NSString *pngFilePath = [NSString stringWithFormat:@"%@/%@.png",path, name];
-//    NSData *data1 = [NSData dataWithData:UIImagePNGRepresentation(image)];
-//    [data1 writeToFile:pngFilePath atomically:YES];
-//
-//    return [NSURL URLWithString:pngFilePath];
-//}
-
-//+ (void)createDirectory:(NSString *)directoryName atFilePath:(NSString *)filePath
-//{
-//    NSString *filePathAndDirectory = [filePath stringByAppendingPathComponent:directoryName];
-//    NSError *error;
-//
-//    if (![[NSFileManager defaultManager] createDirectoryAtPath:filePathAndDirectory
-//                                   withIntermediateDirectories:NO
-//                                                    attributes:nil
-//                                                         error:&error])
-//    {
-//        NSLog(@"Create directory error: %@", error);
-//    }
-//}
 
 @end
 

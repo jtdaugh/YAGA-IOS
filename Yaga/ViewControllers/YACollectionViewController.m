@@ -100,10 +100,24 @@ static NSString *cellID = @"Cell";
         
         dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
             
-            NSData *gifData = [NSData dataWithContentsOfURL:[YAUtils urlFromFileName:gifFilename]];
+            NSMutableDictionary *sizes = [[NSUserDefaults standardUserDefaults] objectForKey:@"gifSizes"];
+            
+            NSURL *gifURL = [YAUtils urlFromFileName:gifFilename];
+            
+            NSData *gifData = [NSData dataWithContentsOfURL:gifURL];
+            
             FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 cell.gifView.animatedImage = image;
+                if([sizes objectForKey:gifFilename]) {
+                    NSDictionary *gifSizeDic = sizes[gifFilename];
+                    cell.gifView.frame = CGRectMake(cell.gifView.frame.origin.x, cell.gifView.frame.origin.y, [gifSizeDic[@"width"] floatValue], [gifSizeDic[@"height"] floatValue]);
+                    cell.gifView.center = cell.contentView.center;
+                }
+                else {
+                    cell.gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+                }
             });
         });
     }
