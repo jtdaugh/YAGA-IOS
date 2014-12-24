@@ -10,6 +10,8 @@
 #import "NameGroupViewController.h"
 #import "APPhoneWithLabel.h"
 #import "NSString+Hash.h"
+#import "YAAuthManager.h"
+#import "YAGroupCreator.h"
 #import "YAUtils.h"
 
 @interface AddMembersViewController ()
@@ -244,7 +246,11 @@
 
 #pragma mark - Navigation
 - (void)nextScreen {
-    [self performSegueWithIdentifier:@"NameGroup" sender:self];
+    [[YAAuthManager sharedManager] addCascadingUsers:self.selectedContacts
+                                             toGroup:[YAGroupCreator sharedCreator].groupId
+                                      withCompletion:^(bool response, NSString *error) {
+        [self performSegueWithIdentifier:@"NameGroup" sender:self];
+    }];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

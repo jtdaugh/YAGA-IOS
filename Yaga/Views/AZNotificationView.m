@@ -97,17 +97,19 @@ static const int NOTIFICATION_VIEW_HEIGHT = 64;
 -(void) setup
 {
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
-    self.frame = CGRectMake(0, _showNotificationUnderNavigationBar == YES ? 1 : -1 * NOTIFICATION_VIEW_HEIGHT, screenBounds.size.width, NOTIFICATION_VIEW_HEIGHT);
-    
+
     [self setupNotificationType];
     
     // create the labels
-    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, screenBounds.size.width, NOTIFICATION_VIEW_HEIGHT)];
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, screenBounds.size.width, NOTIFICATION_VIEW_HEIGHT)];
     titleLabel.text = _title;
+    titleLabel.numberOfLines = 0;
     titleLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:17];
     titleLabel.textColor = [UIColor whiteColor];
     
     [self addSubview:titleLabel];
+    
+    self.frame = CGRectMake(0, _showNotificationUnderNavigationBar == YES ? 1 : -1 * NOTIFICATION_VIEW_HEIGHT, screenBounds.size.width, NOTIFICATION_VIEW_HEIGHT);
 }
 
 #pragma mark - UIDynamicAnimatorDelegate 

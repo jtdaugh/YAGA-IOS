@@ -8,6 +8,7 @@
 
 #import "NoGroupsViewController.h"
 #import "AddMembersViewController.h"
+#import "YAAuthManager.h"
 
 @interface NoGroupsViewController ()
 
@@ -60,17 +61,9 @@
 }
 
 - (void)nextScreen {
-    [self performSegueWithIdentifier:@"AddMembers" sender:self];
+    [[YAAuthManager sharedManager] sendGroupCreationWithName:@"Default" withCompletion:^(bool response, NSString *error) {
+        [self performSegueWithIdentifier:@"AddMembers" sender:self];
+    }];
 }
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end
