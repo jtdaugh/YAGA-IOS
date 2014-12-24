@@ -334,11 +334,15 @@
         }
     }
     if (RecordedSuccessfully) {
-        NSString *filename = [[[NSUUID UUID] UUIDString] stringByAppendingPathExtension:@"mov"];
-        NSURL *videoPathURL = [[YAUtils cachesDirectory] URLByAppendingPathComponent:filename];
+        NSString *hashStr = [YAUtils hashedStringFromString:[[NSUUID UUID] UUIDString]];
+        NSString *moveFilename = [hashStr stringByAppendingPathExtension:@"mov"];
+        NSString *gifFilename = [hashStr stringByAppendingPathExtension:@"gif"];
+        NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
+        NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
+        NSURL *movURL = [NSURL fileURLWithPath:movPath];
+        NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
         
-        NSError *error;
-        [[NSFileManager defaultManager] moveItemAtURL:outputFileURL toURL:videoPathURL error:&error];
+        [[NSFileManager defaultManager] moveItemAtURL:outputFileURL toURL:movURL error:&error];
         
         if(error) {
             [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
@@ -348,10 +352,8 @@
         }
         
         YAGifGenerator *gen = [YAGifGenerator new];
-        AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoPathURL options:nil];
-        NSURL *gifURL = [[videoPathURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"gif"];
-        
-        
+        AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
+
         [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
         
         [gen crateGifAtUrl:gifURL fromAsset:asset completionHandler:^(NSError *error, NSURL *gifUrl) {
@@ -365,10 +367,9 @@
             //save
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[RLMRealm defaultRealm] beginWriteTransaction];
-                
                 YAVideo *video = [YAVideo new];
-                video.movPath = videoPathURL.absoluteString;
-                video.gifPath = gifUrl.absoluteString;
+                video.movFilename = moveFilename;
+                video.gifFilename = gifFilename;
                 [[YAUser currentUser].currentGroup.videos addObject:video];
                 [[RLMRealm defaultRealm] commitWriteTransaction];
                 

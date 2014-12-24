@@ -114,7 +114,8 @@ static const int NOTIFICATION_VIEW_HEIGHT = 64;
 
 - (void)dynamicAnimatorWillResume:(UIDynamicAnimator *)animator
 {
-    self.startBlock();
+    if(self.startBlock)
+        self.startBlock();
 }
 
 @end

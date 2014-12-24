@@ -10,18 +10,22 @@
 #import "VideoPlayerViewController.h"
 #import "YAVideoCell.h"
 #import "YAUser.h"
+#import "YAUtils.h"
 
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @interface YACollectionViewController ()
 
 @property (strong, nonatomic) UICollectionViewFlowLayout *gridLayout;
+@property (strong, nonatomic) UICollectionViewFlowLayout *cameraLayout;
 @property (strong, nonatomic) UICollectionViewFlowLayout *swipeLayout;
 
 @property (strong, nonatomic) NSMutableArray *vidControllers;
 
 @property (nonatomic, strong) UIView *fastScrollingIndicatorView;
 @property (nonatomic, assign) BOOL disablePlayPause;
+@property (nonatomic, assign) BOOL disableScrollHandling;
+@property (nonatomic, assign) CGFloat lastContentOffset;
 
 @property (nonatomic, strong) NSMapTable *assetGifUrls;
 
@@ -36,7 +40,13 @@ static NSString *cellID = @"Cell";
     
     CGFloat spacing = 1.0f;
     
-    self.gridLayout= [[UICollectionViewFlowLayout alloc] init];
+    self.cameraLayout = [[UICollectionViewFlowLayout alloc] init];
+    [self.cameraLayout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + spacing, 0, 0, 0)];
+    [self.cameraLayout setMinimumInteritemSpacing:spacing];
+    [self.cameraLayout setMinimumLineSpacing:spacing];
+    [self.cameraLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
+    
+    self.gridLayout = [[UICollectionViewFlowLayout alloc] init];
     [self.gridLayout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + spacing, 0, 0, 0)];
     [self.gridLayout setMinimumInteritemSpacing:spacing];
     [self.gridLayout setMinimumLineSpacing:spacing];
@@ -50,7 +60,7 @@ static NSString *cellID = @"Cell";
     [self.swipeLayout setItemSize:CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT)];
     [self.swipeLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
     
-    self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
+    self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.cameraLayout];
     self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
@@ -84,10 +94,11 @@ static NSString *cellID = @"Cell";
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     
     cell.gifView.animatedImage = nil;
-    NSString *gifPath = [[YAUser currentUser].currentGroup.videos[indexPath.row] gifPath];
+    NSString *gifFilename = [[YAUser currentUser].currentGroup.videos[indexPath.row] gifFilename];
     
     dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        NSData *gifData = [NSData dataWithContentsOfURL:[NSURL URLWithString:gifPath]];
+        NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
+        NSData *gifData = [NSData dataWithContentsOfFile:gifPath];
         FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
         dispatch_async(dispatch_get_main_queue(), ^{
             cell.gifView.animatedImage = image;
@@ -101,10 +112,10 @@ static NSString *cellID = @"Cell";
     UICollectionViewFlowLayout *newLayout = self.collectionView.collectionViewLayout == self.gridLayout ? self.swipeLayout : self.gridLayout;
     
     __weak typeof(self) weakSelf = self;
-    self.disablePlayPause = YES;
+    self.disableScrollHandling = YES;
     [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
         [weakSelf.collectionView setPagingEnabled:newLayout == weakSelf.swipeLayout];
-        weakSelf.disablePlayPause = NO;
+        weakSelf.disableScrollHandling = NO;
     }];
 }
 
@@ -122,10 +133,8 @@ static NSString *cellID = @"Cell";
     CGFloat scrollSpeed = fabsf(scrollSpeedNotAbs);
     if (scrollSpeed > 0.06) {
         result = YES;
-        // NSLog(@"Fast");
     } else {
         result = NO;
-        // NSLog(@"Slow");
     }
     
     lastOffset = currentOffset;
@@ -133,24 +142,42 @@ static NSString *cellID = @"Cell";
     return result;
 }
 
-- (void)playPauseOnScroll {
-    if(self.disablePlayPause)
+- (void)playPauseOnScroll:(BOOL)scrollingFast {
+    if(self.disableScrollHandling)
         return;
     
-    BOOL scrollingFast = [self scrollingFast];
     self.fastScrollingIndicatorView.backgroundColor = scrollingFast ? [UIColor redColor] : [UIColor greenColor];
     [self playVisible:[NSNumber numberWithBool:!scrollingFast]];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    [self playPauseOnScroll];
+    if(self.disableScrollHandling)
+        return;
+    
+    BOOL scrollingFast = [self scrollingFast];
+    BOOL scrollingDown = self.lastContentOffset > self.collectionView.contentOffset.y;
+    
+    [self playPauseOnScroll:scrollingFast];
+    
+    if(scrollingFast) {
+        __weak typeof(self) weakSelf = self;
+        UICollectionViewLayout *newLayout = scrollingDown ? self.cameraLayout : self.gridLayout;
+        if(self.collectionView.collectionViewLayout != newLayout) {
+            self.disableScrollHandling = YES;
+            [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
+                weakSelf.disableScrollHandling = NO;
+            }];
+        }
+        
+    }
+    self.lastContentOffset = self.collectionView.contentOffset.y;
     
     self.scrolling = YES;
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-    [self playPauseOnScroll];
+    [self playPauseOnScroll:[self scrollingFast]];
     
     self.scrolling = NO;
 }

@@ -9,8 +9,8 @@
 #import <Realm/Realm.h>
 
 @interface YAVideo : RLMObject
-@property NSString *movPath;
-@property NSString *gifPath;
+@property NSString *movFilename;
+@property NSString *gifFilename;
 @end
 
 // This protocol enables typed collections. i.e.:

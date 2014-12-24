@@ -68,8 +68,8 @@
     _cameraViewController.toggleGroupDelegate = self;
     _cameraViewController.toggleGroupSeletor = @selector(switchGroupsTapped:);
     
-    [self addChildViewController:_cameraViewController];
-    [self.view addSubview:_cameraViewController.view];
+//    [self addChildViewController:_cameraViewController];
+//    [self.view addSubview:_cameraViewController.view];
     
 
 //    _cameraViewController.view.backgroundColor = [UIColor blueColor];
