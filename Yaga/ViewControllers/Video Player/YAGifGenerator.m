@@ -38,7 +38,7 @@
                     imageGenerator.appliesPreferredTrackTransform = YES;
                     
                     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
-                    NSUInteger framesCount = movieDuration * 20;
+                    NSUInteger framesCount = movieDuration * 10;
                     NSLog(@"movie duration: %f", movieDuration);
                     
                     NSMutableDictionary *sizes = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:@"gifSizes"]];
