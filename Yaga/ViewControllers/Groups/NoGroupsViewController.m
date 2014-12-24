@@ -61,9 +61,7 @@
 }
 
 - (void)nextScreen {
-    [[YAAuthManager sharedManager] sendGroupCreationWithName:@"Default" withCompletion:^(bool response, NSString *error) {
-        [self performSegueWithIdentifier:@"AddMembers" sender:self];
-    }];
+    [self performSegueWithIdentifier:@"AddMembers" sender:self];
 }
 
 @end

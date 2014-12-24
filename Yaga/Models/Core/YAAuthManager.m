@@ -33,6 +33,7 @@
 @end
 
 @implementation YAAuthManager
+@synthesize token = _token;
 + (instancetype)sharedManager {
     static YAAuthManager *sManager = nil;
     static dispatch_once_t once_token;
@@ -53,11 +54,37 @@
 
 - (void)setToken:(NSString *)token
 {
+    NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.token];
+    
+    AFHTTPRequestSerializer *requestSerializer = [AFHTTPRequestSerializer serializer];
+    
+    [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
+    self.manager.requestSerializer = requestSerializer;
     [[NSUserDefaults standardUserDefaults] setObject:token forKey:TOKEN];
 }
 
 - (NSString*)token {
-    return [[NSUserDefaults standardUserDefaults] objectForKey:TOKEN];
+    NSString *newToken = [[NSUserDefaults standardUserDefaults] objectForKey:TOKEN];
+    if (![_token isEqualToString:newToken]) {
+        _token = newToken;
+        NSString *tokenString = [NSString stringWithFormat:@"Token %@", _token];
+        
+        AFHTTPRequestSerializer *requestSerializer = [AFHTTPRequestSerializer serializer];
+        
+        [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
+        self.manager.requestSerializer = requestSerializer;
+    }
+    return _token;
+}
+
+- (void)setPhoneNumber:(NSString *)phoneNumber
+{
+    [[NSUserDefaults standardUserDefaults] setObject:phoneNumber forKey:USER_PHONE];
+}
+
+- (NSString*)phoneNumber
+{
+    return [[NSUserDefaults standardUserDefaults] objectForKey:USER_PHONE];
 }
 
 - (void)getInfoForCurrentUserWithCompletion:(responseBlock)completion {
@@ -66,12 +93,6 @@
     }
     
     NSString *api = [NSString stringWithFormat:@"%@/user/info/", self.base_api];
-    NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.token];
-    
-    AFHTTPRequestSerializer *requestSerializer = [AFHTTPRequestSerializer serializer];
-    
-    [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
-    self.manager.requestSerializer = requestSerializer;
 
     [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
@@ -199,13 +220,21 @@
 
 - (void)addCascadingUsers:(NSArray*)users toGroup:(NSNumber*)groupId withCompletion:(responseBlock)completion
 {
-    NSLog(@"%@", users);
-    for (NSDictionary *user in users) {
-        NSString *phone = user[USER_PHONE];
-        [self addUser:phone toGroup:groupId];
-    }
-    
-    completion(YES, @"TESTING");
+    [self sendGroupCreationWithName:@"Default" withCompletion:^(bool response, NSString *error) {
+        if (response) {
+            NSLog(@"%@", users);
+            for (NSDictionary *user in users) {
+                NSString *phone = user[USER_PHONE];
+                [self addUser:phone toGroup:groupId];
+            }
+            
+            completion(YES, @"TESTING");
+        }
+        else
+        {
+            
+        }
+    }];
 }
 
 - (void)addUser:(NSString*)userPhone toGroup:(NSNumber *)groupId
@@ -241,6 +270,27 @@
                                  };
     
     [self.manager PATCH:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"%@", responseObject);
+        completion(YES, @"");
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@", error);
+        completion(NO, @"");
+    }];
+}
+
+- (void)sendGroupRemovingForGroupId:(NSNumber*)groupId withCompletion:(responseBlock)completion
+{
+    if (!self.token) {
+        return;
+    }
+    
+    NSString *api = [NSString stringWithFormat:@"%@/group/%@/remove/", self.base_api, groupId];
+    
+    NSDictionary *parameters = @{
+                                 @"phone": self.phoneNumber
+                                 };
+    
+    [self.manager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSLog(@"%@", responseObject);
         completion(YES, @"");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

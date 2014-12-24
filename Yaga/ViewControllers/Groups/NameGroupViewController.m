@@ -107,31 +107,32 @@
                                                   forGroupId:[YAGroupCreator sharedCreator].groupId
                                               withCompletion:^(bool response, NSString *error) {
                                                       
+                                                  
+                                                  RLMRealm *realm = [RLMRealm defaultRealm];
+                                                  [realm beginWriteTransaction];
+                                                  
+                                                  YAGroup *group = [YAGroup new];
+                                                  group.groupId = [YAGroup generateGroupId];
+                                                  group.tempGroupId = [[YAGroupCreator sharedCreator].groupId integerValue];
+                                                  group.name = self.groupNameTextField.text;
+                                                  
+                                                  for(NSDictionary *memberDic in self.membersDic){
+                                                      YAContact *contact = [YAContact new];
+                                                      contact.name = memberDic[nCompositeName];
+                                                      contact.firstName = memberDic[nFirstname];
+                                                      contact.number = memberDic[nPhone];
+                                                      contact.registered = [memberDic[nRegistered] boolValue];
                                                       
-                                                      RLMRealm *realm = [RLMRealm defaultRealm];
-                                                      [realm beginWriteTransaction];
-                                                      
-                                                      YAGroup *group = [YAGroup new];
-                                                      group.groupId = [YAGroup generateGroupId];
-                                                      group.name = self.groupNameTextField.text;
-                                                      
-                                                      for(NSDictionary *memberDic in self.membersDic){
-                                                          YAContact *contact = [YAContact new];
-                                                          contact.name = memberDic[nCompositeName];
-                                                          contact.firstName = memberDic[nFirstname];
-                                                          contact.number = memberDic[nPhone];
-                                                          contact.registered = [memberDic[nRegistered] boolValue];
-                                                          
-                                                          [group.members addObject:contact];
-                                                      }
-                                                      
-                                                      [realm addObject:group];
-                                                      [realm commitWriteTransaction];
-                                                      
-                                                      
-                                                      [YAUser currentUser].currentGroup = group;
-                                                      
-                                                      [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
+                                                      [group.members addObject:contact];
+                                                  }
+                                                  
+                                                  [realm addObject:group];
+                                                  [realm commitWriteTransaction];
+                                                  
+                                                  
+                                                  [YAUser currentUser].currentGroup = group;
+                                                  
+                                                  [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
                                                   }];
 }
 
