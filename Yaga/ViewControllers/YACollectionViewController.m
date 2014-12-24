@@ -11,6 +11,7 @@
 #import "YAVideoCell.h"
 #import "YAUser.h"
 #import "YAUtils.h"
+#import "AVPlayer+AVPlayer_Async.h"
 
 @protocol GridViewControllerDelegate;
 
@@ -24,9 +25,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (strong, nonatomic) NSMutableArray *vidControllers;
 
 @property (nonatomic, assign) BOOL disableScrollHandling;
-@property (nonatomic, assign) CGFloat lastContentOffset;
-
-@property (nonatomic, strong) NSMapTable *assetGifUrls;
 
 @end
 
@@ -88,49 +86,71 @@ static NSString *cellID = @"Cell";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    
-    cell.gifView.animatedImage = nil;
-    NSString *gifFilename = [[YAUser currentUser].currentGroup.videos[indexPath.row] gifFilename];
-    
-    dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
-        NSData *gifData = [NSData dataWithContentsOfFile:gifPath];
-        FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            cell.gifView.animatedImage = image;
+    if(self.collectionView.collectionViewLayout == self.gridLayout) {
+        cell.playerView = nil;
+        
+        cell.gifView.animatedImage = nil;
+        NSString *gifFilename = [[YAUser currentUser].currentGroup.videos[indexPath.row] gifFilename];
+        
+        dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+            
+            NSData *gifData = [NSData dataWithContentsOfURL:[YAUtils urlFromFileName:gifFilename]];
+            FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                cell.gifView.animatedImage = image;
+            });
         });
-    });
+    }
+    else {
+        
+        NSString *movFileName = [[YAUser currentUser].currentGroup.videos[indexPath.row] movFilename];
+        
+        VideoPlayerView *playerView = [[VideoPlayerView alloc] initWithFrame:cell.bounds];
+        AVPlayer *player = [[AVPlayer alloc] initWithURL:[YAUtils urlFromFileName:movFileName]];
+        [playerView setPlayer:player];
+        [player setLooping];
+        [player asyncPlay];
+        
+        cell.playerView = playerView;
+        
+    }
     
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
     UICollectionViewFlowLayout *newLayout = self.collectionView.collectionViewLayout == self.gridLayout ? self.swipeLayout : self.gridLayout;
     
     __weak typeof(self) weakSelf = self;
     self.disableScrollHandling = YES;
-    [weakSelf.collectionView setPagingEnabled:newLayout == weakSelf.swipeLayout];
+    [self.collectionView setPagingEnabled:newLayout == self.swipeLayout];
     
-    if(newLayout == weakSelf.gridLayout) {
+    if(newLayout == self.gridLayout) {
         [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
             [weakSelf.delegate showCamera:YES showPart:NO completion:^{
-                weakSelf.disableScrollHandling = NO;
+                if(finished) {
+                    weakSelf.disableScrollHandling = NO;
+                    [weakSelf.collectionView reloadData];
+                }
             }];
         }];
     }
     else {
-        [weakSelf.delegate showCamera:NO showPart:NO completion:^{
+        [self.delegate showCamera:NO showPart:NO completion:^{
             
         }];
+        
         [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
+            if (finished) {
+                [weakSelf.collectionView reloadData];
+            }
             
         }];
     }
-    
-    
 }
 
-#pragma mark -
+#pragma mark - UIScrollView
 - (BOOL)scrollingFast {
     CGPoint currentOffset = self.collectionView.contentOffset;
     NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
@@ -160,42 +180,36 @@ static NSString *cellID = @"Cell";
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if(self.disableScrollHandling) {
-        //self.lastContentOffset = self.collectionView.contentOffset.y;
         return;
     }
     
     BOOL scrollingFast = [self scrollingFast];
-    BOOL scrollingUp = self.lastContentOffset < self.collectionView.contentOffset.y;
     
     [self playPauseOnScroll:scrollingFast];
-    
-    //show/hide camera
-    if(scrollingFast && scrollingUp) {
-        self.disableScrollHandling = YES;
-        [self playPauseOnScroll:NO];
-        [self.delegate showCamera:NO showPart:YES completion:^{
-
-        }];
-    }
-    else {
-        [self playPauseOnScroll:NO];
-        self.disableScrollHandling = YES;
-        [self.delegate showCamera:YES showPart:NO completion:^{
-
-        }];
-    }
-    
-    self.lastContentOffset = self.collectionView.contentOffset.y;
     
     self.scrolling = YES;
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    NSLog(@"scrollViewWillBeginDragging %f", self.collectionView.contentOffset.y);
+}
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+    BOOL scrollingFast = fabs(velocity.y) > 1;
+    BOOL scrollingUp =  targetContentOffset->y > self.collectionView.contentOffset.y;
     
-    if(self.disableScrollHandling)
-        return;
-    
-    [self playPauseOnScroll:[self scrollingFast]];
+    //show/hide camera
+    if(scrollingFast && scrollingUp) {
+        self.disableScrollHandling = YES;
+        [self.delegate showCamera:NO showPart:YES completion:^{
+            
+        }];
+    }
+    else if(scrollingFast && !scrollingUp){
+        self.disableScrollHandling = YES;
+        [self.delegate showCamera:YES showPart:NO completion:^{
+            
+        }];
+    }
     
     self.scrolling = NO;
 }

@@ -16,4 +16,5 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (UIColor*)inverseColor:(UIColor*)color;
 + (NSString*)cachesDirectory;
 + (NSString *)hashedStringFromString:(NSString *)input;
++ (NSURL*)urlFromFileName:(NSString*)fileName;
 @end

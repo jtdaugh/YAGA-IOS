@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "FLAnimatedImage.h"
+#import "VideoPlayerView.h"
 
 @interface YAVideoCell : UICollectionViewCell
 @property (nonatomic, strong) FLAnimatedImageView *gifView;
 @property (nonatomic, strong) FLAnimatedImage *gifImage;
+@property (nonatomic, strong) VideoPlayerView *playerView;
 @end

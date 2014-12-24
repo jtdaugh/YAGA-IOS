@@ -105,4 +105,9 @@
     
     return output;
 }
+
++ (NSURL*)urlFromFileName:(NSString*)fileName {
+    NSString *path = [[YAUtils cachesDirectory] stringByAppendingPathComponent:fileName];
+    return [NSURL fileURLWithPath:path];
+}
 @end

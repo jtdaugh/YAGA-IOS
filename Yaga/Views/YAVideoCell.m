@@ -33,4 +33,24 @@
 - (void)dealloc {
 }
 
+- (void)setPlayerView:(VideoPlayerView *)playerView {
+    if(_playerView == playerView)
+        return;
+    
+    if(playerView) {
+        self.gifView.hidden = NO;
+
+        [self.contentView addSubview:playerView];
+    }
+    else {
+        self.gifView.hidden = NO;
+        [self.playerView removeFromSuperview];
+        self.playerView.player = nil;
+    }
+    
+    _playerView = playerView;
+    
+    _playerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+}
 @end
