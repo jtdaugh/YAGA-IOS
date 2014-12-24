@@ -28,11 +28,9 @@
     [super viewDidLoad];
     
     [self setupView];
-    
-    
 }
 
-- (void)switchGroupsTapped:(id)sender {
+- (void)toggleGroups {
     if(!self.collectionViewController.scrolling){
         if(self.collectionViewController.collectionView.contentOffset.y <= 0){
             if(self.elevatorOpen){
@@ -42,6 +40,24 @@
             }
         }
     }
+}
+
+- (void)showCamera:(BOOL)show showPart:(BOOL)showPart completion:(cameraCompletion)block {
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+        if(show) {
+            self.cameraViewController.view.frame = CGRectMake(0, 0, self.cameraViewController.view.frame.size.width, self.cameraViewController.view.frame.size.height);
+        }
+        else {
+            self.cameraViewController.view.frame = CGRectMake(0, -self.cameraViewController.view.frame.size.height + (showPart ? ELEVATOR_MARGIN : 0), self.cameraViewController.view.frame.size.width, self.cameraViewController.view.frame.size.height);
+        }
+        CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height;
+        self.collectionViewController.view.frame = CGRectMake(0, origin, self.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin);
+        
+    } completion:^(BOOL finished) {
+        if(finished)
+            block();
+    }];
+     
 }
 
 - (void)logout {
@@ -59,17 +75,19 @@
 
 - (void)setupView {
     _collectionViewController = [YACollectionViewController new];
+    _collectionViewController.delegate = self;
+    _collectionViewController.view.frame = CGRectMake(0, VIEW_HEIGHT/2, VIEW_WIDTH, VIEW_HEIGHT/2);
     [self addChildViewController:_collectionViewController];
     [self.view addSubview:_collectionViewController.view];
+
     
-   _cameraViewController.view.backgroundColor = [UIColor blueColor];
+    _cameraViewController.view.backgroundColor = [UIColor blueColor];
     
     _cameraViewController = [YACameraViewController new];
-    _cameraViewController.toggleGroupDelegate = self;
-    _cameraViewController.toggleGroupSeletor = @selector(switchGroupsTapped:);
+    _cameraViewController.delegate = self;
     
-//    [self addChildViewController:_cameraViewController];
-//    [self.view addSubview:_cameraViewController.view];
+    [self addChildViewController:_cameraViewController];
+    [self.view addSubview:_cameraViewController.view];
     
 
 //    _cameraViewController.view.backgroundColor = [UIColor blueColor];
@@ -117,17 +135,19 @@
     [self.navigationController setNavigationBarHidden:YES];
 }
 
-- (void)initCameraView {
-    //  self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    
-}
-
-
 - (void)openGroups {
+    [UIView animateWithDuration:0.3 animations:^{
+       self.collectionViewController.view.alpha = 0;
+    }];
+
     [self performSegueWithIdentifier:@"ShowEmbeddedUserGroups" sender:self];
 }
 
 - (void)closeGroups {
+    [UIView animateWithDuration:0.3 animations:^{
+        self.collectionViewController.view.alpha = 1;
+    }];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:kYACloseGroupsNotification object:nil];
 }
 

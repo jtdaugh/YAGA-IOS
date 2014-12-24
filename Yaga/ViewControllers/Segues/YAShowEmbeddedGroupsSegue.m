@@ -15,7 +15,7 @@
 - (void)perform {
     MyGroupsViewController *groupsController = (MyGroupsViewController*)self.destinationViewController;
     GridViewController *gridController = (GridViewController*)self.sourceViewController;
-    
+    groupsController.delegate = gridController;
     groupsController.showCreateGroupButton = YES;
     groupsController.showEditButton = YES;
     

@@ -6,7 +6,11 @@
 //
 //
 
-#import <UIKit/UIKit.h>
+typedef void (^cameraCompletion)(void);
+
+@protocol YACollectionViewControllerDelegate <NSObject>
+- (void)showCamera:(BOOL)show showPart:(BOOL)showPart completion:(cameraCompletion)block;
+@end
 
 @interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate> {
     CGPoint lastOffset;
@@ -15,6 +19,7 @@
 }
 
 @property (strong, nonatomic) UICollectionView *collectionView;
+@property (weak, nonatomic) id<YACollectionViewControllerDelegate> delegate;
 @property (nonatomic) BOOL scrolling;
 
 @end

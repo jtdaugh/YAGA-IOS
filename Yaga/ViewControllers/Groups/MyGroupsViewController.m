@@ -25,7 +25,7 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
     [super viewDidLoad];
     
     if(self.showCreateGroupButton) {
-        UITapGestureRecognizer *tapToClose = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(close:)];
+        UITapGestureRecognizer *tapToClose = [[UITapGestureRecognizer alloc] initWithTarget:self.delegate action:@selector(closeGroups)];
         tapToClose.delegate = self;
         [self.view addGestureRecognizer:tapToClose];
     }

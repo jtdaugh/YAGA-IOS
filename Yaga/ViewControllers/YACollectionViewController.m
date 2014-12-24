@@ -12,18 +12,17 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 
+@protocol GridViewControllerDelegate;
+
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @interface YACollectionViewController ()
 
 @property (strong, nonatomic) UICollectionViewFlowLayout *gridLayout;
-@property (strong, nonatomic) UICollectionViewFlowLayout *cameraLayout;
 @property (strong, nonatomic) UICollectionViewFlowLayout *swipeLayout;
 
 @property (strong, nonatomic) NSMutableArray *vidControllers;
 
-@property (nonatomic, strong) UIView *fastScrollingIndicatorView;
-@property (nonatomic, assign) BOOL disablePlayPause;
 @property (nonatomic, assign) BOOL disableScrollHandling;
 @property (nonatomic, assign) CGFloat lastContentOffset;
 
@@ -40,14 +39,8 @@ static NSString *cellID = @"Cell";
     
     CGFloat spacing = 1.0f;
     
-    self.cameraLayout = [[UICollectionViewFlowLayout alloc] init];
-    [self.cameraLayout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + spacing, 0, 0, 0)];
-    [self.cameraLayout setMinimumInteritemSpacing:spacing];
-    [self.cameraLayout setMinimumLineSpacing:spacing];
-    [self.cameraLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
-    
     self.gridLayout = [[UICollectionViewFlowLayout alloc] init];
-    [self.gridLayout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + spacing, 0, 0, 0)];
+    [self.gridLayout setSectionInset:UIEdgeInsetsMake(0, 0, 0, 0)];
     [self.gridLayout setMinimumInteritemSpacing:spacing];
     [self.gridLayout setMinimumLineSpacing:spacing];
     [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
@@ -60,7 +53,7 @@ static NSString *cellID = @"Cell";
     [self.swipeLayout setItemSize:CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT)];
     [self.swipeLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
     
-    self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.cameraLayout];
+    self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
     self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
@@ -68,11 +61,7 @@ static NSString *cellID = @"Cell";
     //    [self.gridTiles setBounces:NO];
     [self.view addSubview:self.collectionView];
     
-    self.fastScrollingIndicatorView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
-    self.fastScrollingIndicatorView.backgroundColor = [UIColor greenColor];
-    [self.view addSubview:self.fastScrollingIndicatorView];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self.collectionView selector:@selector(reloadData) name:@"new_video_taken" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken) name:@"new_video_taken" object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -83,6 +72,13 @@ static NSString *cellID = @"Cell";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self.collectionView name:@"new_video_taken" object:nil];
+}
+
+- (void)newVideoTaken {
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+        [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]]];
+        self.collectionView.contentOffset = CGPointMake(0, 0);
+    } completion:nil];
 }
 
 #pragma mark - UICollectionView
@@ -113,10 +109,25 @@ static NSString *cellID = @"Cell";
     
     __weak typeof(self) weakSelf = self;
     self.disableScrollHandling = YES;
-    [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
-        [weakSelf.collectionView setPagingEnabled:newLayout == weakSelf.swipeLayout];
-        weakSelf.disableScrollHandling = NO;
-    }];
+    [weakSelf.collectionView setPagingEnabled:newLayout == weakSelf.swipeLayout];
+    
+    if(newLayout == weakSelf.gridLayout) {
+        [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
+            [weakSelf.delegate showCamera:YES showPart:NO completion:^{
+                weakSelf.disableScrollHandling = NO;
+            }];
+        }];
+    }
+    else {
+        [weakSelf.delegate showCamera:NO showPart:NO completion:^{
+            
+        }];
+        [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
+            
+        }];
+    }
+    
+    
 }
 
 #pragma mark -
@@ -143,40 +154,47 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)playPauseOnScroll:(BOOL)scrollingFast {
-    if(self.disableScrollHandling)
-        return;
-    
-    self.fastScrollingIndicatorView.backgroundColor = scrollingFast ? [UIColor redColor] : [UIColor greenColor];
     [self playVisible:[NSNumber numberWithBool:!scrollingFast]];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    if(self.disableScrollHandling)
+    if(self.disableScrollHandling) {
+        self.lastContentOffset = self.collectionView.contentOffset.y;
         return;
+    }
     
     BOOL scrollingFast = [self scrollingFast];
-    BOOL scrollingDown = self.lastContentOffset > self.collectionView.contentOffset.y;
+    BOOL scrollingUp = self.lastContentOffset < self.collectionView.contentOffset.y;
     
     [self playPauseOnScroll:scrollingFast];
     
-    if(scrollingFast) {
-        __weak typeof(self) weakSelf = self;
-        UICollectionViewLayout *newLayout = scrollingDown ? self.cameraLayout : self.gridLayout;
-        if(self.collectionView.collectionViewLayout != newLayout) {
-            self.disableScrollHandling = YES;
-            [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
-                weakSelf.disableScrollHandling = NO;
-            }];
-        }
-        
+    //show/hide camera
+    if(scrollingFast && scrollingUp) {
+        self.disableScrollHandling = YES;
+        [self playPauseOnScroll:NO];
+        [self.delegate showCamera:NO showPart:YES completion:^{
+            self.disableScrollHandling = NO;
+        }];
     }
+    else {
+        [self playPauseOnScroll:NO];
+        self.disableScrollHandling = YES;
+        [self.delegate showCamera:YES showPart:NO completion:^{
+            self.disableScrollHandling = NO;
+        }];
+    }
+    
     self.lastContentOffset = self.collectionView.contentOffset.y;
     
     self.scrolling = YES;
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+    
+    if(self.disableScrollHandling)
+        return;
+    
     [self playPauseOnScroll:[self scrollingFast]];
     
     self.scrolling = NO;

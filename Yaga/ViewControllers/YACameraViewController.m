@@ -370,7 +370,7 @@
                 YAVideo *video = [YAVideo new];
                 video.movFilename = moveFilename;
                 video.gifFilename = gifFilename;
-                [[YAUser currentUser].currentGroup.videos addObject:video];
+                [[YAUser currentUser].currentGroup.videos insertObject:video atIndex:0];
                 [[RLMRealm defaultRealm] commitWriteTransaction];
                 
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"new_video_taken" object:nil];
@@ -527,7 +527,7 @@
 }
 
 - (void)toggleGroups:(id)sender {
-    [self.toggleGroupDelegate performSelector:self.toggleGroupSeletor withObject:sender afterDelay:0];
+    [self.delegate toggleGroups];
 }
 
 @end

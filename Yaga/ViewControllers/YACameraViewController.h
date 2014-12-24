@@ -6,9 +6,12 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-#import "AVPlayer+AVPlayer_Async.h"
+#import <AVFoundation/AVFoundation.h>
 #import "AVCamPreviewView.h"
+
+@protocol YACameraViewControllerDelegate <NSObject>
+- (void)toggleGroups;
+@end
 
 @interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate>
 
@@ -22,6 +25,5 @@
 @property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
 @property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
 
-@property (assign, nonatomic) id toggleGroupDelegate;
-@property (assign, nonatomic) SEL toggleGroupSeletor;
+@property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 @end
