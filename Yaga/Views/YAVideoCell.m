@@ -7,14 +7,14 @@
 //
 
 #import "YAVideoCell.h"
+#import "YAUtils.h"
 
 @implementation YAVideoCell
 
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
-        self.gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
         
         self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         [self.contentView addSubview:self.gifView];
@@ -22,15 +22,25 @@
     return self;
 }
 
-- (void)setGifImage:(FLAnimatedImage *)gifImage {
-    if(_gifImage == gifImage)
-        return;
-    _gifImage = gifImage;
-    
-    self.gifView.animatedImage = gifImage;
-}
-
 - (void)dealloc {
+
 }
 
+- (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
+    if(_playerVC == playerVC)
+        return;
+    
+    if(playerVC) {
+        playerVC.view.frame = self.bounds;
+        [self.contentView addSubview:playerVC.view];
+        [self.gifView removeFromSuperview];
+    }
+    else {
+        [_playerVC.view removeFromSuperview];
+        [self.contentView addSubview:self.gifView];
+    }
+    
+    _playerVC = playerVC;
+}
 @end
+

@@ -7,10 +7,12 @@
 //
 
 #import "YACollectionViewController.h"
-#import "VideoPlayerViewController.h"
+
 #import "YAVideoCell.h"
 #import "YAUser.h"
 #import "YAUtils.h"
+#import "AVPlayer+AVPlayer_Async.h"
+#import "AVPlaybackViewController.h"
 
 @protocol GridViewControllerDelegate;
 
@@ -24,10 +26,9 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (strong, nonatomic) NSMutableArray *vidControllers;
 
 @property (nonatomic, assign) BOOL disableScrollHandling;
-@property (nonatomic, assign) CGFloat lastContentOffset;
+@property (nonatomic, weak) YAVideoCell *frontMostCell;
 
-@property (nonatomic, strong) NSMapTable *assetGifUrls;
-
+@property (nonatomic, strong) UICollectionViewFlowLayout *targetLayout;
 @end
 
 static NSString *cellID = @"Cell";
@@ -54,6 +55,8 @@ static NSString *cellID = @"Cell";
     [self.swipeLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
     
     self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
+    self.targetLayout = self.gridLayout;
+    
     self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
@@ -89,17 +92,35 @@ static NSString *cellID = @"Cell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     
-    cell.gifView.animatedImage = nil;
-    NSString *gifFilename = [[YAUser currentUser].currentGroup.videos[indexPath.row] gifFilename];
+    cell.playerVC = nil;
     
-    dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
-        NSData *gifData = [NSData dataWithContentsOfFile:gifPath];
-        FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            cell.gifView.animatedImage = image;
+    if(self.collectionView.collectionViewLayout == self.gridLayout) {
+        cell.gifView.animatedImage = nil;
+        NSString *gifFilename = [[YAUser currentUser].currentGroup.videos[indexPath.row] gifFilename];
+        
+        dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+            
+            NSMutableDictionary *sizes = [[NSUserDefaults standardUserDefaults] objectForKey:@"gifSizes"];
+            
+            NSURL *gifURL = [YAUtils urlFromFileName:gifFilename];
+            
+            NSData *gifData = [NSData dataWithContentsOfURL:gifURL];
+            
+            FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                cell.gifView.animatedImage = image;
+                if([sizes objectForKey:gifFilename]) {
+                    NSDictionary *gifSizeDic = sizes[gifFilename];
+                    cell.gifView.frame = CGRectMake(cell.gifView.frame.origin.x, cell.gifView.frame.origin.y, [gifSizeDic[@"width"] floatValue], [gifSizeDic[@"height"] floatValue]);
+                    cell.gifView.center = cell.contentView.center;
+                }
+                else {
+                    cell.gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+                }
+            });
         });
-    });
+    }
     
     return cell;
 }
@@ -109,28 +130,66 @@ static NSString *cellID = @"Cell";
     
     __weak typeof(self) weakSelf = self;
     self.disableScrollHandling = YES;
-    [weakSelf.collectionView setPagingEnabled:newLayout == weakSelf.swipeLayout];
+    [self.collectionView setPagingEnabled:newLayout == self.swipeLayout];
     
-    if(newLayout == weakSelf.gridLayout) {
+    self.targetLayout = newLayout;
+    
+    if(newLayout == self.gridLayout) {
+        for (YAVideoCell *videoCell in self.collectionView.visibleCells) {
+            videoCell.playerVC = nil;
+        }
+        
         [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
             [weakSelf.delegate showCamera:YES showPart:NO completion:^{
-                weakSelf.disableScrollHandling = NO;
+                if(finished) {
+                    weakSelf.disableScrollHandling = NO;
+                    [weakSelf.collectionView reloadData];
+                }
             }];
         }];
     }
     else {
-        [weakSelf.delegate showCamera:NO showPart:NO completion:^{
+        [self.delegate showCamera:NO showPart:NO completion:^{
             
         }];
+        
         [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
+            if (finished) {
+
+                [weakSelf.collectionView reloadData];
+            }
             
         }];
     }
-    
-    
 }
 
-#pragma mark -
+- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if(self.targetLayout == self.swipeLayout) {
+        AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
+        
+        NSString *movFileName = [[YAUser currentUser].currentGroup.videos[indexPath.row] movFilename];
+        
+        [vc setURL:[YAUtils urlFromFileName:movFileName]];
+        cell.playerVC = vc;
+        self.frontMostCell = cell;
+        
+        //[cell.playerVC playWhenReady];
+    }
+    else {
+        cell.playerVC = nil;
+        self.frontMostCell = nil;
+    }
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell*)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    cell.playerVC = nil;
+    
+    if(self.frontMostCell)
+        [self.frontMostCell.playerVC playWhenReady];
+}
+
+#pragma mark - UIScrollView
 - (BOOL)scrollingFast {
     CGPoint currentOffset = self.collectionView.contentOffset;
     NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
@@ -160,42 +219,33 @@ static NSString *cellID = @"Cell";
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if(self.disableScrollHandling) {
-        //self.lastContentOffset = self.collectionView.contentOffset.y;
         return;
     }
     
     BOOL scrollingFast = [self scrollingFast];
-    BOOL scrollingUp = self.lastContentOffset < self.collectionView.contentOffset.y;
     
     [self playPauseOnScroll:scrollingFast];
-    
-    //show/hide camera
-    if(scrollingFast && scrollingUp) {
-        self.disableScrollHandling = YES;
-        [self playPauseOnScroll:NO];
-        [self.delegate showCamera:NO showPart:YES completion:^{
-
-        }];
-    }
-    else {
-        [self playPauseOnScroll:NO];
-        self.disableScrollHandling = YES;
-        [self.delegate showCamera:YES showPart:NO completion:^{
-
-        }];
-    }
-    
-    self.lastContentOffset = self.collectionView.contentOffset.y;
     
     self.scrolling = YES;
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+    BOOL scrollingFast = fabs(velocity.y) > 1;
+    BOOL scrollingUp =  targetContentOffset->y > self.collectionView.contentOffset.y;
     
-    if(self.disableScrollHandling)
-        return;
-    
-    [self playPauseOnScroll:[self scrollingFast]];
+    //show/hide camera
+    if(scrollingFast && scrollingUp) {
+        self.disableScrollHandling = YES;
+        [self.delegate showCamera:NO showPart:YES completion:^{
+            
+        }];
+    }
+    else if(scrollingFast && !scrollingUp){
+        self.disableScrollHandling = YES;
+        [self.delegate showCamera:YES showPart:NO completion:^{
+            
+        }];
+    }
     
     self.scrolling = NO;
 }

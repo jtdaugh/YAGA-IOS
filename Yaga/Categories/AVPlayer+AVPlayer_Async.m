@@ -11,6 +11,7 @@
 @implementation AVPlayer (AVPlayer_Async)
 
 - (void)asyncPlay {
+    [self removeObservers];
     [self addObserver:self forKeyPath:@"status"
                                           options:0 context:nil];
 }
@@ -46,4 +47,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+- (void)dealloc {
+    
+}
 @end

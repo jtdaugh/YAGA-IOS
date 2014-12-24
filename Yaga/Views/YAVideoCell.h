@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "FLAnimatedImage.h"
+#import "AVPlaybackViewController.h"
 
 @interface YAVideoCell : UICollectionViewCell
-@property (nonatomic, strong) FLAnimatedImageView *gifView;
-@property (nonatomic, strong) FLAnimatedImage *gifImage;
+@property (nonatomic, readonly) FLAnimatedImageView *gifView;
+@property (nonatomic, strong) AVPlaybackViewController *playerVC;
 @end

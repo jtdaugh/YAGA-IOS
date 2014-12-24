@@ -10,10 +10,8 @@
 
 typedef void (^generatorCompletionHandler)(NSError *error,  NSURL *gifPath);
 
-@interface YAGifGenerator : NSObject
-//- (void)createGifAtlasForURLAsset:(AVURLAsset*)asset ofSize:(NSUInteger)arraySize completionHandler:(void (^)(UIImage *img))handler;
-
-//+ (NSURL*)saveImage:(UIImage *)image toFolder:(NSString*)folderName withName:(NSString *)name;
-
+@interface YAGifGenerator : NSObject {
+    UIDeviceOrientation currentOrientation;
+}
 - (void)crateGifAtUrl:(NSURL*)gifURL fromAsset:(AVURLAsset*)asset completionHandler:(generatorCompletionHandler)handler;
 @end
