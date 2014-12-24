@@ -160,7 +160,7 @@ static NSString *cellID = @"Cell";
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if(self.disableScrollHandling) {
-        self.lastContentOffset = self.collectionView.contentOffset.y;
+        //self.lastContentOffset = self.collectionView.contentOffset.y;
         return;
     }
     
@@ -174,14 +174,14 @@ static NSString *cellID = @"Cell";
         self.disableScrollHandling = YES;
         [self playPauseOnScroll:NO];
         [self.delegate showCamera:NO showPart:YES completion:^{
-            self.disableScrollHandling = NO;
+
         }];
     }
     else {
         [self playPauseOnScroll:NO];
         self.disableScrollHandling = YES;
         [self.delegate showCamera:YES showPart:NO completion:^{
-            self.disableScrollHandling = NO;
+
         }];
     }
     
@@ -201,6 +201,9 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    if(self.collectionView.collectionViewLayout != self.swipeLayout)
+        self.disableScrollHandling = NO;
+    
     self.scrolling = NO;
 }
 

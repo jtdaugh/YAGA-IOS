@@ -137,15 +137,19 @@
 
 - (void)openGroups {
     [UIView animateWithDuration:0.3 animations:^{
-       self.collectionViewController.view.alpha = 0;
+        self.collectionViewController.view.transform = CGAffineTransformMakeScale(0.01, 0.01);
+    } completion:^(BOOL finished) {
+        [self.collectionViewController.view removeFromSuperview];
     }];
-
+    
     [self performSegueWithIdentifier:@"ShowEmbeddedUserGroups" sender:self];
 }
 
 - (void)closeGroups {
+    [self.view addSubview:self.collectionViewController.view];
+    
     [UIView animateWithDuration:0.3 animations:^{
-        self.collectionViewController.view.alpha = 1;
+        self.collectionViewController.view.transform = CGAffineTransformIdentity;
     }];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:kYACloseGroupsNotification object:nil];

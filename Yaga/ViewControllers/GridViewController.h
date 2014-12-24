@@ -13,9 +13,6 @@
 #import "YACameraViewController.h"
 #import "MyGroupsViewController.h"
 
-//@protocol YACollectionViewControllerDelegate;
-//@protocol YACameraViewControllerDe;
-
 @interface GridViewController : UIViewController <UIApplicationDelegate, YACameraViewControllerDelegate, YACollectionViewControllerDelegate, MyGroupsViewControllerDelegate>
 
 @property (assign, nonatomic) BOOL elevatorOpen;
