@@ -13,7 +13,7 @@
 
 @interface YACountriesTableViewController ()
 @property (strong, nonatomic) NSArray *dataRows;
-@property (strong, nonatomic) NSMutableArray *filteredCandyArray;
+@property (strong, nonatomic) NSMutableArray *filteredCountries;
 @end
 
 @implementation YACountriesTableViewController
@@ -23,7 +23,7 @@
     CountryListDataSource *dataSource = [CountryListDataSource new];
     self.dataRows = [dataSource countries];
     // Initialize the filteredCandyArray with a capacity equal to the candyArray's capacity
-    self.filteredCandyArray = [NSMutableArray arrayWithArray:self.dataRows];
+    self.filteredCountries = [NSMutableArray arrayWithArray:self.dataRows];
     [self.tableView reloadData];
 }
 
@@ -35,7 +35,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (tableView == self.searchDisplayController.searchResultsTableView) {
-        return [self.filteredCandyArray count];
+        return [self.filteredCountries count];
     }
     else {
         return [self.dataRows count];
@@ -52,7 +52,7 @@
     }
     id obj;
     if (tableView == self.searchDisplayController.searchResultsTableView) {
-        obj = [_filteredCandyArray objectAtIndex:indexPath.row];
+        obj = [_filteredCountries objectAtIndex:indexPath.row];
     } else {
         obj = [_dataRows objectAtIndex:indexPath.row];
     }
@@ -73,9 +73,9 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *obj;
     if (tableView == self.searchDisplayController.searchResultsTableView) {
-        obj = [_filteredCandyArray objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+        obj = [_filteredCountries objectAtIndex:indexPath.row];
     } else {
-        obj = [_dataRows objectAtIndex:[self.tableView indexPathForSelectedRow].row];
+        obj = [_dataRows objectAtIndex:indexPath.row];
     }
     [[YAUser currentUser] setDialCode:obj[DIAL_CODE]];
     [[YAUser currentUser] setCountryCode:obj[COUNTRY_CODE]];
@@ -86,10 +86,10 @@
 -(void)filterContentForSearchText:(NSString*)searchText scope:(NSString*)scope {
     // Update the filtered array based on the search text and scope.
     // Remove all objects from the filtered search array
-    [self.filteredCandyArray removeAllObjects];
+    [self.filteredCountries removeAllObjects];
     // Filter the array using NSPredicate
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.name BEGINSWITH[c] %@",searchText];
-    _filteredCandyArray = [NSMutableArray arrayWithArray:[self.dataRows filteredArrayUsingPredicate:predicate]];
+    _filteredCountries = [NSMutableArray arrayWithArray:[self.dataRows filteredArrayUsingPredicate:predicate]];
 }
 
 #pragma mark -

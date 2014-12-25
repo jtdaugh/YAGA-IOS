@@ -35,6 +35,7 @@ typedef void (^contactsImportedBlock)(NSError *error, NSOrderedSet *contacts);
 @interface YAUser : NSObject
 
 @property (nonatomic, strong) YAGroup *currentGroup;
+@property (nonatomic, strong) NSString *phoneNumber;
 
 @property (nonatomic) BOOL phoneNumberIsRegistered;
 @property (nonatomic, copy) NSString *dialCode;

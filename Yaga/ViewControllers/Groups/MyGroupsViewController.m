@@ -10,6 +10,7 @@
 #import "YAUser.h"
 #import "GroupsTableViewCell.h"
 #import "AddMembersViewController.h"
+#import "YAAuthManager.h"
 
 @interface MyGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -189,11 +190,15 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        YAGroup *group = self.groups[indexPath.row];
+         YAGroup *group = self.groups[indexPath.row];
+        [[YAAuthManager sharedManager] sendGroupRemovingForGroupId:@(group.tempGroupId)
+                                                    withCompletion:^(bool response, NSString *error) {
+                                                        
         [[RLMRealm defaultRealm] beginWriteTransaction];
         [[RLMRealm defaultRealm] deleteObject:group];
         [[RLMRealm defaultRealm] commitWriteTransaction];
         [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                                                    }];
     }
 }
 

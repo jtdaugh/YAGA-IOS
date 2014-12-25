@@ -11,6 +11,8 @@
 #import "YAContact.h"
 #import "NSString+Hash.h"
 #import <Realm/Realm.h>
+#import "YAAuthManager.h"
+#import "YAGroupCreator.h"
 
 @interface NameGroupViewController ()
 @property (strong, nonatomic) UITextField *groupNameTextField;
@@ -100,62 +102,38 @@
     
     // Start the animation
     [myIndicator startAnimating];
-
-    RLMRealm *realm = [RLMRealm defaultRealm];
-    [realm beginWriteTransaction];
     
-    YAGroup *group = [YAGroup new];
-    group.groupId = [YAGroup generateGroupId];
-    group.name = self.groupNameTextField.text;
-    
-    for(NSDictionary *memberDic in self.membersDic){
-        YAContact *contact = [YAContact new];
-        contact.name = memberDic[nCompositeName];
-        contact.firstName = memberDic[nFirstname];
-        contact.number = memberDic[nPhone];
-        contact.registered = [memberDic[nRegistered] boolValue];
-        
-        [group.members addObject:contact];
-    }
-
-    [realm addObject:group];
-    [realm commitWriteTransaction];
-
-
-    [YAUser currentUser].currentGroup = group;
-    
-    [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
-    
-//    [currentUser createCrew:self.groupTitle.text withMembers:hashes withCompletionBlock:^{
-//        [currentUser myCrewsWithCompletion:^{
-//            [self.navigationController dismissViewControllerAnimated:YES completion:^{
-//                NSLog(@"completed?");
-//            }];
-//        }];
-//        
-////        if(![MFMessageComposeViewController canSendText]) {
-////            UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your device doesn't support SMS!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-////            [warningAlert show];
-////            return;
-////        }
-////        
-////        NSMutableArray *recipients = [[NSMutableArray alloc] init];
-////        for(YAContact *contact in self.members){
-////            [recipients addObject:contact.number];
-////        }
-////        
-////        //    NSArray *recipents = @[@"12345678", @"72345524"];
-////        NSString *message = [NSString stringWithFormat:@"Hey, come join my Yaga group, %@. http://getyaga.com", self.groupTitle.text];
-////        
-////        MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
-////        messageController.messageComposeDelegate = self;
-////        [messageController setRecipients:recipients];
-////        [messageController setBody:message];
-////        
-////        // Present message view controller on screen
-////        [self presentViewController:messageController animated:YES completion:nil];
-//    }];
-//
+    [[YAAuthManager sharedManager] sendGroupRenamingWithName:self.groupNameTextField.text
+                                                  forGroupId:[YAGroupCreator sharedCreator].groupId
+                                              withCompletion:^(bool response, NSString *error) {
+                                                      
+                                                  
+                                                  RLMRealm *realm = [RLMRealm defaultRealm];
+                                                  [realm beginWriteTransaction];
+                                                  
+                                                  YAGroup *group = [YAGroup new];
+                                                  group.groupId = [YAGroup generateGroupId];
+                                                  group.tempGroupId = [[YAGroupCreator sharedCreator].groupId integerValue];
+                                                  group.name = self.groupNameTextField.text;
+                                                  
+                                                  for(NSDictionary *memberDic in self.membersDic){
+                                                      YAContact *contact = [YAContact new];
+                                                      contact.name = memberDic[nCompositeName];
+                                                      contact.firstName = memberDic[nFirstname];
+                                                      contact.number = memberDic[nPhone];
+                                                      contact.registered = [memberDic[nRegistered] boolValue];
+                                                      
+                                                      [group.members addObject:contact];
+                                                  }
+                                                  
+                                                  [realm addObject:group];
+                                                  [realm commitWriteTransaction];
+                                                  
+                                                  
+                                                  [YAUser currentUser].currentGroup = group;
+                                                  
+                                                  [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
+                                                  }];
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result

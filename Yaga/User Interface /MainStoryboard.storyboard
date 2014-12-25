@@ -323,10 +323,10 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="JW0-6p-qUQ"/>
-        <segue reference="T2C-WF-bii"/>
         <segue reference="fvS-6s-erS"/>
         <segue reference="VSt-eZ-jNn"/>
+        <segue reference="T2C-WF-bii"/>
         <segue reference="ira-DT-4cj"/>
+        <segue reference="JW0-6p-qUQ"/>
     </inferredMetricsTieBreakers>
 </document>

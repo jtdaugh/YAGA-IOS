@@ -13,6 +13,8 @@
 @interface YAGroup : RLMObject
 @property NSString *name;
 @property NSString *groupId;
+#pragma TODO: Remove this
+@property NSInteger tempGroupId;
 
 @property RLMArray<YAContact> *members;
 @property RLMArray<YAVideo> *videos;
