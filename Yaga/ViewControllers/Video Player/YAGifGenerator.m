@@ -64,7 +64,9 @@
                         
                         if (result == AVAssetImageGeneratorSucceeded) {
                             
-                            UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:3 orientation:UIImageOrientationUp];
+                            UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1.9 orientation:UIImageOrientationUp];
+                            newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
+                            //UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:3 orientation:UIImageOrientationUp];
                             
                             if(!gifDataDic[@"width"]) {
 
@@ -152,6 +154,34 @@
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;
+}
+
+- (UIImage *)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img {
+    CGSize gifFrameSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2, [[UIScreen mainScreen] applicationFrame].size.height/4);
+    
+    CGFloat widthDiff = img.size.width - gifFrameSize.width ;
+    CGFloat heightDiff = img.size.height - gifFrameSize.height;
+    
+    CGRect cropRect = CGRectMake(widthDiff/2, heightDiff/2, gifFrameSize.width, gifFrameSize.height);
+    
+    if (img.scale > 1.0f) {
+        cropRect = CGRectMake(cropRect.origin.x * img.scale,
+                          cropRect.origin.y * img.scale,
+                          cropRect.size.width * img.scale,
+                          cropRect.size.height * img.scale);
+    }
+    
+    CGImageRef imageRef = CGImageCreateWithImageInRect(img.CGImage, cropRect);
+    UIImage *result = [UIImage imageWithCGImage:imageRef scale:img.scale orientation:img.imageOrientation];
+    CGImageRelease(imageRef);
+    
+//        if(!saved) {
+//            UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil);
+//            saved = YES;
+//        }
+
+    
+    return result;
 }
 
 @end

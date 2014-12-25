@@ -8,7 +8,6 @@
 
 #import "YAPhoneNumberViewController.h"
 #import "NBPhoneNumberUtil.h"
-#import "VerifyViewController.h"
 #import "UsernameViewController.h"
 #import "YAUser.h"
 #import "NSString+Hash.h"

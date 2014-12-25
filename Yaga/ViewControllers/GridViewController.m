@@ -27,6 +27,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [Crashlytics setUserIdentifier:(NSString *) [[YAUser currentUser] objectForKey:nUsername]];
+    
     [self setupView];
 }
 
@@ -51,7 +53,7 @@
             self.cameraViewController.view.frame = CGRectMake(0, -self.cameraViewController.view.frame.size.height + (showPart ? ELEVATOR_MARGIN : 0), self.cameraViewController.view.frame.size.width, self.cameraViewController.view.frame.size.height);
         }
         CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height;
-        self.collectionViewController.view.frame = CGRectMake(0, origin, self.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin);
+        self.collectionViewController.view.frame = CGRectMake(0, origin + 2, self.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin - 2);
         
     } completion:^(BOOL finished) {
         if(finished)
@@ -76,67 +78,26 @@
 - (void)setupView {
     _collectionViewController = [YACollectionViewController new];
     _collectionViewController.delegate = self;
-    _collectionViewController.view.frame = CGRectMake(0, VIEW_HEIGHT/2, VIEW_WIDTH, VIEW_HEIGHT/2);
+    _collectionViewController.view.frame = CGRectMake(0, VIEW_HEIGHT/2 + 2, VIEW_WIDTH, VIEW_HEIGHT/2 - 2);
     [self addChildViewController:_collectionViewController];
     [self.view addSubview:_collectionViewController.view];
-
-    
-    _cameraViewController.view.backgroundColor = [UIColor blueColor];
     
     _cameraViewController = [YACameraViewController new];
     _cameraViewController.delegate = self;
     
+     _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2);
     [self addChildViewController:_cameraViewController];
     [self.view addSubview:_cameraViewController.view];
     
 
-//    _cameraViewController.view.backgroundColor = [UIColor blueColor];
-//    
-//    _cameraViewController = [YACameraViewController new];
-//    _cameraViewController.toggleGroupDelegate = self;
-//    _cameraViewController.toggleGroupSeletor = @selector(switchGroupsTapped:);
-//    
-//    [self addChildViewController:_cameraViewController];
-//    [self.view addSubview:_cameraViewController.view];
-    
-    [self.view setBackgroundColor:[UIColor whiteColor]];
-    
-//    _cameraViewController.view.backgroundColor = [UIColor blueColor];
-//    
-//    _cameraViewController = [YACameraViewController new];
-//    _cameraViewController.toggleGroupDelegate = self;
-//    _cameraViewController.toggleGroupSeletor = @selector(switchGroupsTapped:);
-//    
-//    [self addChildViewController:_cameraViewController];
-//    [self.view addSubview:_cameraViewController.view];
-
-    [Crashlytics setUserIdentifier:(NSString *) [[YAUser currentUser] objectForKey:nUsername]];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(willEnterForeground)
-                                                 name:UIApplicationWillEnterForegroundNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(willResignActive)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didBecomeActive)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didEnterBackground)
-                                                 name:UIApplicationDidEnterBackgroundNotification
-                                               object:nil];
+    [self.view setBackgroundColor:[UIColor blackColor]];
     
     [self.navigationController setNavigationBarHidden:YES];
 }
 
 - (void)openGroups {
     [UIView animateWithDuration:0.3 animations:^{
+        self.view.backgroundColor = [UIColor whiteColor];
         self.collectionViewController.view.transform = CGAffineTransformMakeScale(0.01, 0.01);
     } completion:^(BOOL finished) {
         [self.collectionViewController.view removeFromSuperview];
@@ -149,6 +110,7 @@
     [self.view addSubview:self.collectionViewController.view];
     
     [UIView animateWithDuration:0.3 animations:^{
+        self.view.backgroundColor = [UIColor blackColor];
         self.collectionViewController.view.transform = CGAffineTransformIdentity;
     }];
 
@@ -176,32 +138,6 @@
     //    }];
 }
 
-- (void)willResignActive {
-    //    [self removeAudioInput];
-    // remove microphone
-    
-}
-
-- (void)didBecomeActive {
-    //    [self addAudioInput];
-    // add microphone
-}
-
-- (void)didEnterBackground {
-    //    NSLog(@"did enter background");
-    //    [self.view setAlpha:0.0];
-    
-    if(self.cameraViewController.flash && [[self.cameraViewController.videoInput device] position] == AVCaptureDevicePositionFront){
-        [self.cameraViewController switchFlashMode:nil];
-    }
-    [self.cameraViewController closeCamera];
-}
-
-- (void)willEnterForeground {
-    [self.cameraViewController initCamera:^{
-        [self.collectionViewController.collectionView reloadData];
-    }];
-}
 
 -(BOOL)prefersStatusBarHidden {
     return YES;

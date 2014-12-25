@@ -126,8 +126,42 @@
         
         [self initCamera:^{
         }];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(willEnterForeground)
+                                                     name:UIApplicationWillEnterForegroundNotification
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(willResignActive)
+                                                     name:UIApplicationWillResignActiveNotification
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didBecomeActive)
+                                                     name:UIApplicationDidBecomeActiveNotification
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didEnterBackground)
+                                                     name:UIApplicationDidEnterBackgroundNotification
+                                                   object:nil];
     }
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"applicationWillResignActive" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"applicationWillEnterForeground" object:nil];
+}
+
+- (void)applicationWillResignActive {
+    [self closeCamera];
+}
+
+- (void)applicationWillEnterForeground {
+    [self initCamera:^{
+    }];
 }
 
 - (void)initCamera:(void (^)())block {
@@ -229,17 +263,6 @@
             }];
         }
     });
-}
-
-- (void)addAudioInput {
-    
-    NSError *error = nil;
-    
-    if(error){
-        NSLog(@"set play and record error: %@", error);
-    }
-    
-    NSLog(@"audio input added!");
 }
 
 - (void)closeCamera {
@@ -419,7 +442,7 @@
                 break;
         }
         
-        [self addAudioInput];
+        //[self addAudioInput];
         
         AVCaptureDevice *videoDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:preferredPosition];
         AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:nil];
@@ -529,5 +552,32 @@
 - (void)toggleGroups:(id)sender {
     [self.delegate toggleGroups];
 }
+
+- (void)willResignActive {
+    //    [self removeAudioInput];
+    // remove microphone
+    
+}
+
+- (void)didBecomeActive {
+    //    [self addAudioInput];
+    // add microphone
+}
+
+- (void)didEnterBackground {
+    //    NSLog(@"did enter background");
+    //    [self.view setAlpha:0.0];
+    
+    if(self.flash && [[self.videoInput device] position] == AVCaptureDevicePositionFront){
+        [self switchFlashMode:nil];
+    }
+    [self closeCamera];
+}
+
+- (void)willEnterForeground {
+    [self initCamera:^{
+    }];
+}
+
 
 @end
