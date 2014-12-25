@@ -213,7 +213,7 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)playPauseOnScroll:(BOOL)scrollingFast {
-    [self playVisible:[NSNumber numberWithBool:!scrollingFast]];
+    [self playVisible:!scrollingFast];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
@@ -231,19 +231,23 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
     BOOL scrollingFast = fabs(velocity.y) > 1;
-    BOOL scrollingUp =  targetContentOffset->y < self.collectionView.contentOffset.y;
+
+    BOOL scrollingUp = velocity.y == fabs(velocity.y);//targetContentOffset->y < self.collectionView.contentOffset.y;
     
+    NSLog(@"dragged with velocity:%f %@", fabs(velocity.y), scrollingUp ? @"up" : @"down");
     //show/hide camera
     if(scrollingFast && scrollingUp) {
         self.disableScrollHandling = YES;
         [self.delegate showCamera:NO showPart:YES completion:^{
             self.disableScrollHandling = NO;
+            [self playVisible:YES];
         }];
     }
     else if(scrollingFast && !scrollingUp){
         self.disableScrollHandling = YES;
         [self.delegate showCamera:YES showPart:NO completion:^{
             self.disableScrollHandling = NO;
+            [self playVisible:YES];
         }];
     }
     
@@ -257,9 +261,9 @@ static BOOL welcomeLabelRemoved = NO;
     self.scrolling = NO;
 }
 
-- (void)playVisible:(NSNumber*)playValue {
+- (void)playVisible:(BOOL)playValue {
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
-        if([playValue boolValue]) {
+        if(playValue) {
             if(!videoCell.gifView.isAnimating) {
                 [videoCell.gifView startAnimating];
             }
