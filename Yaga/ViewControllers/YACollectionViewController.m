@@ -27,6 +27,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
 @property (strong, nonatomic) UILabel *noVideosLabel;
+@property (strong, nonatomic) UIRefreshControl *pullToRefresh;
 @end
 
 static NSString *cellID = @"Cell";
@@ -64,16 +65,37 @@ static NSString *cellID = @"Cell";
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken) name:@"new_video_taken" object:nil];
     
+    
+    //no videos welcome text
     if([YAUser currentUser].currentGroup.videos.count) {
         CGFloat width = VIEW_WIDTH * .8;
         self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 50, width, width)];
-        [self.noVideosLabel setText:@"You have no videos yet, touch the button to take one"];
+        [self.noVideosLabel setText:NSLocalizedString(@"NO VIDOES IN NEW GROUP MESSAGE", @"")];
         [self.noVideosLabel setNumberOfLines:1];
         [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
         [self.noVideosLabel setTextAlignment:NSTextAlignmentCenter];
         [self.noVideosLabel setTextColor:[UIColor whiteColor]];
         [self.collectionView addSubview:self.noVideosLabel];
     }
+    
+    //pull down to refresh
+    self.pullToRefresh = [[UIRefreshControl alloc] initWithFrame:CGRectMake(0, -30, VIEW_WIDTH, 30)];
+    self.pullToRefresh.attributedTitle = [[NSAttributedString alloc] initWithString:@"Fetching group videos" attributes:@{NSForegroundColorAttributeName:PRIMARY_COLOR}];
+    [self.pullToRefresh addTarget:self action:@selector(fetchVideos) forControlEvents:UIControlEventValueChanged];
+    [self.collectionView addSubview:self.pullToRefresh];
+
+}
+
+- (void)fetchVideos {
+    double delayInSeconds = 2.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        
+        //self.numberOfItems += 5;
+        [self.collectionView reloadData];
+        [self.pullToRefresh endRefreshing];
+    });
+
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -216,8 +238,8 @@ static BOOL welcomeLabelRemoved = NO;
     [self playVisible:!scrollingFast];
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
     if(self.disableScrollHandling) {
         return;
     }
@@ -229,12 +251,18 @@ static BOOL welcomeLabelRemoved = NO;
     self.scrolling = YES;
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    //TODO: hide record button
+}
+
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+    //TODO: show record button
+    
+    
     BOOL scrollingFast = fabs(velocity.y) > 1;
 
-    BOOL scrollingUp = velocity.y == fabs(velocity.y);//targetContentOffset->y < self.collectionView.contentOffset.y;
+    BOOL scrollingUp = velocity.y == fabs(velocity.y);
     
-    NSLog(@"dragged with velocity:%f %@", fabs(velocity.y), scrollingUp ? @"up" : @"down");
     //show/hide camera
     if(scrollingFast && scrollingUp) {
         self.disableScrollHandling = YES;
