@@ -49,7 +49,13 @@
 + (User*)userFromDict:(NSDictionary*)dict
 {
     User* user = [User new];
-    user.name = dict[@"name"];
+    NSString *name = dict[@"name"];
+    if ([name isKindOfClass:[NSNull class]]){
+        user.name = @"Null";
+    }
+    else {
+        user.name = name;
+    }
     user.phone = dict[@"phone"];
     
     return user;

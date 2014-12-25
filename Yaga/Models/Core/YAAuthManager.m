@@ -264,9 +264,13 @@
             NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:url];
             [request setHTTPMethod:@"PUT"];
 
-            [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+            //[request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+            
+            [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+            
             [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
             [request setHTTPBody:json];
+
             [NSURLConnection sendAsynchronousRequest:request
                                                queue:[NSOperationQueue mainQueue]
                                    completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
@@ -365,16 +369,18 @@
         
         if ([responseObject isKindOfClass:[NSArray class]]) {
             RLMRealm *realm = [RLMRealm defaultRealm];
-            [realm beginWriteTransaction];
+    
                 
             NSArray *groups = (NSArray*)responseObject;
             for (id d in groups) {
+                [realm beginWriteTransaction];
                 NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:d withError:nil];
                 YAGroup *group = [YAGroupCreator createGroupWithDictionary:dict];
                 
                 [realm addObject:group];
+                
+                [realm commitWriteTransaction];
             }
-            [realm commitWriteTransaction];
        }
         
         completion(YES, @"");
