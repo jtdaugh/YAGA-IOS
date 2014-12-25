@@ -24,6 +24,7 @@
 #define ID     @"id"
 
 #define USER_PHONE @"phone"
+#define ERROR_DATA @"com.alamofire.serialization.response.error.data"
 
 @interface YAAuthManager ()
 @property (nonatomic, strong) NSString *base_api;
@@ -101,6 +102,9 @@
         if ([name isKindOfClass:[NSNull class]]) {
             completion(NO, @"");
         } else {
+            [[YAUser currentUser] saveUserData:name forKey:nUsername];
+            [[YAUser currentUser] saveObject:name forKey:nUsername];
+
             completion(YES, @"");
         }
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -145,6 +149,8 @@
         self.token = [dict objectForKey:TOKEN];
         completion(true, @"");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+        NSLog(@"%@", [NSString stringFromHex:hex]);
         completion(false, operation.description);
     }];
 }
@@ -181,7 +187,7 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
 
         NSInteger code = operation.response.statusCode;
-        NSString *hex = [error.userInfo[@"com.alamofire.serialization.response.error.data"] hexRepresentationWithSpaces_AS:NO];
+        NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
 
         if (code == 400){
             static int indexMessage = 0;

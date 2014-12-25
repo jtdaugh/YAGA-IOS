@@ -111,7 +111,8 @@
         if (response) {
             [[YAAuthManager sharedManager] getInfoForCurrentUserWithCompletion:^(bool response, NSString *error) {
                 if (response) {
-                    
+                    //This means that the user was already registered
+                    //and have a name.
                     [self performSegueWithIdentifier:@"GridViewController" sender:self];
                 } else {
                     
