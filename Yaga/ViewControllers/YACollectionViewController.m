@@ -61,10 +61,15 @@ static NSString *cellID = @"Cell";
     self.collectionView.dataSource = self;
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
     [self.collectionView setAllowsMultipleSelection:NO];
-    //    [self.gridTiles setBounces:NO];
+    self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.collectionView];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken) name:@"new_video_taken" object:nil];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    self.collectionView.frame = self.view.bounds;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -100,8 +105,6 @@ static NSString *cellID = @"Cell";
         
         dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
             
-            NSMutableDictionary *sizes = [[NSUserDefaults standardUserDefaults] objectForKey:@"gifSizes"];
-            
             NSURL *gifURL = [YAUtils urlFromFileName:gifFilename];
             
             NSData *gifData = [NSData dataWithContentsOfURL:gifURL];
@@ -110,14 +113,6 @@ static NSString *cellID = @"Cell";
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 cell.gifView.animatedImage = image;
-                if([sizes objectForKey:gifFilename]) {
-                    NSDictionary *gifSizeDic = sizes[gifFilename];
-                    cell.gifView.frame = CGRectMake(cell.gifView.frame.origin.x, cell.gifView.frame.origin.y, [gifSizeDic[@"width"] floatValue], [gifSizeDic[@"height"] floatValue]);
-                    cell.gifView.center = cell.contentView.center;
-                }
-                else {
-                    cell.gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-                }
             });
         });
     }
@@ -149,10 +144,6 @@ static NSString *cellID = @"Cell";
         }];
     }
     else {
-        for (YAVideoCell *videoCell in self.collectionView.visibleCells) {
-            videoCell.gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        }
-        
         [self.delegate showCamera:NO showPart:NO completion:^{
             
         }];
@@ -241,13 +232,13 @@ static NSString *cellID = @"Cell";
     if(scrollingFast && scrollingUp) {
         self.disableScrollHandling = YES;
         [self.delegate showCamera:NO showPart:YES completion:^{
-            
+            self.disableScrollHandling = NO;
         }];
     }
     else if(scrollingFast && !scrollingUp){
         self.disableScrollHandling = YES;
         [self.delegate showCamera:YES showPart:NO completion:^{
-            
+            self.disableScrollHandling = NO;
         }];
     }
     

@@ -64,6 +64,8 @@
                         
                         if (result == AVAssetImageGeneratorSucceeded) {
                             
+//                            UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
+//                            newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
                             UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:3 orientation:UIImageOrientationUp];
                             
                             if(!gifDataDic[@"width"]) {
@@ -152,6 +154,30 @@
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;
+}
+
+- (UIImage*)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img {
+    CGRect rect = CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width/2, [[UIScreen mainScreen] applicationFrame].size.height/4);
+    
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // translated rectangle for drawing sub image
+    CGRect drawRect = CGRectMake(-rect.origin.x, -rect.origin.y, img.size.width, img.size.height);
+    
+    // clip to the bounds of the image context
+    // not strictly necessary as it will get clipped anyway?
+    CGContextClipToRect(context, CGRectMake(0, 0, rect.size.width, rect.size.height));
+    
+    // draw image
+    [img drawInRect:drawRect];
+    
+    // grab image
+    UIImage* subImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    return subImage;
 }
 
 @end

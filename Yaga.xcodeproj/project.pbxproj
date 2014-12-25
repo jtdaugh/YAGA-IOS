@@ -542,7 +542,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = 8V4V36C528;
+						DevelopmentTeam = JE26HLJZLX;
 					};
 				};
 			};
@@ -657,7 +657,6 @@
 				6E19A7AD1A4AF23C0067D42C /* AVPlaybackViewController.m in Sources */,
 				86B864AC1A433343002256FF /* CountryCell.m in Sources */,
 				861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */,
-				6E73F4111A432498000B3A14 /* VideoPlayerViewController.m in Sources */,
 				6E73F4221A432FAC000B3A14 /* MyGroupsViewController.m in Sources */,
 				6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */,
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
