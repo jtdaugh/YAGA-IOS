@@ -24,4 +24,7 @@ typedef void(^responseBlock)(bool response, NSString* error);
 - (void)addCascadingUsers:(NSArray*)users toGroup:(NSNumber*)groupId withCompletion:(responseBlock)completion;
 - (void)sendGroupRenamingWithName:(NSString*)newName forGroupId:(NSNumber*)groupId withCompletion:(responseBlock)completion;
 - (void)sendGroupRemovingForGroupId:(NSNumber*)groupId withCompletion:(responseBlock)completion;
+
+- (void)getGroupsWithCompletion:(responseBlock)completion;
+
 @end

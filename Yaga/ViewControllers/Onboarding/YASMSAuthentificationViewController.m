@@ -113,9 +113,14 @@
                 if (response) {
                     //This means that the user was already registered
                     //and have a name.
-                    [self performSegueWithIdentifier:@"GridViewController" sender:self];
-                } else {
                     
+                    //Get all groups for this user
+                    [[YAAuthManager sharedManager] getGroupsWithCompletion:^(bool response, NSString *error) {
+                        [self performSegueWithIdentifier:@"GridViewController" sender:self];
+                    }];
+                    
+                } else {
+                    //This means that this user was never registered
                     [self performSegueWithIdentifier:@"UserNameViewController" sender:self];
                 }
 

@@ -7,8 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "YAGroup.h"
 
 @interface YAGroupCreator : NSObject
 + (instancetype)sharedCreator;
 @property (nonatomic, strong) NSNumber* groupId;
+
++ (YAGroup*)createGroupWithDictionary:(NSDictionary*)dictionary;
 @end

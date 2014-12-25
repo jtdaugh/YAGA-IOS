@@ -21,6 +21,7 @@
 
 - (NSString*)membersString;
 + (NSString*)generateGroupId;
+
 @end
 
 // This protocol enables typed collections. i.e.:

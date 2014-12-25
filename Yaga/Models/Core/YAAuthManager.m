@@ -60,6 +60,7 @@
     AFHTTPRequestSerializer *requestSerializer = [AFHTTPRequestSerializer serializer];
     
     [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
+    
     self.manager.requestSerializer = requestSerializer;
     [[NSUserDefaults standardUserDefaults] setObject:token forKey:TOKEN];
 }
@@ -149,8 +150,7 @@
         self.token = [dict objectForKey:TOKEN];
         completion(true, @"");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
-        NSLog(@"%@", [NSString stringFromHex:hex]);
+        [self printErrorData:error];
         completion(false, operation.description);
     }];
 }
@@ -226,15 +226,62 @@
 
 - (void)addCascadingUsers:(NSArray*)users toGroup:(NSNumber*)groupId withCompletion:(responseBlock)completion
 {
+    
+    if (!self.token) {
+        return;
+    }
+    
     [self sendGroupCreationWithName:@"Default" withCompletion:^(bool response, NSString *error) {
         if (response) {
-            NSLog(@"%@", users);
-            for (NSDictionary *user in users) {
-                NSString *phone = user[USER_PHONE];
-                [self addUser:phone toGroup:groupId];
+            NSNumber *i = groupId ? groupId : [YAGroupCreator sharedCreator].groupId;
+            NSString *api = [NSString stringWithFormat:@"%@/group/%@/add/", self.base_api, i];
+            
+//            NSMutableString *userPhones = [NSMutableString new];
+//            [userPhones appendString:@"phones=["];
+//            for (NSDictionary *user in users) {
+//                NSString *str = user[@"phone"];
+//                [userPhones appendString:str];
+//                if (![user isEqual:[users lastObject]]) {
+//                    [userPhones appendString:@","];
+//                }
+//            }
+//            [userPhones appendString:@"]"];
+
+            NSMutableArray *array = [NSMutableArray new];
+            for (NSDictionary *d in users) {
+                [array addObject:d[@"phone"]];
             }
             
-            completion(YES, @"TESTING");
+            NSDictionary *parameters = @{
+                                         @"phones": array
+                                         };
+            
+            id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
+            NSString *j = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
+            
+            NSURL *url=[NSURL URLWithString:api];
+            
+            NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:url];
+            [request setHTTPMethod:@"PUT"];
+
+            [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+            [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
+            [request setHTTPBody:json];
+            [NSURLConnection sendAsynchronousRequest:request
+                                               queue:[NSOperationQueue mainQueue]
+                                   completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                                       NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                                                       NSLog(@"%@", [NSString stringFromHex:str]);
+                                                       completion(YES, @"TESTING");
+                                   }];
+//            [self.manager PUT:api parameters:json success:^(AFHTTPRequestOperation *operation, id responseObject) {
+//                NSString *str = [operation.request.HTTPBody hexRepresentationWithSpaces_AS:NO];
+//                NSLog(@"%@", [NSString stringFromHex:str]);
+//                completion(YES, @"TESTING");
+//            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+//                [self printErrorData:error];
+//                NSLog(@"%@", error);
+//            }];
         }
         else
         {
@@ -303,5 +350,44 @@
         NSLog(@"%@", error);
         completion(NO, @"");
     }];
+}
+
+- (void)getGroupsWithCompletion:(responseBlock)completion
+{
+    if (!self.token) {
+        return;
+    }
+    
+    NSString *api = [NSString stringWithFormat:@"%@/group/", self.base_api];
+    
+    [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"%@", responseObject);
+        
+        if ([responseObject isKindOfClass:[NSArray class]]) {
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm beginWriteTransaction];
+                
+            NSArray *groups = (NSArray*)responseObject;
+            for (id d in groups) {
+                NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:d withError:nil];
+                YAGroup *group = [YAGroupCreator createGroupWithDictionary:dict];
+                
+                [realm addObject:group];
+            }
+            [realm commitWriteTransaction];
+       }
+        
+        completion(YES, @"");
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@", error);
+        completion(NO, @"");
+    }];
+}
+
+#pragma mark - Utitlities
+- (void)printErrorData:(NSError*)error
+{
+    NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+    NSLog(@"%@", [NSString stringFromHex:hex]);
 }
 @end
