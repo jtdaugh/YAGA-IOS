@@ -26,4 +26,7 @@
 @property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
+
+@property (strong, nonatomic) UIButton *recordButton;
+@property (nonatomic, strong) UIButton *switchGroupsButton;
 @end

@@ -22,13 +22,11 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (strong, nonatomic) UICollectionViewFlowLayout *gridLayout;
 @property (strong, nonatomic) UICollectionViewFlowLayout *swipeLayout;
-
-@property (strong, nonatomic) NSMutableArray *vidControllers;
+@property (weak, nonatomic) UICollectionViewFlowLayout *targetLayout;
 
 @property (nonatomic, assign) BOOL disableScrollHandling;
-@property (nonatomic, weak) YAVideoCell *frontMostCell;
 
-@property (nonatomic, strong) UICollectionViewFlowLayout *targetLayout;
+@property (strong, nonatomic) UILabel *noVideosLabel;
 @end
 
 static NSString *cellID = @"Cell";
@@ -63,8 +61,19 @@ static NSString *cellID = @"Cell";
     [self.collectionView setAllowsMultipleSelection:NO];
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.collectionView];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken) name:@"new_video_taken" object:nil];
+    
+    if([YAUser currentUser].currentGroup.videos.count) {
+        CGFloat width = VIEW_WIDTH * .8;
+        self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 50, width, width)];
+        [self.noVideosLabel setText:@"You have no videos yet, touch the button to take one"];
+        [self.noVideosLabel setNumberOfLines:1];
+        [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+        [self.noVideosLabel setTextAlignment:NSTextAlignmentCenter];
+        [self.noVideosLabel setTextColor:[UIColor whiteColor]];
+        [self.collectionView addSubview:self.noVideosLabel];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -90,16 +99,19 @@ static NSString *cellID = @"Cell";
 }
 
 #pragma mark - UICollectionView
+static BOOL welcomeLabelRemoved = NO;
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    if([YAUser currentUser].currentGroup.videos.count && self.noVideosLabel && !welcomeLabelRemoved) {
+        [self.noVideosLabel removeFromSuperview];
+        self.noVideosLabel = nil;
+    }
     return [YAUser currentUser].currentGroup.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     
-    cell.playerVC = nil;
-    
-    if(self.collectionView.collectionViewLayout == self.gridLayout) {
+    if(self.targetLayout == self.gridLayout) {
         cell.gifView.animatedImage = nil;
         NSString *gifFilename = [[YAUser currentUser].currentGroup.videos[indexPath.row] gifFilename];
         
@@ -112,9 +124,22 @@ static NSString *cellID = @"Cell";
             FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
             
             dispatch_async(dispatch_get_main_queue(), ^{
+                cell.playerVC = nil;
                 cell.gifView.animatedImage = image;
             });
         });
+    } else if(self.targetLayout == self.swipeLayout) {
+        AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
+        
+        NSString *movFileName = [[YAUser currentUser].currentGroup.videos[indexPath.row] movFilename];
+        
+        [vc setURL:[YAUtils urlFromFileName:movFileName]];
+        cell.playerVC = vc;
+        
+        [cell.playerVC playWhenReady];
+    }
+    else {
+        cell.playerVC = nil;
     }
     
     return cell;
@@ -128,6 +153,8 @@ static NSString *cellID = @"Cell";
     [self.collectionView setPagingEnabled:newLayout == self.swipeLayout];
     
     self.targetLayout = newLayout;
+    
+    self.collectionView.alwaysBounceVertical = newLayout == self.gridLayout;
     
     if(newLayout == self.gridLayout) {
         for (YAVideoCell *videoCell in self.collectionView.visibleCells) {
@@ -158,30 +185,8 @@ static NSString *cellID = @"Cell";
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if(self.targetLayout == self.swipeLayout) {
-        AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
-        
-        NSString *movFileName = [[YAUser currentUser].currentGroup.videos[indexPath.row] movFilename];
-        
-        [vc setURL:[YAUtils urlFromFileName:movFileName]];
-        cell.playerVC = vc;
-        self.frontMostCell = cell;
-        
-        //[cell.playerVC playWhenReady];
-    }
-    else {
-        cell.playerVC = nil;
-        self.frontMostCell = nil;
-    }
-}
-
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell*)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     cell.playerVC = nil;
-    
-    if(self.frontMostCell)
-        [self.frontMostCell.playerVC playWhenReady];
 }
 
 #pragma mark - UIScrollView
@@ -208,7 +213,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)playPauseOnScroll:(BOOL)scrollingFast {
-    [self playVisible:[NSNumber numberWithBool:!scrollingFast]];
+    [self playVisible:!scrollingFast];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
@@ -226,19 +231,23 @@ static NSString *cellID = @"Cell";
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
     BOOL scrollingFast = fabs(velocity.y) > 1;
-    BOOL scrollingUp =  targetContentOffset->y > self.collectionView.contentOffset.y;
+
+    BOOL scrollingUp = velocity.y == fabs(velocity.y);//targetContentOffset->y < self.collectionView.contentOffset.y;
     
+    NSLog(@"dragged with velocity:%f %@", fabs(velocity.y), scrollingUp ? @"up" : @"down");
     //show/hide camera
     if(scrollingFast && scrollingUp) {
         self.disableScrollHandling = YES;
         [self.delegate showCamera:NO showPart:YES completion:^{
             self.disableScrollHandling = NO;
+            [self playVisible:YES];
         }];
     }
     else if(scrollingFast && !scrollingUp){
         self.disableScrollHandling = YES;
         [self.delegate showCamera:YES showPart:NO completion:^{
             self.disableScrollHandling = NO;
+            [self playVisible:YES];
         }];
     }
     
@@ -252,9 +261,9 @@ static NSString *cellID = @"Cell";
     self.scrolling = NO;
 }
 
-- (void)playVisible:(NSNumber*)playValue {
+- (void)playVisible:(BOOL)playValue {
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
-        if([playValue boolValue]) {
+        if(playValue) {
             if(!videoCell.gifView.isAnimating) {
                 [videoCell.gifView startAnimating];
             }

@@ -32,13 +32,26 @@
         return;
     
     if(playerVC) {
+        self.gifView.alpha = 0;
+        playerVC.view.alpha = 0;
+        
         playerVC.view.frame = self.bounds;
+
         [self.contentView addSubview:playerVC.view];
-        [self.gifView removeFromSuperview];
+       // playerVC.view.transform = CGAffineTransformMakeScale(1.1, 1.1);
+        [UIView animateWithDuration:0.3 animations:^{
+           // playerVC.view.transform = CGAffineTransformIdentity;
+
+            playerVC.view.alpha = 1;
+        }];
+        
     }
     else {
         [_playerVC.view removeFromSuperview];
         [self.contentView addSubview:self.gifView];
+        [UIView animateWithDuration:0.3 animations:^{
+            self.gifView.alpha = 1;
+        }];
     }
     
     _playerVC = playerVC;

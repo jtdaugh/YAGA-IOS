@@ -98,14 +98,17 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
         return;
     }
     
-//    if(readyStateSemaphore)
-//        return;
-//    
-    readyStateSemaphore = dispatch_semaphore_create(0);
-    dispatch_semaphore_wait(readyStateSemaphore, DISPATCH_TIME_FOREVER);
-    
-    
-    [self play:nil];
+    if(readyStateSemaphore)
+        return;
+
+    dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+        readyStateSemaphore = dispatch_semaphore_create(0);
+        dispatch_semaphore_wait(readyStateSemaphore, DISPATCH_TIME_FOREVER);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self play:nil];
+        });
+    });
 }
 
 #pragma mark Asset URL
@@ -408,17 +411,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 - (void)viewDidLoad
 {    
 	[self setPlayer:nil];
-
-	UIView* view  = [self view];
-
-	UISwipeGestureRecognizer* swipeUpRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
-	[swipeUpRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
-	[view addGestureRecognizer:swipeUpRecognizer];
-	
-	UISwipeGestureRecognizer* swipeDownRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
-	[swipeDownRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
-	[view addGestureRecognizer:swipeDownRecognizer];
-
     
     self.mScrubber.minimumTrackTintColor = PRIMARY_COLOR;
     self.mScrubber.maximumTrackTintColor = [UIColor blackColor];
@@ -834,7 +826,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
             
             /* Specifies that the player should preserve the video’s aspect ratio and 
              fit the video within the layer’s bounds. */
-            [self.mPlaybackView setVideoFillMode:AVLayerVideoGravityResizeAspect];
+            [self.mPlaybackView setVideoFillMode:AVLayerVideoGravityResizeAspectFill];
             
             [self syncPlayPauseButtons];
         }

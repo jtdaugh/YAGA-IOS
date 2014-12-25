@@ -55,7 +55,15 @@
         CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height;
         self.collectionViewController.view.frame = CGRectMake(0, origin + 2, self.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin - 2);
         
+        self.cameraViewController.recordButton.alpha = (show && !showPart) == YES ? 1 : 0;
+        self.cameraViewController.switchGroupsButton.alpha = (show && !showPart) == YES ? 1 : 0;
+        
     } completion:^(BOOL finished) {
+        //make sure record button is on top
+        if (show && !showPart) {
+            [self.view bringSubviewToFront:self.cameraViewController.view];
+        }
+        
         if(finished)
             block();
     }];

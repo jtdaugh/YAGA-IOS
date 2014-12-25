@@ -33,7 +33,8 @@
 
 @property (strong, nonatomic) UIButton *switchButton;
 @property (strong, nonatomic) UIButton *flashButton;
-@property (nonatomic, strong) UIButton *switchGroupsButton;
+
+
 @end
 
 @implementation YACameraViewController
@@ -107,11 +108,25 @@
         [self.cameraAccessories addObject:self.flashButton];
         [self.cameraView addSubview:self.flashButton];
         
+        //record button
+        size = 60;
+        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2 - size/2, self.cameraView.frame.size.height - size/2, size, size)];
+        [self.recordButton setBackgroundColor:[UIColor redColor]];
+        [self.recordButton.layer setCornerRadius:size/2];
+        [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
+        [self.recordButton.layer setBorderWidth:4.0f];
+        
+        UILongPressGestureRecognizer *buttonLongPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+        [buttonLongPressGestureRecognizer setMinimumPressDuration:0.2f];
+        buttonLongPressGestureRecognizer.delegate = self;
+        [self.recordButton addGestureRecognizer:longPressGestureRecognizer];
+        [self.cameraAccessories addObject:self.recordButton];
+        [self.view addSubview:self.recordButton];
         
         //switch groups button
-        gutter = 96, height = 42;
-        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, self.cameraView.frame.size.height - height, self.cameraView.frame.size.width , height)];
-        //    [self.groupButton setTitle:@"LindenFest 2014" forState:UIControlStateNormal];
+        gutter = 96, height = 30;
+        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, self.cameraView.frame.size.height - height*2, self.cameraView.frame.size.width , height)];
+
         [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"%@ · %@", [YAUser currentUser].currentGroup.name, @"Switch"] forState:UIControlStateNormal];
@@ -295,6 +310,13 @@
     [self.cameraView addSubview:self.indicator];
     [self.cameraView bringSubviewToFront:self.instructions];
     
+    [UIView animateWithDuration:0.2 animations:^{
+        for(UIView *v in self.cameraAccessories){
+            [v setAlpha:0.0];
+        }
+        [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    }];
+    
     [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
     } completion:^(BOOL finished) {
@@ -310,6 +332,14 @@
 
 - (void) endHold {
     if([self.recording boolValue]){
+        
+        [UIView animateWithDuration:0.2 animations:^{
+            [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+            for(UIView *v in self.cameraAccessories){
+                [v setAlpha:1.0];
+            }
+        }];
+        
         [self.indicatorText setText:RECORD_INSTRUCTION];
         [self.indicator removeFromSuperview];
         [self stopRecordingVideo];
