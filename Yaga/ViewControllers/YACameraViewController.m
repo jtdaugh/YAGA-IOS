@@ -126,8 +126,27 @@
         
         [self initCamera:^{
         }];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive) name:@"applicationWillResignActive" object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive) name:@"applicationWillEnterForeground" object:nil];
+        
     }
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"applicationWillResignActive" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"applicationWillEnterForeground" object:nil];
+}
+
+- (void)applicationWillResignActive {
+    [self closeCamera];
+}
+
+- (void)applicationWillEnterForeground {
+    [self initCamera:^{
+    }];
 }
 
 - (void)initCamera:(void (^)())block {

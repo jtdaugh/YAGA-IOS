@@ -149,13 +149,17 @@ static NSString *cellID = @"Cell";
         }];
     }
     else {
+        for (YAVideoCell *videoCell in self.collectionView.visibleCells) {
+            videoCell.gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        }
+        
         [self.delegate showCamera:NO showPart:NO completion:^{
             
         }];
         
         [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
             if (finished) {
-
+                
                 [weakSelf.collectionView reloadData];
             }
             
