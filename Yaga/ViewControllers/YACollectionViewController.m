@@ -63,9 +63,6 @@ static NSString *cellID = @"Cell";
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.collectionView];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken) name:@"new_video_taken" object:nil];
-    
-    
     //no videos welcome text
     if([YAUser currentUser].currentGroup.videos.count) {
         CGFloat width = VIEW_WIDTH * .8;
@@ -84,18 +81,9 @@ static NSString *cellID = @"Cell";
     [self.pullToRefresh addTarget:self action:@selector(fetchVideos) forControlEvents:UIControlEventValueChanged];
     [self.collectionView addSubview:self.pullToRefresh];
 
-}
-
-- (void)fetchVideos {
-    double delayInSeconds = 2.0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        
-        //self.numberOfItems += 5;
-        [self.collectionView reloadData];
-        [self.pullToRefresh endRefreshing];
-    });
-
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken:) name:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:) name:RELOAD_VIDEO_NOTIFICATION object:nil];
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -110,10 +98,16 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self.collectionView name:@"new_video_taken" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self.collectionView name:RELOAD_VIDEO_NOTIFICATION object:nil];
 }
 
-- (void)newVideoTaken {
+- (void)reloadVideo:(NSNotification*)notif {
+    NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:notif.object];
+    [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+}
+
+- (void)newVideoTaken:(NSNotification*)notif {
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]]];
         self.collectionView.contentOffset = CGPointMake(0, 0);
@@ -135,22 +129,27 @@ static BOOL welcomeLabelRemoved = NO;
     
     if(self.targetLayout == self.gridLayout) {
         cell.gifView.animatedImage = nil;
-        NSString *gifFilename = [[YAUser currentUser].currentGroup.videos[indexPath.row] gifFilename];
         
-        dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-            
-            NSURL *gifURL = [YAUtils urlFromFileName:gifFilename];
-            
-            NSData *gifData = [NSData dataWithContentsOfURL:gifURL];
-            
-            FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                cell.playerVC = nil;
-                cell.gifView.animatedImage = image;
+        YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
+        NSString *gifFilename = [video gifFilename];
+        if(gifFilename.length) {
+            dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+                
+                NSData *gifData = [NSData dataWithContentsOfFile:gifFilename];
+                
+                FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    cell.playerVC = nil;
+                    cell.gifView.animatedImage = image;
+                });
             });
-        });
+        }
+        else {
+            cell.gifView.image = [UIImage imageWithContentsOfFile:video.jpgFilename];
+        }
     } else if(self.targetLayout == self.swipeLayout) {
+        [cell.gifView stopAnimating];
         AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
         
         NSString *movFileName = [[YAUser currentUser].currentGroup.videos[indexPath.row] movFilename];
@@ -305,6 +304,18 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 #pragma mark - Pull down to refresh - Not implemented
+- (void)fetchVideos {
+    double delayInSeconds = 2.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        
+        //self.numberOfItems += 5;
+        [self.collectionView reloadData];
+        [self.pullToRefresh endRefreshing];
+    });
+    
+}
+
 //- (void) triggerRemoteLoad:(NSString *)uid {
 //    //val TODO
 //    //    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, uid]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {

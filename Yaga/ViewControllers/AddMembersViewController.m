@@ -45,7 +45,7 @@
     [searchBar setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
     [searchBar setBackgroundColor:[UIColor blackColor]];
     [searchBar setToLabelText:@""];
-    [searchBar setPlaceholderText:SEARCH_INSTRUCTION];
+    [searchBar setPlaceholderText:NSLocalizedString(@"SEARCH_TIP", @"")];
     [searchBar setColorScheme:PRIMARY_COLOR];
     [searchBar setInputTextFieldTextColor:[UIColor whiteColor]];
     searchBar.delegate = self;

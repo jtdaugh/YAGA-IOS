@@ -12,7 +12,6 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 #import "AZNotification.h"
-#import "YAGifGenerator.h"
 
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
@@ -70,7 +69,7 @@
         //    [self.instructions setAlpha:0.6];
         
         UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
-        [instructionText setText:RECORD_INSTRUCTION];
+        [instructionText setText:NSLocalizedString(@"RECORD_TIP", @"")];
         [instructionText setFont:[UIFont fontWithName:BIG_FONT size:18]];
         [instructionText setTextAlignment:NSTextAlignmentCenter];
         [instructionText setTextColor:[UIColor whiteColor]];
@@ -126,7 +125,7 @@
         //switch groups button
         gutter = 96, height = 30;
         self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, self.cameraView.frame.size.height - height*2, self.cameraView.frame.size.width , height)];
-
+        
         [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"%@ · %@", [YAUser currentUser].currentGroup.name, @"Switch"] forState:UIControlStateNormal];
@@ -340,7 +339,7 @@
             }
         }];
         
-        [self.indicatorText setText:RECORD_INSTRUCTION];
+        [self.indicatorText setText:NSLocalizedString(@"RECORD_TIP", @"")];
         [self.indicator removeFromSuperview];
         [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
@@ -387,15 +386,6 @@
         }
     }
     if (RecordedSuccessfully) {
-        NSString *hashStr = [YAUtils hashedStringFromString:[[NSUUID UUID] UUIDString]];
-        NSString *moveFilename = [hashStr stringByAppendingPathExtension:@"mov"];
-        NSString *gifFilename = [hashStr stringByAppendingPathExtension:@"gif"];
-        NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
-        NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
-        NSURL *movURL = [NSURL fileURLWithPath:movPath];
-        NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
-        
-        [[NSFileManager defaultManager] moveItemAtURL:outputFileURL toURL:movURL error:&error];
         
         if(error) {
             [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
@@ -404,41 +394,22 @@
             return;
         }
         
-        YAGifGenerator *gen = [YAGifGenerator new];
-        AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
-
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-        
-        [gen crateGifAtUrl:gifURL fromAsset:asset completionHandler:^(NSError *error, NSURL *gifUrl) {
-            if(error) {
-                [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
-                                         notificationType:AZNotificationTypeError
-                                             startedBlock:nil];
-                return;
-            }
-            
-            //save
+        [YAVideo crateVideoAndAddToCurrentGroupFromRecording:outputFileURL completionHandler:^(NSError *error, YAVideo *video) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[RLMRealm defaultRealm] beginWriteTransaction];
-                YAVideo *video = [YAVideo new];
-                video.movFilename = moveFilename;
-                video.gifFilename = gifFilename;
-                [[YAUser currentUser].currentGroup.videos insertObject:video atIndex:0];
-                [[RLMRealm defaultRealm] commitWriteTransaction];
-                
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"new_video_taken" object:nil];
-                
-                //upload
-                [YAUtils uploadVideoRecoringFromUrl:outputFileURL completion:^(NSError *error) {
-                    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-                    if(error) {
-                        [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to upload recording, %@", error.localizedDescription] controller:self
-                                                 notificationType:AZNotificationTypeError
-                                                     startedBlock:nil];
-                    }
-                    
-                }];
-                
+                if(error) {
+                    [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
+                                             notificationType:AZNotificationTypeError
+                                                 startedBlock:nil];
+                    return;
+                }
+                else {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:RELOAD_VIDEO_NOTIFICATION object:video];
+                }
+            });
+            
+        } jpgCreatedHandler:^(NSError *error, YAVideo *video) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
             });
         }];
         

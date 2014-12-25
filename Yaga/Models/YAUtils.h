@@ -12,9 +12,8 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 
 @interface YAUtils : NSObject
 + (NSString *)readableNumberFromString:(NSString*)input;
-+ (void)uploadVideoRecoringFromUrl:(NSURL *)localUrl completion:(uploadDataCompletionBlock)completion;
 + (UIColor*)inverseColor:(UIColor*)color;
 + (NSString*)cachesDirectory;
-+ (NSString *)hashedStringFromString:(NSString *)input;
++ (NSString *)uniqueId;
 + (NSURL*)urlFromFileName:(NSString*)fileName;
 @end

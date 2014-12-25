@@ -56,16 +56,10 @@ typedef void (^contactsImportedBlock)(NSError *error, NSOrderedSet *contacts);
 - (id)objectForKey:(NSString*)key;
 
 - (NSMutableArray *)gridDataForGroupId:(NSString *)groupId;
-- (void)registerUserWithCompletionBlock:(void (^)())block;
-- (void)findFriends:(NSArray *)numbers withCompletionBlock:(void (^)())block;
-- (void)createCrew:(NSString *)name withMembers:(NSArray *)hashes withCompletionBlock:(void (^)())block;
-- (void)myCrewsWithCompletion:(void (^)())block;
-- (void)meInfo;
-- (void)myCrews;
+
 - (BOOL)loggedIn;
 - (void)logout;
 
-//
 - (void)importContactsWithCompletion:(contactsImportedBlock)completion;
 
 @end
