@@ -64,9 +64,9 @@
                         
                         if (result == AVAssetImageGeneratorSucceeded) {
                             
-//                            UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
-//                            newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
-                            UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:3 orientation:UIImageOrientationUp];
+                            UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1.9 orientation:UIImageOrientationUp];
+                            newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
+                            //UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:3 orientation:UIImageOrientationUp];
                             
                             if(!gifDataDic[@"width"]) {
 
@@ -156,28 +156,32 @@
     return newImage;
 }
 
-- (UIImage*)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img {
-    CGRect rect = CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width/2, [[UIScreen mainScreen] applicationFrame].size.height/4);
+- (UIImage *)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img {
+    CGSize gifFrameSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2, [[UIScreen mainScreen] applicationFrame].size.height/4);
     
-    UIGraphicsBeginImageContext(rect.size);
-    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGFloat widthDiff = img.size.width - gifFrameSize.width ;
+    CGFloat heightDiff = img.size.height - gifFrameSize.height;
     
-    // translated rectangle for drawing sub image
-    CGRect drawRect = CGRectMake(-rect.origin.x, -rect.origin.y, img.size.width, img.size.height);
+    CGRect cropRect = CGRectMake(widthDiff/2, heightDiff/2, gifFrameSize.width, gifFrameSize.height);
     
-    // clip to the bounds of the image context
-    // not strictly necessary as it will get clipped anyway?
-    CGContextClipToRect(context, CGRectMake(0, 0, rect.size.width, rect.size.height));
+    if (img.scale > 1.0f) {
+        cropRect = CGRectMake(cropRect.origin.x * img.scale,
+                          cropRect.origin.y * img.scale,
+                          cropRect.size.width * img.scale,
+                          cropRect.size.height * img.scale);
+    }
     
-    // draw image
-    [img drawInRect:drawRect];
+    CGImageRef imageRef = CGImageCreateWithImageInRect(img.CGImage, cropRect);
+    UIImage *result = [UIImage imageWithCGImage:imageRef scale:img.scale orientation:img.imageOrientation];
+    CGImageRelease(imageRef);
     
-    // grab image
-    UIImage* subImage = UIGraphicsGetImageFromCurrentImageContext();
+//        if(!saved) {
+//            UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil);
+//            saved = YES;
+//        }
+
     
-    UIGraphicsEndImageContext();
-    
-    return subImage;
+    return result;
 }
 
 @end
