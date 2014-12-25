@@ -24,6 +24,7 @@
 		6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */; };
 		6E73F4241A432FAC000B3A14 /* NoGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */; };
 		6E73F42B1A43357D000B3A14 /* YACollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4261A43337D000B3A14 /* YACollectionViewController.m */; };
+		6E7C2EE41A4C4EE200522A34 /* UsernameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7C2EE31A4C4EE200522A34 /* UsernameViewController.m */; };
 		6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187651A3F2C270034AB63 /* AppDelegate.m */; };
 		6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E9187771A3F2C270034AB63 /* InfoPlist.strings */; };
 		6E9187CD1A3F2C270034AB63 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187841A3F2C270034AB63 /* main.m */; };
@@ -42,8 +43,6 @@
 		6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */; };
 		6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */; };
 		6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */; };
-		6E9188E51A3F3A5A0034AB63 /* UsernameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188AC1A3F3A5A0034AB63 /* UsernameViewController.m */; };
-		6E9188E61A3F3A5A0034AB63 /* VerifyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188AE1A3F3A5A0034AB63 /* VerifyViewController.m */; };
 		6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B01A3F3A5A0034AB63 /* YagaNavigationController.m */; };
 		6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B31A3F3A5A0034AB63 /* AVCamPreviewView.m */; };
 		6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B51A3F3A5A0034AB63 /* CliquePageControl.m */; };
@@ -115,6 +114,8 @@
 		6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoGroupsViewController.m; sourceTree = "<group>"; };
 		6E73F4251A43337D000B3A14 /* YACollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACollectionViewController.h; sourceTree = "<group>"; };
 		6E73F4261A43337D000B3A14 /* YACollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACollectionViewController.m; sourceTree = "<group>"; };
+		6E7C2EE21A4C4EE200522A34 /* UsernameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UsernameViewController.h; sourceTree = "<group>"; };
+		6E7C2EE31A4C4EE200522A34 /* UsernameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UsernameViewController.m; sourceTree = "<group>"; };
 		6E9187641A3F2C270034AB63 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		6E9187651A3F2C270034AB63 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		6E9187721A3F2C270034AB63 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -150,10 +151,6 @@
 		6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
 		6E9188A91A3F3A5A0034AB63 /* YAPhoneNumberViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YAPhoneNumberViewController.h; path = ../YAPhoneNumberViewController.h; sourceTree = "<group>"; };
 		6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YAPhoneNumberViewController.m; path = ../YAPhoneNumberViewController.m; sourceTree = "<group>"; };
-		6E9188AB1A3F3A5A0034AB63 /* UsernameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UsernameViewController.h; sourceTree = "<group>"; };
-		6E9188AC1A3F3A5A0034AB63 /* UsernameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UsernameViewController.m; sourceTree = "<group>"; };
-		6E9188AD1A3F3A5A0034AB63 /* VerifyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VerifyViewController.h; sourceTree = "<group>"; };
-		6E9188AE1A3F3A5A0034AB63 /* VerifyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VerifyViewController.m; sourceTree = "<group>"; };
 		6E9188AF1A3F3A5A0034AB63 /* YagaNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YagaNavigationController.h; sourceTree = "<group>"; };
 		6E9188B01A3F3A5A0034AB63 /* YagaNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YagaNavigationController.m; sourceTree = "<group>"; };
 		6E9188B21A3F3A5A0034AB63 /* AVCamPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVCamPreviewView.h; sourceTree = "<group>"; };
@@ -395,10 +392,6 @@
 				6E91889B1A3F3A5A0034AB63 /* GridViewController.m */,
 				6E9188A71A3F3A5A0034AB63 /* OverlayViewController.h */,
 				6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */,
-				6E9188AB1A3F3A5A0034AB63 /* UsernameViewController.h */,
-				6E9188AC1A3F3A5A0034AB63 /* UsernameViewController.m */,
-				6E9188AD1A3F3A5A0034AB63 /* VerifyViewController.h */,
-				6E9188AE1A3F3A5A0034AB63 /* VerifyViewController.m */,
 				6E9188AF1A3F3A5A0034AB63 /* YagaNavigationController.h */,
 				6E9188B01A3F3A5A0034AB63 /* YagaNavigationController.m */,
 				6E73F4181A432713000B3A14 /* YACameraViewController.h */,
@@ -410,6 +403,8 @@
 		6E9188A41A3F3A5A0034AB63 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				6E7C2EE21A4C4EE200522A34 /* UsernameViewController.h */,
+				6E7C2EE31A4C4EE200522A34 /* UsernameViewController.m */,
 				6E9188A51A3F3A5A0034AB63 /* YASMSAuthentificationViewController.h */,
 				6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */,
 				6E9188A91A3F3A5A0034AB63 /* YAPhoneNumberViewController.h */,
@@ -648,6 +643,7 @@
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */,
 				86B864991A41B7DE002256FF /* YAAuthManager.m in Sources */,
+				6E7C2EE41A4C4EE200522A34 /* UsernameViewController.m in Sources */,
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
 				6E73F4241A432FAC000B3A14 /* NoGroupsViewController.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */,
@@ -660,8 +656,6 @@
 				6E73F4221A432FAC000B3A14 /* MyGroupsViewController.m in Sources */,
 				6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */,
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
-				6E9188E51A3F3A5A0034AB63 /* UsernameViewController.m in Sources */,
-				6E9188E61A3F3A5A0034AB63 /* VerifyViewController.m in Sources */,
 				6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */,
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
