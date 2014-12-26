@@ -11,7 +11,7 @@
 
 @class YAUser;
 
-typedef void (^contactsImportedBlock)(NSError *error, NSOrderedSet *contacts);
+typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 
 @protocol CNetworkingDelegate <NSObject>
 @optional
@@ -25,6 +25,7 @@ typedef void (^contactsImportedBlock)(NSError *error, NSOrderedSet *contacts);
 #define nUserId @"user_id"
 #define nCompositeName @"composite_name"
 #define nFirstname @"firstname"
+#define nLastname @"lastname"
 #define nRegistered @"registered"
 
 #define nCurrentGroupId @"current_group_id"

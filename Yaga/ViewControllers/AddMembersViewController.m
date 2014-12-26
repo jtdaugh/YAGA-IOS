@@ -98,12 +98,12 @@
     self.navigationItem.leftBarButtonItem = cancelButton;
     
     __weak typeof(self) weakSelf = self;
-    [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSOrderedSet *contacts) {
+    [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
         if (error) {
             //show error
         }
         else {
-            weakSelf.deviceContacts = [contacts mutableCopy];
+            weakSelf.deviceContacts = contacts;
             weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
             dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
                 NSMutableArray *namesArray = [NSMutableArray new];
@@ -226,36 +226,18 @@
         [self.membersTableview reloadData];
         
         NSArray *keys = [[text lowercaseString] componentsSeparatedByString:@" "];
-        NSMutableSet *objectsToAdd = [NSMutableSet set];
-        
-        for(NSDictionary *contactDic in self.deviceContacts){
-            NSArray *names = [[contactDic[nCompositeName] lowercaseString] componentsSeparatedByString:@" "];
-            
-            BOOL notDetected = NO;
-            
-            for(NSString *key in keys){
-                if(![key isEqualToString:@""]){
-                    BOOL detected = NO;
-                    
-                    for(NSString *name in names){
-                        NSRange r = [name rangeOfString:key];
-                        if(r.location == 0){
-                            detected = YES;
-                        }
-                    }
-                    
-                    if(!detected){
-                        notDetected = YES;
-                    }
-                }
-            }
-            
-            if(!notDetected){
-                [objectsToAdd addObject:contactDic];
-            }
+
+        NSMutableArray *subpredicates = [NSMutableArray array];
+        for(NSString *key in keys) {
+            if([key length] == 0) { continue; }
+            NSPredicate *p = [NSPredicate predicateWithFormat:@"firstname BEGINSWITH[cd] %@ || lastname BEGINSWITH[cd] %@", key, key];
+            [subpredicates addObject:p];
         }
-        
-        [self.filteredContacts addObjectsFromArray:[objectsToAdd allObjects]];
+
+        NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates:subpredicates];
+        NSArray *filtered = [self.deviceContacts filteredArrayUsingPredicate:predicate];
+    
+        [self.filteredContacts addObjectsFromArray:filtered];
         [self.membersTableview reloadData];
     }
 }

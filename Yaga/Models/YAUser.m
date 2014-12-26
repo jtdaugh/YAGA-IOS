@@ -107,7 +107,7 @@
 - (void)importContactsWithCompletion:(contactsImportedBlock)completion {
     
     APAddressBook *addressBook = [[APAddressBook alloc] init];
-    addressBook.fieldsMask = APContactFieldCompositeName | APContactFieldPhones | APContactFieldFirstName;
+    addressBook.fieldsMask = APContactFieldCompositeName | APContactFieldPhones | APContactFieldFirstName | APContactFieldLastName;
     addressBook.filterBlock = ^BOOL(APContact *contact){
         return
         // has a #
@@ -124,7 +124,7 @@
     
     [addressBook loadContacts:^(NSArray *contacts, NSError *error){
         if (!error){
-            NSMutableOrderedSet *result = [NSMutableOrderedSet new];
+            NSMutableArray *result = [NSMutableArray new];
 
             for(int i = 0; i<[contacts count]; i++){
                 APContact *contact = contacts[i];
@@ -134,7 +134,14 @@
                     NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j] defaultRegion:@"US" error:&aError];
                     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
                     
-                    NSDictionary *item = @{nCompositeName:contact.compositeName, nPhone:num, nFirstname:[NSString stringWithFormat:@"%@", contact.firstName], nRegistered:[NSNumber numberWithBool:NO]};
+                    if(!num.length)
+                        continue;
+                    
+                    NSDictionary *item = @{nCompositeName:[NSString stringWithFormat:@"%@", contact.compositeName],
+                                           nPhone:num,
+                                           nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
+                                           nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
+                                           nRegistered:[NSNumber numberWithBool:NO]};
                     [result addObject:item];
                 }
             }
