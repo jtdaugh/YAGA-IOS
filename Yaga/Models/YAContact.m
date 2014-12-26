@@ -11,12 +11,10 @@
 
 @implementation YAContact
 
-// Specify default values for properties
 
-//+ (NSDictionary *)defaultPropertyValues
-//{
-//    return @{};
-//}
++ (NSDictionary *)defaultPropertyValues{
+    return @{@"lastName":@""};
+}
 
 // Specify properties to ignore (Realm won't persist these)
 

@@ -20,9 +20,6 @@
 @property (strong, nonatomic) UITableView *membersTableview;
 @property (strong, nonatomic) NSMutableArray *filteredContacts;
 @property (strong, nonatomic) NSArray *deviceContacts;
-
-//an array of arrays(firstname, lastname)
-@property (strong, nonatomic) NSArray *deviceNames;
 - (void)cancelScreen;
 @end
 
@@ -37,13 +34,14 @@
                                                  name:UIKeyboardDidShowNotification
                                                object:nil];
     
-    self.selectedContacts = [[NSMutableArray alloc] init];
+    if(!self.selectedContacts)
+        self.selectedContacts = [[NSMutableArray alloc] init];
     
-    self.title = @"Add Members";
+    self.title = self.existingGroup ? self.existingGroup.name : @"Add Members";
     
     [self.view setBackgroundColor:[UIColor blackColor]];
     
-    VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0.0f, 0, VIEW_WIDTH, 42)];
+    VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0.0f, 40, VIEW_WIDTH, 42)];
     searchBar.translatesAutoresizingMaskIntoConstraints = NO;
     [searchBar setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
     [searchBar setBackgroundColor:[UIColor blackColor]];
@@ -81,7 +79,7 @@
     
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[searchBar][border(1)]-0-[membersList]|" options:0 metrics:nil views:views]];
     
-    UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(nextScreen)];
+    UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:self.existingGroup ? NSLocalizedString(@"Done", @"") : NSLocalizedString(@"Next", @"") style:UIBarButtonItemStylePlain target:self action:@selector(nextScreen)];
     [anotherButton setTitleTextAttributes:@{
                                             NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
                                             } forState:UIControlStateNormal];
@@ -97,6 +95,10 @@
     [cancelButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.leftBarButtonItem = cancelButton;
     
+    if(self.selectedContacts.count) {
+        [self reloadSearchBox];
+    }
+    
     __weak typeof(self) weakSelf = self;
     [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
         if (error) {
@@ -104,32 +106,34 @@
         }
         else {
             weakSelf.deviceContacts = contacts;
-            weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
-            dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-                NSMutableArray *namesArray = [NSMutableArray new];
-                for(NSDictionary *contactDic in self.deviceContacts){
-                    NSArray *names = [[contactDic[nCompositeName] lowercaseString] componentsSeparatedByString:@" "];
-                    [namesArray addObject:names];
-                }
-                self.deviceNames = namesArray;
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [weakSelf.membersTableview reloadData];
-                });
-            });
             
+            NSMutableArray *selectedCompositeNames = [NSMutableArray new];
+            for(NSDictionary *contactDic in self.selectedContacts) {
+                [selectedCompositeNames addObject:contactDic[nCompositeName]];
+            }
+            self.filteredContacts = [[self.deviceContacts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (%K IN %@)", nCompositeName, selectedCompositeNames]] mutableCopy];
+            [weakSelf.membersTableview reloadData];
         }
     }];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
     [self.searchBar becomeFirstResponder];
+    
+    [UIView animateWithDuration:0.4 animations:^{
+        self.view.frame = CGRectMake(0, self.navigationController.navigationBar.bounds.size.height, VIEW_WIDTH, VIEW_HEIGHT - self.navigationController.navigationBar.bounds.size.height);
+        
+    }];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
+    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
+    self.navigationController.navigationBar.translucent = YES;;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -226,17 +230,17 @@
         [self.membersTableview reloadData];
         
         NSArray *keys = [[text lowercaseString] componentsSeparatedByString:@" "];
-
+        
         NSMutableArray *subpredicates = [NSMutableArray array];
         for(NSString *key in keys) {
             if([key length] == 0) { continue; }
             NSPredicate *p = [NSPredicate predicateWithFormat:@"firstname BEGINSWITH[cd] %@ || lastname BEGINSWITH[cd] %@", key, key];
             [subpredicates addObject:p];
         }
-
+        
         NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates:subpredicates];
         NSArray *filtered = [self.deviceContacts filteredArrayUsingPredicate:predicate];
-    
+        
         [self.filteredContacts addObjectsFromArray:filtered];
         [self.membersTableview reloadData];
     }
@@ -248,11 +252,32 @@
 
 #pragma mark - Navigation
 - (void)nextScreen {
-//    [[YAAuthManager sharedManager] addCascadingUsers:self.selectedContacts
- //                                            toGroup:[YAGroupCreator sharedCreator].groupId
- //                                     withCompletion:^(bool response, NSString *error) {
-        [self performSegueWithIdentifier:@"NameGroup" sender:self];
- ///   }];
+    if(self.existingGroup) {
+        [[RLMRealm defaultRealm] beginWriteTransaction];
+        [self.existingGroup.members removeAllObjects];
+        
+        for(NSDictionary *memberDic in self.selectedContacts) {
+            YAContact *contact = [YAContact new];
+            contact.name = memberDic[nCompositeName];
+            contact.firstName = memberDic[nFirstname];
+            contact.lastName  = memberDic[nLastname];
+            contact.number = memberDic[nPhone];
+            contact.registered = [memberDic[nRegistered] boolValue];
+            
+            [self.existingGroup.members addObject:contact];
+        }
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+    //new group
+    else {
+        [[YAAuthManager sharedManager] addCascadingUsers:self.selectedContacts
+                                                 toGroup:[YAGroupCreator sharedCreator].groupId
+                                          withCompletion:^(bool response, NSString *error) {
+                                              [self performSegueWithIdentifier:@"NameGroup" sender:self];
+                                          }];
+    }
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
@@ -267,10 +292,26 @@
 }
 
 #pragma mark - Actions
-- (void)cancelScreen
-{
-    [self.navigationController popViewControllerAnimated:YES];
+- (void)cancelScreen {
+    if(self.existingGroup)
+        [self dismissViewControllerAnimated:YES completion:nil];
+    else
+        [self.navigationController popViewControllerAnimated:YES];
 }
 
-
+#pragma mark -
+- (void)setExistingGroup:(YAGroup *)existingGroup {
+    _existingGroup = existingGroup;
+    self.selectedContacts  = [NSMutableArray new];
+    for(YAContact *contact in self.existingGroup.members) {
+        
+        NSDictionary *item = @{nCompositeName:[NSString stringWithFormat:@"%@ %@", contact.firstName, contact.lastName],
+                               nPhone:[contact readableNumber],
+                               nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
+                               nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
+                               nRegistered:[NSNumber numberWithBool:contact.registered]};
+        [self.selectedContacts addObject:item];
+        
+    }
+}
 @end

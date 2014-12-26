@@ -245,7 +245,15 @@ static NSString *CellIdentifier = @"GroupsCell";
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"View/Edit Members", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        NSLog(@"not implemented");
+        editingIndex = indexPath.row;
+        //[self performSegueWithIdentifier:@"ChangeGroup" sender:nil];
+        
+        AddMembersViewController *members = [AddMembersViewController new];
+        members.existingGroup = self.groups[indexPath.row];
+        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:members];
+        [self presentViewController:navController animated:YES completion:nil];
+        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
+
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Mute Group", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -278,8 +286,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if([segue.destinationViewController isKindOfClass:[AddMembersViewController class]]) {
-        if(editingIndex != NSUIntegerMax)
-            ((AddMembersViewController*)segue.destinationViewController).existingGroup = self.groups[editingIndex];
+        if(editingIndex != NSUIntegerMax) {
+//            AddMembersViewController *members = (AddMembersViewController*)segue.destinationViewController;
+        }
     }
 }
 

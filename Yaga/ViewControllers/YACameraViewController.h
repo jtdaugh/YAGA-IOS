@@ -18,7 +18,7 @@
 
 - (void)switchFlashMode:(id)sender;
 - (void)closeCamera;
-- (void)initCamera:(void (^)())block;
+- (void)initCamera;
 
 @property (assign, nonatomic) BOOL flash;
 @property (strong, nonatomic) AVCamPreviewView *cameraView;

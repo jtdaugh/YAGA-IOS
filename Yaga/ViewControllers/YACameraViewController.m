@@ -51,8 +51,8 @@
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
         
-        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(configureFocusPoint:)];
-        [self.cameraView addGestureRecognizer:self.tapToFocusRecognizer];
+//        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(configureFocusPoint:)];
+//        [self.cameraView addGestureRecognizer:self.tapToFocusRecognizer];
         
         UILongPressGestureRecognizer *longPressGestureRecognizerCamera = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         [longPressGestureRecognizerCamera setMinimumPressDuration:0.2f];
@@ -153,8 +153,7 @@
         [self.cameraAccessories addObject:self.switchGroupsButton];
         [self.cameraView addSubview:self.switchGroupsButton];
         
-        [self initCamera:^{
-        }];
+        [self initCamera];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -180,11 +179,10 @@
 }
 
 - (void)applicationWillEnterForeground {
-    [self initCamera:^{
-    }];
+    [self initCamera];
 }
 
-- (void)initCamera:(void (^)())block {
+- (void)initCamera {
     NSLog(@"init camera");
     
     self.session = [[AVCaptureSession alloc] init];
@@ -288,9 +286,6 @@
             }
             
             [self.session startRunning];
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-                block();
-            }];
         }
     });
 }
@@ -575,8 +570,7 @@
 }
 
 - (void)willEnterForeground {
-    [self initCamera:^{
-    }];
+    [self initCamera];
 }
 
 - (void)showCameraAccessories:(BOOL)show {

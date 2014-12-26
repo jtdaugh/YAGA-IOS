@@ -9,6 +9,7 @@
 #import "GroupsTableViewCell.h"
 
 @interface GroupsTableViewCell ()
+@property(nonatomic, strong) UIButton *accessorryButton;
 @end
 
 @implementation GroupsTableViewCell
@@ -41,15 +42,13 @@
         [self setBackgroundColor:[UIColor clearColor]];
         self.textLabel.adjustsFontSizeToFitWidth = YES;
         
-        UIButton *accessorryButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        accessorryButton.frame = CGRectMake(self.frame.size.width - margin - height, (self.frame.size.height - height)/2, height, height);
-        [accessorryButton setBackgroundImage:[UIImage imageNamed:@"Settings"] forState:UIControlStateNormal];
-        self.accessoryView = accessorryButton;
+        self.accessorryButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.accessorryButton.frame = CGRectMake(self.frame.size.width - margin - height, (self.frame.size.height - height)/2, height, height);
+        [self.accessorryButton setBackgroundImage:[UIImage imageNamed:@"Settings"] forState:UIControlStateNormal];
+        self.accessoryView = self.accessorryButton;
         
-        [accessorryButton addTarget:self action:@selector(showGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
-        UIView *editingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 50)];
-        [editingView setBackgroundColor:PRIMARY_COLOR];
-        self.editingAccessoryView = editingView;
+        [self.accessorryButton addTarget:self action:@selector(showGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
+        
         
     }
     
@@ -67,8 +66,12 @@
         self.editBlock();
 }
 
-- (void)willTransitionToState:(UITableViewCellStateMask)state {
+- (void)willTransitionToState:(UITableViewCellStateMask)state{
     [super willTransitionToState:state];
+    
+    BOOL hide = ((state & UITableViewCellStateShowingDeleteConfirmationMask) == UITableViewCellStateShowingDeleteConfirmationMask);
+    self.accessoryView.hidden = hide;
 }
+
 
 @end

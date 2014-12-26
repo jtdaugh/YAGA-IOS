@@ -11,6 +11,7 @@
 @interface YAContact : RLMObject
 @property NSString *name;
 @property NSString *firstName;
+@property NSString *lastName;
 @property NSString *number;
 @property BOOL registered;
 - (NSString *) readableNumber;
