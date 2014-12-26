@@ -41,7 +41,7 @@
     
     self.cta = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.12)];
 
-    [self.cta setText:@"Enter received sms code"];
+    [self.cta setText:@"Enter confirmation code"];
     [self.cta setNumberOfLines:2];
     [self.cta setFont:[UIFont fontWithName:BIG_FONT size:24]];
 
