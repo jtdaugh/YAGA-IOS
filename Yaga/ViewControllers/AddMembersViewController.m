@@ -228,8 +228,8 @@
         NSArray *keys = [[text lowercaseString] componentsSeparatedByString:@" "];
         NSMutableSet *objectsToAdd = [NSMutableSet set];
         
-        for(NSArray *names in self.deviceNames){
-//            NSArray *names = [[contactDic[nCompositeName] lowercaseString] componentsSeparatedByString:@" "];
+        for(NSDictionary *contactDic in self.deviceContacts){
+            NSArray *names = [[contactDic[nCompositeName] lowercaseString] componentsSeparatedByString:@" "];
             
             BOOL notDetected = NO;
             
