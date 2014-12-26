@@ -5,7 +5,9 @@
   Created by Iegor on 12/16/14.
   Copyright (c) 2014 Raj Vir. All rights reserved.
 */
+
 "OK" = "OK";
+"Yes" = "Yes";
 "Warning" = "Warning";
 "Cancel" = "Cancel";
 "Back" = "Back";
@@ -22,3 +24,4 @@
 "CHANGE_GROUP_PLACEHOLDER" = "can not be empty";
 
 "Video saved to the camera roll successfully" = "Video saved to the camera roll successfully";
+"Are you sure you want to delete this video?" = "Are you sure you want to delete this video?";

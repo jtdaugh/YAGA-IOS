@@ -19,6 +19,7 @@
 @property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *saveButton;
+@property (nonatomic, strong) UIButton *deleteButton;
 @end
 
 @implementation YAVideoCell
@@ -55,12 +56,6 @@
             
             playerVC.view.alpha = 1;
         }];
-        
-        if(!self.controls.count)
-            [self performSelector:@selector(initOverlayControls) withObject:nil afterDelay:0.1];
-        else {
-            [self performSelector:@selector(updateControls) withObject:nil afterDelay:0.1];
-        }
     }
     else {
         [self showControls:NO];
@@ -72,7 +67,7 @@
     }
     
     _playerVC = playerVC;
-} 
+}
 
 
 - (void)prepareForReuse
@@ -86,7 +81,7 @@
 
 //- (void)layoutSubviews {
 //    [super layoutSubviews];
-//    
+//
 //    //going to grid
 //   // [self showControls:self.playerVC != nil];
 //}
@@ -98,6 +93,7 @@
 //}
 
 #pragma mark - Overlay controls
+
 - (void)initOverlayControls {
     self.controls = [[NSMutableArray alloc] init];
     
@@ -124,43 +120,47 @@
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
     [self.controls addObject:self.timestampLabel];
     
-    CGFloat captionHeight = 30;
-    CGFloat captionGutter = 2;
-    self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
-    [self.captionField setBackgroundColor:[UIColor clearColor]];
-    [self.captionField setTextAlignment:NSTextAlignmentCenter];
-    [self.captionField setTextColor:[UIColor whiteColor]];
-    [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    self.captionField.delegate = self;
-    [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
-    [self.captionField setReturnKeyType:UIReturnKeyDone];
-    self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
-    self.captionField.layer.shadowRadius = 1.0f;
-    self.captionField.layer.shadowOpacity = 1.0;
-    self.captionField.layer.shadowOffset = CGSizeZero;
-    [self.controls addObject:self.captionField];
+    if([self.video.creator isEqualToString:[[YAUser currentUser] username]]) {
+        CGFloat captionHeight = 30;
+        CGFloat captionGutter = 2;
+        self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+        [self.captionField setBackgroundColor:[UIColor clearColor]];
+        [self.captionField setTextAlignment:NSTextAlignmentCenter];
+        [self.captionField setTextColor:[UIColor whiteColor]];
+        [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
+        self.captionField.delegate = self;
+        [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
+        [self.captionField setReturnKeyType:UIReturnKeyDone];
+        self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.captionField.layer.shadowRadius = 1.0f;
+        self.captionField.layer.shadowOpacity = 1.0;
+        self.captionField.layer.shadowOffset = CGSizeZero;
+        [self.controls addObject:self.captionField];
+        
+        CGFloat tSize = 60;
+        self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize - 12, 12, tSize, tSize)];
+        [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
+        [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
+        [self.controls addObject:self.captionButton];
+        [self.contentView addSubview:self.captionButton];
+        
+        CGFloat saveSize = 36;
+        self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
+        [self.saveButton setBackgroundImage:[UIImage imageNamed:@"Save"] forState:UIControlStateNormal];
+        [self.saveButton addTarget:self action:@selector(saveButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.controls addObject:self.saveButton];
+        
+        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake( VIEW_WIDTH - saveSize - 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
+        [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
+        [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.controls addObject:self.deleteButton];
+    }
     
     CGFloat likeSize = 42;
     self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.controls addObject:self.likeButton];
-    
-    CGFloat tSize = 60;
-    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize - 12, 12, tSize, tSize)];
-    [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
-    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
-    [self.controls addObject:self.captionButton];
-    [self.contentView addSubview:self.captionButton];
-    
-    CGFloat saveSize = 36;
-    self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
-    [self.saveButton setBackgroundImage:[UIImage imageNamed:@"Save"] forState:UIControlStateNormal];
-    [self.saveButton addTarget:self action:@selector(saveButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.controls addObject:self.saveButton];
-    
-    if(self.video)
-        [self updateControls];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
@@ -203,9 +203,34 @@
 }
 
 - (void)saveButtonPressed {
-    [self animateButton:self.saveButton withImageName:@"Save" completion:^{
+    [self animateButton:self.saveButton withImageName:nil completion:^{
         NSString *path = [YAUtils urlFromFileName:self.video.movFilename].path;
         UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError: contextInfo:), nil);
+    }];
+}
+
+- (void)deleteButtonPressed {
+    [self animateButton:self.deleteButton withImageName:nil completion:^{
+        NSString *alertMessage = NSLocalizedString(@"Are you sure you want to delete this video?", nil);
+        UIAlertController *alertController = [UIAlertController
+                                              alertControllerWithTitle:NSLocalizedString(@"Warning", nil)
+                                              message:alertMessage
+                                              preferredStyle:UIAlertControllerStyleAlert];
+        [alertController addAction:[UIAlertAction
+                                    actionWithTitle:NSLocalizedString(@"Yes", nil)
+                                    style:UIAlertActionStyleDefault
+                                    handler:^(UIAlertAction *action) {
+                                        [[NSNotificationCenter defaultCenter] postNotificationName:DELETE_VIDEO_NOTIFICATION object:self.video];
+                                    }]];
+        
+        [alertController addAction:[UIAlertAction
+                                    actionWithTitle:NSLocalizedString(@"Cancel", nil)
+                                    style:UIAlertActionStyleCancel
+                                    handler:^(UIAlertAction *action) {
+            
+        }]];
+
+        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
     }];
 }
 
@@ -215,10 +240,12 @@
             button.transform = CGAffineTransformMakeScale(1.5, 1.5);
         }];
         
-        if([button backgroundImageForState:UIControlStateNormal])
-            [button setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
-        else
-            [button setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+        if(imageName) {
+            if([button backgroundImageForState:UIControlStateNormal])
+                [button setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+            else
+                [button setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+        }
         
         [UIView addKeyframeWithRelativeStartTime:0.5 relativeDuration:0.4 animations:^{
             button.transform = CGAffineTransformIdentity;
@@ -228,7 +255,7 @@
         if(completion)
             completion();
     }];
-
+    
 }
 
 -(void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
@@ -240,19 +267,12 @@
 - (void)showControls:(BOOL)show {
     if(show) {
         for(UIView *v in self.controls){
-            if(!v.superview)
+            if(!v.superview) {
                 [self addSubview:v];
+            }
             
-            v.alpha = 0;
             [self bringSubviewToFront:v];
         }
-
-        [UIView setAnimationBeginsFromCurrentState:YES];
-        [UIView animateWithDuration:0.3 animations:^{
-            for(UIView *v in self.controls){
-                v.alpha = 1;
-            }
-        }];
     }
     else {
         for(UIView *v in self.controls){
@@ -268,8 +288,13 @@
     
     _video = video;
     
-    if(!_video)
+    if(!_video) {
+        [self showControls:NO];
         return;
+    }
+    
+    if(!self.controls.count)
+        [self initOverlayControls];
     
     [self updateControls];
 }

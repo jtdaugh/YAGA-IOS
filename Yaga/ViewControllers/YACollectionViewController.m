@@ -64,29 +64,21 @@ static NSString *cellID = @"Cell";
     [self.collectionView setAllowsMultipleSelection:NO];
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.collectionView.backgroundColor = [UIColor whiteColor];
-
+    
     [self.view addSubview:self.collectionView];
     
     //no videos welcome text
-    if(![YAUser currentUser].currentGroup.videos.count) {
-        CGFloat width = VIEW_WIDTH * .8;
-        self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 20, width, width)];
-        [self.noVideosLabel setText:NSLocalizedString(@"NO VIDOES IN NEW GROUP MESSAGE", @"")];
-        [self.noVideosLabel setNumberOfLines:0];
-        [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-        [self.noVideosLabel setTextAlignment:NSTextAlignmentCenter];
-        [self.noVideosLabel setTextColor:PRIMARY_COLOR];
-        [self.collectionView addSubview:self.noVideosLabel];
-    }
+    [self showNoVideosMessage];
     
     //pull down to refresh
     self.pullToRefresh = [[UIRefreshControl alloc] initWithFrame:CGRectMake(0, -30, VIEW_WIDTH, 30)];
     self.pullToRefresh.attributedTitle = [[NSAttributedString alloc] initWithString:@"Fetching group videos" attributes:@{NSForegroundColorAttributeName:PRIMARY_COLOR}];
     [self.pullToRefresh addTarget:self action:@selector(fetchVideos) forControlEvents:UIControlEventValueChanged];
     [self.collectionView addSubview:self.pullToRefresh];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken:) name:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:) name:RELOAD_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deleteVideo:) name:DELETE_VIDEO_NOTIFICATION object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -102,7 +94,39 @@ static NSString *cellID = @"Cell";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self.collectionView name:RELOAD_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:RELOAD_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:DELETE_VIDEO_NOTIFICATION object:nil];
+}
+
+- (void)showNoVideosMessage {
+    if(![YAUser currentUser].currentGroup.videos.count) {
+        CGFloat width = VIEW_WIDTH * .8;
+        self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 20, width, width)];
+        [self.noVideosLabel setText:NSLocalizedString(@"NO VIDOES IN NEW GROUP MESSAGE", @"")];
+        [self.noVideosLabel setNumberOfLines:0];
+        [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+        [self.noVideosLabel setTextAlignment:NSTextAlignmentCenter];
+        [self.noVideosLabel setTextColor:PRIMARY_COLOR];
+        [self.collectionView addSubview:self.noVideosLabel];
+    }
+}
+
+- (void)deleteVideo:(NSNotification*)notif {
+    
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:notif.object];
+    [[YAUser currentUser].currentGroup.videos removeObjectAtIndex:index];
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    NSIndexPath *indexPath = [self.collectionView indexPathsForVisibleItems][0];
+    
+    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    
+    //deleted last video? make sure to back to the grid
+    if(![YAUser currentUser].currentGroup.videos.count) {
+        [self collectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
+        [self showNoVideosMessage];
+    }
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
@@ -129,12 +153,13 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-
-    cell.video = [YAUser currentUser].currentGroup.videos[indexPath.row];
+    
+    YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     
     if(self.targetLayout == self.gridLayout) {
-
-        NSString *gifFilename = cell.video.gifFilename;
+        cell.video = nil;
+        
+        NSString *gifFilename = video.gifFilename;
         if(gifFilename.length) {
             dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
                 
@@ -150,7 +175,7 @@ static BOOL welcomeLabelRemoved = NO;
             });
         }
         else {
-            cell.gifView.image = [UIImage imageWithContentsOfFile:[YAUtils urlFromFileName:cell.video.jpgFilename].path];
+            cell.gifView.image = [UIImage imageWithContentsOfFile:[YAUtils urlFromFileName:video.jpgFilename].path];
         }
     } else {
         AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
@@ -161,6 +186,8 @@ static BOOL welcomeLabelRemoved = NO;
         cell.playerVC = vc;
         
         [cell.playerVC playWhenReady];
+        
+        cell.video = video;
     }
     
     return cell;
@@ -249,7 +276,7 @@ static BOOL welcomeLabelRemoved = NO;
     
     
     BOOL scrollingFast = fabs(velocity.y) > 1;
-
+    
     BOOL scrollingUp = velocity.y == fabs(velocity.y);
     
     //show/hide camera
