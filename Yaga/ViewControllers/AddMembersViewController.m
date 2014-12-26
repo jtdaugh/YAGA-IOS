@@ -195,7 +195,7 @@
     [self.selectedContacts addObject:self.filteredContacts[indexPath.row]];
     [self reloadSearchBox];
     
-    [self.filteredContacts removeObject:self.filteredContacts[indexPath.row]];
+    [self.filteredContacts removeObjectAtIndex:indexPath.row];
     [self.membersTableview deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
@@ -248,11 +248,11 @@
 
 #pragma mark - Navigation
 - (void)nextScreen {
-    [[YAAuthManager sharedManager] addCascadingUsers:self.selectedContacts
-                                             toGroup:[YAGroupCreator sharedCreator].groupId
-                                      withCompletion:^(bool response, NSString *error) {
+//    [[YAAuthManager sharedManager] addCascadingUsers:self.selectedContacts
+ //                                            toGroup:[YAGroupCreator sharedCreator].groupId
+ //                                     withCompletion:^(bool response, NSString *error) {
         [self performSegueWithIdentifier:@"NameGroup" sender:self];
-    }];
+ ///   }];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

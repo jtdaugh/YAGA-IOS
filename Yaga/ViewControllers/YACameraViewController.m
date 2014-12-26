@@ -51,6 +51,9 @@
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
         
+        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(configureFocusPoint:)];
+        [self.cameraView addGestureRecognizer:self.tapToFocusRecognizer];
+        
         UILongPressGestureRecognizer *longPressGestureRecognizerCamera = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         [longPressGestureRecognizerCamera setMinimumPressDuration:0.2f];
         [self.cameraView addGestureRecognizer:longPressGestureRecognizerCamera];
@@ -240,6 +243,17 @@
             //        [captureDevice setActiveVideoMaxFrameDuration:CMTimeMake(1, 1)];
             //        [captureDevice setActiveVideoMinFrameDuration:CMTimeMake(1, 1)];
             //        [captureDevice unlockForConfiguration];
+            
+            if([captureDevice lockForConfiguration:nil]){
+                if([captureDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+                    [captureDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+                }
+                
+                if([captureDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
+                    [captureDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+                }
+                [captureDevice unlockForConfiguration];
+            }
             
             self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
             
@@ -601,6 +615,97 @@
 
 - (void)updateCurrentGroup {
     [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
+}
+
+#pragma mark - Manual focus
+- (void) configureFocusPoint:(UITapGestureRecognizer *) recognizer {
+    CGPoint point = [recognizer locationInView:[recognizer view]];
+    
+    NSLog(@"point x: %f, y: %f", point.x, point.y);
+    
+    CGFloat size = 48;
+    
+    UIView *square = [[UIView alloc] initWithFrame:CGRectMake(point.x - size/2, point.y - size/2, size, size)];
+    square.layer.borderWidth = 1.5f;
+    square.layer.borderColor = PRIMARY_COLOR.CGColor;
+    
+    //    [square.layer setCornerRadius:size/2];
+    
+    [self.cameraView addSubview:square];
+    [square setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
+    [square setAlpha:0.0];
+    
+    [UIView animateKeyframesWithDuration:0.75 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+        //
+        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.3 animations:^{
+            //
+            [square setTransform:CGAffineTransformIdentity];
+            [square setAlpha:1.0];
+        }];
+        
+        [UIView addKeyframeWithRelativeStartTime:0.9 relativeDuration:0.1 animations:^{
+            //
+            //            [square setTransform:CGAffineTransformMakeScale(0.9, 0.9)];
+            [square setAlpha:0.0];
+        }];
+        
+    } completion:^(BOOL finished) {
+        //
+        [square removeFromSuperview];
+    }];
+    
+    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        [square setTransform:CGAffineTransformIdentity];
+    } completion:^(BOOL finished) {
+        //
+    }];
+    
+    
+    CGPoint focusPoint = [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) captureDevicePointOfInterestForPoint:point];
+    
+    //    CGPoint focusPoint = [[(AVCaptureVideoPreviewLayer *) self.cameraView.layer] captureDevicePointOfInterestForPoint:point];
+    
+    //    CGPoint focusPoint = CGPointMake(point.x / self.cameraView.frame.size.width, point.y / self.cameraView.frame.size.height);
+    
+    
+    //    CGPoint focusPoint = CGPointMake(focus_x, focus_y);
+    
+    NSLog(@"focus point x: %f, y: %f", focusPoint.x, focusPoint.y);
+    
+    AVCaptureDevice *device =  [[self videoInput] device];
+    
+    //    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    //    AVCaptureDevice *captureDevice = [devices firstObject];
+    //
+    //    for (AVCaptureDevice *device in devices) {
+    if([device lockForConfiguration:nil]){
+        if([device isFocusPointOfInterestSupported]){
+            NSLog(@"test");
+            //            [device setFocusMode:AVCaptureFocusModeLocked];
+            [device setFocusMode:AVCaptureFocusModeLocked];
+            [device setFocusPointOfInterest:focusPoint];
+            [device setFocusMode:AVCaptureFocusModeLocked];
+            //            [device setExposurePointOfInterest:focusPoint];
+            //        [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        }
+        [device unlockForConfiguration];
+    }
+    //    }
+    
+    
+    
+    //    [[[self videoInput] device] setFocusMode:AVCaptureFocusModeLocked];
+    
+    //    [[[self videoInput] device] setFocusMode:AVCaptureFocusModeAutoFocus];
+    //    [device setFocusPointOfInterest:focusPoint];
+    //    [device setFocusMode:AVCaptureFocusModeAutoFocus];
+    
+    
+    //    [[[self videoInput] device] setExposureMode:AVCaptureExposureModeAutoExpose];
+    //    [[[self videoInput] device] setExposurePointOfInterest:focusPoint];
+    
+    
 }
 
 @end
