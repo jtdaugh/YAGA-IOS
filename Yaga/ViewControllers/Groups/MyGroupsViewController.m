@@ -11,6 +11,8 @@
 #import "GroupsTableViewCell.h"
 #import "AddMembersViewController.h"
 #import "YAAuthManager.h"
+#import "UIImage+Color.h"
+#import "YAAuthManager.h"
 
 @interface MyGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -90,6 +92,24 @@ static NSString *CellIdentifier = @"GroupsCell";
         [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
         [self.view addSubview:createGroupButton];
         
+        UIButton *refreshGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(22,
+                                                                                   self.tableView.frame.origin.y + 5.f,
+                                                                                   VIEW_WIDTH / 8.5f,
+                                                                                   VIEW_WIDTH / 8.5f)];
+        NSString *refresh = @"\u21BB";
+        [refreshGroupsButton setTitle:refresh forState:UIControlStateNormal];
+        [refreshGroupsButton.titleLabel setFont:[UIFont fontWithName:THIN_FONT size:40]];
+        [refreshGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+        [refreshGroupsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        
+        UIImage *bgColor = [UIImage imageWithColor:PRIMARY_COLOR];
+        [refreshGroupsButton setBackgroundImage:bgColor forState:UIControlStateHighlighted];
+        [refreshGroupsButton addTarget:self action:@selector(refreshGroups:) forControlEvents:UIControlEventTouchUpInside];
+        
+        [refreshGroupsButton.titleLabel setTextAlignment: NSTextAlignmentCenter];
+        [refreshGroupsButton sizeToFit];
+        [self.view addSubview:refreshGroupsButton];
+
     }
 }
 
@@ -210,6 +230,14 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self close];
     
     editingIndex = NSUIntegerMax;
+}
+
+- (void)refreshGroups:(UIButton*)sender {
+    [[YAAuthManager sharedManager] getGroupsWithCompletion:^(bool response, NSString *error) {
+        NSLog(@"Wut?");
+        self.groups = [YAGroup allObjects];
+        [self.tableView reloadData];
+    }];
 }
 
 - (IBAction)unwindFromViewController:(id)source {}

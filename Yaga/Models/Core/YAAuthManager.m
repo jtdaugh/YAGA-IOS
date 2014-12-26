@@ -374,7 +374,12 @@
                 NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:d withError:nil];
                 YAGroup *group = [YAGroupCreator createGroupWithDictionary:dict];
                 
-                [realm addObject:group];
+                NSString *predicate = [NSString stringWithFormat:@"tempGroupId = %ld", (long)group.tempGroupId];
+                
+                RLMResults *tanGroups = [YAGroup objectsWhere:predicate];
+                if (tanGroups.count == 0) {
+                    [realm addObject:group];
+                }
                 
                 [realm commitWriteTransaction];
             }

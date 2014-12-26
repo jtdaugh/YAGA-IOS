@@ -36,6 +36,7 @@
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 
 #define BIG_FONT @"Avenir"
+#define THIN_FONT @"HelveticaNeue-UltraLight"
 
 //notifications
 #define NEW_VIDEO_TAKEN_NOTIFICATION @"NEW_VIDEO_TAKEN_NOTIFICATION"
