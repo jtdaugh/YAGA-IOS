@@ -40,7 +40,6 @@
 		6E9188DB1A3F3A5A0034AB63 /* AddMembersViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188971A3F3A5A0034AB63 /* AddMembersViewController.m */; };
 		6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889B1A3F3A5A0034AB63 /* GridViewController.m */; };
 		6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */; };
-		6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */; };
 		6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */; };
 		6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B01A3F3A5A0034AB63 /* YagaNavigationController.m */; };
 		6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B31A3F3A5A0034AB63 /* AVCamPreviewView.m */; };
@@ -144,8 +143,6 @@
 		6E91889B1A3F3A5A0034AB63 /* GridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridViewController.m; sourceTree = "<group>"; };
 		6E9188A51A3F3A5A0034AB63 /* YASMSAuthentificationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASMSAuthentificationViewController.h; sourceTree = "<group>"; };
 		6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASMSAuthentificationViewController.m; sourceTree = "<group>"; };
-		6E9188A71A3F3A5A0034AB63 /* OverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewController.h; sourceTree = "<group>"; };
-		6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewController.m; sourceTree = "<group>"; };
 		6E9188A91A3F3A5A0034AB63 /* YAPhoneNumberViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YAPhoneNumberViewController.h; path = ../YAPhoneNumberViewController.h; sourceTree = "<group>"; };
 		6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YAPhoneNumberViewController.m; path = ../YAPhoneNumberViewController.m; sourceTree = "<group>"; };
 		6E9188AF1A3F3A5A0034AB63 /* YagaNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YagaNavigationController.h; sourceTree = "<group>"; };
@@ -385,8 +382,6 @@
 				6E73F4261A43337D000B3A14 /* YACollectionViewController.m */,
 				6E91889A1A3F3A5A0034AB63 /* GridViewController.h */,
 				6E91889B1A3F3A5A0034AB63 /* GridViewController.m */,
-				6E9188A71A3F3A5A0034AB63 /* OverlayViewController.h */,
-				6E9188A81A3F3A5A0034AB63 /* OverlayViewController.m */,
 				6E9188AF1A3F3A5A0034AB63 /* YagaNavigationController.h */,
 				6E9188B01A3F3A5A0034AB63 /* YagaNavigationController.m */,
 				6E73F4181A432713000B3A14 /* YACameraViewController.h */,
@@ -533,6 +528,11 @@
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
 						DevelopmentTeam = JE26HLJZLX;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -636,7 +636,6 @@
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
 				865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
-				6E9188E31A3F3A5A0034AB63 /* OverlayViewController.m in Sources */,
 				86B864991A41B7DE002256FF /* YAAuthManager.m in Sources */,
 				6E7C2EE41A4C4EE200522A34 /* UsernameViewController.m in Sources */,
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
@@ -776,7 +775,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Yaga/Yaga-Prefix.pch";
 				INFOPLIST_FILE = "Yaga/Yaga-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
 				PROVISIONING_PROFILE = "";
@@ -803,7 +802,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Yaga/Yaga-Prefix.pch";
 				INFOPLIST_FILE = "Yaga/Yaga-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
 				PROVISIONING_PROFILE = "";

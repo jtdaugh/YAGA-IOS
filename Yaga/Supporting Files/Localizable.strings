@@ -9,7 +9,13 @@
 "Warning" = "Warning";
 "Cancel" = "Cancel";
 "Back" = "Back";
+"Edit Title" = "Edit Title";
+"View/Edit Members" = "View/Edit Members";
+"Mute Group" = "Mute Group";
+"Leave Group" = "Leave Group";
 "NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";
 "NO VIDOES IN NEW GROUP MESSAGE" = "You don't have videos yet, tap record button to record";
 "RECORD_TIP" = "Tap and hold to record";
 "SEARCH_TIP" = "Search contacts and usernames";
+"CHANGE_GROUP_TITLE" = "Change group name";
+"CHANGE_GROUP_PLACEHOLDER" = "can not be empty";

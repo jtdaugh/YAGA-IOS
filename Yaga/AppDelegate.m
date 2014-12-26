@@ -9,7 +9,8 @@
 #import "AppDelegate.h"
 #import <Crashlytics/Crashlytics.h>
 #import "YAUser.h"
-#import "YACollectionViewController.h"
+
+#import <AVFoundation/AVFoundation.h>
 
 @implementation AppDelegate
 
@@ -37,32 +38,37 @@
     
     [self.window makeKeyAndVisible];
     
+    [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
+    [application registerForRemoteNotifications];
+    
     return YES;
 }
-							
-- (void)applicationWillResignActive:(UIApplication *)application
-{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"applicationWillResignActive" object:nil];
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken");
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+        NSLog(@"didFailToRegisterForRemoteNotificationsWithError");
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
-{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"applicationWillEnterForeground" object:nil];
+- (void)applicationWillResignActive:(UIApplication *)application {
+    //[[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+   // [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application{
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    //[[AVAudioSession sharedInstance] setActive:YES error:nil];
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    //[[AVAudioSession sharedInstance] setActive:YES error:nil];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application {
 }
 
 @end

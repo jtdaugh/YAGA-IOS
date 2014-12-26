@@ -56,5 +56,35 @@
     
     _playerVC = playerVC;
 }
+
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    
+    self.playerVC = nil;
+    //self.gifView.alpha = 0;
+    //self.gifView.animatedImage = nil;
+    self.movFilename = nil;
+}
+
+//- (void)layoutSubviews {
+//    [super layoutSubviews];
+//    if(self.layoutIndex != 0 && !self.playerVC) {
+//        self.gifView.alpha = 0;
+//        AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
+//        
+//        [vc setURL:[YAUtils urlFromFileName:self.movFilename]];
+//        self.playerVC = vc;
+//        
+//        [self.playerVC playWhenReady];
+//    }
+//}
+//
+//- (void)applyLayoutAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
+//{
+//    [super applyLayoutAttributes:layoutAttributes];
+//    [self layoutIfNeeded];
+//}
+
 @end
 

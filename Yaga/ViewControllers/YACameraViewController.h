@@ -13,6 +13,7 @@
 - (void)toggleGroups;
 @end
 
+#define recordButtonWidth 60.0
 @interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate>
 
 - (void)switchFlashMode:(id)sender;
@@ -27,6 +28,7 @@
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 
-@property (strong, nonatomic) UIButton *recordButton;
-@property (nonatomic, strong) UIButton *switchGroupsButton;
+- (void)showCameraAccessories:(BOOL)show;
+
+- (void)updateCurrentGroup;
 @end

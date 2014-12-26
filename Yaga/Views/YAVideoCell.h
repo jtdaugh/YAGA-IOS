@@ -13,4 +13,6 @@
 @interface YAVideoCell : UICollectionViewCell
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
 @property (nonatomic, strong) AVPlaybackViewController *playerVC;
+@property (nonatomic, assign) NSUInteger layoutIndex;
+@property (nonatomic, copy) NSString *movFilename;
 @end

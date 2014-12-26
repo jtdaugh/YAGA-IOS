@@ -18,7 +18,6 @@
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
-static NSString *CellCreateIdentifier = @"GroupsCellCreate";
 
 @implementation MyGroupsViewController
 
@@ -26,7 +25,7 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
     [super viewDidLoad];
     
     if(self.showCreateGroupButton) {
-        UITapGestureRecognizer *tapToClose = [[UITapGestureRecognizer alloc] initWithTarget:self.delegate action:@selector(closeGroups)];
+        UITapGestureRecognizer *tapToClose = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(close)];
         tapToClose.delegate = self;
         [self.view addGestureRecognizer:tapToClose];
     }
@@ -49,7 +48,7 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
     }
     
     self.tableView.backgroundColor = [UIColor yellowColor];
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, self.view.bounds.size.height - origin - 1)];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, 0, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.showCreateGroupButton ? ELEVATOR_MARGIN : 0))];
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];
     self.tableView.dataSource = self;
@@ -58,7 +57,6 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
     
     [self.tableView setSeparatorColor:PRIMARY_COLOR];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:CellCreateIdentifier];
     
     // This will remove extra separators from tableview
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -69,12 +67,29 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:kYACloseGroupsNotification
-                                                      object:nil
-                                                       queue:[NSOperationQueue mainQueue]
-                                                  usingBlock:^(NSNotification *note) {
-                                                      [self close:nil];
-                                                  }];
+    if(self.showCreateGroupButton) {
+        //create group button
+        UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, self.tableView.frame.size.height+1, VIEW_WIDTH, 1)];
+        separatorView.backgroundColor = [UIColor lightGrayColor];
+        separatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+        [self.view addSubview:separatorView];
+        
+        
+        UIButton *createGroupButton = [[UIButton alloc] initWithFrame:
+                                       CGRectMake(44,
+                                                  self.tableView.frame.size.height+2,
+                                                  VIEW_WIDTH - 44,
+                                                  self.view.bounds.size.height - self.tableView.frame.size.height)
+                                       ];
+        createGroupButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+        [createGroupButton setTitle:@"Create Group  〉" forState:UIControlStateNormal];
+        [createGroupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
+        [createGroupButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+        [createGroupButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:createGroupButton];
+        
+    }
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -93,12 +108,8 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
     return YES;
 }
 
-- (void)close:(id)sender {
-     [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-}
-
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.groups.count + (self.showCreateGroupButton ? 1 : 0);
+    return self.groups.count;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
@@ -118,28 +129,19 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell;
     
-    if(self.showCreateGroupButton && indexPath.row == self.groups.count) {
-        cell = [tableView dequeueReusableCellWithIdentifier:CellCreateIdentifier forIndexPath:indexPath];
-        cell.textLabel.text = @"Create Group  〉";
-        cell.textLabel.font = [UIFont fontWithName:BIG_FONT size:18];
-        cell.textLabel.textAlignment = NSTextAlignmentCenter;
-        cell.textLabel.textColor = PRIMARY_COLOR;
-    }
-    else {
-        cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-        YAGroup *group = [self.groups objectAtIndex:indexPath.row];
-        
-        cell.textLabel.text = group.name;
-        cell.detailTextLabel.text = group.membersString;
-        
-        if(indexPath.row == self.groups.count - 1)
-            cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, cell.bounds.size.width);
-        
-        __weak typeof(self) weakSelf = self;
-        ((GroupsTableViewCell*)cell).editBlock = ^{
-            [weakSelf tableView:weakSelf.tableView accessoryButtonTappedForRowWithIndexPath:indexPath];
-        };
-    }
+    cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+    
+    cell.textLabel.text = group.name;
+    cell.detailTextLabel.text = group.membersString;
+    
+    if(indexPath.row == self.groups.count - 1)
+        cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, cell.bounds.size.width);
+    
+    __weak typeof(self) weakSelf = self;
+    ((GroupsTableViewCell*)cell).editBlock = ^{
+        [weakSelf tableView:weakSelf.tableView accessoryButtonTappedForRowWithIndexPath:indexPath];
+    };
     
     //ios8 fix
     if ([cell respondsToSelector:@selector(layoutMargins)]) {
@@ -165,22 +167,17 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(self.showCreateGroupButton && indexPath.row == self.groups.count) {
-        [self.navigationController setNavigationBarHidden:NO animated:YES];
-        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-        [self performSegueWithIdentifier:@"CreateNewGroup" sender:self];
-        editingIndex = NSUIntegerMax;
+    
+    YAGroup *group = self.groups[indexPath.row];
+    [YAUser currentUser].currentGroup = group;
+    [[NSUserDefaults standardUserDefaults] setObject:group.groupId forKey:nCurrentGroupId];
+    
+    if(self.showCreateGroupButton) {
+        [self close];
     }
-    else {
-        YAGroup *group = self.groups[indexPath.row];
-        [YAUser currentUser].currentGroup = group;
-        
-        if(self.showCreateGroupButton) {
-            [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-        }
-        else
-            [self performSegueWithIdentifier:@"SelectExistingGroupAndCompleteOnboarding" sender:self];
-    }
+    else
+        [self performSegueWithIdentifier:@"SelectExistingGroupAndCompleteOnboarding" sender:self];
+    
 }
 
 #pragma mark - Editing
@@ -190,24 +187,79 @@ static NSString *CellCreateIdentifier = @"GroupsCellCreate";
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-         YAGroup *group = self.groups[indexPath.row];
+        YAGroup *group = self.groups[indexPath.row];
         [[YAAuthManager sharedManager] sendGroupRemovingForGroupId:@(group.tempGroupId)
                                                     withCompletion:^(bool response, NSString *error) {
                                                         
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        [[RLMRealm defaultRealm] deleteObject:group];
-        [[RLMRealm defaultRealm] commitWriteTransaction];
-        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                                                        [[RLMRealm defaultRealm] beginWriteTransaction];
+                                                        [[RLMRealm defaultRealm] deleteObject:group];
+                                                        [[RLMRealm defaultRealm] commitWriteTransaction];
+                                                        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                                                     }];
     }
+}
+
+- (void)close {
+    [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
+}
+
+- (void)createGroup {
+    [self performSegueWithIdentifier:@"CreateNewGroup" sender:self];
+    
+    [self close];
+    
+    editingIndex = NSUIntegerMax;
 }
 
 - (IBAction)unwindFromViewController:(id)source {}
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
-    editingIndex = indexPath.row;
-    [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-    [self performSegueWithIdentifier:@"CreateNewGroup" sender:self];
+    __block YAGroup *group = self.groups[indexPath.row];
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:group.name message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Edit Title", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        UIAlertController *changeTitleAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"CHANGE_GROUP_TITLE", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
+        
+        [changeTitleAlert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+            textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
+            textField.text = [YAUser currentUser].currentGroup.name;
+        }];
+        [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            NSString *newname = [changeTitleAlert.textFields[0] text];
+            if(!newname.length)
+                return;
+            
+            [[RLMRealm defaultRealm] beginWriteTransaction];
+            group.name = newname;
+            [[RLMRealm defaultRealm] commitWriteTransaction];
+            
+            [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        }]];
+        
+        [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        }]];
+        
+        [self presentViewController:changeTitleAlert animated:YES completion:nil];
+
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"View/Edit Members", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        NSLog(@"not implemented");
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Mute Group", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        NSLog(@"not implemented");
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Leave Group", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        NSLog(@"not implemented");
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+    }]];
+    
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 #pragma mark - Utils

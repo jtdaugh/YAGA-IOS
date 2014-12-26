@@ -54,24 +54,28 @@ static NSString *cellID = @"Cell";
     [self.swipeLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
     
     self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
+    
     self.targetLayout = self.gridLayout;
+    self.collectionView.alwaysBounceVertical = YES;
     
     self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
     [self.collectionView setAllowsMultipleSelection:NO];
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.collectionView.backgroundColor = [UIColor whiteColor];
+
     [self.view addSubview:self.collectionView];
     
     //no videos welcome text
-    if([YAUser currentUser].currentGroup.videos.count) {
+    if(![YAUser currentUser].currentGroup.videos.count) {
         CGFloat width = VIEW_WIDTH * .8;
-        self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 50, width, width)];
+        self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 20, width, width)];
         [self.noVideosLabel setText:NSLocalizedString(@"NO VIDOES IN NEW GROUP MESSAGE", @"")];
-        [self.noVideosLabel setNumberOfLines:1];
+        [self.noVideosLabel setNumberOfLines:0];
         [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
         [self.noVideosLabel setTextAlignment:NSTextAlignmentCenter];
-        [self.noVideosLabel setTextColor:[UIColor whiteColor]];
+        [self.noVideosLabel setTextColor:PRIMARY_COLOR];
         [self.collectionView addSubview:self.noVideosLabel];
     }
     
@@ -83,7 +87,6 @@ static NSString *cellID = @"Cell";
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken:) name:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:) name:RELOAD_VIDEO_NOTIFICATION object:nil];
-    
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -126,30 +129,29 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
+    YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
+    cell.movFilename = video.movFilename;
     
     if(self.targetLayout == self.gridLayout) {
-        cell.gifView.animatedImage = nil;
-        
-        YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
         NSString *gifFilename = [video gifFilename];
         if(gifFilename.length) {
             dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
                 
-                NSData *gifData = [NSData dataWithContentsOfFile:gifFilename];
+                NSData *gifData = [NSData dataWithContentsOfFile:[YAUtils urlFromFileName:gifFilename].path];
                 
                 FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    cell.playerVC = nil;
                     cell.gifView.animatedImage = image;
+                    [cell.gifView startAnimating];
+                    cell.gifView.alpha = 1.0;
                 });
             });
         }
         else {
-            cell.gifView.image = [UIImage imageWithContentsOfFile:video.jpgFilename];
+            cell.gifView.image = [UIImage imageWithContentsOfFile:[YAUtils urlFromFileName:video.jpgFilename].path];
         }
-    } else if(self.targetLayout == self.swipeLayout) {
-        [cell.gifView stopAnimating];
+    } else {
         AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
         
         NSString *movFileName = [[YAUser currentUser].currentGroup.videos[indexPath.row] movFilename];
@@ -158,9 +160,6 @@ static BOOL welcomeLabelRemoved = NO;
         cell.playerVC = vc;
         
         [cell.playerVC playWhenReady];
-    }
-    else {
-        cell.playerVC = nil;
     }
     
     return cell;
@@ -178,31 +177,20 @@ static BOOL welcomeLabelRemoved = NO;
     self.collectionView.alwaysBounceVertical = newLayout == self.gridLayout;
     
     if(newLayout == self.gridLayout) {
-        for (YAVideoCell *videoCell in self.collectionView.visibleCells) {
-            videoCell.playerVC = nil;
-        }
-        
-        [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
-            [weakSelf.delegate showCamera:YES showPart:NO completion:^{
-                if(finished) {
-                    weakSelf.disableScrollHandling = NO;
-                    [weakSelf.collectionView reloadData];
-                }
-            }];
+        self.collectionView.collectionViewLayout = newLayout;
+        [weakSelf.delegate showCamera:YES showPart:NO completion:^{
+            weakSelf.disableScrollHandling = NO;
+            [weakSelf.collectionView reloadData];
         }];
+        
     }
     else {
         [self.delegate showCamera:NO showPart:NO completion:^{
             
         }];
         
-        [self.collectionView setCollectionViewLayout:newLayout animated:YES completion:^(BOOL finished) {
-            if (finished) {
-                
-                [weakSelf.collectionView reloadData];
-            }
-            
-        }];
+        self.collectionView.collectionViewLayout = newLayout;
+        [weakSelf.collectionView reloadData];
     }
 }
 

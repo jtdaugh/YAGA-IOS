@@ -23,8 +23,10 @@
     NSString *hashStr = [YAUtils uniqueId];
     NSString *moveFilename = [hashStr stringByAppendingPathExtension:@"mov"];
     NSString *gifFilename = [hashStr stringByAppendingPathExtension:@"gif"];
+    NSString *jpgFilename = [hashStr stringByAppendingPathExtension:@"jpg"];
     NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
     NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
+    NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
     NSURL *movURL = [NSURL fileURLWithPath:movPath];
     NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
     
@@ -53,7 +55,7 @@
         
         NSArray *keys = [NSArray arrayWithObject:@"duration"];
         AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
-
+        
         [asset loadValuesAsynchronouslyForKeys:keys completionHandler:^() {
             NSError *error = nil;
             AVKeyValueStatus valueStatus = [asset statusOfValueForKey:@"duration" error:&error];
@@ -109,13 +111,10 @@
                                 [imagesArray addObject:newImage];
                                 
                                 if([imagesArray count] == 1) {
-                                    
-                                    NSString *jpgPath = [[gifURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"jpg"].path;
-                                    
                                     if([UIImageJPEGRepresentation(newImage, 1.0) writeToFile:jpgPath atomically:NO]) {
                                         dispatch_async(dispatch_get_main_queue(), ^{
                                             [[RLMRealm defaultRealm] beginWriteTransaction];
-                                            video.jpgFilename = jpgPath;
+                                            video.jpgFilename = jpgFilename;
                                             [[RLMRealm defaultRealm] commitWriteTransaction];
                                             jpgHandler(nil, jpgHandler);
                                         });
@@ -134,7 +133,7 @@
                                         else {
                                             dispatch_async(dispatch_get_main_queue(), ^{
                                                 [[RLMRealm defaultRealm] beginWriteTransaction];
-                                                video.gifFilename = gifPath;
+                                                video.gifFilename = gifFilename;
                                                 [[RLMRealm defaultRealm] commitWriteTransaction];
                                                 completionHandler(nil, video);
                                             });

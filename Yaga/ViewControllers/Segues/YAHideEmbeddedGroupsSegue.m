@@ -8,51 +8,41 @@
 
 #import "YAHideEmbeddedGroupsSegue.h"
 #import "MyGroupsViewController.h"
+#import "GridViewController.h"
 
 @implementation YAHideEmbeddedGroupsSegue
 
 - (void)perform {
     MyGroupsViewController *groupsController = (MyGroupsViewController*)self.sourceViewController;
+    GridViewController *gridController = (GridViewController*)[groupsController parentViewController];
+
+    [groupsController.view setTransform:CGAffineTransformIdentity];
     
-    //self.groupsViewController.view.transform = CGAffineTransformIdentity;
-    __block UIView *backgroundView = nil;
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         
-        UIView *cameraView = self.gridViewController.cameraViewController.view;
+        gridController.cameraViewController.view.frame = CGRectMake(0, 0, gridController.cameraViewController.view.frame.size.width, gridController.cameraViewController.view.frame.size.height);
         
-        CGRect newRect = cameraView.frame;
+        CGFloat origin = gridController.cameraViewController.view.frame.origin.y + gridController.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
+        gridController.collectionViewController.view.frame = CGRectMake(0, origin + 2, gridController.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin - 2);
+        
+        [gridController.cameraViewController showCameraAccessories:YES];
+        
+        [groupsController.view setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
+        groupsController.view.alpha = 0;
+        
+        //group can change
+        [gridController.cameraViewController updateCurrentGroup];
+        [gridController.collectionViewController.collectionView reloadData];
 
-        backgroundView = [[UIView alloc] initWithFrame:newRect];
-        backgroundView.backgroundColor = cameraView.backgroundColor;
-        [self.gridViewController.view insertSubview:backgroundView belowSubview:cameraView];
-
-        
-        [cameraView setFrame:CGRectMake(0, 0, cameraView.frame.size.width, cameraView.frame.size.height)];
-        CGRect ballFrame = groupsController.view.frame;
-        ballFrame.origin.y = cameraView.frame.origin.y + cameraView.frame.size.height - ballFrame.size.height;
-        [groupsController.view setFrame:ballFrame];
-//        
-//        CGRect frame = self.gridTiles.frame;
-//        frame.origin.y = 0;
-//        [gridController.gridTiles setFrame:frame];
-
-        
-//        for(UIView *view in self.cameraAccessories){
-//            [view setAlpha:1.0];
-//        }
-        
-        [groupsController.view setAlpha:0.0];
-        // self.groupsViewController.view.transform = CGAffineTransformMakeScale(0.75, 0.75);
         
     } completion:^(BOOL finished) {
-        self.gridViewController.elevatorOpen = NO;
-        [groupsController.view removeFromSuperview];
         [groupsController removeFromParentViewController];
+        [groupsController.view removeFromSuperview];
+        gridController.elevatorOpen = NO;
         
-        [backgroundView removeFromSuperview];
+        [gridController.cameraViewController.view removeGestureRecognizer:groupsController.cameraTapToClose];
+        [gridController.collectionViewController.view removeGestureRecognizer:groupsController.collectionTapToClose];
         
-        for(UIGestureRecognizer *gr in [groupsController.view.gestureRecognizers mutableCopy])
-            [groupsController.view removeGestureRecognizer:gr];
     }];
 
 }

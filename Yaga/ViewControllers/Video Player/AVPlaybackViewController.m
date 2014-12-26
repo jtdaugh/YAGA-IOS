@@ -530,11 +530,11 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 	
     [self.mPlayer removeObserver:self forKeyPath:@"currentItem"];
 	[self.mPlayer removeObserver:self forKeyPath:@"rate"];
-	[mPlayer.currentItem removeObserver:self forKeyPath:@"status"];
-	
+	[self.mPlayerItem removeObserver:self forKeyPath:@"status"];
+
 	[self.mPlayer pause];
-	
-	
+    self.mPlayerItem = nil;
+    self.mPlayer = nil;
 }
 
 @end
@@ -695,7 +695,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     {
         /* Get a new AVPlayer initialized to play the specified player item. */
         [self setPlayer:[AVPlayer playerWithPlayerItem:self.mPlayerItem]];	
-		
+
         /* Observe the AVPlayer "currentItem" property to find out when any 
          AVPlayer replaceCurrentItemWithPlayerItem: replacement will/did 
          occur.*/

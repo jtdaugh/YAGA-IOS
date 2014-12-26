@@ -7,12 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GridViewController.h"
+
 
 @interface YAHideEmbeddedGroupsSegue : UIStoryboardSegue {
 
 }
-
-@property (nonatomic, strong) GridViewController *gridViewController;
 
 @end

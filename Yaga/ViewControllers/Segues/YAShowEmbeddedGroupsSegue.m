@@ -13,39 +13,55 @@
 @implementation YAShowEmbeddedGroupsSegue
 
 - (void)perform {
-    MyGroupsViewController *groupsController = (MyGroupsViewController*)self.destinationViewController;
+    MyGroupsViewController *groupsViewController = (MyGroupsViewController*)self.destinationViewController;
     GridViewController *gridController = (GridViewController*)self.sourceViewController;
-    groupsController.delegate = gridController;
-    groupsController.showCreateGroupButton = YES;
-    groupsController.showEditButton = YES;
+    gridController.groupsViewController = groupsViewController;
     
-    [gridController addChildViewController:groupsController];
-    //self.groupsViewController.view.frame = CGRectMake(0, ELEVATOR_MARGIN, self.groupsViewController.view.frame.size.width, self.view.bounds.size.height - ELEVATOR_MARGIN);
-    [gridController.view addSubview:groupsController.view];
-    [groupsController didMoveToParentViewController:gridController];
+    groupsViewController.showCreateGroupButton = YES;
+    groupsViewController.showEditButton = YES;
+    groupsViewController.view.backgroundColor = [UIColor whiteColor];
     
-    // self.groupsViewController.view.transform = CGAffineTransformMakeScale(0.75, 0.75);
-    groupsController.view.alpha = 0.0;
+    [gridController addChildViewController:groupsViewController];
+    [gridController.view addSubview:groupsViewController.view];
+    [groupsViewController didMoveToParentViewController:gridController];
+    
+    groupsViewController.view.alpha = 0;
+    groupsViewController.view.transform = CGAffineTransformMakeScale(0.75, 0.75);
+    
+    UITapGestureRecognizer *tapToClose1 = [[UITapGestureRecognizer alloc] initWithTarget:gridController action:@selector(closeGroups)];
+    [gridController.cameraViewController.view addGestureRecognizer:tapToClose1];
+    groupsViewController.cameraTapToClose = tapToClose1;
+    
+    UITapGestureRecognizer *tapToClose2 = [[UITapGestureRecognizer alloc] initWithTarget:gridController action:@selector(closeGroups)];
+    [gridController.collectionViewController.view addGestureRecognizer:tapToClose2];
+    groupsViewController.collectionTapToClose = tapToClose2;
     
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-        [gridController.cameraViewController.view setFrame:CGRectMake(0, -gridController.cameraViewController.view.frame.size.height + ELEVATOR_MARGIN, gridController.cameraViewController.view.frame.size.width, gridController.cameraViewController.view.frame.size.height)];
         
-        groupsController.view.frame = CGRectMake(0, ELEVATOR_MARGIN, groupsController.view.frame.size.width, gridController.view.bounds.size.height - ELEVATOR_MARGIN);
-        //
-//        CGRect frame = self.gridTiles.frame;
-//        frame.origin.y += VIEW_HEIGHT/2 - ELEVATOR_MARGIN;
-//        [self.gridTiles setFrame:frame];
-//        
-//        for(UIView *view in self.cameraAccessories){
-//            [view setAlpha:0.0];
-//        }
+        CGFloat origin = -gridController.cameraViewController.view.frame.size.height + ELEVATOR_MARGIN + recordButtonWidth / 2;
+        gridController.cameraViewController.view.frame = CGRectMake(0, origin, VIEW_WIDTH, gridController.cameraViewController.view.frame.size.height);
         
-        //  self.groupsViewController.view.transform = CGAffineTransformIdentity;
-        groupsController.view.alpha = 1.0;
+        [gridController.cameraViewController showCameraAccessories:NO];
+        
+        groupsViewController.view.alpha = 1.0;
+        groupsViewController.view.transform = CGAffineTransformMakeScale(1.0, 1.0);
+        
+        origin += gridController.cameraViewController.view.frame.size.height - recordButtonWidth/2;
+        
+        groupsViewController.view.frame = CGRectMake(0, origin, VIEW_WIDTH, VIEW_HEIGHT - origin * 2);
+        
+        origin += groupsViewController.view.frame.size.height;
+        
+        gridController.collectionViewController.view.frame = CGRectMake(0, origin, gridController.collectionViewController.view.frame.size.width, gridController.collectionViewController.view.frame.size.height);
         
     } completion:^(BOOL finished) {
         gridController.elevatorOpen = YES;
     }];
-
 }
+
+//to suppress warning
+- (void)closeGroups {
+    
+}
+
 @end

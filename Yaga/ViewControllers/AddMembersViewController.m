@@ -20,6 +20,9 @@
 @property (strong, nonatomic) UITableView *membersTableview;
 @property (strong, nonatomic) NSMutableArray *filteredContacts;
 @property (strong, nonatomic) NSArray *deviceContacts;
+
+//an array of arrays(firstname, lastname)
+@property (strong, nonatomic) NSArray *deviceNames;
 - (void)cancelScreen;
 @end
 
@@ -102,7 +105,19 @@
         else {
             weakSelf.deviceContacts = [contacts mutableCopy];
             weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
-            [weakSelf.membersTableview reloadData];
+            dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+                NSMutableArray *namesArray = [NSMutableArray new];
+                for(NSDictionary *contactDic in self.deviceContacts){
+                    NSArray *names = [[contactDic[nCompositeName] lowercaseString] componentsSeparatedByString:@" "];
+                    [namesArray addObject:names];
+                }
+                self.deviceNames = namesArray;
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [weakSelf.membersTableview reloadData];
+                });
+            });
+            
         }
     }];
 }
@@ -115,6 +130,11 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
 - (void)keyboardWasShown:(NSNotification *)notification {
@@ -208,8 +228,8 @@
         NSArray *keys = [[text lowercaseString] componentsSeparatedByString:@" "];
         NSMutableSet *objectsToAdd = [NSMutableSet set];
         
-        for(NSDictionary *contactDic in self.deviceContacts){
-            NSArray *names = [[contactDic[nCompositeName] lowercaseString] componentsSeparatedByString:@" "];
+        for(NSArray *names in self.deviceNames){
+//            NSArray *names = [[contactDic[nCompositeName] lowercaseString] componentsSeparatedByString:@" "];
             
             BOOL notDetected = NO;
             

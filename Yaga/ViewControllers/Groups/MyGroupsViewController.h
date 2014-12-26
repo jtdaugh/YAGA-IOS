@@ -8,11 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol MyGroupsViewControllerDelegate <NSObject>
-- (void)closeGroups;
-@end
-
-
 @interface MyGroupsViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate> {
     NSUInteger editingIndex;
 }
@@ -22,5 +17,7 @@
 @property (nonatomic, strong) UIColor *backgroundColor;
 @property (nonatomic, assign) BOOL showEditButton;
 @property (nonatomic, assign) BOOL showCreateGroupButton;
-@property (nonatomic, weak) id<MyGroupsViewControllerDelegate> delegate;
+
+@property (nonatomic, strong) UITapGestureRecognizer *cameraTapToClose;
+@property (nonatomic, strong) UITapGestureRecognizer *collectionTapToClose;
 @end

@@ -23,16 +23,19 @@
 @property (strong, nonatomic) NSNumber *FrontCamera;
 
 @property (strong, nonatomic) NSNumber *previousBrightness;
-@property (strong, nonatomic) NSMutableArray *cameraAccessories;
 
 @property (strong, nonatomic) AVCaptureSession *session;
 @property (nonatomic) dispatch_queue_t sessionQueue;
 
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
-@property (strong, nonatomic) UIButton *switchButton;
-@property (strong, nonatomic) UIButton *flashButton;
+@property (strong, nonatomic) NSMutableArray *cameraAccessories;
+@property (strong, nonatomic) UIButton *switchCameraButton;
+@property (strong, nonatomic) UIButton *switchGroupsButton;
+@property (strong, nonatomic) UIButton *groupButton;
 
+@property (strong, nonatomic) UIButton *flashButton;
+@property (strong, nonatomic) UIButton *recordButton;
 
 @end
 
@@ -45,15 +48,14 @@
         self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2);
         [self.cameraView setBackgroundColor:[UIColor whiteColor]];
         [self.view addSubview:self.cameraView];
-        
         [self.cameraView setUserInteractionEnabled:YES];
+        self.cameraView.autoresizingMask = UIViewAutoresizingNone;
+        
+        UILongPressGestureRecognizer *longPressGestureRecognizerCamera = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+        [longPressGestureRecognizerCamera setMinimumPressDuration:0.2f];
+        [self.cameraView addGestureRecognizer:longPressGestureRecognizerCamera];
         
         self.cameraAccessories = [@[] mutableCopy];
-        
-        UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-        [longPressGestureRecognizer setMinimumPressDuration:0.2f];
-        longPressGestureRecognizer.delegate = self;
-        [self.cameraView addGestureRecognizer:longPressGestureRecognizer];
         
         self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self.white setBackgroundColor:[UIColor whiteColor]];
@@ -62,41 +64,41 @@
         UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchFlashMode:)];
         tapGestureRecognizer.delegate = self;
         [self.white addGestureRecognizer:tapGestureRecognizer];
-        
-        CGFloat gutter = 40, height = 24;
-        self.instructions = [[FBShimmeringView alloc] initWithFrame:CGRectMake(gutter, 8, self.cameraView.frame.size.width - gutter*2, height)];
-        [self.instructions setUserInteractionEnabled:NO];
+    
+//        CGFloat gutter = 40, height = 24;
+//        self.instructions = [[FBShimmeringView alloc] initWithFrame:CGRectMake(gutter, 8, self.cameraView.frame.size.width - gutter*2, height)];
+//        [self.instructions setUserInteractionEnabled:NO];
         //    [self.instructions setAlpha:0.6];
         
-        UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
-        [instructionText setText:NSLocalizedString(@"RECORD_TIP", @"")];
-        [instructionText setFont:[UIFont fontWithName:BIG_FONT size:18]];
-        [instructionText setTextAlignment:NSTextAlignmentCenter];
-        [instructionText setTextColor:[UIColor whiteColor]];
-        
-        instructionText.layer.shadowColor = [[UIColor blackColor] CGColor];
-        instructionText.layer.shadowRadius = 1.0f;
-        instructionText.layer.shadowOpacity = 1.0;
-        instructionText.layer.shadowOffset = CGSizeZero;
-        
-        self.indicatorText = instructionText;
-        //    [instructionText setBackgroundColor:PRIMARY_COLOR];
-        
-        //    [self.instructions setContentView:instructionText];
-        self.instructions.shimmering = NO;
-        
-        [self.cameraView addSubview:self.instructions];
-        [self.cameraAccessories addObject:self.instructions];
-        
+//        UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
+//        [instructionText setText:NSLocalizedString(@"RECORD_TIP", @"")];
+//        [instructionText setFont:[UIFont fontWithName:BIG_FONT size:18]];
+//        [instructionText setTextAlignment:NSTextAlignmentCenter];
+//        [instructionText setTextColor:[UIColor whiteColor]];
+//        
+//        instructionText.layer.shadowColor = [[UIColor blackColor] CGColor];
+//        instructionText.layer.shadowRadius = 1.0f;
+//        instructionText.layer.shadowOpacity = 1.0;
+//        instructionText.layer.shadowOffset = CGSizeZero;
+//        self.instructions.backgroundColor = [UIColor yellowColor];
+//        self.indicatorText = instructionText;
+//        //    [instructionText setBackgroundColor:PRIMARY_COLOR];
+//        
+//        //    [self.instructions setContentView:instructionText];
+//        self.instructions.shimmering = NO;
+//        
+//        [self.cameraView addSubview:self.instructions];
+//        [self.cameraAccessories addObject:self.instructions];
+
         CGFloat size = 44;
-        UIButton *switchButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
+        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
-        [switchButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
-        [switchButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
-        [switchButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        self.switchButton = switchButton;
-        [self.cameraAccessories addObject:self.switchButton];
-        [self.cameraView addSubview:self.switchButton];
+        [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
+        [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
+        [self.switchCameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    
+        [self.cameraAccessories addObject:self.switchCameraButton];
+        [self.cameraView addSubview:self.switchCameraButton];
         
         UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size, size)];
         //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -107,28 +109,36 @@
         [self.cameraAccessories addObject:self.flashButton];
         [self.cameraView addSubview:self.flashButton];
         
+        //current group
+        CGFloat groupButtonXOrigin = flashButton.frame.origin.x + flashButton.frame.size.width + 5;
+        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(groupButtonXOrigin, 10, self.switchCameraButton.frame.origin.x - groupButtonXOrigin - 10 , size)];
+        [self.groupButton addTarget:self action:@selector(nameGroup:) forControlEvents:UIControlEventTouchUpInside];
+        [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
+        self.groupButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.groupButton.layer.shadowRadius = 1.0f;
+        self.groupButton.layer.shadowOpacity = 1.0;
+        self.groupButton.layer.shadowOffset = CGSizeZero;
+        [self.cameraAccessories addObject:self.groupButton];
+        [self.cameraView addSubview:self.groupButton];
+
         //record button
-        size = 60;
-        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2 - size/2, self.cameraView.frame.size.height - size/2, size, size)];
+        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
         [self.recordButton setBackgroundColor:[UIColor redColor]];
-        [self.recordButton.layer setCornerRadius:size/2];
+        [self.recordButton.layer setCornerRadius:recordButtonWidth/2.0];
         [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
         [self.recordButton.layer setBorderWidth:4.0f];
         
-        UILongPressGestureRecognizer *buttonLongPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-        [buttonLongPressGestureRecognizer setMinimumPressDuration:0.2f];
-        buttonLongPressGestureRecognizer.delegate = self;
-        [self.recordButton addGestureRecognizer:longPressGestureRecognizer];
+        UILongPressGestureRecognizer *longPressGestureRecognizerButton = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+        [longPressGestureRecognizerButton setMinimumPressDuration:0.2f];
+        [self.recordButton addGestureRecognizer:longPressGestureRecognizerButton];
         [self.cameraAccessories addObject:self.recordButton];
         [self.view addSubview:self.recordButton];
         
         //switch groups button
-        gutter = 96, height = 30;
-        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, self.cameraView.frame.size.height - height*2, self.cameraView.frame.size.width , height)];
-        
+        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-120, self.cameraView.frame.size.height - 30, 110, 30)];
         [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
-        [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"%@ · %@", [YAUser currentUser].currentGroup.name, @"Switch"] forState:UIControlStateNormal];
+        [self.switchGroupsButton setTitle:@"Switch groups" forState:UIControlStateNormal];
         
         self.switchGroupsButton.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.switchGroupsButton.layer.shadowRadius = 1.0f;
@@ -147,19 +157,10 @@
                                                    object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(willResignActive)
-                                                     name:UIApplicationWillResignActiveNotification
-                                                   object:nil];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didBecomeActive)
-                                                     name:UIApplicationDidBecomeActiveNotification
-                                                   object:nil];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didEnterBackground)
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
+
     }
     return self;
 }
@@ -179,7 +180,6 @@
 }
 
 - (void)initCamera:(void (^)())block {
-    
     NSLog(@"init camera");
     
     self.session = [[AVCaptureSession alloc] init];
@@ -310,9 +310,7 @@
     [self.cameraView bringSubviewToFront:self.instructions];
     
     [UIView animateWithDuration:0.2 animations:^{
-        for(UIView *v in self.cameraAccessories){
-            [v setAlpha:0.0];
-        }
+        [self showCameraAccessories:0];
         [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     }];
     
@@ -334,9 +332,7 @@
         
         [UIView animateWithDuration:0.2 animations:^{
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
-            for(UIView *v in self.cameraAccessories){
-                [v setAlpha:1.0];
-            }
+            [self showCameraAccessories:YES];
         }];
         
         [self.indicatorText setText:NSLocalizedString(@"RECORD_TIP", @"")];
@@ -533,12 +529,13 @@
             self.previousBrightness = [NSNumber numberWithFloat: [[UIScreen mainScreen] brightness]];
             [[UIScreen mainScreen] setBrightness:1.0];
             [self.view addSubview:self.white];
+            
             [self.view bringSubviewToFront:self.cameraView];
-            [self.view bringSubviewToFront:self.switchGroupsButton];
-            [self configureFlashButton:NO];
+            [self showCameraAccessories:YES];
+            [self configureFlashButton:YES];
         }
-        
     }
+
 }
 
 - (void)configureFlashButton:(BOOL)flash {
@@ -554,21 +551,7 @@
     [self.delegate toggleGroups];
 }
 
-- (void)willResignActive {
-    //    [self removeAudioInput];
-    // remove microphone
-    
-}
-
-- (void)didBecomeActive {
-    //    [self addAudioInput];
-    // add microphone
-}
-
 - (void)didEnterBackground {
-    //    NSLog(@"did enter background");
-    //    [self.view setAlpha:0.0];
-    
     if(self.flash && [[self.videoInput device] position] == AVCaptureDevicePositionFront){
         [self switchFlashMode:nil];
     }
@@ -580,5 +563,42 @@
     }];
 }
 
+- (void)showCameraAccessories:(BOOL)show {
+    for(UIView *v in self.cameraAccessories){
+        [v setAlpha:show ? 1 : 0];
+        if(show)
+            [self.view bringSubviewToFront:v];
+    }
+    
+}
+
+- (void)nameGroup:(id)sender {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"CHANGE_GROUP_TITLE", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
+        textField.text = [YAUser currentUser].currentGroup.name;
+    }];
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        NSString *newname = [alert.textFields[0] text];
+        if(!newname.length)
+            return;
+        
+        [[RLMRealm defaultRealm] beginWriteTransaction];
+        [YAUser currentUser].currentGroup.name = newname;
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
+        [self.groupButton setTitle:newname forState:UIControlStateNormal];
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+    }]];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)updateCurrentGroup {
+    [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
+}
 
 @end
