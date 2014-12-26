@@ -19,6 +19,11 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *movFilename;
 @property NSString *gifFilename;
 @property NSString *jpgFilename;
+
+@property NSString *creator;
+@property NSString *caption;
+@property NSDate *createdAt;
+@property BOOL like;
 @property BOOL uploaded;
 
 + (void)crateVideoAndAddToCurrentGroupFromRecording:(NSURL*)recordingUrl completionHandler:(videoCreatedCompletionHandler)handler jpgCreatedHandler:(jpgCreatedCompletionHandler)jpgHandler;

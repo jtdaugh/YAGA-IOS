@@ -22,6 +22,8 @@
     dispatch_once(&onceToken, ^{
         sharedCNetworking = [[self alloc] init];
         sharedCNetworking.countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
+        sharedCNetworking->dateFormatter = [[NSDateFormatter alloc] init];
+        [sharedCNetworking->dateFormatter setDateFormat:@"MM/dd hh:mma"];
     });
     return sharedCNetworking;
 }
@@ -154,4 +156,11 @@
     }];
 }
 
+- (NSString*)formatDate:(NSDate*)date {
+    return [dateFormatter stringFromDate:date];
+}
+
+- (NSString*)username {
+    return [[YAUser currentUser] objectForKey:nUsername];
+}
 @end

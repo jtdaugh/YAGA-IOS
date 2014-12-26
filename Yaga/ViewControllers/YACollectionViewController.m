@@ -129,11 +129,12 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
-    cell.movFilename = video.movFilename;
+
+    cell.video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     
     if(self.targetLayout == self.gridLayout) {
-        NSString *gifFilename = [video gifFilename];
+
+        NSString *gifFilename = cell.video.gifFilename;
         if(gifFilename.length) {
             dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
                 
@@ -149,7 +150,7 @@ static BOOL welcomeLabelRemoved = NO;
             });
         }
         else {
-            cell.gifView.image = [UIImage imageWithContentsOfFile:[YAUtils urlFromFileName:video.jpgFilename].path];
+            cell.gifView.image = [UIImage imageWithContentsOfFile:[YAUtils urlFromFileName:cell.video.jpgFilename].path];
         }
     } else {
         AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
@@ -177,12 +178,13 @@ static BOOL welcomeLabelRemoved = NO;
     self.collectionView.alwaysBounceVertical = newLayout == self.gridLayout;
     
     if(newLayout == self.gridLayout) {
-        self.collectionView.collectionViewLayout = newLayout;
         [weakSelf.delegate showCamera:YES showPart:NO completion:^{
-            weakSelf.disableScrollHandling = NO;
-            [weakSelf.collectionView reloadData];
+            
         }];
         
+        self.collectionView.collectionViewLayout = newLayout;
+        weakSelf.disableScrollHandling = NO;
+        [weakSelf.collectionView reloadData];
     }
     else {
         [self.delegate showCamera:NO showPart:NO completion:^{

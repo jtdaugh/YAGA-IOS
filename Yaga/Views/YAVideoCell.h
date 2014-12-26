@@ -9,10 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "FLAnimatedImage.h"
 #import "AVPlaybackViewController.h"
+#import "YAVideo.h"
 
-@interface YAVideoCell : UICollectionViewCell
+@interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate>
+@property (nonatomic, strong) YAVideo *video;
+
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
 @property (nonatomic, strong) AVPlaybackViewController *playerVC;
-@property (nonatomic, assign) NSUInteger layoutIndex;
-@property (nonatomic, copy) NSString *movFilename;
 @end

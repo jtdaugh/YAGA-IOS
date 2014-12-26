@@ -18,6 +18,12 @@
 
 @implementation YAVideo
 
+#pragma mark - Realm
++ (NSDictionary *)defaultPropertyValues{
+    return @{@"jpgFilename":@"", @"gifFilename":@"", @"caption":@"", @"createdAt":[NSDate date]};
+}
+
+#pragma mark - Utils
 + (void)crateVideoAndAddToCurrentGroupFromRecording:(NSURL*)recordingUrl completionHandler:(videoCreatedCompletionHandler)completionHandler jpgCreatedHandler:(jpgCreatedCompletionHandler)jpgHandler {
     
     NSString *hashStr = [YAUtils uniqueId];
@@ -38,9 +44,10 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [[RLMRealm defaultRealm] beginWriteTransaction];
         YAVideo *video = [YAVideo new];
+        video.creator = [[YAUser currentUser] username];
+        video.createdAt = [NSDate date];
         video.movFilename = moveFilename;
-        video.jpgFilename = @"";
-        video.gifFilename = @"";
+        
         video.uploaded = NO;
         [[YAUser currentUser].currentGroup.videos insertObject:video atIndex:0];
         [[RLMRealm defaultRealm] commitWriteTransaction];
