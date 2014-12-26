@@ -55,7 +55,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.tableView.delegate = self;
     self.tableView.backgroundColor = self.backgroundColor;
     
-    [self.tableView setSeparatorColor:PRIMARY_COLOR];
+//    [self.tableView setSeparatorColor:PRIMARY_COLOR];
+    [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
     
     // This will remove extra separators from tableview

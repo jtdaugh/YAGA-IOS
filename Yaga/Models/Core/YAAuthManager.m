@@ -257,14 +257,11 @@
                                          };
             
             id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
-            NSString *j = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
             
             NSURL *url=[NSURL URLWithString:api];
             
             NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:url];
             [request setHTTPMethod:@"PUT"];
-
-            //[request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
             
             [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
             

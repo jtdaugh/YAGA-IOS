@@ -9,6 +9,14 @@
 #import "YAGroupCreator.h"
 #import "YAContact.h"
 
+#define ID      @"id"
+#define USER    @"user"
+#define NAME    @"name"
+#define PHONE   @"phone"
+#define MEMBERS @"members"
+
+#define DATABASE_DEFAULT_VALUE @"Null"
+
 @interface User : NSObject
 @property (nonatomic, strong) NSString *phone;
 @property (nonatomic, strong) NSString *name;
@@ -28,18 +36,18 @@
 {
     YAGroup *group = [YAGroup new];
     group.groupId = [YAGroup generateGroupId];
-    group.tempGroupId = [dictionary[@"id"] integerValue];
-    group.name = dictionary[@"name"];
+    group.tempGroupId = [dictionary[ID] integerValue];
+    group.name = dictionary[NAME];
     
-    NSArray *members = dictionary[@"members"];
+    NSArray *members = dictionary[MEMBERS];
     
     for(NSDictionary *memberDic in members){
         YAContact *contact = [YAContact new];
-        User *user = [self userFromDict:memberDic[@"user"]];
+        User *user = [self userFromDict:memberDic[USER]];
         contact.name = user.name;
         contact.firstName = user.name;
         contact.number = user.phone;
-        contact.registered = memberDic[@"joined_at"];
+        contact.registered = [memberDic objectForKey:@"joined_at"] != nil;
         
         [group.members addObject:contact];
     }
@@ -49,14 +57,14 @@
 + (User*)userFromDict:(NSDictionary*)dict
 {
     User* user = [User new];
-    NSString *name = dict[@"name"];
+    NSString *name = dict[NAME];
     if ([name isKindOfClass:[NSNull class]]){
-        user.name = @"Null";
+        user.name = DATABASE_DEFAULT_VALUE;
     }
     else {
         user.name = name;
     }
-    user.phone = dict[@"phone"];
+    user.phone = dict[PHONE];
     
     return user;
 }
