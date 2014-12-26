@@ -114,6 +114,7 @@
         self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(groupButtonXOrigin, 10, self.switchCameraButton.frame.origin.x - groupButtonXOrigin - 10 , size)];
         [self.groupButton addTarget:self action:@selector(nameGroup:) forControlEvents:UIControlEventTouchUpInside];
         [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
+        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         self.groupButton.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.groupButton.layer.shadowRadius = 1.0f;
         self.groupButton.layer.shadowOpacity = 1.0;
@@ -135,7 +136,8 @@
         [self.view addSubview:self.recordButton];
         
         //switch groups button
-        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-120, self.cameraView.frame.size.height - 30, 110, 30)];
+        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-120, self.cameraView.frame.size.height - 30 - 4, 110, 30)];
+        [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
         [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchGroupsButton setTitle:@"Switch groups" forState:UIControlStateNormal];
