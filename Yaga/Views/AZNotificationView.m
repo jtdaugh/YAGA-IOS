@@ -101,7 +101,7 @@ static const int NOTIFICATION_VIEW_HEIGHT = 64;
     [self setupNotificationType];
     
     // create the labels
-    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, screenBounds.size.width, NOTIFICATION_VIEW_HEIGHT)];
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, screenBounds.size.width - 20*2, NOTIFICATION_VIEW_HEIGHT)];
     titleLabel.text = _title;
     titleLabel.numberOfLines = 0;
     titleLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:17];

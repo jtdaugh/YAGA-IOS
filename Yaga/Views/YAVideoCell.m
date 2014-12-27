@@ -141,7 +141,7 @@
         [self.controls addObject:self.captionField];
         
         CGFloat tSize = 60;
-        self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize - 12, 12, tSize, tSize)];
+        self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
         [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
         [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
@@ -155,7 +155,7 @@
         [self.controls addObject:self.saveButton];
         
         self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake( VIEW_WIDTH - saveSize - 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
-        [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
+        [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Delete"] forState:UIControlStateNormal];
         [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.controls addObject:self.deleteButton];
     }
@@ -322,17 +322,12 @@
 
 - (void)deleteButtonPressed {
     [self animateButton:self.deleteButton withImageName:nil completion:^{
-        NSString *alertMessage = NSLocalizedString(@"Are you sure you want to delete this video?", nil);
+        NSString *alertMessageText = [NSString stringWithFormat:@"Are you sure you want to delete this video from '%@'?", [YAUser currentUser].currentGroup.name];
+        NSString *alertMessage = NSLocalizedString(alertMessageText, nil);
         UIAlertController *alertController = [UIAlertController
-                                              alertControllerWithTitle:NSLocalizedString(@"Warning", nil)
+                                              alertControllerWithTitle:NSLocalizedString(@"Delete Video", nil)
                                               message:alertMessage
                                               preferredStyle:UIAlertControllerStyleAlert];
-        [alertController addAction:[UIAlertAction
-                                    actionWithTitle:NSLocalizedString(@"Yes", nil)
-                                    style:UIAlertActionStyleDefault
-                                    handler:^(UIAlertAction *action) {
-                                        [[NSNotificationCenter defaultCenter] postNotificationName:DELETE_VIDEO_NOTIFICATION object:self.video];
-                                    }]];
         
         [alertController addAction:[UIAlertAction
                                     actionWithTitle:NSLocalizedString(@"Cancel", nil)
@@ -340,6 +335,14 @@
                                     handler:^(UIAlertAction *action) {
             
         }]];
+        
+        [alertController addAction:[UIAlertAction
+                                    actionWithTitle:NSLocalizedString(@"Delete", nil)
+                                    style:UIAlertActionStyleDestructive
+                                    handler:^(UIAlertAction *action) {
+                                        [[NSNotificationCenter defaultCenter] postNotificationName:DELETE_VIDEO_NOTIFICATION object:self.video];
+                                    }]];
+
 
         [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
     }];
@@ -370,8 +373,8 @@
 }
 
 -(void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
-    [AZNotification showNotificationWithTitle:NSLocalizedString(@"Video saved to the camera roll successfully", @"")controller:[UIApplication sharedApplication].keyWindow.rootViewController
-                             notificationType:AZNotificationTypeSuccess
+    [AZNotification showNotificationWithTitle:NSLocalizedString(@"Video saved to camera roll successfully", @"")controller:[UIApplication sharedApplication].keyWindow.rootViewController
+                             notificationType:AZNotificationTypeMessage
                                  startedBlock:nil];
 }
 
