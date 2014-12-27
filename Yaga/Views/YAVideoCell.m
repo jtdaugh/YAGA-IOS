@@ -18,7 +18,7 @@
 @property (nonatomic, strong) UITextField *captionField;
 @property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *likeCount;
-@property BOOL likeCountShown;
+@property BOOL likesShown;
 @property (nonatomic, strong) NSMutableArray *likeLabels;
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *saveButton;
@@ -219,28 +219,38 @@
 
 - (void)likeCountPressed {
     
-    if(self.likeCountShown){
-        [self hideLikeCount];
-        self.likeCountShown = NO;
+    if(self.likesShown){
+        [self hideLikes];
+        self.likesShown = NO;
     } else {
-        [self showLikeCount];
-        self.likeCountShown = YES;
+        [self showLikes];
+        self.likesShown = YES;
+        
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideLikesTapOut:)];
+        [self addGestureRecognizer:tap];
     }
 }
 
-- (void)showLikeCount {
+- (void)hideLikesTapOut:(UIGestureRecognizer *) recognizer {
+    [self removeGestureRecognizer:recognizer];
+    [self hideLikes];
+    self.likesShown = NO;
+    
+}
+
+- (void)showLikes {
     // TODO: insert realm code here to get correct likes; hardcoded for now
-    NSArray *likes = @[@"ninajvir", @"rjvir", @"chriwend", @"a_j_r"];
+    NSArray *likes = @[@"ninajvir", @"rjvir", @"chriwend", @"a_j_r"];//, @"b9speed", @"dlg", @"valentin", @"iegor", @"victor", @"kyle"];
     
     CGFloat origin = self.likeCount.frame.origin.y;
     CGFloat height = 24;
-    CGFloat margin = 16;
+    CGFloat margin = 12;
     CGFloat width = 72;
     
     self.likeLabels = [[NSMutableArray alloc] init];
     
     for(NSString *like in likes){
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - margin, width, height)];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin + self.likeCount.frame.size.height/2, width, height)];
         [label setText:like];
         [label setTextAlignment:NSTextAlignmentRight];
         [label setTextColor:[UIColor whiteColor]];
@@ -256,6 +266,9 @@
         [self addSubview:label];
     }
     
+    CGFloat xRadius = 500;
+    CGFloat yRadius = 3000;
+    
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
         int i = 0;
@@ -264,9 +277,14 @@
             //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
             //
             [label setAlpha:1.0];
-            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
-            CGAffineTransform rotate = CGAffineTransformMakeRotation(5.0f * M_PI / 180 * ((CGFloat) i + 1.0f));
-            [label setTransform:CGAffineTransformTranslate(rotate, 7.0f * ((CGFloat) i), 0.0f)];
+//            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
+            CGFloat angle = (1.0f * M_PI / 180 * ((CGFloat) i + 1.0f));
+            
+            CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
+//            CGAffineTransformMake
+            CGFloat translateX = xRadius - fabsf(xRadius*cosf(angle));
+            CGFloat translateY = -fabsf(yRadius*sinf(angle));
+            [label setTransform:CGAffineTransformTranslate(rotate, translateX, translateY)];
             
             i++;
             
@@ -276,20 +294,15 @@
     }];
 }
 
-- (void)hideLikeCount {
+- (void)hideLikes {
     int i = 0;
-
-    CGFloat origin = self.likeCount.frame.origin.y;
-    CGFloat height = 24;
-    CGFloat margin = 16;
-    CGFloat width = 72;
 
     for(UILabel *label in self.likeLabels){
         [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
             //
             [label setAlpha:0.0];
-            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - margin, width, height)];
+//            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - margin, width, height)];
             [label setTransform:CGAffineTransformIdentity];
             
         } completion:^(BOOL finished) {
