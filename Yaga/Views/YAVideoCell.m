@@ -256,7 +256,8 @@
         [self addSubview:label];
     }
     
-    [UIView animateWithDuration:0.3 animations:^{
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
         int i = 0;
         
         for(UILabel *label in self.likeLabels){
@@ -270,6 +271,8 @@
             i++;
             
         }
+    } completion:^(BOOL finished) {
+        //
     }];
 }
 
@@ -282,7 +285,7 @@
     CGFloat width = 72;
 
     for(UILabel *label in self.likeLabels){
-        [UIView animateWithDuration:0.3 animations:^{
+        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
             //
             [label setAlpha:0.0];
