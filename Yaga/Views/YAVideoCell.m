@@ -17,6 +17,9 @@
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) UITextField *captionField;
 @property (nonatomic, strong) UIButton *likeButton;
+@property (nonatomic, strong) UIButton *likeCount;
+@property BOOL likeCountShown;
+@property (nonatomic, strong) NSMutableArray *likeLabels;
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *saveButton;
 @property (nonatomic, strong) UIButton *deleteButton;
@@ -161,6 +164,18 @@
     self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.controls addObject:self.likeButton];
+    
+    CGFloat likeCountWidth = 24, likeCountHeight = 42;
+    self.likeCount = [[UIButton alloc] initWithFrame:CGRectMake(self.likeButton.frame.origin.x + self.likeButton.frame.size.width + 8, VIEW_HEIGHT - likeCountHeight - 12, likeCountWidth, likeCountHeight)];
+    [self.likeCount addTarget:self action:@selector(likeCountPressed) forControlEvents:UIControlEventTouchUpInside];
+//    [self.likeCount setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    [self.likeCount.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
+    self.likeCount.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.likeCount.layer.shadowRadius = 1.0f;
+    self.likeCount.layer.shadowOpacity = 1.0;
+    self.likeCount.layer.shadowOffset = CGSizeZero;
+//    [self.likeCount setBackgroundColor:[UIColor greenColor]];
+    [self.controls addObject:self.likeCount];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
@@ -200,6 +215,86 @@
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [self animateButton:self.likeButton withImageName:self.video.like ? @"Liked" : @"Like" completion:nil];
+}
+
+- (void)likeCountPressed {
+    
+    if(self.likeCountShown){
+        [self hideLikeCount];
+        self.likeCountShown = NO;
+    } else {
+        [self showLikeCount];
+        self.likeCountShown = YES;
+    }
+}
+
+- (void)showLikeCount {
+    // TODO: insert realm code here to get correct likes; hardcoded for now
+    NSArray *likes = @[@"ninajvir", @"rjvir", @"chriwend", @"a_j_r"];
+    
+    CGFloat origin = self.likeCount.frame.origin.y;
+    CGFloat height = 24;
+    CGFloat margin = 16;
+    CGFloat width = 72;
+    
+    self.likeLabels = [[NSMutableArray alloc] init];
+    
+    for(NSString *like in likes){
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - margin, width, height)];
+        [label setText:like];
+        [label setTextAlignment:NSTextAlignmentRight];
+        [label setTextColor:[UIColor whiteColor]];
+        [label setFont:[UIFont fontWithName:BIG_FONT size:16]];
+        
+        label.layer.shadowColor = [[UIColor blackColor] CGColor];
+        label.layer.shadowRadius = 1.0f;
+        label.layer.shadowOpacity = 1.0;
+        label.layer.shadowOffset = CGSizeZero;
+        [label setAlpha:0.0];
+        
+        [self.likeLabels addObject:label];
+        [self addSubview:label];
+    }
+    
+    [UIView animateWithDuration:0.3 animations:^{
+        int i = 0;
+        
+        for(UILabel *label in self.likeLabels){
+            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
+            //
+            [label setAlpha:1.0];
+            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
+            CGAffineTransform rotate = CGAffineTransformMakeRotation(5.0f * M_PI / 180 * ((CGFloat) i + 1.0f));
+            [label setTransform:CGAffineTransformTranslate(rotate, 7.0f * ((CGFloat) i), 0.0f)];
+            
+            i++;
+            
+        }
+    }];
+}
+
+- (void)hideLikeCount {
+    int i = 0;
+
+    CGFloat origin = self.likeCount.frame.origin.y;
+    CGFloat height = 24;
+    CGFloat margin = 16;
+    CGFloat width = 72;
+
+    for(UILabel *label in self.likeLabels){
+        [UIView animateWithDuration:0.3 animations:^{
+            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
+            //
+            [label setAlpha:0.0];
+            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - margin, width, height)];
+            [label setTransform:CGAffineTransformIdentity];
+            
+        } completion:^(BOOL finished) {
+            [label removeFromSuperview];
+        }];
+        i++;
+    }
+    
 }
 
 - (void)saveButtonPressed {
@@ -308,6 +403,7 @@
     self.captionField.text = @"";
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.captionField.text = self.video.caption;
+    [self.likeCount setTitle:@"4" forState:UIControlStateNormal]; //TODO: make real number from realm
     
     if(self.video && self.playerVC)
         [self showControls:YES];
