@@ -6,24 +6,24 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "AddMembersViewController.h"
+#import "YAGroupAddMembersViewController.h"
 #import "NameGroupViewController.h"
 #import "APPhoneWithLabel.h"
 #import "NSString+Hash.h"
 #import "YAAuthManager.h"
 #import "YAGroupCreator.h"
 #import "YAUtils.h"
+#import "AZNotification.h"
 
-@interface AddMembersViewController ()
+@interface YAGroupAddMembersViewController ()
 @property (strong, nonatomic) VENTokenField *searchBar;
 @property (strong, nonatomic) UILabel *placeHolder;
 @property (strong, nonatomic) UITableView *membersTableview;
 @property (strong, nonatomic) NSMutableArray *filteredContacts;
 @property (strong, nonatomic) NSArray *deviceContacts;
-- (void)cancelScreen;
 @end
 
-@implementation AddMembersViewController
+@implementation YAGroupAddMembersViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -79,21 +79,21 @@
     
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[searchBar][border(1)]-0-[membersList]|" options:0 metrics:nil views:views]];
     
-    UIBarButtonItem *anotherButton = [[UIBarButtonItem alloc] initWithTitle:self.existingGroup ? NSLocalizedString(@"Done", @"") : NSLocalizedString(@"Next", @"") style:UIBarButtonItemStylePlain target:self action:@selector(nextScreen)];
-    [anotherButton setTitleTextAttributes:@{
+    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneTapped)];
+    [doneButton setTitleTextAttributes:@{
                                             NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
                                             } forState:UIControlStateNormal];
-    [anotherButton setEnabled:NO];
-    [anotherButton setTintColor:[UIColor lightGrayColor]];
-    self.navigationItem.rightBarButtonItem = anotherButton;
+    [doneButton setEnabled:NO];
+    [doneButton setTintColor:[UIColor lightGrayColor]];
+    self.navigationItem.rightBarButtonItem = doneButton;
     
-    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", @"") style:UIBarButtonItemStylePlain target:self action:@selector(cancelScreen)];
-    [cancelButton setTitleTextAttributes:@{
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", @"") style: UIBarButtonItemStylePlain target:self action:@selector(backTapped)];
+    [backButton setTitleTextAttributes:@{
                                            NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
                                            } forState:UIControlStateNormal];
-    [cancelButton setEnabled:YES];
-    [cancelButton setTintColor:[UIColor lightGrayColor]];
-    self.navigationItem.leftBarButtonItem = cancelButton;
+    [backButton setEnabled:YES];
+    [backButton setTintColor:PRIMARY_COLOR];//[UIColor lightGrayColor]];
+    self.navigationItem.leftBarButtonItem = backButton;
     
     if(self.selectedContacts.count) {
         [self reloadSearchBox];
@@ -134,11 +134,6 @@
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationController.navigationBar.translucent = YES;;
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
 - (void)keyboardWasShown:(NSNotification *)notification {
@@ -251,24 +246,24 @@
 }
 
 #pragma mark - Navigation
-- (void)nextScreen {
+- (void)doneTapped {
     if(self.existingGroup) {
         [[RLMRealm defaultRealm] beginWriteTransaction];
         [self.existingGroup.members removeAllObjects];
         
         for(NSDictionary *memberDic in self.selectedContacts) {
-            YAContact *contact = [YAContact new];
-            contact.name = memberDic[nCompositeName];
-            contact.firstName = memberDic[nFirstname];
-            contact.lastName  = memberDic[nLastname];
-            contact.number = memberDic[nPhone];
-            contact.registered = [memberDic[nRegistered] boolValue];
-            
-            [self.existingGroup.members addObject:contact];
+            [self.existingGroup.members addObject:[YAContact contactFromDictionary:memberDic]];
         }
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [self.navigationController popToRootViewControllerAnimated:YES];
+        
+        
+        //just for now
+        NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
+        [AZNotification showNotificationWithTitle:notificationMessage controller:[UIApplication sharedApplication].keyWindow.rootViewController
+                                 notificationType:AZNotificationTypeSuccess
+                                     startedBlock:nil];
     }
     //new group
     else {
@@ -292,11 +287,13 @@
 }
 
 #pragma mark - Actions
-- (void)cancelScreen {
-    if(self.existingGroup)
-        [self dismissViewControllerAnimated:YES completion:nil];
-    else
+- (void)backTapped {
+    if(self.existingGroup) {
+        [self.navigationController popToRootViewControllerAnimated:YES];
+    }
+    else {
         [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 #pragma mark -

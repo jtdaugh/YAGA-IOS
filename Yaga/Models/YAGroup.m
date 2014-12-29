@@ -45,12 +45,18 @@
     return results;
 }
 
-+ (NSString*)generateGroupId {
++ (YAGroup*)group {
     CFUUIDRef theUUID = CFUUIDCreate(NULL);
     CFStringRef string = CFUUIDCreateString(NULL, theUUID);
     CFRelease(theUUID);
     
-    return [NSString stringWithFormat:@"group_%@", (__bridge NSString *)string];
+    YAGroup *result = [YAGroup new];
+    result.groupId = [NSString stringWithFormat:@"group_%@", (__bridge NSString *)string];
+    
+    return result;
 }
 
+- (void)leaveGroup {
+    
+}
 @end

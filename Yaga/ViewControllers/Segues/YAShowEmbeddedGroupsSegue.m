@@ -7,13 +7,13 @@
 //
 
 #import "YAShowEmbeddedGroupsSegue.h"
-#import "MyGroupsViewController.h"
+#import "YAGroupsViewController.h"
 #import "GridViewController.h"
 
 @implementation YAShowEmbeddedGroupsSegue
 
 - (void)perform {
-    MyGroupsViewController *groupsViewController = (MyGroupsViewController*)self.destinationViewController;
+    YAGroupsViewController *groupsViewController = (YAGroupsViewController*)self.destinationViewController;
     GridViewController *gridController = (GridViewController*)self.sourceViewController;
     gridController.groupsViewController = groupsViewController;
     

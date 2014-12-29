@@ -9,7 +9,7 @@
 #import "UsernameViewController.h"
 #import "YAUser.h"
 //#import "Yaga-Swift.h"
-#import "MyGroupsViewController.h"
+#import "YAGroupsViewController.h"
 #import "YAAuthManager.h"
 
 @interface UsernameViewController ()
@@ -118,8 +118,8 @@
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[MyGroupsViewController class]]) {
-        MyGroupsViewController *groupsVC = ((MyGroupsViewController*)segue.destinationViewController);
+    if([segue.destinationViewController isKindOfClass:[YAGroupsViewController class]]) {
+        YAGroupsViewController *groupsVC = ((YAGroupsViewController*)segue.destinationViewController);
         groupsVC.titleText = @"Looks like you're already a part of a group. Pick which one you'd like to go to now.";
         groupsVC.backgroundColor = [UIColor blackColor];
         groupsVC.showEditButton = NO;

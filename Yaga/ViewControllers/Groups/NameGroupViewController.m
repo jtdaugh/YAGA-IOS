@@ -111,8 +111,7 @@
                                                   RLMRealm *realm = [RLMRealm defaultRealm];
                                                   [realm beginWriteTransaction];
                                                   
-                                                  YAGroup *group = [YAGroup new];
-                                                  group.groupId = [YAGroup generateGroupId];
+                                                  YAGroup *group = [YAGroup group];
                                                   group.tempGroupId = [[YAGroupCreator sharedCreator].groupId integerValue];
                                                   group.name = self.groupNameTextField.text;
                                                   

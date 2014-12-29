@@ -18,10 +18,19 @@
 "View/Edit Members" = "View/Edit Members";
 "Mute" = "Mute";
 "Unmute" = "Unmute";
+"Muted" = "Muted";
+"Unmuted" = "Unmuted";
+"Leave" = "Leave";
 "Group" = "Group";
-"Leave Group" = "Leave Group";
+"Remove" = "Remove";
+
 "Stop receiving notifications from this group" = "Stop receiving notifications from this group";
 "Recieve notifications from this group" = "Recieve  notifications from this group";
+"Are you sure you would like to leave?" = "Are you sure you would like to leave?";
+"Add Members" = "Add Members";
+"Are you sure you would like to remove %@ from %@?" = "Are you sure you would like to remove %@ from %@?";
+"Updated successfully" = "Updated successfully";
+"You have left" = "You have left";
 
 "NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";
 "NO VIDOES IN NEW GROUP MESSAGE" = "You don't have videos yet, tap record button to record";

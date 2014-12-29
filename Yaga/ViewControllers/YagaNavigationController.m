@@ -8,7 +8,7 @@
 
 #import "YagaNavigationController.h"
 #import "YAPhoneNumberViewController.h"
-#import "AddMembersViewController.h"
+#import "YAGroupAddMembersViewController.h"
 
 @interface YagaNavigationController ()
 

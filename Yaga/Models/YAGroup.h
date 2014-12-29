@@ -21,7 +21,9 @@
 @property RLMArray<YAVideo> *videos;
 
 - (NSString*)membersString;
-+ (NSString*)generateGroupId;
++ (YAGroup*)group;
+
+- (void)leaveGroup;
 
 @end
 

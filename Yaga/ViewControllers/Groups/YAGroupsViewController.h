@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MyGroupsViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate> {
+@interface YAGroupsViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate> {
     NSUInteger editingIndex;
 }
 @property (nonatomic, strong) UITableView *tableView;

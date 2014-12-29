@@ -32,10 +32,8 @@
     return sCreator;
 }
 
-+ (YAGroup*)createGroupWithDictionary:(NSDictionary*)dictionary
-{
-    YAGroup *group = [YAGroup new];
-    group.groupId = [YAGroup generateGroupId];
++ (YAGroup*)createGroupWithDictionary:(NSDictionary*)dictionary {
+    YAGroup *group = [YAGroup group];
     group.tempGroupId = [dictionary[ID] integerValue];
     group.name = dictionary[NAME];
     

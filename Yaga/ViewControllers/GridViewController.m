@@ -11,7 +11,7 @@
 #import "YagaNavigationController.h"
 #import <Crashlytics/Crashlytics.h>
 #import "YAPhoneNumberViewController.h"
-#import "AddMembersViewController.h"
+#import "YAGroupAddMembersViewController.h"
 
 #import "YAUtils.h"
 #import "YAHideEmbeddedGroupsSegue.h"
@@ -28,6 +28,15 @@
     
     [self setupView];
 }
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+//    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+//    self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
+//    self.navigationController.navigationBar.translucent = YES;;
+}
+
 
 - (void)logout {
     [[YAUser currentUser] logout];

@@ -18,20 +18,6 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 - (void)test;
 @end
 
-#define nUsername @"username"
-#define nPhone @"phone"
-#define nCountry @"country"
-#define nToken @"token"
-#define nUserId @"user_id"
-#define nCompositeName @"composite_name"
-#define nFirstname @"firstname"
-#define nLastname @"lastname"
-#define nRegistered @"registered"
-
-#define nCurrentGroupId @"current_group_id"
-
-#define DIAL_CODE @"dial_code"
-#define COUNTRY_CODE @"code"
 
 @interface YAUser : NSObject
 

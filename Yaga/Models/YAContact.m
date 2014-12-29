@@ -27,4 +27,19 @@
     return [YAUtils readableNumberFromString:self.number];
 }
 
++ (YAContact*)contactFromDictionary:(NSDictionary*)dictionary {
+    YAContact *contact = [YAContact new];
+    contact.name = dictionary[nCompositeName];
+    contact.firstName = dictionary[nFirstname];
+    contact.lastName  = dictionary[nLastname];
+    contact.number = dictionary[nPhone];
+    contact.registered = [dictionary[nRegistered] boolValue];
+
+    return contact;
+}
+
+- (NSDictionary*)dictionaryRepresentation {
+    NSDictionary *result = @{nCompositeName:self.name, nFirstname:self.firstName, nLastname:self.lastName, nPhone:self.number, nRegistered:[NSNumber numberWithBool:self.registered]};
+    return result;
+}
 @end

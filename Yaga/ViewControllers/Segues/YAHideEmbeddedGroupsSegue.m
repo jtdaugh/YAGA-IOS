@@ -7,13 +7,13 @@
 //
 
 #import "YAHideEmbeddedGroupsSegue.h"
-#import "MyGroupsViewController.h"
+#import "YAGroupsViewController.h"
 #import "GridViewController.h"
 
 @implementation YAHideEmbeddedGroupsSegue
 
 - (void)perform {
-    MyGroupsViewController *groupsController = (MyGroupsViewController*)self.sourceViewController;
+    YAGroupsViewController *groupsController = (YAGroupsViewController*)self.sourceViewController;
     GridViewController *gridController = (GridViewController*)[groupsController parentViewController];
     
     [groupsController.view setTransform:CGAffineTransformIdentity];

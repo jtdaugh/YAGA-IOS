@@ -6,22 +6,27 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "MyGroupsViewController.h"
+
+#import "YAGroupsViewController.h"
 #import "YAUser.h"
 #import "GroupsTableViewCell.h"
-#import "AddMembersViewController.h"
 #import "YAAuthManager.h"
 #import "UIImage+Color.h"
 #import "YAAuthManager.h"
 
-@interface MyGroupsViewController ()
+#import "YAGroupAddMembersViewController.h"
+#import "YAGroupMembersViewController.h"
+
+#import "AZNotification.h"
+
+@interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
 
-@implementation MyGroupsViewController
+@implementation YAGroupsViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -109,7 +114,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         [refreshGroupsButton.titleLabel setTextAlignment: NSTextAlignmentCenter];
         [refreshGroupsButton sizeToFit];
         [self.view addSubview:refreshGroupsButton];
-    
+        
     }
 }
 
@@ -263,7 +268,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[AddMembersViewController class]]) {
+    if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
         if(editingIndex != NSUIntegerMax) {
             //            AddMembersViewController *members = (AddMembersViewController*)segue.destinationViewController;
         }
@@ -303,14 +308,10 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"View/Edit Members", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         editingIndex = indexPath.row;
-        //[self performSegueWithIdentifier:@"ChangeGroup" sender:nil];
         
-        AddMembersViewController *members = [AddMembersViewController new];
-        members.existingGroup = self.groups[indexPath.row];
-        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:members];
-        [self presentViewController:navController animated:YES completion:nil];
+        YAGroupMembersViewController *membersVC = [[YAGroupMembersViewController alloc] initWithGroup:group];
+        [self.navigationController pushViewController:membersVC animated:YES];
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-        
     }]];
     
     NSString *muteTitle = [YAUser currentUser].currentGroup.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
@@ -320,16 +321,15 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self muteUnmuteGroupAtIndexPath:indexPath];
     }]];
     
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Leave Group", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        NSLog(@"not implemented");
+    [alert addAction:[UIAlertAction actionWithTitle:[NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")] style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self leaveGroupAtIndexPath:indexPath];
     }]];
     
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
     
     [self presentViewController:alert animated:YES completion:nil];
- 
+    
     
 }
 - (void)muteUnmuteGroupAtIndexPath:(NSIndexPath*)indexPath {
@@ -339,14 +339,46 @@ static NSString *CellIdentifier = @"GroupsCell";
     muteTitle = [muteTitle stringByAppendingFormat:@" %@", group.name];
     NSString *muteMessage = [YAUser currentUser].currentGroup.muted  ?  NSLocalizedString(@"Recieve notifications from this group", @"") : NSLocalizedString(@"Stop receiving notifications from this group", @"");
     
-    
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Confirm", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
+        
         [[RLMRealm defaultRealm] beginWriteTransaction];
         group.muted = !group.muted;
         [[RLMRealm defaultRealm] commitWriteTransaction];
         [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+        //just for now
+        NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), group.name, group.muted ? NSLocalizedString(@"Muted", @"") : NSLocalizedString(@"Unmuted", @"")];
+        [AZNotification showNotificationWithTitle:notificationMessage controller:self
+                                 notificationType:AZNotificationTypeSuccess
+                                     startedBlock:nil];
+        
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)leaveGroupAtIndexPath:(NSIndexPath*)indexPath {
+    __block YAGroup *group = self.groups[indexPath.row];
+    
+    NSString *muteTitle = [NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
+    NSString *muteMessage = [NSLocalizedString(@"Are you sure you would like to leave?", @"") stringByAppendingFormat:@" %@", group.name];
+    NSString *confirmTitle = [NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
+        
+        //just for now
+        NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@ %@", NSLocalizedString(@"Group", @""), group.name];
+        [AZNotification showNotificationWithTitle:notificationMessage controller:[UIApplication sharedApplication].keyWindow.rootViewController
+                                 notificationType:AZNotificationTypeSuccess
+                                     startedBlock:nil];
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
