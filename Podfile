@@ -9,4 +9,4 @@ pod 'SwipeView', '~> 1.3.2'
 pod 'Shimmer'
 pod 'FrameAccessor', '~> 1.0'
 pod 'FLAnimatedImage', '~> 1.0'
-pod 'NSDate+TimeAgo', :inhibit_warnings => true
+pod 'NSDate-Time-Ago', :inhibit_warnings => true

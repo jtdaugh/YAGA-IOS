@@ -10,7 +10,7 @@
 #import "YAUtils.h"
 #import "YAUser.h"
 #import "AZNotification.h"
-#import "NSDate+TimeAgo.h"
+#import "NSDate+NVTimeAgo.h"
 
 @interface YAVideoCell ()
 @property (nonatomic, strong) NSMutableArray *controls;
@@ -433,7 +433,7 @@
         return;
     
     self.userLabel.text = self.video.creator;
-    self.timestampLabel.text = [self.video.createdAt timeAgo];
+    self.timestampLabel.text = [[self.video.createdAt formattedAsTimeAgo] lowercaseString];
     self.captionField.text = @"";
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.captionField.text = self.video.caption;
