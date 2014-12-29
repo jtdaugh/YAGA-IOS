@@ -13,7 +13,6 @@
 #import "YAAuthManager.h"
 #import "YAGroupCreator.h"
 #import "YAUtils.h"
-#import "AZNotification.h"
 
 @interface YAGroupAddMembersViewController ()
 @property (strong, nonatomic) VENTokenField *searchBar;
@@ -261,9 +260,8 @@
         
         //just for now
         NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
-        [AZNotification showNotificationWithTitle:notificationMessage controller:[UIApplication sharedApplication].keyWindow.rootViewController
-                                 notificationType:AZNotificationTypeSuccess
-                                     startedBlock:nil];
+       
+        [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
     }
     //new group
     else {

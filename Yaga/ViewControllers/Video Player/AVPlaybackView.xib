@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <archive type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="8.00">
 	<data>
-		<int key="IBDocument.SystemTarget">1792</int>
+		<int key="IBDocument.SystemTarget">2048</int>
 		<string key="IBDocument.SystemVersion">14B25</string>
 		<string key="IBDocument.InterfaceBuilderVersion">6254</string>
 		<string key="IBDocument.AppKitVersion">1343.16</string>
@@ -88,12 +88,9 @@
 				<int key="IBUISystemItemIdentifier">18</int>
 			</object>
 			<object class="IBUISlider" id="769997647">
-				<reference key="NSNextResponder"/>
+				<nil key="NSNextResponder"/>
 				<int key="NSvFlags">266</int>
 				<string key="NSFrameSize">{224, 23}</string>
-				<reference key="NSSuperview"/>
-				<reference key="NSWindow"/>
-				<reference key="NSNextKeyView"/>
 				<bool key="IBUIOpaque">NO</bool>
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 				<int key="IBUIContentHorizontalAlignment">0</int>
@@ -323,7 +320,6 @@
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="pause:">id</string>
 						<string key="play:">id</string>
-						<string key="showMetadata:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="pause:">
@@ -332,10 +328,6 @@
 						</object>
 						<object class="IBActionInfo" key="play:">
 							<string key="name">play:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="showMetadata:">
-							<string key="name">showMetadata:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 					</dictionary>
@@ -381,7 +373,6 @@
 						<string key="pause:">id</string>
 						<string key="play:">id</string>
 						<string key="scrub:">id</string>
-						<string key="showMetadata:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="beginScrubbing:">
@@ -402,10 +393,6 @@
 						</object>
 						<object class="IBActionInfo" key="scrub:">
 							<string key="name">scrub:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="showMetadata:">
-							<string key="name">showMetadata:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 					</dictionary>

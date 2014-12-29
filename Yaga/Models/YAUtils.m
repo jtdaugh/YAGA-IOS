@@ -55,4 +55,11 @@
     NSString *path = [[YAUtils cachesDirectory] stringByAppendingPathComponent:fileName];
     return [NSURL fileURLWithPath:path];
 }
+
++ (void)showNotification:(NSString*)message type:(AZNotificationType)type {
+    [AZNotification showNotificationWithTitle:message controller:[UIApplication sharedApplication].keyWindow.rootViewController
+                             notificationType:type
+                                 startedBlock:nil];
+}
+
 @end

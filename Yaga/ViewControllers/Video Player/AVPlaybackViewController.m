@@ -48,12 +48,10 @@
 
 #import "AVPlaybackViewController.h"
 #import "AVPlaybackView.h"
-#import "AZNotification.h"
 
 @interface AVPlaybackViewController ()
 - (void)play:(id)sender;
 - (void)pause:(id)sender;
-- (void)showMetadata:(id)sender;
 - (void)initScrubberTimer;
 - (void)showPlayButton;
 - (void)showStopButton;
@@ -170,14 +168,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 	[self.mPlayer pause];
 
     [self showPlayButton];
-}
-
-/* Display AVMetadataCommonKeyTitle and AVMetadataCommonKeyCopyrights metadata. */
-- (IBAction)showMetadata:(id)sender
-{
-    [AZNotification showNotificationWithTitle:@"Not implemented" controller:self
-                             notificationType:AZNotificationTypeWarning
-                                 startedBlock:nil];
 }
 
 #pragma mark -
@@ -420,7 +410,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     UIBarButtonItem *flexItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     
     UIButton *infoButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
-    [infoButton addTarget:self action:@selector(showMetadata:) forControlEvents:UIControlEventTouchUpInside];
+    //[infoButton addTarget:self action:@selector(showMetadata:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *infoItem = [[UIBarButtonItem alloc] initWithCustomView:infoButton];
 
     self.mToolbar.items = @[self.mPlayButton, flexItem, scrubberItem, infoItem];

@@ -11,7 +11,6 @@
 
 #import "YAUser.h"
 #import "YAUtils.h"
-#import "AZNotification.h"
 
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
@@ -395,18 +394,14 @@
     if (RecordedSuccessfully) {
         
         if(error) {
-            [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
-                                     notificationType:AZNotificationTypeError
-                                         startedBlock:nil];
+            [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:AZNotificationTypeError];
             return;
         }
         
         [YAVideo crateVideoAndAddToCurrentGroupFromRecording:outputFileURL completionHandler:^(NSError *error, YAVideo *video) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if(error) {
-                    [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
-                                             notificationType:AZNotificationTypeError
-                                                 startedBlock:nil];
+                    [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:AZNotificationTypeError];
                     return;
                 }
                 else {
@@ -422,9 +417,7 @@
         
         
     } else {
-        [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] controller:self
-                                 notificationType:AZNotificationTypeError
-                                     startedBlock:nil];
+        [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:AZNotificationTypeError];
     }
     
 }

@@ -87,6 +87,5 @@
 
 - (IBAction)play:(id)sender;
 - (IBAction)pause:(id)sender;
-- (IBAction)showMetadata:(id)sender;
 - (void)playWhenReady;
 @end

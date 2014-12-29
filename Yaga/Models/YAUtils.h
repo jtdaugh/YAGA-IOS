@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AZNotification.h"
 
 typedef void (^uploadDataCompletionBlock)(NSError *error);
 
@@ -16,4 +17,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (NSString*)cachesDirectory;
 + (NSString *)uniqueId;
 + (NSURL*)urlFromFileName:(NSString*)fileName;
+
+//UI
++ (void)showNotification:(NSString*)message type:(AZNotificationType)type;
 @end

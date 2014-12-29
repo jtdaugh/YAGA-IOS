@@ -10,11 +10,12 @@
 #import "NBPhoneNumberUtil.h"
 #import "UsernameViewController.h"
 #import "YAUser.h"
+#import "YAUtils.h"
+
 #import "NSString+Hash.h"
 
 //#import "Yaga-Swift.h"
 #import "YAAuthManager.h"
-#import "AZNotification.h"
 
 @interface YAPhoneNumberViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
@@ -152,16 +153,14 @@
     [self.activityIndicator startAnimating];
     self.next.enabled = NO;
     __weak typeof(self) weakSelf = self;
+
     [[YAAuthManager sharedManager] sendSMSAuthRequestForNumber:formattedNumber withCompletion:^(bool response, NSString *error) {
         if (!response)
         {
-            [AZNotification showNotificationWithTitle:error
-                                           controller:self
-                                     notificationType:AZNotificationTypeError
-                                         startedBlock:^{
-
-                                             weakSelf.next.enabled = YES;
-                }];
+            dispatch_async(dispatch_get_main_queue(),  ^{
+                [YAUtils showNotification:error type:AZNotificationTypeError];
+                weakSelf.next.enabled = YES;
+            });
         } else {
             [weakSelf performSegueWithIdentifier:@"AuthentificationViewController" sender:self];
         }

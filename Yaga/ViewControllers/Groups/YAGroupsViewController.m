@@ -9,6 +9,8 @@
 
 #import "YAGroupsViewController.h"
 #import "YAUser.h"
+#import "YAUtils.h"
+
 #import "GroupsTableViewCell.h"
 #import "YAAuthManager.h"
 #import "UIImage+Color.h"
@@ -16,8 +18,6 @@
 
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
-
-#import "AZNotification.h"
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -351,9 +351,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         
         //just for now
         NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), group.name, group.muted ? NSLocalizedString(@"Muted", @"") : NSLocalizedString(@"Unmuted", @"")];
-        [AZNotification showNotificationWithTitle:notificationMessage controller:self
-                                 notificationType:AZNotificationTypeSuccess
-                                     startedBlock:nil];
+        [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
         
     }]];
     
@@ -376,9 +374,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         
         //just for now
         NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@ %@", NSLocalizedString(@"Group", @""), group.name];
-        [AZNotification showNotificationWithTitle:notificationMessage controller:[UIApplication sharedApplication].keyWindow.rootViewController
-                                 notificationType:AZNotificationTypeSuccess
-                                     startedBlock:nil];
+        [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
