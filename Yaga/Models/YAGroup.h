@@ -15,6 +15,7 @@
 @property NSString *groupId;
 #pragma TODO: Remove this
 @property NSInteger tempGroupId;
+@property BOOL muted;
 
 @property RLMArray<YAContact> *members;
 @property RLMArray<YAVideo> *videos;

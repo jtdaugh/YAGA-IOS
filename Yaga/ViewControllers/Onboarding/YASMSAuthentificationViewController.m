@@ -106,27 +106,27 @@
 {
     [[YAUser currentUser] setAuthCode:self.number.text];
 
-    [[YAAuthManager sharedManager] sendTokenRequestWithCompletion:^(bool response, NSString *error) {
-
-        if (response) {
-            [[YAAuthManager sharedManager] getInfoForCurrentUserWithCompletion:^(bool response, NSString *error) {
-                if (response) {
-                    //This means that the user was already registered
-                    //and have a name.
-                    
-                    //Get all groups for this user
-                    [[YAAuthManager sharedManager] getGroupsWithCompletion:^(bool response, NSString *error) {
-                        [self performSegueWithIdentifier:@"GridViewController" sender:self];
-                    }];
-                    
-                } else {
-                    //This means that this user was never registered
+//    [[YAAuthManager sharedManager] sendTokenRequestWithCompletion:^(bool response, NSString *error) {
+//
+//        if (response) {
+//            [[YAAuthManager sharedManager] getInfoForCurrentUserWithCompletion:^(bool response, NSString *error) {
+//                if (response) {
+//                    //This means that the user was already registered
+//                    //and have a name.
+//                    
+//                    //Get all groups for this user
+//                    [[YAAuthManager sharedManager] getGroupsWithCompletion:^(bool response, NSString *error) {
+//                        [self performSegueWithIdentifier:@"GridViewController" sender:self];
+//                    }];
+//                    
+//                } else {
+//                    //This means that this user was never registered
                     [self performSegueWithIdentifier:@"UserNameViewController" sender:self];
-                }
-
-            }];
-        }
-    }];
+//                }
+//
+//            }];
+//        }
+//    }];
 }
 
 @end

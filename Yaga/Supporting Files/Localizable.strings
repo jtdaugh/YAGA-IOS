@@ -12,11 +12,16 @@
 "Next" = "Next";
 "Warning" = "Warning";
 "Cancel" = "Cancel";
+"Confirm" = "Confirm";
 "Back" = "Back";
 "Edit Title" = "Edit Title";
 "View/Edit Members" = "View/Edit Members";
-"Mute Group" = "Mute Group";
+"Mute" = "Mute";
+"Unmute" = "Unmute";
+"Group" = "Group";
 "Leave Group" = "Leave Group";
+"Stop receiving notifications from this group" = "Stop receiving notifications from this group";
+"Recieve notifications from this group" = "Recieve  notifications from this group";
 
 "NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";
 "NO VIDOES IN NEW GROUP MESSAGE" = "You don't have videos yet, tap record button to record";

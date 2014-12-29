@@ -57,7 +57,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.tableView.delegate = self;
     self.tableView.backgroundColor = self.backgroundColor;
     
-//    [self.tableView setSeparatorColor:PRIMARY_COLOR];
+    //    [self.tableView setSeparatorColor:PRIMARY_COLOR];
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
     
@@ -109,7 +109,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         [refreshGroupsButton.titleLabel setTextAlignment: NSTextAlignmentCenter];
         [refreshGroupsButton sizeToFit];
         [self.view addSubview:refreshGroupsButton];
-
+    
     }
 }
 
@@ -169,6 +169,8 @@ static NSString *CellIdentifier = @"GroupsCell";
         cell.layoutMargins = UIEdgeInsetsZero;
     }
     
+    cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
+    cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
     cell.selectedBackgroundView = [self createBackgroundViewForCell:cell];
     return cell;
 }
@@ -243,6 +245,33 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (IBAction)unwindFromViewController:(id)source {}
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
+    [self showGroupOptionsForGroupAtIndex:indexPath];
+    
+}
+
+#pragma mark - Utils
+- (UIView*)createBackgroundViewForCell:(UITableViewCell*)cell {
+    UIView *bkgView = [[UIView alloc] initWithFrame:cell.bounds];
+    bkgView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    //get 0.3 alpha from main color
+    CGFloat r,g,b,a;
+    [PRIMARY_COLOR getRed:&r green:&g blue:&b alpha:&a];
+    bkgView.backgroundColor = [UIColor colorWithRed:r green:g blue:b alpha:0.3];
+    return bkgView;
+}
+
+#pragma mark - Segues
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if([segue.destinationViewController isKindOfClass:[AddMembersViewController class]]) {
+        if(editingIndex != NSUIntegerMax) {
+            //            AddMembersViewController *members = (AddMembersViewController*)segue.destinationViewController;
+        }
+    }
+}
+
+#pragma  mark - Alerts
+- (void)showGroupOptionsForGroupAtIndex:(NSIndexPath*)indexPath {
     __block YAGroup *group = self.groups[indexPath.row];
     
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:group.name message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
@@ -269,7 +298,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         }]];
         
         [self presentViewController:changeTitleAlert animated:YES completion:nil];
-
+        
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"View/Edit Members", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -281,11 +310,14 @@ static NSString *CellIdentifier = @"GroupsCell";
         UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:members];
         [self presentViewController:navController animated:YES completion:nil];
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-
+        
     }]];
     
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Mute Group", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        NSLog(@"not implemented");
+    NSString *muteTitle = [YAUser currentUser].currentGroup.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
+    muteTitle = [muteTitle stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:muteTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self muteUnmuteGroupAtIndexPath:indexPath];
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Leave Group", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -297,27 +329,31 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     
     [self presentViewController:alert animated:YES completion:nil];
-}
-
-#pragma mark - Utils
-- (UIView*)createBackgroundViewForCell:(UITableViewCell*)cell {
-    UIView *bkgView = [[UIView alloc] initWithFrame:cell.bounds];
-    bkgView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+ 
     
-    //get 0.3 alpha from main color
-    CGFloat r,g,b,a;
-    [PRIMARY_COLOR getRed:&r green:&g blue:&b alpha:&a];
-    bkgView.backgroundColor = [UIColor colorWithRed:r green:g blue:b alpha:0.3];
-    return bkgView;
 }
-
-#pragma mark - Segues
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[AddMembersViewController class]]) {
-        if(editingIndex != NSUIntegerMax) {
-//            AddMembersViewController *members = (AddMembersViewController*)segue.destinationViewController;
-        }
-    }
+- (void)muteUnmuteGroupAtIndexPath:(NSIndexPath*)indexPath {
+    __block YAGroup *group = self.groups[indexPath.row];
+    
+    NSString *muteTitle = [YAUser currentUser].currentGroup.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
+    muteTitle = [muteTitle stringByAppendingFormat:@" %@", group.name];
+    NSString *muteMessage = [YAUser currentUser].currentGroup.muted  ?  NSLocalizedString(@"Recieve notifications from this group", @"") : NSLocalizedString(@"Stop receiving notifications from this group", @"");
+    
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Confirm", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [[RLMRealm defaultRealm] beginWriteTransaction];
+        group.muted = !group.muted;
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        
+    }]];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 @end
