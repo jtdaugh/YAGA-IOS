@@ -33,9 +33,7 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 #define DIAL_CODE @"dial_code"
 #define COUNTRY_CODE @"code"
 
-@interface YAUser : NSObject {
-    NSDateFormatter *dateFormatter;
-}
+@interface YAUser : NSObject
 
 @property (nonatomic, strong) YAGroup *currentGroup;
 @property (nonatomic, strong) NSString *phoneNumber;
@@ -65,6 +63,5 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 
 - (void)importContactsWithCompletion:(contactsImportedBlock)completion;
 
-- (NSString*)formatDate:(NSDate*)date;
 - (NSString*)username;
 @end
