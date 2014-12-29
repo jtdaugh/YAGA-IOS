@@ -150,7 +150,7 @@
         
         CGFloat saveSize = 36;
         self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
-        [self.saveButton setBackgroundImage:[UIImage imageNamed:@"Share"] forState:UIControlStateNormal];
+        [self.saveButton setBackgroundImage:[UIImage imageNamed:@"Save"] forState:UIControlStateNormal];
         [self.saveButton addTarget:self action:@selector(saveButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.controls addObject:self.saveButton];
         
@@ -317,22 +317,22 @@
 
 - (void)saveButtonPressed {
 
-    NSString *message = @"Yaga Video";
-    NSURL *videoPath = [YAUtils urlFromFileName:self.video.movFilename];
-    
-    NSArray *objectsToShare = [NSArray arrayWithObjects:message, videoPath, nil];
-    
-    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:nil];
-    
-    [self.window.rootViewController presentViewController:activityViewController
-                                       animated:YES
-                                     completion:^{
-                                         // ...
-                                     }];    
-//    [self animateButton:self.saveButton withImageName:nil completion:^{
-//        NSString *path = [YAUtils urlFromFileName:self.video.movFilename].path;
-//        UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError: contextInfo:), nil);
-//    }];
+//    NSString *message = @"Yaga Video";
+//    NSURL *videoPath = [YAUtils urlFromFileName:self.video.movFilename];
+//    
+//    NSArray *objectsToShare = [NSArray arrayWithObjects:message, videoPath, nil];
+//    
+//    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:nil];
+//    
+//    [self.window.rootViewController presentViewController:activityViewController
+//                                       animated:YES
+//                                     completion:^{
+//                                         // ...
+//                                     }];    
+    [self animateButton:self.saveButton withImageName:nil completion:^{
+        NSString *path = [YAUtils urlFromFileName:self.video.movFilename].path;
+        UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError: contextInfo:), nil);
+    }];
 }
 
 - (void)deleteButtonPressed {
