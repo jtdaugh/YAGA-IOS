@@ -13,9 +13,6 @@
 {
     UIViewController *dst = (UIViewController *) self.destinationViewController;
 
-    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-    appDelegate.window.rootViewController = dst;
-   
     CATransition *animation = [CATransition animation];
     [animation setDuration:0.4];
     [animation setType:kCATransitionPush];
@@ -23,5 +20,9 @@
     [animation setTimingFunction:[CAMediaTimingFunction  functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
     
     [[dst.view layer] addAnimation:animation forKey:nil];
+    
+    
+    AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    appDelegate.window.rootViewController = dst;
 }
 @end
