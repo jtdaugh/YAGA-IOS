@@ -11,6 +11,7 @@
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
 #import "NSDictionary+ResponseObject.h"
 #import "YAUser.h"
+#import "YAUtils.h"
 
 #define HOST @"https://yaga-dev.herokuapp.com"
 #define PORT @"443"
@@ -287,6 +288,42 @@
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
+    }];
+}
+
+#pragma mark - Posts 
+- (void)uploadPost:(YAVideo*)post inGroup:(YAGroup*)group withCompletion:(responseBlock)completion
+{
+    NSData *video = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:post.movFilename]];
+    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/add_post/", self.base_api, group.serverId];
+    
+    [self.manager POST:api
+            parameters:nil
+               success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                   NSDictionary *d = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+                   NSDictionary *dict = d[@"meta"];
+                   NSString *endpoint = dict[@"endpoint"];
+                   [self multipartUpload:endpoint withParameters:dict[@"fields"] withFile:video];
+               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                   NSLog(@"%@", error);
+               }];
+}
+
+- (void)multipartUpload:(NSString*)endpoint withParameters:(NSDictionary*)dict withFile:(NSData*)file
+{
+    AFHTTPRequestOperationManager *newManager = [AFHTTPRequestOperationManager manager];
+    AFXMLParserResponseSerializer *responseSerializer = [AFXMLParserResponseSerializer serializer];
+    newManager.responseSerializer = responseSerializer;
+    [newManager POST:endpoint
+            parameters:dict
+    constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        [formData appendPartWithFormData:file name:@"file"];
+        
+    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"%@", operation);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [self printErrorData:error];
+
     }];
 }
 

@@ -32,9 +32,6 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-//    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-//    self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
-//    self.navigationController.navigationBar.translucent = YES;;
 }
 
 
@@ -110,27 +107,6 @@
 
 - (void)closeGroups {
     [self.groupsViewController performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-}
-
-- (void) deleteUid:(NSString *)uid {
-    //val TODO:
-    
-    //    CNetworking *currentUser = [CNetworking currentUser];
-    //    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"groups/%@/%@/%@", self.YAGroup.groupId, STREAM, uid]] removeValueWithCompletionBlock:^(NSError *error, Firebase *ref) {
-    //
-    //        int index = 0;
-    //        int toDelete = -1;
-    //        for(FDataSnapshot *snapshot in [[CNetworking currentUser] gridDataForGroupId:self.YAGroup.groupId]){
-    //            if([snapshot.name isEqualToString:uid]){
-    //                toDelete = index;
-    //            }
-    //            index++;
-    //        };
-    //        if(toDelete > -1){
-    //            [[[CNetworking currentUser] gridDataForGroupId:self.YAGroup.groupId] removeObjectAtIndex:toDelete];
-    //        }
-    //        [self.gridTiles reloadData];
-    //    }];
 }
 
 
