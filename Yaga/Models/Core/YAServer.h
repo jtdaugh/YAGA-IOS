@@ -32,7 +32,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion;
 - (void)getGroupsWithCompletion:(responseBlock)completion;
 
-- (void)updateGroupMembers:(YAGroup*)group withCompletion:(responseBlock)completion;
+- (void)addGroupMembers:(YAGroup*)group withCompletion:(responseBlock)completion;
 
 - (void)renameGroup:(YAGroup*)group newName:(NSString*)newName withCompletion:(responseBlock)completion;
 - (void)removeGroup:(YAGroup*)group withCompletion:(responseBlock)completion;

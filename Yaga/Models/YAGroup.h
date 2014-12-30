@@ -16,19 +16,15 @@ typedef void(^completionBlock)(NSError *error);
 @property NSString *localId;
 @property NSString *serverId;
 @property BOOL muted;
-@property BOOL synchronized;
 
 @property RLMArray<YAContact> *members;
 @property RLMArray<YAVideo> *videos;
 
 - (NSString*)membersString;
 - (void)synchronizeWithServer;
-- (void)setNeedUpdateNameOnNextSync;
-- (void)setNeedUpdateMembersOnNext;
 
 + (YAGroup*)group;
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block;
-+ (void)synchronizeAllGroupsWithServer;
 
 @end
 

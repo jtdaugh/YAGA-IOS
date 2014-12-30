@@ -257,14 +257,14 @@
 
 #pragma mark - Navigation
 - (void)doneTapped {
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    
     if(self.existingGroup) {
+        [[RLMRealm defaultRealm] beginWriteTransaction];
         [self.existingGroup.members removeAllObjects];
         
         for(NSDictionary *memberDic in self.selectedContacts) {
             [self.existingGroup.members addObject:[YAContact contactFromDictionary:memberDic]];
         }
+        [[RLMRealm defaultRealm] commitWriteTransaction];
         
         [self.navigationController popToRootViewControllerAnimated:YES];
         
@@ -273,11 +273,13 @@
        
         [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
         
-        if(self.existingGroupDirty)
+        if(self.existingGroupDirty) {
             [self.existingGroup synchronizeWithServer];
+        }
     }
     //create default group
     else {
+        [[RLMRealm defaultRealm] beginWriteTransaction];
         YAGroup *group = [YAGroup group];
         group.name = @"Default";
         
@@ -285,16 +287,17 @@
             YAContact *contact = [YAContact contactFromDictionary:memberDic];
             [group.members addObject:contact];
         }
-        group.synchronized = NO;
-        
+
         [[RLMRealm defaultRealm] addObject:group];
         
         [YAUser currentUser].currentGroup = group;
 
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
         [self performSegueWithIdentifier:@"NameGroup" sender:self];
     }
     
-    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

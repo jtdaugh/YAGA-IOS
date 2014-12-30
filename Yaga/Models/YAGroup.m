@@ -11,13 +11,6 @@
 #import "NSDictionary+ResponseObject.h"
 #import "YAUtils.h"
 
-@interface YAGroup ()
-
-@property BOOL needsToUpdateNameOnServer;
-@property BOOL needsToUpdateMembersOnServer;
-
-@end
-
 @implementation YAGroup
 
 + (RLMPropertyAttributes)attributesForProperty:(NSString *)propertyName {
@@ -79,23 +72,15 @@
             contact.name = name;
         }
         contact.number = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
-    
+        
         contact.registered = [memberDic objectForKey:YA_RESPONSE_MEMBER_JOINED_AT] != nil;
         
         [self.members addObject:contact];
     }
 }
 
-+ (void)synchronizeAllGroupsWithServer {
-    for (YAGroup *group in [YAGroup allObjects]) {
-        if(!group.synchronized)
-            [group synchronizeWithServer];
-    }
-}
-
 - (void)synchronizeWithServer {
-    if(self.synchronized)
-        return;
+#warning TODO: use transaction Queue, we might not have internet connection at the moment
     
     //create group on server
     if(!self.serverId.length) {
@@ -107,7 +92,6 @@
                 [self.realm beginWriteTransaction];
                 
                 self.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
-                self.synchronized = YES;
                 
                 [self.realm commitWriteTransaction];
                 
@@ -115,44 +99,34 @@
             }
         }];
     }
-    //update existing group
+    //rename existing group
     else {
-        if(self.needsToUpdateNameOnServer) {
-            [[YAServer sharedServer] renameGroup:self newName:self.name withCompletion:^(id response, NSError *error) {
-                if(error) {
-                    NSLog(@"can't rename group with name %@, error %@", self.name, error.localizedDescription);
-                }
-                else {
-                    self.needsToUpdateNameOnServer = NO;
-                    if(!self.needsToUpdateMembersOnServer)
-                        self.synchronized = YES;
-                }
-            }];
-        }
+        [[YAServer sharedServer] renameGroup:self newName:self.name withCompletion:^(id response, NSError *error) {
+            if(error) {
+                NSLog(@"can't rename group with name %@, error %@", self.name, error.localizedDescription);
+            }
+            else {
+                //
+            }
+        }];
         
-        if(self.needsToUpdateMembersOnServer) {
-            [[YAServer sharedServer] updateGroupMembers:self withCompletion:^(id response, NSError *error) {
-                if(error) {
-                    NSLog(@"can't update members in group %@, error %@", self.name, error.localizedDescription);
-                }
-                else {
-                    self.needsToUpdateMembersOnServer = NO;
-                    if(!self.needsToUpdateNameOnServer)
-                        self.synchronized = YES;
-                }
-            }];
-        }
+        //        if(self.needsToUpdateMembersOnServer) {
+        //            [[YAServer sharedServer] addGroupMembers:self withCompletion:^(id response, NSError *error) {
+        //                if(error) {
+        //                    NSLog(@"can't update members in group %@, error %@", self.name, error.localizedDescription);
+        //                }
+        //                else {
+        //                    [self.realm beginWriteTransaction];
+        //
+        //                    self.needsToUpdateMembersOnServer = NO;
+        //                    if(!self.needsToUpdateNameOnServer)
+        //                        self.synchronized = YES;
+        //
+        //                    [self.realm beginWriteTransaction];
+        //                }
+        //            }];
+        //        }
     }
-}
-
-- (void)setNeedUpdateNameOnNextSync {
-    self.needsToUpdateNameOnServer = YES;
-    self.synchronized = NO;
-}
-
-- (void)setNeedUpdateMembersOnNext {
-    self.needsToUpdateMembersOnServer = YES;
-    self.synchronized = NO;
 }
 
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {
@@ -164,7 +138,7 @@
                 block(error);
             
             return;
-
+            
         }
         else {
             NSAssert([response isKindOfClass:[NSArray class]], @"unexpected server result");
@@ -188,7 +162,7 @@
                 else {
                     group = [YAGroup group];
                 }
-
+                
                 [group updateFromDictionary:dict];
                 
                 if(!existingGroups.count)

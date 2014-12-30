@@ -51,6 +51,7 @@
 		6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C61A3F3A5A0034AB63 /* VENToken.m */; };
 		6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E9188C71A3F3A5A0034AB63 /* VENToken.xib */; };
 		6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C91A3F3A5A0034AB63 /* VENTokenField.m */; };
+		6EA285201A5306D90029641E /* YAServerTransactionQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA2851F1A5306D90029641E /* YAServerTransactionQueue.m */; };
 		6EA942131A403E1D001803C5 /* YAContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942121A403E1D001803C5 /* YAContact.m */; };
 		6EA942161A404B00001803C5 /* YAGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942151A404B00001803C5 /* YAGroup.m */; };
 		6EA942191A405C80001803C5 /* YAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942181A405C80001803C5 /* YAUtils.m */; };
@@ -168,6 +169,8 @@
 		6E9188C71A3F3A5A0034AB63 /* VENToken.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VENToken.xib; sourceTree = "<group>"; };
 		6E9188C81A3F3A5A0034AB63 /* VENTokenField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENTokenField.h; sourceTree = "<group>"; };
 		6E9188C91A3F3A5A0034AB63 /* VENTokenField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VENTokenField.m; sourceTree = "<group>"; };
+		6EA2851E1A5306D90029641E /* YAServerTransactionQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAServerTransactionQueue.h; sourceTree = "<group>"; };
+		6EA2851F1A5306D90029641E /* YAServerTransactionQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAServerTransactionQueue.m; sourceTree = "<group>"; };
 		6EA942111A403E1D001803C5 /* YAContact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAContact.h; sourceTree = "<group>"; };
 		6EA942121A403E1D001803C5 /* YAContact.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAContact.m; sourceTree = "<group>"; };
 		6EA942141A404B00001803C5 /* YAGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroup.h; sourceTree = "<group>"; };
@@ -366,6 +369,8 @@
 				6E9188891A3F3A5A0034AB63 /* NetworkManager.swift */,
 				86B864971A41B7DE002256FF /* YAServer.h */,
 				86B864981A41B7DE002256FF /* YAServer.m */,
+				6EA2851E1A5306D90029641E /* YAServerTransactionQueue.h */,
+				6EA2851F1A5306D90029641E /* YAServerTransactionQueue.m */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -537,7 +542,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = 8V4V36C528;
+						DevelopmentTeam = JE26HLJZLX;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -674,6 +679,7 @@
 				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
 				6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */,
+				6EA285201A5306D90029641E /* YAServerTransactionQueue.m in Sources */,
 				6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */,
 				6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */,
 				6E9188D01A3F3A5A0034AB63 /* UIImage+Resize.m in Sources */,

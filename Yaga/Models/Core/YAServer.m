@@ -184,7 +184,7 @@
     }];
 }
 
-- (void)updateGroupMembers:(YAGroup*)group withCompletion:(responseBlock) completion {
+- (void)addGroupMembers:(YAGroup*)group withCompletion:(responseBlock) completion {
     NSAssert(self.token, @"token not set");
     NSAssert(group.serverId, @"group not synchronized with server yet");
 
@@ -296,4 +296,6 @@
     NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
     NSLog(@"%@", [NSString stringFromHex:hex]);
 }
+
+
 @end

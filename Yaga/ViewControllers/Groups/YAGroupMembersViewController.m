@@ -81,11 +81,6 @@ static NSString *CellID = @"CellID";
 
 - (void)addMembersTapped {
     YAGroupAddMembersViewController *addMembersVC = [YAGroupAddMembersViewController new];
-//    addMembersVC.selectedContacts = [[NSMutableArray alloc] initWithCapacity:self.group.members.count];
-//    
-//    for(YAContact *contact in self.group.members) {
-//        [addMembersVC.selectedContacts addObject:[contact dictionaryRepresentation]];
-//    }
     
     addMembersVC.existingGroup = self.group;
     [self.navigationController pushViewController:addMembersVC animated:YES];
@@ -127,7 +122,7 @@ static NSString *CellID = @"CellID";
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    cell.textLabel.text = [NSString stringWithFormat:@"%@ %@", contact.firstName, contact.lastName];
+    cell.textLabel.text = contact.name;
     
     cell.detailTextLabel.text = contact.readableNumber;
     
