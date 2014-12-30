@@ -39,7 +39,7 @@
     
     [self.view setBackgroundColor:[UIColor blackColor]];
     
-    VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0.0f, 40, VIEW_WIDTH, 42)];
+    VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 44)];
     searchBar.translatesAutoresizingMaskIntoConstraints = NO;
     [searchBar setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
     [searchBar setBackgroundColor:[UIColor blackColor]];
@@ -68,6 +68,7 @@
     
     membersList.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.membersTableview = membersList;
+    
     [self.view addSubview:self.membersTableview];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(searchBar, border, membersList);
@@ -105,6 +106,7 @@
         else {
             weakSelf.deviceContacts = contacts;
             weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
+            [weakSelf.membersTableview reloadData];
         }
     }];
 }
@@ -118,20 +120,12 @@
     
     [self.searchBar becomeFirstResponder];
     
-    [self.navigationController setNavigationBarHidden:NO animated:NO];
-    
-    CGFloat navbarHeight = self.navigationController.navigationBar.bounds.size.height;
-    [UIView animateWithDuration:0.4 animations:^{
-        self.view.frame = CGRectMake(0, navbarHeight, VIEW_WIDTH, VIEW_HEIGHT - navbarHeight);
-        
-    }];
-    
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
+    self.edgesForExtendedLayout = UIRectEdgeNone;
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
-    self.navigationController.navigationBar.translucent = YES;;
+    self.navigationController.navigationBar.translucent = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
