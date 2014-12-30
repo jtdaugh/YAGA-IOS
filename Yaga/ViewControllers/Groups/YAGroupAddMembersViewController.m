@@ -19,6 +19,8 @@
 @property (strong, nonatomic) UITableView *membersTableview;
 @property (strong, nonatomic) NSMutableArray *filteredContacts;
 @property (strong, nonatomic) NSArray *deviceContacts;
+
+@property (assign, nonatomic) BOOL existingGroupDirty;
 @end
 
 @implementation YAGroupAddMembersViewController
@@ -198,6 +200,8 @@
     
     [self.filteredContacts removeObjectAtIndex:indexPath.row];
     [self.membersTableview deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    
+    self.existingGroupDirty = YES;
 }
 
 - (NSString *)tokenField:(VENTokenField *)tokenField titleForTokenAtIndex:(NSUInteger)index {
@@ -214,6 +218,8 @@
     [self.filteredContacts removeObjectsInArray:self.selectedContacts];
     
     [self.membersTableview reloadData];
+    
+    self.existingGroupDirty = YES;
 }
 
 - (void)tokenField:(VENTokenField *)tokenField didChangeText:(NSString *)text {
@@ -241,6 +247,8 @@
         [self.filteredContacts addObjectsFromArray:filtered];
         [self.membersTableview reloadData];
     }
+    
+    self.existingGroupDirty = YES;
 }
 
 - (NSUInteger)numberOfTokensInTokenField:(VENTokenField *)tokenField {
@@ -257,7 +265,6 @@
         for(NSDictionary *memberDic in self.selectedContacts) {
             [self.existingGroup.members addObject:[YAContact contactFromDictionary:memberDic]];
         }
-        [[RLMRealm defaultRealm] commitWriteTransaction];
         
         [self.navigationController popToRootViewControllerAnimated:YES];
         
@@ -266,7 +273,8 @@
        
         [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
         
-        [self.existingGroup synchronizeWithServer];
+        if(self.existingGroupDirty)
+            [self.existingGroup synchronizeWithServer];
     }
     //create default group
     else {

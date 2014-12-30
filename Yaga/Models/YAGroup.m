@@ -98,7 +98,7 @@
         return;
     
     //create group on server
-    if(!self.serverId) {
+    if(!self.serverId.length) {
         [[YAServer sharedServer] createGroupWithName:self.name withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
             if(error) {
                 NSLog(@"can't create group with name %@, error %@", self.name, error.localizedDescription);
@@ -159,7 +159,10 @@
     [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
         if(error) {
             NSLog(@"can't fetch remove groups, error: %@", error.localizedDescription);
-            block(error);
+            
+            if(block)
+                block(error);
+            
             return;
 
         }
@@ -193,7 +196,8 @@
             }
             
             [[RLMRealm defaultRealm] commitWriteTransaction];
-            block(nil);
+            if(block)
+                block(nil);
         }
     }];
 }

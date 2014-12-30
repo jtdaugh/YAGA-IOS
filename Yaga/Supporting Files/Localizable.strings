@@ -24,6 +24,7 @@
 "Group" = "Group";
 "Remove" = "Remove";
 
+"Looks like you're already a part of a group" = "Looks like you're already a part of a group. Pick which one you'd like to go to now.";
 "Incorrect confirmation code entered, try again" = "Incorrect confirmation code entered, try again";
 "Stop receiving notifications from this group" = "Stop receiving notifications from this group";
 "Recieve notifications from this group" = "Recieve  notifications from this group";

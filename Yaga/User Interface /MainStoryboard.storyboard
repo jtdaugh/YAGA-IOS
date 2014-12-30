@@ -221,6 +221,22 @@
             </objects>
             <point key="canvasLocation" x="-815" y="1519"/>
         </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="NII-7j-bRq">
+            <objects>
+                <navigationController storyboardIdentifier="OnboardingSelectGroupNavigationController" id="z9V-vH-Ona" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Sgi-cW-FgY">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="owe-ug-5LR" kind="relationship" relationship="rootViewController" id="CTA-Ga-1fc"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="lFX-dG-FnW" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-477" y="-2553"/>
+        </scene>
         <!--Groups View Controller-->
         <scene sceneID="PG1-gJ-s8x">
             <objects>
@@ -234,6 +250,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <navigationItem key="navigationItem" id="sPE-sa-3og"/>
                     <connections>
                         <segue destination="54o-Be-McY" kind="custom" identifier="SelectExistingGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="fvS-6s-erS"/>
                         <segue destination="aCm-EC-oWm" kind="show" identifier="CreateNewGroup" id="ira-DT-4cj"/>
@@ -312,8 +329,8 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="OXh-u4-OoS"/>
-        <segue reference="ira-DT-4cj"/>
-        <segue reference="rfC-CX-Kmk"/>
-        <segue reference="zAA-Ft-OZ6"/>
+        <segue reference="ulu-fm-wh2"/>
+        <segue reference="Tvw-pK-akS"/>
+        <segue reference="CTA-Ga-1fc"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -29,10 +29,13 @@
     else if(![[YAUser currentUser] loggedIn]) {
         identifier = @"OnboardingNavigationController";
     }
-    else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup) {
+    else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && ![YAGroup allObjects].count) {
         identifier = @"OnboardingNoGroupsNavigationController";
     }
-    
+    else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && [YAGroup allObjects].count) {
+        identifier = @"OnboardingSelectGroupNavigationController";
+    }
+
     UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
     self.window.rootViewController = viewController;
     
@@ -40,6 +43,9 @@
     
     [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
     [application registerForRemoteNotifications];
+    
+    if([[YAUser currentUser] loggedIn])
+        [YAGroup updateGroupsFromServerWithCompletion:nil];
     
     return YES;
 }

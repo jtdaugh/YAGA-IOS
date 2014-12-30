@@ -18,6 +18,7 @@
 
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
+#import "GridViewController.h"
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -37,15 +38,27 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self.view addGestureRecognizer:tapToClose];
     }
     
+    BOOL onboardingMode = YES;
+    
+    for(UIViewController *vc in self.navigationController.viewControllers) {
+        if([vc isKindOfClass:[GridViewController class]]) {
+            onboardingMode = NO;
+            break;
+        }
+    }
+
+    
     self.groups = [YAGroup allObjects];
-    self.view.backgroundColor = self.backgroundColor;
+    self.view.backgroundColor = onboardingMode ? [UIColor blackColor] : [UIColor whiteColor];
     
     CGFloat width = VIEW_WIDTH * .8;
     
     CGFloat origin = VIEW_HEIGHT *.025;
-    if(self.titleText) {
+    
+    
+    if(onboardingMode) {
         UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
-        [titleLabel setText:@"Looks like you're already a part of a group. Pick which one you'd like to go to now."];
+        [titleLabel setText:NSLocalizedString(@"Looks like you're already a part of a group", @"")];
         [titleLabel setNumberOfLines:4];
         [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
         [titleLabel setTextAlignment:NSTextAlignmentCenter];
@@ -54,13 +67,14 @@ static NSString *CellIdentifier = @"GroupsCell";
         origin = titleLabel.frame.origin.y + titleLabel.frame.size.height;
     }
     
-    self.tableView.backgroundColor = [UIColor yellowColor];
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, 0, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.showCreateGroupButton ? ELEVATOR_MARGIN : 0))];
+    
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.showCreateGroupButton ? ELEVATOR_MARGIN : 0))];
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
-    self.tableView.backgroundColor = self.backgroundColor;
+    self.tableView.backgroundColor = onboardingMode ? [UIColor blackColor] : [UIColor whiteColor];
+    
     
     //    [self.tableView setSeparatorColor:PRIMARY_COLOR];
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
@@ -101,12 +115,12 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self refreshGroups];
+    
+    [self.navigationController setNavigationBarHidden:YES];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [YAGroup synchronizeAllGroupsWithServer];
 }
 
 
@@ -166,9 +180,14 @@ static NSString *CellIdentifier = @"GroupsCell";
         cell.layoutMargins = UIEdgeInsetsZero;
     }
     
+    if(!self.showEditButton)
+        cell.accessoryView = nil;
+    
+    
     cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
     cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
     cell.selectedBackgroundView = [self createBackgroundViewForCell:cell];
+    
     return cell;
 }
 
@@ -208,13 +227,13 @@ static NSString *CellIdentifier = @"GroupsCell";
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         YAGroup *group = self.groups[indexPath.row];
         [[YAServer sharedServer] removeGroup:group
-                                                    withCompletion:^(NSDictionary *response, NSError *error) {
-                                                        
-                                                        [[RLMRealm defaultRealm] beginWriteTransaction];
-                                                        [[RLMRealm defaultRealm] deleteObject:group];
-                                                        [[RLMRealm defaultRealm] commitWriteTransaction];
-                                                        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                                                    }];
+                              withCompletion:^(NSDictionary *response, NSError *error) {
+                                  
+                                  [[RLMRealm defaultRealm] beginWriteTransaction];
+                                  [[RLMRealm defaultRealm] deleteObject:group];
+                                  [[RLMRealm defaultRealm] commitWriteTransaction];
+                                  [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                              }];
     }
 }
 
@@ -228,19 +247,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self close];
     
     editingIndex = NSUIntegerMax;
-}
-
-- (void)refreshGroups {
-    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-        if(error) {
-            
-        }
-        else {
-            self.groups = [YAGroup allObjects];
-            
-            [self.tableView reloadData];
-        }
-    }];
 }
 
 - (IBAction)unwindFromViewController:(id)source {}
