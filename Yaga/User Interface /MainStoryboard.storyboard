@@ -214,7 +214,8 @@
                     <connections>
                         <segue destination="Xo8-xg-cRY" kind="show" identifier="UserNameViewController" id="2A8-ou-e1j"/>
                         <segue destination="zoO-EX-Xej" kind="show" identifier="GridViewController" id="Gxp-qs-vlC"/>
-                        <segue destination="owe-ug-5LR" kind="show" identifier="ShowExistingGroupsAfterAuthenitificatioon" id="rfC-CX-Kmk"/>
+                        <segue destination="owe-ug-5LR" kind="showDetail" identifier="ShowExistingGroupsAfterAuthenitificatioon" id="rfC-CX-Kmk"/>
+                        <segue destination="8kB-zq-qpz" kind="showDetail" identifier="ShowNoGroupsForExistingUser" id="zAA-Ft-OZ6"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dTj-X0-Iz4" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -311,10 +312,10 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="fvS-6s-erS"/>
+        <segue reference="OXh-u4-OoS"/>
+        <segue reference="ira-DT-4cj"/>
         <segue reference="rfC-CX-Kmk"/>
         <segue reference="Gxp-qs-vlC"/>
-        <segue reference="JW0-6p-qUQ"/>
-        <segue reference="ira-DT-4cj"/>
+        <segue reference="zAA-Ft-OZ6"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -13,5 +13,5 @@
 @interface YAGroupAddMembersViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, VENTokenFieldDelegate, VENTokenFieldDataSource>
 
 @property (strong, nonatomic) YAGroup *existingGroup;
-@property (strong, nonatomic) NSMutableArray *selectedContacts;
+@property (readonly, nonatomic) NSMutableArray *selectedContacts;
 @end

@@ -86,7 +86,7 @@
 - (void)getInfoForCurrentUserWithCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     
-    NSString *api = [NSString stringWithFormat:@"%@/user/info/", self.base_api];
+    NSString *api = [NSString stringWithFormat:@"%@/user/profile/", self.base_api];
     
     [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
@@ -121,7 +121,7 @@
     
 }
 
-- (void)sendTokenRequestWithCompletion:(responseBlock)completion
+- (void)requestAuthTokenWithCompletion:(responseBlock)completion
 {
     NSString *authCode = [[YAUser currentUser] authCode];
     NSDictionary *parameters = @{
@@ -169,7 +169,7 @@
 {
     NSAssert(self.token, @"token not set");
     
-    NSString *api = [NSString stringWithFormat:@"%@/group/", self.base_api];
+    NSString *api = [NSString stringWithFormat:@"%@/groups/", self.base_api];
     
     NSDictionary *parameters = @{
                                  @"name": groupName
@@ -198,7 +198,7 @@
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
-    NSString *api = [NSString stringWithFormat:@"%@/group/%@/", self.base_api, group.serverId];
+    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/", self.base_api, group.serverId];
     
     NSURL *url = [NSURL URLWithString:api];
     
@@ -223,7 +223,7 @@
 {
     NSAssert(self.token, @"token not set");
     
-    NSString *api = [NSString stringWithFormat:@"%@/group/%@/add/", self.base_api, groupId];
+    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/add/", self.base_api, groupId];
     
     NSDictionary *parameters = @{
                                  @"phone": userPhone
@@ -242,7 +242,7 @@
     NSAssert(self.token, @"token not set");
     NSAssert(group.serverId, @"group doesn't exist on server yet");
     
-    NSString *api = [NSString stringWithFormat:@"%@/group/%@/", self.base_api, group.serverId];
+    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/", self.base_api, group.serverId];
     
     NSDictionary *parameters = @{
                                  @"name": newName
@@ -262,7 +262,7 @@
     NSAssert(self.token, @"token not set");
     NSAssert(group.serverId, @"group doesn't exist on server yet");
     
-    NSString *api = [NSString stringWithFormat:@"%@/group/%@/remove/", self.base_api, group.serverId];
+    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/remove/", self.base_api, group.serverId];
     
     NSDictionary *parameters = @{
                                  @"phone": self.phoneNumber
@@ -281,12 +281,12 @@
 {
     NSAssert(self.token, @"token not set");
     
-    NSString *api = [NSString stringWithFormat:@"%@/group/", self.base_api];
+    NSString *api = [NSString stringWithFormat:@"%@/groups/", self.base_api];
     
     [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        completion(error, nil);
+        completion(nil, error);
     }];
 }
 

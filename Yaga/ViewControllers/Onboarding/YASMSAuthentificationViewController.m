@@ -17,6 +17,7 @@
 @property (strong, nonatomic) UITextField *number;
 @property (strong, nonatomic) UIButton *country;
 @property (strong, nonatomic) UIButton *next;
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @end
 
 @implementation YASMSAuthentificationViewController
@@ -41,11 +42,11 @@
     origin = [self getNewOrigin:self.logo];
     
     self.cta = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.12)];
-
+    
     [self.cta setText:@"Enter confirmation code"];
     [self.cta setNumberOfLines:2];
     [self.cta setFont:[UIFont fontWithName:BIG_FONT size:24]];
-
+    
     [self.cta setTextAlignment:NSTextAlignmentCenter];
     [self.cta setTextColor:[UIColor whiteColor]];
     [self.view addSubview:self.cta];
@@ -78,11 +79,17 @@
     self.next = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
     [self.next setBackgroundColor:PRIMARY_COLOR];
     [self.next setTitle:@"Next" forState:UIControlStateNormal];
+    [self.next setTitle:@"" forState:UIControlStateDisabled];
     [self.next.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
     [self.next setAlpha:0.0];
     [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.next];
     
+    //Init activity indicator
+    self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    self.activityIndicator.center = self.next.center;
+    self.activityIndicator.hidesWhenStopped = YES;
+    [self.view addSubview:self.activityIndicator];
 }
 
 
@@ -105,33 +112,54 @@
 
 - (void)nextScreen
 {
+    [self.activityIndicator startAnimating];
+    self.next.enabled = NO;
+    
     [[YAUser currentUser] setAuthCode:self.number.text];
-
-    [[YAServer sharedServer] sendTokenRequestWithCompletion:^(id response, NSError *error) {
-
-        if (response) {
+    
+    [[YAServer sharedServer] requestAuthTokenWithCompletion:^(id response, NSError *error) {
+        if (!error) {
             [[YAServer sharedServer] getInfoForCurrentUserWithCompletion:^(id response, NSError *error) {
                 //old user
-                if (response) {
-                    NSString *username = (NSString*)response;
-                    [[YAUser currentUser] saveObject:username forKey:nUsername];
-                    
-                    //Get all groups for this user
-                    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-                        if(!error) {
-                            [self performSegueWithIdentifier:@"ShowExistingGroupsAfterAuthenitificatioon" sender:self];
-                        }
-                        else {
-                            [YAUtils showNotification:error.localizedDescription type:AZNotificationTypeError];
-                        }
-                    }];
-                    
+                if (!error) {
+                    if(response) {
+                        NSString *username = (NSString*)response;
+                        [[YAUser currentUser] saveObject:username forKey:nUsername];
+                        
+                        //Get all groups for this user
+                        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+                            if(!error) {
+                                if([YAGroup allObjects].count)
+                                    [self performSegueWithIdentifier:@"ShowExistingGroupsAfterAuthenitificatioon" sender:self];
+                                else
+                                    [self performSegueWithIdentifier:@"ShowNoGroupsForExistingUser" sender:self];
+                            }
+                            else {
+                                [self.activityIndicator stopAnimating];
+                                self.next.enabled = YES;
+                                
+                                [YAUtils showNotification:NSLocalizedString(@"Can't load user groups", @"") type:AZNotificationTypeError];
+                            }
+                        }];
+                    }
+                    else {
+                        //new user
+                        [self performSegueWithIdentifier:@"UserNameViewController" sender:self];
+                    }
                 } else {
-                    //new user
-                    [self performSegueWithIdentifier:@"UserNameViewController" sender:self];
+                    [self.activityIndicator stopAnimating];
+                    self.next.enabled = YES;
+                    
+                    [YAUtils showNotification:NSLocalizedString(@"Can't get user info", @"") type:AZNotificationTypeError];
                 }
-
+                
             }];
+        }
+        else {
+            [self.activityIndicator stopAnimating];
+            self.next.enabled = YES;
+            
+            [YAUtils showNotification:NSLocalizedString(@"Incorrect confirmation code entered, try again", @"") type:AZNotificationTypeError];
         }
     }];
 }

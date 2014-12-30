@@ -81,11 +81,11 @@ static NSString *CellID = @"CellID";
 
 - (void)addMembersTapped {
     YAGroupAddMembersViewController *addMembersVC = [YAGroupAddMembersViewController new];
-    addMembersVC.selectedContacts = [[NSMutableArray alloc] initWithCapacity:self.group.members.count];
-    
-    for(YAContact *contact in self.group.members) {
-        [addMembersVC.selectedContacts addObject:[contact dictionaryRepresentation]];
-    }
+//    addMembersVC.selectedContacts = [[NSMutableArray alloc] initWithCapacity:self.group.members.count];
+//    
+//    for(YAContact *contact in self.group.members) {
+//        [addMembersVC.selectedContacts addObject:[contact dictionaryRepresentation]];
+//    }
     
     addMembersVC.existingGroup = self.group;
     [self.navigationController pushViewController:addMembersVC animated:YES];

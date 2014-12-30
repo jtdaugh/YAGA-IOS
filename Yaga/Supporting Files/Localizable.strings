@@ -24,6 +24,7 @@
 "Group" = "Group";
 "Remove" = "Remove";
 
+"Incorrect confirmation code entered, try again" = "Incorrect confirmation code entered, try again";
 "Stop receiving notifications from this group" = "Stop receiving notifications from this group";
 "Recieve notifications from this group" = "Recieve  notifications from this group";
 "Are you sure you would like to leave?" = "Are you sure you would like to leave?";

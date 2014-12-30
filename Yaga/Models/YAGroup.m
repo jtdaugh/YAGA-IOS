@@ -9,6 +9,7 @@
 #import "YAGroup.h"
 #import "YAServer.h"
 #import "NSDictionary+ResponseObject.h"
+#import "YAUtils.h"
 
 @interface YAGroup ()
 
@@ -54,19 +55,14 @@
 }
 
 + (YAGroup*)group {
-    CFUUIDRef theUUID = CFUUIDCreate(NULL);
-    CFStringRef string = CFUUIDCreateString(NULL, theUUID);
-    CFRelease(theUUID);
-    
     YAGroup *result = [YAGroup new];
-    result.localId = [NSString stringWithFormat:@"group_%@", (__bridge NSString *)string];
+    result.localId = [YAUtils uniqueId];
     
     return result;
 }
 
 - (void)updateFromDictionary:(NSDictionary*)dictionary {
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    self.serverId = [dictionary[YA_RESPONSE_ID] stringValue];
+    self.serverId = dictionary[YA_RESPONSE_ID];
     self.name = dictionary[YA_RESPONSE_NAME];
     
     [self.members removeAllObjects];
@@ -75,28 +71,19 @@
     
     for(NSDictionary *memberDic in members){
         YAContact *contact = [YAContact new];
-        NSString *name = memberDic[YA_RESPONSE_NAME];
+        NSString *name = memberDic[YA_RESPONSE_USER][YA_RESPONSE_NAME];
         if ([name isKindOfClass:[NSNull class]]){
             contact.name = @"Null";
         }
         else {
             contact.name = name;
         }
-        contact.number = memberDic[YA_RESPONSE_MEMBER_PHONE];
-
-        NSArray *nameComponents = [name componentsSeparatedByString:@" "];
-        if(nameComponents.count) {
-            contact.firstName = nameComponents[0];
-            if(nameComponents.count > 1)
-                contact.firstName = nameComponents[1];
-        }
+        contact.number = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
     
         contact.registered = [memberDic objectForKey:YA_RESPONSE_MEMBER_JOINED_AT] != nil;
         
         [self.members addObject:contact];
     }
-    
-    [[RLMRealm defaultRealm] commitWriteTransaction];
 }
 
 + (void)synchronizeAllGroupsWithServer {
@@ -119,7 +106,7 @@
             else {
                 [self.realm beginWriteTransaction];
                 
-                self.serverId = [[responseDictionary objectForKey:YA_RESPONSE_ID] stringValue];
+                self.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
                 self.synchronized = YES;
                 
                 [self.realm commitWriteTransaction];
@@ -187,8 +174,8 @@
                 
                 NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:d withError:nil];
                 
-                NSString *serverGroupId = [dict[YA_RESPONSE_ID] stringValue];
-                NSString *predicate = [NSString stringWithFormat:@"serverId = %@", serverGroupId];
+                NSString *serverGroupId = dict[YA_RESPONSE_ID];
+                NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", serverGroupId];
                 RLMResults *existingGroups = [YAGroup objectsWhere:predicate];
                 
                 YAGroup *group;
@@ -197,10 +184,12 @@
                 }
                 else {
                     group = [YAGroup group];
-                    [[RLMRealm defaultRealm] addObject:group];
                 }
 
                 [group updateFromDictionary:dict];
+                
+                if(!existingGroups.count)
+                    [[RLMRealm defaultRealm] addObject:group];
             }
             
             [[RLMRealm defaultRealm] commitWriteTransaction];

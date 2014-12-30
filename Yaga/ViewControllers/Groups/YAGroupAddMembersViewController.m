@@ -33,7 +33,7 @@
                                                object:nil];
     
     if(!self.selectedContacts)
-        self.selectedContacts = [[NSMutableArray alloc] init];
+        _selectedContacts = [[NSMutableArray alloc] init];
     
     self.title = self.existingGroup ? self.existingGroup.name : @"Add Members";
     
@@ -104,30 +104,40 @@
         }
         else {
             weakSelf.deviceContacts = contacts;
-            
-            NSMutableArray *selectedCompositeNames = [NSMutableArray new];
-            for(NSDictionary *contactDic in self.selectedContacts) {
-                [selectedCompositeNames addObject:contactDic[nCompositeName]];
-            }
-            self.filteredContacts = [[self.deviceContacts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (%K IN %@)", nCompositeName, selectedCompositeNames]] mutableCopy];
-            [weakSelf.membersTableview reloadData];
+            weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
         }
     }];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
-    [self.searchBar becomeFirstResponder];
-    
-    [UIView animateWithDuration:0.4 animations:^{
-        self.view.frame = CGRectMake(0, self.navigationController.navigationBar.bounds.size.height, VIEW_WIDTH, VIEW_HEIGHT - self.navigationController.navigationBar.bounds.size.height);
-        
-    }];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    [self.searchBar becomeFirstResponder];
+    
+    [self.navigationController setNavigationBarHidden:NO animated:NO];
+    
+    CGFloat navbarHeight = self.navigationController.navigationBar.bounds.size.height;
+    [UIView animateWithDuration:0.4 animations:^{
+        self.view.frame = CGRectMake(0, navbarHeight, VIEW_WIDTH, VIEW_HEIGHT - navbarHeight);
+        
+    }];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:NO];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    
+    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
+    self.navigationController.navigationBar.translucent = YES;;
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    [self.searchBar resignFirstResponder];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
@@ -307,7 +317,8 @@
 #pragma mark -
 - (void)setExistingGroup:(YAGroup *)existingGroup {
     _existingGroup = existingGroup;
-    self.selectedContacts  = [NSMutableArray new];
+
+    NSMutableArray *memberPhones = [NSMutableArray new];
     for(YAContact *contact in self.existingGroup.members) {
         
         NSDictionary *item = @{nCompositeName:[NSString stringWithFormat:@"%@ %@", contact.firstName, contact.lastName],
@@ -316,7 +327,10 @@
                                nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
                                nRegistered:[NSNumber numberWithBool:contact.registered]};
         [self.selectedContacts addObject:item];
-        
+        [memberPhones addObject:[contact readableNumber]];
     }
+    
+    self.filteredContacts = [[self.deviceContacts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (%K IN %@)", nPhone, memberPhones]] mutableCopy];
+    [self.membersTableview reloadData];
 }
 @end
