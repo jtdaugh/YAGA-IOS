@@ -18,7 +18,6 @@
 
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
-#import "GridViewController.h"
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -32,31 +31,21 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    if(self.showCreateGroupButton) {
+    if(self.embeddedMode) {
         UITapGestureRecognizer *tapToClose = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(close)];
         tapToClose.delegate = self;
         [self.view addGestureRecognizer:tapToClose];
     }
     
-    BOOL onboardingMode = YES;
-    
-    for(UIViewController *vc in self.navigationController.viewControllers) {
-        if([vc isKindOfClass:[GridViewController class]]) {
-            onboardingMode = NO;
-            break;
-        }
-    }
-
-    
     self.groups = [YAGroup allObjects];
-    self.view.backgroundColor = onboardingMode ? [UIColor blackColor] : [UIColor whiteColor];
+    self.view.backgroundColor = self.embeddedMode ? [UIColor whiteColor] : [UIColor blackColor];
     
     CGFloat width = VIEW_WIDTH * .8;
     
     CGFloat origin = VIEW_HEIGHT *.025;
     
     
-    if(onboardingMode) {
+    if(!self.embeddedMode) {
         UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
         [titleLabel setText:NSLocalizedString(@"Looks like you're already a part of a group", @"")];
         [titleLabel setNumberOfLines:4];
@@ -67,14 +56,12 @@ static NSString *CellIdentifier = @"GroupsCell";
         origin = titleLabel.frame.origin.y + titleLabel.frame.size.height;
     }
     
-    
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.showCreateGroupButton ? ELEVATOR_MARGIN : 0))];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.embeddedMode ? ELEVATOR_MARGIN : 0))];
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
-    self.tableView.backgroundColor = onboardingMode ? [UIColor blackColor] : [UIColor whiteColor];
-    
+    self.tableView.backgroundColor = [self.view.backgroundColor copy];
     
     //    [self.tableView setSeparatorColor:PRIMARY_COLOR];
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
@@ -89,7 +76,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
-    if(self.showCreateGroupButton) {
+    if(self.embeddedMode) {
         //create group button
         UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, self.tableView.frame.size.height+1, VIEW_WIDTH, 1)];
         separatorView.backgroundColor = [UIColor lightGrayColor];
@@ -117,6 +104,16 @@ static NSString *CellIdentifier = @"GroupsCell";
     [super viewWillAppear:animated];
     
     [self.navigationController setNavigationBarHidden:YES];
+    
+    //size to fit table view
+    if(!self.embeddedMode) {
+        CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+        CGFloat rowsCount = [self tableView:self.tableView numberOfRowsInSection:0];
+        CGFloat contentHeight = rowHeight * rowsCount;
+        if(self.tableView.frame.size.height > contentHeight) {
+            self.tableView.frame = CGRectMake(self.tableView.frame.origin.x, self.tableView.frame.origin.y, self.tableView.frame.size.width, contentHeight);
+        }
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -180,7 +177,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         cell.layoutMargins = UIEdgeInsetsZero;
     }
     
-    if(!self.showEditButton)
+    if(!self.embeddedMode)
         cell.accessoryView = nil;
     
     
@@ -192,9 +189,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(self.showCreateGroupButton && indexPath.row == self.groups.count) {
+    if(self.embeddedMode && indexPath.row == self.groups.count) {
         return 60;
     }
+    
     YAGroup *group = self.groups[indexPath.row];
     
     UILabel *tmpLabel = [UILabel new];
@@ -210,7 +208,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     YAGroup *group = self.groups[indexPath.row];
     [YAUser currentUser].currentGroup = group;
     
-    if(self.showCreateGroupButton) {
+    if(self.embeddedMode) {
         [self close];
     }
     else
@@ -220,7 +218,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 #pragma mark - Editing
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return !(self.showCreateGroupButton && indexPath.row == self.groups.count);
+    return !(self.embeddedMode && indexPath.row == self.groups.count);
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {

@@ -14,11 +14,11 @@
 
 - (void)perform {
     YAGroupsViewController *groupsViewController = (YAGroupsViewController*)self.destinationViewController;
+    groupsViewController.embeddedMode = YES;
+    
     GridViewController *gridController = (GridViewController*)self.sourceViewController;
     gridController.groupsViewController = groupsViewController;
     
-    groupsViewController.showCreateGroupButton = YES;
-    groupsViewController.showEditButton = YES;
     groupsViewController.view.backgroundColor = [UIColor whiteColor];
     
     [gridController addChildViewController:groupsViewController];

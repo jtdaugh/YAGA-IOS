@@ -13,8 +13,7 @@
 }
 @property (nonatomic, strong) UITableView *tableView;
 
-@property (nonatomic, assign) BOOL showEditButton;
-@property (nonatomic, assign) BOOL showCreateGroupButton;
+@property (nonatomic, assign) BOOL embeddedMode;
 
 @property (nonatomic, strong) UITapGestureRecognizer *cameraTapToClose;
 @property (nonatomic, strong) UITapGestureRecognizer *collectionTapToClose;
