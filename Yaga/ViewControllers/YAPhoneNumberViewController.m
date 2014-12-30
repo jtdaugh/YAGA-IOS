@@ -15,7 +15,7 @@
 #import "NSString+Hash.h"
 
 //#import "Yaga-Swift.h"
-#import "YAAuthManager.h"
+#import "YAServer.h"
 
 @interface YAPhoneNumberViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
@@ -147,18 +147,17 @@
     NSString *formattedNumber = [phoneUtil format:myNumber
                                      numberFormat:NBEPhoneNumberFormatE164
                                             error:&error];
-    [[YAUser currentUser] saveUserData:formattedNumber forKey:nPhone];
     
     //Auth manager testing
     [self.activityIndicator startAnimating];
     self.next.enabled = NO;
     __weak typeof(self) weakSelf = self;
 
-    [[YAAuthManager sharedManager] sendSMSAuthRequestForNumber:formattedNumber withCompletion:^(bool response, NSString *error) {
-        if (!response)
+    [[YAServer sharedServer] authentificatePhoneNumberBySMS:formattedNumber withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
+        if (error)
         {
             dispatch_async(dispatch_get_main_queue(),  ^{
-                [YAUtils showNotification:error type:AZNotificationTypeError];
+                [YAUtils showNotification:error.localizedDescription type:AZNotificationTypeError];
                 weakSelf.next.enabled = YES;
             });
         } else {

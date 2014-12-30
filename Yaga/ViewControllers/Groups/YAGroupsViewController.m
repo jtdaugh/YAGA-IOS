@@ -12,9 +12,9 @@
 #import "YAUtils.h"
 
 #import "GroupsTableViewCell.h"
-#import "YAAuthManager.h"
+#import "YAServer.h"
 #import "UIImage+Color.h"
-#import "YAAuthManager.h"
+#import "YAServer.h"
 
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
@@ -96,27 +96,19 @@ static NSString *CellIdentifier = @"GroupsCell";
         [createGroupButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
         [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
         [self.view addSubview:createGroupButton];
-        
-        UIButton *refreshGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(22,
-                                                                                   self.tableView.frame.origin.y + 5.f,
-                                                                                   VIEW_WIDTH / 8.5f,
-                                                                                   VIEW_WIDTH / 8.5f)];
-        NSString *refresh = @"\u21BB";
-        [refreshGroupsButton setTitle:refresh forState:UIControlStateNormal];
-        [refreshGroupsButton.titleLabel setFont:[UIFont fontWithName:THIN_FONT size:40]];
-        [refreshGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-        [refreshGroupsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
-        
-        UIImage *bgColor = [UIImage imageWithColor:PRIMARY_COLOR];
-        [refreshGroupsButton setBackgroundImage:bgColor forState:UIControlStateHighlighted];
-        [refreshGroupsButton addTarget:self action:@selector(refreshGroups:) forControlEvents:UIControlEventTouchUpInside];
-        
-        [refreshGroupsButton.titleLabel setTextAlignment: NSTextAlignmentCenter];
-        [refreshGroupsButton sizeToFit];
-        [self.view addSubview:refreshGroupsButton];
-        
     }
 }
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self refreshGroups];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [YAGroup synchronizeAllGroupsWithServer];
+}
+
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     if([touch.view isKindOfClass:[UITableViewCell class]])
@@ -198,7 +190,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     YAGroup *group = self.groups[indexPath.row];
     [YAUser currentUser].currentGroup = group;
-    [[NSUserDefaults standardUserDefaults] setObject:group.groupId forKey:nCurrentGroupId];
     
     if(self.showCreateGroupButton) {
         [self close];
@@ -216,8 +207,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         YAGroup *group = self.groups[indexPath.row];
-        [[YAAuthManager sharedManager] sendGroupRemovingForGroupId:@(group.tempGroupId)
-                                                    withCompletion:^(bool response, NSString *error) {
+        [[YAServer sharedServer] removeGroup:group
+                                                    withCompletion:^(NSDictionary *response, NSError *error) {
                                                         
                                                         [[RLMRealm defaultRealm] beginWriteTransaction];
                                                         [[RLMRealm defaultRealm] deleteObject:group];
@@ -239,11 +230,16 @@ static NSString *CellIdentifier = @"GroupsCell";
     editingIndex = NSUIntegerMax;
 }
 
-- (void)refreshGroups:(UIButton*)sender {
-    [[YAAuthManager sharedManager] getGroupsWithCompletion:^(bool response, NSString *error) {
-        NSLog(@"Wut?");
-        self.groups = [YAGroup allObjects];
-        [self.tableView reloadData];
+- (void)refreshGroups {
+    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+        if(error) {
+            
+        }
+        else {
+            self.groups = [YAGroup allObjects];
+            
+            [self.tableView reloadData];
+        }
     }];
 }
 
@@ -294,7 +290,10 @@ static NSString *CellIdentifier = @"GroupsCell";
             
             [[RLMRealm defaultRealm] beginWriteTransaction];
             group.name = newname;
+            [group setNeedUpdateNameOnNextSync];
             [[RLMRealm defaultRealm] commitWriteTransaction];
+            
+            [group synchronizeWithServer];
             
             [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
         }]];
@@ -327,7 +326,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
-    
     [self presentViewController:alert animated:YES completion:nil];
     
     
@@ -347,6 +345,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         [[RLMRealm defaultRealm] beginWriteTransaction];
         group.muted = !group.muted;
         [[RLMRealm defaultRealm] commitWriteTransaction];
+        
         [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
         
         //just for now
@@ -372,9 +371,15 @@ static NSString *CellIdentifier = @"GroupsCell";
     [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
         
-        //just for now
-        NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@ %@", NSLocalizedString(@"Group", @""), group.name];
-        [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+        [[YAServer sharedServer] removeGroup:group withCompletion:^(id response, NSError *error) {
+            if(!error) {
+                NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@ %@", NSLocalizedString(@"Group", @""), group.name];
+                [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+            }
+            else {
+                
+            }
+        }];
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {

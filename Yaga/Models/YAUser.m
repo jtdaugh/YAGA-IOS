@@ -14,6 +14,8 @@
 #import "APContact.h"
 #import "NBPhoneNumberUtil.h"
 
+#define YA_CURRENT_GROUP_ID @"current_group_id"
+
 @implementation YAUser
 
 + (YAUser*)currentUser {
@@ -31,7 +33,7 @@
     if(self) {
         _userData = [NSMutableDictionary new];
         
-        NSString *selectedGroupId = [[NSUserDefaults standardUserDefaults] objectForKey:nCurrentGroupId];
+        NSString *selectedGroupId = [[NSUserDefaults standardUserDefaults] objectForKey:YA_CURRENT_GROUP_ID];
         if(selectedGroupId) {
             self.currentGroup = [YAGroup objectInRealm:[RLMRealm defaultRealm] forPrimaryKey:selectedGroupId];
         }
@@ -39,9 +41,9 @@
     return self;
 }
 
-- (void)setCurrentGroup:(YAGroup *)currentGroup {
-    [self saveObject:currentGroup.groupId forKey:nCurrentGroupId];
-    _currentGroup = currentGroup;
+- (void)setCurrentGroup:(YAGroup *)group {
+    [[NSUserDefaults standardUserDefaults] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];
+    _currentGroup = group;
 }
 
 - (BOOL)loggedIn {
@@ -55,15 +57,6 @@
 - (void)logout {
     [[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
     [self.userData removeAllObjects];
-}
-
-- (void)saveUserData:(NSObject *)value forKey:(NSString *)key {
-    [self.userData setObject:value forKey:key];
-    [self saveObject:value forKey:key];
-}
-
-- (NSObject *)userDataForKey:(NSString *)key {
-    return [self.userData objectForKey:key];
 }
 
 - (void)saveObject:(NSObject *)value forKey:(NSString *)key {

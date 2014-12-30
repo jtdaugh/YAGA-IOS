@@ -11,8 +11,6 @@
 #import "YAContact.h"
 #import "NSString+Hash.h"
 #import <Realm/Realm.h>
-#import "YAAuthManager.h"
-#import "YAGroupCreator.h"
 
 @interface NameGroupViewController ()
 @property (strong, nonatomic) UITextField *groupNameTextField;
@@ -99,40 +97,16 @@
     // Position the spinner
     [self.nextButton addSubview:myIndicator];
     [myIndicator setCenter:CGPointMake(self.nextButton.frame.size.width / 2, self.nextButton.frame.size.height / 2)];
-    
     // Start the animation
     [myIndicator startAnimating];
     
-    [[YAAuthManager sharedManager] sendGroupRenamingWithName:self.groupNameTextField.text
-                                                  forGroupId:[YAGroupCreator sharedCreator].groupId
-                                              withCompletion:^(bool response, NSString *error) {
-                                                      
-                                                  
-                                                  RLMRealm *realm = [RLMRealm defaultRealm];
-                                                  [realm beginWriteTransaction];
-                                                  
-                                                  YAGroup *group = [YAGroup group];
-                                                  group.tempGroupId = [[YAGroupCreator sharedCreator].groupId integerValue];
-                                                  group.name = self.groupNameTextField.text;
-                                                  
-                                                  for(NSDictionary *memberDic in self.membersDic){
-                                                      YAContact *contact = [YAContact new];
-                                                      contact.name = memberDic[nCompositeName];
-                                                      contact.firstName = memberDic[nFirstname];
-                                                      contact.number = memberDic[nPhone];
-                                                      contact.registered = [memberDic[nRegistered] boolValue];
-                                                      
-                                                      [group.members addObject:contact];
-                                                  }
-                                                  
-                                                  [realm addObject:group];
-                                                  [realm commitWriteTransaction];
-                                                  
-                                                  
-                                                  [YAUser currentUser].currentGroup = group;
-                                                  
-                                                  [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
-                                                  }];
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    [YAUser currentUser].currentGroup.name = self.groupNameTextField.text;
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    [[YAUser currentUser].currentGroup synchronizeWithServer];
+    
+    [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result

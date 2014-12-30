@@ -8,7 +8,7 @@
 
 #import "NoGroupsViewController.h"
 #import "YAGroupAddMembersViewController.h"
-#import "YAAuthManager.h"
+#import "YAServer.h"
 
 @interface NoGroupsViewController ()
 

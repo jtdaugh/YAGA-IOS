@@ -7,8 +7,9 @@
 //
 
 #import "YASMSAuthentificationViewController.h"
-#import "YAAuthManager.h"
+#import "YAServer.h"
 #import "YAUser.h"
+#import "YAUtils.h"
 
 @interface YASMSAuthentificationViewController ()
 @property (strong, nonatomic) UIImageView *logo;
@@ -106,27 +107,33 @@
 {
     [[YAUser currentUser] setAuthCode:self.number.text];
 
-//    [[YAAuthManager sharedManager] sendTokenRequestWithCompletion:^(bool response, NSString *error) {
-//
-//        if (response) {
-//            [[YAAuthManager sharedManager] getInfoForCurrentUserWithCompletion:^(bool response, NSString *error) {
-//                if (response) {
-//                    //This means that the user was already registered
-//                    //and have a name.
-//                    
-//                    //Get all groups for this user
-//                    [[YAAuthManager sharedManager] getGroupsWithCompletion:^(bool response, NSString *error) {
-//                        [self performSegueWithIdentifier:@"GridViewController" sender:self];
-//                    }];
-//                    
-//                } else {
-//                    //This means that this user was never registered
+    [[YAServer sharedServer] sendTokenRequestWithCompletion:^(id response, NSError *error) {
+
+        if (response) {
+            [[YAServer sharedServer] getInfoForCurrentUserWithCompletion:^(id response, NSError *error) {
+                //old user
+                if (response) {
+                    NSString *username = (NSString*)response;
+                    [[YAUser currentUser] saveObject:username forKey:nUsername];
+                    
+                    //Get all groups for this user
+                    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+                        if(!error) {
+                            [self performSegueWithIdentifier:@"ShowExistingGroupsAfterAuthenitificatioon" sender:self];
+                        }
+                        else {
+                            [YAUtils showNotification:error.localizedDescription type:AZNotificationTypeError];
+                        }
+                    }];
+                    
+                } else {
+                    //new user
                     [self performSegueWithIdentifier:@"UserNameViewController" sender:self];
-//                }
-//
-//            }];
-//        }
-//    }];
+                }
+
+            }];
+        }
+    }];
 }
 
 @end

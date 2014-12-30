@@ -16,9 +16,7 @@
 #define nCompositeName @"composite_name"
 #define nFirstname @"firstname"
 #define nLastname @"lastname"
-#define nRegistered @"registered"
-
-#define nCurrentGroupId @"current_group_id"
+#define nRegistered @"joined_at"
 
 #define DIAL_CODE @"dial_code"
 #define COUNTRY_CODE @"code"
@@ -29,6 +27,7 @@
 @property NSString *lastName;
 @property NSString *number;
 @property BOOL registered;
+
 - (NSString *) readableNumber;
 
 + (YAContact*)contactFromDictionary:(NSDictionary*)dictionary;

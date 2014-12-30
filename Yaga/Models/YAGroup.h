@@ -6,24 +6,29 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import <Realm/Realm.h>
 #import "YAContact.h"
 #import "YAVideo.h"
 
+typedef void(^completionBlock)(NSError *error);
+
 @interface YAGroup : RLMObject
 @property NSString *name;
-@property NSString *groupId;
-#pragma TODO: Remove this
-@property NSInteger tempGroupId;
+@property NSString *localId;
+@property NSString *serverId;
 @property BOOL muted;
+@property BOOL synchronized;
 
 @property RLMArray<YAContact> *members;
 @property RLMArray<YAVideo> *videos;
 
 - (NSString*)membersString;
-+ (YAGroup*)group;
+- (void)synchronizeWithServer;
+- (void)setNeedUpdateNameOnNextSync;
+- (void)setNeedUpdateMembersOnNext;
 
-- (void)leaveGroup;
++ (YAGroup*)group;
++ (void)updateGroupsFromServerWithCompletion:(completionBlock)block;
++ (void)synchronizeAllGroupsWithServer;
 
 @end
 

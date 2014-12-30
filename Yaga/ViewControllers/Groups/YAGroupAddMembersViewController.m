@@ -10,8 +10,7 @@
 #import "NameGroupViewController.h"
 #import "APPhoneWithLabel.h"
 #import "NSString+Hash.h"
-#import "YAAuthManager.h"
-#import "YAGroupCreator.h"
+#import "YAServer.h"
 #import "YAUtils.h"
 
 @interface YAGroupAddMembersViewController ()
@@ -257,19 +256,30 @@
         
         [self.navigationController popToRootViewControllerAnimated:YES];
         
-        
         //just for now
         NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
        
         [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+        
+        [self.existingGroup synchronizeWithServer];
     }
-    //new group
+    //create default group
     else {
-        [[YAAuthManager sharedManager] addCascadingUsers:self.selectedContacts
-                                                 toGroup:[YAGroupCreator sharedCreator].groupId
-                                          withCompletion:^(bool response, NSString *error) {
-                                              [self performSegueWithIdentifier:@"NameGroup" sender:self];
-                                          }];
+        YAGroup *group = [YAGroup group];
+        group.name = @"Default";
+        
+        for(NSDictionary *memberDic in self.selectedContacts){
+            YAContact *contact = [YAContact contactFromDictionary:memberDic];
+            [group.members addObject:contact];
+        }
+        group.synchronized = NO;
+        
+        [[RLMRealm defaultRealm] addObject:group];
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
+        [YAUser currentUser].currentGroup = group;
+
+        [self performSegueWithIdentifier:@"NameGroup" sender:self];
     }
 }
 

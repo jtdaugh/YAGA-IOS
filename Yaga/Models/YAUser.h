@@ -35,10 +35,6 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 @property (strong, nonatomic) NSString *authCode;
 
 + (YAUser*)currentUser;
-
-- (void)saveUserData:(NSObject *)value forKey:(NSString *)key;
-- (NSObject *)userDataForKey:(NSString *)key;
-
 - (void)saveObject:(NSObject *)value forKey:(NSString *)key;
 - (id)objectForKey:(NSString*)key;
 

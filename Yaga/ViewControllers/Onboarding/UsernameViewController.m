@@ -10,7 +10,7 @@
 #import "YAUser.h"
 //#import "Yaga-Swift.h"
 #import "YAGroupsViewController.h"
-#import "YAAuthManager.h"
+#import "YAServer.h"
 
 @interface UsernameViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
@@ -105,10 +105,9 @@
     self.nextButton.enabled = NO;
     //
     __weak typeof(self) weakSelf = self;
-    [[YAAuthManager sharedManager] sendUserNameRegistration:self.usernameTextField.text
-                                             withCompletion:^(bool response, NSString *error) {
+    [[YAServer sharedServer] registerUsername:self.usernameTextField.text
+                                             withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
                                                  
-                                                 [[YAUser currentUser] saveUserData:weakSelf.usernameTextField.text forKey:nUsername];
                                                  [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
                                                  
                                                  [weakSelf performSegueWithIdentifier:@"NoGroups" sender:weakSelf];
