@@ -65,12 +65,14 @@
 }
 
 - (void)updateFromDictionary:(NSDictionary*)dictionary {
+    [[RLMRealm defaultRealm] beginWriteTransaction];
     self.serverId = [dictionary[YA_RESPONSE_ID] stringValue];
     self.name = dictionary[YA_RESPONSE_NAME];
     
+    [self.members removeAllObjects];
+    
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     
-#warning TODO: add/remove members
     for(NSDictionary *memberDic in members){
         YAContact *contact = [YAContact new];
         NSString *name = memberDic[YA_RESPONSE_NAME];
@@ -93,6 +95,8 @@
         
         [self.members addObject:contact];
     }
+    
+    [[RLMRealm defaultRealm] commitWriteTransaction];
 }
 
 + (void)synchronizeAllGroupsWithServer {
@@ -140,7 +144,7 @@
         }
         
         if(self.needsToUpdateMembersOnServer) {
-            [[YAServer sharedServer] updateGroupMembersForGroup:self withCompletion:^(id response, NSError *error) {
+            [[YAServer sharedServer] updateGroupMembers:self withCompletion:^(id response, NSError *error) {
                 if(error) {
                     NSLog(@"can't update members in group %@, error %@", self.name, error.localizedDescription);
                 }

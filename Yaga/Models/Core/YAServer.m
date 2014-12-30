@@ -5,7 +5,7 @@
 //  Created by Iegor on 12/17/14.
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
-#import "NSData+Hex.h"  
+#import "NSData+Hex.h"
 #import "NSString+Hash.h"
 #import "YAServer.h"
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
@@ -87,7 +87,7 @@
     NSAssert(self.token, @"token not set");
     
     NSString *api = [NSString stringWithFormat:@"%@/user/info/", self.base_api];
-
+    
     [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil] ;
@@ -118,7 +118,7 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
     }];
-
+    
 }
 
 - (void)sendTokenRequestWithCompletion:(responseBlock)completion
@@ -152,10 +152,10 @@
         
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-
+        
         NSInteger code = operation.response.statusCode;
         NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
-
+        
         if (code == 400){
             completion([NSString stringWithFormat:@"%@\n%@", [NSString stringFromHex:hex], @"Wait for 5 minutes."], error);
         } else {
@@ -184,68 +184,39 @@
     }];
 }
 
-- (void)updateGroupMembersForGroup:(YAGroup*)group withCompletion:(responseBlock)completion {
-#warning TODO: add/delete group members
-//    NSAssert(self.token, @"token not set");
-//    
-//    [self createGroupWithName:@"Default" withCompletion:^(bool response, NSString *error) {
-//        if (response) {
-//            NSNumber *i = groupId ? groupId : [YAGroupCreator sharedCreator].groupId;
-//            NSString *api = [NSString stringWithFormat:@"%@/group/%@/add/", self.base_api, i];
-//            
-////            NSMutableString *userPhones = [NSMutableString new];
-////            [userPhones appendString:@"phones=["];
-////            for (NSDictionary *user in users) {
-////                NSString *str = user[@"phone"];
-////                [userPhones appendString:str];
-////                if (![user isEqual:[users lastObject]]) {
-////                    [userPhones appendString:@","];
-////                }
-////            }
-////            [userPhones appendString:@"]"];
-//
-//            NSMutableArray *array = [NSMutableArray new];
-//            for (NSDictionary *d in members) {
-//                [array addObject:d[@"phone"]];
-//            }
-//            
-//            NSDictionary *parameters = @{
-//                                         @"phones": array
-//                                         };
-//            
-//            id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
-//            
-//            NSURL *url=[NSURL URLWithString:api];
-//            
-//            NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:url];
-//            [request setHTTPMethod:@"PUT"];
-//            
-//            [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-//            
-//            [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
-//            [request setHTTPBody:json];
-//
-//            [NSURLConnection sendAsynchronousRequest:request
-//                                               queue:[NSOperationQueue mainQueue]
-//                                   completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-//                                       NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-//                                                       NSLog(@"%@", [NSString stringFromHex:str]);
-//                                                       completion(YES, @"TESTING");
-//                                   }];
-////            [self.manager PUT:api parameters:json success:^(AFHTTPRequestOperation *operation, id responseObject) {
-////                NSString *str = [operation.request.HTTPBody hexRepresentationWithSpaces_AS:NO];
-////                NSLog(@"%@", [NSString stringFromHex:str]);
-////                completion(YES, @"TESTING");
-////            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-////                [self printErrorData:error];
-////                NSLog(@"%@", error);
-////            }];
-//        }
-//        else
-//        {
-//            
-//        }
-//    }];
+- (void)updateGroupMembers:(YAGroup*)group withCompletion:(responseBlock) completion {
+    NSAssert(self.token, @"token not set");
+    NSAssert(group.serverId, @"group not synchronized with server yet");
+
+    NSMutableArray *array = [NSMutableArray new];
+    for (YAContact *contact in group.members) {
+        [array addObject:contact.number];
+    }
+    NSDictionary *parameters = @{
+                                 @"phones": array
+                                 };
+    
+    id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
+    
+    NSString *api = [NSString stringWithFormat:@"%@/group/%@/", self.base_api, group.serverId];
+    
+    NSURL *url = [NSURL URLWithString:api];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"PUT"];
+    
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
+    [request setHTTPBody:json];
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               //                               NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                               //                               NSLog(@"%@", [NSString stringFromHex:str]);
+                               completion(nil, connectionError);
+                           }];
 }
 
 - (void)addUserByPhone:(NSString*)userPhone toGroup:(NSNumber *)groupId
@@ -263,7 +234,7 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"%@", error);
     }];
-
+    
 }
 
 - (void)renameGroup:(YAGroup*)group newName:(NSString*)newName withCompletion:(responseBlock)completion
