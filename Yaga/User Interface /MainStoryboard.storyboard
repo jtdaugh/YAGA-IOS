@@ -180,7 +180,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lgf-Jx-pmq" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="257" y="1499"/>
+            <point key="canvasLocation" x="574.5" y="2770.5"/>
         </scene>
         <!--Yaga Navigation Controller-->
         <scene sceneID="lG4-2c-b7K">
@@ -196,7 +196,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="37V-Ju-VTr" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="837" y="2847"/>
+            <point key="canvasLocation" x="1653" y="2847"/>
         </scene>
         <!--Authentification View Controller-->
         <scene sceneID="Zcb-su-0aa">
@@ -213,9 +213,8 @@
                     </view>
                     <connections>
                         <segue destination="Xo8-xg-cRY" kind="show" identifier="UserNameViewController" id="2A8-ou-e1j"/>
-                        <segue destination="zoO-EX-Xej" kind="show" identifier="GridViewController" id="Gxp-qs-vlC"/>
                         <segue destination="owe-ug-5LR" kind="showDetail" identifier="ShowExistingGroupsAfterAuthenitificatioon" id="rfC-CX-Kmk"/>
-                        <segue destination="8kB-zq-qpz" kind="showDetail" identifier="ShowNoGroupsForExistingUser" id="zAA-Ft-OZ6"/>
+                        <segue destination="8kB-zq-qpz" kind="show" identifier="ShowNoGroupsForExistingUser" id="zAA-Ft-OZ6"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dTj-X0-Iz4" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -315,7 +314,6 @@
         <segue reference="OXh-u4-OoS"/>
         <segue reference="ira-DT-4cj"/>
         <segue reference="rfC-CX-Kmk"/>
-        <segue reference="Gxp-qs-vlC"/>
         <segue reference="zAA-Ft-OZ6"/>
     </inferredMetricsTieBreakers>
 </document>

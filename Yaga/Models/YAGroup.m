@@ -28,9 +28,9 @@
     return attributes;
 }
 
-//+ (NSString *)primaryKey {
-//    return @"groupId";
-//}
++ (NSString *)primaryKey {
+    return @"localId";
+}
 
 + (NSDictionary *)defaultPropertyValues
 {

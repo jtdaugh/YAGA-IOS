@@ -132,7 +132,7 @@
     [super viewWillDisappear:animated];
     
     [self.searchBar resignFirstResponder];
-    [self.navigationController setNavigationBarHidden:NO animated:YES];
+
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationController.navigationBar.translucent = YES;;
@@ -249,8 +249,9 @@
 
 #pragma mark - Navigation
 - (void)doneTapped {
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    
     if(self.existingGroup) {
-        [[RLMRealm defaultRealm] beginWriteTransaction];
         [self.existingGroup.members removeAllObjects];
         
         for(NSDictionary *memberDic in self.selectedContacts) {
@@ -279,12 +280,13 @@
         group.synchronized = NO;
         
         [[RLMRealm defaultRealm] addObject:group];
-        [[RLMRealm defaultRealm] commitWriteTransaction];
         
         [YAUser currentUser].currentGroup = group;
 
         [self performSegueWithIdentifier:@"NameGroup" sender:self];
     }
+    
+    [[RLMRealm defaultRealm] commitWriteTransaction];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
