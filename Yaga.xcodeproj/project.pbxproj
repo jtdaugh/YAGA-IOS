@@ -68,6 +68,7 @@
 		865BD7A31A484543003B00DA /* AZNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79F1A484543003B00DA /* AZNotification.m */; };
 		865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD7A11A484543003B00DA /* AZNotificationView.m */; };
 		86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */ = {isa = PBXBuildFile; fileRef = 86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */; };
+		86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B642931A52E83400E095AD /* YASetNewRootVCSegue.m */; };
 		86B864991A41B7DE002256FF /* YAServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864981A41B7DE002256FF /* YAServer.m */; };
 		86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */; };
 		86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
@@ -194,6 +195,8 @@
 		865BD7A11A484543003B00DA /* AZNotificationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZNotificationView.m; sourceTree = "<group>"; };
 		86A9ED3A1A4D91B6002EDE76 /* UIImage+Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Color.h"; sourceTree = "<group>"; };
 		86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Color.m"; sourceTree = "<group>"; };
+		86B642921A52E83400E095AD /* YASetNewRootVCSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASetNewRootVCSegue.h; sourceTree = "<group>"; };
+		86B642931A52E83400E095AD /* YASetNewRootVCSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASetNewRootVCSegue.m; sourceTree = "<group>"; };
 		86B864971A41B7DE002256FF /* YAServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAServer.h; sourceTree = "<group>"; };
 		86B864981A41B7DE002256FF /* YAServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAServer.m; sourceTree = "<group>"; };
 		86B8649A1A41CA74002256FF /* NSDictionary+ResponseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ResponseObject.h"; sourceTree = "<group>"; };
@@ -249,6 +252,8 @@
 				6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */,
 				6E5E667D1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.h */,
 				6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */,
+				86B642921A52E83400E095AD /* YASetNewRootVCSegue.h */,
+				86B642931A52E83400E095AD /* YASetNewRootVCSegue.m */,
 			);
 			path = Segues;
 			sourceTree = "<group>";
@@ -532,7 +537,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = JE26HLJZLX;
+						DevelopmentTeam = 8V4V36C528;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -641,6 +646,7 @@
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
 				865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
+				86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */,
 				86B864991A41B7DE002256FF /* YAServer.m in Sources */,
 				6E7C2EE41A4C4EE200522A34 /* UsernameViewController.m in Sources */,
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,

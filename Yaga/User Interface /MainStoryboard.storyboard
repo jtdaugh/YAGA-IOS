@@ -59,13 +59,13 @@
                     </view>
                     <navigationItem key="navigationItem" id="3AL-UU-eRo"/>
                     <connections>
-                        <segue destination="bQu-BG-DTg" kind="show" identifier="AuthentificationViewController" id="bMB-tQ-nNw"/>
                         <segue destination="j5G-sb-BvF" kind="presentation" identifier="PresentCountriesModally" modalPresentationStyle="currentContext" modalTransitionStyle="flipHorizontal" id="okb-DP-fbR"/>
+                        <segue destination="k5x-yo-n1d" kind="custom" identifier="AuthentificationViewController" customClass="YASetNewRootVCSegue" id="6qq-fT-LoZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SFT-g8-vve" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1566" y="758"/>
+            <point key="canvasLocation" x="-1566" y="774"/>
         </scene>
         <!--Yaga Navigation Controller-->
         <scene sceneID="4eY-vY-THA">
@@ -81,7 +81,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Lle-qX-SkO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2343" y="766.5"/>
+            <point key="canvasLocation" x="-2343" y="774"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="lIh-6a-u94">
@@ -129,7 +129,7 @@
                     </items>
                 </navigationBar>
             </objects>
-            <point key="canvasLocation" x="-3181.5" y="363.75"/>
+            <point key="canvasLocation" x="-2350" y="1519"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="crO-tp-Nxc">
@@ -145,7 +145,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2eN-pt-jZQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3900" y="363.75"/>
+            <point key="canvasLocation" x="-3068" y="1519"/>
         </scene>
         <!--Yaga Navigation Controller-->
         <scene sceneID="zRe-Zz-IMA">
@@ -211,6 +211,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <navigationItem key="navigationItem" id="KmW-Ag-nmx"/>
                     <connections>
                         <segue destination="Xo8-xg-cRY" kind="show" identifier="UserNameViewController" id="2A8-ou-e1j"/>
                         <segue destination="owe-ug-5LR" kind="showDetail" identifier="ShowExistingGroupsAfterAuthenitificatioon" id="rfC-CX-Kmk"/>
@@ -219,7 +220,23 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dTj-X0-Iz4" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-815" y="1519"/>
+            <point key="canvasLocation" x="-874" y="2155"/>
+        </scene>
+        <!--Yaga Navigation Controller-->
+        <scene sceneID="WUU-8p-beY">
+            <objects>
+                <navigationController id="k5x-yo-n1d" customClass="YagaNavigationController" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="RwG-rv-IOf">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="bQu-BG-DTg" kind="relationship" relationship="rootViewController" id="3NO-EA-aGF"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dPL-bv-YOm" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1566" y="2155"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="NII-7j-bRq">
@@ -328,9 +345,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="OXh-u4-OoS"/>
-        <segue reference="ulu-fm-wh2"/>
+        <segue reference="rfC-CX-Kmk"/>
+        <segue reference="fvS-6s-erS"/>
+        <segue reference="ira-DT-4cj"/>
         <segue reference="Tvw-pK-akS"/>
-        <segue reference="CTA-Ga-1fc"/>
     </inferredMetricsTieBreakers>
 </document>

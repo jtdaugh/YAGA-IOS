@@ -153,11 +153,12 @@
     self.next.enabled = NO;
     __weak typeof(self) weakSelf = self;
 
-    [[YAServer sharedServer] authentificatePhoneNumberBySMS:formattedNumber withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
+    [[YAServer sharedServer] authentificatePhoneNumberBySMS:formattedNumber withCompletion:^(NSString *responseDictionary, NSError *error) {
         if (error)
         {
             dispatch_async(dispatch_get_main_queue(),  ^{
-                [YAUtils showNotification:error.localizedDescription type:AZNotificationTypeError];
+                [YAUtils showNotification:responseDictionary
+                                     type:AZNotificationTypeError];
                 weakSelf.next.enabled = YES;
             });
         } else {
