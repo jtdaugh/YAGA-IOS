@@ -96,7 +96,8 @@
     
     // Position the spinner
     [self.nextButton addSubview:myIndicator];
-    [myIndicator setCenter:CGPointMake(self.nextButton.frame.size.width / 2, self.nextButton.frame.size.height / 2)];
+    CGSize buttonSize = self.nextButton.frame.size;
+    [myIndicator setCenter:CGPointMake(buttonSize.width / 2, buttonSize.height / 2)];
     // Start the animation
     [myIndicator startAnimating];
     

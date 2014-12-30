@@ -243,8 +243,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self performSegueWithIdentifier:@"CreateNewGroup" sender:self];
     
     [self close];
-    
-    editingIndex = NSUIntegerMax;
 }
 
 - (IBAction)unwindFromViewController:(id)source {}
@@ -269,9 +267,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
-        if(editingIndex != NSUIntegerMax) {
-            //            AddMembersViewController *members = (AddMembersViewController*)segue.destinationViewController;
-        }
     }
 }
 
@@ -310,7 +305,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"View/Edit Members", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        editingIndex = indexPath.row;
         
         YAGroupMembersViewController *membersVC = [[YAGroupMembersViewController alloc] initWithGroup:group];
         [self.navigationController pushViewController:membersVC animated:YES];

@@ -8,9 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAGroupsViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate> {
-    NSUInteger editingIndex;
-}
+@interface YAGroupsViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate> 
 @property (nonatomic, strong) UITableView *tableView;
 
 @property (nonatomic, assign) BOOL embeddedMode;
