@@ -14,6 +14,9 @@
 #import "AVPlayer+AVPlayer_Async.h"
 #import "AVPlaybackViewController.h"
 
+//Uploading videos
+#import "YAServer.h"
+
 @protocol GridViewControllerDelegate;
 
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
@@ -153,7 +156,7 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    
+    cell.delegate = self;
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     
     if(self.targetLayout == self.gridLayout) {
@@ -225,6 +228,17 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell*)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     cell.playerVC = nil;
+}
+
+#pragma mark - YAVideoCellDelegate
+
+- (void)uploadMyVideo:(YAVideo *)video forSender:(YAVideoCell *)me
+{
+    [[YAServer sharedServer] uploadPost:video
+                                inGroup:[YAUser currentUser].currentGroup
+                         withCompletion:^(id response, NSError *error) {
+                            
+                         }];
 }
 
 #pragma mark - UIScrollView
