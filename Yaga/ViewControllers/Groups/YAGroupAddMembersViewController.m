@@ -20,7 +20,8 @@
 @property (strong, nonatomic) NSMutableArray *filteredContacts;
 @property (strong, nonatomic) NSArray *deviceContacts;
 
-@property (assign, nonatomic) BOOL existingGroupDirty;
+@property (nonatomic, readonly) BOOL existingGroupDirty;
+
 @end
 
 @implementation YAGroupAddMembersViewController
@@ -201,7 +202,7 @@
     [self.filteredContacts removeObjectAtIndex:indexPath.row];
     [self.membersTableview deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     
-    self.existingGroupDirty = YES;
+    _existingGroupDirty = YES;
 }
 
 - (NSString *)tokenField:(VENTokenField *)tokenField titleForTokenAtIndex:(NSUInteger)index {
@@ -219,7 +220,7 @@
     
     [self.membersTableview reloadData];
     
-    self.existingGroupDirty = YES;
+    _existingGroupDirty = YES;
 }
 
 - (void)tokenField:(VENTokenField *)tokenField didChangeText:(NSString *)text {
@@ -248,7 +249,7 @@
         [self.membersTableview reloadData];
     }
     
-    self.existingGroupDirty = YES;
+    _existingGroupDirty = YES;
 }
 
 - (NSUInteger)numberOfTokensInTokenField:(VENTokenField *)tokenField {
@@ -257,47 +258,23 @@
 
 #pragma mark - Navigation
 - (void)doneTapped {
-    if(self.existingGroup) {
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        [self.existingGroup.members removeAllObjects];
-        
-        for(NSDictionary *memberDic in self.selectedContacts) {
-            [self.existingGroup.members addObject:[YAContact contactFromDictionary:memberDic]];
-        }
-        [[RLMRealm defaultRealm] commitWriteTransaction];
+    if(self.existingGroup && self.existingGroupDirty) {
+        [self.existingGroup updateMembers:self.selectedContacts];
         
         [self.navigationController popToRootViewControllerAnimated:YES];
         
-        //just for now
         NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
        
         [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
-        
-        if(self.existingGroupDirty) {
-            [self.existingGroup synchronizeWithServer];
-        }
     }
     //create default group
     else {
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        YAGroup *group = [YAGroup group];
-        group.name = @"Default";
+        [YAUser currentUser].currentGroup = [YAGroup groupWithName:@"Default"];
         
-        for(NSDictionary *memberDic in self.selectedContacts){
-            YAContact *contact = [YAContact contactFromDictionary:memberDic];
-            [group.members addObject:contact];
-        }
-
-        [[RLMRealm defaultRealm] addObject:group];
-        
-        [YAUser currentUser].currentGroup = group;
-
-        [[RLMRealm defaultRealm] commitWriteTransaction];
+        [[YAUser currentUser].currentGroup updateMembers:self.selectedContacts];
         
         [self performSegueWithIdentifier:@"NameGroup" sender:self];
     }
-    
-    
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

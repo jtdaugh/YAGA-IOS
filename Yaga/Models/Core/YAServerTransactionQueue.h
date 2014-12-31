@@ -7,7 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "YAGroup.h"
 
 @interface YAServerTransactionQueue : NSObject
 
++ (instancetype)sharedQueue;
+
+- (void)addCreateTransactionForGroup:(YAGroup*)group;
+- (void)addRenameTransactionForGroup:(YAGroup*)group;
+- (void)addUpdateMembersTransactionForGroup:(YAGroup*)group membersToDelete:(NSSet*)deleteSet membersToAdd:(NSSet*)addSet;
+- (void)addLeaveGroupTransactionForGrouo:(YAGroup*)group;
 @end

@@ -101,11 +101,7 @@
     // Start the animation
     [myIndicator startAnimating];
     
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    [YAUser currentUser].currentGroup.name = self.groupNameTextField.text;
-    [[RLMRealm defaultRealm] commitWriteTransaction];
-    
-    [[YAUser currentUser].currentGroup synchronizeWithServer];
+    [[YAUser currentUser].currentGroup rename:self.groupNameTextField.text];
     
     [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
 }

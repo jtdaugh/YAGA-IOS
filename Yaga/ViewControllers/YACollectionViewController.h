@@ -5,14 +5,14 @@
 //  Created by valentinkovalski on 12/18/14.
 //
 //
-
+#import "YAVideoCell.h"
 typedef void (^cameraCompletion)(void);
 
 @protocol YACollectionViewControllerDelegate <NSObject>
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart completion:(cameraCompletion)block;
 @end
 
-@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate> {
+@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, YAVideoCellDelegate> {
     CGPoint lastOffset;
     NSTimeInterval lastOffsetCapture;
     BOOL isScrollingFast;

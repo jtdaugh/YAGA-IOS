@@ -20,6 +20,7 @@
 
 @interface YAServer : NSObject
 typedef void(^responseBlock)(id response, NSError* error);
+
 + (instancetype)sharedServer;
 
 //onboarding & token
@@ -36,5 +37,8 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 - (void)renameGroup:(YAGroup*)group newName:(NSString*)newName withCompletion:(responseBlock)completion;
 - (void)removeGroup:(YAGroup*)group withCompletion:(responseBlock)completion;
+
+//posts
+- (void)uploadPost:(YAVideo*)post inGroup:(YAGroup*)group withCompletion:(responseBlock)completion;
 
 @end

@@ -10,6 +10,7 @@
 #import "YAServer.h"
 #import "NSDictionary+ResponseObject.h"
 #import "YAUtils.h"
+#import "YAServerTransactionQueue.h"
 
 @implementation YAGroup
 
@@ -54,6 +55,7 @@
     return result;
 }
 
+#pragma mark - Server synchronisation: update from server
 - (void)updateFromDictionary:(NSDictionary*)dictionary {
     self.serverId = dictionary[YA_RESPONSE_ID];
     self.name = dictionary[YA_RESPONSE_NAME];
@@ -76,56 +78,6 @@
         contact.registered = [memberDic objectForKey:YA_RESPONSE_MEMBER_JOINED_AT] != nil;
         
         [self.members addObject:contact];
-    }
-}
-
-- (void)synchronizeWithServer {
-#warning TODO: use transaction Queue, we might not have internet connection at the moment
-    
-    //create group on server
-    if(!self.serverId.length) {
-        [[YAServer sharedServer] createGroupWithName:self.name withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
-            if(error) {
-                NSLog(@"can't create group with name %@, error %@", self.name, error.localizedDescription);
-            }
-            else {
-                [self.realm beginWriteTransaction];
-                
-                self.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
-                
-                [self.realm commitWriteTransaction];
-                
-                NSLog(@"group: %@ created on server with id: %@", self.name, self.serverId);
-            }
-        }];
-    }
-    //rename existing group
-    else {
-        [[YAServer sharedServer] renameGroup:self newName:self.name withCompletion:^(id response, NSError *error) {
-            if(error) {
-                NSLog(@"can't rename group with name %@, error %@", self.name, error.localizedDescription);
-            }
-            else {
-                //
-            }
-        }];
-        
-        //        if(self.needsToUpdateMembersOnServer) {
-        //            [[YAServer sharedServer] addGroupMembers:self withCompletion:^(id response, NSError *error) {
-        //                if(error) {
-        //                    NSLog(@"can't update members in group %@, error %@", self.name, error.localizedDescription);
-        //                }
-        //                else {
-        //                    [self.realm beginWriteTransaction];
-        //
-        //                    self.needsToUpdateMembersOnServer = NO;
-        //                    if(!self.needsToUpdateNameOnServer)
-        //                        self.synchronized = YES;
-        //
-        //                    [self.realm beginWriteTransaction];
-        //                }
-        //            }];
-        //        }
     }
 }
 
@@ -174,6 +126,61 @@
                 block(nil);
         }
     }];
+}
+
+#pragma mark - Server synchronisation: send updates to server
+
++ (YAGroup*)groupWithName:(NSString*)name {
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    
+    YAGroup *group = [YAGroup group];
+    group.name = name;
+    [[RLMRealm defaultRealm] addObject:group];
+     
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+
+    [[YAServerTransactionQueue sharedQueue] addCreateTransactionForGroup:group];
+    
+    return group;
+}
+
+- (void)rename:(NSString*)newName {
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    self.name = newName;
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    [[YAServerTransactionQueue sharedQueue] addRenameTransactionForGroup:self];
+}
+
+- (void)updateMembers:(NSArray*)membersDictionaries {
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    
+    NSMutableSet *membersToDelete = [NSMutableSet set];
+    NSMutableSet *membersToAdd = [NSMutableSet set];
+    
+    for(NSDictionary *memberDic in membersDictionaries){
+        YAContact *contact = [YAContact contactFromDictionary:memberDic];
+        //[group.members addObject:contact];
+        
+#warning TODO: add or delete and collect in sets
+    }
+    
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    [[YAServerTransactionQueue sharedQueue] addUpdateMembersTransactionForGroup:self membersToDelete:membersToDelete membersToAdd:membersToAdd];
+}
+
+
+- (void)leave {
+    NSAssert(self.serverId, @"Can't leave group which doesn't exist");
+    
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    
+    [[RLMRealm defaultRealm] deleteObject:self];
+    
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    [[YAServerTransactionQueue sharedQueue] addLeaveGroupTransactionForGrouo:self];
 }
 
 @end
