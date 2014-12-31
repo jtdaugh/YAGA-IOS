@@ -14,6 +14,7 @@
 		6E19A7AD1A4AF23C0067D42C /* AVPlaybackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7AB1A4AF23C0067D42C /* AVPlaybackViewController.m */; };
 		6E19A7AF1A4AF34D0067D42C /* AVPlaybackView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E19A7AE1A4AF34D0067D42C /* AVPlaybackView.xib */; };
 		6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */; };
+		6E4EE3B81A5450E600B68E29 /* YAServerTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4EE3B71A5450E600B68E29 /* YAServerTransaction.m */; };
 		6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */; };
 		6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */; };
 		6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */; };
@@ -95,6 +96,8 @@
 		6E19A7AB1A4AF23C0067D42C /* AVPlaybackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlaybackViewController.m; sourceTree = "<group>"; };
 		6E19A7AE1A4AF34D0067D42C /* AVPlaybackView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AVPlaybackView.xib; sourceTree = "<group>"; };
 		6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		6E4EE3B61A5450E600B68E29 /* YAServerTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAServerTransaction.h; sourceTree = "<group>"; };
+		6E4EE3B71A5450E600B68E29 /* YAServerTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAServerTransaction.m; sourceTree = "<group>"; };
 		6E5E667B1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAHideEmbeddedGroupsSegue.h; sourceTree = "<group>"; };
 		6E5E667C1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAHideEmbeddedGroupsSegue.m; sourceTree = "<group>"; };
 		6E5E667D1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAShowEmbeddedGroupsSegue.h; sourceTree = "<group>"; };
@@ -371,6 +374,8 @@
 				86B864981A41B7DE002256FF /* YAServer.m */,
 				6EA2851E1A5306D90029641E /* YAServerTransactionQueue.h */,
 				6EA2851F1A5306D90029641E /* YAServerTransactionQueue.m */,
+				6E4EE3B61A5450E600B68E29 /* YAServerTransaction.h */,
+				6E4EE3B71A5450E600B68E29 /* YAServerTransaction.m */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -686,6 +691,7 @@
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
 				6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */,
+				6E4EE3B81A5450E600B68E29 /* YAServerTransaction.m in Sources */,
 				6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */,
 				6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */,
 				6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */,

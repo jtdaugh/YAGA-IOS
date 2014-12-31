@@ -20,6 +20,7 @@
 
 @interface YAServer : NSObject
 typedef void(^responseBlock)(id response, NSError* error);
+
 + (instancetype)sharedServer;
 
 //onboarding & token

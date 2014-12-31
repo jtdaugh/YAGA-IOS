@@ -287,11 +287,7 @@ static NSString *CellIdentifier = @"GroupsCell";
             if(!newname.length)
                 return;
             
-            [[RLMRealm defaultRealm] beginWriteTransaction];
-            group.name = newname;
-            [[RLMRealm defaultRealm] commitWriteTransaction];
-
-            [group synchronizeWithServer];
+            [group rename:newname];
             
             [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
         }]];
