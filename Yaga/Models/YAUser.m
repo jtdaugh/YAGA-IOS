@@ -24,6 +24,12 @@
     dispatch_once(&onceToken, ^{
         sharedCNetworking = [[self alloc] init];
         sharedCNetworking.countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
+        sharedCNetworking->dateFormatter = [[NSDateFormatter alloc] init];
+        sharedCNetworking->timeFormatter = [[NSDateFormatter alloc] init];
+        [sharedCNetworking->dateFormatter setDateFormat:@"MM/dd"];
+        [sharedCNetworking->timeFormatter setDateFormat:@"h:mma"];
+        [sharedCNetworking->timeFormatter setAMSymbol:@"am"];
+        [sharedCNetworking->timeFormatter setPMSymbol:@"pm"];
     });
     return sharedCNetworking;
 }
@@ -145,6 +151,28 @@
             completion([NSError errorWithDomain:@"NO DOMAIN" code:0 userInfo:nil], nil);
         }
     }];
+}
+
+
+- (NSString*)formatDate:(NSDate*)date {
+    NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitWeekOfYear | NSCalendarUnitWeekday fromDate:date];
+    NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitWeekOfYear fromDate:[NSDate date]];
+    
+    NSString *dayString;
+    
+    // if same week
+    if(todayComponents.weekOfYear == dateComponents.weekOfYear){
+        // if same day
+        if(todayComponents.day == dateComponents.day){
+            dayString = @"Today";
+        } else if(todayComponents.weekOfYear == dateComponents.weekOfYear){ // same week but not same day
+            dayString = [[dateFormatter shortWeekdaySymbols] objectAtIndex:dateComponents.weekday-1];
+        }
+    } else {
+        dayString = [dateFormatter stringFromDate:date];
+    }
+    
+    return [NSString stringWithFormat:@"%@ %@", dayString, [timeFormatter stringFromDate:date]];
 }
 
 - (NSString*)username {

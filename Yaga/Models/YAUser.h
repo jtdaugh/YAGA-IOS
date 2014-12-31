@@ -19,8 +19,11 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 @end
 
 
-@interface YAUser : NSObject
-
+@interface YAUser : NSObject {
+    NSDateFormatter *dateFormatter;
+    NSDateFormatter *timeFormatter;
+}
+                      
 @property (nonatomic, strong) YAGroup *currentGroup;
 @property (nonatomic, strong) NSString *phoneNumber;
 
@@ -44,6 +47,6 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 - (void)logout;
 
 - (void)importContactsWithCompletion:(contactsImportedBlock)completion;
-
+- (NSString*)formatDate:(NSDate*)date;
 - (NSString*)username;
 @end

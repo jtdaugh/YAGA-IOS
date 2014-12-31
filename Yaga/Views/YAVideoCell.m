@@ -433,7 +433,8 @@
         return;
     
     self.userLabel.text = self.video.creator;
-    self.timestampLabel.text = [[self.video.createdAt formattedAsTimeAgo] lowercaseString];
+    
+    self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
     self.captionField.text = @"";
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.captionField.text = self.video.caption;
