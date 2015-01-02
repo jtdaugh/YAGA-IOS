@@ -39,7 +39,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion;
 
 //posts
-//- (void)uploadPost:(YAVideo*)post toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)uploadVideoData:(NSData*)data toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
 - (void)synchronizeLocalAndRemoteChanges;
 @end

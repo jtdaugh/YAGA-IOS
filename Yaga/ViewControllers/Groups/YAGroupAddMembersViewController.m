@@ -38,8 +38,6 @@
     if(!self.selectedContacts)
         _selectedContacts = [[NSMutableArray alloc] init];
     
-    self.title = self.existingGroup ? self.existingGroup.name : @"Add Members";
-    
     [self.view setBackgroundColor:[UIColor blackColor]];
     
     VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 44)];
@@ -130,6 +128,8 @@
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationController.navigationBar.translucent = YES;
+    
+    self.title = self.existingGroup ? self.existingGroup.name : @"Add Members";
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -140,6 +140,9 @@
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationController.navigationBar.translucent = YES;;
+
+
+    self.title = @"";
 }
 
 - (void)keyboardWasShown:(NSNotification *)notification {

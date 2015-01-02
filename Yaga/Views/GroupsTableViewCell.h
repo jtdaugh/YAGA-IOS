@@ -14,4 +14,6 @@ typedef void (^editButtonClickedBlock)(void);
 
 @property (nonatomic, copy) editButtonClickedBlock editBlock;
 
++ (CGFloat)contentWidth;
++ (UIFont*)defaultDetailedLabelFont;
 @end

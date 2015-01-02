@@ -195,16 +195,16 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     YAGroup *group = self.groups[indexPath.row];
     
-    UILabel *tmpLabel = [UILabel new];
-    tmpLabel.text = group.membersString;
-    tmpLabel.numberOfLines = 0;
-    [tmpLabel sizeToFit];
+    NSDictionary *attributes = @{NSFontAttributeName:[GroupsTableViewCell defaultDetailedLabelFont]};
+    CGRect rect = [group.membersString boundingRectWithSize:CGSizeMake([GroupsTableViewCell contentWidth], CGFLOAT_MAX)
+                                                    options:NSStringDrawingUsesLineFragmentOrigin
+                                                 attributes:attributes
+                                                    context:nil];
     
-    return tmpLabel.bounds.size.height + 80;
+    return rect.size.height + 80;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
     YAGroup *group = self.groups[indexPath.row];
     [YAUser currentUser].currentGroup = group;
     
@@ -343,7 +343,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)leaveGroupAtIndexPath:(NSIndexPath*)indexPath {
-    __block YAGroup *group = self.groups[indexPath.row];
+    YAGroup *group = self.groups[indexPath.row];
     
     NSString *muteTitle = [NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
     NSString *muteMessage = [NSLocalizedString(@"Are you sure you would like to leave?", @"") stringByAppendingFormat:@" %@", group.name];
@@ -353,13 +353,32 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-    
+        
         NSString *groupToLeave = group.name;
         
         [group leave];
         
-        NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@ %@", NSLocalizedString(@"Group", @""), groupToLeave];
-        [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+        if(self.groups.count)
+            [YAUser currentUser].currentGroup = self.groups[0];
+        else
+            [YAUser currentUser].currentGroup = nil;
+        
+        if([YAUser currentUser].currentGroup) {
+            NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@. Current group is %@.", groupToLeave, [YAUser currentUser].currentGroup.name];
+            [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+        }
+        else {
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+            UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"OnboardingNoGroupsNavigationController"];
+            
+            [UIView transitionWithView:[UIApplication sharedApplication].keyWindow
+                              duration:0.4
+                               options:UIViewAnimationOptionTransitionFlipFromLeft
+                            animations:^{ [UIApplication sharedApplication].keyWindow.rootViewController = viewController; }
+                            completion:nil];
+        }
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {

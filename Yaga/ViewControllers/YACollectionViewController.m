@@ -234,11 +234,12 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)uploadMyVideo:(YAVideo *)video forSender:(YAVideoCell *)me
 {
-    [[YAServer sharedServer] uploadPost:video
-                                inGroup:[YAUser currentUser].currentGroup
-                         withCompletion:^(id response, NSError *error) {
-                            
-                         }];
+#warning TODO
+    NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.movFilename].path];
+    [[YAServer sharedServer] uploadVideoData:videoData toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(id response, NSError *error) {
+       
+
+    }];
 }
 
 #pragma mark - UIScrollView

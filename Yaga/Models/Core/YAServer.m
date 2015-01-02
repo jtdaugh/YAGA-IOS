@@ -311,11 +311,10 @@
 }
 
 #pragma mark - Posts
-- (void)uploadPost:(YAVideo*)post toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+- (void)uploadVideoData:(NSData*)videoData toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
 
-    NSData *video = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:post.movFilename].path];
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId];
     
     [self.manager POST:api
@@ -324,7 +323,7 @@
                    NSDictionary *d = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
                    NSDictionary *dict = d[@"meta"];
                    NSString *endpoint = dict[@"endpoint"];
-                   [self multipartUpload:endpoint withParameters:dict[@"fields"] withFile:video];
+                   [self multipartUpload:endpoint withParameters:dict[@"fields"] withFile:videoData];
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                    NSLog(@"%@", error);
                }];
