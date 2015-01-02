@@ -50,8 +50,8 @@
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
         
-//        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(configureFocusPoint:)];
-//        [self.cameraView addGestureRecognizer:self.tapToFocusRecognizer];
+        //        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(configureFocusPoint:)];
+        //        [self.cameraView addGestureRecognizer:self.tapToFocusRecognizer];
         
         UILongPressGestureRecognizer *longPressGestureRecognizerCamera = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         [longPressGestureRecognizerCamera setMinimumPressDuration:0.2f];
@@ -66,39 +66,39 @@
         UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchFlashMode:)];
         tapGestureRecognizer.delegate = self;
         [self.white addGestureRecognizer:tapGestureRecognizer];
-    
-//        CGFloat gutter = 40, height = 24;
-//        self.instructions = [[FBShimmeringView alloc] initWithFrame:CGRectMake(gutter, 8, self.cameraView.frame.size.width - gutter*2, height)];
-//        [self.instructions setUserInteractionEnabled:NO];
+        
+        //        CGFloat gutter = 40, height = 24;
+        //        self.instructions = [[FBShimmeringView alloc] initWithFrame:CGRectMake(gutter, 8, self.cameraView.frame.size.width - gutter*2, height)];
+        //        [self.instructions setUserInteractionEnabled:NO];
         //    [self.instructions setAlpha:0.6];
         
-//        UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
-//        [instructionText setText:NSLocalizedString(@"RECORD_TIP", @"")];
-//        [instructionText setFont:[UIFont fontWithName:BIG_FONT size:18]];
-//        [instructionText setTextAlignment:NSTextAlignmentCenter];
-//        [instructionText setTextColor:[UIColor whiteColor]];
-//        
-//        instructionText.layer.shadowColor = [[UIColor blackColor] CGColor];
-//        instructionText.layer.shadowRadius = 1.0f;
-//        instructionText.layer.shadowOpacity = 1.0;
-//        instructionText.layer.shadowOffset = CGSizeZero;
-//        self.instructions.backgroundColor = [UIColor yellowColor];
-//        self.indicatorText = instructionText;
-//        //    [instructionText setBackgroundColor:PRIMARY_COLOR];
-//        
-//        //    [self.instructions setContentView:instructionText];
-//        self.instructions.shimmering = NO;
-//        
-//        [self.cameraView addSubview:self.instructions];
-//        [self.cameraAccessories addObject:self.instructions];
-
+        //        UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
+        //        [instructionText setText:NSLocalizedString(@"RECORD_TIP", @"")];
+        //        [instructionText setFont:[UIFont fontWithName:BIG_FONT size:18]];
+        //        [instructionText setTextAlignment:NSTextAlignmentCenter];
+        //        [instructionText setTextColor:[UIColor whiteColor]];
+        //
+        //        instructionText.layer.shadowColor = [[UIColor blackColor] CGColor];
+        //        instructionText.layer.shadowRadius = 1.0f;
+        //        instructionText.layer.shadowOpacity = 1.0;
+        //        instructionText.layer.shadowOffset = CGSizeZero;
+        //        self.instructions.backgroundColor = [UIColor yellowColor];
+        //        self.indicatorText = instructionText;
+        //        //    [instructionText setBackgroundColor:PRIMARY_COLOR];
+        //
+        //        //    [self.instructions setContentView:instructionText];
+        //        self.instructions.shimmering = NO;
+        //
+        //        [self.cameraView addSubview:self.instructions];
+        //        [self.cameraAccessories addObject:self.instructions];
+        
         CGFloat size = 44;
         self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
         [self.switchCameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    
+        
         [self.cameraAccessories addObject:self.switchCameraButton];
         [self.cameraView addSubview:self.switchCameraButton];
         
@@ -123,7 +123,7 @@
         self.groupButton.layer.shadowOffset = CGSizeZero;
         [self.cameraAccessories addObject:self.groupButton];
         [self.cameraView addSubview:self.groupButton];
-
+        
         //record button
         self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
         [self.recordButton setBackgroundColor:[UIColor redColor]];
@@ -163,7 +163,7 @@
                                                  selector:@selector(didEnterBackground)
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
-
+        
     }
     return self;
 }
@@ -398,23 +398,7 @@
             return;
         }
         
-        [YAVideo crateVideoAndAddToCurrentGroupFromRecording:outputFileURL completionHandler:^(NSError *error, YAVideo *video) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if(error) {
-                    [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:AZNotificationTypeError];
-                    return;
-                }
-                else {
-                    [[NSNotificationCenter defaultCenter] postNotificationName:RELOAD_VIDEO_NOTIFICATION object:video];
-                }
-            });
-            
-        } jpgCreatedHandler:^(NSError *error, YAVideo *video) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
-            });
-        }];
-        
+        [YAVideo createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
         
     } else {
         [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:AZNotificationTypeError];
@@ -539,7 +523,7 @@
             [self configureFlashButton:YES];
         }
     }
-
+    
 }
 
 - (void)configureFlashButton:(BOOL)flash {

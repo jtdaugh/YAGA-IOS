@@ -13,6 +13,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import "YAServer.h"
 
+#import "YAUtils.h"
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -66,6 +68,7 @@
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
+    [[YAServer sharedServer] sync];
     //[[AVAudioSession sharedInstance] setActive:YES error:nil];
 }
 

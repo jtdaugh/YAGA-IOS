@@ -1,82 +1,57 @@
 //
-//  YAVideo.m
+//  YAGIFOperation.m
 //  Yaga
 //
-//  Created by valentinkovalski on 12/17/14.
-//  Copyright (c) 2014 Raj Vir. All rights reserved.
+//  Created by valentinkovalski on 1/2/15.
+//  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
-#import "YAVideo.h"
+#import "YAGIFCreator.h"
 #import "YAUtils.h"
-#import "YAUser.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
-#import "AZNotification.h"
-#import "YAServerTransactionQueue.h"
 
-@implementation YAVideo
+@interface YAGIFCreator ()
+@property (nonatomic, strong) dispatch_queue_t gifQueue;
+@property (nonatomic, strong) NSMutableSet *videosInProgress;
+@end
 
-#pragma mark - Realm
+@implementation YAGIFCreator
 
-+ (RLMPropertyAttributes)attributesForProperty:(NSString *)propertyName {
-    RLMPropertyAttributes attributes = [super attributesForProperty:propertyName];
-    if ([propertyName isEqualToString:@"localId"] || [propertyName isEqualToString:@"serverId"]) {
-        attributes |= RLMPropertyAttributeIndexed;
++ (instancetype)sharedCreator {
+    static YAGIFCreator *s = nil;
+    static dispatch_once_t once_token;
+    dispatch_once(&once_token, ^{
+        s = [[self alloc] init];
+    });
+    return s;
+}
+
+- (instancetype)init {
+    if (self = [super init]) {
+        self.gifQueue = dispatch_queue_create("GIF Creator queue", NULL);
+        self.videosInProgress = [NSMutableSet set];
     }
-    return attributes;
+    return self;
 }
 
-+ (NSDictionary *)defaultPropertyValues{
-    return @{@"jpgFilename":@"", @"gifFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@""};
-}
-
-+ (NSString *)primaryKey {
-    return @"localId";
-}
-
-+ (YAVideo*)video {
-    YAVideo *result = [YAVideo new];
-    result.localId = [YAUtils uniqueId];
+- (void)createJPGAndGIFForVideo:(YAVideo*)video {
+    if([self.videosInProgress containsObject:video])
+        return;
     
-    return result;
-}
-
-#pragma mark - Utils
-+ (void)crateVideoAndAddToCurrentGroupFromRecording:(NSURL*)recordingUrl completionHandler:(videoCreatedCompletionHandler)completionHandler jpgCreatedHandler:(jpgCreatedCompletionHandler)jpgHandler {
-    
-    NSString *hashStr = [YAUtils uniqueId];
-    NSString *moveFilename = [hashStr stringByAppendingPathExtension:@"mov"];
-    NSString *gifFilename = [hashStr stringByAppendingPathExtension:@"gif"];
-    NSString *jpgFilename = [hashStr stringByAppendingPathExtension:@"jpg"];
-    NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
-    NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
-    NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
+    NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:video.movFilename];
     NSURL *movURL = [NSURL fileURLWithPath:movPath];
-    NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
     
-    NSError *error;
-    [[NSFileManager defaultManager] moveItemAtURL:recordingUrl toURL:movURL error:&error];
+    NSArray *keys = [NSArray arrayWithObject:@"duration"];
+    AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
     
-    //upload
+    NSString *filename = [video.movFilename stringByDeletingPathExtension];
+    [self.videosInProgress addObject:video];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        YAVideo *video = [YAVideo video];
-        video.creator = [[YAUser currentUser] username];
-        video.createdAt = [NSDate date];
-        video.movFilename = moveFilename;
-        
-        [[YAUser currentUser].currentGroup.videos insertObject:video atIndex:0];
-        [[RLMRealm defaultRealm] commitWriteTransaction];
-        
-        //start uploading while generating gif
-        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video];
-        
-        NSArray *keys = [NSArray arrayWithObject:@"duration"];
-        AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
+    dispatch_async(self.gifQueue, ^{
         
         [asset loadValuesAsynchronouslyForKeys:keys completionHandler:^() {
             NSError *error = nil;
@@ -93,13 +68,6 @@
                         Float64 movieDuration = CMTimeGetSeconds([asset duration]);
                         NSUInteger framesCount = movieDuration * 10;
                         NSLog(@"movie duration: %f", movieDuration);
-                        
-                        NSMutableDictionary *sizes = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:@"gifSizes"]];
-                        NSString *filename = [gifURL lastPathComponent];
-                        
-                        NSMutableDictionary *gifDataDic = [NSMutableDictionary new];
-                        gifDataDic[@"duration"] = [NSNumber numberWithFloat:movieDuration];
-                        gifDataDic[@"frames"] = [NSNumber numberWithLong:framesCount];
                         
                         NSMutableArray *times = [NSMutableArray arrayWithCapacity:framesCount];
                         for (int i = 0; i < framesCount; i++) {
@@ -118,46 +86,42 @@
                             if (result == AVAssetImageGeneratorSucceeded) {
                                 
                                 UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1.9 orientation:UIImageOrientationUp];
-                                newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
-                                
-                                if(!gifDataDic[@"width"]) {
-                                    
-                                    gifDataDic[@"width"] = [NSNumber numberWithFloat:newImage.size.width];
-                                    gifDataDic[@"height"] = [NSNumber numberWithFloat:newImage.size.height];
-                                    
-                                    [sizes setObject:gifDataDic forKey:filename];
-                                    [[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"gifSizes"];
-                                    [[NSUserDefaults standardUserDefaults] synchronize];
-                                }
+                                newImage = [YAGIFCreator deviceSpecificCroppedThumbnailFromImage:newImage];
                                 
                                 [imagesArray addObject:newImage];
                                 
                                 if([imagesArray count] == 1) {
+                                    NSString *jpgFilename = [filename stringByAppendingPathExtension:@"jpg"];
+                                    NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
                                     if([UIImageJPEGRepresentation(newImage, 1.0) writeToFile:jpgPath atomically:NO]) {
                                         dispatch_async(dispatch_get_main_queue(), ^{
-                                            [[RLMRealm defaultRealm] beginWriteTransaction];
+                                            [video.realm beginWriteTransaction];
                                             video.jpgFilename = jpgFilename;
-                                            [[RLMRealm defaultRealm] commitWriteTransaction];
-                                            jpgHandler(nil, jpgHandler);
+                                            [video.realm commitWriteTransaction];
+                                            [[NSNotificationCenter defaultCenter] postNotificationName:RELOAD_VIDEO_NOTIFICATION object:video];
                                         });
                                     }
                                     else {
-                                        completionHandler([NSError errorWithDomain:@"Can't save jpg" code:0 userInfo:nil], nil);
+                                        NSLog(@"Error: Can't save jpg by some reason...");
                                         return;
                                     }
                                 }
                                 
                                 if (imagesArray.count == framesCount) {
-                                    [self makeAnimatedGifAtUrl:gifURL fromArray:imagesArray completionHandler:^(NSError *error) {
+                                    NSString *gifFilename = [filename stringByAppendingPathExtension:@"gif"];
+                                    NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
+                                    NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
+                                    [YAGIFCreator makeAnimatedGifAtUrl:gifURL fromArray:imagesArray completionHandler:^(NSError *error) {
                                         if(error) {
-                                            completionHandler(error, nil);
+                                            NSLog(@"Error occured: %@", error);
                                         }
                                         else {
                                             dispatch_async(dispatch_get_main_queue(), ^{
-                                                [[RLMRealm defaultRealm] beginWriteTransaction];
+                                                [video.realm beginWriteTransaction];
                                                 video.gifFilename = gifFilename;
-                                                [[RLMRealm defaultRealm] commitWriteTransaction];
-                                                completionHandler(nil, video);
+                                                [video.realm commitWriteTransaction];
+                                                [[NSNotificationCenter defaultCenter] postNotificationName:RELOAD_VIDEO_NOTIFICATION object:video];
+                                                [self.videosInProgress removeObject:video];
                                             });
                                         }
                                     }];
@@ -166,11 +130,10 @@
                             }
                             
                             if (result == AVAssetImageGeneratorFailed) {
-                                NSLog(@"Failed with error: %@", [error localizedDescription]);
-                                completionHandler(error, nil);
+                                NSLog(@"AVAssetImageGeneratorFailed with error: %@", [error localizedDescription]);
                             }
                             if (result == AVAssetImageGeneratorCancelled) {
-                                NSLog(@"Canceled");
+                                NSLog(@"AVAssetImageGeneratorCancelled");
                             }
                         }];
                     }
@@ -248,16 +211,6 @@
     CFRelease(destination);
     
     handler(nil);
-}
-
-- (void)removeFromCurrentGroup {
-    NSAssert(self.serverId, @"Can't delete remote video with non existing id");
-    
-    [[YAServerTransactionQueue sharedQueue] addDeleteVideoTransaction:self.serverId forGroupId:[YAUser currentUser].currentGroup.serverId];
-    
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    [[RLMRealm defaultRealm] deleteObject:self];
-    [[RLMRealm defaultRealm] commitWriteTransaction];
 }
 
 @end

@@ -18,6 +18,11 @@
 #define YA_RESPONSE_USER                @"user"
 #define YA_RESPONSE_TOKEN               @"token"
 
+#define YA_VIDEO_POST           @"post"
+#define YA_VIDEO_POSTS          @"posts"
+#define YA_VIDEO_ATTACHMENT     @"attachment"
+#define YA_VIDEO_READY_AT       @"ready_at"
+
 @interface YAServer : NSObject
 typedef void(^responseBlock)(id response, NSError* error);
 
@@ -36,6 +41,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)addGroupMembersByPhones:(NSArray*)phones toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
+- (void)groupInfoWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)renameGroupWithId:(NSString*)serverGroupId newName:(NSString*)newName withCompletion:(responseBlock)completion;
 - (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion;
 
@@ -47,4 +53,6 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 //
 @property (readonly) BOOL serverUp;
+- (void)sync;
+@property (nonatomic, strong) NSDate *lastUpdateTime;
 @end

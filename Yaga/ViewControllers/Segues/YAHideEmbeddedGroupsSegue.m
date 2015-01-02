@@ -32,9 +32,7 @@
         
         //group can change
         [gridController.cameraViewController updateCurrentGroup];
-        [gridController.collectionViewController.collectionView reloadData];
-
-        
+        [gridController.collectionViewController reload];
     } completion:^(BOOL finished) {
         [groupsController removeFromParentViewController];
         [groupsController.view removeFromSuperview];

@@ -148,9 +148,9 @@
     YAGroup *group = [YAGroup group];
     group.name = name;
     [[RLMRealm defaultRealm] addObject:group];
-     
+    
     [[RLMRealm defaultRealm] commitWriteTransaction];
-
+    
     [[YAServerTransactionQueue sharedQueue] addCreateTransactionForGroup:group];
     
     return group;
@@ -204,4 +204,42 @@
     
     [[YAServerTransactionQueue sharedQueue] addMuteUnmuteTransactionForGroup:self];
 }
+
+#pragma mark - Videos
+- (void)updateVideos {
+    [[YAServer sharedServer] groupInfoWithId:self.serverId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            NSLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
+        }
+        else {
+            NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
+            NSLog(@"received %lu videos for %@ group", videoDictionaries.count, self.name);
+            [self createVideosFromDictionaries:videoDictionaries];
+        }
+    }];
+}
+
+- (NSSet*)videoIds {
+    NSMutableSet *existingIds = [NSMutableSet set];
+    for (YAVideo *video in self.videos) {
+        if(video.serverId){
+            [existingIds addObject:video.serverId];
+        }
+    }
+    return existingIds;
+}
+
+- (void)createVideosFromDictionaries:(NSArray*)videoDictionaries {
+    NSSet *existingIds = [self videoIds];
+    for(NSDictionary *videoDic in videoDictionaries) {
+        //video exists? we need to
+        if([existingIds containsObject:videoDic[YA_RESPONSE_ID]])
+            continue;
+        
+        
+        [YAVideo createVideoFromRemoteDictionary:videoDic addToGroup:[YAUser currentUser].currentGroup];
+    }
+    
+}
+
 @end

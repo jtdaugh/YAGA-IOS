@@ -208,6 +208,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     YAGroup *group = self.groups[indexPath.row];
     [YAUser currentUser].currentGroup = group;
     
+    [group updateVideos];
+    
     if(self.embeddedMode) {
         [self close];
     }

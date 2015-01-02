@@ -286,6 +286,20 @@
     }];
 }
 
+- (void)groupInfoWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    NSAssert(self.token, @"token not set");
+    NSAssert(serverGroupId, @"serverGroup is a required parameter");
+    
+    NSString *api = [NSString stringWithFormat:API_RENAME_GROUP_TEMPLATE, self.base_api, serverGroupId];
+    
+    [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+        completion(dict, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+}
+
 - (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion  {
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
@@ -384,28 +398,45 @@
 
 #pragma mark - Synchronization
 - (void)startMonitoringInternetConnection {
+    __weak typeof(self) weakSelf = self;
     [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-        if([[YAUser currentUser] loggedIn] && (status == AFNetworkReachabilityStatusReachableViaWWAN || status == AFNetworkReachabilityStatusReachableViaWiFi)) {
-            
-            //read updates from server
-            [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-                if(!error) {
-                    NSLog(@"groups updated from server successfully");
-                    
-                    //send local changes to the server
-                    [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
-                }
-                else {
-                    NSLog(@"unable to read groups from server");
-                }
-            }];
-            
-        }
+        [weakSelf sync];
     }];
 }
 
 - (BOOL)serverUp {
     return [self.reachability isReachable];
+}
+
+- (void)sync {
+    if(self.lastUpdateTime) {
+        NSTimeInterval interval = fabs([self.lastUpdateTime timeIntervalSinceNow]);
+        if(interval < 5)
+            return;
+    }
+    
+    if([[YAUser currentUser] loggedIn] && self.token.length && self.serverUp) {
+        
+        //read updates from server
+        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+            
+            if(!error) {
+                self.lastUpdateTime = [NSDate date];
+                NSLog(@"groups updated from server successfully");
+                
+                //send local changes to the server
+                [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
+                
+                //and update videos at the same time
+                [[YAUser currentUser].currentGroup updateVideos];
+            }
+            else {
+                NSLog(@"unable to read groups from server");
+            }
+        }];
+        
+    }
+
 }
 
 @end

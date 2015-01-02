@@ -8,6 +8,7 @@
 
 #import <Realm/Realm.h>
 
+@class YAGroup;
 @class YAVideo;
 
 typedef void (^videoCreatedCompletionHandler)(NSError *error,  YAVideo *video);
@@ -30,10 +31,13 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *url;
 
 + (YAVideo*)video;
-
-+ (void)crateVideoAndAddToCurrentGroupFromRecording:(NSURL*)recordingUrl completionHandler:(videoCreatedCompletionHandler)handler jpgCreatedHandler:(jpgCreatedCompletionHandler)jpgHandler;
-
 - (void)removeFromCurrentGroup;
+
++ (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
++ (void)createVideoFromRemoteDictionary:(NSDictionary*)videoDic addToGroup:(YAGroup*)group;
+
+- (void)generateGIF;
+
 @end
 
 // This protocol enables typed collections. i.e.:

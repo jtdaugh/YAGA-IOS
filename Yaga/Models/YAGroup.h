@@ -32,6 +32,7 @@ typedef void(^completionBlock)(NSError *error);
 - (void)removeMember:(YAContact*)contact;
 - (void)leave;
 - (void)muteUnmute;
+- (void)updateVideos;
 @end
 
 // This protocol enables typed collections. i.e.:

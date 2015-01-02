@@ -71,7 +71,7 @@ static NSString *cellID = @"Cell";
     [self.view addSubview:self.collectionView];
     
     //no videos welcome text
-    [self showNoVideosMessage];
+    [self showNoVideosMessageIfNeeded];
     
     //pull down to refresh
     self.pullToRefresh = [[UIRefreshControl alloc] initWithFrame:CGRectMake(0, -30, VIEW_WIDTH, 30)];
@@ -101,17 +101,27 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:DELETE_VIDEO_NOTIFICATION object:nil];
 }
 
-- (void)showNoVideosMessage {
+- (void)showNoVideosMessageIfNeeded {
     if(![YAUser currentUser].currentGroup.videos.count) {
         CGFloat width = VIEW_WIDTH * .8;
-        self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 20, width, width)];
-        [self.noVideosLabel setText:NSLocalizedString(@"NO VIDOES IN NEW GROUP MESSAGE", @"")];
-        [self.noVideosLabel setNumberOfLines:0];
-        [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-        [self.noVideosLabel setTextAlignment:NSTextAlignmentCenter];
-        [self.noVideosLabel setTextColor:PRIMARY_COLOR];
+        if(!self.noVideosLabel) {
+            self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 20, width, width)];
+            [self.noVideosLabel setText:NSLocalizedString(@"NO VIDOES IN NEW GROUP MESSAGE", @"")];
+            [self.noVideosLabel setNumberOfLines:0];
+            [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+            [self.noVideosLabel setTextAlignment:NSTextAlignmentCenter];
+            [self.noVideosLabel setTextColor:PRIMARY_COLOR];
+        }
         [self.collectionView addSubview:self.noVideosLabel];
     }
+    else {
+        [self.noVideosLabel removeFromSuperview];
+    }
+}
+
+- (void)reload {
+    [self showNoVideosMessageIfNeeded];
+    [self.collectionView reloadData];
 }
 
 - (void)deleteVideo:(NSNotification*)notif {
@@ -125,7 +135,7 @@ static NSString *cellID = @"Cell";
     //deleted last video? make sure to back to the grid
     if(![YAUser currentUser].currentGroup.videos.count) {
         [self collectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
-        [self showNoVideosMessage];
+        [self showNoVideosMessageIfNeeded];
     }
 }
 
@@ -151,30 +161,52 @@ static BOOL welcomeLabelRemoved = NO;
     return [YAUser currentUser].currentGroup.videos.count;
 }
 
+- (void)showImageOnCell:(YAVideoCell*)cell fromPath:(NSString*)path {
+    dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
+        
+        NSData *gifData = [NSData dataWithContentsOfFile:path];
+        
+        NSString *ext = [path pathExtension];
+        if([ext isEqualToString:@"gif"]) {
+            FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                cell.gifView.animatedImage = image;
+                [cell.gifView startAnimating];
+                cell.gifView.alpha = 1.0;
+            });
+            
+        } else if ([ext isEqualToString:@"jpg"]) {
+            UIImage *image = [UIImage imageWithContentsOfFile:path];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                cell.gifView.image = image;
+            });
+        }
+    });
+
+}
+
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     
     if(self.targetLayout == self.gridLayout) {
         cell.video = nil;
-        
+
         NSString *gifFilename = video.gifFilename;
         if(gifFilename.length) {
-            dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-                
-                NSData *gifData = [NSData dataWithContentsOfFile:[YAUtils urlFromFileName:gifFilename].path];
-                
-                FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    cell.gifView.animatedImage = image;
-                    [cell.gifView startAnimating];
-                    cell.gifView.alpha = 1.0;
-                });
-            });
+            NSString *gifPath = [YAUtils urlFromFileName:gifFilename].path;
+            [self showImageOnCell:cell fromPath:gifPath];
+        }
+        else if(video.jpgFilename.length){
+            NSString *jpgPath = [YAUtils urlFromFileName:video.jpgFilename].path;
+            [self showImageOnCell:cell fromPath:jpgPath];
+            [video generateGIF];
         }
         else {
-            cell.gifView.image = [UIImage imageWithContentsOfFile:[YAUtils urlFromFileName:video.jpgFilename].path];
+            cell.gifView.image = [UIImage imageNamed:@"Ball"];
+            [video generateGIF];
         }
     } else {
         AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
