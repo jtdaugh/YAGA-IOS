@@ -54,7 +54,7 @@ static NSString *CellID = @"CellID";
 #pragma mark - Navigation bar buttons
 
 - (void)adjustNavigationControls {
-
+    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:self.editing ? UIBarButtonSystemItemDone : UIBarButtonSystemItemEdit target:self action:@selector(changeEditingModeTapped)];
     
     if(self.tableView.editing) {
@@ -94,7 +94,7 @@ static NSString *CellID = @"CellID";
 {
     // Make sure you call super first
     [super setEditing:editing animated:animated];
-
+    
     [self adjustNavigationControls];
 }
 
@@ -135,7 +135,6 @@ static NSString *CellID = @"CellID";
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    
     return YES;
 }
 
@@ -144,14 +143,20 @@ static NSString *CellID = @"CellID";
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         YAContact *contact = self.group.members[indexPath.row];
+        
+        if([contact.number isEqualToString:[YAUser currentUser].phoneNumber]) {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Can't remove self from the group, use 'Leave' option when selecting group options.", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:nil]];
+            [self presentViewController:alert animated:YES completion:nil];
+            return;
+        }
+        
         NSString *title = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Remove", @""), contact.name];
         NSString *message = [NSString stringWithFormat:NSLocalizedString(@"Are you sure you would like to remove %@ from %@?", @""), contact.name, self.group.name];
         
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", @"") style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-            [[RLMRealm defaultRealm] beginWriteTransaction];
-            [self.group.members removeObjectAtIndex:indexPath.row];
-            [[RLMRealm defaultRealm] commitWriteTransaction];
+            [self.group removeMember:contact];
             [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
             
         }]];

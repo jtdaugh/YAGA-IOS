@@ -12,14 +12,16 @@
 
 #define YA_TRANSACTION_TYPE_CREATE_GROUP            @"createGroup"
 #define YA_TRANSACTION_TYPE_RENAME_GROUP            @"renameGroup"
-#define YA_TRANSACTION_TYPE_UPDATE_GROUP_MEMBERS    @"updateGroupMembers"
-#define YA_TRANSACTION_TYPE_LEAVE                   @"leaveGroup"
+#define YA_TRANSACTION_TYPE_ADD_GROUP_MEMBERS       @"addGroupMembers"
+#define YA_TRANSACTION_TYPE_DELETE_GROUP_MEMBER     @"deleteGroupMember"
+#define YA_TRANSACTION_TYPE_LEAVE_GROUP             @"leaveGroup"
+#define YA_TRANSACTION_TYPE_MUTE_UNMUTE_GROUP       @"muteUnmuteGroup"
 
 #define YA_GROUP_ID                 @"groupId"
 #define YA_GROUP_NEW_NAME           @"newName"
-#define YA_GROUP_UPDATE_MEMBERS     @"updateGroupMembers"
-#define YA_GROUP_DELETE_MEMBERS     @"membersToDelete"
 #define YA_GROUP_ADD_MEMBERS        @"membersToAdd"
+#define YA_GROUP_DELETE_MEMBER      @"memberToDelete"
+
 
 typedef void(^responseBlock)(id response, NSError* error);
 

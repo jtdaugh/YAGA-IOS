@@ -21,15 +21,17 @@ typedef void(^completionBlock)(NSError *error);
 @property RLMArray<YAVideo> *videos;
 
 - (NSString*)membersString;
-
+- (NSSet*)phonesSet;
 
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block;
 
 //
 + (YAGroup*)groupWithName:(NSString*)name;
 - (void)rename:(NSString*)newName;
-- (void)updateMembers:(NSArray*)membersArray;
+- (void)addMembers:(NSArray*)membersArray;
+- (void)removeMember:(YAContact*)contact;
 - (void)leave;
+- (void)muteUnmute;
 @end
 
 // This protocol enables typed collections. i.e.:

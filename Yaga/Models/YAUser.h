@@ -25,7 +25,6 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 }
                       
 @property (nonatomic, strong) YAGroup *currentGroup;
-@property (nonatomic, strong) NSString *phoneNumber;
 
 @property (nonatomic) BOOL phoneNumberIsRegistered;
 @property (nonatomic, copy) NSString *dialCode;
@@ -46,7 +45,10 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 - (BOOL)loggedIn;
 - (void)logout;
 
-- (void)importContactsWithCompletion:(contactsImportedBlock)completion;
+- (void)importContactsWithCompletion:(contactsImportedBlock)completion excludingPhoneNumbers:(NSSet*)excludePhonesSet;
 - (NSString*)formatDate:(NSDate*)date;
 - (NSString*)username;
+- (NSString*)phoneNumber;
+
+@property (nonatomic, readonly) NSMutableDictionary *phonebook;
 @end

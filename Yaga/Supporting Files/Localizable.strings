@@ -23,6 +23,7 @@
 "Leave" = "Leave";
 "Group" = "Group";
 "Remove" = "Remove";
+"No members" = "No members";
 
 "Looks like you're already a part of a group" = "Looks like you're already a part of a group. Pick which one you'd like to go to now.";
 "Incorrect confirmation code entered, try again" = "Incorrect confirmation code entered, try again";
@@ -33,6 +34,7 @@
 "Are you sure you would like to remove %@ from %@?" = "Are you sure you would like to remove %@ from %@?";
 "Updated successfully" = "Updated successfully";
 "You have left" = "You have left";
+"Can't remove self from the group, use 'Leave' option when selecting group options." = "Can't remove self from the group, use 'Leave' option when selecting group options.";
 
 "NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";
 "NO VIDOES IN NEW GROUP MESSAGE" = "You don't have videos yet, tap record button to record";

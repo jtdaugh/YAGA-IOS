@@ -12,10 +12,25 @@
 #import "NSDictionary+ResponseObject.h"
 #import "YAUser.h"
 #import "YAUtils.h"
+#import "YAServerTransactionQueue.h"
 
 #define HOST @"https://yaga-dev.herokuapp.com"
 #define PORT @"443"
 #define API_ENDPOINT @"/yaga/api/v1"
+
+#define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
+#define API_AUTH_TOKEN_TEMPLATE             @"%@/auth/token/"
+#define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
+
+#define API_GROUPS_TEMPLATE                 @"%@/groups/"
+#define API_RENAME_GROUP_TEMPLATE           @"%@/groups/%@/"
+#define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
+
+#define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/add_member/"
+#define API_REMOVE_GROUP_MEMBER_TEMPLATE    @"%@/groups/%@/remove_member/"
+
+#define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/add_post/"
+
 
 #define USER_PHONE @"phone"
 #define ERROR_DATA @"com.alamofire.serialization.response.error.data"
@@ -87,7 +102,7 @@
 - (void)getInfoForCurrentUserWithCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     
-    NSString *api = [NSString stringWithFormat:@"%@/user/profile/", self.base_api];
+    NSString *api = [NSString stringWithFormat:API_USER_PROFILE_TEMPLATE, self.base_api];
     
     [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
@@ -108,7 +123,7 @@
 {
     NSAssert(self.token, @"token not set");
     
-    NSString *api = [NSString stringWithFormat:@"%@/user/profile/", self.base_api];
+    NSString *api = [NSString stringWithFormat:API_USER_PROFILE_TEMPLATE, self.base_api];
     
     NSDictionary *parameters = @{
                                  @"name": name
@@ -130,7 +145,7 @@
                                  @"code" : authCode
                                  };
     
-    NSString *api = [NSString stringWithFormat:@"%@/auth/token/", self.base_api];
+    NSString *api = [NSString stringWithFormat:API_AUTH_TOKEN_TEMPLATE, self.base_api];
     [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil] ;
         self.token = [dict objectForKey:YA_RESPONSE_TOKEN];
@@ -148,7 +163,7 @@
     self.phoneNumber = number;
     NSDictionary *parameters = @{ @"phone" : self.phoneNumber };
     
-    NSString *api = [NSString stringWithFormat:@"%@/auth/request/", self.base_api];
+    NSString *api = [NSString stringWithFormat:API_AUTH_BY_SMS_TEMPLATE, self.base_api];
     [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         completion(nil, nil);
@@ -170,7 +185,7 @@
 {
     NSAssert(self.token, @"token not set");
     
-    NSString *api = [NSString stringWithFormat:@"%@/groups/", self.base_api];
+    NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
     
     NSDictionary *parameters = @{
                                  @"name": groupName
@@ -185,21 +200,17 @@
     }];
 }
 
-- (void)addGroupMembers:(YAGroup*)group withCompletion:(responseBlock) completion {
+- (void)addGroupMembersByPhones:(NSArray*)phones toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
-    NSAssert(group.serverId, @"group not synchronized with server yet");
-
-    NSMutableArray *array = [NSMutableArray new];
-    for (YAContact *contact in group.members) {
-        [array addObject:contact.number];
-    }
+    NSAssert(serverGroupId, @"group not synchronized with server yet");
+    
     NSDictionary *parameters = @{
-                                 @"phones": array
+                                 @"phones": phones
                                  };
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
-    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/", self.base_api, group.serverId];
+    NSString *api = [NSString stringWithFormat:API_ADD_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
     
     NSURL *url = [NSURL URLWithString:api];
     
@@ -220,61 +231,69 @@
                            }];
 }
 
-- (void)addUserByPhone:(NSString*)userPhone toGroup:(NSNumber *)groupId
-{
+- (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
-    
-    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/add/", self.base_api, groupId];
+    NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
     NSDictionary *parameters = @{
-                                 @"phone": userPhone
+                                 @"phone": phone
                                  };
     
-    [self.manager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"%@", responseObject);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@", error);
-    }];
+    id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
+    NSString *api = [NSString stringWithFormat:API_REMOVE_GROUP_MEMBER_TEMPLATE, self.base_api, serverGroupId];
+    
+    NSURL *url = [NSURL URLWithString:api];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"PUT"];
+    
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
+    [request setHTTPBody:json];
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               //                               NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                               //                               NSLog(@"%@", [NSString stringFromHex:str]);
+                               completion(nil, connectionError);
+                           }];
 }
 
-- (void)renameGroup:(YAGroup*)group newName:(NSString*)newName withCompletion:(responseBlock)completion
-{
+
+- (void)renameGroupWithId:(NSString*)serverGroupId newName:(NSString*)newName withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
-    NSAssert(group.serverId, @"group doesn't exist on server yet");
+    NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/", self.base_api, group.serverId];
+    NSString *api = [NSString stringWithFormat:API_RENAME_GROUP_TEMPLATE, self.base_api, serverGroupId];
     
     NSDictionary *parameters = @{
                                  @"name": newName
                                  };
     
     [self.manager PATCH:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"%@", responseObject);
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@", error);
         completion(nil, error);
     }];
 }
 
-- (void)removeGroup:(YAGroup*)group withCompletion:(responseBlock)completion
-{
+- (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion  {
     NSAssert(self.token, @"token not set");
-    NSAssert(group.serverId, @"group doesn't exist on server yet");
+    NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/remove/", self.base_api, group.serverId];
+    NSString *api = [NSString stringWithFormat:API_MUTE_GROUP_TEMPLATE, self.base_api, serverGroupId];
     
     NSDictionary *parameters = @{
-                                 @"phone": self.phoneNumber
+                                 @"mute": [NSNumber numberWithBool:mute]
                                  };
     
-    [self.manager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"%@", responseObject);
+    [self.manager PATCH:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@", error);
-        completion(nil, nil);
+        completion(nil, error);
     }];
 }
 
@@ -282,7 +301,7 @@
 {
     NSAssert(self.token, @"token not set");
     
-    NSString *api = [NSString stringWithFormat:@"%@/groups/", self.base_api];
+    NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
     
     [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
@@ -291,11 +310,13 @@
     }];
 }
 
-#pragma mark - Posts 
-- (void)uploadPost:(YAVideo*)post inGroup:(YAGroup*)group withCompletion:(responseBlock)completion
-{
-    NSData *video = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:post.movFilename]];
-    NSString *api = [NSString stringWithFormat:@"%@/groups/%@/add_post/", self.base_api, group.serverId];
+#pragma mark - Posts
+- (void)uploadPost:(YAVideo*)post toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    NSAssert(self.token, @"token not set");
+    NSAssert(serverGroupId, @"serverGroup is a required parameter");
+
+    NSData *video = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:post.movFilename].path];
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId];
     
     [self.manager POST:api
             parameters:nil
@@ -315,16 +336,16 @@
     AFXMLParserResponseSerializer *responseSerializer = [AFXMLParserResponseSerializer serializer];
     newManager.responseSerializer = responseSerializer;
     [newManager POST:endpoint
-            parameters:dict
-    constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-        [formData appendPartWithFormData:file name:@"file"];
-        
-    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"%@", operation);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [self printErrorData:error];
-
-    }];
+          parameters:dict
+constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+    [formData appendPartWithFormData:file name:@"file"];
+    
+} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    NSLog(@"%@", operation);
+} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    [self printErrorData:error];
+    
+}];
 }
 
 #pragma mark - Utitlities
@@ -334,5 +355,28 @@
     NSLog(@"%@", [NSString stringFromHex:hex]);
 }
 
+#pragma mark - Synchronization
+- (void)synchronizeLocalAndRemoteChanges {
+    //monitor internet connection
+    [[AFNetworkReachabilityManager sharedManager] startMonitoring];
+    [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+        if([[YAUser currentUser] loggedIn] && [[AFNetworkReachabilityManager sharedManager] isReachable]) {
+            
+            //read updates from server
+            [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+                if(!error) {
+                    NSLog(@"groups updated from server successfully");
+                    
+                    //send local changes to the server
+                    [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
+                }
+                else {
+                    NSLog(@"unable to read groups from server");
+                }
+            }];
+            
+        }
+    }];
+}
 
 @end

@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "YAGroup.h"
 
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_NAME                @"name"
@@ -33,12 +32,14 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion;
 - (void)getGroupsWithCompletion:(responseBlock)completion;
 
-- (void)addGroupMembers:(YAGroup*)group withCompletion:(responseBlock)completion;
+- (void)addGroupMembersByPhones:(NSArray*)phones toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
-- (void)renameGroup:(YAGroup*)group newName:(NSString*)newName withCompletion:(responseBlock)completion;
-- (void)removeGroup:(YAGroup*)group withCompletion:(responseBlock)completion;
+- (void)renameGroupWithId:(NSString*)serverGroupId newName:(NSString*)newName withCompletion:(responseBlock)completion;
+- (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion;
 
 //posts
-- (void)uploadPost:(YAVideo*)post inGroup:(YAGroup*)group withCompletion:(responseBlock)completion;
+//- (void)uploadPost:(YAVideo*)post toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
+- (void)synchronizeLocalAndRemoteChanges;
 @end

@@ -9,9 +9,11 @@
 #import "YAServerTransactionQueue.h"
 #import "YAServer.h"
 #import "YAServerTransaction.h"
+#import "AFNetworking.h"
 
 @interface YAServerTransactionQueue ()
 @property (nonatomic, strong) NSMutableArray *transactionsData;
+@property (nonatomic, readonly) BOOL paused;
 @end
 
 #define YA_TRANSACTIONS_FILENAME    @"pending_transactions.plist"
@@ -29,37 +31,69 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.transactionsData = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]];
+        self.transactionsData = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]]];
+        _paused = YES;
     }
     return self;
 }
 
 - (void)addCreateTransactionForGroup:(YAGroup*)group {
     [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_CREATE_GROUP, YA_GROUP_ID:group.localId}];
-    [self saveTransactions];
+    
+    [self saveTransactionsData];
+    [self processPendingTransactions];
 }
 
 - (void)addRenameTransactionForGroup:(YAGroup*)group {
     [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_RENAME_GROUP, YA_GROUP_ID:group.localId, YA_GROUP_NEW_NAME:group.name}];
-    [self saveTransactions];
-}
-
-- (void)addUpdateMembersTransactionForGroup:(YAGroup*)group membersToDelete:(NSSet*)deleteSet membersToAdd:(NSSet*)addSet {
-    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_GROUP_UPDATE_MEMBERS, YA_GROUP_ID:group.localId, YA_GROUP_DELETE_MEMBERS:deleteSet, YA_GROUP_ADD_MEMBERS:addSet}];
-    [self saveTransactions];
-}
-
-- (void)addLeaveGroupTransactionForGrouo:(YAGroup*)group {
-    //put 'leave' transactions at the beginning of the queue
-    [self.transactionsData insertObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_LEAVE, YA_GROUP_ID:group.localId} atIndex:0];
     
-    //and remove all the other transactions for that group
+    [self saveTransactionsData];
+    [self processPendingTransactions];
+}
+
+- (void)addAddMembersTransactionForGroup:(YAGroup*)group memberPhonesToAdd:(NSArray*)phones {
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_ADD_GROUP_MEMBERS, YA_GROUP_ID:group.localId, YA_GROUP_ADD_MEMBERS:phones}];
+    
+    [self saveTransactionsData];
+    [self processPendingTransactions];
+}
+
+- (void)addRemoveMemberTransactionForGroup:(YAGroup*)group memberPhoneToRemove:(NSString*)memberPhone {
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_DELETE_GROUP_MEMBER, YA_GROUP_ID:group.localId, YA_GROUP_DELETE_MEMBER:memberPhone}];
+    
+    [self saveTransactionsData];
+    [self processPendingTransactions];
+}
+
+- (void)addLeaveGroupTransactionForGroupId:(NSString*)groupId {
+    //put 'leave' transactions at the beginning of the queue
+    //remove all the other transactions for that group first
     for(NSDictionary *transactionData in [self.transactionsData copy]) {
-        if([transactionData[YA_GROUP_ID] isEqualToString:group.localId])
+        if([transactionData[YA_GROUP_ID] isEqualToString:groupId])
             [self.transactionsData removeObject:transactionData];
     }
     
-    [self saveTransactions];
+    //add leave transaction
+    [self.transactionsData insertObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_LEAVE_GROUP, YA_GROUP_ID:groupId} atIndex:0];
+    
+    [self saveTransactionsData];
+    [self processPendingTransactions];
+}
+
+- (void)addMuteUnmuteTransactionForGroup:(YAGroup*)group {
+    //remove all the old mute/unmute transcations for that group
+    for(NSDictionary *transactionData in [self.transactionsData copy]) {
+        if([transactionData[YA_GROUP_ID] isEqualToString:group.localId] &&
+           [transactionData[YA_TRANSACTION_TYPE] isEqualToString:YA_TRANSACTION_TYPE_MUTE_UNMUTE_GROUP]
+           ) {
+            [self.transactionsData removeObject:transactionData];
+        }
+    }
+    
+    [self.transactionsData insertObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_MUTE_UNMUTE_GROUP, YA_GROUP_ID:group.localId} atIndex:0];
+    
+    [self saveTransactionsData];
+    [self processPendingTransactions];
 }
 
 - (NSString*)filepath {
@@ -70,33 +104,49 @@
     return path;
 }
 
-- (void)resume {
-    self.transactionsData = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]];
+- (void)processPendingTransactions {
+    if(!self.paused)
+        return;
+    
+    self.transactionsData = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]]];
     
     if(self.transactionsData.count)
         [self processNextTransaction];
 }
 
-- (void)saveTransactions {
+- (void)saveTransactionsData {
     [NSKeyedArchiver archiveRootObject:self.transactionsData toFile:[self filepath]];
 }
 
 - (void)processNextTransaction {
-    if(!self.transactionsData.count)
+    if(![[AFNetworkReachabilityManager sharedManager] isReachable])
         return;
+        
+    if(!self.transactionsData.count) {
+        _paused = YES;
+        return;
+    }
+    
+    _paused = NO;
     
     NSDictionary *transactionData = self.transactionsData[0];
     
     YAServerTransaction *transaction = [[YAServerTransaction alloc] initWithDictionary:transactionData];
     
     __weak typeof(self) weakSelf = self;
+    
+    NSLog(@"performing transaction with data: %@", transactionData);
+    
     [transaction performWithCompletion:^(id response, NSError *error) {
         if(error) {
-            #warning TODO: think of what we can do here...
-            NSLog(@"Error: %@", error);
+            NSLog(@"Error performing transaction: %@", error);
+            //execute same transaction again
+            [weakSelf processNextTransaction];
         }
         else {
+            NSLog(@"Transaction successfull!");
             [weakSelf.transactionsData removeObject:transactionData];
+            [weakSelf saveTransactionsData];
             [weakSelf processNextTransaction];
         }
     }];

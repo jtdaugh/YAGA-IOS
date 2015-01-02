@@ -43,6 +43,10 @@
         if(selectedGroupId) {
             self.currentGroup = [YAGroup objectInRealm:[RLMRealm defaultRealm] forPrimaryKey:selectedGroupId];
         }
+        
+        //create phonebook
+        [self importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts) {
+        } excludingPhoneNumbers:nil];
     }
     return self;
 }
@@ -103,7 +107,7 @@
 }
 
 #pragma mark - Refactored - <delete me later
-- (void)importContactsWithCompletion:(contactsImportedBlock)completion {
+- (void)importContactsWithCompletion:(contactsImportedBlock)completion excludingPhoneNumbers:(NSSet*)excludePhonesSet {
     
     APAddressBook *addressBook = [[APAddressBook alloc] init];
     addressBook.fieldsMask = APContactFieldCompositeName | APContactFieldPhones | APContactFieldFirstName | APContactFieldLastName;
@@ -124,7 +128,8 @@
     [addressBook loadContacts:^(NSArray *contacts, NSError *error){
         if (!error){
             NSMutableArray *result = [NSMutableArray new];
-
+            _phonebook = [NSMutableDictionary new];
+            
             for(int i = 0; i<[contacts count]; i++){
                 APContact *contact = contacts[i];
                 for(int j = 0; j<[contact.phones count]; j++){
@@ -136,14 +141,21 @@
                     if(!num.length)
                         continue;
                     
+
+                    
                     NSDictionary *item = @{nCompositeName:[NSString stringWithFormat:@"%@", contact.compositeName],
                                            nPhone:num,
                                            nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
                                            nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
                                            nRegistered:[NSNumber numberWithBool:NO]};
-                    [result addObject:item];
+                    
+                    if(![excludePhonesSet containsObject:num])
+                        [result addObject:item];
+                    
+                    [self.phonebook setObject:item forKey:num];
                 }
             }
+            
             completion(nil, result);
         }
         else
@@ -177,5 +189,9 @@
 
 - (NSString*)username {
     return [[YAUser currentUser] objectForKey:nUsername];
+}
+
+- (NSString*)phoneNumber {
+    return [[YAUser currentUser] objectForKey:nPhone];
 }
 @end

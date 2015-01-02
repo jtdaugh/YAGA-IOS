@@ -8,6 +8,7 @@
 
 #import "YAContact.h"
 #import "YAUtils.h"
+#import "YAUser.h"
 
 @implementation YAContact
 
@@ -34,6 +35,25 @@
     contact.number = dictionary[nPhone];
     contact.registered = [dictionary objectForKey:@"joined_at"] != nil;
 
+    return contact;
+}
+
++ (YAContact*)contactFromPhoneNumber:(NSString*)phoneNumber {
+    YAContact *contact = [YAContact new];
+    NSDictionary *existingUserData = [YAUser currentUser].phonebook[phoneNumber];
+    if(existingUserData) {
+        
+        contact.name = existingUserData[nCompositeName];
+        contact.firstName = existingUserData[nFirstname];
+        contact.lastName  = existingUserData[nLastname];
+    }
+    else {
+        contact.firstName = phoneNumber;
+        contact.name = phoneNumber;
+    }
+    
+    contact.number = phoneNumber;
+    
     return contact;
 }
 

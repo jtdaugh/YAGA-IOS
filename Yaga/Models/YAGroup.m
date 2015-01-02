@@ -11,6 +11,7 @@
 #import "NSDictionary+ResponseObject.h"
 #import "YAUtils.h"
 #import "YAServerTransactionQueue.h"
+#import "YAUser.h"
 
 @implementation YAGroup
 
@@ -39,13 +40,26 @@
 //}
 
 - (NSString*)membersString {
+    if(!self.members.count) {
+        return NSLocalizedString(@"No members", @"");
+    }
+    
     NSString *results = @"";
+    
     for(int i = 0; i < self.members.count; i++) {
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
         results = [results stringByAppendingFormat:@"%@%@", contact.name, (i < self.members.count - 1 ? @", " : @"")];
     }
     
     return results;
+}
+
+- (NSSet*)phonesSet {
+    NSMutableSet *result = [NSMutableSet set];
+    for(YAContact *contact in self.members)
+        [result addObject:contact.number];
+    
+    return result;
 }
 
 + (YAGroup*)group {
@@ -56,7 +70,7 @@
 }
 
 #pragma mark - Server synchronisation: update from server
-- (void)updateFromDictionary:(NSDictionary*)dictionary {
+- (void)updateFromServerResponeDictionarty:(NSDictionary*)dictionary {
     self.serverId = dictionary[YA_RESPONSE_ID];
     self.name = dictionary[YA_RESPONSE_NAME];
     
@@ -65,15 +79,13 @@
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     
     for(NSDictionary *memberDic in members){
-        YAContact *contact = [YAContact new];
-        NSString *name = memberDic[YA_RESPONSE_USER][YA_RESPONSE_NAME];
-        if ([name isKindOfClass:[NSNull class]]){
-            contact.name = @"Null";
-        }
-        else {
-            contact.name = name;
-        }
-        contact.number = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
+        NSString *phoneNumber = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
+        
+        //skip myself
+        if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
+            continue;
+        
+        YAContact *contact = [YAContact contactFromPhoneNumber:phoneNumber];
         
         contact.registered = [memberDic objectForKey:YA_RESPONSE_MEMBER_JOINED_AT] != nil;
         
@@ -115,7 +127,7 @@
                     group = [YAGroup group];
                 }
                 
-                [group updateFromDictionary:dict];
+                [group updateFromServerResponeDictionarty:dict];
                 
                 if(!existingGroups.count)
                     [[RLMRealm defaultRealm] addObject:group];
@@ -152,35 +164,44 @@
     [[YAServerTransactionQueue sharedQueue] addRenameTransactionForGroup:self];
 }
 
-- (void)updateMembers:(NSArray*)membersDictionaries {
+- (void)addMembers:(NSArray*)membersDictionaries {
     [[RLMRealm defaultRealm] beginWriteTransaction];
     
-    NSMutableSet *membersToDelete = [NSMutableSet set];
-    NSMutableSet *membersToAdd = [NSMutableSet set];
-    
-    for(NSDictionary *memberDic in membersDictionaries){
-        YAContact *contact = [YAContact contactFromDictionary:memberDic];
-        //[group.members addObject:contact];
-        
-#warning TODO: add or delete and collect in sets
+    for(NSDictionary *memberDic in membersDictionaries) {
+        [self.members addObject:[YAContact contactFromDictionary:memberDic]];
     }
     
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
-    [[YAServerTransactionQueue sharedQueue] addUpdateMembersTransactionForGroup:self membersToDelete:membersToDelete membersToAdd:membersToAdd];
+    [[YAServerTransactionQueue sharedQueue] addAddMembersTransactionForGroup:self memberPhonesToAdd:[membersDictionaries valueForKey:nPhone]];
+}
+
+- (void)removeMember:(YAContact *)contact {
+    NSString *memberPhone = contact.number;
+    
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    [self.members removeObjectAtIndex:[self.members indexOfObject:contact]];
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    [[YAServerTransactionQueue sharedQueue] addRemoveMemberTransactionForGroup:self memberPhoneToRemove:memberPhone];
 }
 
 
 - (void)leave {
     NSAssert(self.serverId, @"Can't leave group which doesn't exist");
     
+    [[YAServerTransactionQueue sharedQueue] addLeaveGroupTransactionForGroupId:self.serverId];
+    
     [[RLMRealm defaultRealm] beginWriteTransaction];
-    
     [[RLMRealm defaultRealm] deleteObject:self];
-    
     [[RLMRealm defaultRealm] commitWriteTransaction];
-    
-    [[YAServerTransactionQueue sharedQueue] addLeaveGroupTransactionForGrouo:self];
 }
 
+- (void)muteUnmute {
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    self.muted = !self.muted;
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    [[YAServerTransactionQueue sharedQueue] addMuteUnmuteTransactionForGroup:self];
+}
 @end

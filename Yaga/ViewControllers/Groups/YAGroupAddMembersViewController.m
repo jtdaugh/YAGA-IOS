@@ -108,10 +108,11 @@
         }
         else {
             weakSelf.deviceContacts = contacts;
+            
             weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
             [weakSelf.membersTableview reloadData];
         }
-    }];
+    } excludingPhoneNumbers:[self.existingGroup phonesSet]];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -259,7 +260,7 @@
 #pragma mark - Navigation
 - (void)doneTapped {
     if(self.existingGroup && self.existingGroupDirty) {
-        [self.existingGroup updateMembers:self.selectedContacts];
+        [self.existingGroup addMembers:self.selectedContacts];
         
         [self.navigationController popToRootViewControllerAnimated:YES];
         
@@ -271,7 +272,7 @@
     else {
         [YAUser currentUser].currentGroup = [YAGroup groupWithName:@"Default"];
         
-        [[YAUser currentUser].currentGroup updateMembers:self.selectedContacts];
+        [[YAUser currentUser].currentGroup addMembers:self.selectedContacts];
         
         [self performSegueWithIdentifier:@"NameGroup" sender:self];
     }

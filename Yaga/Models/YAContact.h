@@ -31,6 +31,8 @@
 - (NSString *) readableNumber;
 
 + (YAContact*)contactFromDictionary:(NSDictionary*)dictionary;
++ (YAContact*)contactFromPhoneNumber:(NSString*)phoneNumber;
+
 - (NSDictionary*)dictionaryRepresentation;
 @end
 

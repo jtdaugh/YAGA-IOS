@@ -223,15 +223,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        YAGroup *group = self.groups[indexPath.row];
-        [[YAServer sharedServer] removeGroup:group
-                              withCompletion:^(NSDictionary *response, NSError *error) {
-                                  
-                                  [[RLMRealm defaultRealm] beginWriteTransaction];
-                                  [[RLMRealm defaultRealm] deleteObject:group];
-                                  [[RLMRealm defaultRealm] commitWriteTransaction];
-                                  [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                              }];
+        [self leaveGroupAtIndexPath:indexPath];
     }
 }
 
@@ -280,7 +272,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         
         [changeTitleAlert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
             textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
-            textField.text = [YAUser currentUser].currentGroup.name;
+            textField.text = group.name;
         }];
         [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             NSString *newname = [changeTitleAlert.textFields[0] text];
@@ -306,7 +298,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
     }]];
     
-    NSString *muteTitle = [YAUser currentUser].currentGroup.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
+    NSString *muteTitle = group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
     muteTitle = [muteTitle stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
     
     [alert addAction:[UIAlertAction actionWithTitle:muteTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -326,18 +318,16 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)muteUnmuteGroupAtIndexPath:(NSIndexPath*)indexPath {
     __block YAGroup *group = self.groups[indexPath.row];
     
-    NSString *muteTitle = [YAUser currentUser].currentGroup.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
+    NSString *muteTitle = group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
     muteTitle = [muteTitle stringByAppendingFormat:@" %@", group.name];
-    NSString *muteMessage = [YAUser currentUser].currentGroup.muted  ?  NSLocalizedString(@"Recieve notifications from this group", @"") : NSLocalizedString(@"Stop receiving notifications from this group", @"");
+    NSString *muteMessage = group.muted  ?  NSLocalizedString(@"Recieve notifications from this group", @"") : NSLocalizedString(@"Stop receiving notifications from this group", @"");
     
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Confirm", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
         
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        group.muted = !group.muted;
-        [[RLMRealm defaultRealm] commitWriteTransaction];
+        [group muteUnmute];
         
         [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
         
@@ -363,16 +353,13 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
+    
+        NSString *groupToLeave = group.name;
         
-        [[YAServer sharedServer] removeGroup:group withCompletion:^(id response, NSError *error) {
-            if(!error) {
-                NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@ %@", NSLocalizedString(@"Group", @""), group.name];
-                [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
-            }
-            else {
-                
-            }
-        }];
+        [group leave];
+        
+        NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@ %@", NSLocalizedString(@"Group", @""), groupToLeave];
+        [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {

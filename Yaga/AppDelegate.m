@@ -11,6 +11,7 @@
 #import "YAUser.h"
 
 #import <AVFoundation/AVFoundation.h>
+#import "YAServer.h"
 
 @implementation AppDelegate
 
@@ -44,9 +45,7 @@
     [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
     [application registerForRemoteNotifications];
     
-    if([[YAUser currentUser] loggedIn])
-        [YAGroup updateGroupsFromServerWithCompletion:nil];
-    
+    [[YAServer sharedServer] synchronizeLocalAndRemoteChanges];
     return YES;
 }
 

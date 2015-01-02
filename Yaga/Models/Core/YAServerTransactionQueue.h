@@ -15,6 +15,11 @@
 
 - (void)addCreateTransactionForGroup:(YAGroup*)group;
 - (void)addRenameTransactionForGroup:(YAGroup*)group;
-- (void)addUpdateMembersTransactionForGroup:(YAGroup*)group membersToDelete:(NSSet*)deleteSet membersToAdd:(NSSet*)addSet;
-- (void)addLeaveGroupTransactionForGrouo:(YAGroup*)group;
+- (void)addAddMembersTransactionForGroup:(YAGroup*)group memberPhonesToAdd:(NSArray*)phones;
+- (void)addRemoveMemberTransactionForGroup:(YAGroup*)group memberPhoneToRemove:(NSString*)memberPhone;
+- (void)addLeaveGroupTransactionForGroupId:(NSString*)groupId;
+- (void)addMuteUnmuteTransactionForGroup:(YAGroup*)group;
+
+//will pause automatically when no internet connection
+- (void)processPendingTransactions;
 @end

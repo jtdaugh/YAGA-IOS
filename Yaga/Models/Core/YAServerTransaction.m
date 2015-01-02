@@ -9,6 +9,7 @@
 #import "YAServerTransaction.h"
 #import "YAServer.h"
 #import "YAGroup.h"
+#import "YAUser.h"
 
 @interface YAServerTransaction ()
 @property (nonatomic, strong) NSDictionary *data;
@@ -35,13 +36,18 @@
     else if([type isEqualToString:YA_TRANSACTION_TYPE_RENAME_GROUP]) {
         [self renameGroupWithCompletion:completion];
     }
-    else if([type isEqualToString:YA_TRANSACTION_TYPE_UPDATE_GROUP_MEMBERS]) {
-        [self updateGroupMembersWithCompletion:completion];
+    else if([type isEqualToString:YA_TRANSACTION_TYPE_ADD_GROUP_MEMBERS]) {
+        [self addGroupMembersWithCompletion:completion];
     }
-    else if([type isEqualToString:YA_TRANSACTION_TYPE_LEAVE]) {
+    else if([type isEqualToString:YA_TRANSACTION_TYPE_DELETE_GROUP_MEMBER]) {
+        [self deleteGroupMemberWithCompletion:completion];
+    }
+    else if([type isEqualToString:YA_TRANSACTION_TYPE_LEAVE_GROUP]) {
         [self leaveGroupWithCompletion:completion];
     }
-    
+    else if([type isEqualToString:YA_TRANSACTION_TYPE_MUTE_UNMUTE_GROUP]) {
+        [self muteUnmuteGroupWithCompletion:completion];
+    }
 }
 
 - (YAGroup*)groupFromData {
@@ -75,7 +81,7 @@
 - (void)renameGroupWithCompletion:(responseBlock)completion {
     __block YAGroup *group = [self groupFromData];
     
-    [[YAServer sharedServer] renameGroup:group newName:group.name withCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] renameGroupWithId:group.serverId newName:group.name withCompletion:^(id response, NSError *error) {
         if(error) {
             NSLog(@"can't rename remote group with name %@, error %@", group.name, error.localizedDescription);
             completion(nil, error);
@@ -87,13 +93,66 @@
     }];
 }
 
-- (void)updateGroupMembersWithCompletion:(responseBlock)completion {
-#warning TODO: updateGroupMembersWithCompletion
+- (void)addGroupMembersWithCompletion:(responseBlock)completion {
+    NSArray *phones = self.data[YA_GROUP_ADD_MEMBERS];
+    YAGroup *group = [self groupFromData];
+    
+    [[YAServer sharedServer] addGroupMembersByPhones:phones toGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            NSLog(@"can't add members to the group with name %@, error %@", group.name, error.localizedDescription);
+            completion(nil, error);
+        }
+        else {
+            NSLog(@"members %@ added to the group: %@", phones, group.name);
+            completion(nil, nil);
+        }
+    }];
+
+}
+
+- (void)deleteGroupMemberWithCompletion:(responseBlock)completion {
+    YAGroup *group = [self groupFromData];
+    NSString *phone = self.data[YA_GROUP_DELETE_MEMBER];
+    
+    [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            NSLog(@"can't remove member from the group with name %@, error %@", group.name, error.localizedDescription);
+            completion(nil, error);
+        }
+        else {
+            NSLog(@"member %@ removed from the group: %@", phone, group.name);
+            completion(nil, nil);
+        }
+    }];
 }
 
 - (void)leaveGroupWithCompletion:(responseBlock)completion {
-#warning TODO: leaveGroupWithCompletion
+    NSString *groupId = self.data[YA_GROUP_ID];
+    NSString *phone = [YAUser currentUser].phoneNumber;
+
+    [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:groupId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            NSLog(@"can't leave group with id: %@, error %@", groupId, error.localizedDescription);
+            completion(nil, error);
+        }
+        else {
+            NSLog(@"successfully left group with id: %@", groupId);
+            completion(nil, nil);
+        }
+    }];
 }
 
-
+- (void)muteUnmuteGroupWithCompletion:(responseBlock)completion {
+    YAGroup *group = [self groupFromData];
+    [[YAServer sharedServer] muteGroupWithId:group.serverId mute:group.muted withCompletion:^(id response, NSError *error) {
+        if(error) {
+            NSLog(@"mute/unmute group with name %@, error %@", group.name, error.localizedDescription);
+            completion(nil, error);
+        }
+        else {
+            NSLog(@"%@ group %@", group.name, group.muted ? @"muted" : @"unmuted");
+            completion(nil, nil);
+        }
+    }];
+}
 @end
