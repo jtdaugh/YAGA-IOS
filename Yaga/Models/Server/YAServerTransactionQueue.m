@@ -9,11 +9,10 @@
 #import "YAServerTransactionQueue.h"
 #import "YAServer.h"
 #import "YAServerTransaction.h"
-#import "AFNetworking.h"
 
 @interface YAServerTransactionQueue ()
 @property (nonatomic, strong) NSMutableArray *transactionsData;
-@property (nonatomic, readonly) BOOL paused;
+@property (nonatomic, strong) NSMutableDictionary *transactionsAttempts;
 @end
 
 #define YA_TRANSACTIONS_FILENAME    @"pending_transactions.plist"
@@ -32,7 +31,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.transactionsData = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]]];
-        _paused = YES;
+        self.transactionsAttempts = [NSMutableDictionary new];
     }
     return self;
 }
@@ -90,10 +89,25 @@
         }
     }
     
-    [self.transactionsData insertObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_MUTE_UNMUTE_GROUP, YA_GROUP_ID:group.localId} atIndex:0];
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_MUTE_UNMUTE_GROUP, YA_GROUP_ID:group.localId}];
     
     [self saveTransactionsData];
     [self processPendingTransactions];
+}
+
+- (void)addUploadVideoTransaction:(YAVideo*)video {
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_UPLOAD_VIDEO, YA_VIDEO_ID:video.localId}];
+    
+    [self saveTransactionsData];
+    [self processPendingTransactions];
+}
+
+- (void)addDeleteVideoTransaction:(NSString*)videoId forGroupId:(NSString*)groupId{
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_DELETE_VIDEO, YA_VIDEO_ID:videoId, YA_GROUP_ID:groupId}];
+    
+    [self saveTransactionsData];
+    [self processPendingTransactions];
+
 }
 
 - (NSString*)filepath {
@@ -105,9 +119,6 @@
 }
 
 - (void)processPendingTransactions {
-    if(!self.paused)
-        return;
-    
     self.transactionsData = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]]];
     
     if(self.transactionsData.count)
@@ -119,15 +130,14 @@
 }
 
 - (void)processNextTransaction {
-    if(![[AFNetworkReachabilityManager sharedManager] isReachable])
-        return;
-        
-    if(!self.transactionsData.count) {
-        _paused = YES;
+    if(![YAServer sharedServer].serverUp) {
+        NSLog(@"Connection to the server is not available. All transactions will be restored when it's up again.");
         return;
     }
     
-    _paused = NO;
+    if(!self.transactionsData.count) {
+        return;
+    }
     
     NSDictionary *transactionData = self.transactionsData[0];
     
@@ -139,9 +149,25 @@
     
     [transaction performWithCompletion:^(id response, NSError *error) {
         if(error) {
-            NSLog(@"Error performing transaction: %@", error);
-            //execute same transaction again
-            [weakSelf processNextTransaction];
+            NSLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
+
+            const NSUInteger maxAttemptsCount = 10;
+            //try 10 times with internet connection, then remove transaction
+            NSNumber *attempts = [NSNumber numberWithInteger:[weakSelf.transactionsAttempts[transactionData] integerValue] + 1];
+            weakSelf.transactionsAttempts[transactionData] = attempts;
+            NSLog(@"Attempts done: %lu", (long)[attempts integerValue]);
+            
+            if([attempts integerValue] >= maxAttemptsCount) {
+                NSLog(@"%lu attempts is enoght, killing transaction\n\n\n-----------------\n", (unsigned long)maxAttemptsCount);
+                [weakSelf.transactionsAttempts removeObjectForKey:transactionData];
+                [weakSelf.transactionsData removeObject:transactionData];
+                [weakSelf saveTransactionsData];
+                [weakSelf processNextTransaction];
+            }
+            else {
+                //execute same transaction again
+                [weakSelf processNextTransaction];
+            }
         }
         else {
             NSLog(@"Transaction successfull!");

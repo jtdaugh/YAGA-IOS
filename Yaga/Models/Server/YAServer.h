@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "YAVideo.h"
 
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_NAME                @"name"
@@ -39,7 +40,11 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion;
 
 //posts
-- (void)uploadVideoData:(NSData*)data toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
-- (void)synchronizeLocalAndRemoteChanges;
+- (void)startMonitoringInternetConnection;
+
+//
+@property (readonly) BOOL serverUp;
 @end

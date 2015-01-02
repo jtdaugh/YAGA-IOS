@@ -17,7 +17,11 @@
 #define YA_TRANSACTION_TYPE_LEAVE_GROUP             @"leaveGroup"
 #define YA_TRANSACTION_TYPE_MUTE_UNMUTE_GROUP       @"muteUnmuteGroup"
 
+#define YA_TRANSACTION_TYPE_UPLOAD_VIDEO            @"uploadVideo"
+#define YA_TRANSACTION_TYPE_DELETE_VIDEO            @"deleteVideo"
+
 #define YA_GROUP_ID                 @"groupId"
+#define YA_VIDEO_ID                 @"videoId"
 #define YA_GROUP_NEW_NAME           @"newName"
 #define YA_GROUP_ADD_MEMBERS        @"membersToAdd"
 #define YA_GROUP_DELETE_MEMBER      @"memberToDelete"

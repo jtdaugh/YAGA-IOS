@@ -24,9 +24,16 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *caption;
 @property NSDate *createdAt;
 @property BOOL like;
-@property BOOL uploaded;
+
+@property NSString *localId;
+@property NSString *serverId;
+@property NSString *url;
+
++ (YAVideo*)video;
 
 + (void)crateVideoAndAddToCurrentGroupFromRecording:(NSURL*)recordingUrl completionHandler:(videoCreatedCompletionHandler)handler jpgCreatedHandler:(jpgCreatedCompletionHandler)jpgHandler;
+
+- (void)removeFromCurrentGroup;
 @end
 
 // This protocol enables typed collections. i.e.:

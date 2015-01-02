@@ -115,11 +115,8 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)deleteVideo:(NSNotification*)notif {
-    
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:notif.object];
-    [[YAUser currentUser].currentGroup.videos removeObjectAtIndex:index];
-    [[RLMRealm defaultRealm] commitWriteTransaction];
+    YAVideo *video = notif.object;
+    [video removeFromCurrentGroup];
     
     NSIndexPath *indexPath = [self.collectionView indexPathsForVisibleItems][0];
     
@@ -156,7 +153,6 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    cell.delegate = self;
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     
     if(self.targetLayout == self.gridLayout) {
@@ -228,18 +224,6 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell*)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     cell.playerVC = nil;
-}
-
-#pragma mark - YAVideoCellDelegate
-
-- (void)uploadMyVideo:(YAVideo *)video forSender:(YAVideoCell *)me
-{
-#warning TODO
-    NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.movFilename].path];
-    [[YAServer sharedServer] uploadVideoData:videoData toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(id response, NSError *error) {
-       
-
-    }];
 }
 
 #pragma mark - UIScrollView

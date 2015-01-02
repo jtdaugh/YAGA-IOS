@@ -45,7 +45,7 @@
     [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
     [application registerForRemoteNotifications];
     
-    [[YAServer sharedServer] synchronizeLocalAndRemoteChanges];
+    [[YAServer sharedServer] startMonitoringInternetConnection];
     return YES;
 }
 

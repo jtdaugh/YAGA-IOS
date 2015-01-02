@@ -12,7 +12,7 @@ typedef void (^cameraCompletion)(void);
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart completion:(cameraCompletion)block;
 @end
 
-@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, YAVideoCellDelegate> {
+@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate> {
     CGPoint lastOffset;
     NSTimeInterval lastOffsetCapture;
     BOOL isScrollingFast;

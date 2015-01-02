@@ -15,12 +15,33 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "AZNotification.h"
+#import "YAServerTransactionQueue.h"
 
 @implementation YAVideo
 
 #pragma mark - Realm
+
++ (RLMPropertyAttributes)attributesForProperty:(NSString *)propertyName {
+    RLMPropertyAttributes attributes = [super attributesForProperty:propertyName];
+    if ([propertyName isEqualToString:@"localId"] || [propertyName isEqualToString:@"serverId"]) {
+        attributes |= RLMPropertyAttributeIndexed;
+    }
+    return attributes;
+}
+
 + (NSDictionary *)defaultPropertyValues{
-    return @{@"jpgFilename":@"", @"gifFilename":@"", @"caption":@"", @"createdAt":[NSDate date]};
+    return @{@"jpgFilename":@"", @"gifFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@""};
+}
+
++ (NSString *)primaryKey {
+    return @"localId";
+}
+
++ (YAVideo*)video {
+    YAVideo *result = [YAVideo new];
+    result.localId = [YAUtils uniqueId];
+    
+    return result;
 }
 
 #pragma mark - Utils
@@ -43,22 +64,16 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[RLMRealm defaultRealm] beginWriteTransaction];
-        YAVideo *video = [YAVideo new];
+        YAVideo *video = [YAVideo video];
         video.creator = [[YAUser currentUser] username];
         video.createdAt = [NSDate date];
         video.movFilename = moveFilename;
         
-        video.uploaded = NO;
         [[YAUser currentUser].currentGroup.videos insertObject:video atIndex:0];
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
         //start uploading while generating gif
-        [YAVideo uploadMovFile:movURL withCompletion:^(NSError *error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if(!error)
-                    video.uploaded = YES;
-            });
-        }];
+        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video];
         
         NSArray *keys = [NSArray arrayWithObject:@"duration"];
         AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
@@ -235,29 +250,14 @@
     handler(nil);
 }
 
-#pragma mark - Server
-+ (void)uploadMovFile:(NSURL*)movURL withCompletion:(uploadCompletionHandler)handler {
-    handler([NSError errorWithDomain:@"not implemented" code:0 userInfo:nil]);
-    return;
+- (void)removeFromCurrentGroup {
+    NSAssert(self.serverId, @"Can't delete remote video with non existing id");
     
-    dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_LOW), ^{
-        NSError *error;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-            if(error) {
-                [AZNotification showNotificationWithTitle:[NSString stringWithFormat:@"Unable to upload recording, %@", error.localizedDescription] controller:[UIApplication sharedApplication].keyWindow.rootViewController
-                                         notificationType:AZNotificationTypeError
-                                             startedBlock:nil];
-            }
-            else {
-                handler(error);
-            }
-        });
-        
-    });
+    [[YAServerTransactionQueue sharedQueue] addDeleteVideoTransaction:self.serverId forGroupId:[YAUser currentUser].currentGroup.serverId];
+    
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    [[RLMRealm defaultRealm] deleteObject:self];
+    [[RLMRealm defaultRealm] commitWriteTransaction];
 }
-
-
 
 @end

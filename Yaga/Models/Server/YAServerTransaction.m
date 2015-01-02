@@ -10,6 +10,8 @@
 #import "YAServer.h"
 #import "YAGroup.h"
 #import "YAUser.h"
+#import "YAUtils.h"
+#import "AFNetworking.h"
 
 @interface YAServerTransaction ()
 @property (nonatomic, strong) NSDictionary *data;
@@ -48,6 +50,12 @@
     else if([type isEqualToString:YA_TRANSACTION_TYPE_MUTE_UNMUTE_GROUP]) {
         [self muteUnmuteGroupWithCompletion:completion];
     }
+    else if([type isEqualToString:YA_TRANSACTION_TYPE_UPLOAD_VIDEO]) {
+        [self uploadVideoWithCompletion:completion];
+    }
+    else if([type isEqualToString:YA_TRANSACTION_TYPE_DELETE_VIDEO]) {
+        [self deleteVideoWithCompletion:completion];
+    }
 }
 
 - (YAGroup*)groupFromData {
@@ -55,6 +63,13 @@
     YAGroup *group = [YAGroup objectInRealm:[RLMRealm defaultRealm] forPrimaryKey:groupId];
    
     return group;
+}
+
+- (YAVideo*)videoFromData {
+    NSString *videoId = self.data[YA_VIDEO_ID];
+    YAVideo *video = [YAVideo objectInRealm:[RLMRealm defaultRealm] forPrimaryKey:videoId];
+    
+    return video;
 }
 
 - (void)createGroupWithCompletion:(responseBlock)completion {
@@ -155,4 +170,41 @@
         }
     }];
 }
+
+- (void)uploadVideoWithCompletion:(responseBlock)completion {
+    YAVideo *video = [self videoFromData];
+    
+    [[YAServer sharedServer] uploadVideo:video toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
+        if(error) {
+            NSLog(@"unable to upload video with id:%@, error %@", video.localId, error.localizedDescription);
+            completion(nil, error);
+        }
+        else {            
+            [video.realm beginWriteTransaction];
+            video.url = [response allHeaderFields][@"Location"];
+            [video.realm commitWriteTransaction];
+            
+            NSLog(@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url);
+            completion(nil, nil);
+        }
+    }];
+}
+
+- (void)deleteVideoWithCompletion:(responseBlock)completion {
+    NSString *videoId = self.data[YA_VIDEO_ID];
+    NSString *groupId = self.data[YA_GROUP_ID];
+    
+    [[YAServer sharedServer] deleteVideoWithId:videoId fromGroup:groupId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            NSLog(@"unable to delete video with id:%@, error %@", videoId, error.localizedDescription);
+            completion(nil, error);
+        }
+        else {
+            NSLog(@"video with id:%@ deleted successfully", videoId);
+            completion(nil, nil);
+        }
+
+    }];
+}
+
 @end

@@ -142,17 +142,6 @@
         [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Delete"] forState:UIControlStateNormal];
         [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.controls addObject:self.deleteButton];
-        
-        UIButton *uploadButton =
-            [[UIButton alloc] initWithFrame:CGRectMake( saveSize + 30, VIEW_HEIGHT - saveSize - 15, saveSize*3, saveSize)];
-        [uploadButton setImage:[UIImage imageNamed:@"Share"] forState:UIControlStateNormal];
-        [uploadButton setTitle:@"Upload" forState:UIControlStateNormal];
-        uploadButton.imageEdgeInsets = UIEdgeInsetsMake(0., 0., 0., saveSize*2.);
-        uploadButton.titleEdgeInsets = UIEdgeInsetsMake(0., 0., 0., 0.);
-        uploadButton.layer.borderColor = [UIColor redColor].CGColor;
-        uploadButton.layer.borderWidth = 2.f;
-        [uploadButton addTarget:self action:@selector(uploadButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:uploadButton];
     }
     
     CGFloat likeSize = 42;
@@ -354,12 +343,6 @@
 
 
         [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
-    }];
-}
-
-- (void)uploadButtonPressed:(UIButton*)sender {
-    [self animateButton:sender withImageName:nil completion:^{
-        [self.delegate uploadMyVideo:self.video forSender:self];
     }];
 }
 

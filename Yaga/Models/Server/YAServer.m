@@ -30,6 +30,7 @@
 #define API_REMOVE_GROUP_MEMBER_TEMPLATE    @"%@/groups/%@/remove_member/"
 
 #define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/add_post/"
+#define API_GROUP_POST_DELETE               @"%@/groups/%@/posts/%@/"
 
 
 #define USER_PHONE @"phone"
@@ -40,6 +41,7 @@
 @property (nonatomic, strong) NSString *phoneNumber;
 @property (nonatomic) AFHTTPRequestOperationManager *manager;
 @property (nonatomic, strong) NSString *token;
+@property (nonatomic, strong) AFNetworkReachabilityManager *reachability;
 @end
 
 @implementation YAServer
@@ -59,6 +61,11 @@
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
         _manager = [AFHTTPRequestOperationManager manager];
         _manager.requestSerializer = [AFJSONRequestSerializer serializer];
+        
+        
+        //monitor internet connection
+        self.reachability = [AFNetworkReachabilityManager managerForDomain:HOST];
+        [self.reachability startMonitoring];
     }
     return self;
 }
@@ -151,7 +158,6 @@
         self.token = [dict objectForKey:YA_RESPONSE_TOKEN];
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [self printErrorData:error];
         completion(nil, error);
     }];
 }
@@ -311,55 +317,75 @@
 }
 
 #pragma mark - Posts
-- (void)uploadVideoData:(NSData*)videoData toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+- (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
-
+    
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId];
     
     [self.manager POST:api
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                   NSDictionary *d = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-                   NSDictionary *dict = d[@"meta"];
-                   NSString *endpoint = dict[@"endpoint"];
-                   [self multipartUpload:endpoint withParameters:dict[@"fields"] withFile:videoData];
+                   NSLog(@"uploadVideoData, recieved params for S3 upload. Making multipart upload...");
+                   
+                   NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+                   
+                   [video.realm beginWriteTransaction];
+                   video.serverId = dict[YA_RESPONSE_ID];
+                   [video.realm commitWriteTransaction];
+                   
+                   NSDictionary *meta = dict[@"meta"];
+                   NSString *endpoint = meta[@"endpoint"];
+                   
+                   NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.movFilename].path];
+                   [self multipartUpload:endpoint withParameters:meta[@"fields"] withFile:videoData completion:completion];
+
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                   NSLog(@"%@", error);
+                   completion(nil, error);
                }];
 }
 
-- (void)multipartUpload:(NSString*)endpoint withParameters:(NSDictionary*)dict withFile:(NSData*)file
-{
+- (void)multipartUpload:(NSString*)endpoint withParameters:(NSDictionary*)dict withFile:(NSData*)file completion:(responseBlock)completion {
     AFHTTPRequestOperationManager *newManager = [AFHTTPRequestOperationManager manager];
     AFXMLParserResponseSerializer *responseSerializer = [AFXMLParserResponseSerializer serializer];
     newManager.responseSerializer = responseSerializer;
     [newManager POST:endpoint
-          parameters:dict
-constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-    [formData appendPartWithFormData:file name:@"file"];
+          parameters:dict constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+              [formData appendPartWithFormData:file name:@"file"];
+              
+          } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+              completion(operation.response, nil);
+          } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+              completion(nil, error);
+          }];
+}
+
+- (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    NSAssert(self.token, @"token not set");
+    NSAssert(serverVideoId, @"videoId is a required parameter");
+    NSAssert(serverGroupId, @"videoId is a required parameter");
     
-} success:^(AFHTTPRequestOperation *operation, id responseObject) {
-    NSLog(@"%@", operation);
-} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-    [self printErrorData:error];
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_DELETE, self.base_api, serverGroupId, serverVideoId];
     
-}];
+    [self.manager DELETE:api
+              parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                  completion(responseObject, nil);
+              } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                  completion(nil, error);
+              }];
 }
 
 #pragma mark - Utitlities
-- (void)printErrorData:(NSError*)error
-{
-    NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
-    NSLog(@"%@", [NSString stringFromHex:hex]);
-}
+//- (void)printErrorData:(NSError*)error
+//{
+//    NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+//    NSLog(@"%@", [NSString stringFromHex:hex]);
+//}
 
 #pragma mark - Synchronization
-- (void)synchronizeLocalAndRemoteChanges {
-    //monitor internet connection
-    [[AFNetworkReachabilityManager sharedManager] startMonitoring];
-    [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-        if([[YAUser currentUser] loggedIn] && [[AFNetworkReachabilityManager sharedManager] isReachable]) {
+- (void)startMonitoringInternetConnection {
+    [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+        if([[YAUser currentUser] loggedIn] && (status == AFNetworkReachabilityStatusReachableViaWWAN || status == AFNetworkReachabilityStatusReachableViaWiFi)) {
             
             //read updates from server
             [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
@@ -376,6 +402,10 @@ constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
             
         }
     }];
+}
+
+- (BOOL)serverUp {
+    return [self.reachability isReachable];
 }
 
 @end
