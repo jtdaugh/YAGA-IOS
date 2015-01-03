@@ -13,7 +13,7 @@
 #import "AZNotification.h"
 #import "YAServerTransactionQueue.h"
 #import "YAServer.h"
-#import "YAGIFCreator.h"
+#import "YAAssetsCreator.h"
 
 @implementation YAVideo
 
@@ -120,7 +120,7 @@
 }
 
 - (void)generateGIF {
-    [[YAGIFCreator sharedCreator] createJPGAndGIFForVideo:self];
+    [[YAAssetsCreator sharedCreator] createJPGAndGIFForVideo:self];
 }
 
 

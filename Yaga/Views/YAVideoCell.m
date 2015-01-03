@@ -11,6 +11,7 @@
 #import "YAUser.h"
 #import "AZNotification.h"
 #import "NSDate+NVTimeAgo.h"
+#import "YAAssetsCreator.h"
 
 @interface YAVideoCell ()
 @property (nonatomic, strong) NSMutableArray *controls;
@@ -299,22 +300,8 @@
 }
 
 - (void)saveButtonPressed {
-
-//    NSString *message = @"Yaga Video";
-//    NSURL *videoPath = [YAUtils urlFromFileName:self.video.movFilename];
-//    
-//    NSArray *objectsToShare = [NSArray arrayWithObjects:message, videoPath, nil];
-//    
-//    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:nil];
-//    
-//    [self.window.rootViewController presentViewController:activityViewController
-//                                       animated:YES
-//                                     completion:^{
-//                                         // ...
-//                                     }];    
     [self animateButton:self.saveButton withImageName:nil completion:^{
-        NSString *path = [YAUtils urlFromFileName:self.video.movFilename].path;
-        UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError: contextInfo:), nil);
+        [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.movFilename]];
     }];
 }
 
@@ -368,12 +355,6 @@
             completion();
     }];
     
-}
-
--(void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
-    [AZNotification showNotificationWithTitle:NSLocalizedString(@"Video saved to camera roll successfully", @"")controller:[UIApplication sharedApplication].keyWindow.rootViewController
-                             notificationType:AZNotificationTypeMessage
-                                 startedBlock:nil];
 }
 
 - (void)showControls:(BOOL)show {

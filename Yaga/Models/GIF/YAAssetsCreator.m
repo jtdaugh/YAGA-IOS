@@ -6,23 +6,24 @@
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
-#import "YAGIFCreator.h"
+#import "YAAssetsCreator.h"
 #import "YAUtils.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
-
-@interface YAGIFCreator ()
+@interface YAAssetsCreator ()
 @property (nonatomic, strong) dispatch_queue_t gifQueue;
 @property (nonatomic, strong) NSMutableSet *videosInProgress;
 @end
 
-@implementation YAGIFCreator
+CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
+
+@implementation YAAssetsCreator
 
 + (instancetype)sharedCreator {
-    static YAGIFCreator *s = nil;
+    static YAAssetsCreator *s = nil;
     static dispatch_once_t once_token;
     dispatch_once(&once_token, ^{
         s = [[self alloc] init];
@@ -86,7 +87,7 @@
                             if (result == AVAssetImageGeneratorSucceeded) {
                                 
                                 UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1.9 orientation:UIImageOrientationUp];
-                                newImage = [YAGIFCreator deviceSpecificCroppedThumbnailFromImage:newImage];
+                                newImage = [YAAssetsCreator deviceSpecificCroppedThumbnailFromImage:newImage];
                                 
                                 [imagesArray addObject:newImage];
                                 
@@ -111,7 +112,7 @@
                                     NSString *gifFilename = [filename stringByAppendingPathExtension:@"gif"];
                                     NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
                                     NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
-                                    [YAGIFCreator makeAnimatedGifAtUrl:gifURL fromArray:imagesArray completionHandler:^(NSError *error) {
+                                    [YAAssetsCreator makeAnimatedGifAtUrl:gifURL fromArray:imagesArray completionHandler:^(NSError *error) {
                                         if(error) {
                                             NSLog(@"Error occured: %@", error);
                                         }
@@ -213,4 +214,102 @@
     handler(nil);
 }
 
+- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL {
+    NSURL *outputUrl = [YAUtils urlFromFileName:@"for_camera_roll.mov"];
+    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
+                        
+    AVPlayerItem *playerItem = [self buildVideoSequenceComposition:videoURL];
+    
+    AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:(AVAsset*)playerItem.asset presetName:AVAssetExportPresetHighestQuality];
+    session.videoComposition = playerItem.videoComposition;
+
+    session.outputURL = outputUrl;
+    session.outputFileType = AVFileTypeQuickTimeMovie;
+    [session exportAsynchronouslyWithCompletionHandler:^(void ) {
+        NSString *path = outputUrl.path;
+        UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError: contextInfo:), nil);
+    }];
+}
+
+-(void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
+    [AZNotification showNotificationWithTitle:NSLocalizedString(@"Video saved to camera roll successfully", @"")controller:[UIApplication sharedApplication].keyWindow.rootViewController
+                             notificationType:AZNotificationTypeMessage
+                                 startedBlock:nil];
+}
+
+
+- (AVPlayerItem*)buildVideoSequenceComposition:(NSURL*)realVideoUrl {
+    AVAsset *asset1 = [AVAsset assetWithURL:realVideoUrl];
+    NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"bumper_360x480" ofType:@"mov"];
+    AVAsset *asset2 = [AVAsset assetWithURL:[NSURL fileURLWithPath:filePath2]];
+    
+    NSArray *assets = @[asset1, asset2];
+    
+    AVMutableComposition *mutableComposition = [AVMutableComposition composition];
+    AVMutableCompositionTrack *videoCompositionTrack = [mutableComposition addMutableTrackWithMediaType:AVMediaTypeVideo
+                                                                                       preferredTrackID:kCMPersistentTrackID_Invalid];
+    AVMutableCompositionTrack *audioCompositionTrack = [mutableComposition addMutableTrackWithMediaType:AVMediaTypeAudio
+                                                                                       preferredTrackID:kCMPersistentTrackID_Invalid];
+    
+    NSMutableArray *instructions = [NSMutableArray new];
+    CGSize size = CGSizeZero;
+    
+    CMTime time = kCMTimeZero;
+
+    for (AVAsset *asset in assets) {
+        AVAssetTrack *assetTrack = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
+        AVAssetTrack *audioAssetTrack = [asset tracksWithMediaType:AVMediaTypeAudio].firstObject;
+        
+        NSError *error;
+        [videoCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetTrack.timeRange.duration)
+                                       ofTrack:assetTrack
+                                        atTime:time
+                                         error:&error];
+        
+        if (error) {
+            NSLog(@"Error - %@", error.debugDescription);
+        }
+        
+        [audioCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetTrack.timeRange.duration)
+                                       ofTrack:audioAssetTrack
+                                        atTime:time
+                                         error:&error];
+        if (error) {
+            NSLog(@"Error - %@", error.debugDescription);
+        }
+        
+        
+        AVMutableVideoCompositionInstruction *videoCompositionInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+        videoCompositionInstruction.timeRange = CMTimeRangeMake(time, assetTrack.timeRange.duration);
+        
+         videoCompositionInstruction.layerInstructions = @[[AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoCompositionTrack]];
+        
+        if([assets indexOfObject:asset] == 0) {
+            AVMutableVideoCompositionLayerInstruction *layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:assetTrack];
+            [layerInstruction setTransform:assetTrack.preferredTransform atTime:kCMTimeZero];
+            videoCompositionInstruction.layerInstructions = @[layerInstruction];
+
+        }
+        
+        [instructions addObject:videoCompositionInstruction];
+        
+        
+        time = CMTimeAdd(time, assetTrack.timeRange.duration);
+        
+        if (CGSizeEqualToSize(size, CGSizeZero)) {
+            size = assetTrack.naturalSize;;
+        }
+    }
+    
+    AVMutableVideoComposition *mutableVideoComposition = [AVMutableVideoComposition videoComposition];
+    mutableVideoComposition.instructions = instructions;
+    
+    // Set the frame duration to an appropriate value (i.e. 30 frames per second for video).
+    mutableVideoComposition.frameDuration = CMTimeMake(1, 30);
+    mutableVideoComposition.renderSize = CGSizeMake(size.height, size.width);
+    
+    AVPlayerItem *pi = [AVPlayerItem playerItemWithAsset:mutableComposition];
+    pi.videoComposition = mutableVideoComposition;
+    return pi;
+}
 @end

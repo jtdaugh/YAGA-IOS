@@ -6,12 +6,13 @@
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 #import "YAVideo.h"
 
-@interface YAGIFCreator : NSObject
+@interface YAAssetsCreator : NSObject
 
 + (instancetype)sharedCreator;
 - (void)createJPGAndGIFForVideo:(YAVideo*)video;
 
+- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL;
 @end
