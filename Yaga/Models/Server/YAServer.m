@@ -13,9 +13,17 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 #import "YAServerTransactionQueue.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#import "YAServer+HostManagment.h"
 
 #define HOST @"https://yaga-dev.herokuapp.com"
+
+#define YAGA_HOST_IP_ADDRESS @"23.21.52.195"
+#define INADDR_YAGAHOST (u_int32_t)0x171534C3
+
 #define PORT @"443"
+#define PORTNUM 443
 #define API_ENDPOINT @"/yaga/api/v1"
 
 #define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
@@ -37,11 +45,13 @@
 #define ERROR_DATA @"com.alamofire.serialization.response.error.data"
 
 @interface YAServer ()
+
+@property (nonatomic, strong) NSString *token;
 @property (nonatomic, strong) NSString *base_api;
 @property (nonatomic, strong) NSString *phoneNumber;
 @property (nonatomic) AFHTTPRequestOperationManager *manager;
-@property (nonatomic, strong) NSString *token;
 @property (nonatomic, strong) AFNetworkReachabilityManager *reachability;
+
 @end
 
 @implementation YAServer
@@ -62,10 +72,24 @@
         _manager = [AFHTTPRequestOperationManager manager];
         _manager.requestSerializer = [AFJSONRequestSerializer serializer];
         
-        
-        //monitor internet connection
-        self.reachability = [AFNetworkReachabilityManager managerForDomain:HOST];
+        unsigned int hostIpAddress = [YAServer sockAddrFromHost:HOST];
+        if (hostIpAddress != 0)
+        {
+            struct sockaddr_in address;
+            bzero(&address, sizeof(address));
+            address.sin_len = sizeof(address);
+            address.sin_family = AF_INET;
+            address.sin_addr.s_addr = htonl(hostIpAddress);
+            address.sin_port = htons(PORTNUM);
+            
+            self.reachability = [AFNetworkReachabilityManager managerForAddress:&address];
+        }
+        else
+        {
+            self.reachability = [AFNetworkReachabilityManager managerForDomain:HOST];
+        }
         [self.reachability startMonitoring];
+        
     }
     return self;
 }
