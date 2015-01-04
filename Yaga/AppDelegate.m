@@ -28,6 +28,11 @@
     NSString *identifier;
     if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
         identifier = @"LoggedInUserNavigationController";
+        
+//#warning TESTING
+//        [[RLMRealm defaultRealm] beginWriteTransaction];
+//        [[YAUser currentUser].currentGroup.videos removeAllObjects];
+//        [[RLMRealm defaultRealm] commitWriteTransaction];
     }
     else if(![[YAUser currentUser] loggedIn]) {
         identifier = @"OnboardingNavigationController";

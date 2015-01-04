@@ -25,6 +25,7 @@
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *saveButton;
 @property (nonatomic, strong) UIButton *deleteButton;
+@property (nonatomic, strong) UIActivityIndicatorView *activityView;
 @end
 
 @implementation YAVideoCell
@@ -37,8 +38,22 @@
         
         [self.contentView addSubview:self.gifView];
         self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        
+        self.activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        [self.contentView addSubview:self.activityView];
+        self.activityView.center = self.contentView.center;
+        self.activityView.hidden = YES;
     }
     return self;
+}
+
+- (void)showLoading:(BOOL)show {
+    if(show)
+        [self.activityView startAnimating];
+    else
+        [self.activityView stopAnimating];
+    
+    self.activityView.hidden = !show;
 }
 
 - (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
@@ -153,13 +168,13 @@
     CGFloat likeCountWidth = 24, likeCountHeight = 42;
     self.likeCount = [[UIButton alloc] initWithFrame:CGRectMake(self.likeButton.frame.origin.x + self.likeButton.frame.size.width + 8, VIEW_HEIGHT - likeCountHeight - 12, likeCountWidth, likeCountHeight)];
     [self.likeCount addTarget:self action:@selector(likeCountPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.likeCount setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    //    [self.likeCount setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
     [self.likeCount.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
     self.likeCount.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.likeCount.layer.shadowRadius = 1.0f;
     self.likeCount.layer.shadowOpacity = 1.0;
     self.likeCount.layer.shadowOffset = CGSizeZero;
-//    [self.likeCount setBackgroundColor:[UIColor greenColor]];
+    //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
     [self.controls addObject:self.likeCount];
 }
 
@@ -263,11 +278,11 @@
             //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
             //
             [label setAlpha:1.0];
-//            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
+            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
             CGFloat angle = (1.0f * M_PI / 180 * ((CGFloat) i + 1.0f));
             
             CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
-//            CGAffineTransformMake
+            //            CGAffineTransformMake
             CGFloat translateX = xRadius - fabsf(xRadius*cosf(angle));
             CGFloat translateY = -fabsf(yRadius*sinf(angle));
             [label setTransform:CGAffineTransformTranslate(rotate, translateX, translateY)];
@@ -282,13 +297,13 @@
 
 - (void)hideLikes {
     int i = 0;
-
+    
     for(UILabel *label in self.likeLabels){
         [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
             //
             [label setAlpha:0.0];
-//            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - margin, width, height)];
+            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - margin, width, height)];
             [label setTransform:CGAffineTransformIdentity];
             
         } completion:^(BOOL finished) {
@@ -318,8 +333,8 @@
                                     actionWithTitle:NSLocalizedString(@"Cancel", nil)
                                     style:UIAlertActionStyleCancel
                                     handler:^(UIAlertAction *action) {
-            
-        }]];
+                                        
+                                    }]];
         
         [alertController addAction:[UIAlertAction
                                     actionWithTitle:NSLocalizedString(@"Delete", nil)
@@ -327,8 +342,8 @@
                                     handler:^(UIAlertAction *action) {
                                         [[NSNotificationCenter defaultCenter] postNotificationName:DELETE_VIDEO_NOTIFICATION object:self.video];
                                     }]];
-
-
+        
+        
         [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
     }];
 }

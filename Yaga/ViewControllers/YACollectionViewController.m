@@ -151,8 +151,9 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
-    NSUInteger index = [self.sortedVideos indexOfObject:notif.object];
-    [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+//    NSUInteger index = [self.sortedVideos indexOfObject:notif.object];
+    //[self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+    [self reload];
 }
 
 - (void)newVideoTaken:(NSNotification*)notif {
@@ -186,6 +187,7 @@ static BOOL welcomeLabelRemoved = NO;
                 cell.gifView.animatedImage = image;
                 [cell.gifView startAnimating];
                 cell.gifView.alpha = 1.0;
+                [cell showLoading:NO];
             });
             
         } else if ([ext isEqualToString:@"jpg"]) {
@@ -193,6 +195,7 @@ static BOOL welcomeLabelRemoved = NO;
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 cell.gifView.image = image;
+                [cell showLoading:YES];
             });
         }
     });
@@ -216,10 +219,10 @@ static BOOL welcomeLabelRemoved = NO;
             [self showImageOnCell:cell fromPath:jpgPath];
             [video generateGIF];
         }
-        else {
-            cell.gifView.image = [UIImage imageNamed:@"Ball"];
-            [video generateGIF];
-        }
+//        else {
+//            cell.gifView.image = [UIImage imageNamed:@"Ball"];
+//            [video generateGIF];
+//        }
     } else {
         AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
         

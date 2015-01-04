@@ -39,7 +39,9 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 - (instancetype)init {
     if (self = [super init]) {
         self.videosToProcess = [NSMutableArray array];
-        self.downloadQueue = dispatch_queue_create("GIF Creator queue", NULL);
+        
+        //concurent downloads but serial gif generation..
+        self.downloadQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     }
     return self;
 }
@@ -117,7 +119,8 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                                         [video.realm beginWriteTransaction];
                                         video.jpgFilename = jpgFilename;
                                         [video.realm commitWriteTransaction];
-                                        [[NSNotificationCenter defaultCenter] postNotificationName:RELOAD_VIDEO_NOTIFICATION object:video];
+                                        
+                                        [[NSNotificationCenter defaultCenter] postNotificationName:NEW_VIDEO_TAKEN_NOTIFICATION object:video];
                                         
                                         return;
                                     });
@@ -371,8 +374,6 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         [group.videos insertObject:video atIndex:0];
         [group.realm commitWriteTransaction];
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:NEW_VIDEO_TAKEN_NOTIFICATION object:video];
-        
         //start uploading while generating gif
         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video];
         
@@ -408,8 +409,6 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
             [group.videos insertObject:video atIndex:0];
             
             [group.realm commitWriteTransaction];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:NEW_VIDEO_TAKEN_NOTIFICATION object:video];
             
             [video generateGIF];
         });
