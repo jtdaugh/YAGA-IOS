@@ -11,7 +11,6 @@
 #import "YAVideoCell.h"
 #import "YAUser.h"
 #import "YAUtils.h"
-#import "AVPlayer+AVPlayer_Async.h"
 #import "AVPlaybackViewController.h"
 
 //Uploading videos

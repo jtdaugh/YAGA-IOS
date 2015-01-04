@@ -12,7 +12,6 @@
 		6E0453EC1A56B73700EF961B /* YAAssetsCreator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0453EB1A56B73700EF961B /* YAAssetsCreator.m */; };
 		6E0453EE1A56C3ED00EF961B /* bumper.m4v in Resources */ = {isa = PBXBuildFile; fileRef = 6E0453ED1A56C3ED00EF961B /* bumper.m4v */; };
 		6E0453FD1A5704F300EF961B /* bumper_360x480.mov in Resources */ = {isa = PBXBuildFile; fileRef = 6E0453FC1A5704F300EF961B /* bumper_360x480.mov */; };
-		6E19A73B1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A73A1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m */; };
 		6E19A7AC1A4AF23C0067D42C /* AVPlaybackView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7A91A4AF23C0067D42C /* AVPlaybackView.m */; };
 		6E19A7AD1A4AF23C0067D42C /* AVPlaybackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7AB1A4AF23C0067D42C /* AVPlaybackViewController.m */; };
 		6E19A7AF1A4AF34D0067D42C /* AVPlaybackView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E19A7AE1A4AF34D0067D42C /* AVPlaybackView.xib */; };
@@ -96,8 +95,6 @@
 		6E0453EB1A56B73700EF961B /* YAAssetsCreator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAAssetsCreator.m; sourceTree = "<group>"; };
 		6E0453ED1A56C3ED00EF961B /* bumper.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.m4v; sourceTree = "<group>"; };
 		6E0453FC1A5704F300EF961B /* bumper_360x480.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = bumper_360x480.mov; sourceTree = "<group>"; };
-		6E19A7391A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AVPlayer+AVPlayer_Async.h"; sourceTree = "<group>"; };
-		6E19A73A1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AVPlayer+AVPlayer_Async.m"; sourceTree = "<group>"; };
 		6E19A7A81A4AF23C0067D42C /* AVPlaybackView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlaybackView.h; sourceTree = "<group>"; };
 		6E19A7A91A4AF23C0067D42C /* AVPlaybackView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlaybackView.m; sourceTree = "<group>"; };
 		6E19A7AA1A4AF23C0067D42C /* AVPlaybackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlaybackViewController.h; sourceTree = "<group>"; };
@@ -357,8 +354,6 @@
 		6E9188741A3F3A5A0034AB63 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				6E19A7391A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.h */,
-				6E19A73A1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m */,
 				6E9188771A3F3A5A0034AB63 /* NSMutableArray+Shuffle.h */,
 				6E9188781A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m */,
 				6E9188791A3F3A5A0034AB63 /* NSString+File.h */,
@@ -571,7 +566,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = 8V4V36C528;
+						DevelopmentTeam = JE26HLJZLX;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -706,7 +701,6 @@
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				865BD7A31A484543003B00DA /* AZNotification.m in Sources */,
-				6E19A73B1A49CBCB0067D42C /* AVPlayer+AVPlayer_Async.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
