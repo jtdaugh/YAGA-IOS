@@ -46,8 +46,7 @@
     
     [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
     [application registerForRemoteNotifications];
-    
-    [[YAServer sharedServer] startMonitoringInternetConnection];
+
     return YES;
 }
 
@@ -59,22 +58,21 @@
         NSLog(@"didFailToRegisterForRemoteNotificationsWithError");
 }
 
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    [[YAServer sharedServer] startMonitoringInternetConnection:YES];
+}
+
 - (void)applicationWillResignActive:(UIApplication *)application {
-    //[[AVAudioSession sharedInstance] setActive:NO error:nil];
+    [[YAServer sharedServer] startMonitoringInternetConnection:NO];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-   // [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    [[YAServer sharedServer] sync];
-    //[[AVAudioSession sharedInstance] setActive:YES error:nil];
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    //[[AVAudioSession sharedInstance] setActive:YES error:nil];
-}
+
 
 - (void)applicationWillTerminate:(UIApplication *)application {
 }

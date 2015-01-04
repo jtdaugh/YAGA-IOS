@@ -61,11 +61,6 @@
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
         _manager = [AFHTTPRequestOperationManager manager];
         _manager.requestSerializer = [AFJSONRequestSerializer serializer];
-        
-        
-        //monitor internet connection
-        self.reachability = [AFNetworkReachabilityManager managerForDomain:HOST];
-        [self.reachability startMonitoring];
     }
     return self;
 }
@@ -353,7 +348,7 @@
                    
                    NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.movFilename].path];
                    [self multipartUpload:endpoint withParameters:meta[@"fields"] withFile:videoData completion:completion];
-
+                   
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                    completion(nil, error);
                }];
@@ -397,11 +392,20 @@
 //}
 
 #pragma mark - Synchronization
-- (void)startMonitoringInternetConnection {
-    __weak typeof(self) weakSelf = self;
-    [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-        [weakSelf sync];
-    }];
+- (void)startMonitoringInternetConnection:(BOOL)start {
+    if(start) {
+        self.reachability = [AFNetworkReachabilityManager managerForDomain:HOST];
+        [self.reachability startMonitoring];
+        
+        __weak typeof(self) weakSelf = self;
+        [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+            [weakSelf sync];
+        }];
+    }
+    else {
+        [self.reachability stopMonitoring];
+        self.reachability = nil;
+    }
 }
 
 - (BOOL)serverUp {
@@ -431,7 +435,7 @@
         }];
         
     }
-
+    
 }
 
 @end
