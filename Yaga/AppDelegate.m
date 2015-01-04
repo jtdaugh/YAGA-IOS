@@ -55,7 +55,7 @@
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-        NSLog(@"didFailToRegisterForRemoteNotificationsWithError");
+    NSLog(@"didFailToRegisterForRemoteNotificationsWithError");
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {

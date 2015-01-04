@@ -31,6 +31,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (strong, nonatomic) UILabel *noVideosLabel;
 @property (strong, nonatomic) UIRefreshControl *pullToRefresh;
+@property (strong, nonatomic) RLMResults *sortedVideos;
 @end
 
 static NSString *cellID = @"Cell";
@@ -82,6 +83,8 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken:) name:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:) name:RELOAD_VIDEO_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deleteVideo:) name:DELETE_VIDEO_NOTIFICATION object:nil];
+    
+    [self reload];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -102,7 +105,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)showNoVideosMessageIfNeeded {
-    if(![YAUser currentUser].currentGroup.videos.count) {
+    if(!self.sortedVideos.count) {
         CGFloat width = VIEW_WIDTH * .8;
         if(!self.noVideosLabel) {
             self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 20, width, width)];
@@ -121,44 +124,55 @@ static NSString *cellID = @"Cell";
 
 - (void)reload {
     [self showNoVideosMessageIfNeeded];
+    self.sortedVideos = [[YAUser currentUser].currentGroup sortedVideos];
     [self.collectionView reloadData];
 }
 
 - (void)deleteVideo:(NSNotification*)notif {
     YAVideo *video = notif.object;
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[self.sortedVideos indexOfObject:video] inSection:0];
+    
     [video removeFromCurrentGroup];
     
-    NSIndexPath *indexPath = [self.collectionView indexPathsForVisibleItems][0];
-    
-    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
-    
-    //deleted last video? make sure to back to the grid
-    if(![YAUser currentUser].currentGroup.videos.count) {
-        [self collectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
-        [self showNoVideosMessageIfNeeded];
-    }
+    [UIView animateWithDuration:0.3 animations:^{
+        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    } completion:^(BOOL finished) {
+        if(finished) {
+            [self reload];
+            
+            //deleted last video? make sure to back to the grid
+            if(!self.sortedVideos.count) {
+                [self collectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
+                [self showNoVideosMessageIfNeeded];
+            }
+        }
+    }];
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
-    NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:notif.object];
+    NSUInteger index = [self.sortedVideos indexOfObject:notif.object];
     [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
 }
 
 - (void)newVideoTaken:(NSNotification*)notif {
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+    [UIView animateWithDuration:0.3 animations:^{
         [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]]];
         self.collectionView.contentOffset = CGPointMake(0, 0);
-    } completion:nil];
+    } completion:^(BOOL finished) {
+        if(finished)
+            [self reload];
+    }];
 }
 
 #pragma mark - UICollectionView
 static BOOL welcomeLabelRemoved = NO;
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    if([YAUser currentUser].currentGroup.videos.count && self.noVideosLabel && !welcomeLabelRemoved) {
+    if(self.sortedVideos.count && self.noVideosLabel && !welcomeLabelRemoved) {
         [self.noVideosLabel removeFromSuperview];
         self.noVideosLabel = nil;
     }
-    return [YAUser currentUser].currentGroup.videos.count;
+    return self.sortedVideos.count;
 }
 
 - (void)showImageOnCell:(YAVideoCell*)cell fromPath:(NSString*)path {
@@ -189,7 +203,7 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
+    YAVideo *video = self.sortedVideos[indexPath.row];
     
     if(self.targetLayout == self.gridLayout) {
         cell.video = nil;
@@ -211,7 +225,7 @@ static BOOL welcomeLabelRemoved = NO;
     } else {
         AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
         
-        NSString *movFileName = [[YAUser currentUser].currentGroup.videos[indexPath.row] movFilename];
+        NSString *movFileName = [self.sortedVideos[indexPath.row] movFilename];
         
         [vc setURL:[YAUtils urlFromFileName:movFileName]];
         cell.playerVC = vc;
@@ -242,7 +256,7 @@ static BOOL welcomeLabelRemoved = NO;
         
         self.collectionView.collectionViewLayout = newLayout;
         weakSelf.disableScrollHandling = NO;
-        [weakSelf.collectionView reloadData];
+        [weakSelf reload];
     }
     else {
         [self.delegate showCamera:NO showPart:NO completion:^{
@@ -250,7 +264,7 @@ static BOOL welcomeLabelRemoved = NO;
         }];
         
         self.collectionView.collectionViewLayout = newLayout;
-        [weakSelf.collectionView reloadData];
+        [weakSelf reload];
     }
 }
 
@@ -358,7 +372,7 @@ static BOOL welcomeLabelRemoved = NO;
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         
         //self.numberOfItems += 5;
-        [self.collectionView reloadData];
+        [self reload];
         [self.pullToRefresh endRefreshing];
     });
     

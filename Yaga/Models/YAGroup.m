@@ -77,6 +77,10 @@
     return result;
 }
 
+- (RLMResults*)sortedVideos {
+    return [self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
+}
+
 #pragma mark - Server synchronisation: update from server
 - (void)updateFromServerResponeDictionarty:(NSDictionary*)dictionary {
     self.serverId = dictionary[YA_RESPONSE_ID];
@@ -233,7 +237,7 @@ static BOOL groupsUpdateInProgress;
         else {
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
             NSLog(@"received %lu videos for %@ group", videoDictionaries.count, self.name);
-            [self createVideosFromDictionaries:videoDictionaries];
+            [self updateVideosFromDictionaries:videoDictionaries];
         }
     }];
 }
@@ -248,12 +252,29 @@ static BOOL groupsUpdateInProgress;
     return existingIds;
 }
 
-- (void)createVideosFromDictionaries:(NSArray*)videoDictionaries {
+- (void)updateVideosFromDictionaries:(NSArray*)videoDictionaries {
     NSSet *existingIds = [self videoIds];
+    
+    //remove deleted videos first
+    NSMutableSet *idsToDelete = [NSMutableSet setWithSet:existingIds];
+    NSSet *newIds = [NSSet setWithArray:[videoDictionaries valueForKey:YA_RESPONSE_ID]];
+    [idsToDelete minusSet:newIds];
+    
+    for(NSString *idToDelete in idsToDelete) {
+        RLMResults *videosToDelete = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", idToDelete]];
+        if(videosToDelete.count) {
+            YAVideo *videoToDelete = [videosToDelete firstObject];
+            [[NSNotificationCenter defaultCenter] postNotificationName:DELETE_VIDEO_NOTIFICATION object:videoToDelete];
+        }
+    }
+    
     for(NSDictionary *videoDic in videoDictionaries) {
-        //video exists? we need to
-        if([existingIds containsObject:videoDic[YA_RESPONSE_ID]])
+        //video exists?
+        if([existingIds containsObject:videoDic[YA_RESPONSE_ID]]) {
+#warning TODO: apply new name when we have that parameter in json
+            
             continue;
+        }
         
         [YAVideo createVideoFromRemoteDictionary:videoDic addToGroup:[YAUser currentUser].currentGroup];
     }

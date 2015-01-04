@@ -394,7 +394,7 @@
 #pragma mark - Synchronization
 - (void)startMonitoringInternetConnection:(BOOL)start {
     if(start) {
-        self.reachability = [AFNetworkReachabilityManager managerForDomain:HOST];
+        self.reachability = [AFNetworkReachabilityManager managerForDomain:@"heroku.com"];
         [self.reachability startMonitoring];
         
         __weak typeof(self) weakSelf = self;

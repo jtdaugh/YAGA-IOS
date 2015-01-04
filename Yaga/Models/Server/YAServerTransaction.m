@@ -184,7 +184,11 @@
             video.url = [response allHeaderFields][@"Location"];
             [video.realm commitWriteTransaction];
             
-            NSLog(@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url);
+            NSString *notification = [NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url];
+            NSLog(@"%@", notification);
+            
+            [AZNotification showNotificationWithTitle:notification controller:[UIApplication sharedApplication].keyWindow.rootViewController notificationType:AZNotificationTypeSuccess];
+            
             completion(nil, nil);
         }
     }];

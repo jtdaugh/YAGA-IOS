@@ -35,6 +35,8 @@ typedef void(^completionBlock)(NSError *error);
 - (void)updateVideos;
 
 - (BOOL)updateInProgress;
+
+- (RLMResults*)sortedVideos;
 @end
 
 // This protocol enables typed collections. i.e.:
