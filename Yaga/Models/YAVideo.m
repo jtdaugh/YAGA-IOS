@@ -45,11 +45,16 @@
 - (void)removeFromCurrentGroup {
     NSAssert(self.serverId, @"Can't delete remote video with non existing id");
     
-    [[YAServerTransactionQueue sharedQueue] addDeleteVideoTransaction:self.serverId forGroupId:[YAUser currentUser].currentGroup.serverId];
+    //notify server if it's deleted by me, others should just delete vidoe locally without notifying serve
+    if([self.creator isEqualToString:[YAUser currentUser].username]) {
+        [[YAServerTransactionQueue sharedQueue] addDeleteVideoTransaction:self.serverId forGroupId:[YAUser currentUser].currentGroup.serverId];
+    }
     
     [[RLMRealm defaultRealm] beginWriteTransaction];
     [[RLMRealm defaultRealm] deleteObject:self];
     [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    NSLog(@"video deleted");
 }
 
 + (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group {
@@ -94,8 +99,10 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSURL *remoteURL = [NSURL URLWithString:videoDic[YA_VIDEO_ATTACHMENT]];
         NSData *data = [NSData dataWithContentsOfURL:remoteURL];
-        [data writeToURL:movURL atomically:YES];
-
+        BOOL result = [data writeToURL:movURL atomically:YES];
+        if(!result) {
+            
+        }
         dispatch_async(dispatch_get_main_queue(), ^{
             NSString *videoId = videoDic[YA_RESPONSE_ID];
             

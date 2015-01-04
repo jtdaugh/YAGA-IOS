@@ -20,7 +20,6 @@
 #define HOST @"https://yaga-dev.herokuapp.com"
 
 #define YAGA_HOST_IP_ADDRESS @"23.21.52.195"
-#define INADDR_YAGAHOST (u_int32_t)0x171534C3
 
 #define PORT @"443"
 #define PORTNUM 443
@@ -71,7 +70,7 @@
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
         _manager = [AFHTTPRequestOperationManager manager];
         _manager.requestSerializer = [AFJSONRequestSerializer serializer];
-        
+       
         unsigned int hostIpAddress = [YAServer sockAddrFromHost:HOST];
         if (hostIpAddress != 0)
         {
@@ -377,7 +376,7 @@
                    
                    NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.movFilename].path];
                    [self multipartUpload:endpoint withParameters:meta[@"fields"] withFile:videoData completion:completion];
-
+                   
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                    completion(nil, error);
                }];
@@ -421,11 +420,20 @@
 //}
 
 #pragma mark - Synchronization
-- (void)startMonitoringInternetConnection {
-    __weak typeof(self) weakSelf = self;
-    [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-        [weakSelf sync];
-    }];
+- (void)startMonitoringInternetConnection:(BOOL)start {
+    if(start) {
+        self.reachability = [AFNetworkReachabilityManager managerForDomain:@"heroku.com"];
+        [self.reachability startMonitoring];
+        
+        __weak typeof(self) weakSelf = self;
+        [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+            [weakSelf sync];
+        }];
+    }
+    else {
+        [self.reachability stopMonitoring];
+        self.reachability = nil;
+    }
 }
 
 - (BOOL)serverUp {
@@ -433,17 +441,12 @@
 }
 
 - (void)sync {
-    if(self.lastUpdateTime) {
-        NSTimeInterval interval = fabs([self.lastUpdateTime timeIntervalSinceNow]);
-        if(interval < 5)
-            return;
-    }
+    NSLog(@"YAServer:sync, serverUp: %@", self.serverUp ? @"Yes" : @"No");
     
     if([[YAUser currentUser] loggedIn] && self.token.length && self.serverUp) {
         
         //read updates from server
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-            
             if(!error) {
                 self.lastUpdateTime = [NSDate date];
                 NSLog(@"groups updated from server successfully");
@@ -460,7 +463,7 @@
         }];
         
     }
-
+    
 }
 
 @end
