@@ -94,8 +94,10 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSURL *remoteURL = [NSURL URLWithString:videoDic[YA_VIDEO_ATTACHMENT]];
         NSData *data = [NSData dataWithContentsOfURL:remoteURL];
-        [data writeToURL:movURL atomically:YES];
-
+        BOOL result = [data writeToURL:movURL atomically:YES];
+        if(!result) {
+            
+        }
         dispatch_async(dispatch_get_main_queue(), ^{
             NSString *videoId = videoDic[YA_RESPONSE_ID];
             

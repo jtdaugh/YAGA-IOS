@@ -13,6 +13,10 @@
 #import "YAServerTransactionQueue.h"
 #import "YAUser.h"
 
+@interface YAGroup ()
+@property (atomic, assign) BOOL videosUpdateInProgress;
+@end
+
 @implementation YAGroup
 
 + (RLMPropertyAttributes)attributesForProperty:(NSString *)propertyName {
@@ -21,6 +25,10 @@
         attributes |= RLMPropertyAttributeIndexed;
     }
     return attributes;
+}
+
++ (NSArray *)ignoredProperties {
+    return @[@"videosUpdateInProgress"];
 }
 
 + (NSString *)primaryKey {
@@ -93,8 +101,14 @@
     }
 }
 
+static BOOL groupsUpdateInProgress;
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {
+    if(groupsUpdateInProgress)
+        return;
+    groupsUpdateInProgress = YES;
+    
     [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
+        groupsUpdateInProgress = NO;
         if(error) {
             NSLog(@"can't fetch remove groups, error: %@", error.localizedDescription);
             
@@ -207,7 +221,12 @@
 
 #pragma mark - Videos
 - (void)updateVideos {
+    if(self.videosUpdateInProgress)
+        return;
+    self.videosUpdateInProgress = YES;
+
     [[YAServer sharedServer] groupInfoWithId:self.serverId withCompletion:^(id response, NSError *error) {
+        self.videosUpdateInProgress = NO;
         if(error) {
             NSLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
         }
@@ -236,10 +255,14 @@
         if([existingIds containsObject:videoDic[YA_RESPONSE_ID]])
             continue;
         
-        
         [YAVideo createVideoFromRemoteDictionary:videoDic addToGroup:[YAUser currentUser].currentGroup];
     }
     
 }
 
+- (BOOL)updateInProgress {
+    @synchronized(self) {
+        return self.videosUpdateInProgress || groupsUpdateInProgress;
+    }
+}
 @end

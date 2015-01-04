@@ -33,6 +33,8 @@ typedef void(^completionBlock)(NSError *error);
 - (void)leave;
 - (void)muteUnmute;
 - (void)updateVideos;
+
+- (BOOL)updateInProgress;
 @end
 
 // This protocol enables typed collections. i.e.:

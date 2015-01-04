@@ -409,17 +409,12 @@
 }
 
 - (void)sync {
-    if(self.lastUpdateTime) {
-        NSTimeInterval interval = fabs([self.lastUpdateTime timeIntervalSinceNow]);
-        if(interval < 5)
-            return;
-    }
+    NSLog(@"YAServer:sync, serverUp: %@", self.serverUp ? @"Yes" : @"No");
     
     if([[YAUser currentUser] loggedIn] && self.token.length && self.serverUp) {
         
         //read updates from server
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-            
             if(!error) {
                 self.lastUpdateTime = [NSDate date];
                 NSLog(@"groups updated from server successfully");

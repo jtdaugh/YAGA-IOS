@@ -112,9 +112,11 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                                     NSString *gifFilename = [filename stringByAppendingPathExtension:@"gif"];
                                     NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
                                     NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
+                                    
                                     [YAAssetsCreator makeAnimatedGifAtUrl:gifURL fromArray:imagesArray completionHandler:^(NSError *error) {
                                         if(error) {
                                             NSLog(@"Error occured: %@", error);
+                                            [self.videosInProgress removeObject:video];
                                         }
                                         else {
                                             dispatch_async(dispatch_get_main_queue(), ^{
@@ -140,12 +142,15 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                     }
                     break;
                 case AVKeyValueStatusFailed:
-                    NSLog(@"Error finding duration");
+                    NSLog(@"createJPGAndGIFForVideo Error finding duration");
+                    [self.videosInProgress removeObject:video];
                     break;
                 case AVKeyValueStatusCancelled:
-                    NSLog(@"Cancelled finding duration");
+                    NSLog(@"createJPGAndGIFForVideo Cancelled finding duration");
+                    [self.videosInProgress removeObject:video];
                     break;
-                default: break;
+                default:
+                    break;
             }
         }];
     });
