@@ -7,14 +7,12 @@
 //
 
 #import "YACameraViewController.h"
-#import "FBShimmeringView.h"
 
 #import "YAUser.h"
 #import "YAUtils.h"
 
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
-@property (strong, nonatomic) FBShimmeringView *instructions;
 @property (strong, nonatomic) UIView *indicator;
 @property (strong, nonatomic) UILabel *indicatorText;
 @property (strong, nonatomic) UIView *white;
@@ -66,31 +64,6 @@
         UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchFlashMode:)];
         tapGestureRecognizer.delegate = self;
         [self.white addGestureRecognizer:tapGestureRecognizer];
-        
-        //        CGFloat gutter = 40, height = 24;
-        //        self.instructions = [[FBShimmeringView alloc] initWithFrame:CGRectMake(gutter, 8, self.cameraView.frame.size.width - gutter*2, height)];
-        //        [self.instructions setUserInteractionEnabled:NO];
-        //    [self.instructions setAlpha:0.6];
-        
-        //        UILabel *instructionText = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.instructions.frame.size.width, self.instructions.frame.size.height)];
-        //        [instructionText setText:NSLocalizedString(@"RECORD_TIP", @"")];
-        //        [instructionText setFont:[UIFont fontWithName:BIG_FONT size:18]];
-        //        [instructionText setTextAlignment:NSTextAlignmentCenter];
-        //        [instructionText setTextColor:[UIColor whiteColor]];
-        //
-        //        instructionText.layer.shadowColor = [[UIColor blackColor] CGColor];
-        //        instructionText.layer.shadowRadius = 1.0f;
-        //        instructionText.layer.shadowOpacity = 1.0;
-        //        instructionText.layer.shadowOffset = CGSizeZero;
-        //        self.instructions.backgroundColor = [UIColor yellowColor];
-        //        self.indicatorText = instructionText;
-        //        //    [instructionText setBackgroundColor:PRIMARY_COLOR];
-        //
-        //        //    [self.instructions setContentView:instructionText];
-        //        self.instructions.shimmering = NO;
-        //
-        //        [self.cameraView addSubview:self.instructions];
-        //        [self.cameraAccessories addObject:self.instructions];
         
         CGFloat size = 44;
         self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
@@ -317,7 +290,6 @@
     [self.indicator setUserInteractionEnabled:NO];
     [self.indicatorText setText:@"Recording..."];
     [self.cameraView addSubview:self.indicator];
-    [self.cameraView bringSubviewToFront:self.instructions];
     
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
