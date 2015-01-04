@@ -33,9 +33,6 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 + (YAVideo*)video;
 - (void)removeFromCurrentGroup;
 
-+ (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
-+ (void)createVideoFromRemoteDictionary:(NSDictionary*)videoDic addToGroup:(YAGroup*)group;
-
 - (void)generateGIF;
 
 @end

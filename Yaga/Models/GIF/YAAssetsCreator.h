@@ -8,6 +8,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "YAVideo.h"
+#import "YAGroup.h"
 
 @interface YAAssetsCreator : NSObject
 
@@ -15,4 +16,7 @@
 - (void)createJPGAndGIFForVideo:(YAVideo*)video;
 
 - (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL;
+
+- (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
+- (void)createVideoFromRemoteDictionary:(NSDictionary*)videoDic addToGroup:(YAGroup*)group;
 @end

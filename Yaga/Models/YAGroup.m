@@ -12,6 +12,7 @@
 #import "YAUtils.h"
 #import "YAServerTransactionQueue.h"
 #import "YAUser.h"
+#import "YAAssetsCreator.h"
 
 @interface YAGroup ()
 @property (atomic, assign) BOOL videosUpdateInProgress;
@@ -78,6 +79,9 @@
 }
 
 - (RLMResults*)sortedVideos {
+    if(!self.videos.count)
+        return nil;
+    
     return [self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
 }
 
@@ -276,7 +280,7 @@ static BOOL groupsUpdateInProgress;
             continue;
         }
         
-        [YAVideo createVideoFromRemoteDictionary:videoDic addToGroup:[YAUser currentUser].currentGroup];
+        [[YAAssetsCreator sharedCreator] createVideoFromRemoteDictionary:videoDic addToGroup:[YAUser currentUser].currentGroup];
     }
     
 }

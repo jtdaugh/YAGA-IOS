@@ -10,6 +10,7 @@
 
 #import "YAUser.h"
 #import "YAUtils.h"
+#import "YAAssetsCreator.h"
 
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
@@ -158,7 +159,7 @@
     NSLog(@"init camera");
     
     self.session = [[AVCaptureSession alloc] init];
-    self.session.sessionPreset = AVCaptureSessionPresetMedium;
+    self.session.sessionPreset = AVCaptureSessionPresetHigh;
     
     [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
     [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
@@ -370,7 +371,7 @@
             return;
         }
         
-        [YAVideo createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
+        [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
         
     } else {
         [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:AZNotificationTypeError];

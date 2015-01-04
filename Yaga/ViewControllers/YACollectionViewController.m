@@ -157,11 +157,9 @@ static NSString *cellID = @"Cell";
 
 - (void)newVideoTaken:(NSNotification*)notif {
     [UIView animateWithDuration:0.3 animations:^{
-        [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]]];
+        [self reload];
         self.collectionView.contentOffset = CGPointMake(0, 0);
     } completion:^(BOOL finished) {
-        if(finished)
-            [self reload];
     }];
 }
 
