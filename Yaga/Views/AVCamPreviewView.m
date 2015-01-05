@@ -47,7 +47,11 @@
 
 #import "AVCamPreviewView.h"
 #import <AVFoundation/AVFoundation.h>
+#import "YACameraFocusSquare.h"
 
+@interface AVCamPreviewView ()
+@property (nonatomic, strong) YACameraFocusSquare *camFocus;
+@end
 @implementation AVCamPreviewView
 
 + (Class)layerClass
@@ -63,6 +67,53 @@
 - (void)setSession:(AVCaptureSession *)session
 {
 	[(AVCaptureVideoPreviewLayer *)[self layer] setSession:session];
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch *touch = [[event allTouches] anyObject];
+    CGPoint touchPoint = [touch locationInView:touch.view];
+    [self focus:touchPoint];
+    
+    if (self.camFocus)
+    {
+        [self.camFocus removeFromSuperview];
+    }
+    if ([[touch view] isKindOfClass:[self class]])
+    {
+        self.camFocus = [[YACameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
+        [self.camFocus setBackgroundColor:[UIColor clearColor]];
+        [self addSubview:self.camFocus];
+        [self.camFocus setNeedsDisplay];
+        
+        [UIView beginAnimations:nil context:NULL];
+        [UIView setAnimationDuration:1.5];
+        [self.camFocus setAlpha:0.0];
+        [UIView commitAnimations];
+    }
+}
+- (void)focus:(CGPoint) aPoint;
+{
+    Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");
+    if (captureDeviceClass != nil) {
+        AVCaptureDevice *device = [captureDeviceClass defaultDeviceWithMediaType:AVMediaTypeVideo];
+        if([device isFocusPointOfInterestSupported] &&
+           [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
+            CGRect screenRect = [[UIScreen mainScreen] bounds];
+            double screenWidth = screenRect.size.width;
+            double screenHeight = screenRect.size.height;
+            double focus_x = aPoint.x/screenWidth;
+            double focus_y = aPoint.y/screenHeight;
+            if([device lockForConfiguration:nil]) {
+                [device setFocusPointOfInterest:CGPointMake(focus_x,focus_y)];
+                [device setFocusMode:AVCaptureFocusModeAutoFocus];
+                if ([device isExposureModeSupported:AVCaptureExposureModeAutoExpose]){
+                    [device setExposureMode:AVCaptureExposureModeAutoExpose];
+                }
+                [device unlockForConfiguration];
+            }
+        }
+    }
 }
 
 @end
