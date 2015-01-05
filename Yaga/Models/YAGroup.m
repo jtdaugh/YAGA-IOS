@@ -235,7 +235,7 @@ static BOOL groupsUpdateInProgress;
         }
         else {
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
-            NSLog(@"received %lu videos for %@ group", videoDictionaries.count, self.name);
+            NSLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
             [self updateVideosFromDictionaries:videoDictionaries];
         }
     }];

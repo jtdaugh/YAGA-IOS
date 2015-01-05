@@ -274,7 +274,8 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     
     AVPlayerItem *playerItem = [self buildVideoSequenceComposition:videoURL];
     
-    AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:(AVAsset*)playerItem.asset presetName:AVAssetExportPresetHighestQuality];
+    AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:(AVAsset*)playerItem.asset
+                                                                     presetName:AVAssetExportPresetHighestQuality];
     session.videoComposition = playerItem.videoComposition;
     
     session.outputURL = outputUrl;
@@ -286,9 +287,13 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 }
 
 -(void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
-    [YAUtils showNotification:NSLocalizedString(@"Video saved to camera roll successfully", @"") type:AZNotificationTypeMessage];
+    if (error) {
+        [YAUtils showNotification:NSLocalizedString(@"Can't save photos", @"") type:AZNotificationTypeError];
+    }
+    else {
+        [YAUtils showNotification:NSLocalizedString(@"Video saved to camera roll successfully", @"") type:AZNotificationTypeMessage];
+    }
 }
-
 
 - (AVPlayerItem*)buildVideoSequenceComposition:(NSURL*)realVideoUrl {
     AVAsset *asset1 = [AVAsset assetWithURL:realVideoUrl];
@@ -330,17 +335,30 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
             NSLog(@"Error - %@", error.debugDescription);
         }
         
-        
-        AVMutableVideoCompositionInstruction *videoCompositionInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+        AVMutableVideoCompositionInstruction *videoCompositionInstruction =
+            [AVMutableVideoCompositionInstruction videoCompositionInstruction];
         videoCompositionInstruction.timeRange = CMTimeRangeMake(time, assetTrack.timeRange.duration);
         
-        videoCompositionInstruction.layerInstructions = @[[AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoCompositionTrack]];
+        videoCompositionInstruction.layerInstructions =
+            @[[AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoCompositionTrack]];
+        AVMutableVideoCompositionLayerInstruction *layerInstruction =
+            [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:assetTrack];
         
-        if([assets indexOfObject:asset] == 0) {
-            AVMutableVideoCompositionLayerInstruction *layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:assetTrack];
-            [layerInstruction setTransform:assetTrack.preferredTransform atTime:kCMTimeZero];
-            videoCompositionInstruction.layerInstructions = @[layerInstruction];
+        if([assets indexOfObject:asset] == 0)
+        {
             
+            [layerInstruction setTransform:assetTrack.preferredTransform
+                                    atTime:kCMTimeZero];
+            videoCompositionInstruction.layerInstructions = @[layerInstruction];
+        } else {
+            CGFloat xMove = [UIScreen mainScreen].bounds.size.width/2;
+            CGFloat yMove = [UIScreen mainScreen].bounds.size.height/2;
+            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
+                                                                     xMove,
+                                                                     yMove);
+     
+            [layerInstruction setTransform:transform atTime:kCMTimeZero];
+            videoCompositionInstruction.layerInstructions = @[layerInstruction];
         }
         
         [instructions addObject:videoCompositionInstruction];
@@ -348,7 +366,8 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         
         time = CMTimeAdd(time, assetTrack.timeRange.duration);
         
-        if (CGSizeEqualToSize(size, CGSizeZero)) {
+        if (CGSizeEqualToSize(size, CGSizeZero))
+        {
             size = assetTrack.naturalSize;;
         }
     }
