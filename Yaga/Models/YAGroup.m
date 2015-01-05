@@ -52,7 +52,7 @@
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
         NSString *name = contact.username;
         if(contact.name.length) {
-            if(![contact.name isEqualToString:contact.username] && ![contact.username isEqualToString:@"noname"])
+            if(![contact.name isEqualToString:contact.username] && ![contact.username isEqualToString:defaultUsername])
                 name = [NSString stringWithFormat:@"%@(%@)", contact.name, contact.username];
             else
                 name = contact.name;
@@ -82,7 +82,7 @@
     if(!self.videos.count)
         return nil;
     
-    return [self.videos sortedResultsUsingProperty:@"createdAt" ascending:YES];
+    return [self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
 }
 
 #pragma mark - Server synchronisation: update from server

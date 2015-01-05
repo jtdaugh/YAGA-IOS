@@ -46,8 +46,7 @@
         contact.username = username;
     }
     else {
-        #warning TODO: think of this one
-        contact.username = @"noname";
+        contact.username = defaultUsername;
     }
     if(existingUserData) {
         contact.name = existingUserData[nCompositeName];
