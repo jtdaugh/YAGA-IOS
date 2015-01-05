@@ -50,9 +50,15 @@
         [[YAServerTransactionQueue sharedQueue] addDeleteVideoTransaction:self.serverId forGroupId:[YAUser currentUser].currentGroup.serverId];
     }
     
+    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
+    
+    NSString *videoId = self.localId;
+    
     [[RLMRealm defaultRealm] beginWriteTransaction];
     [[RLMRealm defaultRealm] deleteObject:self];
     [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId];
     
     NSLog(@"video deleted");
 }

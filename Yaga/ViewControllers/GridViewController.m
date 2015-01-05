@@ -52,6 +52,7 @@
     _collectionViewController = [YACollectionViewController new];
     _collectionViewController.delegate = self;
     _collectionViewController.view.frame = CGRectMake(0, VIEW_HEIGHT/2 + 2, VIEW_WIDTH, VIEW_HEIGHT/2 - 2);
+
     [self addChildViewController:_collectionViewController];
     [self.view addSubview:_collectionViewController.view];
     
@@ -69,9 +70,9 @@
 }
 
 #pragma mark - YACollectionViewControllerDelegate
-- (void)showCamera:(BOOL)show showPart:(BOOL)showPart completion:(cameraCompletion)completion {
+- (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion {
     
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+    void (^showHideBlock)(void) = ^void(void) {
         if(show) {
             self.cameraViewController.view.frame = CGRectMake(0, 0, self.cameraViewController.view.frame.size.width, self.cameraViewController.view.frame.size.height);
         }
@@ -83,11 +84,20 @@
         self.collectionViewController.view.frame = CGRectMake(0, origin + separator, self.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin - separator);
         
         [self.cameraViewController showCameraAccessories:(show && !showPart)];
-        
-    } completion:^(BOOL finished) {
-        if(finished && completion)
-            completion();
-    }];
+    };
+    
+    if(animated) {
+        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+            showHideBlock();
+            
+        } completion:^(BOOL finished) {
+            if(finished && completion)
+                completion();
+        }];
+    }
+    else {
+        showHideBlock();
+    }
 }
 
 - (void)enableRecording:(BOOL)enable {

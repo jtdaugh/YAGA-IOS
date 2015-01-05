@@ -13,7 +13,7 @@
 @implementation YAContact
 
 + (NSDictionary *)defaultPropertyValues{
-    return @{@"firstName":@"", @"lastName":@""};
+    return @{@"name":@"", @"firstName":@"", @"lastName":@""};
 }
 
 // Specify properties to ignore (Realm won't persist these)
@@ -38,18 +38,20 @@
     return contact;
 }
 
-+ (YAContact*)contactFromPhoneNumber:(NSString*)phoneNumber {
++ (YAContact*)contactFromPhoneNumber:(NSString*)phoneNumber andUsername:(NSString*)username {
     YAContact *contact = [YAContact new];
     NSDictionary *existingUserData = [YAUser currentUser].phonebook[phoneNumber];
+    if(![username isKindOfClass:[NSNull class]]) {
+        contact.username = username;
+    }
+    else {
+        #warning TODO: think of this one
+        contact.username = @"noname";
+    }
     if(existingUserData) {
-        
         contact.name = existingUserData[nCompositeName];
         contact.firstName = existingUserData[nFirstname];
         contact.lastName  = existingUserData[nLastname];
-    }
-    else {
-        contact.firstName = phoneNumber;
-        contact.name = phoneNumber;
     }
     
     contact.number = phoneNumber;

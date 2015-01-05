@@ -91,8 +91,11 @@
 {
     [super prepareForReuse];
     
+    self.gifView.animatedImage = nil;
+    self.gifView.image = nil;
     self.playerVC = nil;
     self.video = nil;
+    
     [self showControls:NO];
 }
 #pragma mark - Overlay controls
@@ -340,7 +343,7 @@
                                     actionWithTitle:NSLocalizedString(@"Delete", nil)
                                     style:UIAlertActionStyleDestructive
                                     handler:^(UIAlertAction *action) {
-                                        [[NSNotificationCenter defaultCenter] postNotificationName:DELETE_VIDEO_NOTIFICATION object:self.video];
+                                        [self.video removeFromCurrentGroup];
                                     }]];
         
         

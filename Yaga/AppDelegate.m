@@ -25,14 +25,19 @@
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
     
+//#warning TESTING REMOVE ALL GROUPS
+//    [[RLMRealm defaultRealm] beginWriteTransaction];
+//    [[RLMRealm defaultRealm] deleteObjects:[YAGroup allObjects]];
+//    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+//#warning TESTING REMOVE ALL VIDEOS IN CURRENT GROUP
+//    [[RLMRealm defaultRealm] beginWriteTransaction];
+//    [[YAUser currentUser].currentGroup.videos removeAllObjects];
+//    [[RLMRealm defaultRealm] commitWriteTransaction];
+//    
     NSString *identifier;
     if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
         identifier = @"LoggedInUserNavigationController";
-        
-//#warning TESTING
-//        [[RLMRealm defaultRealm] beginWriteTransaction];
-//        [[YAUser currentUser].currentGroup.videos removeAllObjects];
-//        [[RLMRealm defaultRealm] commitWriteTransaction];
     }
     else if(![[YAUser currentUser] loggedIn]) {
         identifier = @"OnboardingNavigationController";

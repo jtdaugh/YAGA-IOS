@@ -29,6 +29,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *localId;
 @property NSString *serverId;
 @property NSString *url;
+@property YAGroup *group;
 
 + (YAVideo*)video;
 - (void)removeFromCurrentGroup;

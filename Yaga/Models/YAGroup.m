@@ -50,7 +50,8 @@
     
     for(int i = 0; i < self.members.count; i++) {
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
-        results = [results stringByAppendingFormat:@"%@%@", contact.name, (i < self.members.count - 1 ? @", " : @"")];
+        NSString *name = contact.name.length ? [NSString stringWithFormat:@"%@(%@)", contact.name, contact.username] : contact.username;
+        results = [results stringByAppendingFormat:@"%@%@", name, (i < self.members.count - 1 ? @", " : @"")];
     }
     
     return results;
@@ -75,7 +76,7 @@
     if(!self.videos.count)
         return nil;
     
-    return [self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
+    return [self.videos sortedResultsUsingProperty:@"createdAt" ascending:YES];
 }
 
 #pragma mark - Server synchronisation: update from server
@@ -94,7 +95,7 @@
         if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
             continue;
         
-        YAContact *contact = [YAContact contactFromPhoneNumber:phoneNumber];
+        YAContact *contact = [YAContact contactFromPhoneNumber:phoneNumber andUsername:memberDic[YA_RESPONSE_USER][YA_RESPONSE_NAME]];
         
         contact.registered = [memberDic objectForKey:YA_RESPONSE_MEMBER_JOINED_AT] != nil;
         
@@ -107,6 +108,7 @@ static BOOL groupsUpdateInProgress;
     if(groupsUpdateInProgress)
         return;
     groupsUpdateInProgress = YES;
+    
     
     [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
         groupsUpdateInProgress = NO;
@@ -261,10 +263,11 @@ static BOOL groupsUpdateInProgress;
         RLMResults *videosToDelete = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", idToDelete]];
         if(videosToDelete.count) {
             YAVideo *videoToDelete = [videosToDelete firstObject];
-            [[NSNotificationCenter defaultCenter] postNotificationName:DELETE_VIDEO_NOTIFICATION object:videoToDelete];
+            [videoToDelete removeFromCurrentGroup];
         }
-    }
     
+    }
+    //supposing groups are coming sorted
     for(NSDictionary *videoDic in videoDictionaries) {
         //video exists?
         if([existingIds containsObject:videoDic[YA_RESPONSE_ID]]) {

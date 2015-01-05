@@ -52,6 +52,9 @@
 }
 
 + (NSURL*)urlFromFileName:(NSString*)fileName {
+    if(!fileName.length)
+        return nil;
+    
     NSString *path = [[YAUtils cachesDirectory] stringByAppendingPathComponent:fileName];
     return [NSURL fileURLWithPath:path];
 }

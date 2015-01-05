@@ -6,10 +6,11 @@
 //
 //
 #import "YAVideoCell.h"
+
 typedef void (^cameraCompletion)(void);
 
 @protocol YACollectionViewControllerDelegate <NSObject>
-- (void)showCamera:(BOOL)show showPart:(BOOL)showPart completion:(cameraCompletion)block;
+- (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion;
 - (void)enableRecording:(BOOL)enable;
 @end
 

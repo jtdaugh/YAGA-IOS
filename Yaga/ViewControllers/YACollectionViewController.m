@@ -31,6 +31,8 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (strong, nonatomic) UILabel *noVideosLabel;
 @property (strong, nonatomic) UIRefreshControl *pullToRefresh;
 @property (strong, nonatomic) RLMResults *sortedVideos;
+
+@property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
 @end
 
 static NSString *cellID = @"Cell";
@@ -76,9 +78,10 @@ static NSString *cellID = @"Cell";
     [self.pullToRefresh addTarget:self action:@selector(fetchVideos) forControlEvents:UIControlEventValueChanged];
     [self.collectionView addSubview:self.pullToRefresh];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newVideoTaken:) name:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:) name:RELOAD_VIDEO_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deleteVideo:) name:DELETE_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(insertVideo:)     name:VIDEO_ADDED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     
     [self reload];
 }
@@ -95,9 +98,10 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NEW_VIDEO_TAKEN_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:RELOAD_VIDEO_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:DELETE_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_ADDED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
 }
 
 - (void)showNoVideosMessageIfNeeded {
@@ -119,45 +123,70 @@ static NSString *cellID = @"Cell";
     }
 }
 
-- (void)reload {
+- (void)updateSortedVideos {
     self.sortedVideos = [[YAUser currentUser].currentGroup sortedVideos];
+}
+
+- (void)reload {
+    [self updateSortedVideos];
+    
     [self.collectionView reloadData];
     [self showNoVideosMessageIfNeeded];
 }
 
-- (void)deleteVideo:(NSNotification*)notif {
+-  (void)willDeleteVideo:(NSNotification*)notif {
     YAVideo *video = notif.object;
+    if(![video.group isEqual:[YAUser currentUser].currentGroup])
+        return;
     
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[self.sortedVideos indexOfObject:video] inSection:0];
+    NSUInteger videoIndex = [self.sortedVideos indexOfObject:video];
     
-    [video removeFromCurrentGroup];
+    if(!self.deleteDictionary)
+        self.deleteDictionary = [NSMutableDictionary new];
     
-    [UIView animateWithDuration:0.3 animations:^{
-        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
-    } completion:^(BOOL finished) {
-        if(finished) {
-            [self reload];
-            
-            //deleted last video? make sure to back to the grid
-            if(!self.sortedVideos.count) {
-                [self toggleLayout];
-            }
-        }
-    }];
+    [self.deleteDictionary setObject:[NSNumber numberWithInteger:videoIndex] forKey:video.localId];
+}
+
+- (void)didDeleteVideo:(NSNotification*)notif {
+    
+    NSString *videoId = notif.object;
+    if(![self.deleteDictionary objectForKey:videoId])
+        return;
+    
+    NSUInteger videoIndex = [[self.deleteDictionary objectForKey:videoId] integerValue];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
+    
+    [self updateSortedVideos];
+    
+    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    
+    [self.deleteDictionary removeObjectForKey:videoId];
+    
+    if(!self.sortedVideos.count) {
+        [self toggleLayout];
+    }
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
-//    NSUInteger index = [self.sortedVideos indexOfObject:notif.object];
-    //[self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
-    [self reload];
+    YAVideo *video = notif.object;
+    if(![video.group isEqual:[YAUser currentUser].currentGroup])
+        return;
+    
+    NSUInteger index = [self.sortedVideos indexOfObject:notif.object];
+    [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
 }
 
-- (void)newVideoTaken:(NSNotification*)notif {
-    [UIView animateWithDuration:0.3 animations:^{
-        [self reload];
-        self.collectionView.contentOffset = CGPointMake(0, 0);
-    } completion:^(BOOL finished) {
-    }];
+- (void)insertVideo:(NSNotification*)notif {
+    YAVideo *video = notif.object;
+    if(![video.group isEqual:[YAUser currentUser].currentGroup])
+        return;
+    
+    [self updateSortedVideos];
+    
+    [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+    
+    if(self.collectionView.contentOffset.y != 0)
+        [self.collectionView setContentOffset:CGPointMake(0, 0) animated:YES];
 }
 
 #pragma mark - UICollectionView
@@ -195,7 +224,7 @@ static BOOL welcomeLabelRemoved = NO;
             });
         }
     });
-
+    
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -204,7 +233,7 @@ static BOOL welcomeLabelRemoved = NO;
     
     if(self.targetLayout == self.gridLayout) {
         cell.video = nil;
-
+        
         NSString *gifFilename = video.gifFilename;
         if(gifFilename.length) {
             NSString *gifPath = [YAUtils urlFromFileName:gifFilename].path;
@@ -215,10 +244,10 @@ static BOOL welcomeLabelRemoved = NO;
             [self showImageOnCell:cell fromPath:jpgPath];
             [video generateGIF];
         }
-//        else {
-//            cell.gifView.image = [UIImage imageNamed:@"Ball"];
-//            [video generateGIF];
-//        }
+        //        else {
+        //            cell.gifView.image = [UIImage imageNamed:@"Ball"];
+        //            [video generateGIF];
+        //        }
     } else {
         AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
         
@@ -251,18 +280,14 @@ static BOOL welcomeLabelRemoved = NO;
     self.collectionView.alwaysBounceVertical = newLayout == self.gridLayout;
     
     if(newLayout == self.gridLayout) {
-        [weakSelf.delegate showCamera:YES showPart:NO completion:^{
-            
-        }];
+        [weakSelf.delegate showCamera:YES showPart:NO animated:YES completion:nil];
         
         self.collectionView.collectionViewLayout = newLayout;
         weakSelf.disableScrollHandling = NO;
         [weakSelf reload];
     }
     else {
-        [self.delegate showCamera:NO showPart:NO completion:^{
-            
-        }];
+        [self.delegate showCamera:NO showPart:NO animated:YES completion:nil];
         
         self.collectionView.collectionViewLayout = newLayout;
         [weakSelf reload];
@@ -327,14 +352,14 @@ static BOOL welcomeLabelRemoved = NO;
     //show/hide camera
     if(scrollingFast && scrollingUp) {
         self.disableScrollHandling = YES;
-        [self.delegate showCamera:NO showPart:YES completion:^{
+        [self.delegate showCamera:NO showPart:YES animated:YES completion:^{
             self.disableScrollHandling = NO;
             [self playVisible:YES];
         }];
     }
     else if(scrollingFast && !scrollingUp){
         self.disableScrollHandling = YES;
-        [self.delegate showCamera:YES showPart:NO completion:^{
+        [self.delegate showCamera:YES showPart:NO animated:YES completion:^{
             self.disableScrollHandling = NO;
             [self playVisible:YES];
         }];

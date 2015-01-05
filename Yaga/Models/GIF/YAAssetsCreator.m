@@ -18,6 +18,8 @@
 
 @interface YAAssetsCreator ()
 @property (atomic, strong) NSMutableArray *videosToProcess;
+@property (atomic, strong) NSMutableSet *failedVideoIds;
+
 @property (atomic, assign) BOOL inProgress;
 
 @property (nonatomic, strong) dispatch_queue_t downloadQueue;
@@ -39,7 +41,7 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 - (instancetype)init {
     if (self = [super init]) {
         self.videosToProcess = [NSMutableArray array];
-        
+        self.failedVideoIds = [NSMutableSet set];
         //concurent downloads but serial gif generation..
         self.downloadQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     }
@@ -49,6 +51,7 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 #pragma mark GIF and JPEG generation
 
 - (void)createJPGAndGIFForVideo:(YAVideo*)video {
+    //do not add same video to the queue twice
     if([self.videosToProcess containsObject:video])
         return;
     
@@ -73,7 +76,6 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
     
     NSString *filename = [video.movFilename stringByDeletingPathExtension];
-    [self.videosToProcess addObject:video];
     
     [asset loadValuesAsynchronouslyForKeys:keys completionHandler:^() {
         NSError *error = nil;
@@ -120,7 +122,7 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                                         video.jpgFilename = jpgFilename;
                                         [video.realm commitWriteTransaction];
                                         
-                                        [[NSNotificationCenter defaultCenter] postNotificationName:NEW_VIDEO_TAKEN_NOTIFICATION object:video];
+                                        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
                                         
                                         return;
                                     });
@@ -146,11 +148,9 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                                             [video.realm beginWriteTransaction];
                                             video.gifFilename = gifFilename;
                                             [video.realm commitWriteTransaction];
-                                            [[NSNotificationCenter defaultCenter] postNotificationName:RELOAD_VIDEO_NOTIFICATION object:video];
+                                            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
                                             
-                                            self.inProgress = NO;
-                                            [self.videosToProcess removeObject:video];
-                                            [self processNextVideoAsync];
+                                            [self finishProcessingVideoAndStartNextProcessing:video errorsDuringProcessing:NO];
                                         });
                                     }
                                 }];
@@ -160,25 +160,43 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                         
                         if (result == AVAssetImageGeneratorFailed) {
                             NSLog(@"AVAssetImageGeneratorFailed with error: %@", [error localizedDescription]);
+                            [self finishProcessingVideoAndStartNextProcessing:video errorsDuringProcessing:YES];
                         }
                         if (result == AVAssetImageGeneratorCancelled) {
                             NSLog(@"AVAssetImageGeneratorCancelled");
+                            [self finishProcessingVideoAndStartNextProcessing:video errorsDuringProcessing:YES];
                         }
                     }];
                 }
                 break;
             case AVKeyValueStatusFailed:
                 NSLog(@"createJPGAndGIFForVideo Error finding duration");
-                [self.videosToProcess removeObject:video];
+                [self finishProcessingVideoAndStartNextProcessing:video errorsDuringProcessing:YES];
                 break;
             case AVKeyValueStatusCancelled:
                 NSLog(@"createJPGAndGIFForVideo Cancelled finding duration");
-                [self.videosToProcess removeObject:video];
+                [self finishProcessingVideoAndStartNextProcessing:video errorsDuringProcessing:YES];
                 break;
             default:
                 break;
         }
     }];
+}
+
+- (void)finishProcessingVideoAndStartNextProcessing:(YAVideo*)video errorsDuringProcessing:(BOOL)errors {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.inProgress = NO;
+        [self.videosToProcess removeObject:video];
+        
+        if(errors) {
+            [YAUtils showNotification:[NSString stringWithFormat:@"Error fetching video with id %@", video.serverId] type:AZNotificationTypeError];
+            
+            [self.failedVideoIds addObject:video.serverId];
+            [video removeFromCurrentGroup];
+        }
+        
+        [self processNextVideoAsync];
+    });
 }
 
 - (void)imageSavedToPhotosAlbum:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
@@ -268,9 +286,7 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 }
 
 -(void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
-    [AZNotification showNotificationWithTitle:NSLocalizedString(@"Video saved to camera roll successfully", @"")controller:[UIApplication sharedApplication].keyWindow.rootViewController
-                             notificationType:AZNotificationTypeMessage
-                                 startedBlock:nil];
+    [YAUtils showNotification:NSLocalizedString(@"Video saved to camera roll successfully", @"") type:AZNotificationTypeMessage];
 }
 
 
@@ -370,9 +386,11 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         video.creator = [[YAUser currentUser] username];
         video.createdAt = [NSDate date];
         video.movFilename = moveFilename;
-        
+        video.group = group;
         [group.videos insertObject:video atIndex:0];
+        
         [group.realm commitWriteTransaction];
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_ADDED_NOTIFICATION object:video];
         
         //start uploading while generating gif
         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video];
@@ -387,16 +405,21 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
     NSURL    *movURL = [NSURL fileURLWithPath:movPath];
     
-    dispatch_async(self.downloadQueue, ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSURL *remoteURL = [NSURL URLWithString:videoDic[YA_VIDEO_ATTACHMENT]];
+        NSLog(@"remoteURL: %@", remoteURL.absoluteString);
+        
         NSData *data = [NSData dataWithContentsOfURL:remoteURL];
+        NSLog(@"remoteURL %@ fetched.", remoteURL);
         BOOL result = [data writeToURL:movURL atomically:YES];
         if(!result) {
             
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             NSString *videoId = videoDic[YA_RESPONSE_ID];
-            
+            if([self.failedVideoIds containsObject:videoId]) {
+                NSLog(@"%@ failed last time, skipping...", videoId);
+            }
             [group.realm beginWriteTransaction];
             
             YAVideo *video = [YAVideo video];
@@ -406,9 +429,11 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
             video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
             video.url = videoDic[YA_VIDEO_ATTACHMENT];
             video.movFilename = moveFilename;
+            video.group = group;
             [group.videos insertObject:video atIndex:0];
             
             [group.realm commitWriteTransaction];
+            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_ADDED_NOTIFICATION object:video];
             
             [video generateGIF];
         });

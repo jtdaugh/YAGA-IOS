@@ -83,9 +83,5 @@
 	playerLayer.videoGravity = fillMode;
 }
 
-- (void)dealloc {
-    
-}
-
 
 @end
