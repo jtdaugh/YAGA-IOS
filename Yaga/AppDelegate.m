@@ -60,31 +60,12 @@
     return YES;
 }
 
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken");
-}
-
-- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-    NSLog(@"didFailToRegisterForRemoteNotificationsWithError");
-}
-
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     [[YAServer sharedServer] startMonitoringInternetConnection:YES];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     [[YAServer sharedServer] startMonitoringInternetConnection:NO];
-}
-
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-}
-
-- (void)applicationWillEnterForeground:(UIApplication *)application {
-}
-
-
-
-- (void)applicationWillTerminate:(UIApplication *)application {
 }
 
 @end

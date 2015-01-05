@@ -346,18 +346,21 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
             
             [layerInstruction setTransform:assetTrack.preferredTransform
                                     atTime:kCMTimeZero];
-            videoCompositionInstruction.layerInstructions = @[layerInstruction];
+
         } else {
-            CGFloat xMove = [UIScreen mainScreen].bounds.size.width/2;
-            CGFloat yMove = [UIScreen mainScreen].bounds.size.height/2;
+            NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
+            NSLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
+            CGFloat xMove = ([UIScreen mainScreen].nativeBounds.size.width - assetTrack.naturalSize.width)/2;
+            CGFloat yMove = ([UIScreen mainScreen].nativeBounds.size.height - assetTrack.naturalSize.height)/2;
             CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
                                                                      xMove,
                                                                      yMove);
+            
      
             [layerInstruction setTransform:transform atTime:kCMTimeZero];
-            videoCompositionInstruction.layerInstructions = @[layerInstruction];
         }
         
+        videoCompositionInstruction.layerInstructions = @[layerInstruction];
         [instructions addObject:videoCompositionInstruction];
         
         
