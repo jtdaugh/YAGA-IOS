@@ -89,7 +89,16 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
                     imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
                     imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
                     imageGenerator.appliesPreferredTrackTransform = YES;
-                    imageGenerator.maximumSize = CGSizeMake(imageGenerator.asset.naturalSize.width/2, imageGenerator.asset.naturalSize.height/2);
+                    
+                    NSArray* allVideoTracks = [asset tracksWithMediaType:AVMediaTypeVideo];
+                    if ([allVideoTracks count] > 0) {
+                        AVAssetTrack* track = [[asset tracksWithMediaType:AVMediaTypeVideo]
+                                               objectAtIndex:0];
+                        CGSize size = [track naturalSize];
+                        imageGenerator.maximumSize = CGSizeMake(size.width/2, size.height/2);
+                    }
+                    
+//                    imageGenerator.maximumSize = CGSizeMake(imageGenerator.asset.naturalSize.width/2, imageGenerator.asset.naturalSize.height/2);
                     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
                     NSUInteger framesCount = movieDuration * 10;
                     NSLog(@"movie duration: %f", movieDuration);
