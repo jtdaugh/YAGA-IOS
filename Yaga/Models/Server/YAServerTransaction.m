@@ -85,10 +85,11 @@
                 [group.realm beginWriteTransaction];
                 group.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
                 [group.realm commitWriteTransaction];
+                
+                
+                NSLog(@"remote group: %@ created on server with id: %@", group.name, group.serverId);
+                completion(group.serverId, nil);
             });
-            
-            NSLog(@"remote group: %@ created on server with id: %@", group.name, group.serverId);
-            completion(group.serverId, nil);
         }
     }];
 }

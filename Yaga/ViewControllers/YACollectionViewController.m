@@ -70,9 +70,6 @@ static NSString *cellID = @"Cell";
     
     [self.view addSubview:self.collectionView];
     
-    //no videos welcome text
-    [self showNoVideosMessageIfNeeded];
-    
     //pull down to refresh
     self.pullToRefresh = [[UIRefreshControl alloc] initWithFrame:CGRectMake(0, -30, VIEW_WIDTH, 30)];
     self.pullToRefresh.attributedTitle = [[NSAttributedString alloc] initWithString:@"Fetching group videos" attributes:@{NSForegroundColorAttributeName:PRIMARY_COLOR}];
@@ -118,13 +115,14 @@ static NSString *cellID = @"Cell";
     }
     else {
         [self.noVideosLabel removeFromSuperview];
+        self.noVideosLabel = nil;
     }
 }
 
 - (void)reload {
-    [self showNoVideosMessageIfNeeded];
     self.sortedVideos = [[YAUser currentUser].currentGroup sortedVideos];
     [self.collectionView reloadData];
+    [self showNoVideosMessageIfNeeded];
 }
 
 - (void)deleteVideo:(NSNotification*)notif {
@@ -142,8 +140,7 @@ static NSString *cellID = @"Cell";
             
             //deleted last video? make sure to back to the grid
             if(!self.sortedVideos.count) {
-                [self collectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
-                [self showNoVideosMessageIfNeeded];
+                [self toggleLayout];
             }
         }
     }];
@@ -239,6 +236,10 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [self toggleLayout];
+}
+
+- (void)toggleLayout {
     UICollectionViewFlowLayout *newLayout = self.collectionView.collectionViewLayout == self.gridLayout ? self.swipeLayout : self.gridLayout;
     
     __weak typeof(self) weakSelf = self;
@@ -313,12 +314,11 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    //TODO: hide record button
+    [self.delegate enableRecording:NO];
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-    //TODO: show record button
-    
+    [self.delegate enableRecording:YES];
     
     BOOL scrollingFast = fabs(velocity.y) > 1;
     

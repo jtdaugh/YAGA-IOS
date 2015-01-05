@@ -10,6 +10,7 @@ typedef void (^cameraCompletion)(void);
 
 @protocol YACollectionViewControllerDelegate <NSObject>
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart completion:(cameraCompletion)block;
+- (void)enableRecording:(BOOL)enable;
 @end
 
 @interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate> {

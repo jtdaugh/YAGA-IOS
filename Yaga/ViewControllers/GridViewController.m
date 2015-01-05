@@ -68,6 +68,7 @@
     [self.navigationController setNavigationBarHidden:YES];
 }
 
+#pragma mark - YACollectionViewControllerDelegate
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart completion:(cameraCompletion)completion {
     
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
@@ -87,6 +88,10 @@
         if(finished && completion)
             completion();
     }];
+}
+
+- (void)enableRecording:(BOOL)enable {
+    [self.cameraViewController enableRecording:enable];
 }
 
 - (void)toggleGroups {

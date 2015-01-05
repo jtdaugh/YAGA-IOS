@@ -41,13 +41,6 @@
     return @{@"serverId":@""};
 }
 
-// Specify properties to ignore (Realm won't persist these)
-
-//+ (NSArray *)ignoredProperties
-//{
-//    return @[];
-//}
-
 - (NSString*)membersString {
     if(!self.members.count) {
         return NSLocalizedString(@"No members", @"");

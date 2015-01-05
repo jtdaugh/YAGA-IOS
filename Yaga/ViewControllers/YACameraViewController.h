@@ -35,5 +35,6 @@
 
 - (void)updateCurrentGroup;
 
+- (void)enableRecording:(BOOL)enable;
 
 @end

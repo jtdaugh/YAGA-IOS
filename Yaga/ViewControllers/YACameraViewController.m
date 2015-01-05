@@ -35,6 +35,8 @@
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
 
+@property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizerCamera;
+
 @end
 
 @implementation YACameraViewController
@@ -51,10 +53,6 @@
         
         //        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(configureFocusPoint:)];
         //        [self.cameraView addGestureRecognizer:self.tapToFocusRecognizer];
-        
-        UILongPressGestureRecognizer *longPressGestureRecognizerCamera = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-        [longPressGestureRecognizerCamera setMinimumPressDuration:0.2f];
-        [self.cameraView addGestureRecognizer:longPressGestureRecognizerCamera];
         
         self.cameraAccessories = [@[] mutableCopy];
         
@@ -104,6 +102,7 @@
         [self.recordButton.layer setCornerRadius:recordButtonWidth/2.0];
         [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
         [self.recordButton.layer setBorderWidth:4.0f];
+        self.recordButton.transform = CGAffineTransformMakeScale(0, 0);
         
         UILongPressGestureRecognizer *longPressGestureRecognizerButton = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         [longPressGestureRecognizerButton setMinimumPressDuration:0.2f];
@@ -138,6 +137,7 @@
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
         
+        [self enableRecording:YES];
     }
     return self;
 }
@@ -155,9 +155,23 @@
     [self initCamera];
 }
 
+- (void)enableRecording:(BOOL)enable {
+    if(enable) {
+        self.longPressGestureRecognizerCamera = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+        [self.longPressGestureRecognizerCamera setMinimumPressDuration:0.2f];
+        [self.cameraView addGestureRecognizer:self.longPressGestureRecognizerCamera];
+    }
+    else {
+        [self.cameraView removeGestureRecognizer:self.longPressGestureRecognizerCamera];
+    }
+    [UIView animateWithDuration:0.2 animations:^{
+        self.recordButton.transform = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
+    }];
+}
+
 - (void)initCamera {
     NSLog(@"init camera");
-    
+
     self.session = [[AVCaptureSession alloc] init];
     self.session.sessionPreset = AVCaptureSessionPresetHigh;
     
