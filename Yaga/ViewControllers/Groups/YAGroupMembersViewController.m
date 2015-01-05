@@ -49,6 +49,9 @@ static NSString *CellID = @"CellID";
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationController.navigationBar.translucent = YES;;
+    
+    if(!self.group.members.count)
+        [self setEditing:YES animated:YES];
 }
 
 #pragma mark - Navigation bar buttons
@@ -122,7 +125,7 @@ static NSString *CellID = @"CellID";
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    cell.textLabel.text = contact.name;
+    cell.textLabel.text = contact.name.length ? contact.name : contact.username;
     
     cell.detailTextLabel.text = contact.readableNumber;
     

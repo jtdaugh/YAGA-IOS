@@ -262,6 +262,9 @@
 
 #pragma mark - Navigation
 - (void)doneTapped {
+    if(![self validateSelectedContacts])
+        return;
+    
     if(self.existingGroup && self.existingGroupDirty) {
         [self.existingGroup addMembers:self.selectedContacts];
         
@@ -279,6 +282,33 @@
         
         [self performSegueWithIdentifier:@"NameGroup" sender:self];
     }
+}
+
+- (BOOL)validateSelectedContacts {
+    NSString *errorsString = @"";
+    for (NSDictionary *contactDic in self.selectedContacts) {
+        NSString *phoneNumber = contactDic[nPhone];
+        
+        NSError *error;
+        if(![YAUtils validatePhoneNumber:phoneNumber error:&error]) {
+            errorsString = [errorsString stringByAppendingFormat:@"%@ : %@ \n", contactDic[nCompositeName], contactDic[nPhone]];
+        }
+    }
+    if(errorsString.length) {
+        NSString *alertMessage = [NSString stringWithFormat:@"%@:\n\n%@", NSLocalizedString(@"SOME PHONE NUMBERS ARE INCORRECT MESSAGE", @""), errorsString];
+        UIAlertController *alertController = [UIAlertController
+                                              alertControllerWithTitle:NSLocalizedString(@"Warning", nil)
+                                              message:alertMessage
+                                              preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *okAction = [UIAlertAction
+                                   actionWithTitle:NSLocalizedString(@"OK", nil)
+                                   style:UIAlertActionStyleDefault
+                                   handler:nil];
+        
+        [alertController addAction:okAction];
+        [self presentViewController:alertController animated:YES completion:nil];
+    }
+    return errorsString.length == 0;
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

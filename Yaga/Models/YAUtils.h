@@ -20,4 +20,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 
 //UI
 + (void)showNotification:(NSString*)message type:(AZNotificationType)type;
+
+
++ (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error;
 @end

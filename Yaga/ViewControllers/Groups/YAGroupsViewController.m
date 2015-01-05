@@ -58,7 +58,8 @@ static NSString *CellIdentifier = @"GroupsCell";
         origin = 0;
     }
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.embeddedMode ? ELEVATOR_MARGIN : 0))];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.embeddedMode ? ELEVATOR_MARGIN : origin))];
+
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];
     self.tableView.dataSource = self;
@@ -355,7 +356,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
     
-    [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
         
         NSString *groupToLeave = group.name;

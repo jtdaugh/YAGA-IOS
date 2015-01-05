@@ -38,6 +38,7 @@
 "You have left" = "You have left";
 "Can't remove self from the group, use 'Leave' option when selecting group options." = "Can't remove self from the group, use 'Leave' option when selecting group options.";
 
+"SOME PHONE NUMBERS ARE INCORRECT MESSAGE" = "The following contacts have incorrect phone number, please fix phone numbers or remove them from the group";
 "NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";
 "NO VIDOES IN NEW GROUP MESSAGE" = "You don't have videos yet, tap record button to record";
 "RECORD_TIP" = "Tap and hold to record";

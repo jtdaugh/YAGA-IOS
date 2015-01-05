@@ -9,6 +9,7 @@
 #import "YAUtils.h"
 #import "NBPhoneNumberUtil.h"
 #import <CommonCrypto/CommonDigest.h>
+#import "YAUser.h"
 
 @implementation YAUtils
 
@@ -63,6 +64,27 @@
     [AZNotification showNotificationWithTitle:message controller:[UIApplication sharedApplication].keyWindow.rootViewController
                              notificationType:type
                                  startedBlock:nil];
+}
+
++ (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error {
+    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+
+    NBPhoneNumber *myNumber = [phoneUtil parse:value
+                                 defaultRegion:[YAUser currentUser].countryCode error:error];
+    
+    if(*error)
+        return NO;
+    
+    
+    [phoneUtil format:myNumber
+                                 numberFormat:NBEPhoneNumberFormatE164
+                                        error:error];
+    
+    if(*error)
+        return NO;
+    
+    
+    return YES;
 }
 
 @end

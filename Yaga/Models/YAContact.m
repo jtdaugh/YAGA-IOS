@@ -33,6 +33,7 @@
     contact.firstName = dictionary[nFirstname];
     contact.lastName  = dictionary[nLastname];
     contact.number = dictionary[nPhone];
+    contact.username = contact.name;
     contact.registered = [dictionary objectForKey:@"joined_at"] != nil;
 
     return contact;

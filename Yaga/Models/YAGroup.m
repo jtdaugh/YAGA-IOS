@@ -50,7 +50,13 @@
     
     for(int i = 0; i < self.members.count; i++) {
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
-        NSString *name = contact.name.length ? [NSString stringWithFormat:@"%@(%@)", contact.name, contact.username] : contact.username;
+        NSString *name = contact.username;
+        if(contact.name.length) {
+            if(![contact.name isEqualToString:contact.username] && ![contact.username isEqualToString:@"noname"])
+                name = [NSString stringWithFormat:@"%@(%@)", contact.name, contact.username];
+            else
+                name = contact.name;
+        }
         results = [results stringByAppendingFormat:@"%@%@", name, (i < self.members.count - 1 ? @", " : @"")];
     }
     

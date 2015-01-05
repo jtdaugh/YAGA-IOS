@@ -11,8 +11,9 @@
 #import "YAServerTransaction.h"
 
 @interface YAServerTransactionQueue ()
-@property (nonatomic, strong) NSMutableArray *transactionsData;
-@property (nonatomic, strong) NSMutableDictionary *transactionsAttempts;
+@property (atomic, strong) NSMutableArray *transactionsData;
+@property (atomic, strong) NSMutableDictionary *transactionsAttempts;
+@property (atomic, assign) BOOL transactionInProgress;
 @end
 
 #define YA_TRANSACTIONS_FILENAME    @"pending_transactions.plist"
@@ -121,7 +122,7 @@
 - (void)processPendingTransactions {
     self.transactionsData = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]]];
     
-    if(self.transactionsData.count)
+    if(self.transactionsData.count && !self.transactionInProgress)
         [self processNextTransaction];
 }
 
@@ -139,6 +140,11 @@
         return;
     }
     
+    if (self.transactionInProgress) {
+        return;
+    }
+    
+    
     NSDictionary *transactionData = self.transactionsData[0];
     
     YAServerTransaction *transaction = [[YAServerTransaction alloc] initWithDictionary:transactionData];
@@ -147,7 +153,12 @@
     
     NSLog(@"performing transaction with data: %@", transactionData);
     
+    self.transactionInProgress = YES;
+
     [transaction performWithCompletion:^(id response, NSError *error) {
+        
+        self.transactionInProgress = NO;
+        
         if(error) {
             NSLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
 
