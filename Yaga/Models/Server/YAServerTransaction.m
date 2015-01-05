@@ -215,7 +215,7 @@
 #ifdef DEBUG
     [YAUtils showNotification:message type:type];
 #else
-    NSLog(@"%@", event);
+    NSLog(@"%@", message);
 #endif
 }
 
