@@ -254,9 +254,13 @@
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                               //                               NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                               //                               NSLog(@"%@", [NSString stringFromHex:str]);
-                               completion(nil, connectionError);
+                               
+                               if([(NSHTTPURLResponse*)response statusCode] == 200)
+                                   completion(nil, nil);
+                               else {
+                                   NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                                   completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                               }
                            }];
 }
 
