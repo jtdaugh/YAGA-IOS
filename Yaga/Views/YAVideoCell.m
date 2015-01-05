@@ -96,7 +96,7 @@
     self.playerVC = nil;
     self.video = nil;
     
-    [self showControls:NO];
+    self.controls = nil;
 }
 #pragma mark - Overlay controls
 
@@ -318,8 +318,33 @@
 }
 
 - (void)saveButtonPressed {
+    __block UIActivityIndicatorView *savingActivityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    savingActivityView.frame = self.saveButton.frame;
+    savingActivityView.alpha = 0;
+    [self addSubview:savingActivityView];
+    [savingActivityView startAnimating];
+    
     [self animateButton:self.saveButton withImageName:nil completion:^{
-        [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.movFilename]];
+        [UIView animateWithDuration:0.3 animations:^{
+            self.saveButton.alpha = 0;
+            savingActivityView.alpha = 1;
+        }];
+        [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.movFilename] completion:^(NSError *error) {
+            if (error) {
+                [YAUtils showNotification:NSLocalizedString(@"Can't save photos", @"") type:AZNotificationTypeError];
+            }
+            else {
+                [YAUtils showNotification:NSLocalizedString(@"Video saved to camera roll successfully", @"") type:AZNotificationTypeMessage];
+            }
+            
+            [UIView animateWithDuration:0.3 animations:^{
+                self.saveButton.alpha = 1;
+                savingActivityView.alpha = 0;
+                
+            } completion:^(BOOL finished) {
+                [savingActivityView removeFromSuperview];
+            }];
+        }];
     }];
 }
 

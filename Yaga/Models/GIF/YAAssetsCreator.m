@@ -23,6 +23,7 @@
 @property (atomic, assign) BOOL inProgress;
 
 @property (nonatomic, strong) dispatch_queue_t downloadQueue;
+@property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
 @end
 
 CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
@@ -268,7 +269,7 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
 }
 
 #pragma mark - Camera roll
-- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL {
+- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion {
     NSURL *outputUrl = [YAUtils urlFromFileName:@"for_camera_roll.mov"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
     
@@ -282,17 +283,13 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
     session.outputFileType = AVFileTypeQuickTimeMovie;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputUrl.path;
+        self.cameraRollCompletionBlock = completion;
         UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError: contextInfo:), nil);
     }];
 }
 
 -(void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
-    if (error) {
-        [YAUtils showNotification:NSLocalizedString(@"Can't save photos", @"") type:AZNotificationTypeError];
-    }
-    else {
-        [YAUtils showNotification:NSLocalizedString(@"Video saved to camera roll successfully", @"") type:AZNotificationTypeMessage];
-    }
+    self.cameraRollCompletionBlock(error);
 }
 
 - (AVPlayerItem*)buildVideoSequenceComposition:(NSURL*)realVideoUrl {

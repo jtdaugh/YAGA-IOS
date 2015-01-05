@@ -10,12 +10,14 @@
 #import "YAVideo.h"
 #import "YAGroup.h"
 
+typedef void (^cameraRollCompletion)(NSError *error);
+
 @interface YAAssetsCreator : NSObject
 
 + (instancetype)sharedCreator;
 - (void)createJPGAndGIFForVideo:(YAVideo*)video;
 
-- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL;
+- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion;
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
 - (void)createVideoFromRemoteDictionary:(NSDictionary*)videoDic addToGroup:(YAGroup*)group;
