@@ -72,19 +72,17 @@
     NBPhoneNumber *myNumber = [phoneUtil parse:value
                                  defaultRegion:[YAUser currentUser].countryCode error:error];
     
-    if(*error)
+    if(error && *error)
         return NO;
+//
+//    
+//    [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:error];
+//    
+//    if(*error)
+//        return NO;
     
     
-    [phoneUtil format:myNumber
-                                 numberFormat:NBEPhoneNumberFormatE164
-                                        error:error];
-    
-    if(*error)
-        return NO;
-    
-    
-    return YES;
+    return [phoneUtil isValidNumber:myNumber];
 }
 
 + (UIView*)createBackgroundViewForCell:(UITableViewCell*)cell alpha:(CGFloat)alpha {
