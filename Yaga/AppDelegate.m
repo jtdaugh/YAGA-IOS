@@ -79,5 +79,39 @@
         bgTask = UIBackgroundTaskInvalid;
     }];
 
+<<<<<<< HEAD
 }
+=======
+#pragma mark - Push notifications
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
+    NSLog(@"didRegisterUserNotificationSettings %@", notificationSettings);
+
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", [self deviceTokenFromData:deviceToken]);
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    NSLog(@"didFailToRegisterForRemoteNotificationsWithError %@", [error localizedDescription]);
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    NSLog(@"didReceiveRemoteNotification %@", userInfo);
+    [YAUtils showNotification:[NSString stringWithFormat:@"Push: %@", [userInfo description]] type:AZNotificationTypeMessage];
+}
+
+
+#pragma mark - utils
+- (NSString *)deviceTokenFromData:(NSData *)data {
+    NSString *token = [NSString stringWithFormat:@"%@", [data description]];
+    
+    token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
+    token = [token stringByReplacingOccurrencesOfString:@"<" withString:@""];
+    token = [token stringByReplacingOccurrencesOfString:@">" withString:@""];
+    
+    return token;
+}
+
+>>>>>>> FETCH_HEAD
 @end
