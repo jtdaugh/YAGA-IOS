@@ -26,7 +26,28 @@
     // Initialize the filteredCandyArray with a capacity equal to the candyArray's capacity
     self.filteredCountries = [NSMutableArray arrayWithArray:self.dataRows];
     [self.tableView reloadData];
+    
+    self.title = NSLocalizedString(@"Choose your Country", @"");
+    self.navigationController.navigationBar.tintColor = PRIMARY_COLOR;
+    
+    self.searchBar.tintColor = PRIMARY_COLOR;
+    self.searchBar.barTintColor = [UIColor blackColor];
+    self.searchBar.backgroundColor = [UIColor blackColor];
+
 }
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self.searchBar becomeFirstResponder];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self.searchBar resignFirstResponder];
+}
+
 
 #pragma mark - UITableView Datasource
 
@@ -60,7 +81,7 @@
     
     if (![obj isKindOfClass:[NSNull class]]) {
         cell.textLabel.text = [obj valueForKey:kCountryName];
-
+        
         cell.detailTextLabel.text = [obj valueForKey:kCountryCallingCode];
     } else {
         cell.textLabel.text = @"Unknown error";
@@ -105,10 +126,13 @@
     if (searchText.length == 0)
     {
         self.isBeingSearched = NO;
+        
     } else {
         self.isBeingSearched = YES;
         [self filterContentForSearchText:searchText scope:nil];
-        [[self tableView] reloadData];
+        
     }
+    
+    [[self tableView] reloadData];
 }
 @end

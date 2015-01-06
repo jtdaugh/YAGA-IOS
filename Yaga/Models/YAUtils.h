@@ -21,6 +21,6 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 //UI
 + (void)showNotification:(NSString*)message type:(AZNotificationType)type;
 
-
++ (UIView*)createBackgroundViewForCell:(UITableViewCell*)cell alpha:(CGFloat)alpha;
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error;
 @end

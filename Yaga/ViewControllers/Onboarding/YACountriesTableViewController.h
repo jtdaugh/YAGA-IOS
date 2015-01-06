@@ -10,4 +10,5 @@
 
 @interface YACountriesTableViewController : UITableViewController <UISearchBarDelegate>
 - (IBAction)dismiss:(id)sender;
+@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
 @end

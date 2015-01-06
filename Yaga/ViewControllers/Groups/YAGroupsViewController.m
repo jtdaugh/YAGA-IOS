@@ -186,7 +186,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
     cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
-    cell.selectedBackgroundView = [self createBackgroundViewForCell:cell];
+    cell.selectedBackgroundView = [YAUtils createBackgroundViewForCell:cell alpha:0.3];
     
     return cell;
 }
@@ -247,18 +247,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     [self showGroupOptionsForGroupAtIndex:indexPath];
     
-}
-
-#pragma mark - Utils
-- (UIView*)createBackgroundViewForCell:(UITableViewCell*)cell {
-    UIView *bkgView = [[UIView alloc] initWithFrame:cell.bounds];
-    bkgView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
-    //get 0.3 alpha from main color
-    CGFloat r,g,b,a;
-    [PRIMARY_COLOR getRed:&r green:&g blue:&b alpha:&a];
-    bkgView.backgroundColor = [UIColor colorWithRed:r green:g blue:b alpha:0.3];
-    return bkgView;
 }
 
 #pragma mark - Segues

@@ -60,7 +60,6 @@
     [self.number setTextAlignment:NSTextAlignmentCenter];
     [self.number setFont:[UIFont fontWithName:BIG_FONT size:32]];
     [self.number setTextColor:[UIColor whiteColor]];
-    [self.number becomeFirstResponder];
     [self.number setTintColor:[UIColor whiteColor]];
     [self.number setReturnKeyType:UIReturnKeyDone];
     [self.number addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
@@ -101,6 +100,20 @@
     self.next.enabled = YES;
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self.number becomeFirstResponder];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self.number resignFirstResponder];
+}
+
+
+    
 - (CGFloat) getNewOrigin:(UIView *) anchor {
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
 }

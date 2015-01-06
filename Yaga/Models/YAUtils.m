@@ -87,4 +87,15 @@
     return YES;
 }
 
++ (UIView*)createBackgroundViewForCell:(UITableViewCell*)cell alpha:(CGFloat)alpha {
+    UIView *bkgView = [[UIView alloc] initWithFrame:cell.bounds];
+    bkgView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    //get 0.3 alpha from main color
+    CGFloat r,g,b,a;
+    [PRIMARY_COLOR getRed:&r green:&g blue:&b alpha:&a];
+    bkgView.backgroundColor = [UIColor colorWithRed:r green:g blue:b alpha:alpha];
+    return bkgView;
+}
+
 @end
