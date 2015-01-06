@@ -12,7 +12,6 @@
 
 @interface YAServerTransactionQueue ()
 @property (atomic, strong) NSMutableArray *transactionsData;
-@property (atomic, strong) NSMutableDictionary *transactionsAttempts;
 @property (atomic, assign) BOOL transactionInProgress;
 @end
 
@@ -32,7 +31,6 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.transactionsData = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]]];
-        self.transactionsAttempts = [NSMutableDictionary new];
     }
     return self;
 }
@@ -126,6 +124,11 @@
         [self processNextTransaction];
 }
 
+- (void)clearTransactionQueue
+{
+    [[NSFileManager defaultManager] removeItemAtPath:[self filepath] error:nil];
+}
+
 - (void)saveTransactionsData {
     [NSKeyedArchiver archiveRootObject:self.transactionsData toFile:[self filepath]];
 }
@@ -159,33 +162,21 @@
         
         self.transactionInProgress = NO;
         
-        if(error) {
+        
+        if ([error isKindOfClass:[YAErrorVideoUnavailable class]])
+        {
+            NSLog(@"Transaction impossible, video invalidated");
+        }
+        else if(error) {
             NSLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
-
-            const NSUInteger maxAttemptsCount = 10;
-            //try 10 times with internet connection, then remove transaction
-            NSNumber *attempts = [NSNumber numberWithInteger:[weakSelf.transactionsAttempts[transactionData] integerValue] + 1];
-            weakSelf.transactionsAttempts[transactionData] = attempts;
-            NSLog(@"Attempts done: %lu", (long)[attempts integerValue]);
-            
-            if([attempts integerValue] >= maxAttemptsCount) {
-                NSLog(@"%lu attempts is enoght, killing transaction\n\n\n-----------------\n", (unsigned long)maxAttemptsCount);
-                [weakSelf.transactionsAttempts removeObjectForKey:transactionData];
-                [weakSelf.transactionsData removeObject:transactionData];
-                [weakSelf saveTransactionsData];
-                [weakSelf processNextTransaction];
-            }
-            else {
-                //execute same transaction again
-                [weakSelf processNextTransaction];
-            }
         }
         else {
             NSLog(@"Transaction successfull!");
-            [weakSelf.transactionsData removeObject:transactionData];
-            [weakSelf saveTransactionsData];
-            [weakSelf processNextTransaction];
         }
+        
+        [weakSelf.transactionsData removeObject:transactionData];
+        [weakSelf saveTransactionsData];
+        [weakSelf processNextTransaction];
     }];
 }
 

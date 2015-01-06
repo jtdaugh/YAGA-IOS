@@ -12,6 +12,7 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 #import "AFNetworking.h"
+#import "YAErrorVideoUnavailable.h"
 
 @interface YAServerTransaction ()
 @property (nonatomic, strong) NSDictionary *data;
@@ -174,24 +175,33 @@
     }];
 }
 
-- (void)uploadVideoWithCompletion:(responseBlock)completion {
-    YAVideo *video = [self videoFromData];
+- (void)checkVideoValidityWithCompletion:(responseBlock)completion {
     
-    [[YAServer sharedServer] uploadVideo:video toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
-        if(error) {
-            [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", video.localId, error.localizedDescription] type:AZNotificationTypeError];
-            completion(nil, error);
-        }
-        else {
-            [video.realm beginWriteTransaction];
-            video.url = [response allHeaderFields][@"Location"];
-            [video.realm commitWriteTransaction];
-            
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:AZNotificationTypeSuccess];
-            
-            completion(nil, nil);
-        }
-    }];
+}
+
+- (void)uploadVideoWithCompletion:(responseBlock)completion {
+    
+        YAVideo *video = [self videoFromData];
+        
+        [[YAServer sharedServer] uploadVideo:video toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
+            if(error) {
+                [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", video.localId, error.localizedDescription] type:AZNotificationTypeError];
+                completion(nil, error);
+            }
+            else {
+                if ([video isInvalidated]) {
+                    return completion(nil, [YAErrorVideoUnavailable new]);
+                }
+                [video.realm beginWriteTransaction];
+                NSString *location = [response allHeaderFields][@"Location"];
+                video.url = location;
+                [video.realm commitWriteTransaction];
+                
+                [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:AZNotificationTypeSuccess];
+                
+                completion(nil, nil);
+            }
+        }];
 }
 
 - (void)deleteVideoWithCompletion:(responseBlock)completion {

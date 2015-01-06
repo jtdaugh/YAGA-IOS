@@ -14,6 +14,7 @@
 #import "YAServer.h"
 
 #import "YAUtils.h"
+#import "YAServerTransactionQueue.h"
 
 @implementation AppDelegate
 
@@ -29,12 +30,15 @@
 //    [[RLMRealm defaultRealm] beginWriteTransaction];
 //    [[RLMRealm defaultRealm] deleteObjects:[YAGroup allObjects]];
 //    [[RLMRealm defaultRealm] commitWriteTransaction];
-    
+//    
 //#warning TESTING REMOVE ALL VIDEOS IN CURRENT GROUP
 //    [[RLMRealm defaultRealm] beginWriteTransaction];
 //    [[YAUser currentUser].currentGroup.videos removeAllObjects];
 //    [[RLMRealm defaultRealm] commitWriteTransaction];
-//    
+////
+    #warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
+    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
+    
     NSString *identifier;
     if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
         identifier = @"LoggedInUserNavigationController";
@@ -66,6 +70,14 @@
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     [[YAServer sharedServer] startMonitoringInternetConnection:NO];
-}
+    __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
+        
+        // Wait until the pending operations finish
+        [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
+        
+        [application endBackgroundTask: bgTask];
+        bgTask = UIBackgroundTaskInvalid;
+    }];
 
+}
 @end

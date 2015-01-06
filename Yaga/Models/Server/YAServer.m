@@ -16,7 +16,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #import "YAServer+HostManagment.h"
-
 #define HOST @"https://yaga-dev.herokuapp.com"
 
 #define YAGA_HOST_IP_ADDRESS @"23.21.52.195"
@@ -367,6 +366,11 @@
     [self.manager POST:api
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                   if ([video isInvalidated]) {
+                       YAErrorVideoUnavailable *yaError = [YAErrorVideoUnavailable new];
+                       completion(nil, yaError);
+                   }
+                   
                    NSLog(@"uploadVideoData, recieved params for S3 upload. Making multipart upload...");
                    
                    NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
@@ -392,6 +396,8 @@
     newManager.responseSerializer = responseSerializer;
     [newManager POST:endpoint
           parameters:dict constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+              if (file == nil)
+                  NSLog(@"Hello");
               [formData appendPartWithFormData:file name:@"file"];
               
           } success:^(AFHTTPRequestOperation *operation, id responseObject) {

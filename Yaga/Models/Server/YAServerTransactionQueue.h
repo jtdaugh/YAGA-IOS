@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "YAGroup.h"
+#import "YAErrorVideoUnavailable.h"
 
 @interface YAServerTransactionQueue : NSObject
 
@@ -24,4 +25,7 @@
 
 //will pause automatically when no internet connection
 - (void)processPendingTransactions;
+
+//Debug
+- (void)clearTransactionQueue;
 @end
