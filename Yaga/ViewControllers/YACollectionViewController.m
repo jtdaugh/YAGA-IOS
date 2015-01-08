@@ -233,21 +233,20 @@ static BOOL welcomeLabelRemoved = NO;
     
     if(self.targetLayout == self.gridLayout) {
         cell.video = nil;
+        cell.gifView.animatedImage = nil;
         
         NSString *gifFilename = video.gifFilename;
         if(gifFilename.length) {
             NSString *gifPath = [YAUtils urlFromFileName:gifFilename].path;
             [self showImageOnCell:cell fromPath:gifPath];
-        }
-        else if(video.jpgFilename.length){
+        } else if(video.jpgFilename.length){
             NSString *jpgPath = [YAUtils urlFromFileName:video.jpgFilename].path;
             [self showImageOnCell:cell fromPath:jpgPath];
             [video generateGIF];
+        } else {
+//            cell.gifView.image = [UIImage imageNamed:@"Ball"];
+            [video generateGIF];
         }
-        //        else {
-        //            cell.gifView.image = [UIImage imageNamed:@"Ball"];
-        //            [video generateGIF];
-        //        }
     } else {
         AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
         
