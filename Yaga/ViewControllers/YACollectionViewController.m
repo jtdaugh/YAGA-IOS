@@ -244,12 +244,6 @@ static BOOL welcomeLabelRemoved = NO;
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = self.sortedVideos[indexPath.row];
-    
-    cell.video = nil;
-    cell.playerVC = nil;
-    cell.gifView.animatedImage = nil;
-    cell.gifView.image = nil;
-    
     if(self.targetLayout == self.gridLayout) {
 
         NSString *gifFilename = video.gifFilename;
@@ -311,7 +305,7 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell*)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    cell.playerVC = nil;
+    //cell.playerVC = nil;
 }
 
 #pragma mark - UIScrollView

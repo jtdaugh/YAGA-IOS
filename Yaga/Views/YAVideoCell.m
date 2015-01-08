@@ -68,6 +68,7 @@
         playerVC.view.alpha = 0;
         
         playerVC.view.frame = self.bounds;
+
         [self.contentView addSubview:playerVC.view];
         
         // playerVC.view.transform = CGAffineTransformMakeScale(1.1, 1.1);
@@ -80,7 +81,7 @@
     else {
         [self showControls:NO];
         [_playerVC.view removeFromSuperview];
-        [self.contentView addSubview:self.gifView];
+        //[self.contentView addSubview:self.gifView];
         [UIView animateWithDuration:0.3 animations:^{
             self.gifView.alpha = 1;
         }];
