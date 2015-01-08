@@ -482,7 +482,7 @@
 
 - (void)createAssetsForGroup:(YAGroup*)group {
     for(YAVideo *video in group.videos) {
-        if(!video.url.length && !video.movFilename.length)
+        if(video.url.length && !video.movFilename.length)
             [self getRemoteContentForVideo:video];
         else if(video.movFilename.length && !video.gifFilename.length) {
             [self createJPGAndGIFForVideo:video];

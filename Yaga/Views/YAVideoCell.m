@@ -14,6 +14,7 @@
 #import "YAAssetsCreator.h"
 #import "YAActivityView.h"
 #import "AVPlaybackViewController.h"
+#import "YAImageCache.h"
 
 @interface YAVideoCell ()
 @property (nonatomic, strong) NSMutableArray *controls;
@@ -80,6 +81,7 @@
         self.activityView.center = self.contentView.center;
         
         [self.activityView startAnimating];
+        [self.contentView bringSubviewToFront:self.activityView];
     }
     else
         [self.activityView stopAnimating];
@@ -95,6 +97,8 @@
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
     self.playerVC = nil;
+    [self showLoading:YES];
+    NSLog(@"prepare for reuse");
 }
 
 #pragma mark - Overlay controls
@@ -472,27 +476,32 @@
             break;
         }
         case YAVideoCellStateJPEGPreview: {
-            [self showImageAsyncFromFilename:self.video.jpgFilename];
             [self showLoading:YES];
             [self showControls:NO];
+            
+            [self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
             break;
         }
         case YAVideoCellStateGIFPreview: {
-            [self showImageAsyncFromFilename:self.video.gifFilename];
-            [self showLoading:NO];
+            //loading is removed when gif is shown in showImageAsyncFromFilename
+            [self showLoading:YES];
             [self showControls:NO];
+            
+            [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
+            
+            
             break;
         }
         case YAVideoCellStateVideoPreview: {
-//            AVPlaybackViewController* vc = [AVPlaybackViewController new];
-//            //vc.URL = [YAUtils urlFromFileName:self.video.movFilename];
-//            //[vc playWhenReady];
-//            self.playerVC = vc;
-//            
+            //            AVPlaybackViewController* vc = [AVPlaybackViewController new];
+            //            //vc.URL = [YAUtils urlFromFileName:self.video.movFilename];
+            //            //[vc playWhenReady];
+            //            self.playerVC = vc;
+            //
             [self showLoading:YES];
-//
+            //
             [self showControls:YES];
-//
+            //
             //do nothing
             break;
         }
@@ -508,7 +517,7 @@
 //- (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
 //    if(_playerVC == playerVC)
 //        return;
-//    
+//
 //    if(playerVC) {
 //        self.gifView.hidden = YES;
 //        //playerVC.view.frame = self.bounds;
@@ -518,7 +527,7 @@
 //        //[self.playerVC.view removeFromSuperview];
 //        self.gifView.hidden = NO;
 //    }
-//    
+//
 //    _playerVC = playerVC;
 //}
 //
@@ -526,36 +535,48 @@
 //    self.playerVC = nil;
 //}
 
-- (void)showImageAsyncFromFilename:(NSString*)filename {
-    dispatch_async(self.imageLoadingQueue, ^{
-        
-        NSURL *dataURL = [YAUtils urlFromFileName:filename];
-        NSData *fileData = [NSData dataWithContentsOfURL:dataURL];
-        
-        NSString *ext = [dataURL pathExtension];
-        
-        if([ext isEqualToString:@"gif"]) {
-            FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:fileData];
+- (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
+    id cachedImage = [[YAImageCache sharedCache] objectForKey:fileName];
+    if(cachedImage) {
+        [self showCachedImage:cachedImage animatedImage:animatedImage];
+    }
+    else {
+        dispatch_async(self.imageLoadingQueue, ^{
+            NSURL *dataURL = [YAUtils urlFromFileName:fileName];
+            NSData *fileData = [NSData dataWithContentsOfURL:dataURL];
+            id image;
+            if(animatedImage)
+                image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:fileData];
+            else
+                image = [UIImage imageWithData:fileData];
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.gifView.animatedImage = image;
-                [self.gifView startAnimating];
-            });
+            [[YAImageCache sharedCache] setObject:image forKey:fileName];
+            [self showCachedImage:image animatedImage:animatedImage];
+        });
+    }
+}
+
+- (void)showCachedImage:(id)image animatedImage:(BOOL)animatedImage {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(animatedImage) {
+
+            [self showLoading:NO];
+            self.gifView.animatedImage = image;
+            [self.gifView startAnimating];
             
-        } else if ([ext isEqualToString:@"jpg"]) {
-            UIImage *image = [UIImage imageWithData:fileData];
+        } else{
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.gifView.image = image;
-            });
+            self.gifView.image = image;
+            
         }
-        [self.gifView setNeedsDisplay];
     });
+    //[self.gifView setNeedsDisplay];
+    
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-
+    
     self.activityView.frame = CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5);
     self.activityView.center = self.contentView.center;
     

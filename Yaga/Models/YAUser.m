@@ -14,25 +14,26 @@
 #import "APContact.h"
 #import "NBPhoneNumberUtil.h"
 #import "YAAssetsCreator.h"
+#import "YAImageCache.h"
 
 #define YA_CURRENT_GROUP_ID @"current_group_id"
 
 @implementation YAUser
 
 + (YAUser*)currentUser {
-    static YAUser *sharedCNetworking = nil;
+    static YAUser *sharedUser = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedCNetworking = [[self alloc] init];
-        sharedCNetworking.countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
-        sharedCNetworking->dateFormatter = [[NSDateFormatter alloc] init];
-        sharedCNetworking->timeFormatter = [[NSDateFormatter alloc] init];
-        [sharedCNetworking->dateFormatter setDateFormat:@"MM/dd"];
-        [sharedCNetworking->timeFormatter setDateFormat:@"h:mma"];
-        [sharedCNetworking->timeFormatter setAMSymbol:@"am"];
-        [sharedCNetworking->timeFormatter setPMSymbol:@"pm"];
+        sharedUser = [[self alloc] init];
+        sharedUser.countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
+        sharedUser->dateFormatter = [[NSDateFormatter alloc] init];
+        sharedUser->timeFormatter = [[NSDateFormatter alloc] init];
+        [sharedUser->dateFormatter setDateFormat:@"MM/dd"];
+        [sharedUser->timeFormatter setDateFormat:@"h:mma"];
+        [sharedUser->timeFormatter setAMSymbol:@"am"];
+        [sharedUser->timeFormatter setPMSymbol:@"pm"];
     });
-    return sharedCNetworking;
+    return sharedUser;
 }
 
 - (id)init {
@@ -54,6 +55,10 @@
 
 - (void)setCurrentGroup:(YAGroup *)group {
     if(self.currentGroup) {
+        //clean thumbnails cache
+        [[YAImageCache sharedCache] removeAllObjects];
+        
+        //stop all jobs for current group
         [[YAAssetsCreator sharedCreator] stopAllJobsForGroup:self.currentGroup];
     }
     
