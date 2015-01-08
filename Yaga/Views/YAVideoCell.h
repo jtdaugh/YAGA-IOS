@@ -15,5 +15,5 @@
 @property (nonatomic, strong) YAVideo *video;
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
 @property (nonatomic, strong) AVPlaybackViewController *playerVC;
-- (void)showLoading:(BOOL)show;
+@property (nonatomic, assign) BOOL loading;
 @end

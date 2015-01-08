@@ -12,6 +12,7 @@
 #import "AZNotification.h"
 #import "NSDate+NVTimeAgo.h"
 #import "YAAssetsCreator.h"
+#import "YAActivityView.h"
 
 @interface YAVideoCell ()
 @property (nonatomic, strong) NSMutableArray *controls;
@@ -25,7 +26,7 @@
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *saveButton;
 @property (nonatomic, strong) UIButton *deleteButton;
-@property (nonatomic, strong) UIActivityIndicatorView *activityView;
+@property (nonatomic, strong) YAActivityView *activityView;
 @end
 
 @implementation YAVideoCell
@@ -39,7 +40,8 @@
         [self.contentView addSubview:self.gifView];
         self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
-        self.activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        //self.activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
         [self.contentView addSubview:self.activityView];
         self.activityView.center = self.contentView.center;
         self.activityView.hidden = YES;
@@ -47,13 +49,14 @@
     return self;
 }
 
-- (void)showLoading:(BOOL)show {
-    if(show)
+- (void)setLoading:(BOOL)loading {
+    _loading = loading;
+    if(self.loading)
         [self.activityView startAnimating];
     else
         [self.activityView stopAnimating];
     
-    self.activityView.hidden = !show;
+    self.activityView.hidden = !self.loading;
 }
 
 - (void)setPlayerVC:(AVPlaybackViewController *)playerVC {

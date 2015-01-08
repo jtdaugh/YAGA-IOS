@@ -33,6 +33,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (strong, nonatomic) RLMResults *sortedVideos;
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
+@property (strong, nonatomic) NSMutableDictionary *cellsByIndexPaths;
 @end
 
 static NSString *cellID = @"Cell";
@@ -83,6 +84,7 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     
+    self.cellsByIndexPaths = [NSMutableDictionary dictionary];
     [self reload];
 }
 
@@ -212,7 +214,7 @@ static BOOL welcomeLabelRemoved = NO;
                 cell.gifView.animatedImage = image;
                 [cell.gifView startAnimating];
                 cell.gifView.alpha = 1.0;
-                [cell showLoading:NO];
+                cell.loading = NO;
             });
             
         } else if ([ext isEqualToString:@"jpg"]) {
@@ -220,7 +222,7 @@ static BOOL welcomeLabelRemoved = NO;
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 cell.gifView.image = image;
-                [cell showLoading:YES];
+                cell.loading = YES;
             });
         }
     });
@@ -244,7 +246,6 @@ static BOOL welcomeLabelRemoved = NO;
             [self showImageOnCell:cell fromPath:jpgPath];
             [video generateGIF];
         } else {
-//            cell.gifView.image = [UIImage imageNamed:@"Ball"];
             [video generateGIF];
         }
     } else {
@@ -260,10 +261,18 @@ static BOOL welcomeLabelRemoved = NO;
         cell.video = video;
     }
     
+    [self.cellsByIndexPaths setObject:cell forKey:indexPath];
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    YAVideoCell *cell = self.cellsByIndexPaths[indexPath];
+    
+    if(cell.loading) {
+        [YAUtils showNotification:NSLocalizedString(@"Please wait, video is loading..", @"") type:AZNotificationTypeMessage];
+        return;
+    }
+    
     [self toggleLayout];
 }
 
