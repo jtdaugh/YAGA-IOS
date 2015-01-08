@@ -201,7 +201,8 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)showImageOnCell:(YAVideoCell*)cell fromPath:(NSString*)path {
     dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        
+        cell.video = nil;
+        cell.gifView.animatedImage = nil;
         NSData *gifData = [NSData dataWithContentsOfFile:path];
         
         NSString *ext = [path pathExtension];
@@ -230,11 +231,11 @@ static BOOL welcomeLabelRemoved = NO;
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = self.sortedVideos[indexPath.row];
+    cell.video = nil;
+    cell.gifView.animatedImage = nil;
     
     if(self.targetLayout == self.gridLayout) {
-        cell.video = nil;
-        cell.gifView.animatedImage = nil;
-        
+
         NSString *gifFilename = video.gifFilename;
         if(gifFilename.length) {
             NSString *gifPath = [YAUtils urlFromFileName:gifFilename].path;
@@ -244,7 +245,7 @@ static BOOL welcomeLabelRemoved = NO;
             [self showImageOnCell:cell fromPath:jpgPath];
             [video generateGIF];
         } else {
-//            cell.gifView.image = [UIImage imageNamed:@"Ball"];
+            cell.gifView.image = [UIImage imageNamed:@"Ball"];
             [video generateGIF];
         }
     } else {
