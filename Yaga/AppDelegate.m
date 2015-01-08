@@ -36,8 +36,8 @@
 //    [[YAUser currentUser].currentGroup.videos removeAllObjects];
 //    [[RLMRealm defaultRealm] commitWriteTransaction];
 ////
-    #warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
-    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
+//    #warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
+//    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
     
     NSString *identifier;
     if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
@@ -78,10 +78,8 @@
         [application endBackgroundTask: bgTask];
         bgTask = UIBackgroundTaskInvalid;
     }];
-
-<<<<<<< HEAD
 }
-=======
+
 #pragma mark - Push notifications
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
     NSLog(@"didRegisterUserNotificationSettings %@", notificationSettings);
@@ -113,5 +111,4 @@
     return token;
 }
 
->>>>>>> FETCH_HEAD
 @end

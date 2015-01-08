@@ -12,7 +12,7 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 #import "AFNetworking.h"
-#import "YAErrorVideoUnavailable.h"
+#import "YARealmObjectUnavailable.h"
 
 @interface YAServerTransaction ()
 @property (nonatomic, strong) NSDictionary *data;
@@ -74,7 +74,12 @@
 }
 
 - (void)createGroupWithCompletion:(responseBlock)completion {
-    __block YAGroup *group = [self groupFromData];
+    YAGroup *group = [self groupFromData];
+    
+    if([group isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
     
     [[YAServer sharedServer] createGroupWithName:group.name withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
         if(error) {
@@ -88,7 +93,7 @@
                 group.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
                 [group.realm commitWriteTransaction];
                 
-                            [self logEvent:[NSString stringWithFormat:@"remote group: %@ created on server with id: %@", group.name, group.serverId] type:AZNotificationTypeSuccess];
+                [self logEvent:[NSString stringWithFormat:@"remote group: %@ created on server with id: %@", group.name, group.serverId] type:AZNotificationTypeSuccess];
                 
                 completion(group.serverId, nil);
             });
@@ -97,7 +102,12 @@
 }
 
 - (void)renameGroupWithCompletion:(responseBlock)completion {
-    __block YAGroup *group = [self groupFromData];
+    YAGroup *group = [self groupFromData];
+    
+    if([group isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
     
     [[YAServer sharedServer] renameGroupWithId:group.serverId newName:group.name withCompletion:^(id response, NSError *error) {
         if(error) {
@@ -116,6 +126,11 @@
     NSArray *phones = self.data[YA_GROUP_ADD_MEMBERS];
     YAGroup *group = [self groupFromData];
     
+    if([group isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
+    
     [[YAServer sharedServer] addGroupMembersByPhones:phones toGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"can't add members to the group with name %@, error %@", group.name, response] type:AZNotificationTypeError];
@@ -132,6 +147,11 @@
 - (void)deleteGroupMemberWithCompletion:(responseBlock)completion {
     YAGroup *group = [self groupFromData];
     NSString *phone = self.data[YA_GROUP_DELETE_MEMBER];
+    
+    if([group isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
     
     [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
@@ -155,7 +175,7 @@
             completion(nil, error);
         }
         else {
-                        [self logEvent:[NSString stringWithFormat:@"successfully left group with id: %@", groupId] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"successfully left group with id: %@", groupId] type:AZNotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -163,45 +183,48 @@
 
 - (void)muteUnmuteGroupWithCompletion:(responseBlock)completion {
     YAGroup *group = [self groupFromData];
+    if([group isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
+    
     [[YAServer sharedServer] muteGroupWithId:group.serverId mute:group.muted withCompletion:^(id response, NSError *error) {
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"mute/unmute group with name %@, error %@", group.name, error.localizedDescription] type:AZNotificationTypeError];
             completion(nil, error);
         }
         else {
-                                    [self logEvent:[NSString stringWithFormat:@"%@ group %@", group.name, group.muted ? @"muted" : @"unmuted"] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"%@ group %@", group.name, group.muted ? @"muted" : @"unmuted"] type:AZNotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
 }
-
-- (void)checkVideoValidityWithCompletion:(responseBlock)completion {
-    
-}
-
 - (void)uploadVideoWithCompletion:(responseBlock)completion {
+    YAVideo *video = [self videoFromData];
+    if([video isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
     
-        YAVideo *video = [self videoFromData];
-        
-        [[YAServer sharedServer] uploadVideo:video toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
-            if(error) {
-                [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", video.localId, error.localizedDescription] type:AZNotificationTypeError];
-                completion(nil, error);
+    [[YAServer sharedServer] uploadVideo:video toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
+        if(error) {
+            [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", video.localId, error.localizedDescription] type:AZNotificationTypeError];
+            completion(nil, error);
+        }
+        else {
+            if ([video isInvalidated]) {
+                completion(nil, [YARealmObjectUnavailable new]);
             }
-            else {
-                if ([video isInvalidated]) {
-                    return completion(nil, [YAErrorVideoUnavailable new]);
-                }
-                [video.realm beginWriteTransaction];
-                NSString *location = [response allHeaderFields][@"Location"];
-                video.url = location;
-                [video.realm commitWriteTransaction];
-                
-                [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:AZNotificationTypeSuccess];
-                
-                completion(nil, nil);
-            }
-        }];
+            [video.realm beginWriteTransaction];
+            NSString *location = [response allHeaderFields][@"Location"];
+            video.url = location;
+            [video.realm commitWriteTransaction];
+            
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:AZNotificationTypeSuccess];
+            
+            completion(nil, nil);
+        }
+    }];
 }
 
 - (void)deleteVideoWithCompletion:(responseBlock)completion {

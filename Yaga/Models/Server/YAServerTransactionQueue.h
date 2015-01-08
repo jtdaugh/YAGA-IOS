@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "YAGroup.h"
-#import "YAErrorVideoUnavailable.h"
+#import "YARealmObjectUnavailable.h"
 
 @interface YAServerTransactionQueue : NSObject
 

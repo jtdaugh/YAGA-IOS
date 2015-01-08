@@ -162,8 +162,7 @@
         
         self.transactionInProgress = NO;
         
-        
-        if ([error isKindOfClass:[YAErrorVideoUnavailable class]])
+        if ([error isKindOfClass:[YARealmObjectUnavailable class]])
         {
             NSLog(@"Transaction impossible, video invalidated");
         }

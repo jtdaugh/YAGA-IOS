@@ -367,7 +367,7 @@
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    if ([video isInvalidated]) {
-                       YAErrorVideoUnavailable *yaError = [YAErrorVideoUnavailable new];
+                       YARealmObjectUnavailable *yaError = [YARealmObjectUnavailable new];
                        completion(nil, yaError);
                    }
                    
