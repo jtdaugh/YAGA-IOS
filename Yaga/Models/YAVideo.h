@@ -35,7 +35,6 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 - (void)removeFromCurrentGroup;
 
 - (void)generateGIF;
-
 @end
 
 // This protocol enables typed collections. i.e.:

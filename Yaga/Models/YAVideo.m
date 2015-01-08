@@ -28,7 +28,7 @@
 }
 
 + (NSDictionary *)defaultPropertyValues{
-    return @{@"jpgFilename":@"", @"gifFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@""};
+    return @{@"jpgFilename":@"", @"gifFilename":@"", @"movFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@""};
 }
 
 + (NSString *)primaryKey {
@@ -64,9 +64,8 @@
 }
 
 - (void)generateGIF {
-    [[YAAssetsCreator sharedCreator] createJPGAndGIFForVideo:self];
+    if(self.movFilename.length)
+        [[YAAssetsCreator sharedCreator] createJPGAndGIFForVideo:self];
 }
-
-
 
 @end

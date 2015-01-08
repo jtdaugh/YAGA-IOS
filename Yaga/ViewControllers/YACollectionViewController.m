@@ -11,7 +11,6 @@
 #import "YAVideoCell.h"
 #import "YAUser.h"
 #import "YAUtils.h"
-#import "AVPlaybackViewController.h"
 
 //Uploading videos
 #import "YAServer.h"
@@ -33,13 +32,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (strong, nonatomic) RLMResults *sortedVideos;
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
-
-//cell properties are set asynchronously when calling cellForRowAtIndexPath, se we keep cells in the private dic
-@property (strong, nonatomic) NSMutableDictionary *cellsByIndexPaths;
-
-//reusable video players, we always keep 2 instances, as maximum 2 can be shown at a moment
-@property (strong, nonatomic) NSMutableArray *videoPlayers;
-@property (assign, nonatomic) NSUInteger playingVideoPlayerIndex;
 @end
 
 static NSString *cellID = @"Cell";
@@ -89,14 +81,7 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
-    
-    
-    self.videoPlayers = [[NSMutableArray alloc] initWithCapacity:2];
-    [self.videoPlayers addObject:[[AVPlaybackViewController alloc] init]];
-    [self.videoPlayers addObject:[[AVPlaybackViewController alloc] init]];
-    
-    self.cellsByIndexPaths = [NSMutableDictionary dictionary];
-    
+
     [self reload];
 }
 
@@ -213,71 +198,16 @@ static BOOL welcomeLabelRemoved = NO;
     return self.sortedVideos.count;
 }
 
-- (void)showImageOnCell:(YAVideoCell*)cell fromPath:(NSString*)path {
-    dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-
-        NSData *gifData = [NSData dataWithContentsOfFile:path];
-        
-        NSString *ext = [path pathExtension];
-        if([ext isEqualToString:@"gif"]) {
-            FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:gifData];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                cell.gifView.animatedImage = image;
-                [cell.gifView startAnimating];
-                cell.gifView.alpha = 1.0;
-                cell.loading = NO;
-            });
-            
-        } else if ([ext isEqualToString:@"jpg"]) {
-            UIImage *image = [UIImage imageWithContentsOfFile:path];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                cell.gifView.image = image;
-                cell.loading = YES;
-            });
-        }
-    });
-    
-}
-
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    YAVideo *video = self.sortedVideos[indexPath.row];
-    if(self.targetLayout == self.gridLayout) {
-
-        NSString *gifFilename = video.gifFilename;
-        if(gifFilename.length) {
-            NSString *gifPath = [YAUtils urlFromFileName:gifFilename].path;
-            [self showImageOnCell:cell fromPath:gifPath];
-        } else if(video.jpgFilename.length){
-            NSString *jpgPath = [YAUtils urlFromFileName:video.jpgFilename].path;
-            [self showImageOnCell:cell fromPath:jpgPath];
-            [video generateGIF];
-        } else {
-            [video generateGIF];
-        }
-    } else {
-        NSString *movFileName = [self.sortedVideos[indexPath.row] movFilename];
-        AVPlaybackViewController* vc = [AVPlaybackViewController new];
-        vc.URL = [YAUtils urlFromFileName:movFileName];
-        [vc playWhenReady];
-        cell.playerVC = vc;
-        cell.video = video;
-    }
     
-    [self.cellsByIndexPaths setObject:cell forKey:indexPath];
+    YAVideo *video = self.sortedVideos[indexPath.row];
+    cell.video = video;
+    
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    YAVideoCell *cell = self.cellsByIndexPaths[indexPath];
-    
-    if(cell.loading) {
-        [YAUtils showNotification:NSLocalizedString(@"Please wait, video is loading..", @"") type:AZNotificationTypeMessage];
-        return;
-    }
-    
     [self toggleLayout];
 }
 
@@ -307,10 +237,14 @@ static BOOL welcomeLabelRemoved = NO;
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell*)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    [cell prepareForReuse];
-    NSLog(@"didEndDisplayingCell %lu", indexPath.row);
-}
+//- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell*)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+//    //workaround until we have reusable video player..
+//    //make sure we always kill player(important for swiping)
+//    if(self.collectionView.collectionViewLayout == self.swipeLayout)
+//        [cell destroyVideoPlayer];
+//    
+//    NSLog(@"didEndDisplayingCell %lu", indexPath.row);
+//}
 
 #pragma mark - UIScrollView
 - (BOOL)scrollingFast {
@@ -391,16 +325,7 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)playVisible:(BOOL)playValue {
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
-        if(playValue) {
-            if(!videoCell.gifView.isAnimating) {
-                [videoCell.gifView startAnimating];
-            }
-        }
-        else {
-            if(videoCell.gifView.isAnimating) {
-                [videoCell.gifView stopAnimating];
-            }
-        }
+        [videoCell animateGifView:playValue];
     }
 }
 
@@ -417,16 +342,4 @@ static BOOL welcomeLabelRemoved = NO;
     
 }
 
-
-#pragma mark - Reusable video player 
-- (AVPlaybackViewController*)videoPlayerWithUrl:(NSURL*)url {
-    AVPlaybackViewController* vc = self.videoPlayers[self.playingVideoPlayerIndex];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        ;//  [vc setURL:url];
-    });
-    
-
-    self.playingVideoPlayerIndex = (self.playingVideoPlayerIndex == 0) ? 1 : 0;
-    return vc;
-}
 @end

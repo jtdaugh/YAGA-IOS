@@ -24,6 +24,7 @@
     self = [super initWithFrame:frame];
     if(self) {
         self.imageView = [[UIImageView alloc] initWithFrame:self.frame];
+        self.imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.imageView.image = [UIImage imageNamed:@"Monkey_Grey"];
         [self addSubview:self.imageView];
     }

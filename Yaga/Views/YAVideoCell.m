@@ -13,6 +13,7 @@
 #import "NSDate+NVTimeAgo.h"
 #import "YAAssetsCreator.h"
 #import "YAActivityView.h"
+#import "AVPlaybackViewController.h"
 
 @interface YAVideoCell ()
 @property (nonatomic, strong) NSMutableArray *controls;
@@ -27,6 +28,13 @@
 @property (nonatomic, strong) UIButton *saveButton;
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) YAActivityView *activityView;
+
+@property (nonatomic, readonly) FLAnimatedImageView *gifView;
+@property (nonatomic, strong) AVPlaybackViewController *playerVC;
+
+@property (nonatomic, assign) YAVideoCellState state;
+
+@property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
 @end
 
 @implementation YAVideoCell
@@ -45,70 +53,50 @@
         [self.contentView addSubview:self.activityView];
         
         self.activityView.hidden = YES;
+        
+        [self initOverlayControls];
+        
+        self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
     }
     return self;
 }
 
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    self.activityView.frame = CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5);
-    self.activityView.center = self.contentView.center;
+- (void)animateGifView:(BOOL)animate {
+    if(animate) {
+        if(!self.gifView.isAnimating) {
+            [self.gifView startAnimating];
+        }
+    }
+    else {
+        if(self.gifView.isAnimating) {
+            [self.gifView stopAnimating];
+        }
+    }
 }
 
-- (void)setLoading:(BOOL)loading {
-    _loading = loading;
-    if(self.loading)
+- (void)showLoading:(BOOL)show {
+    if(show) {
+        self.activityView.frame = CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5);
+        self.activityView.center = self.contentView.center;
+        
         [self.activityView startAnimating];
+    }
     else
         [self.activityView stopAnimating];
     
-    self.activityView.hidden = !self.loading;
+    self.activityView.hidden = !show;
 }
-
-- (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
-    if(_playerVC == playerVC)
-        return;
-    
-    if(playerVC) {
-        self.gifView.alpha = 0;
-        playerVC.view.alpha = 0;
-        
-        playerVC.view.frame = self.bounds;
-
-        [self.contentView addSubview:playerVC.view];
-        
-        // playerVC.view.transform = CGAffineTransformMakeScale(1.1, 1.1);
-        [UIView animateWithDuration:0.3 animations:^{
-            //playerVC.view.transform = CGAffineTransformIdentity;
-            
-            playerVC.view.alpha = 1;
-        }];
-    }
-    else {
-        [self showControls:NO];
-        [_playerVC.view removeFromSuperview];
-        //[self.contentView addSubview:self.gifView];
-        [UIView animateWithDuration:0.3 animations:^{
-            self.gifView.alpha = 1;
-        }];
-    }
-    
-    _playerVC = playerVC;
-}
-
 
 - (void)prepareForReuse
 {
     [super prepareForReuse];
     
-    self.gifView.animatedImage = nil;
-    self.gifView.image = nil;
-    self.playerVC = nil;
     self.video = nil;
-    
-    self.controls = nil;
-    NSLog(@"prepareForReuse");
+    self.gifView.image = nil;
+    self.gifView.animatedImage = nil;
+    self.playerVC = nil;
 }
+
 #pragma mark - Overlay controls
 
 - (void)initOverlayControls {
@@ -412,6 +400,9 @@
 }
 
 - (void)showControls:(BOOL)show {
+    //hide gif view when fullscreen video controls are shown
+    self.gifView.hidden = show;
+    
     if(show) {
         for(UIView *v in self.controls){
             if(!v.superview) {
@@ -425,25 +416,10 @@
         for(UIView *v in self.controls){
             [v removeFromSuperview];
         }
-        
-    }
-}
-
-- (void)setVideo:(YAVideo *)video {
-    if(_video == video)
-        return;
-    
-    _video = video;
-    
-    if(!_video) {
-        [self showControls:NO];
-        return;
     }
     
-    if(!self.controls.count)
-        [self initOverlayControls];
-    
-    [self updateControls];
+    if(show)
+        [self updateControls];
 }
 
 - (void)updateControls {
@@ -457,9 +433,136 @@
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.captionField.text = self.video.caption;
     [self.likeCount setTitle:@"4" forState:UIControlStateNormal]; //TODO: make real number from realm
+}
+
+#pragma mark -
+
+- (void)setVideo:(YAVideo *)video {
+    if(_video == video)
+        return;
     
-    if(self.video && self.playerVC)
-        [self showControls:YES];
+    _video = video;
+    
+    [self setNeedsLayout];
+}
+
+- (void)updateState {
+    BOOL smallMode = self.bounds.size.height != VIEW_HEIGHT;
+    
+    if(smallMode) {
+        if(self.video.gifFilename.length)
+            self.state = YAVideoCellStateGIFPreview;
+        else if(self.video.jpgFilename.length)
+            self.state = YAVideoCellStateJPEGPreview;
+        else
+            self.state = YAVideoCellStateLoading;
+    }
+    else {
+        self.state = self.video.movFilename.length ? YAVideoCellStateVideoPreview : YAVideoCellStateLoading;
+    }
+    
+    [self updateCell];
+}
+
+- (void)updateCell {
+    if(!self.video.gifFilename.length)
+        [self.video generateGIF];
+    
+    switch (self.state) {
+        case YAVideoCellStateLoading: {
+            [self showLoading:YES];
+            [self showControls:NO];
+            break;
+        }
+        case YAVideoCellStateJPEGPreview: {
+            [self showImageAsyncFromFilename:self.video.jpgFilename];
+            [self showLoading:YES];
+            [self showControls:NO];
+            break;
+        }
+        case YAVideoCellStateGIFPreview: {
+            [self showImageAsyncFromFilename:self.video.gifFilename];
+            [self showLoading:NO];
+            [self showControls:NO];
+            break;
+        }
+        case YAVideoCellStateVideoPreview: {
+//            AVPlaybackViewController* vc = [AVPlaybackViewController new];
+//            //vc.URL = [YAUtils urlFromFileName:self.video.movFilename];
+//            //[vc playWhenReady];
+//            self.playerVC = vc;
+//            
+            [self showLoading:YES];
+//
+            [self showControls:YES];
+//
+            //do nothing
+            break;
+        }
+            
+        default: {
+            [self showLoading:YES];
+            [self showControls:NO];
+            break;
+        }
+    }
+}
+//
+//- (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
+//    if(_playerVC == playerVC)
+//        return;
+//    
+//    if(playerVC) {
+//        self.gifView.hidden = YES;
+//        //playerVC.view.frame = self.bounds;
+//        //[self.contentView addSubview:playerVC.view];
+//    }
+//    else {
+//        //[self.playerVC.view removeFromSuperview];
+//        self.gifView.hidden = NO;
+//    }
+//    
+//    _playerVC = playerVC;
+//}
+//
+//- (void)destroyVideoPlayer {
+//    self.playerVC = nil;
+//}
+
+- (void)showImageAsyncFromFilename:(NSString*)filename {
+    dispatch_async(self.imageLoadingQueue, ^{
+        
+        NSURL *dataURL = [YAUtils urlFromFileName:filename];
+        NSData *fileData = [NSData dataWithContentsOfURL:dataURL];
+        
+        NSString *ext = [dataURL pathExtension];
+        
+        if([ext isEqualToString:@"gif"]) {
+            FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:fileData];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.gifView.animatedImage = image;
+                [self.gifView startAnimating];
+            });
+            
+        } else if ([ext isEqualToString:@"jpg"]) {
+            UIImage *image = [UIImage imageWithData:fileData];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.gifView.image = image;
+            });
+        }
+        [self.gifView setNeedsDisplay];
+    });
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+
+    self.activityView.frame = CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5);
+    self.activityView.center = self.contentView.center;
+    
+    [self updateState];
 }
 
 @end

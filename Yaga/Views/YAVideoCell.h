@@ -11,9 +11,15 @@
 #import "AVPlaybackViewController.h"
 #import "YAVideo.h"
 
+typedef NS_ENUM(NSUInteger, YAVideoCellState) {
+    YAVideoCellStateLoading = 0,
+    YAVideoCellStateJPEGPreview,
+    YAVideoCellStateGIFPreview,
+    YAVideoCellStateVideoPreview,
+};
+
 @interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate>
 @property (nonatomic, strong) YAVideo *video;
-@property (nonatomic, readonly) FLAnimatedImageView *gifView;
-@property (nonatomic, strong) AVPlaybackViewController *playerVC;
-@property (nonatomic, assign) BOOL loading;
+- (void)animateGifView:(BOOL)animate;
+//- (void)destroyVideoPlayer;
 @end
