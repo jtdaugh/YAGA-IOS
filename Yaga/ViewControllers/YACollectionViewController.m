@@ -203,7 +203,7 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)showImageOnCell:(YAVideoCell*)cell fromPath:(NSString*)path {
     dispatch_async(dispatch_get_global_queue(0, DISPATCH_QUEUE_PRIORITY_DEFAULT), ^{
-        
+
         NSData *gifData = [NSData dataWithContentsOfFile:path];
         
         NSString *ext = [path pathExtension];
@@ -233,10 +233,13 @@ static BOOL welcomeLabelRemoved = NO;
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = self.sortedVideos[indexPath.row];
     
+    cell.video = nil;
+    cell.playerVC = nil;
+    cell.gifView.animatedImage = nil;
+    cell.gifView.image = nil;
+    
     if(self.targetLayout == self.gridLayout) {
-        cell.video = nil;
-        cell.gifView.animatedImage = nil;
-        
+
         NSString *gifFilename = video.gifFilename;
         if(gifFilename.length) {
             NSString *gifPath = [YAUtils urlFromFileName:gifFilename].path;
