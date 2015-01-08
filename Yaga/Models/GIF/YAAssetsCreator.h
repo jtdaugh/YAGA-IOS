@@ -21,4 +21,8 @@ typedef void (^cameraRollCompletion)(NSError *error);
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
 - (void)createVideoFromRemoteDictionary:(NSDictionary*)videoDic addToGroup:(YAGroup*)group;
+
+//
+- (void)createAssetsForGroup:(YAGroup*)group;
+- (void)stopAllJobsForGroup:(YAGroup*)group;
 @end

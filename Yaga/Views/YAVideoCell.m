@@ -465,9 +465,6 @@
 }
 
 - (void)updateCell {
-    if(!self.video.gifFilename.length)
-        [self.video generateGIF];
-    
     switch (self.state) {
         case YAVideoCellStateLoading: {
             [self showLoading:YES];

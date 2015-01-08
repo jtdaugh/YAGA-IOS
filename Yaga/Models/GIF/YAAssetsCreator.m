@@ -26,7 +26,7 @@
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
 @end
 
-CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
+#warning TODO: 1. use operation queue for downloads and gif generations
 
 @implementation YAAssetsCreator
 
@@ -422,7 +422,7 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         //start uploading while generating gif
         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video];
         
-        [video generateGIF];
+        [self createJPGAndGIFForVideo:video];
     });
 }
 
@@ -446,34 +446,52 @@ CGFloat degreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
         [group.realm commitWriteTransaction];
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_ADDED_NOTIFICATION object:video];
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSURL *remoteURL = [NSURL URLWithString:videoDic[YA_VIDEO_ATTACHMENT]];
-            NSLog(@"remoteURL: %@", remoteURL.absoluteString);
-            
-            NSData *data = [NSData dataWithContentsOfURL:remoteURL];
-            NSLog(@"remoteURL %@ fetched.", remoteURL);
-            
-            NSString *hashStr = [YAUtils uniqueId];
-            NSString *moveFilename = [hashStr stringByAppendingPathExtension:@"mov"];
-            NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
-            NSURL    *movURL = [NSURL fileURLWithPath:movPath];
-            
-            BOOL result = [data writeToURL:movURL atomically:YES];
-            if(!result) {
-                NSLog(@"Critical Error: can't save video data from remote data, url %@", remoteURL);
-            }
-            else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [group.realm beginWriteTransaction];
-                    video.movFilename = moveFilename;
-                    [group.realm commitWriteTransaction];
-                    [video generateGIF];
-                });
-            }
-        });
-        
+        [self getRemoteContentForVideo:video];
     });
-    
+}
+
+- (void)getRemoteContentForVideo:(YAVideo*)video {
+    NSString *videoUrl = video.url;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSURL *remoteURL = [NSURL URLWithString:videoUrl];
+        NSLog(@"getRemoteContentForVideo: %@", remoteURL.absoluteString);
+        
+        NSData *data = [NSData dataWithContentsOfURL:remoteURL];
+        NSLog(@"getRemoteContentForVideo done for %@", remoteURL);
+        
+        NSString *hashStr = [YAUtils uniqueId];
+        NSString *moveFilename = [hashStr stringByAppendingPathExtension:@"mov"];
+        NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
+        NSURL    *movURL = [NSURL fileURLWithPath:movPath];
+        
+        BOOL result = [data writeToURL:movURL atomically:YES];
+        if(!result) {
+            NSLog(@"Critical Error: can't save video data from remote data, url %@", remoteURL);
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [video.realm beginWriteTransaction];
+                video.movFilename = moveFilename;
+                [video.realm commitWriteTransaction];
+                
+                [self createJPGAndGIFForVideo:video];
+            });
+        }
+    });
+}
+
+- (void)createAssetsForGroup:(YAGroup*)group {
+    for(YAVideo *video in group.videos) {
+        if(!video.url.length && !video.movFilename.length)
+            [self getRemoteContentForVideo:video];
+        else if(video.movFilename.length && !video.gifFilename.length) {
+            [self createJPGAndGIFForVideo:video];
+        }
+    }
+}
+
+- (void)stopAllJobsForGroup:(YAGroup*)group {
+        #warning TODO: 2. kill all downloads and gif generations when group is changed
 }
 
 @end

@@ -33,8 +33,6 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 
 + (YAVideo*)video;
 - (void)removeFromCurrentGroup;
-
-- (void)generateGIF;
 @end
 
 // This protocol enables typed collections. i.e.:

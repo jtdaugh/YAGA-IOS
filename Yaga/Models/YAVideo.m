@@ -63,9 +63,4 @@
     NSLog(@"video deleted");
 }
 
-- (void)generateGIF {
-    if(self.movFilename.length)
-        [[YAAssetsCreator sharedCreator] createJPGAndGIFForVideo:self];
-}
-
 @end

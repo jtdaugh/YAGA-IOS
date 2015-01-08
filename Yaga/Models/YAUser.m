@@ -13,6 +13,7 @@
 #import "APAddressBook.h"
 #import "APContact.h"
 #import "NBPhoneNumberUtil.h"
+#import "YAAssetsCreator.h"
 
 #define YA_CURRENT_GROUP_ID @"current_group_id"
 
@@ -52,8 +53,14 @@
 }
 
 - (void)setCurrentGroup:(YAGroup *)group {
+    if(self.currentGroup) {
+        [[YAAssetsCreator sharedCreator] stopAllJobsForGroup:self.currentGroup];
+    }
+    
     [[NSUserDefaults standardUserDefaults] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];
     _currentGroup = group;
+    
+    [[YAAssetsCreator sharedCreator] createAssetsForGroup:self.currentGroup];
 }
 
 - (BOOL)loggedIn {
