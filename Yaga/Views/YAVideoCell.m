@@ -43,10 +43,16 @@
         //self.activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
         self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
         [self.contentView addSubview:self.activityView];
-        self.activityView.center = self.contentView.center;
+        
         self.activityView.hidden = YES;
     }
     return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.activityView.frame = CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5);
+    self.activityView.center = self.contentView.center;
 }
 
 - (void)setLoading:(BOOL)loading {
@@ -101,6 +107,7 @@
     self.video = nil;
     
     self.controls = nil;
+    NSLog(@"prepareForReuse");
 }
 #pragma mark - Overlay controls
 

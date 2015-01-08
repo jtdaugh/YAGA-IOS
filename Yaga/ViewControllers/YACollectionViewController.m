@@ -259,7 +259,10 @@ static BOOL welcomeLabelRemoved = NO;
         }
     } else {
         NSString *movFileName = [self.sortedVideos[indexPath.row] movFilename];
-        cell.playerVC = [self videoPlayerWithUrl:[YAUtils urlFromFileName:movFileName]];
+        AVPlaybackViewController* vc = [AVPlaybackViewController new];
+        vc.URL = [YAUtils urlFromFileName:movFileName];
+        [vc playWhenReady];
+        cell.playerVC = vc;
         cell.video = video;
     }
     
@@ -305,7 +308,8 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell*)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    //cell.playerVC = nil;
+    [cell prepareForReuse];
+    NSLog(@"didEndDisplayingCell %lu", indexPath.row);
 }
 
 #pragma mark - UIScrollView
