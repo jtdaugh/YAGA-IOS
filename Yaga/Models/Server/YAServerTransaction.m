@@ -76,7 +76,7 @@
 - (void)createGroupWithCompletion:(responseBlock)completion {
     YAGroup *group = [self groupFromData];
     
-    if([group isInvalidated]) {
+    if(!group || [group isInvalidated]) {
         completion(nil, [YARealmObjectUnavailable new]);
         return;
     }
@@ -104,7 +104,7 @@
 - (void)renameGroupWithCompletion:(responseBlock)completion {
     YAGroup *group = [self groupFromData];
     
-    if([group isInvalidated]) {
+    if(!group || [group isInvalidated]) {
         completion(nil, [YARealmObjectUnavailable new]);
         return;
     }
@@ -126,7 +126,7 @@
     NSArray *phones = self.data[YA_GROUP_ADD_MEMBERS];
     YAGroup *group = [self groupFromData];
     
-    if([group isInvalidated]) {
+    if(!group || [group isInvalidated]) {
         completion(nil, [YARealmObjectUnavailable new]);
         return;
     }
@@ -148,7 +148,7 @@
     YAGroup *group = [self groupFromData];
     NSString *phone = self.data[YA_GROUP_DELETE_MEMBER];
     
-    if([group isInvalidated]) {
+    if(!group || [group isInvalidated]) {
         completion(nil, [YARealmObjectUnavailable new]);
         return;
     }
@@ -183,7 +183,8 @@
 
 - (void)muteUnmuteGroupWithCompletion:(responseBlock)completion {
     YAGroup *group = [self groupFromData];
-    if([group isInvalidated]) {
+    
+    if(!group || [group isInvalidated]) {
         completion(nil, [YARealmObjectUnavailable new]);
         return;
     }
@@ -201,7 +202,8 @@
 }
 - (void)uploadVideoWithCompletion:(responseBlock)completion {
     YAVideo *video = [self videoFromData];
-    if([video isInvalidated]) {
+    
+    if(!video || [video isInvalidated]) {
         completion(nil, [YARealmObjectUnavailable new]);
         return;
     }
@@ -212,8 +214,9 @@
             completion(nil, error);
         }
         else {
-            if ([video isInvalidated]) {
+            if (!video || [video isInvalidated]) {
                 completion(nil, [YARealmObjectUnavailable new]);
+                return;
             }
             [video.realm beginWriteTransaction];
             NSString *location = [response allHeaderFields][@"Location"];

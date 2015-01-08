@@ -69,29 +69,60 @@
 	[(AVCaptureVideoPreviewLayer *)[self layer] setSession:session];
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    UITouch *touch = [[event allTouches] anyObject];
-    CGPoint touchPoint = [touch locationInView:touch.view];
+- (id)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if(self) {
+        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+        [self addGestureRecognizer:self.tapToFocusRecognizer];
+    }
+    return self;
+}
+
+- (void)handleTap:(UITapGestureRecognizer*)sender {
+    CGPoint touchPoint = [sender locationInView:self];
+
     [self focus:touchPoint];
     
     if (self.camFocus)
     {
         [self.camFocus removeFromSuperview];
     }
-    if ([[touch view] isKindOfClass:[self class]])
-    {
-        self.camFocus = [[YACameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
-        [self.camFocus setBackgroundColor:[UIColor clearColor]];
-        [self addSubview:self.camFocus];
-        [self.camFocus setNeedsDisplay];
-        
-        [UIView beginAnimations:nil context:NULL];
-        [UIView setAnimationDuration:1.5];
-        [self.camFocus setAlpha:0.0];
-        [UIView commitAnimations];
-    }
+    
+    self.camFocus = [[YACameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
+    [self.camFocus setBackgroundColor:[UIColor clearColor]];
+    [self addSubview:self.camFocus];
+    [self.camFocus setNeedsDisplay];
+    
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:1.5];
+    [self.camFocus setAlpha:0.0];
+    [UIView commitAnimations];
 }
+
+//- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//    UITouch *touch = [[event allTouches] anyObject];
+//    CGPoint touchPoint = [touch locationInView:touch.view];
+//    [self focus:touchPoint];
+//    
+//    if (self.camFocus)
+//    {
+//        [self.camFocus removeFromSuperview];
+//    }
+//    if ([[touch view] isKindOfClass:[self class]])
+//    {
+//        self.camFocus = [[YACameraFocusSquare alloc]initWithFrame:CGRectMake(touchPoint.x-40, touchPoint.y-40, 80, 80)];
+//        [self.camFocus setBackgroundColor:[UIColor clearColor]];
+//        [self addSubview:self.camFocus];
+//        [self.camFocus setNeedsDisplay];
+//        
+//        [UIView beginAnimations:nil context:NULL];
+//        [UIView setAnimationDuration:1.5];
+//        [self.camFocus setAlpha:0.0];
+//        [UIView commitAnimations];
+//    }
+//}
+
 - (void)focus:(CGPoint) aPoint;
 {
     Class captureDeviceClass = NSClassFromString(@"AVCaptureDevice");

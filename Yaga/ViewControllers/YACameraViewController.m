@@ -111,11 +111,13 @@
         [self.view addSubview:self.recordButton];
         
         //switch groups button
-        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH-120, self.cameraView.frame.size.height - 30 - 4, 110, 30)];
-        [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
+        
+        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30, 40)];
+//        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
+        [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
         [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
-        [self.switchGroupsButton setTitle:@"Switch groups" forState:UIControlStateNormal];
+        [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"    %@", NSLocalizedString(@"Switch groups", @"")] forState:UIControlStateNormal];
         
         self.switchGroupsButton.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.switchGroupsButton.layer.shadowRadius = 1.0f;

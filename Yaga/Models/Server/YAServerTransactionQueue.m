@@ -161,7 +161,10 @@
     [transaction performWithCompletion:^(id response, NSError *error) {
         
         self.transactionInProgress = NO;
-        
+        if(![[YAServer sharedServer] serverUp]) {
+            NSLog(@"Server is down or there is no internet connection.. Pausing transaction queue till it's up again.");
+            return;
+        }
         if ([error isKindOfClass:[YARealmObjectUnavailable class]])
         {
             NSLog(@"Transaction impossible, video invalidated");

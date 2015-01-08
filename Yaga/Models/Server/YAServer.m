@@ -369,6 +369,7 @@
                    if ([video isInvalidated]) {
                        YARealmObjectUnavailable *yaError = [YARealmObjectUnavailable new];
                        completion(nil, yaError);
+                       return;
                    }
                    
                    NSLog(@"uploadVideoData, recieved params for S3 upload. Making multipart upload...");

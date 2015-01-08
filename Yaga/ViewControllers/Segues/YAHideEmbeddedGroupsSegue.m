@@ -41,7 +41,7 @@
         [gridController.cameraViewController.view removeGestureRecognizer:groupsController.cameraTapToClose];
         [gridController.collectionViewController.view removeGestureRecognizer:groupsController.collectionTapToClose];
         
-        gridController.cameraViewController.tapToFocusRecognizer.enabled = YES;
+        gridController.cameraViewController.cameraView.tapToFocusRecognizer.enabled = YES;
         
     }];
 

@@ -29,8 +29,6 @@
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 
 
-@property (nonatomic, strong) UITapGestureRecognizer *tapToFocusRecognizer;
-
 - (void)showCameraAccessories:(BOOL)show;
 
 - (void)updateCurrentGroup;

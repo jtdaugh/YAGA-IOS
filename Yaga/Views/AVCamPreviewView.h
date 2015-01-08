@@ -52,5 +52,5 @@
 @interface AVCamPreviewView : UIView
 
 @property (nonatomic) AVCaptureSession *session;
-
+@property (nonatomic, strong) UITapGestureRecognizer *tapToFocusRecognizer;
 @end
