@@ -33,7 +33,13 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (strong, nonatomic) RLMResults *sortedVideos;
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
+
+//cell properties are set asynchronously when calling cellForRowAtIndexPath, se we keep cells in the private dic
 @property (strong, nonatomic) NSMutableDictionary *cellsByIndexPaths;
+
+//reusable video players, we always keep 2 instances, as maximum 2 can be shown at a moment
+@property (strong, nonatomic) NSMutableArray *videoPlayers;
+@property (assign, nonatomic) NSUInteger playingVideoPlayerIndex;
 @end
 
 static NSString *cellID = @"Cell";
@@ -84,7 +90,13 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     
+    
+    self.videoPlayers = [[NSMutableArray alloc] initWithCapacity:2];
+    [self.videoPlayers addObject:[[AVPlaybackViewController alloc] init]];
+    [self.videoPlayers addObject:[[AVPlaybackViewController alloc] init]];
+    
     self.cellsByIndexPaths = [NSMutableDictionary dictionary];
+    
     [self reload];
 }
 
@@ -252,15 +264,8 @@ static BOOL welcomeLabelRemoved = NO;
             [video generateGIF];
         }
     } else {
-        AVPlaybackViewController* vc = [[AVPlaybackViewController alloc] init];
-        
         NSString *movFileName = [self.sortedVideos[indexPath.row] movFilename];
-        
-        [vc setURL:[YAUtils urlFromFileName:movFileName]];
-        cell.playerVC = vc;
-        
-        [cell.playerVC playWhenReady];
-        
+        cell.playerVC = [self videoPlayerWithUrl:[YAUtils urlFromFileName:movFileName]];
         cell.video = video;
     }
     
@@ -414,41 +419,16 @@ static BOOL welcomeLabelRemoved = NO;
     
 }
 
-//- (void) triggerRemoteLoad:(NSString *)uid {
-//    //val TODO
-//    //    [[[[CNetworking currentUser] firebase] childByAppendingPath:[NSString stringWithFormat:@"%@/%@", MEDIA, uid]] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *dataSnapshot) {
-//    //        if(dataSnapshot.value != [NSNull null]){
-//    //            NSError *error = nil;
-//    //
-//    //            NSData *videoData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"video"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
-//    //
-//    //            NSData *imageData = [[NSData alloc] initWithBase64EncodedString:dataSnapshot.value[@"thumb"] options:NSDataBase64DecodingIgnoreUnknownCharacters];
-//    //
-//    //            if(videoData != nil && imageData != nil){
-//    //                NSURL *movieURL = [uid movieUrl];
-//    //                [videoData writeToURL:movieURL options:NSDataWritingAtomic error:&error];
-//    //
-//    //                NSURL *imageURL = [uid imageUrl];
-//    //                [imageData writeToURL:imageURL options:NSDataWritingAtomic error:&error];
-//    //            }
-//    //
-//    //            [self finishedLoading:uid];
-//    //
-//    //        }
-//    //    }];
-//}
-//
-//- (void)finishedLoading:(NSString *)uid {
-//    for(YAVideoCell *cell in [self.collectionViewController.collectionView visibleCells]){
-//        if([cell.uid isEqualToString:uid]){
-//            NSLog(@"finished loading?");
-//            [[self.collectionViewController.collectionView reloadItemsAtIndexPaths:@[[[self.collectionViewController.collectionViewindexPathForCell:tile]]];
-//              }
-//              }
-//              }
-//
-//              - (void) refreshTable {
-//                  [self.pull endRefreshing];
-//              }
 
+#pragma mark - Reusable video player 
+- (AVPlaybackViewController*)videoPlayerWithUrl:(NSURL*)url {
+    AVPlaybackViewController* vc = self.videoPlayers[self.playingVideoPlayerIndex];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        ;//  [vc setURL:url];
+    });
+    
+
+    self.playingVideoPlayerIndex = (self.playingVideoPlayerIndex == 0) ? 1 : 0;
+    return vc;
+}
 @end
