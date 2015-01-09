@@ -243,15 +243,6 @@ static BOOL welcomeLabelRemoved = NO;
     }
 }
 
-//- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell*)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-//    //workaround until we have reusable video player..
-//    //make sure we always kill player(important for swiping)
-//    if(self.collectionView.collectionViewLayout == self.swipeLayout)
-//        [cell destroyVideoPlayer];
-//    
-//    NSLog(@"didEndDisplayingCell %lu", indexPath.row);
-//}
-
 #pragma mark - UIScrollView
 - (BOOL)scrollingFast {
     CGPoint currentOffset = self.collectionView.contentOffset;

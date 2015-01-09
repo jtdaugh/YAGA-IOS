@@ -458,7 +458,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 - (void)updateState {
     BOOL smallMode = self.bounds.size.height != VIEW_HEIGHT;
-    NSLog(@"updateState: mode: %@, %@", smallMode ? @"small" : @"big", self.video.localId);
+
     if(smallMode) {
         if(self.video.gifFilename.length)
             self.state = YAVideoCellStateGIFPreview;
@@ -509,10 +509,13 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
             if(self.playerVC && [self.playerVC.URL.absoluteString isEqualToString:videoURL.absoluteString])
                 return;
             
-            AVPlaybackViewController* vc = [AVPlaybackViewController new];
-            vc.URL = videoURL;
-            [vc playWhenReady];
-            self.playerVC = vc;
+            self.playerVC = [AVPlaybackViewController new];
+            [self.playerVC playWhenReady];
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                self.playerVC.URL = videoURL;
+
+            });
             
             break;
         }
