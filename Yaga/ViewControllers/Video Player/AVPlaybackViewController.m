@@ -422,6 +422,8 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 	[self syncPlayPauseButtons];
 	[self syncScrubber];
 
+    [self.mPlaybackView setVideoFillMode:AVLayerVideoGravityResizeAspectFill];
+    
     [super viewDidLoad];
 }
 
