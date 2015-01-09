@@ -55,9 +55,7 @@
 
 - (void)setCurrentGroup:(YAGroup *)group {
     if(self.currentGroup) {
-        //clean thumbnails cache
-        [[YAImageCache sharedCache] removeAllObjects];
-        
+        //thumbnails cache will clean itself automatically        
         //stop all jobs for current group
         [[YAAssetsCreator sharedCreator] stopAllJobsForGroup:self.currentGroup];
     }

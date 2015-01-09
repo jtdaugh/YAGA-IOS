@@ -211,6 +211,12 @@ static BOOL welcomeLabelRemoved = NO;
     [self toggleLayout];
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    if(self.collectionView.collectionViewLayout == self.swipeLayout) {
+        [cell invalidateVideoPlayer];
+    }
+}
+
 - (void)toggleLayout {
     UICollectionViewFlowLayout *newLayout = self.collectionView.collectionViewLayout == self.gridLayout ? self.swipeLayout : self.gridLayout;
     

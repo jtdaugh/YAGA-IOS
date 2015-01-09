@@ -16,6 +16,13 @@
 #import "AVPlaybackViewController.h"
 #import "YAImageCache.h"
 
+typedef NS_ENUM(NSUInteger, YAVideoCellState) {
+    YAVideoCellStateLoading = 0,
+    YAVideoCellStateJPEGPreview,
+    YAVideoCellStateGIFPreview,
+    YAVideoCellStateVideoPreview,
+};
+
 @interface YAVideoCell ()
 @property (nonatomic, strong) NSMutableArray *controls;
 @property (nonatomic, strong) UILabel *userLabel;
@@ -97,8 +104,7 @@
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
     self.playerVC = nil;
-    [self showLoading:YES];
-    NSLog(@"prepare for reuse");
+    self.state = YAVideoCellStateLoading;
 }
 
 #pragma mark - Overlay controls
@@ -452,7 +458,7 @@
 
 - (void)updateState {
     BOOL smallMode = self.bounds.size.height != VIEW_HEIGHT;
-    
+    NSLog(@"updateState: mode: %@, %@", smallMode ? @"small" : @"big", self.video.localId);
     if(smallMode) {
         if(self.video.gifFilename.length)
             self.state = YAVideoCellStateGIFPreview;
@@ -493,16 +499,21 @@
             break;
         }
         case YAVideoCellStateVideoPreview: {
-            //            AVPlaybackViewController* vc = [AVPlaybackViewController new];
-            //            //vc.URL = [YAUtils urlFromFileName:self.video.movFilename];
-            //            //[vc playWhenReady];
-            //            self.playerVC = vc;
-            //
-            [self showLoading:YES];
-            //
+
+            [self showLoading:NO];
             [self showControls:YES];
-            //
-            //do nothing
+            
+            //by some reason layoutSubviews is called twice when layoyt is changed
+            //using the following check to prevent two instances of a player created
+            NSURL *videoURL = [YAUtils urlFromFileName:self.video.movFilename];
+            if(self.playerVC && [self.playerVC.URL.absoluteString isEqualToString:videoURL.absoluteString])
+                return;
+            
+            AVPlaybackViewController* vc = [AVPlaybackViewController new];
+            vc.URL = videoURL;
+            [vc playWhenReady];
+            self.playerVC = vc;
+            
             break;
         }
             
@@ -513,27 +524,27 @@
         }
     }
 }
-//
-//- (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
-//    if(_playerVC == playerVC)
-//        return;
-//
-//    if(playerVC) {
-//        self.gifView.hidden = YES;
-//        //playerVC.view.frame = self.bounds;
-//        //[self.contentView addSubview:playerVC.view];
-//    }
-//    else {
-//        //[self.playerVC.view removeFromSuperview];
-//        self.gifView.hidden = NO;
-//    }
-//
-//    _playerVC = playerVC;
-//}
-//
-//- (void)destroyVideoPlayer {
-//    self.playerVC = nil;
-//}
+
+- (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
+    if(_playerVC == playerVC)
+        return;
+
+    if(playerVC) {
+        self.gifView.hidden = YES;
+        playerVC.view.frame = self.bounds;
+        [self.contentView addSubview:playerVC.view];
+    }
+    else {
+        [self.playerVC.view removeFromSuperview];
+        self.gifView.hidden = NO;
+    }
+    
+    _playerVC = playerVC;
+}
+
+- (void)invalidateVideoPlayer {
+    self.playerVC = nil;
+}
 
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
     id cachedImage = [[YAImageCache sharedCache] objectForKey:fileName];
@@ -565,13 +576,9 @@
             [self.gifView startAnimating];
             
         } else{
-            
             self.gifView.image = image;
-            
         }
     });
-    //[self.gifView setNeedsDisplay];
-    
 }
 
 - (void)layoutSubviews {

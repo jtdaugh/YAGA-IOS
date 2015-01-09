@@ -376,6 +376,8 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 
 - (id)init
 {
+    NSLog(@"AVPlaybackViewController init");
+    
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) 
     {
         return [self initWithNibName:@"AVPlayerDemoPlaybackView-iPad" bundle:nil];
@@ -525,6 +527,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 	[self.mPlayer pause];
     self.mPlayerItem = nil;
     self.mPlayer = nil;
+    NSLog(@"AVPlaybackViewController deallocated");
 }
 
 @end
