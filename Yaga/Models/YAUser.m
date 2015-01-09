@@ -47,8 +47,7 @@
         }
         
         //create phonebook
-        [self importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts) {
-        } excludingPhoneNumbers:nil];
+        [self importContactsWithCompletion:nil excludingPhoneNumbers:nil];
     }
     return self;
 }
@@ -135,7 +134,7 @@
     
     addressBook.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]];
     
-    [addressBook loadContacts:^(NSArray *contacts, NSError *error){
+    [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
             NSMutableArray *result = [NSMutableArray new];
             _phonebook = [NSMutableDictionary new];
@@ -165,12 +164,13 @@
                     [self.phonebook setObject:item forKey:num];
                 }
             }
-            
-            completion(nil, result);
+            if(completion)
+                completion(nil, result);
         }
         else
         {
-            completion([NSError errorWithDomain:@"NO DOMAIN" code:0 userInfo:nil], nil);
+            if(completion)
+                completion([NSError errorWithDomain:@"NO DOMAIN" code:0 userInfo:nil], nil);
         }
     }];
 }
