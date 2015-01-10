@@ -189,93 +189,68 @@
         
         AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
         
-        if(status != AVAuthorizationStatusAuthorized){ // not determined
-            
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                if(granted){ // Access has been granted ..do something
-                    NSLog(@"Granted");
-                } else { // Access denied ..do something
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        NSString *alertMessage = NSLocalizedString(@"NO CAMERA ALERT MESSAGE", nil);
-                        UIAlertController *alertController = [UIAlertController
-                                                              alertControllerWithTitle:NSLocalizedString(@"Warning", nil)
-                                                              message:alertMessage
-                                                              preferredStyle:UIAlertControllerStyleAlert];
-                        UIAlertAction *okAction = [UIAlertAction
-                                                   actionWithTitle:NSLocalizedString(@"OK", nil)
-                                                   style:UIAlertActionStyleDefault
-                                                   handler:^(UIAlertAction *action)
-                                                   {
-                                                   }];
-                        [alertController addAction:okAction];
-                        [self presentViewController:alertController animated:YES completion:nil];
-                    });
-                }
-            }];
-        } else {
-            
-            NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-            AVCaptureDevice *captureDevice = [devices firstObject];
-            
-            for (AVCaptureDevice *device in devices)
+        
+        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+        AVCaptureDevice *captureDevice = [devices firstObject];
+        
+        for (AVCaptureDevice *device in devices)
+        {
+            if ([device position] == AVCaptureDevicePositionFront)
             {
-                if ([device position] == AVCaptureDevicePositionFront)
-                {
-                    captureDevice = device;
-                    break;
-                }
+                captureDevice = device;
+                break;
             }
-            
-            //        [captureDevice lockForConfiguration:nil];
-            //        [captureDevice setActiveVideoMaxFrameDuration:CMTimeMake(1, 1)];
-            //        [captureDevice setActiveVideoMinFrameDuration:CMTimeMake(1, 1)];
-            //        [captureDevice unlockForConfiguration];
-            
-            if([captureDevice lockForConfiguration:nil]){
-                if([captureDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
-                    [captureDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-                }
-                
-                if([captureDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
-                    [captureDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
-                }
-                [captureDevice unlockForConfiguration];
-            }
-            
-            self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-            
-            if (error)
-            {
-                NSLog(@"add video input error: %@", error);
-            }
-            
-            if ([self.session canAddInput:self.videoInput])
-            {
-                [self.session addInput:self.videoInput];
-            }
-            
-            AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
-            self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
-            
-            if (error)
-            {
-                NSLog(@"add audio input error: %@", error);
-            }
-            
-            if ([self.session canAddInput:self.audioInput])
-            {
-                [self.session addInput:self.audioInput];
-            }
-            
-            self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-            
-            if ([self.session canAddOutput:self.movieFileOutput])
-            {
-                [self.session addOutput:self.movieFileOutput];
-            }
-            
-            [self.session startRunning];
         }
+        
+        //        [captureDevice lockForConfiguration:nil];
+        //        [captureDevice setActiveVideoMaxFrameDuration:CMTimeMake(1, 1)];
+        //        [captureDevice setActiveVideoMinFrameDuration:CMTimeMake(1, 1)];
+        //        [captureDevice unlockForConfiguration];
+        
+        if([captureDevice lockForConfiguration:nil]){
+            if([captureDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+                [captureDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+            }
+            
+            if([captureDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
+                [captureDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+            }
+            [captureDevice unlockForConfiguration];
+        }
+        
+        self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+        
+        if (error)
+        {
+            NSLog(@"add video input error: %@", error);
+        }
+        
+        if ([self.session canAddInput:self.videoInput])
+        {
+            [self.session addInput:self.videoInput];
+        }
+        
+        AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
+        self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+        
+        if (error)
+        {
+            NSLog(@"add audio input error: %@", error);
+        }
+        
+        if ([self.session canAddInput:self.audioInput])
+        {
+            [self.session addInput:self.audioInput];
+        }
+        
+        self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+        
+        if ([self.session canAddOutput:self.movieFileOutput])
+        {
+            [self.session addOutput:self.movieFileOutput];
+        }
+        
+        [self.session startRunning];
     });
 }
 
