@@ -71,11 +71,6 @@ static NSString *cellID = @"Cell";
     
     [self.view addSubview:self.collectionView];
     
-    //pull down to refresh
-    self.pullToRefresh = [[UIRefreshControl alloc] initWithFrame:CGRectMake(0, -30, VIEW_WIDTH, 30)];
-    self.pullToRefresh.attributedTitle = [[NSAttributedString alloc] initWithString:@"Fetching group videos" attributes:@{NSForegroundColorAttributeName:PRIMARY_COLOR}];
-    [self.pullToRefresh addTarget:self action:@selector(fetchVideos) forControlEvents:UIControlEventValueChanged];
-    [self.collectionView addSubview:self.pullToRefresh];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(insertVideo:)     name:VIDEO_ADDED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION object:nil];
@@ -88,6 +83,13 @@ static NSString *cellID = @"Cell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     self.collectionView.frame = self.view.bounds;
+
+    //pull down to refresh
+    self.pullToRefresh = [[UIRefreshControl alloc] init];
+    [self.pullToRefresh setTintColor:PRIMARY_COLOR];
+    [self.pullToRefresh addTarget:self action:@selector(fetchVideos) forControlEvents:UIControlEventValueChanged];
+    [self.collectionView addSubview:self.pullToRefresh];
+
 }
 
 - (void)didReceiveMemoryWarning {
