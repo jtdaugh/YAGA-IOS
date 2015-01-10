@@ -295,20 +295,20 @@ static BOOL welcomeLabelRemoved = NO;
     BOOL scrollingUp = velocity.y == fabs(velocity.y);
     
     //show/hide camera
-    if(scrollingFast && scrollingUp) {
-        self.disableScrollHandling = YES;
-        [self.delegate showCamera:NO showPart:YES animated:YES completion:^{
-            self.disableScrollHandling = NO;
-            [self playVisible:YES];
-        }];
-    }
-    else if(scrollingFast && !scrollingUp){
-        self.disableScrollHandling = YES;
-        [self.delegate showCamera:YES showPart:NO animated:YES completion:^{
-            self.disableScrollHandling = NO;
-            [self playVisible:YES];
-        }];
-    }
+//    if(scrollingFast && scrollingUp) {
+//        self.disableScrollHandling = YES;
+//        [self.delegate showCamera:NO showPart:YES animated:YES completion:^{
+//            self.disableScrollHandling = NO;
+//            [self playVisible:YES];
+//        }];
+//    }
+//    else if(scrollingFast && !scrollingUp){
+//        self.disableScrollHandling = YES;
+//        [self.delegate showCamera:YES showPart:NO animated:YES completion:^{
+//            self.disableScrollHandling = NO;
+//            [self playVisible:YES];
+//        }];
+//    }
     
     self.scrolling = NO;
 }
