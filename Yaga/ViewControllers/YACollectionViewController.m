@@ -335,7 +335,7 @@ static BOOL welcomeLabelRemoved = NO;
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         
         //self.numberOfItems += 5;
-        [self reload];
+//        [self reload];
         [self.pullToRefresh endRefreshing];
     });
     
