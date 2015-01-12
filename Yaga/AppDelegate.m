@@ -30,7 +30,7 @@
 //    [[RLMRealm defaultRealm] beginWriteTransaction];
 //    [[RLMRealm defaultRealm] deleteObjects:[YAGroup allObjects]];
 //    [[RLMRealm defaultRealm] commitWriteTransaction];
-//    
+//
 //#warning TESTING REMOVE ALL VIDEOS IN CURRENT GROUP
 //    [[RLMRealm defaultRealm] beginWriteTransaction];
 //    [[YAUser currentUser].currentGroup.videos removeAllObjects];

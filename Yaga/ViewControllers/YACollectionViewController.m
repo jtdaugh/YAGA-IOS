@@ -168,10 +168,12 @@ static NSString *cellID = @"Cell";
 
 - (void)reloadVideo:(NSNotification*)notif {
     YAVideo *video = notif.object;
+    NSLog(@"%@", video.serverId);
     if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    NSUInteger index = [self.sortedVideos indexOfObject:notif.object];
+    NSUInteger index = [self.sortedVideos indexOfObject:video];
+    NSLog(@"%lu", (unsigned long)index);
     [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
 }
 
