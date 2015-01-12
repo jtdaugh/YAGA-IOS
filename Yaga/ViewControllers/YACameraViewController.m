@@ -172,47 +172,29 @@
 }
 
 - (void)initCamera {
-    NSLog(@"init camera");
-
-    self.session = [[AVCaptureSession alloc] init];
-    self.session.sessionPreset = AVCaptureSessionPresetHigh;
+    // only init camera if not simulator
     
-    [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
-    [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-    //set still image output
-    dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
-    [self setSessionQueue:sessionQueue];
-    
-    dispatch_async(sessionQueue, ^{
+    if(TARGET_IPHONE_SIMULATOR){
+        NSLog(@"no camera, simulator");
+    } else {
         
-        NSError *error = nil;
+        NSLog(@"init camera");
         
-        AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+        self.session = [[AVCaptureSession alloc] init];
+        self.session.sessionPreset = AVCaptureSessionPresetHigh;
         
-        if(status != AVAuthorizationStatusAuthorized){ // not determined
+        [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
+        [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+        //set still image output
+        dispatch_queue_t sessionQueue = dispatch_queue_create("session queue", DISPATCH_QUEUE_SERIAL);
+        [self setSessionQueue:sessionQueue];
+        
+        dispatch_async(sessionQueue, ^{
             
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                if(granted){ // Access has been granted ..do something
-                    NSLog(@"Granted");
-                } else { // Access denied ..do something
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        NSString *alertMessage = NSLocalizedString(@"NO CAMERA ALERT MESSAGE", nil);
-                        UIAlertController *alertController = [UIAlertController
-                                                              alertControllerWithTitle:NSLocalizedString(@"Warning", nil)
-                                                              message:alertMessage
-                                                              preferredStyle:UIAlertControllerStyleAlert];
-                        UIAlertAction *okAction = [UIAlertAction
-                                                   actionWithTitle:NSLocalizedString(@"OK", nil)
-                                                   style:UIAlertActionStyleDefault
-                                                   handler:^(UIAlertAction *action)
-                                                   {
-                                                   }];
-                        [alertController addAction:okAction];
-                        [self presentViewController:alertController animated:YES completion:nil];
-                    });
-                }
-            }];
-        } else {
+            NSError *error = nil;
+            
+            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+            
             
             NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
             AVCaptureDevice *captureDevice = [devices firstObject];
@@ -275,8 +257,9 @@
             }
             
             [self.session startRunning];
-        }
-    });
+        });
+        
+    }
 }
 
 - (void)closeCamera {
