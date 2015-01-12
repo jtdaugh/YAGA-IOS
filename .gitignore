@@ -18,3 +18,9 @@ DerivedData
 .idea/
 # Pods - for those of you who use CocoaPods
 Pods/
+
+# build files
+hockey/
+build.sh
+upload.sh
+buildupload.sh

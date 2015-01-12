@@ -106,12 +106,10 @@
 
 - (void)toggleGroups {
     if(!self.collectionViewController.scrolling){
-        if(self.collectionViewController.collectionView.contentOffset.y <= 0){
-            if(self.elevatorOpen){
-                [self closeGroups];
-            } else {
-                [self openGroups];
-            }
+        if(self.elevatorOpen){
+            [self closeGroups];
+        } else {
+            [self openGroups];
         }
     }
 }
