@@ -25,17 +25,17 @@
 #define API_ENDPOINT @"/yaga/api/v1"
 
 #define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
-#define API_AUTH_TOKEN_TEMPLATE             @"%@/auth/token/"
+#define API_AUTH_TOKEN_TEMPLATE             @"%@/auth/obtain/"
 #define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
 #define API_RENAME_GROUP_TEMPLATE           @"%@/groups/%@/"
-#define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
+#define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/members/mute/"
 
-#define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/add_member/"
-#define API_REMOVE_GROUP_MEMBER_TEMPLATE    @"%@/groups/%@/remove_member/"
+#define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/members/add/"
+#define API_REMOVE_GROUP_MEMBER_TEMPLATE    @"%@/groups/%@/members/remove/"
 
-#define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/add_post/"
+#define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/"
 #define API_GROUP_POST_DELETE               @"%@/groups/%@/posts/%@/"
 
 
@@ -203,7 +203,7 @@
         if (code == 400){
             completion([NSString stringWithFormat:@"%@\n%@", [NSString stringFromHex:hex], @"Wait for 5 minutes."], error);
         } else {
-            completion(nil, error);
+            completion(NSLocalizedString(@"Application error", nil), error);
         }
     }];
 }
