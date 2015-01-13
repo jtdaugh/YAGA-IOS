@@ -39,8 +39,6 @@
         self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
         [self addSubview:self.activityView];
         [self showLoading:YES];
-        
-        [self initOverlayControls];
     }
     return self;
 }
@@ -60,6 +58,7 @@
 - (void)setVideo:(YAVideo *)video {
     _video = video;
     
+    [self initOverlayControls];
     [self showControls:YES];
 }
 
@@ -99,8 +98,6 @@
 }
 
 - (void)showLoading:(BOOL)show {
-    
-    NSLog(@"showLoading: %d", show);
     if(show) {
         if(!self.activityView.isAnimating)
             [self.activityView startAnimating];
