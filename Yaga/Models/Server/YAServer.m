@@ -96,7 +96,7 @@
 {
     NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.token];
     
-    AFHTTPRequestSerializer *requestSerializer = [AFHTTPRequestSerializer serializer];
+    AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
     
     [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
     
@@ -110,7 +110,7 @@
         _token = newToken;
         NSString *tokenString = [NSString stringWithFormat:@"Token %@", _token];
         
-        AFHTTPRequestSerializer *requestSerializer = [AFHTTPRequestSerializer serializer];
+        AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
         
         [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
         self.manager.requestSerializer = requestSerializer;
@@ -158,10 +158,13 @@
                                  @"name": name
                                  };
     
-    [self.manager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.manager PUT:api
+           parameters:parameters
+              success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        completion(nil, error);
+        NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+        completion([NSString stringFromHex:hex], error);
     }];
     
 }
