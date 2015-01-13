@@ -558,6 +558,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     }
     else {
         dispatch_async(self.imageLoadingQueue, ^{
+            
             NSURL *dataURL = [YAUtils urlFromFileName:fileName];
             NSData *fileData = [NSData dataWithContentsOfURL:dataURL];
             id image;
@@ -567,23 +568,25 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
                 image = [UIImage imageWithData:fileData];
             
             [[YAImageCache sharedCache] setObject:image forKey:fileName];
-            [self showCachedImage:image animatedImage:animatedImage];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self showCachedImage:image animatedImage:animatedImage];
+            });
         });
     }
 }
 
 - (void)showCachedImage:(id)image animatedImage:(BOOL)animatedImage {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if(animatedImage) {
-
-            [self showLoading:NO];
-            self.gifView.animatedImage = image;
-            [self.gifView startAnimating];
-            
-        } else{
-            self.gifView.image = image;
-        }
-    });
+    
+    if(animatedImage) {
+        NSLog(@"%@", image);
+        [self showLoading:NO];
+        self.gifView.animatedImage = image;
+        [self.gifView startAnimating];
+        
+    } else{
+        self.gifView.image = image;
+    }
+    
 }
 
 - (void)layoutSubviews {

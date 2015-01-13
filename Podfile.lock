@@ -33,7 +33,7 @@ PODS:
 DEPENDENCIES:
   - AFNetworking (~> 2.0)
   - APAddressBook (~> 0.0.7)
-  - FLAnimatedImage (~> 1.0)
+  - FLAnimatedImage
   - FrameAccessor (~> 1.0)
   - libPhoneNumber-iOS (~> 0.7)
   - NSDate-Time-Ago
