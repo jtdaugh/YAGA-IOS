@@ -181,14 +181,9 @@
     self.previousVisiblePage = visiblePages;
 }
 
-- (void)shiftPlayersForCurrentPageAtIndex:(NSUInteger)pageIndex {
-    NSUInteger previousPageIndex = [self.pages indexOfObject:self.currentPage];
-    
+- (void)shiftPlayersForCurrentPageAtIndex:(NSUInteger)pageIndex {    
     NSUInteger lastPageIndex = self.pages.count - 1;
 
-//    BOOL quickScroll = fabs(pageIndex - previousPageIndex) != 1;
-    //NSLog(@"shiftPlayersForCurrentPageAtIndex %lu, scrolled %@", (unsigned long)pageIndex, quickScroll ? @"quickly" : @"normally");
-    
     if(self.currentPage == self.pages[pageIndex])
         return;
     

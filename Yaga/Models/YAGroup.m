@@ -275,11 +275,15 @@ static BOOL groupsUpdateInProgress;
     }
     //supposing groups are coming sorted
     for(NSDictionary *videoDic in videoDictionaries) {
-        //video exists?
-        if([existingIds containsObject:videoDic[YA_RESPONSE_ID]]) {
-#warning TODO: apply new name when we have that parameter in json
-            
-            continue;
+        //video exists? update name
+        if([existingIds containsObject:videoDic[YA_RESPONSE_ID]] && ![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
+            RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_ID]]];
+            if(videos.count) {
+                YAVideo *video = [videos firstObject];
+                [video.realm beginWriteTransaction];
+                video.caption = videoDic[YA_RESPONSE_NAME];
+                [video.realm commitWriteTransaction];
+            }
         }
         
         [[YAAssetsCreator sharedCreator] createVideoFromRemoteDictionary:videoDic addToGroup:[YAUser currentUser].currentGroup];
