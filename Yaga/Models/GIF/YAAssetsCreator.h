@@ -25,4 +25,7 @@ typedef void (^cameraRollCompletion)(NSError *error);
 //
 - (void)createAssetsForGroup:(YAGroup*)group;
 - (void)stopAllJobsForGroup:(YAGroup*)group;
+
+// on background
+- (void)waitForAllOperationsToFinish;
 @end

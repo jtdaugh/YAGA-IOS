@@ -78,6 +78,12 @@
 		861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */ = {isa = PBXBuildFile; fileRef = 861A90BE1A4AE77C00CAD2E3 /* NSData+Hex.m */; };
 		861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */; };
 		861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailable.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */; };
+		862A784C1A652E5600E5A3E4 /* 1.mov in Resources */ = {isa = PBXBuildFile; fileRef = 862A78461A652E5600E5A3E4 /* 1.mov */; };
+		862A784D1A652E5600E5A3E4 /* 5.mov in Resources */ = {isa = PBXBuildFile; fileRef = 862A78471A652E5600E5A3E4 /* 5.mov */; };
+		862A784E1A652E5600E5A3E4 /* 3.mov in Resources */ = {isa = PBXBuildFile; fileRef = 862A78481A652E5600E5A3E4 /* 3.mov */; };
+		862A784F1A652E5600E5A3E4 /* 4.mov in Resources */ = {isa = PBXBuildFile; fileRef = 862A78491A652E5600E5A3E4 /* 4.mov */; };
+		862A78501A652E5600E5A3E4 /* 2.mov in Resources */ = {isa = PBXBuildFile; fileRef = 862A784A1A652E5600E5A3E4 /* 2.mov */; };
+		862A78511A652E5600E5A3E4 /* 6.mov in Resources */ = {isa = PBXBuildFile; fileRef = 862A784B1A652E5600E5A3E4 /* 6.mov */; };
 		865BD7A21A484543003B00DA /* UIColor+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79D1A484543003B00DA /* UIColor+Additions.m */; };
 		865BD7A31A484543003B00DA /* AZNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79F1A484543003B00DA /* AZNotification.m */; };
 		865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD7A11A484543003B00DA /* AZNotificationView.m */; };
@@ -226,6 +232,12 @@
 		861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "YAServer+HostManagment.m"; sourceTree = "<group>"; };
 		861AF47A1A5C2B4700F125C3 /* YARealmObjectUnavailable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YARealmObjectUnavailable.h; sourceTree = "<group>"; };
 		861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YARealmObjectUnavailable.m; sourceTree = "<group>"; };
+		862A78461A652E5600E5A3E4 /* 1.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 1.mov; sourceTree = "<group>"; };
+		862A78471A652E5600E5A3E4 /* 5.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 5.mov; sourceTree = "<group>"; };
+		862A78481A652E5600E5A3E4 /* 3.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 3.mov; sourceTree = "<group>"; };
+		862A78491A652E5600E5A3E4 /* 4.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 4.mov; sourceTree = "<group>"; };
+		862A784A1A652E5600E5A3E4 /* 2.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 2.mov; sourceTree = "<group>"; };
+		862A784B1A652E5600E5A3E4 /* 6.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 6.mov; sourceTree = "<group>"; };
 		865BD79C1A484543003B00DA /* UIColor+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Additions.h"; sourceTree = "<group>"; };
 		865BD79D1A484543003B00DA /* UIColor+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Additions.m"; sourceTree = "<group>"; };
 		865BD79E1A484543003B00DA /* AZNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZNotification.h; sourceTree = "<group>"; };
@@ -428,6 +440,12 @@
 		6E91888C1A3F3A5A0034AB63 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				862A78461A652E5600E5A3E4 /* 1.mov */,
+				862A78471A652E5600E5A3E4 /* 5.mov */,
+				862A78481A652E5600E5A3E4 /* 3.mov */,
+				862A78491A652E5600E5A3E4 /* 4.mov */,
+				862A784A1A652E5600E5A3E4 /* 2.mov */,
+				862A784B1A652E5600E5A3E4 /* 6.mov */,
 				6E0453FC1A5704F300EF961B /* bumper_360x480.mov */,
 				6E0453ED1A56C3ED00EF961B /* bumper.m4v */,
 				86B8649F1A43287C002256FF /* countries.json */,
@@ -638,10 +656,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				862A784E1A652E5600E5A3E4 /* 3.mov in Resources */,
+				862A784D1A652E5600E5A3E4 /* 5.mov in Resources */,
+				862A784F1A652E5600E5A3E4 /* 4.mov in Resources */,
 				6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */,
 				6E9188D51A3F3A5A0034AB63 /* Images.xcassets in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
 				6E19A7AF1A4AF34D0067D42C /* AVPlaybackView.xib in Resources */,
+				862A78501A652E5600E5A3E4 /* 2.mov in Resources */,
+				862A784C1A652E5600E5A3E4 /* 1.mov in Resources */,
+				862A78511A652E5600E5A3E4 /* 6.mov in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
 				6E0453FD1A5704F300EF961B /* bumper_360x480.mov in Resources */,
