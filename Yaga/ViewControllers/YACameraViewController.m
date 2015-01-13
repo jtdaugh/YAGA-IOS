@@ -193,7 +193,7 @@
             
             NSError *error = nil;
             
-            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+//            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
             
             
             NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
