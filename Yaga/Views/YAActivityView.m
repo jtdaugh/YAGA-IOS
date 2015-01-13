@@ -35,12 +35,11 @@
     [self stopAnimating];
     
     [self rotateRight];
-    _isAnimating = YES;
 }
 
 - (void)stopAnimating {
-    [self.layer removeAllAnimations];
-    _isAnimating = NO;
+    [self.layer removeAnimationForKey:rotateRightKey];
+    [self.layer removeAnimationForKey:rotateLeftKey];
 }
 
 

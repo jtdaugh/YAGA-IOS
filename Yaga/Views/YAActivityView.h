@@ -12,6 +12,4 @@
 
 - (void)startAnimating;
 - (void)stopAnimating;
-
-@property (nonatomic, readonly) BOOL isAnimating;
 @end

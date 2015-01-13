@@ -90,7 +90,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     if ([self.URL.absoluteString isEqualToString:newURL.absoluteString])
         return;
     
-    NSLog(@"%@ preparing to play", newURL.lastPathComponent);
+    //NSLog(@"%@ preparing to play", newURL.lastPathComponent);
     
     _URL = [newURL copy];
     
@@ -329,12 +329,12 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)play {
-    NSLog(@"%@ playing", self.URL.lastPathComponent);
+    //NSLog(@"%@ playing", self.URL.lastPathComponent);
     [self.player play];
 }
 
 - (void)pause {
-    NSLog(@"%@ paused", self.URL.lastPathComponent);
+    //NSLog(@"%@ paused", self.URL.lastPathComponent);
     [self.player pause];
 }
 

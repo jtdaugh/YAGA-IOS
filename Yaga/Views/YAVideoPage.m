@@ -38,7 +38,6 @@
     if(self) {
         self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
         [self addSubview:self.activityView];
-        [self showLoading:YES];
     }
     return self;
 }
@@ -67,9 +66,16 @@
         return;
     
     if(!newPlayerView) {
+        if(self.observingPlayer) {
+            [_playerView removeObserver:self forKeyPath:@"readyToPlay"];
+        }
         [self.playerView removeFromSuperview];
     }
     else {
+        if(newPlayerView.superview) {
+            YAVideoPage *page = (YAVideoPage*)newPlayerView.superview;
+            page.playerView = nil;
+        }
         newPlayerView.frame = self.bounds;
         [self insertSubview:newPlayerView belowSubview:self.activityView];
         
@@ -93,14 +99,16 @@
     [self showControls:YES];
 }
 
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(YAVideoPlayerView*)vc change:(NSDictionary *)change context:(void *)context{
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(YAVideoPlayerView*)vc change:(NSDictionary *)change context:(void *)context{
     [self showLoading:!vc.readyToPlay];
 }
 
 - (void)showLoading:(BOOL)show {
+    
+   // NSLog(@"showLoading: %d, page: %@, url: %@", show, self, self.playerView.URL.lastPathComponent);
+    
     if(show) {
-        if(!self.activityView.isAnimating)
-            [self.activityView startAnimating];
+        [self.activityView startAnimating];
         
         [self bringSubviewToFront:self.activityView];
         [UIView animateWithDuration:0.5 animations:^{
@@ -111,9 +119,9 @@
     else {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.activityView stopAnimating];
                 [UIView animateWithDuration:0.5 animations:^{
                     self.activityView.alpha = 0;
+                    [self.activityView stopAnimating];
                 }];
             });
         });

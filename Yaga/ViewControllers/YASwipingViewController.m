@@ -133,15 +133,15 @@
     
     [self didEndScrollingOnPage:self.pages[pageIndex]];
     
-    NSLog(@"scrolling stopped on page %lu", (unsigned long)pageIndex);
+    //NSLog(@"scrolling stopped on page %lu", (unsigned long)pageIndex);
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-    NSLog(@"scrollViewWillEndDragging velocity %f", fabs(velocity.x));
+    //NSLog(@"scrollViewWillEndDragging velocity %f", fabs(velocity.x));
 }
 
 - (void)willDisplayPage:(YAVideoPage*)page partially:(BOOL)partially {
-   // NSLog(@"willDisplayPage, subviews: %@", page.subviews);
+    //NSLog(@"willDisplayPage, playerView: %@", page.playerView);
     if(!partially)
         page.playerView.playWhenReady = YES;
     
@@ -150,6 +150,7 @@
 }
 
 - (void)didEndDisplayingPage:(YAVideoPage*)page {
+    //NSLog(@"didEndDisplayingPage %lu", [self.pages indexOfObject:page]);
     [page.playerView pause];
     page.playerView.playWhenReady = NO;
 }
@@ -182,11 +183,11 @@
 
 - (void)shiftPlayersForCurrentPageAtIndex:(NSUInteger)pageIndex {
     NSUInteger previousPageIndex = [self.pages indexOfObject:self.currentPage];
-    BOOL quickScroll = fabs(pageIndex - previousPageIndex) != 1;
     
     NSUInteger lastPageIndex = self.pages.count - 1;
 
-    NSLog(@"shiftPlayersForCurrentPageAtIndex %lu, scrolled %@", (unsigned long)pageIndex, quickScroll ? @"quickly" : @"normally");
+//    BOOL quickScroll = fabs(pageIndex - previousPageIndex) != 1;
+    //NSLog(@"shiftPlayersForCurrentPageAtIndex %lu, scrolled %@", (unsigned long)pageIndex, quickScroll ? @"quickly" : @"normally");
     
     if(self.currentPage == self.pages[pageIndex])
         return;
@@ -271,11 +272,7 @@
 }
 
 - (void)logState {
-    NSLog(@"State: %@ | %@ | %@", [self.players[0] URL].lastPathComponent, [self.players[1] URL].lastPathComponent, [self.players[2] URL].lastPathComponent);
-}
-
-- (void)dealloc{
-    
+    //NSLog(@"State: %@ | %@ | %@", [self.players[0] URL].lastPathComponent, [self.players[1] URL].lastPathComponent, [self.players[2] URL].lastPathComponent);
 }
 
 @end
