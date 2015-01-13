@@ -83,13 +83,13 @@ static NSString *cellID = @"Cell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     self.collectionView.frame = self.view.bounds;
-
+    
     //pull down to refresh
     self.pullToRefresh = [[UIRefreshControl alloc] init];
     [self.pullToRefresh setTintColor:PRIMARY_COLOR];
     [self.pullToRefresh addTarget:self action:@selector(fetchVideos) forControlEvents:UIControlEventValueChanged];
     [self.collectionView addSubview:self.pullToRefresh];
-
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -293,28 +293,32 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
     [self.delegate enableRecording:YES];
-    
-    BOOL scrollingFast = fabs(velocity.y) > 1;
-    
-    BOOL scrollingUp = velocity.y == fabs(velocity.y);
-    
-    //show/hide camera
-//    if(scrollingFast && scrollingUp) {
-//        self.disableScrollHandling = YES;
-//        [self.delegate showCamera:NO showPart:YES animated:YES completion:^{
-//            self.disableScrollHandling = NO;
-//            [self playVisible:YES];
-//        }];
-//    }
-//    else if(scrollingFast && !scrollingUp){
-//        self.disableScrollHandling = YES;
-//        [self.delegate showCamera:YES showPart:NO animated:YES completion:^{
-//            self.disableScrollHandling = NO;
-//            [self playVisible:YES];
-//        }];
-//    }
+
+//    [self adustCollectionViewFrameWhileDraggingWithVelocity:velocity];
     
     self.scrolling = NO;
+}
+
+- (void)adustCollectionViewFrameWhileDraggingWithVelocity:(CGPoint)velocity {
+    BOOL draggingFast = fabs(velocity.y) > 1;
+    BOOL draggingUp = velocity.y == fabs(velocity.y);
+
+    
+    //show/hide camera
+    if(draggingFast && draggingUp) {
+        self.disableScrollHandling = YES;
+        [self.delegate showCamera:NO showPart:YES animated:YES completion:^{
+            self.disableScrollHandling = NO;
+            [self playVisible:YES];
+        }];
+    }
+    else if(draggingFast && !draggingUp){
+        self.disableScrollHandling = YES;
+        [self.delegate showCamera:YES showPart:NO animated:YES completion:^{
+            self.disableScrollHandling = NO;
+            [self playVisible:YES];
+        }];
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -337,7 +341,7 @@ static BOOL welcomeLabelRemoved = NO;
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         
         //self.numberOfItems += 5;
-//        [self reload];
+        //        [self reload];
         [self.pullToRefresh endRefreshing];
     });
     
