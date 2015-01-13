@@ -7,12 +7,12 @@
 //
 
 #import "YACollectionViewController.h"
+#import "YASwipingViewController.h"
+#import "YAAnimatedTransitioningController.h"
 
 #import "YAVideoCell.h"
 #import "YAUser.h"
 #import "YAUtils.h"
-
-//Uploading videos
 #import "YAServer.h"
 
 @protocol GridViewControllerDelegate;
@@ -22,8 +22,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @interface YACollectionViewController ()
 
 @property (strong, nonatomic) UICollectionViewFlowLayout *gridLayout;
-@property (strong, nonatomic) UICollectionViewFlowLayout *swipeLayout;
-@property (weak, nonatomic) UICollectionViewFlowLayout *targetLayout;
 
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
@@ -32,6 +30,8 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (strong, nonatomic) RLMResults *sortedVideos;
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
+
+@property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 @end
 
 static NSString *cellID = @"Cell";
@@ -49,17 +49,8 @@ static NSString *cellID = @"Cell";
     [self.gridLayout setMinimumLineSpacing:spacing];
     [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
     
-    self.swipeLayout= [[UICollectionViewFlowLayout alloc] init];
-    CGFloat swipeSpacing = 0.0f;
-    [self.swipeLayout setSectionInset:UIEdgeInsetsMake(0, 0, 0, 0)];
-    [self.swipeLayout setMinimumInteritemSpacing:swipeSpacing];
-    [self.swipeLayout setMinimumLineSpacing:swipeSpacing];
-    [self.swipeLayout setItemSize:CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT)];
-    [self.swipeLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
-    
     self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
     
-    self.targetLayout = self.gridLayout;
     self.collectionView.alwaysBounceVertical = YES;
     
     self.collectionView.delegate = self;
@@ -71,13 +62,15 @@ static NSString *cellID = @"Cell";
     
     [self.view addSubview:self.collectionView];
     
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(insertVideo:)     name:VIDEO_ADDED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     
     [self reload];
+    
+    //transitions
+    self.animationController = [YAAnimatedTransitioningController new];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -162,10 +155,6 @@ static NSString *cellID = @"Cell";
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     
     [self.deleteDictionary removeObjectForKey:videoId];
-    
-    if(!self.sortedVideos.count) {
-        [self toggleLayout];
-    }
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
@@ -212,39 +201,18 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    [self toggleLayout];
-}
+    UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
+    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:self.sortedVideos andInitialIndex:indexPath.row];
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if(self.collectionView.collectionViewLayout == self.swipeLayout) {
-        [cell invalidateVideoPlayer];
-    }
-}
-
-- (void)toggleLayout {
-    UICollectionViewFlowLayout *newLayout = self.collectionView.collectionViewLayout == self.gridLayout ? self.swipeLayout : self.gridLayout;
+    CGRect initialFrame = attributes.frame;
+    initialFrame.origin.y -= self.collectionView.contentOffset.y;
+    initialFrame.origin.y += self.view.frame.origin.y;
     
-    __weak typeof(self) weakSelf = self;
-    self.disableScrollHandling = YES;
-    [self.collectionView setPagingEnabled:newLayout == self.swipeLayout];
+    self.animationController.initialFrame = initialFrame;
     
-    self.targetLayout = newLayout;
-    
-    self.collectionView.alwaysBounceVertical = newLayout == self.gridLayout;
-    
-    if(newLayout == self.gridLayout) {
-        [weakSelf.delegate showCamera:YES showPart:NO animated:YES completion:nil];
-        
-        self.collectionView.collectionViewLayout = newLayout;
-        weakSelf.disableScrollHandling = NO;
-        [weakSelf reload];
-    }
-    else {
-        [self.delegate showCamera:NO showPart:NO animated:YES completion:nil];
-        
-        self.collectionView.collectionViewLayout = newLayout;
-        [weakSelf reload];
-    }
+    swipingVC.transitioningDelegate = self;
+    swipingVC.modalPresentationStyle = UIModalPresentationCustom;
+    [self presentViewController:swipingVC animated:YES completion:nil];
 }
 
 #pragma mark - UIScrollView
@@ -322,8 +290,7 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    if(self.collectionView.collectionViewLayout != self.swipeLayout)
-        self.disableScrollHandling = NO;
+    self.disableScrollHandling = NO;
     
     self.scrolling = NO;
 }
@@ -346,5 +313,16 @@ static BOOL welcomeLabelRemoved = NO;
     });
     
 }
+#pragma mark - Custom transitions
+- (id <UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
+    self.animationController.presentingMode = YES;
+    
+    return self.animationController;
+}
 
+- (id <UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
+    self.animationController.presentingMode = NO;
+    
+    return self.animationController;
+}
 @end
