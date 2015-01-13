@@ -60,7 +60,7 @@
 - (NSOperationQueue*)gifCreationOperationQueueForGroup:(YAGroup*)group
 {
     if ([self.gifCreationOpearationsQueue.allKeys containsObject:group.localId]) {
-        return [self.gifCreationOpearationsQueue objectForKey:group];
+        return [self.gifCreationOpearationsQueue objectForKey:group.localId];
     } else {
         //
         NSOperationQueue *opQueue = [NSOperationQueue new];
@@ -73,15 +73,6 @@
 #pragma mark GIF and JPEG generation
 
 - (void)createJPGAndGIFForVideo:(YAVideo*)video {
-    //do not add same video to the queue twice
-//    if([self.videosToProcess containsObject:video])
-//        return;
-//    
-//    [self.videosToProcess addObject:video];
-//    
-//    if(!self.inProgress)
-//        [self generateNextGIFAsync];
-    
     NSBlockOperation *operation = [self gifCreationOperationForVideo:video];
     NSOperationQueue *opQueue = [self gifCreationOperationQueueForGroup:video.group];
     [opQueue addOperation:operation];
