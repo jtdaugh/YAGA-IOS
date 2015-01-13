@@ -365,13 +365,13 @@
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId];
-    
+    NSString *videoLocalId = [video.localId copy];
     [self.manager POST:api
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    if ([video isInvalidated]) {
                        YARealmObjectUnavailable *yaError = [YARealmObjectUnavailable new];
-                       completion(nil, yaError);
+                       completion(videoLocalId, yaError);
                        return;
                    }
                    

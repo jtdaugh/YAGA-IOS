@@ -210,7 +210,8 @@
     
     [[YAServer sharedServer] uploadVideo:video toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", video.localId, error.localizedDescription] type:AZNotificationTypeError];
+            NSString *localId = [response isKindOfClass:[NSString class]] ? (NSString*)response : @"None";
+            [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", localId, error.localizedDescription] type:AZNotificationTypeError];
             completion(nil, error);
         }
         else {

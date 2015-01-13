@@ -23,7 +23,7 @@
 @property (atomic, assign) BOOL inProgress;
 
 @property (nonatomic, strong) dispatch_queue_t downloadQueue;
-@property (nonatomic, strong) NSMutableDictionary *gifCreationOpearationsQueue;
+@property (nonatomic, strong) NSMutableDictionary *gifCreationOpearationsQueueDict;
 @property (nonatomic, strong) NSOperationQueue *videoDownloadingQueue;
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
 @end
@@ -48,7 +48,7 @@
         //concurent downloads but serial gif generation..
         self.downloadQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         
-        self.gifCreationOpearationsQueue = [NSMutableDictionary new];
+        self.gifCreationOpearationsQueueDict = [NSMutableDictionary new];
         
         self.videoDownloadingQueue = [NSOperationQueue new];
         self.videoDownloadingQueue.underlyingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
@@ -59,13 +59,13 @@
 
 - (NSOperationQueue*)gifCreationOperationQueueForGroup:(YAGroup*)group
 {
-    if ([self.gifCreationOpearationsQueue.allKeys containsObject:group.localId]) {
-        return [self.gifCreationOpearationsQueue objectForKey:group.localId];
+    if ([self.gifCreationOpearationsQueueDict.allKeys containsObject:group.localId]) {
+        return [self.gifCreationOpearationsQueueDict objectForKey:group.localId];
     } else {
         //
         NSOperationQueue *opQueue = [NSOperationQueue new];
         opQueue.underlyingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
-        [self.gifCreationOpearationsQueue setObject:opQueue forKey:group.localId];
+        [self.gifCreationOpearationsQueueDict setObject:opQueue forKey:group.localId];
         return opQueue;
     }
 }
@@ -152,7 +152,10 @@
                                                      //Always perform on the thread where video was created
                                                      __block NSString *filename = nil;
                                                      dispatch_async(dispatch_get_main_queue(), ^{
-                                                         filename = [video.movFilename stringByDeletingPathExtension];
+                                                         if (![video isInvalidated])
+                                                         {
+                                                             filename = [video.movFilename stringByDeletingPathExtension];
+                                                         }
                                                      });
                                                      if([imagesArray count] == 1) {
                                                          
@@ -414,7 +417,7 @@
     if (!CGImageDestinationFinalize(destination)) {
         NSLog(@"failed to finalize image destination");
         handler([NSError errorWithDomain:@"YA" code:0 userInfo:nil]);
-        CFRelease(destination);
+        if (destination) { CFRelease(destination); }
         return;
     }
     
@@ -636,7 +639,7 @@
 }
 
 - (void)createAssetsForGroup:(YAGroup*)group {
-    [[self.gifCreationOpearationsQueue objectForKey:group] setSuspended:NO];
+    [[self.gifCreationOpearationsQueueDict objectForKey:group] setSuspended:NO];
     for(YAVideo *video in group.videos) {
         if(video.url.length && !video.movFilename.length)
             [self getRemoteContentForVideo:video];
@@ -649,7 +652,17 @@
 - (void)stopAllJobsForGroup:(YAGroup*)group {
         #warning TODO: 2. kill all downloads and gif generations when group is changed
     [self.videoDownloadingQueue cancelAllOperations];
-    [[self.gifCreationOpearationsQueue objectForKey:group] setSuspended:YES];
+    [[self.gifCreationOpearationsQueueDict objectForKey:group] setSuspended:YES];
+}
+
+- (void)waitForAllOperationsToFinish
+{
+    [self.videoDownloadingQueue cancelAllOperations];
+    NSArray *keys = self.gifCreationOpearationsQueueDict.allKeys;
+    for (NSString *key in keys) {
+        NSOperationQueue *que = [self.gifCreationOpearationsQueueDict objectForKey:key];
+        [que waitUntilAllOperationsAreFinished];
+    }
 }
 
 @end

@@ -15,6 +15,7 @@
 
 #import "YAUtils.h"
 #import "YAServerTransactionQueue.h"
+#import "YAAssetsCreator.h"
 
 @implementation AppDelegate
 
@@ -74,6 +75,7 @@
         
         // Wait until the pending operations finish
         [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
+        [[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
         
         [application endBackgroundTask: bgTask];
         bgTask = UIBackgroundTaskInvalid;
