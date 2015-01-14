@@ -8,7 +8,7 @@
 
 #import "YAAnimatedTransitioningController.h"
 
-#define kDuration 0.3
+#define kDuration 0.1
 
 @implementation YAAnimatedTransitioningController
 
