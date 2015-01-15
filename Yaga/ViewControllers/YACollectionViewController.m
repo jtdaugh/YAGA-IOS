@@ -295,6 +295,11 @@ static BOOL welcomeLabelRemoved = NO;
     self.scrolling = NO;
 }
 
+-(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if(!decelerate)
+        [self playVisible:YES];
+}
+
 - (void)playVisible:(BOOL)playValue {
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
