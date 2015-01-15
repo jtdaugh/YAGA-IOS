@@ -189,7 +189,7 @@
 
 - (void)authentificatePhoneNumberBySMS:(NSString*)number withCompletion:(responseBlock)completion
 {
-    NSAssert(number, @"token not set");
+    NSAssert(number, @"number isn't specified");
     
     self.phoneNumber = number;
     NSDictionary *parameters = @{ @"phone" : self.phoneNumber };

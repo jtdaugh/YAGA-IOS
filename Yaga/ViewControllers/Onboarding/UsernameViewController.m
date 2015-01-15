@@ -11,6 +11,7 @@
 //#import "Yaga-Swift.h"
 #import "YAGroupsViewController.h"
 #import "YAServer.h"
+#import "YAUtils.h"
 
 @interface UsernameViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
@@ -108,11 +109,27 @@
     [[YAServer sharedServer] registerUsername:self.usernameTextField.text
                                              withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
                                                  
-                                                 [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
-                                                 
-                                                 [weakSelf performSegueWithIdentifier:@"NoGroups" sender:weakSelf];
-                                                 
-                                                 [weakSelf.activityIndicator stopAnimating];
+                                                 if(error) {
+                                                     [weakSelf.activityIndicator stopAnimating];
+                                                     [YAUtils showNotification:error.localizedDescription type:AZNotificationTypeError];
+                                                 }
+                                                 else {
+                                                     [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
+                                                     
+                                                     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+                                                         [weakSelf.activityIndicator stopAnimating];
+                                                         if(!error) {
+                                                             if([YAGroup allObjects].count)
+                                                                 [self performSegueWithIdentifier:@"MyGroups" sender:self];
+                                                             else
+                                                                 [self performSegueWithIdentifier:@"NoGroups" sender:self];
+                                                         }
+                                                         else {
+                                                             [weakSelf.activityIndicator stopAnimating];
+                                                             [YAUtils showNotification:error.localizedDescription type:AZNotificationTypeError];
+                                                         }
+                                                     }];
+                                                 }
                                              }];
 }
 
