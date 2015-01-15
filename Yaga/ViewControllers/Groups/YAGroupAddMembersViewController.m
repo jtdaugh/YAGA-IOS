@@ -108,7 +108,9 @@
             weakSelf.deviceContacts = contacts;
             
             weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
-            [weakSelf.membersTableview reloadData];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf.membersTableview reloadData];
+            });
         }
     } excludingPhoneNumbers:[self.existingGroup phonesSet]];
 }
@@ -314,6 +316,7 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if([segue.destinationViewController isKindOfClass:[NameGroupViewController class]]) {
         ((NameGroupViewController*)segue.destinationViewController).membersDic = self.selectedContacts;
+        ((NameGroupViewController*)segue.destinationViewController).embeddedMode = self.embeddedMode;   
     }
 }
 

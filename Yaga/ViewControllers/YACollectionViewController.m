@@ -262,12 +262,12 @@ static BOOL welcomeLabelRemoved = NO;
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
     [self.delegate enableRecording:YES];
 
-//    [self adustCollectionViewFrameWhileDraggingWithVelocity:velocity];
+    //[self adjustWhileDraggingWithVelocity:velocity];
     
     self.scrolling = NO;
 }
 
-- (void)adustCollectionViewFrameWhileDraggingWithVelocity:(CGPoint)velocity {
+- (void)adjustWhileDraggingWithVelocity:(CGPoint)velocity {
     BOOL draggingFast = fabs(velocity.y) > 1;
     BOOL draggingUp = velocity.y == fabs(velocity.y);
 

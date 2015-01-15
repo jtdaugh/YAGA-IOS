@@ -578,7 +578,6 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 - (void)showCachedImage:(id)image animatedImage:(BOOL)animatedImage {
     
     if(animatedImage) {
-        NSLog(@"%@", image);
         [self showLoading:NO];
         self.gifView.animatedImage = image;
         [self.gifView startAnimating];

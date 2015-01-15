@@ -103,7 +103,12 @@
     
     [[YAUser currentUser].currentGroup rename:self.groupNameTextField.text];
     
-    [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
+    if(!self.embeddedMode) {
+        [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
+    }
+    else {
+        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
+    }
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
@@ -143,7 +148,7 @@
 
 #pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (IBAction)unwindToGrid:(UIStoryboardSegue *)segue {}
 
 
 @end

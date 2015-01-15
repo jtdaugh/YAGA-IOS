@@ -274,7 +274,7 @@
                     <navigationItem key="navigationItem" id="sPE-sa-3og"/>
                     <connections>
                         <segue destination="54o-Be-McY" kind="custom" identifier="SelectExistingGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="fvS-6s-erS"/>
-                        <segue destination="aCm-EC-oWm" kind="show" identifier="CreateNewGroup" id="ira-DT-4cj"/>
+                        <segue destination="aCm-EC-oWm" kind="show" identifier="ShowAddMembers" id="ira-DT-4cj"/>
                         <segue destination="Df3-gO-NpP" kind="unwind" identifier="HideEmbeddedUserGroups" unwindAction="unwindFromViewController:" id="aB8-gW-n0s"/>
                     </connections>
                 </viewController>
@@ -324,7 +324,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wON-sz-6d3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1745" y="-140"/>
+            <point key="canvasLocation" x="1732.5" y="-141"/>
         </scene>
         <!--Name Group View Controller-->
         <scene sceneID="HVo-lx-c04">
@@ -341,6 +341,7 @@
                     </view>
                     <connections>
                         <segue destination="54o-Be-McY" kind="custom" identifier="NameNewGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="OXh-u4-OoS"/>
+                        <segue destination="Df3-gO-NpP" kind="unwind" identifier="HideEmbeddedUserGroups" unwindAction="unwindToGrid:" id="dFi-oY-hkv"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xwl-Cb-13J" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -349,9 +350,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="Tvw-pK-akS"/>
-        <segue reference="fvS-6s-erS"/>
-        <segue reference="VSt-eZ-jNn"/>
         <segue reference="ira-DT-4cj"/>
+        <segue reference="VSt-eZ-jNn"/>
+        <segue reference="fvS-6s-erS"/>
+        <segue reference="Tvw-pK-akS"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -237,7 +237,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)createGroup {
-    [self performSegueWithIdentifier:@"CreateNewGroup" sender:self];
+    [self performSegueWithIdentifier:@"ShowAddMembers" sender:self];
     
     [self close];
 }
@@ -252,6 +252,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
+        ((YAGroupAddMembersViewController*)segue.destinationViewController).embeddedMode = self.embeddedMode;
     }
 }
 
