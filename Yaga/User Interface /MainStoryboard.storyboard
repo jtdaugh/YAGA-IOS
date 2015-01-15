@@ -275,7 +275,7 @@
                     <connections>
                         <segue destination="54o-Be-McY" kind="custom" identifier="SelectExistingGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="fvS-6s-erS"/>
                         <segue destination="aCm-EC-oWm" kind="show" identifier="ShowAddMembers" id="ira-DT-4cj"/>
-                        <segue destination="Df3-gO-NpP" kind="unwind" identifier="HideEmbeddedUserGroups" unwindAction="unwindFromViewController:" id="aB8-gW-n0s"/>
+                        <segue destination="Df3-gO-NpP" kind="unwind" identifier="HideEmbeddedUserGroups" unwindAction="unwindToGrid:" id="aB8-gW-n0s"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zUg-0n-BZp" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -341,7 +341,6 @@
                     </view>
                     <connections>
                         <segue destination="54o-Be-McY" kind="custom" identifier="NameNewGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="OXh-u4-OoS"/>
-                        <segue destination="Df3-gO-NpP" kind="unwind" identifier="HideEmbeddedUserGroups" unwindAction="unwindToGrid:" id="dFi-oY-hkv"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xwl-Cb-13J" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -16,7 +16,7 @@
     if(self) {
         self.contentView.backgroundColor = [UIColor blackColor];
         self.textLabel.textColor = [UIColor whiteColor];
-        self.selectedBackgroundView = [YAUtils createBackgroundViewForCell:self alpha:0.9];
+        self.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:self.bounds alpha:0.9];
     }
     return self;
 }

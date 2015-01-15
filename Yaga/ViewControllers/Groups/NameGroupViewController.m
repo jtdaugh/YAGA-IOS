@@ -107,7 +107,7 @@
         [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
     }
     else {
-        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
+        [self.navigationController popToRootViewControllerAnimated:YES];
     }
 }
 

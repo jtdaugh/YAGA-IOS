@@ -86,19 +86,20 @@ static NSString *CellIdentifier = @"GroupsCell";
         separatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
         [self.view addSubview:separatorView];
         
-        
         UIButton *createGroupButton = [[UIButton alloc] initWithFrame:
                                        CGRectMake(44,
-                                                  self.tableView.frame.size.height+2,
-                                                  VIEW_WIDTH - 44,
-                                                  self.view.bounds.size.height - self.tableView.frame.size.height)
+                                                  self.tableView.frame.size.height+20,
+                                                  150,
+                                                  50)
                                        ];
         createGroupButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
         [createGroupButton setTitle:@"Create Group  〉" forState:UIControlStateNormal];
         [createGroupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
         [createGroupButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
         [createGroupButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        createGroupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
         [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
+        [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
         [self.view addSubview:createGroupButton];
     }
 }
@@ -186,7 +187,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
     cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
-    cell.selectedBackgroundView = [YAUtils createBackgroundViewForCell:cell alpha:0.3];
+    cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
     return cell;
 }
@@ -237,12 +238,15 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)createGroup {
-    [self performSegueWithIdentifier:@"ShowAddMembers" sender:self];
-    
-    [self close];
+        [self close];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self performSegueWithIdentifier:@"ShowAddMembers" sender:self];
+    });
+
+
 }
 
-- (IBAction)unwindFromViewController:(id)source {}
+- (IBAction)unwindToGrid:(id)source {}
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     [self showGroupOptionsForGroupAtIndex:indexPath];

@@ -85,15 +85,27 @@
     return [phoneUtil isValidNumber:myNumber];
 }
 
-+ (UIView*)createBackgroundViewForCell:(UITableViewCell*)cell alpha:(CGFloat)alpha {
-    UIView *bkgView = [[UIView alloc] initWithFrame:cell.bounds];
++ (UIView*)createBackgroundViewWithFrame:(CGRect)frame alpha:(CGFloat)alpha {
+    UIView *bkgView = [[UIView alloc] initWithFrame:frame];
     bkgView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
-    //get 0.3 alpha from main color
-    CGFloat r,g,b,a;
-    [PRIMARY_COLOR getRed:&r green:&g blue:&b alpha:&a];
-    bkgView.backgroundColor = [UIColor colorWithRed:r green:g blue:b alpha:alpha];
+    bkgView.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:alpha];
     return bkgView;
+}
+
+
++ (UIImage *)imageWithColor:(UIColor *)color {
+    CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
 }
 
 @end
