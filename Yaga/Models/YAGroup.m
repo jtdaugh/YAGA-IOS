@@ -273,8 +273,15 @@ static BOOL groupsUpdateInProgress;
         }
     
     }
+    
+    NSMutableSet *idsToAdd = [NSMutableSet setWithSet:newIds];
+    [idsToAdd minusSet:existingIds];
+    
     //supposing groups are coming sorted
     for(NSDictionary *videoDic in videoDictionaries) {
+        if(![idsToAdd containsObject:videoDic[YA_RESPONSE_ID]])
+            continue;
+        
         //video exists? update name
         if([existingIds containsObject:videoDic[YA_RESPONSE_ID]] && ![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
             RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_ID]]];
@@ -288,7 +295,6 @@ static BOOL groupsUpdateInProgress;
         
         [[YAAssetsCreator sharedCreator] createVideoFromRemoteDictionary:videoDic addToGroup:[YAUser currentUser].currentGroup];
     }
-    
 }
 
 - (BOOL)updateInProgress {
