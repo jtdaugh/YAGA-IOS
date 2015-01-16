@@ -230,9 +230,13 @@
 {
     YAVideoDownloadOperation *downloadOperation = [[YAVideoDownloadOperation alloc] initWithVideo:video];
     downloadOperation.name = group.name;
+    downloadOperation.queuePriority = NSOperationQueuePriorityNormal;
+    
     YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
     [gifCreationOperation addDependency:downloadOperation];
     gifCreationOperation.name = group.name;
+    gifCreationOperation.queuePriority = NSOperationQueuePriorityHigh;
+    
     [self.queue addOperation:downloadOperation];
     [self.queue addOperation:gifCreationOperation];
 }
