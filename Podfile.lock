@@ -28,6 +28,7 @@ PODS:
   - Realm (0.89.1):
     - Realm/Headers (= 0.89.1)
   - Realm/Headers (0.89.1)
+  - SVPullToRefresh (0.4.1)
   - SwipeView (1.3.2)
 
 DEPENDENCIES:
@@ -38,6 +39,7 @@ DEPENDENCIES:
   - libPhoneNumber-iOS (~> 0.7)
   - NSDate-Time-Ago
   - Realm
+  - SVPullToRefresh
   - SwipeView (~> 1.3.2)
 
 SPEC CHECKSUMS:
@@ -48,6 +50,7 @@ SPEC CHECKSUMS:
   libPhoneNumber-iOS: 16b9556d7fdf4819eabeb7b7356fea3373fa47f9
   NSDate-Time-Ago: 6c2f55530dec7471e90106d84bb34bba6660c139
   Realm: 20b0bd13983d64fd22afeb47489729fd71b6b5c6
+  SVPullToRefresh: d5161ebc833a38b465364412e5e307ca80bbb190
   SwipeView: 0093c212acf3d715b09334c50d568a4418404150
 
 COCOAPODS: 0.36.0.beta.1

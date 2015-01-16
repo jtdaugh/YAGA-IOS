@@ -42,6 +42,9 @@
     [self.layer removeAnimationForKey:rotateLeftKey];
 }
 
+- (BOOL)isAnimating {
+    return self.layer.animationKeys.count != 0;
+}
 
 #pragma mark - private
 - (void)rotateRight {
@@ -89,5 +92,13 @@
             [self rotateRight];
         });
     }
+}
+
+#pragma mark - other
+- (void)willMoveToSuperview:(UIView *)newSuperview {
+    [super willMoveToSuperview:newSuperview];
+    
+    if(self.animateAtOnce)
+        [self startAnimating];
 }
 @end

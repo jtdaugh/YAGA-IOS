@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface YAActivityView : UIView
+@property (nonatomic) BOOL animateAtOnce;
 
 - (void)startAnimating;
 - (void)stopAnimating;
+- (BOOL)isAnimating;
 @end

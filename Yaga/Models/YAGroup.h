@@ -32,7 +32,7 @@ typedef void(^completionBlock)(NSError *error);
 - (void)removeMember:(YAContact*)contact;
 - (void)leave;
 - (void)muteUnmute;
-- (void)updateVideos;
+- (void)updateVideosWithCompletion:(completionBlock)completion;
 
 - (BOOL)updateInProgress;
 

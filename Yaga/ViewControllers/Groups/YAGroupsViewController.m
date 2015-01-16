@@ -210,9 +210,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     YAGroup *group = self.groups[indexPath.row];
-    [YAUser currentUser].currentGroup = group;
     
-    [group updateVideos];
+    [YAUser currentUser].currentGroup = group;
     
     if(self.embeddedMode) {
         [self close];

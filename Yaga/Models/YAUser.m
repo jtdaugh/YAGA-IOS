@@ -63,6 +63,8 @@
     _currentGroup = group;
     
     [[YAAssetsCreator sharedCreator] createAssetsForGroup:self.currentGroup];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_CHANGED_NOTIFICATION object:nil];
 }
 
 - (BOOL)loggedIn {

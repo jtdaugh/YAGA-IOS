@@ -229,20 +229,25 @@ static BOOL groupsUpdateInProgress;
 }
 
 #pragma mark - Videos
-- (void)updateVideos {
+- (void)updateVideosWithCompletion:(completionBlock)completion {
     if(self.videosUpdateInProgress)
         return;
+    
     self.videosUpdateInProgress = YES;
 
     [[YAServer sharedServer] groupInfoWithId:self.serverId withCompletion:^(id response, NSError *error) {
         self.videosUpdateInProgress = NO;
         if(error) {
             NSLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
+            if(completion)
+                completion(error);
         }
         else {
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
             NSLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
             [self updateVideosFromDictionaries:videoDictionaries];
+            if(completion)
+                completion(nil);
         }
     }];
 }

@@ -105,12 +105,10 @@
 }
 
 - (void)toggleGroups {
-    if(!self.collectionViewController.scrolling){
-        if(self.elevatorOpen){
-            [self closeGroups];
-        } else {
-            [self openGroups];
-        }
+    if(self.elevatorOpen){
+        [self closeGroups];
+    } else {
+        [self openGroups];
     }
 }
 

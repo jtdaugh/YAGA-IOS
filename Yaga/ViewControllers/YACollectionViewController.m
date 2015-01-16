@@ -11,9 +11,13 @@
 #import "YAAnimatedTransitioningController.h"
 
 #import "YAVideoCell.h"
+
 #import "YAUser.h"
 #import "YAUtils.h"
 #import "YAServer.h"
+
+#import "UIScrollView+SVPullToRefresh.h"
+#import "YAActivityView.h"
 
 @protocol GridViewControllerDelegate;
 
@@ -26,7 +30,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
 @property (strong, nonatomic) UILabel *noVideosLabel;
-@property (strong, nonatomic) UIRefreshControl *pullToRefresh;
 @property (strong, nonatomic) RLMResults *sortedVideos;
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
@@ -66,23 +69,48 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
-
-    [self reload];
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupChanged:) name:GROUP_CHANGED_NOTIFICATION object:nil];
     //transitions
     self.animationController = [YAAnimatedTransitioningController new];
+    
+    [self setupPullToRefresh];
+}
+
+- (void)setupPullToRefresh {
+    //pull to refresh
+    __weak typeof(self) weakSelf = self;
+    [self.collectionView addPullToRefreshWithActionHandler:^{
+        [weakSelf.delegate enableRecording:NO];
+        [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error) {
+            [weakSelf reload];
+            [weakSelf.collectionView.pullToRefreshView stopAnimating];
+            [weakSelf.delegate enableRecording:YES];
+        }];
+    }];
+    
+    YAActivityView *loadinView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/10, VIEW_WIDTH/10)];
+    loadinView.animateAtOnce = YES;
+    
+    UILabel *stoppedView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 20)];
+    stoppedView.font = [UIFont fontWithName:THIN_FONT size:14];
+    stoppedView.textAlignment = NSTextAlignmentCenter;
+    stoppedView.text = @"Pull to refresh";
+
+    UILabel *triggeredView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 20)];
+    triggeredView.font = [UIFont fontWithName:THIN_FONT size:14];
+    triggeredView.textAlignment = NSTextAlignmentCenter;
+    triggeredView.text = @"Release to refresh";
+    
+    [self.collectionView.pullToRefreshView setCustomView:loadinView forState:SVPullToRefreshStateLoading];
+    [self.collectionView.pullToRefreshView setCustomView:stoppedView forState:SVPullToRefreshStateStopped];
+    [self.collectionView.pullToRefreshView setCustomView:triggeredView forState:SVPullToRefreshStateTriggered];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     self.collectionView.frame = self.view.bounds;
     
-    //pull down to refresh
-    self.pullToRefresh = [[UIRefreshControl alloc] init];
-    [self.pullToRefresh setTintColor:PRIMARY_COLOR];
-    [self.pullToRefresh addTarget:self action:@selector(fetchVideos) forControlEvents:UIControlEventValueChanged];
-    [self.collectionView addSubview:self.pullToRefresh];
-    
+    [self.collectionView triggerPullToRefresh];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -181,6 +209,11 @@ static NSString *cellID = @"Cell";
         [self.collectionView setContentOffset:CGPointMake(0, 0) animated:YES];
 }
 
+- (void)groupChanged:(NSNotification*)notif {
+    self.collectionView.contentOffset = CGPointMake(0, 0);
+    [self.collectionView triggerPullToRefresh];
+}
+
 #pragma mark - UICollectionView
 static BOOL welcomeLabelRemoved = NO;
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -243,7 +276,6 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
     if(self.disableScrollHandling) {
         return;
     }
@@ -259,12 +291,20 @@ static BOOL welcomeLabelRemoved = NO;
     [self.delegate enableRecording:NO];
 }
 
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-    [self.delegate enableRecording:YES];
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
+    [self.delegate enableRecording:NO];
+}
 
-    //[self adjustWhileDraggingWithVelocity:velocity];
-    
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     self.scrolling = NO;
+    [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        [self playVisible:YES];
+        [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+    }
 }
 
 - (void)adjustWhileDraggingWithVelocity:(CGPoint)velocity {
@@ -289,35 +329,12 @@ static BOOL welcomeLabelRemoved = NO;
     }
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    self.disableScrollHandling = NO;
-    
-    self.scrolling = NO;
-}
-
--(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    if(!decelerate)
-        [self playVisible:YES];
-}
-
 - (void)playVisible:(BOOL)playValue {
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
     }
 }
 
-#pragma mark - Pull down to refresh - Not implemented
-- (void)fetchVideos {
-    double delayInSeconds = 2.0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        
-        //self.numberOfItems += 5;
-        //        [self reload];
-        [self.pullToRefresh endRefreshing];
-    });
-    
-}
 #pragma mark - Custom transitions
 - (id <UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
     self.animationController.presentingMode = YES;
