@@ -69,7 +69,7 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupChanged:) name:GROUP_CHANGED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshGroup:)    name:REFRESH_GROUP_NOTIFICATION object:nil];
     
     [self reload];
     
@@ -210,9 +210,12 @@ static NSString *cellID = @"Cell";
         [self.collectionView setContentOffset:CGPointMake(0, 0) animated:YES];
 }
 
-- (void)groupChanged:(NSNotification*)notif {
-    self.collectionView.contentOffset = CGPointMake(0, 0);
-    [self.collectionView triggerPullToRefresh];
+- (void)refreshGroup:(NSNotification*)notif {
+    YAGroup *groupToRefresh = [notif object];
+    if([[YAUser currentUser].currentGroup.localId isEqualToString:groupToRefresh.localId]) {
+        self.collectionView.contentOffset = CGPointMake(0, 0);
+        [self.collectionView triggerPullToRefresh];
+    }
 }
 
 #pragma mark - UICollectionView

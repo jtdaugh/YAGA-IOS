@@ -218,11 +218,11 @@
     if(pageIndex == 0) {
         [self setPlayerAtIndex:0 forPage:page];
         
-        if(self.pages.count > 0) {
+        if(self.pages.count > 1) {
             [self setPlayerAtIndex:1 forPage:[self.pages objectAtIndex:1]];
         }
         
-        if(self.pages.count > 1)
+        if(self.pages.count > 2)
             [self setPlayerAtIndex:2 forPage:[self.pages objectAtIndex:2]];
     }
     //last page, current on the right

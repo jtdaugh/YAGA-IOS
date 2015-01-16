@@ -468,8 +468,7 @@
                 //send local changes to the server
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
                 
-                //force current group to refresh it's videos(refresh called on group change, simulating)
-                [YAUser currentUser].currentGroup = [YAUser currentUser].currentGroup;
+                [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
             }
             else {
                 NSLog(@"unable to read groups from server");

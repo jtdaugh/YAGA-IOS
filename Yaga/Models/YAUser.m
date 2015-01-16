@@ -65,7 +65,7 @@
     
     [[YAAssetsCreator sharedCreator] createAssetsForGroup:self.currentGroup];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_CHANGED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[self currentGroup]];
 }
 
 - (BOOL)loggedIn {
