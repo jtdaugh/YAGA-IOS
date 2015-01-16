@@ -47,4 +47,6 @@
 
 #define defaultUsername @"Yaga user"
 
+#define YA_DEVICE_TOKEN @"YAGA_DEVICE_TOKEN"
+
 #endif

@@ -51,6 +51,7 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 - (NSString*)formatDate:(NSDate*)date;
 - (NSString*)username;
 - (NSString*)phoneNumber;
+- (NSString*)deviceToken;
 
 @property (nonatomic, readonly) NSMutableDictionary *phonebook;
 
