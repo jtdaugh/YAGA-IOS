@@ -11,6 +11,7 @@
 #import "YAContact.h"
 #import "NSString+Hash.h"
 #import <Realm/Realm.h>
+#import "YAUtils.h"
 
 @interface NameGroupViewController ()
 @property (strong, nonatomic) UITextField *groupNameTextField;
@@ -103,42 +104,23 @@
     
     [[YAUser currentUser].currentGroup rename:self.groupNameTextField.text];
     
-    if(!self.embeddedMode) {
-        [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
-    }
-    else {
-        [self.navigationController popToRootViewControllerAnimated:YES];
-    }
-}
-
-- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
-{
-    switch (result) {
-        case MessageComposeResultCancelled:
-            break;
-            
-        case MessageComposeResultFailed:
-        {
-            UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to send SMS!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-            [warningAlert show];
-            break;
-        }
-            
-        case MessageComposeResultSent:
-            break;
-            
-        default:
-            break;
+    NSMutableArray *friendNumbers = [NSMutableArray arrayWithCapacity:[YAUser currentUser].currentGroup.members.count];
+    for(YAContact *member in [YAUser currentUser].currentGroup.members) {
+        [friendNumbers addObject:member.number];
     }
     
-    [self dismissViewControllerAnimated:YES completion:^{
-        //
-        [self.navigationController dismissViewControllerAnimated:YES completion:^{
-            //
-        }];
+    [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
+        if(error)
+            [YAUtils showNotification:@"Error: Can't send iMessage" type:AZNotificationTypeError];
+        
+        if(!self.embeddedMode) {
+            [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
+        }
+        else {
+            [self.navigationController popToRootViewControllerAnimated:YES];
+        }
     }];
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

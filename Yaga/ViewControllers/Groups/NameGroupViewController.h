@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-@import MessageUI;
 
-@interface NameGroupViewController : UIViewController <MFMessageComposeViewControllerDelegate>
+@interface NameGroupViewController : UIViewController
 @property (strong, nonatomic) NSMutableArray *membersDic;
 @property (nonatomic, assign) BOOL embeddedMode;
 

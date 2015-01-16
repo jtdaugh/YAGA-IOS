@@ -268,13 +268,20 @@
         return;
     
     if(self.existingGroup && self.existingGroupDirty) {
-        [self.existingGroup addMembers:self.selectedContacts];
         
-        [self.navigationController popToRootViewControllerAnimated:YES];
-        
-        NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
-       
-        [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+        NSArray *friendNumbers = [self.selectedContacts valueForKey:nPhone];
+        [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
+            if(error)
+                [YAUtils showNotification:@"Error: Can't send iMessage" type:AZNotificationTypeError];
+            
+            [self.existingGroup addMembers:self.selectedContacts];
+            
+            [self.navigationController popToRootViewControllerAnimated:YES];
+            
+            NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
+            
+            [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+        }];
     }
     //create default group
     else {

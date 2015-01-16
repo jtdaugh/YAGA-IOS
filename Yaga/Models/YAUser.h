@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "YAGroup.h"
 
+@import MessageUI;
+
 @class YAUser;
 
 typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
@@ -19,7 +21,7 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 @end
 
 
-@interface YAUser : NSObject {
+@interface YAUser : NSObject<MFMessageComposeViewControllerDelegate> {
     NSDateFormatter *dateFormatter;
     NSDateFormatter *timeFormatter;
 }
@@ -51,4 +53,6 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 - (NSString*)phoneNumber;
 
 @property (nonatomic, readonly) NSMutableDictionary *phonebook;
+
+- (void)iMessageWithFriends:(NSArray*)friendNumbers withCompletion:(completionBlock)presentedBlock;
 @end

@@ -15,6 +15,7 @@
 #import "NBPhoneNumberUtil.h"
 #import "YAAssetsCreator.h"
 #import "YAImageCache.h"
+#import "YAUtils.h"
 
 #define YA_CURRENT_GROUP_ID @"current_group_id"
 
@@ -206,4 +207,54 @@
 - (NSString*)phoneNumber {
     return [[YAUser currentUser] objectForKey:nPhone];
 }
+
+#pragma mark - iMessage
+- (void)iMessageWithFriends:(NSArray*)friendNumbers withCompletion:(completionBlock)presentedBlock {
+    if(![MFMessageComposeViewController canSendText]) {
+        if(presentedBlock) {
+            NSError *error = [NSError errorWithDomain:@"YAGA" code:0 userInfo:nil];
+            presentedBlock(error);
+        }
+        
+        return;
+    }
+    
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), self.currentGroup.name];
+    
+    MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
+    messageController.messageComposeDelegate = self;
+    [messageController setRecipients:friendNumbers];
+    [messageController setBody:message];
+    [messageController setSubject:@"Yaga"];
+    
+    // Present message view controller on screen
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:messageController animated:YES completion:^{
+        if(presentedBlock)
+            presentedBlock(nil);
+    }];
+}
+
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
+{
+    switch (result) {
+        case MessageComposeResultCancelled:
+            break;
+            
+        case MessageComposeResultFailed:
+        {
+            [YAUtils showNotification:@"failed to send message" type:AZNotificationTypeError];
+            break;
+        }
+            
+        case MessageComposeResultSent:
+            [YAUtils showNotification:@"message sent" type:AZNotificationTypeSuccess];
+            break;
+            
+        default:
+            break;
+    }
+    
+    [[UIApplication sharedApplication].keyWindow.rootViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
 @end

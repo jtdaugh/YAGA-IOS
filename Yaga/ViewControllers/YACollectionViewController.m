@@ -70,6 +70,9 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupChanged:) name:GROUP_CHANGED_NOTIFICATION object:nil];
+    
+    [self reload];
+    
     //transitions
     self.animationController = [YAAnimatedTransitioningController new];
     
@@ -109,8 +112,6 @@ static NSString *cellID = @"Cell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     self.collectionView.frame = self.view.bounds;
-    
-    [self.collectionView triggerPullToRefresh];
 }
 
 - (void)didReceiveMemoryWarning {
