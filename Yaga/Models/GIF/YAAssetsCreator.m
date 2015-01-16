@@ -393,7 +393,8 @@
 }
 
 #pragma mark - Realm
-- (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group {
+- (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
+                        addToGroup:(YAGroup*)group {
     
     NSString *hashStr = [YAUtils uniqueId];
     NSString *moveFilename = [hashStr stringByAppendingPathExtension:@"mov"];
@@ -426,7 +427,8 @@
     });
 }
 
-- (void)createVideoFromRemoteDictionary:(NSDictionary*)videoDic addToGroup:(YAGroup*)group {
+- (void)createVideoFromRemoteDictionary:(NSDictionary*)videoDic
+                             addToGroup:(YAGroup*)group {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSString *videoId = videoDic[YA_RESPONSE_ID];
         if([self.failedVideoIds containsObject:videoId]) {
