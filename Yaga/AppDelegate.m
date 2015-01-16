@@ -27,18 +27,18 @@
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
     
-//#warning TESTING REMOVE ALL GROUPS
-//    [[RLMRealm defaultRealm] beginWriteTransaction];
-//    [[RLMRealm defaultRealm] deleteObjects:[YAGroup allObjects]];
-//    [[RLMRealm defaultRealm] commitWriteTransaction];
-//
-//#warning TESTING REMOVE ALL VIDEOS IN CURRENT GROUP
-//    [[RLMRealm defaultRealm] beginWriteTransaction];
-//    [[YAUser currentUser].currentGroup.videos removeAllObjects];
-//    [[RLMRealm defaultRealm] commitWriteTransaction];
-////
-//    #warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
-//    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
+    //#warning TESTING REMOVE ALL GROUPS
+    //    [[RLMRealm defaultRealm] beginWriteTransaction];
+    //    [[RLMRealm defaultRealm] deleteObjects:[YAGroup allObjects]];
+    //    [[RLMRealm defaultRealm] commitWriteTransaction];
+    //
+    //#warning TESTING REMOVE ALL VIDEOS IN CURRENT GROUP
+    //    [[RLMRealm defaultRealm] beginWriteTransaction];
+    //    [[YAUser currentUser].currentGroup.videos removeAllObjects];
+    //    [[RLMRealm defaultRealm] commitWriteTransaction];
+    ////
+    //    #warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
+    //    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
     
     NSString *identifier;
     if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
@@ -53,7 +53,7 @@
     else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && [YAGroup allObjects].count) {
         identifier = @"OnboardingSelectGroupNavigationController";
     }
-
+    
     UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
     self.window.rootViewController = viewController;
     
@@ -61,7 +61,7 @@
     
     [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
     [application registerForRemoteNotifications];
-
+    
     return YES;
 }
 
@@ -85,7 +85,7 @@
 #pragma mark - Push notifications
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
     NSLog(@"didRegisterUserNotificationSettings %@", notificationSettings);
-
+    
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
@@ -99,6 +99,17 @@
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSLog(@"didReceiveRemoteNotification %@", userInfo);
     [YAUtils showNotification:[NSString stringWithFormat:@"Push: %@", [userInfo description]] type:AZNotificationTypeMessage];
+    
+    //for tests
+    NSString *testAlert = @"New video at group ";
+    if([userInfo[@"aps"][@"alert"] rangeOfString:testAlert].location != NSNotFound) {
+        NSString *groupId = [[userInfo[@"aps"][@"alert"] stringByReplacingOccurrencesOfString:testAlert withString:@""] stringByReplacingOccurrencesOfString:@"!" withString:@""];
+        NSLog(@"group id from push %@", groupId);
+        
+        if([groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
+        }
+    }
 }
 
 
