@@ -49,6 +49,8 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
+- (void)registerDeviceTokenWithCompletion:(responseBlock)completion;
+
 - (void)startMonitoringInternetConnection:(BOOL)start;
 
 //

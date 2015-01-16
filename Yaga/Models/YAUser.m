@@ -208,6 +208,10 @@
     return [[YAUser currentUser] objectForKey:nPhone];
 }
 
+- (NSString*)deviceToken {
+    return [[YAUser currentUser] objectForKey:YA_DEVICE_TOKEN];
+}
+
 #pragma mark - iMessage
 - (void)iMessageWithFriends:(NSArray*)friendNumbers withCompletion:(completionBlock)presentedBlock {
     if(![MFMessageComposeViewController canSendText]) {

@@ -27,6 +27,7 @@
 #define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
 #define API_AUTH_TOKEN_TEMPLATE             @"%@/auth/obtain/"
 #define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
+#define API_AUTH_OBTAIN_TEMPLATE            @"%@/auth/obtain/"
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
 #define API_RENAME_GROUP_TEMPLATE           @"%@/groups/%@/"
@@ -37,7 +38,6 @@
 
 #define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/"
 #define API_GROUP_POST_DELETE               @"%@/groups/%@/posts/%@/"
-
 
 #define USER_PHONE @"phone"
 #define ERROR_DATA @"com.alamofire.serialization.response.error.data"
@@ -426,6 +426,25 @@
               }];
 }
 
+- (void)registerDeviceTokenWithCompletion:(responseBlock)completion {
+    NSAssert(self.token.length, @"token not set");
+    NSAssert([YAUser currentUser].phoneNumber.length, @"phone number not set");
+    NSAssert([YAUser currentUser].deviceToken.length, @"device token not set");
+    
+    NSString *api = [NSString stringWithFormat:API_AUTH_OBTAIN_TEMPLATE, self.base_api];
+    
+    NSDictionary *parameters = @{
+                                 @"phone": [YAUser currentUser].phoneNumber,
+                                 @"code": [YAUser currentUser].deviceToken
+                                 };
+    
+    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+}
+
 #pragma mark - Utitlities
 //- (void)printErrorData:(NSError*)error
 //{
@@ -458,6 +477,16 @@
     NSLog(@"YAServer:sync, serverUp: %@", self.serverUp ? @"Yes" : @"No");
     
     if([[YAUser currentUser] loggedIn] && self.token.length && self.serverUp) {
+#warning refactor me
+        //register first time when user is registered
+        //then register every day?
+        if([YAUser currentUser].phoneNumber.length && [YAUser currentUser].deviceToken.length) {
+            [self registerDeviceTokenWithCompletion:^(id response, NSError *error) {
+                if(error) {
+                    [YAUtils showNotification:[NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription] type:AZNotificationTypeError];
+                }
+            }];
+        }
         
         //read updates from server
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
