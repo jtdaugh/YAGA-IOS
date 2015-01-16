@@ -75,7 +75,7 @@
         
         // Wait until the pending operations finish
         [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
-        //[[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
+        [[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
         
         [application endBackgroundTask: bgTask];
         bgTask = UIBackgroundTaskInvalid;

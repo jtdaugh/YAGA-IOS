@@ -84,6 +84,9 @@
 		862A784F1A652E5600E5A3E4 /* 4.mov in Resources */ = {isa = PBXBuildFile; fileRef = 862A78491A652E5600E5A3E4 /* 4.mov */; };
 		862A78501A652E5600E5A3E4 /* 2.mov in Resources */ = {isa = PBXBuildFile; fileRef = 862A784A1A652E5600E5A3E4 /* 2.mov */; };
 		862A78511A652E5600E5A3E4 /* 6.mov in Resources */ = {isa = PBXBuildFile; fileRef = 862A784B1A652E5600E5A3E4 /* 6.mov */; };
+		862D98181A6944340037DBA3 /* YAGifCreationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 862D98171A6944340037DBA3 /* YAGifCreationOperation.m */; };
+		862D981B1A69559A0037DBA3 /* YAVideoDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 862D981A1A69559A0037DBA3 /* YAVideoDownloadOperation.m */; };
+		862D981E1A695A460037DBA3 /* YAVideoCreateOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 862D981D1A695A460037DBA3 /* YAVideoCreateOperation.m */; };
 		865BD7A21A484543003B00DA /* UIColor+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79D1A484543003B00DA /* UIColor+Additions.m */; };
 		865BD7A31A484543003B00DA /* AZNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79F1A484543003B00DA /* AZNotification.m */; };
 		865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD7A11A484543003B00DA /* AZNotificationView.m */; };
@@ -238,6 +241,12 @@
 		862A78491A652E5600E5A3E4 /* 4.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 4.mov; sourceTree = "<group>"; };
 		862A784A1A652E5600E5A3E4 /* 2.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 2.mov; sourceTree = "<group>"; };
 		862A784B1A652E5600E5A3E4 /* 6.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 6.mov; sourceTree = "<group>"; };
+		862D98161A6944340037DBA3 /* YAGifCreationOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGifCreationOperation.h; sourceTree = "<group>"; };
+		862D98171A6944340037DBA3 /* YAGifCreationOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGifCreationOperation.m; sourceTree = "<group>"; };
+		862D98191A69559A0037DBA3 /* YAVideoDownloadOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideoDownloadOperation.h; sourceTree = "<group>"; };
+		862D981A1A69559A0037DBA3 /* YAVideoDownloadOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideoDownloadOperation.m; sourceTree = "<group>"; };
+		862D981C1A695A460037DBA3 /* YAVideoCreateOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideoCreateOperation.h; sourceTree = "<group>"; };
+		862D981D1A695A460037DBA3 /* YAVideoCreateOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideoCreateOperation.m; sourceTree = "<group>"; };
 		865BD79C1A484543003B00DA /* UIColor+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Additions.h"; sourceTree = "<group>"; };
 		865BD79D1A484543003B00DA /* UIColor+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Additions.m"; sourceTree = "<group>"; };
 		865BD79E1A484543003B00DA /* AZNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZNotification.h; sourceTree = "<group>"; };
@@ -297,6 +306,12 @@
 			children = (
 				6E0453EA1A56B73700EF961B /* YAAssetsCreator.h */,
 				6E0453EB1A56B73700EF961B /* YAAssetsCreator.m */,
+				862D98161A6944340037DBA3 /* YAGifCreationOperation.h */,
+				862D98171A6944340037DBA3 /* YAGifCreationOperation.m */,
+				862D98191A69559A0037DBA3 /* YAVideoDownloadOperation.h */,
+				862D981A1A69559A0037DBA3 /* YAVideoDownloadOperation.m */,
+				862D981C1A695A460037DBA3 /* YAVideoCreateOperation.h */,
+				862D981D1A695A460037DBA3 /* YAVideoCreateOperation.m */,
 				6E5C991B1A5F4B1D00A9F586 /* YAImageCache.h */,
 				6E5C991C1A5F4B1D00A9F586 /* YAImageCache.m */,
 			);
@@ -736,11 +751,13 @@
 				865BD7A21A484543003B00DA /* UIColor+Additions.m in Sources */,
 				6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */,
 				6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */,
+				862D98181A6944340037DBA3 /* YAGifCreationOperation.m in Sources */,
 				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
 				6E5C991A1A5EAFAA00A9F586 /* YAActivityView.m in Sources */,
 				86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
 				865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */,
+				862D981E1A695A460037DBA3 /* YAVideoCreateOperation.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */,
 				6E7C2EE41A4C4EE200522A34 /* UsernameViewController.m in Sources */,
@@ -775,6 +792,7 @@
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
 				6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */,
+				862D981B1A69559A0037DBA3 /* YAVideoDownloadOperation.m in Sources */,
 				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
 				6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */,
