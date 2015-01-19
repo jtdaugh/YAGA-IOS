@@ -112,7 +112,11 @@
     self.countryButton.frame = CGRectMake(gutter, availableHeight/2+separator, VIEW_WIDTH - formWidth - gutter*3, VIEW_HEIGHT*.08);
     self.phoneTextField.frame = CGRectMake(VIEW_WIDTH-formWidth-gutter, availableHeight/2+separator, formWidth, VIEW_HEIGHT*.08);
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
-    self.nextButton.frame = CGRectMake((VIEW_WIDTH-buttonWidth)/2, self.phoneTextField.frame.origin.y + self.phoneTextField.frame.size.height + separator, buttonWidth, VIEW_HEIGHT*.1);
+    
+    CGFloat heightForButton = availableHeight - self.phoneTextField.frame.origin.y - self.phoneTextField.frame.size.height;
+    CGFloat buttonOrigin = self.phoneTextField.frame.origin.y + self.phoneTextField.frame.size.height + heightForButton/2 - VIEW_HEIGHT*.1/2;
+    
+    self.nextButton.frame = CGRectMake((VIEW_WIDTH-buttonWidth)/2, buttonOrigin, buttonWidth, VIEW_HEIGHT*.1);
     self.activityIndicator.center = self.nextButton.center;
 }
 

@@ -111,7 +111,11 @@
     self.enterCodeLabel.frame = CGRectMake(0, availableHeight/4, VIEW_WIDTH, 30);
     self.codeTextField.frame = CGRectMake(0, self.enterCodeLabel.frame.origin.y + self.enterCodeLabel.frame.size.height + 20, VIEW_WIDTH, VIEW_HEIGHT*.08);
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
-    self.nextButton.frame = CGRectMake((VIEW_WIDTH-buttonWidth)/2, self.codeTextField.frame.origin.y + self.codeTextField.frame.size.height + 10, buttonWidth, VIEW_HEIGHT*.1);
+    
+    CGFloat heightForButton = availableHeight - self.codeTextField.frame.origin.y - self.codeTextField.frame.size.height;
+    CGFloat buttonOrigin = self.codeTextField.frame.origin.y + self.codeTextField.frame.size.height + heightForButton/2 - VIEW_HEIGHT*.1/2;
+    
+    self.nextButton.frame = CGRectMake((VIEW_WIDTH-buttonWidth)/2, buttonOrigin, buttonWidth, VIEW_HEIGHT*.1);
     self.activityIndicator.center = self.nextButton.center;
 }
 
@@ -122,7 +126,7 @@
     CGRect rawFrame      = [value CGRectValue];
     CGRect keyboardFrame = [self.view convertRect:rawFrame fromView:nil];
     
-    CGFloat availableHeight = VIEW_HEIGHT - keyboardFrame.size.height;
+    CGFloat availableHeight = VIEW_HEIGHT - keyboardFrame.size.height - self.navigationController.navigationBar.frame.size.height;
     [self layoutControls:availableHeight];
 }
 
