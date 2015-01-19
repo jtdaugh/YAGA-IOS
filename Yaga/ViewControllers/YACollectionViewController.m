@@ -91,20 +91,16 @@ static NSString *cellID = @"Cell";
         }];
     }];
     
-    YAActivityView *loadinView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/10, VIEW_WIDTH/10)];
-    loadinView.animateAtOnce = YES;
+    YAActivityView *loadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/10, VIEW_WIDTH/10)];
+    loadingView.animateAtOnce = YES;
     
-    UILabel *stoppedView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 20)];
-    stoppedView.font = [UIFont fontWithName:THIN_FONT size:14];
-    stoppedView.textAlignment = NSTextAlignmentCenter;
-    stoppedView.text = @"Pull to refresh";
-
-    UILabel *triggeredView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 20)];
-    triggeredView.font = [UIFont fontWithName:THIN_FONT size:14];
-    triggeredView.textAlignment = NSTextAlignmentCenter;
-    triggeredView.text = @"Release to refresh";
+    YAActivityView *stoppedView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/14, VIEW_WIDTH/14)];
+    stoppedView.animateAtOnce = NO;
     
-    [self.collectionView.pullToRefreshView setCustomView:loadinView forState:SVPullToRefreshStateLoading];
+    YAActivityView *triggeredView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/14, VIEW_WIDTH/14)];
+    triggeredView.animateAtOnce = NO;
+    
+    [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
     [self.collectionView.pullToRefreshView setCustomView:stoppedView forState:SVPullToRefreshStateStopped];
     [self.collectionView.pullToRefreshView setCustomView:triggeredView forState:SVPullToRefreshStateTriggered];
 }
