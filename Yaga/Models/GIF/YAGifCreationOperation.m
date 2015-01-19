@@ -32,6 +32,7 @@
         __block NSArray *keys;
         __block AVURLAsset *asset;
         __block NSString *filename;
+
         dispatch_sync(dispatch_get_main_queue(), ^{
             
             NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.movFilename];
@@ -41,10 +42,8 @@
             asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
             
             filename = [self.video.movFilename stringByDeletingPathExtension];
-            
         });
-        NSLog(@"------ YAGifCreationOperation started %@", filename);
-
+        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
         [asset loadValuesAsynchronouslyForKeys:keys completionHandler:^() {
             NSError *error = nil;
             AVKeyValueStatus valueStatus = [asset statusOfValueForKey:@"duration" error:&error];
@@ -85,7 +84,7 @@
                             if (result == AVAssetImageGeneratorSucceeded) {
                                 UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
                                 newImage = [YAGifCreationOperation deviceSpecificCroppedThumbnailFromImage:newImage];
-                                //UIImageWriteToSavedPhotosAlbum(newImage, self, @selector(imageSavedToPhotosAlbum: didFinishSavingWithError: contextInfo:), nil);
+                                
                                 [imagesArray addObject:newImage];
                                 
                                 if([imagesArray count] == 1) {
@@ -126,10 +125,7 @@
                                                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
                                                                                                     object:self.video];
                                                 
-//                                                [self finishGIFGenerationAndStartNext:self.video
-//                                                               errorsDuringProcessing:NO];
-                                                
-                                                NSLog(@"------  YAGifCreationOperation  finished %@", filename);
+                                                dispatch_semaphore_signal(sem);
                                             });
                                         }
                                     }];
@@ -139,27 +135,25 @@
                             
                             if (result == AVAssetImageGeneratorFailed) {
                                 NSLog(@"AVAssetImageGeneratorFailed with error: %@", [error localizedDescription]);
-                                //[self finishGIFGenerationAndStartNext:self.video errorsDuringProcessing:YES];
                             }
                             if (result == AVAssetImageGeneratorCancelled) {
                                 NSLog(@"AVAssetImageGeneratorCancelled");
-                                //[self finishGIFGenerationAndStartNext:self.video errorsDuringProcessing:YES];
                             }
                         }];
                     }
                     break;
                 case AVKeyValueStatusFailed:
                     NSLog(@"createJPGAndGIFForVideo Error finding duration");
-                    //[self finishGIFGenerationAndStartNext:video errorsDuringProcessing:YES];
                     break;
                 case AVKeyValueStatusCancelled:
                     NSLog(@"createJPGAndGIFForVideo Cancelled finding duration");
-                    //[self finishGIFGenerationAndStartNext:video errorsDuringProcessing:YES];
                     break;
                 default:
                     break;
             }
         }];
+        
+        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     }
 }
 

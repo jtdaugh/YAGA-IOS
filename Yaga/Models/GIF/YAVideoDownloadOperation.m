@@ -47,9 +47,8 @@
                 [self.video.realm beginWriteTransaction];
                 self.video.movFilename = moveFilename;
                 [self.video.realm commitWriteTransaction];
+                
                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:self.video];
-//                
-//                [self createJPGAndGIFForVideo:video];
             });
         }
     }
