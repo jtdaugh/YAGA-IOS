@@ -280,6 +280,33 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    CGRect cameraFrame = self.cameraView.view.frame;
+    CGRect gridFrame = self.view.frame;
+    
+    CGFloat scrollOffset = scrollView.contentOffset.y;
+    CGFloat offset = 0;
+    
+    NSLog(@"scrolling: %f", scrollOffset);
+    
+    if(scrollOffset < 0){
+        offset = 0;
+        cameraFrame.origin.y = 0;
+    } else if(scrollOffset > cameraFrame.size.height - 100){
+        offset = cameraFrame.size.height - 100;
+        cameraFrame.origin.y = -cameraFrame.size.height*2 + 100;
+    } else {
+        offset = scrollOffset;
+        cameraFrame.origin.y = -2*offset;
+    }
+    
+    
+    gridFrame.origin.y = VIEW_HEIGHT/2 + 2 - offset;
+    gridFrame.size.height = VIEW_HEIGHT/2 + 2 + offset;
+    
+//    self.cameraView.view.frame = cameraFrame;
+//    self.view.frame = gridFrame;
+    
     if(self.disableScrollHandling) {
         return;
     }

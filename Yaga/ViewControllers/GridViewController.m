@@ -52,6 +52,8 @@
     _collectionViewController = [YACollectionViewController new];
     _collectionViewController.delegate = self;
     _collectionViewController.view.frame = CGRectMake(0, VIEW_HEIGHT/2 + 2, VIEW_WIDTH, VIEW_HEIGHT/2 - 2);
+//    [_collectionViewController.view.layer setMasksToBounds:NO];
+    [_collectionViewController.collectionView.layer setMasksToBounds:NO];
 
     [self addChildViewController:_collectionViewController];
     [self.view addSubview:_collectionViewController.view];
@@ -63,6 +65,7 @@
     [self addChildViewController:_cameraViewController];
     [self.view addSubview:_cameraViewController.view];
     
+    _collectionViewController.cameraView = _cameraViewController;
     
     [self.view setBackgroundColor:[UIColor whiteColor]];
     

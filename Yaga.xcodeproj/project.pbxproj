@@ -624,7 +624,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = 8V4V36C528;
+						DevelopmentTeam = 69VNPN45P3;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -896,7 +896,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "98cd65cd-8935-4ab6-a697-a88003f9a97b";
+				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;

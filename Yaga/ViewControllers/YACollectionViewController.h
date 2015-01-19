@@ -6,6 +6,7 @@
 //
 //
 #import "YAVideoCell.h"
+#import "YACameraViewController.h"
 
 typedef void (^cameraCompletion)(void);
 
@@ -21,6 +22,7 @@ typedef void (^cameraCompletion)(void);
 }
 
 @property (strong, nonatomic) UICollectionView *collectionView;
+@property (strong, nonatomic) YACameraViewController *cameraView;
 @property (weak, nonatomic) id<YACollectionViewControllerDelegate> delegate;
 @property (nonatomic) BOOL scrolling;
 - (void)reload;
