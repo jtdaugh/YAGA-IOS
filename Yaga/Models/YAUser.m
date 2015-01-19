@@ -118,7 +118,7 @@
     return (NSMutableArray *) self.messages[groupId];
 }
 
-#pragma mark - Refactored - <delete me later
+#pragma mark - Refactored
 - (void)importContactsWithCompletion:(contactsImportedBlock)completion excludingPhoneNumbers:(NSSet*)excludePhonesSet {
     
     APAddressBook *addressBook = [[APAddressBook alloc] init];

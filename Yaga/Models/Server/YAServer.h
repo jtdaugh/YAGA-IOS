@@ -23,6 +23,8 @@
 #define YA_VIDEO_ATTACHMENT     @"attachment"
 #define YA_VIDEO_READY_AT       @"ready_at"
 
+#define YA_LAST_DEVICE_TOKEN_SYNC_DATE @"lastTokenSyncDate"
+
 @interface YAServer : NSObject
 typedef void(^responseBlock)(id response, NSError* error);
 
