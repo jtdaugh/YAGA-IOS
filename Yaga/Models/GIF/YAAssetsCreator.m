@@ -201,7 +201,20 @@
         video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
         video.url = videoDic[YA_VIDEO_ATTACHMENT];
         video.group = group;
-        [group.videos insertObject:video atIndex:0];
+        
+        //Insert video at proper positon
+        NSInteger index = 0;
+        for (int i = 0; i < group.videos.count; i++)
+        {
+            YAVideo *v = group.videos[i];
+            if ([v.createdAt compare:video.createdAt] == NSOrderedDescending)
+            {
+                index = i;
+                break;
+            }
+        }
+        
+        [group.videos insertObject:video atIndex:index];
         
         [group.realm commitWriteTransaction];
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_ADDED_NOTIFICATION object:video];
@@ -239,16 +252,6 @@
     
     [self.queue addOperation:downloadOperation];
     [self.queue addOperation:gifCreationOperation];
-    
-    NSInteger operationCount = 0;
-    for (NSOperation *op in self.queue.operations)
-    {
-        if ([op isExecuting])
-        {
-            operationCount++;
-        }
-    }
-    NSLog(@"NUMBER OF SIMULTANIOUS TASKS: %lu", (unsigned long)operationCount);
 
 }
 

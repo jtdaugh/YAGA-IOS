@@ -124,9 +124,9 @@
                                                 [self.video.realm commitWriteTransaction];
                                                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
                                                                                                     object:self.video];
-                                                
                                             });
                                         }
+                                        dispatch_semaphore_signal(sem);
                                     }];
                                 }
                                 
@@ -140,12 +140,15 @@
                             }
                         }];
                     }
-                case AVKeyValueStatusFailed:
+                case AVKeyValueStatusFailed: {
                     NSLog(@"createJPGAndGIFForVideo Error finding duration");
-                case AVKeyValueStatusCancelled:
+                }
+                    break;
+                case AVKeyValueStatusCancelled: {
                     NSLog(@"createJPGAndGIFForVideo Cancelled finding duration");
+                }
+                    break;
                 default:
-                    dispatch_semaphore_signal(sem);
                     break;
             }
         }];
