@@ -239,6 +239,17 @@
     
     [self.queue addOperation:downloadOperation];
     [self.queue addOperation:gifCreationOperation];
+    
+    NSInteger operationCount = 0;
+    for (NSOperation *op in self.queue.operations)
+    {
+        if ([op isExecuting])
+        {
+            operationCount++;
+        }
+    }
+    NSLog(@"NUMBER OF SIMULTANIOUS TASKS: %lu", (unsigned long)operationCount);
+
 }
 
 - (void)waitForAllOperationsToFinish

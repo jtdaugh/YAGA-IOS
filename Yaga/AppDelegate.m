@@ -126,4 +126,10 @@
     return token;
 }
 
+#pragma mark - Memory Warning 
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
+{
+    NSLog(@"%@", application);
+}
+
 @end
