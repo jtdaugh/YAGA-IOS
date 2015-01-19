@@ -77,6 +77,9 @@ static NSString *cellID = @"Cell";
     self.animationController = [YAAnimatedTransitioningController new];
     
     [self setupPullToRefresh];
+    
+    //refresh current group on load
+    [self refreshGroup:[NSNotification notificationWithName:@"currentGroup" object:[YAUser currentUser].currentGroup userInfo:nil]];
 }
 
 - (void)setupPullToRefresh {
