@@ -67,7 +67,7 @@
     self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.scrollView];
     
-    self.pages  = [[NSMutableArray alloc] init];
+    self.pages = [[NSMutableArray alloc] init];
     
     for (NSUInteger i = 0; i < self.videos.count; i++) {
         CGRect frame = self.scrollView.bounds;

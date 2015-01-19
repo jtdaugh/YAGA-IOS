@@ -11,6 +11,7 @@
 
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_NAME                @"name"
+#define YA_RESPONSE_LIKES               @"likes"
 #define YA_RESPONSE_MEMBERS             @"members"
 #define YA_RESPONSE_MEMBER_PHONE        @"phone"
 #define YA_RESPONSE_MEMBER_JOINED_AT    @"joined_at"
@@ -50,6 +51,8 @@ typedef void(^responseBlock)(id response, NSError* error);
 //posts
 - (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
+- (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 
 - (void)registerDeviceTokenWithCompletion:(responseBlock)completion;
 

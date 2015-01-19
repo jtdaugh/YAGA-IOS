@@ -40,8 +40,10 @@
 #define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/"
 #define API_GROUP_POST_DELETE               @"%@/groups/%@/posts/%@/"
 
-#define USER_PHONE @"phone"
-#define ERROR_DATA @"com.alamofire.serialization.response.error.data"
+#define API_GROUP_POST_LIKE                 @"%@/groups/%@/posts/%@/like/"
+
+#define USER_PHONE  @"phone"
+#define ERROR_DATA  @"com.alamofire.serialization.response.error.data"
 
 @interface YAServer ()
 
@@ -426,6 +428,42 @@
                   completion(nil, error);
               }];
 }
+
+
+- (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
+    NSAssert(self.token, @"token not set");
+    NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
+    NSString *serverVideoId = video.serverId;
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
+    [self.manager POST:api
+            parameters:nil
+               success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                   NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+                   NSNumber *likes = responseDict[YA_RESPONSE_LIKES];
+                   completion(likes, nil);
+               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                   completion(nil, nil);
+               }];
+}
+
+- (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
+    NSAssert(self.token, @"token not set");
+    NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
+    NSString *serverVideoId = video.serverId;
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
+    [self.manager   DELETE:api
+                parameters:nil
+                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                       NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+                       NSNumber *likes = responseDict[YA_RESPONSE_LIKES];
+                       completion(likes, nil);
+                   } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                       completion(nil, nil);
+                   }];
+}
+
+
+#pragma mark - Device token
 
 - (void)registerDeviceTokenWithCompletion:(responseBlock)completion {
     NSAssert(self.token.length, @"token not set");

@@ -25,6 +25,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *caption;
 @property NSDate *createdAt;
 @property BOOL like;
+@property NSInteger likes;
 
 @property NSString *localId;
 @property NSString *serverId;
