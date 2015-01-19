@@ -407,8 +407,7 @@
                                         [self.video removeFromCurrentGroup];
                                     }]];
         
-        
-        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+        [[[[[UIApplication sharedApplication] keyWindow] rootViewController] presentedViewController] presentViewController:alertController animated:YES completion:nil];
     }];
 }
 
