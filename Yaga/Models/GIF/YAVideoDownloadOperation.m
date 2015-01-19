@@ -31,10 +31,7 @@
         });
         
         NSURL *remoteURL = [NSURL URLWithString:videoUrl];
-        NSLog(@"getRemoteContentForVideo: %@", remoteURL.absoluteString);
-        
         NSData *data = [NSData dataWithContentsOfURL:remoteURL];
-        NSLog(@"getRemoteContentForVideo done for %@", remoteURL);
         
         NSString *hashStr       = [YAUtils uniqueId];
         NSString *moveFilename  = [hashStr stringByAppendingPathExtension:@"mov"];

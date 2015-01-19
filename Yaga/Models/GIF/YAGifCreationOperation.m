@@ -43,7 +43,7 @@
             filename = [self.video.movFilename stringByDeletingPathExtension];
             
         });
-        NSLog(@"%@", filename);
+        NSLog(@"------ YAGifCreationOperation started %@", filename);
 
         [asset loadValuesAsynchronouslyForKeys:keys completionHandler:^() {
             NSError *error = nil;
@@ -67,7 +67,6 @@
                         
                         Float64 movieDuration = CMTimeGetSeconds([asset duration]);
                         NSUInteger framesCount = movieDuration * 10;
-                        NSLog(@"movie duration: %f", movieDuration);
                         
                         NSMutableArray *times = [NSMutableArray arrayWithCapacity:framesCount];
                         for (int i = 0; i < framesCount; i++) {
@@ -129,6 +128,8 @@
                                                 
 //                                                [self finishGIFGenerationAndStartNext:self.video
 //                                                               errorsDuringProcessing:NO];
+                                                
+                                                NSLog(@"------  YAGifCreationOperation  finished %@", filename);
                                             });
                                         }
                                     }];
