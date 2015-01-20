@@ -43,7 +43,7 @@
         self.videosToProcess = [NSMutableArray array];
         //concurent downloads but serial gif generation..
         self.queue = [[NSOperationQueue alloc] init];
-        self.queue.maxConcurrentOperationCount = 3;
+        self.queue.maxConcurrentOperationCount = 10;
     }
     return self;
 }
@@ -187,46 +187,9 @@
     [self.queue addOperation:gifCreationOperation];
 }
 
-- (void)createVideoFromRemoteDictionary:(NSDictionary*)videoDic
-                             addToGroup:(YAGroup*)group {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *videoId = videoDic[YA_RESPONSE_ID];
-
-        [group.realm beginWriteTransaction];
-        
-        YAVideo *video = [YAVideo video];
-        video.serverId = videoId;
-        video.creator = videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME];
-        video.likes = [videoDic[YA_RESPONSE_LIKES] integerValue];
-        NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
-        video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
-        video.url = videoDic[YA_VIDEO_ATTACHMENT];
-        video.group = group;
-        
-        //Insert video at proper positon
-        NSInteger index = 0;
-        for (int i = 0; i < group.videos.count; i++)
-        {
-            YAVideo *v = group.videos[i];
-            if ([v.createdAt compare:video.createdAt] == NSOrderedDescending)
-            {
-                index = i;
-                break;
-            }
-        }
-        
-        [group.videos insertObject:video atIndex:index];
-        
-        [group.realm commitWriteTransaction];
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_ADDED_NOTIFICATION object:video];
-        
-        [self createDownloadTaskForVideo:video inGroup:group];
-    });
-}
-
 - (void)createAssetsForGroup:(YAGroup*)group {
     for(YAVideo *video in group.videos) {
-        [self createDownloadTaskForVideo:video inGroup:group];
+        [self createAssetsForVideo:video inGroup:group];
     }
 }
 
@@ -240,20 +203,24 @@
     }
 }
 
-- (void)createDownloadTaskForVideo:(YAVideo*)video inGroup:(YAGroup*)group
+- (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group
 {
-    YAVideoDownloadOperation *downloadOperation = [[YAVideoDownloadOperation alloc] initWithVideo:video];
-    downloadOperation.name = group.name;
-    downloadOperation.queuePriority = NSOperationQueuePriorityNormal;
-    
-    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
-    [gifCreationOperation addDependency:downloadOperation];
-    gifCreationOperation.name = group.name;
-    gifCreationOperation.queuePriority = NSOperationQueuePriorityHigh;
-    
-    [self.queue addOperation:downloadOperation];
-    [self.queue addOperation:gifCreationOperation];
-
+    YAVideoDownloadOperation *downloadOperation;
+    if(!video.movFilename.length) {
+        downloadOperation = [[YAVideoDownloadOperation alloc] initWithVideo:video];
+        downloadOperation.name = group.name;
+        downloadOperation.queuePriority = NSOperationQueuePriorityNormal;
+        [self.queue addOperation:downloadOperation];
+    }
+    if(!video.gifFilename.length) {
+        YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
+        if(downloadOperation)
+            [gifCreationOperation addDependency:downloadOperation];
+        
+        gifCreationOperation.name = group.name;
+        gifCreationOperation.queuePriority = NSOperationQueuePriorityNormal;
+        [self.queue addOperation:gifCreationOperation];
+    }
 }
 
 - (void)waitForAllOperationsToFinish

@@ -31,7 +31,7 @@
 #define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
-#define API_RENAME_GROUP_TEMPLATE           @"%@/groups/%@/"
+#define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/members/mute/"
 
 #define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/members/add/"
@@ -305,7 +305,7 @@
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_RENAME_GROUP_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
     
     NSDictionary *parameters = @{
                                  @"name": newName
@@ -318,11 +318,16 @@
     }];
 }
 
-- (void)groupInfoWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+- (void)groupInfoWithId:(NSString*)serverGroupId since:(NSDate*)since withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_RENAME_GROUP_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
+    
+    if(since) {
+        NSString *sinceString = [NSString stringWithFormat:@"?since=%lu", (unsigned long)[since timeIntervalSince1970]];
+        api = [api stringByAppendingString:sinceString];
+    }
     
     [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];

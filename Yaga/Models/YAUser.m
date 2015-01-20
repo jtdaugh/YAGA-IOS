@@ -61,6 +61,7 @@
     }
     
     [[NSUserDefaults standardUserDefaults] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];
+    
     _currentGroup = group;
     
     [[YAAssetsCreator sharedCreator] createAssetsForGroup:self.currentGroup];

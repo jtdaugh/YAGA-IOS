@@ -20,7 +20,7 @@ typedef void (^cameraRollCompletion)(NSError *error);
 - (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion;
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
-- (void)createVideoFromRemoteDictionary:(NSDictionary*)videoDic addToGroup:(YAGroup*)group;
+- (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group;
 
 //
 - (void)createAssetsForGroup:(YAGroup*)group;

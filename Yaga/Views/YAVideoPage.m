@@ -480,7 +480,7 @@
     self.captionField.text = @"";
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.captionField.text = self.video.caption;
-    [self.likeCount setTitle:[NSString stringWithFormat:@"%d", self.video.likes]
+    [self.likeCount setTitle:[NSString stringWithFormat:@"%ld", (long)self.video.likes]
                     forState:UIControlStateNormal]; 
 }
 
