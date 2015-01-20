@@ -12,9 +12,6 @@
 		6E0453EC1A56B73700EF961B /* YAAssetsCreator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0453EB1A56B73700EF961B /* YAAssetsCreator.m */; };
 		6E0453EE1A56C3ED00EF961B /* bumper.m4v in Resources */ = {isa = PBXBuildFile; fileRef = 6E0453ED1A56C3ED00EF961B /* bumper.m4v */; };
 		6E0453FD1A5704F300EF961B /* bumper_360x480.mov in Resources */ = {isa = PBXBuildFile; fileRef = 6E0453FC1A5704F300EF961B /* bumper_360x480.mov */; };
-		6E19A7AC1A4AF23C0067D42C /* AVPlaybackView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7A91A4AF23C0067D42C /* AVPlaybackView.m */; };
-		6E19A7AD1A4AF23C0067D42C /* AVPlaybackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E19A7AB1A4AF23C0067D42C /* AVPlaybackViewController.m */; };
-		6E19A7AF1A4AF34D0067D42C /* AVPlaybackView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E19A7AE1A4AF34D0067D42C /* AVPlaybackView.xib */; };
 		6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */; };
 		6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */; };
 		6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E583B6E1A6535BC00639BE5 /* YASwipingViewController.m */; };
@@ -112,11 +109,6 @@
 		6E0453EB1A56B73700EF961B /* YAAssetsCreator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAAssetsCreator.m; sourceTree = "<group>"; };
 		6E0453ED1A56C3ED00EF961B /* bumper.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.m4v; sourceTree = "<group>"; };
 		6E0453FC1A5704F300EF961B /* bumper_360x480.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = bumper_360x480.mov; sourceTree = "<group>"; };
-		6E19A7A81A4AF23C0067D42C /* AVPlaybackView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlaybackView.h; sourceTree = "<group>"; };
-		6E19A7A91A4AF23C0067D42C /* AVPlaybackView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlaybackView.m; sourceTree = "<group>"; };
-		6E19A7AA1A4AF23C0067D42C /* AVPlaybackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlaybackViewController.h; sourceTree = "<group>"; };
-		6E19A7AB1A4AF23C0067D42C /* AVPlaybackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlaybackViewController.m; sourceTree = "<group>"; };
-		6E19A7AE1A4AF34D0067D42C /* AVPlaybackView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AVPlaybackView.xib; sourceTree = "<group>"; };
 		6E32D72B1A5AEEBA00EAB261 /* YACameraFocusSquare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraFocusSquare.h; sourceTree = "<group>"; };
 		6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACameraFocusSquare.m; sourceTree = "<group>"; };
 		6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
@@ -349,18 +341,6 @@
 			path = Server;
 			sourceTree = "<group>";
 		};
-		6E73F40B1A432498000B3A14 /* Video Player */ = {
-			isa = PBXGroup;
-			children = (
-				6E19A7A81A4AF23C0067D42C /* AVPlaybackView.h */,
-				6E19A7A91A4AF23C0067D42C /* AVPlaybackView.m */,
-				6E19A7AE1A4AF34D0067D42C /* AVPlaybackView.xib */,
-				6E19A7AA1A4AF23C0067D42C /* AVPlaybackViewController.h */,
-				6E19A7AB1A4AF23C0067D42C /* AVPlaybackViewController.m */,
-			);
-			path = "Video Player";
-			sourceTree = "<group>";
-		};
 		6E73F41B1A432FAC000B3A14 /* Groups */ = {
 			isa = PBXGroup;
 			children = (
@@ -475,7 +455,6 @@
 			isa = PBXGroup;
 			children = (
 				6E73F41B1A432FAC000B3A14 /* Groups */,
-				6E73F40B1A432498000B3A14 /* Video Player */,
 				6E9188A41A3F3A5A0034AB63 /* Onboarding */,
 				6E5E667A1A424E3300B58E49 /* Segues */,
 				6E73F4251A43337D000B3A14 /* YACollectionViewController.h */,
@@ -677,7 +656,6 @@
 				6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */,
 				6E9188D51A3F3A5A0034AB63 /* Images.xcassets in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
-				6E19A7AF1A4AF34D0067D42C /* AVPlaybackView.xib in Resources */,
 				862A78501A652E5600E5A3E4 /* 2.mov in Resources */,
 				862A784C1A652E5600E5A3E4 /* 1.mov in Resources */,
 				862A78511A652E5600E5A3E4 /* 6.mov in Resources */,
@@ -767,12 +745,10 @@
 				6E7519DE1A51AC1B008E577D /* YAGroupMembersViewController.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
-				6E19A7AC1A4AF23C0067D42C /* AVPlaybackView.m in Sources */,
 				861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
 				6E583B751A6535C400639BE5 /* YAVideoPlayerView.m in Sources */,
 				6E62F7201A51A8CB008F5116 /* YAGroupAddMembersViewController.m in Sources */,
-				6E19A7AD1A4AF23C0067D42C /* AVPlaybackViewController.m in Sources */,
 				86B864AC1A433343002256FF /* CountryCell.m in Sources */,
 				861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */,
 				6E73F4221A432FAC000B3A14 /* YAGroupsViewController.m in Sources */,
