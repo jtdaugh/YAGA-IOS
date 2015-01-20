@@ -194,9 +194,6 @@
 }
 
 - (void)stopAllJobsForGroup:(YAGroup*)group {
-    self.queue = [[NSOperationQueue alloc] init];
-    self.queue.maxConcurrentOperationCount = 3;
-    
     for (NSOperation *op in self.queue.operations) {
         if ([op.name isEqualToString:group.name])
         {
