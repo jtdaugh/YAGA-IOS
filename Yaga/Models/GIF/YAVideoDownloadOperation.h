@@ -8,6 +8,6 @@
 #import "YAVideo.h"
 #import <Foundation/Foundation.h>
 
-@interface YAVideoDownloadOperation : NSOperation
+@interface YAVideoDownloadOperation : NSOperation <NSURLConnectionDataDelegate, NSURLConnectionDelegate>
 - (instancetype)initWithVideo:(YAVideo*)video;
 @end
