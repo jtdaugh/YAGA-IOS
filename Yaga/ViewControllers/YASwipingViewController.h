@@ -7,11 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Realm/Realm.h>
 
 @interface YASwipingViewController : UIViewController<UIScrollViewDelegate>
 @property (nonatomic, strong) UIScrollView *scrollView;
 
-- (id)initWithVideos:(RLMResults*)videos andInitialIndex:(NSUInteger)initialIndex;
+- (id)initWithVideos:(NSArray*)videos andInitialIndex:(NSUInteger)initialIndex;
 @end
 
