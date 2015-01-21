@@ -9,6 +9,7 @@
 #import "YAContact.h"
 #import "YAUtils.h"
 #import "YAUser.h"
+#import "NameGenerator.h"
 
 @implementation YAContact
 
@@ -46,7 +47,7 @@
         contact.username = username;
     }
     else {
-        contact.username = defaultUsername;
+        contact.username = [[NameGenerator sharedGeneratror] nameForPhoneNumber:phoneNumber];
     }
     if(existingUserData) {
         contact.name = existingUserData[nCompositeName];
