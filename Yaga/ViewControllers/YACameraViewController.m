@@ -551,9 +551,7 @@
         if(!newname.length)
             return;
         
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        [YAUser currentUser].currentGroup.name = newname;
-        [[RLMRealm defaultRealm] commitWriteTransaction];
+        [[YAUser currentUser].currentGroup rename:newname];
         
         [self.groupButton setTitle:newname forState:UIControlStateNormal];
     }]];
