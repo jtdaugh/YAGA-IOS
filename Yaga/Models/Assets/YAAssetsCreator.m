@@ -264,7 +264,7 @@
 
     //uncomment me if you want to track progress
     [operation setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:video.url userInfo:@{@"progress": [NSNumber numberWithFloat:totalBytesRead/(float)totalBytesExpectedToRead]}];
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:video.url userInfo:@{@"progress": [NSNumber numberWithFloat:(totalBytesRead - totalBytesRead * 0.3f) /(float)totalBytesExpectedToRead]}];
     }];
     
     NSLog(@"download operation created %@", operation.name);

@@ -145,6 +145,10 @@
             break;
         }
         
+        dispatch_async(dispatch_get_main_queue(), ^{
+            CGFloat currentFrame = i + 1;
+            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_GENERATE_PART_NOTIFICATION object:self.video.url userInfo:@{@"progress": [NSNumber numberWithFloat:currentFrame * 0.3 / framesCount + 0.7]}];
+        });
     }
     return imagesArray;
 }

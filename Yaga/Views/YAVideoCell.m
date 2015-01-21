@@ -111,7 +111,9 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 {
     [super prepareForReuse];
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:self.video.url];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
+
     self.progressView.progress = 0;
     self.progressView.alpha = 0;
 
@@ -466,7 +468,8 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     if(_video == video)
         return;
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:video.url];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
 
     _video = video;
     
@@ -502,7 +505,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         case YAVideoCellStateJPEGPreview: {
             [self showLoading:YES];
             [self showControls:NO];
-            [self showProgress:NO];
+            [self showProgress:YES];
             [self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
             break;
         }
@@ -624,19 +627,30 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     self.progressView.alpha = show && [[YAAssetsCreator sharedCreator] urlDownloadInProgress:self.video.url] ? 1 : 0;
 }
 
+- (void)generationProgressChanged:(NSNotification*)notif {
+    NSString *url = notif.object;
+    if([url isEqualToString:self.video.url]) {
+        
+        if(self.progressView) {
+            NSNumber *value = notif.userInfo[@"progress"];
+            
+            self.progressView.progress = value.floatValue;
+            self.progressView.alpha = 1;
+        }
+    }
+
+}
+
 - (void)downloadProgressChanged:(NSNotification*)notif {
     NSString *url = notif.object;
     if([url isEqualToString:self.video.url]) {
         
         if(self.progressView) {
             NSNumber *value = notif.userInfo[@"progress"];
+            
             self.progressView.progress = value.floatValue;
             self.progressView.alpha = 1;
         }
-        else {
-            
-        }
-        
     }
 }
 @end
