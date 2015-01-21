@@ -107,7 +107,7 @@
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         self.currentPage.playerView.player.rate = 1.0;
     } else if (recognizer.state == UIGestureRecognizerStateBegan){
-        self.currentPage.playerView.player.rate = 3.0;
+        self.currentPage.playerView.player.rate = 2.0;
     }
 }
 

@@ -181,7 +181,7 @@
         NSLog(@"init camera");
         
         self.session = [[AVCaptureSession alloc] init];
-        self.session.sessionPreset = AVCaptureSessionPresetHigh;
+        self.session.sessionPreset = AVCaptureSessionPresetMedium;
         
         [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
         [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
@@ -366,6 +366,13 @@
             [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:AZNotificationTypeError];
             return;
         }
+        
+        NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:outputFileURL.path error:nil];
+        
+        NSNumber *fileSizeNumber = [fileAttributes objectForKey:NSFileSize];
+        long long fileSize = [fileSizeNumber longLongValue];
+        
+        NSLog(@"file size: %lld", fileSize);
         
         [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
         
