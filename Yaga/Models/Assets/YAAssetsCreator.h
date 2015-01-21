@@ -28,4 +28,6 @@ typedef void (^stopOperationsCompletion)(void);
 
 // on background
 - (void)waitForAllOperationsToFinish;
+
+- (BOOL)urlDownloadInProgress:(NSString*)url;
 @end

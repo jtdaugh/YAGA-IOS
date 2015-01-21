@@ -226,6 +226,7 @@
     NSURL *url = [NSURL URLWithString:video.url];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    operation.name = video.url;
     //    [httpClient registerHTTPOperationClass:[AFHTTPRequestOperation class]];
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSData* videoData = (NSData*)responseObject;
@@ -257,13 +258,25 @@
             NSLog(@"Error downloading video %@", error);
         }
     }];
-//uncomment me if you want to track progress
-//    [operation setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
-//        NSLog(@"download progress %lu out of %lld", bytesRead, totalBytesRead);
-//    }];
+
+    //uncomment me if you want to track progress
+    [operation setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:video.url userInfo:@{@"progress": [NSNumber numberWithFloat:totalBytesRead/(float)totalBytesExpectedToRead]}];
+    }];
     
-    NSLog(@"download operation created for url: %@", video.localId);
+    NSLog(@"download operation created %@", operation.name);
     [self.downloadQueue addOperation:operation];
+}
+
+- (BOOL)urlDownloadInProgress:(NSString*)url {
+    for(NSOperation *op in self.downloadQueue.operations) {
+        if(!op.isExecuting)
+            continue;
+        
+        if([op.name isEqualToString:url])
+            return YES;
+    }
+    return NO;
 }
 
 - (void)waitForAllOperationsToFinish

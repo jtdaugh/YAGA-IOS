@@ -14,6 +14,7 @@
 #import "YAAssetsCreator.h"
 #import "YAActivityView.h"
 #import "YAImageCache.h"
+#import "AFURLConnectionOperation.h"
 
 typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateLoading = 0,
@@ -34,7 +35,10 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *saveButton;
 @property (nonatomic, strong) UIButton *deleteButton;
+
 @property (nonatomic, strong) YAActivityView *activityView;
+
+@property (nonatomic, strong) UIProgressView *progressView;
 
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
 
@@ -64,7 +68,14 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         
         self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
         
-//        [self setBackgroundColor:PRIMARY_COLOR];
+        //progress view
+        self.progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+        self.progressView.tintColor = PRIMARY_COLOR;
+        self.progressView.alpha = 0;
+        [self addSubview:self.progressView];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
+
     }
     return self;
 }
@@ -100,6 +111,10 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 {
     [super prepareForReuse];
     
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:self.video.url];
+    self.progressView.progress = 0;
+    self.progressView.alpha = 0;
+
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
@@ -451,6 +466,8 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     if(_video == video)
         return;
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:video.url];
+
     _video = video;
     
     [self setNeedsLayout];
@@ -458,7 +475,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 - (void)updateState {
     BOOL smallMode = self.bounds.size.height != VIEW_HEIGHT;
-
+    
     if(smallMode) {
         if(self.video.gifFilename.length)
             self.state = YAVideoCellStateGIFPreview;
@@ -479,12 +496,13 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         case YAVideoCellStateLoading: {
             [self showLoading:YES];
             [self showControls:NO];
+            [self showProgress:YES];
             break;
         }
         case YAVideoCellStateJPEGPreview: {
             [self showLoading:YES];
             [self showControls:NO];
-            
+            [self showProgress:NO];
             [self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
             break;
         }
@@ -492,30 +510,28 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
             //loading is removed when gif is shown in showImageAsyncFromFilename
             [self showLoading:YES];
             [self showControls:NO];
-            
+            [self showProgress:NO];
             [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
-            
-            
             break;
         }
         case YAVideoCellStateVideoPreview: {
-//not supported
-//            [self showLoading:NO];
-//            [self showControls:YES];
-//            
-//            //by some reason layoutSubviews is called twice when layoyt is changed
-//            //using the following check to prevent two instances of a player created
-//            NSURL *videoURL = [YAUtils urlFromFileName:self.video.movFilename];
-//            if(self.playerVC && [self.playerVC.URL.absoluteString isEqualToString:videoURL.absoluteString])
-//                return;
-//            
-//            self.playerVC = [AVPlaybackViewController new];
-//            [self.playerVC playWhenReady];
-//            
-//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//                self.playerVC.URL = videoURL;
-//
-//            });
+            //not supported
+            //            [self showLoading:NO];
+            //            [self showControls:YES];
+            //
+            //            //by some reason layoutSubviews is called twice when layoyt is changed
+            //            //using the following check to prevent two instances of a player created
+            //            NSURL *videoURL = [YAUtils urlFromFileName:self.video.movFilename];
+            //            if(self.playerVC && [self.playerVC.URL.absoluteString isEqualToString:videoURL.absoluteString])
+            //                return;
+            //
+            //            self.playerVC = [AVPlaybackViewController new];
+            //            [self.playerVC playWhenReady];
+            //
+            //            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            //                self.playerVC.URL = videoURL;
+            //
+            //            });
             
             break;
         }
@@ -541,7 +557,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 //        [self.playerVC.view removeFromSuperview];
 //        self.gifView.hidden = NO;
 //    }
-//    
+//
 //    _playerVC = playerVC;
 //}
 
@@ -595,5 +611,33 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     [self updateState];
 }
 
+#pragma mark - Download progress bar
+- (void)downloadStarted:(NSNotification*)notif {
+    NSOperation *op = notif.object;
+    if([op.name isEqualToString:self.video.url]) {
+        [self showProgress:YES];
+    }
+}
+
+- (void)showProgress:(BOOL)show {
+    self.progressView.frame = CGRectMake(self.bounds.size.width/4, self.activityView.center.y + self.activityView.bounds.size.height/2 + 5, self.bounds.size.width/2, 5);
+    self.progressView.alpha = show && [[YAAssetsCreator sharedCreator] urlDownloadInProgress:self.video.url] ? 1 : 0;
+}
+
+- (void)downloadProgressChanged:(NSNotification*)notif {
+    NSString *url = notif.object;
+    if([url isEqualToString:self.video.url]) {
+        
+        if(self.progressView) {
+            NSNumber *value = notif.userInfo[@"progress"];
+            self.progressView.progress = value.floatValue;
+            self.progressView.alpha = 1;
+        }
+        else {
+            
+        }
+        
+    }
+}
 @end
 
