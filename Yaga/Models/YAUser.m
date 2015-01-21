@@ -54,18 +54,17 @@
 }
 
 - (void)setCurrentGroup:(YAGroup *)group {
-    if(self.currentGroup) {
-        //thumbnails cache will clean itself automatically        
-        //stop all jobs for current group
-        [[YAAssetsCreator sharedCreator] stopAllJobs];
-    }
-    
     [[NSUserDefaults standardUserDefaults] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];
     
     _currentGroup = group;
     
-    [[YAAssetsCreator sharedCreator] createAssetsForGroup:self.currentGroup];
-    
+    [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[YAAssetsCreator sharedCreator] createAssetsForGroup:self.currentGroup];
+        });
+        
+    }];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[self currentGroup]];
 }
 

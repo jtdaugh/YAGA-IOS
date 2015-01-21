@@ -11,6 +11,7 @@
 #import "YAGroup.h"
 
 typedef void (^cameraRollCompletion)(NSError *error);
+typedef void (^stopOperationsCompletion)(void);
 
 @interface YAAssetsCreator : NSObject
 
@@ -23,7 +24,7 @@ typedef void (^cameraRollCompletion)(NSError *error);
 
 //
 - (void)createAssetsForGroup:(YAGroup*)group;
-- (void)stopAllJobs;
+- (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion;
 
 // on background
 - (void)waitForAllOperationsToFinish;

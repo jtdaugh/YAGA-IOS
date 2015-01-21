@@ -292,7 +292,9 @@ static BOOL groupsUpdateInProgress;
     NSMutableArray *newVideos = [NSMutableArray new];
     
     //supposing groups are coming sorted
-    for(NSDictionary *videoDic in videoDictionaries) {
+    for(NSInteger videoIndex = [videoDictionaries count] - 1;videoIndex >= 0;videoIndex--) {
+        NSDictionary *videoDic = videoDictionaries[videoIndex];
+        
         if(![idsToAdd containsObject:videoDic[YA_RESPONSE_ID]])
             continue;
         
@@ -320,20 +322,7 @@ static BOOL groupsUpdateInProgress;
             video.url = videoDic[YA_VIDEO_ATTACHMENT];
             video.group = self;
             
-            //Insert video at proper positon
-            NSInteger index = 0;
-            for (int i = 0; i < self.videos.count; i++)
-            {
-                YAVideo *v = self.videos[i];
-                if ([v.createdAt compare:video.createdAt] == NSOrderedDescending)
-                {
-                    index = i;
-                    break;
-                }
-            }
-            
-            [self.videos insertObject:video atIndex:index];
-            
+            [self.videos insertObject:video atIndex:0];
             [self.realm commitWriteTransaction];
             
             [newVideos addObject:video];

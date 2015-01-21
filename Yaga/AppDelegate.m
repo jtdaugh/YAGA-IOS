@@ -32,110 +32,118 @@
     //    [[RLMRealm defaultRealm] deleteObjects:[YAGroup allObjects]];
     //    [[RLMRealm defaultRealm] commitWriteTransaction];
     //
-#warning TESTING REMOVE ALL VIDEOS IN CURRENT GROUP
+    //    //#warning TESTING REMOVE ALL VIDEOS IN CURRENT GROUP
+    //            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"YA_GROUPS_UPDATED_AT"];
+    //        [[RLMRealm defaultRealm] beginWriteTransaction];
+    //        [[YAUser currentUser].currentGroup.videos removeAllObjects];
+    //        [[RLMRealm defaultRealm] commitWriteTransaction];
+    //
+    //        [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:nil];
+    //
+    //
+    //    //
+    //    #warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
+    //    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
     
-    //prevent assets creation before they
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    [[YAUser currentUser].currentGroup.videos removeAllObjects];
-    [[RLMRealm defaultRealm] commitWriteTransaction];
+    //#warning testing gif creation operation
+    //    for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
+    //        [video.realm beginWriteTransaction];
+    //        video.jpgFilename = @"";
+    //        video.gifFilename = @"";
+    //        [video.realm commitWriteTransaction];
+    //    }
+    //
     
-    [[YAAssetsCreator sharedCreator] stopAllJobs];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"YA_GROUPS_UPDATED_AT"];
-     
-     //
-     //    #warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
-     //    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
-     
-     NSString *identifier;
-     if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
-         identifier = @"LoggedInUserNavigationController";
-     }
-     else if(![[YAUser currentUser] loggedIn]) {
-         identifier = @"OnboardingNavigationController";
-     }
-     else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && ![YAGroup allObjects].count) {
-         identifier = @"OnboardingNoGroupsNavigationController";
-     }
-     else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && [YAGroup allObjects].count) {
-         identifier = @"OnboardingSelectGroupNavigationController";
-     }
-     
-     UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
-     self.window.rootViewController = viewController;
-     
-     [self.window makeKeyAndVisible];
-     
-     [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
-     [application registerForRemoteNotifications];
-     
-     return YES;
-     }
-     
-     - (void)applicationDidBecomeActive:(UIApplication *)application {
-         [[YAServer sharedServer] startMonitoringInternetConnection:YES];
-     }
-     
-     - (void)applicationWillResignActive:(UIApplication *)application {
-         [[YAServer sharedServer] startMonitoringInternetConnection:NO];
-         __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
-             
-             // Wait until the pending operations finish
-             [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
-             [[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
-             
-             [application endBackgroundTask: bgTask];
-             bgTask = UIBackgroundTaskInvalid;
-         }];
-     }
-     
+    NSString *identifier;
+    if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
+        identifier = @"LoggedInUserNavigationController";
+    }
+    else if(![[YAUser currentUser] loggedIn]) {
+        identifier = @"OnboardingNavigationController";
+    }
+    else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && ![YAGroup allObjects].count) {
+        identifier = @"OnboardingNoGroupsNavigationController";
+    }
+    else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && [YAGroup allObjects].count) {
+        identifier = @"OnboardingSelectGroupNavigationController";
+    }
+    
+    UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
+    self.window.rootViewController = viewController;
+    
+    [self.window makeKeyAndVisible];
+    
+    [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
+    [application registerForRemoteNotifications];
+    
+    return YES;
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    [[YAServer sharedServer] startMonitoringInternetConnection:YES];
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+    [[YAServer sharedServer] startMonitoringInternetConnection:NO];
+    __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
+        
+        // Wait until the pending operations finish
+        [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
+        [[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
+        
+        [application endBackgroundTask: bgTask];
+        bgTask = UIBackgroundTaskInvalid;
+    }];
+}
+
 #pragma mark - Push notifications
-     - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
-         NSLog(@"didRegisterUserNotificationSettings %@", notificationSettings);
-         
-     }
-     
-     - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-         NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", [self deviceTokenFromData:deviceToken]);
-         
-         [[NSUserDefaults standardUserDefaults] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
-     }
-     
-     - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-         NSLog(@"didFailToRegisterForRemoteNotificationsWithError %@", [error localizedDescription]);
-     }
-     
-     - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-         NSLog(@"didReceiveRemoteNotification %@", userInfo);
-         [YAUtils showNotification:[NSString stringWithFormat:@"Push: %@", [userInfo description]] type:AZNotificationTypeMessage];
-         
-         //for tests
-         NSString *testAlert = @"New video at group ";
-         if([userInfo[@"aps"][@"alert"] rangeOfString:testAlert].location != NSNotFound) {
-             NSString *groupId = [[userInfo[@"aps"][@"alert"] stringByReplacingOccurrencesOfString:testAlert withString:@""] stringByReplacingOccurrencesOfString:@"!" withString:@""];
-             NSLog(@"group id from push %@", groupId);
-             
-             if([groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
-                 [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
-             }
-         }
-     }
-     
-     
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
+    NSLog(@"didRegisterUserNotificationSettings %@", notificationSettings);
+    
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", [self deviceTokenFromData:deviceToken]);
+    
+    [[NSUserDefaults standardUserDefaults] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    NSLog(@"didFailToRegisterForRemoteNotificationsWithError %@", [error localizedDescription]);
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    NSLog(@"didReceiveRemoteNotification %@", userInfo);
+    [YAUtils showNotification:[NSString stringWithFormat:@"Push: %@", [userInfo description]] type:AZNotificationTypeMessage];
+    
+    //for tests
+    NSString *testAlert = @"New video at group ";
+    if([userInfo[@"aps"][@"alert"] rangeOfString:testAlert].location != NSNotFound) {
+        NSString *groupId = [[userInfo[@"aps"][@"alert"] stringByReplacingOccurrencesOfString:testAlert withString:@""] stringByReplacingOccurrencesOfString:@"!" withString:@""];
+        NSLog(@"group id from push %@", groupId);
+        
+        if([groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
+        }
+    }
+}
+
+
 #pragma mark - utils
-     - (NSString *)deviceTokenFromData:(NSData *)data {
-         NSString *token = [NSString stringWithFormat:@"%@", [data description]];
-         
-         token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
-         token = [token stringByReplacingOccurrencesOfString:@"<" withString:@""];
-         token = [token stringByReplacingOccurrencesOfString:@">" withString:@""];
-         
-         return token;
-     }
-     
+- (NSString *)deviceTokenFromData:(NSData *)data {
+    NSString *token = [NSString stringWithFormat:@"%@", [data description]];
+    
+    token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
+    token = [token stringByReplacingOccurrencesOfString:@"<" withString:@""];
+    token = [token stringByReplacingOccurrencesOfString:@">" withString:@""];
+    
+    return token;
+}
+
 #pragma mark - Memory Warning
-     - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
-     {
-         NSLog(@"%@", application);
-     }
-     
-     @end
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
+{
+    NSLog(@"%@", application);
+}
+
+@end

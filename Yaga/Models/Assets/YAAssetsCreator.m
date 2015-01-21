@@ -22,8 +22,8 @@
 
 @interface YAAssetsCreator ()
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
-@property (nonatomic, strong) NSOperationQueue *downloadQueue;
-@property (nonatomic, strong) NSOperationQueue *gifQueue;
+@property (strong) NSOperationQueue *downloadQueue;
+@property (strong) NSOperationQueue *gifQueue;
 @end
 
 
@@ -42,10 +42,10 @@
     if (self = [super init]) {
 
         self.downloadQueue = [[NSOperationQueue alloc] init];
-        self.downloadQueue.maxConcurrentOperationCount = 3;
+        self.downloadQueue.maxConcurrentOperationCount = 4;
         
         self.gifQueue = [[NSOperationQueue alloc] init];
-        self.gifQueue.maxConcurrentOperationCount = 8;
+        self.gifQueue.maxConcurrentOperationCount = 4;
     }
     return self;
 }
@@ -175,7 +175,7 @@
 #pragma mark - Queue operations
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
                         addToGroup:(YAGroup*)group {
-    
+#warning TODO
     //bullshit
 //    
 //    YAVideo *video = [YAVideo video];
@@ -192,9 +192,18 @@
     }
 }
 
-- (void)stopAllJobs {
+- (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
     [self.downloadQueue cancelAllOperations];
     [self.gifQueue cancelAllOperations];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self.downloadQueue waitUntilAllOperationsAreFinished];
+        [self.gifQueue waitUntilAllOperationsAreFinished];
+        
+        if(completion)
+            completion();
+        
+        NSLog(@"All jobs stopped");
+    });
 }
 
 - (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group
@@ -209,7 +218,6 @@
 
 - (void)addGifCreationOperationForVideo:(YAVideo*)video {
     YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
-    gifCreationOperation.queuePriority = NSOperationQueuePriorityNormal;
     [self.gifQueue addOperation:gifCreationOperation];
     NSLog(@"Gif creation operation created for %@", video.localId);
 }

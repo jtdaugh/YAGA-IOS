@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-@interface YAGifCreationOperation : NSOperation
+@interface YAGifCreationOperation : NSOperation {
+    BOOL _executing;
+    BOOL _finished;
+}
 - (instancetype)initWithVideo:(YAVideo*)video;
 @end

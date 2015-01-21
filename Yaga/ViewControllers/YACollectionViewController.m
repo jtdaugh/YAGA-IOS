@@ -227,16 +227,17 @@ static NSString *cellID = @"Cell";
     }
     
     [[YAUser currentUser].currentGroup updateVideosSince:lastUpdateDate withCompletion:^(NSError *error, NSArray *newVideos) {
-        [groupsUpdatedAt setObject:[NSDate date] forKey:[YAUser currentUser].currentGroup.localId];
-        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
-        
-        if(newVideos.count) {
-            [weakSelf.collectionView performBatchUpdates:^{
-                [weakSelf.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
-            } completion:^(BOOL finished) {
-            }];
+        if(!error) {
+            [groupsUpdatedAt setObject:[NSDate date] forKey:[YAUser currentUser].currentGroup.localId];
+            [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+            
+            if(newVideos.count) {
+                [weakSelf.collectionView performBatchUpdates:^{
+                    [weakSelf.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+                } completion:^(BOOL finished) {
+                }];
+            }
         }
-        
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
         [weakSelf.delegate enableRecording:YES];
     }];
