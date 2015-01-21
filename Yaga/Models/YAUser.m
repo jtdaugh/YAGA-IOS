@@ -57,7 +57,7 @@
     if(self.currentGroup) {
         //thumbnails cache will clean itself automatically        
         //stop all jobs for current group
-        [[YAAssetsCreator sharedCreator] stopAllJobsForGroup:self.currentGroup];
+        [[YAAssetsCreator sharedCreator] stopAllJobs];
     }
     
     [[NSUserDefaults standardUserDefaults] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];

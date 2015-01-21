@@ -15,7 +15,6 @@
 		6E1E209A1A6EF2E90041DF54 /* YAGifCreationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20921A6EF2E90041DF54 /* YAGifCreationOperation.m */; };
 		6E1E209B1A6EF2E90041DF54 /* YAImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20941A6EF2E90041DF54 /* YAImageCache.m */; };
 		6E1E209C1A6EF2E90041DF54 /* YAVideoCreateOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20961A6EF2E90041DF54 /* YAVideoCreateOperation.m */; };
-		6E1E209D1A6EF2E90041DF54 /* YAVideoDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20981A6EF2E90041DF54 /* YAVideoDownloadOperation.m */; };
 		6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */; };
 		6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */; };
 		6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E583B6E1A6535BC00639BE5 /* YASwipingViewController.m */; };
@@ -115,8 +114,6 @@
 		6E1E20941A6EF2E90041DF54 /* YAImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAImageCache.m; sourceTree = "<group>"; };
 		6E1E20951A6EF2E90041DF54 /* YAVideoCreateOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideoCreateOperation.h; sourceTree = "<group>"; };
 		6E1E20961A6EF2E90041DF54 /* YAVideoCreateOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideoCreateOperation.m; sourceTree = "<group>"; };
-		6E1E20971A6EF2E90041DF54 /* YAVideoDownloadOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideoDownloadOperation.h; sourceTree = "<group>"; };
-		6E1E20981A6EF2E90041DF54 /* YAVideoDownloadOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideoDownloadOperation.m; sourceTree = "<group>"; };
 		6E32D72B1A5AEEBA00EAB261 /* YACameraFocusSquare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraFocusSquare.h; sourceTree = "<group>"; };
 		6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACameraFocusSquare.m; sourceTree = "<group>"; };
 		6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
@@ -304,8 +301,6 @@
 				6E1E20941A6EF2E90041DF54 /* YAImageCache.m */,
 				6E1E20951A6EF2E90041DF54 /* YAVideoCreateOperation.h */,
 				6E1E20961A6EF2E90041DF54 /* YAVideoCreateOperation.m */,
-				6E1E20971A6EF2E90041DF54 /* YAVideoDownloadOperation.h */,
-				6E1E20981A6EF2E90041DF54 /* YAVideoDownloadOperation.m */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -767,7 +762,6 @@
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
-				6E1E209D1A6EF2E90041DF54 /* YAVideoDownloadOperation.m in Sources */,
 				6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */,
 				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,

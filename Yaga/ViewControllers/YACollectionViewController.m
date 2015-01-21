@@ -197,9 +197,14 @@ static NSString *cellID = @"Cell";
     
     NSUInteger index = [self.sortedVideos indexOfObject:video];
     
-    //do not refresh video if there is nothing to show
-    if(video.jpgFilename.length || video.gifFilename.length) {
-        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+    if(index != NSNotFound) {
+        //do not refresh video if there is nothing to show
+        if(video.jpgFilename.length || video.gifFilename.length) {
+            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+        }
+    }
+    else {
+        [NSException raise:@"something is really wrong" format:nil];
     }
 }
 

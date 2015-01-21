@@ -15,7 +15,6 @@ typedef void (^cameraRollCompletion)(NSError *error);
 @interface YAAssetsCreator : NSObject
 
 + (instancetype)sharedCreator;
-- (void)createJPGAndGIFForVideo:(YAVideo*)video;
 
 - (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion;
 
@@ -24,7 +23,7 @@ typedef void (^cameraRollCompletion)(NSError *error);
 
 //
 - (void)createAssetsForGroup:(YAGroup*)group;
-- (void)stopAllJobsForGroup:(YAGroup*)group;
+- (void)stopAllJobs;
 
 // on background
 - (void)waitForAllOperationsToFinish;

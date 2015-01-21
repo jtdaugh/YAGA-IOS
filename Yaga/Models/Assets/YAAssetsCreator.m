@@ -17,13 +17,13 @@
 #import "YAServerTransactionQueue.h"
 
 #import "YAGifCreationOperation.h"
-#import "YAVideoDownloadOperation.h"
 #import "YAVideoCreateOperation.h"
+#import "AFHTTPRequestOperation.h"
 
 @interface YAAssetsCreator ()
-@property (atomic, strong) NSMutableArray *videosToProcess;
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
-@property (nonatomic, strong) NSOperationQueue *queue;
+@property (nonatomic, strong) NSOperationQueue *downloadQueue;
+@property (nonatomic, strong) NSOperationQueue *gifQueue;
 @end
 
 
@@ -40,20 +40,17 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.videosToProcess = [NSMutableArray array];
-        //concurent downloads but serial gif generation..
-        self.queue = [[NSOperationQueue alloc] init];
-        self.queue.maxConcurrentOperationCount = 3;
+
+        self.downloadQueue = [[NSOperationQueue alloc] init];
+        self.downloadQueue.maxConcurrentOperationCount = 3;
+        
+        self.gifQueue = [[NSOperationQueue alloc] init];
+        self.gifQueue.maxConcurrentOperationCount = 8;
     }
     return self;
 }
 
 #pragma mark GIF and JPEG generation
-
-- (void)createJPGAndGIFForVideo:(YAVideo*)video
-{
-    [self.queue addOperation:[[YAGifCreationOperation alloc] initWithVideo:video]];
-}
 
 - (void)imageSavedToPhotosAlbum:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo
 {
@@ -175,16 +172,18 @@
     return pi;
 }
 
-#pragma mark - Realm
+#pragma mark - Queue operations
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
                         addToGroup:(YAGroup*)group {
     
-    YAVideo *video = [YAVideo video];
-    YAVideoCreateOperation *videoCreateOperation = [[YAVideoCreateOperation alloc] initRecordingURL:recordingUrl group:group video:video];
-    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
-    [gifCreationOperation addDependency:videoCreateOperation];
-    [self.queue addOperation:videoCreateOperation];
-    [self.queue addOperation:gifCreationOperation];
+    //bullshit
+//    
+//    YAVideo *video = [YAVideo video];
+//    YAVideoCreateOperation *videoCreateOperation = [[YAVideoCreateOperation alloc] initRecordingURL:recordingUrl group:group video:video];
+//    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
+//    [gifCreationOperation addDependency:videoCreateOperation];
+//    [self.queue addOperation:videoCreateOperation];
+//    [self.queue addOperation:gifCreationOperation];
 }
 
 - (void)createAssetsForGroup:(YAGroup*)group {
@@ -193,39 +192,76 @@
     }
 }
 
-- (void)stopAllJobsForGroup:(YAGroup*)group {
-    for (NSOperation *op in self.queue.operations) {
-        if ([op.name isEqualToString:group.name])
-        {
-            NSLog(@"CANCELING OPERATION %@", group.name);
-            [op cancel];
-        }
-    }
+- (void)stopAllJobs {
+    [self.downloadQueue cancelAllOperations];
+    [self.gifQueue cancelAllOperations];
 }
 
 - (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group
 {
-    YAVideoDownloadOperation *downloadOperation;
     if(!video.movFilename.length) {
-        downloadOperation = [[YAVideoDownloadOperation alloc] initWithVideo:video];
-        downloadOperation.name = group.name;
-        downloadOperation.queuePriority = NSOperationQueuePriorityNormal;
-        [self.queue addOperation:downloadOperation];
+       [self addVideoDownloadOperationForVideo:video];
     }
-    if(!video.gifFilename.length) {
-        YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
-        if(downloadOperation)
-            [gifCreationOperation addDependency:downloadOperation];
+    else if(!video.gifFilename.length) {
+        [self addGifCreationOperationForVideo:video];
+    }
+}
+
+- (void)addGifCreationOperationForVideo:(YAVideo*)video {
+    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
+    gifCreationOperation.queuePriority = NSOperationQueuePriorityNormal;
+    [self.gifQueue addOperation:gifCreationOperation];
+    NSLog(@"Gif creation operation created for %@", video.localId);
+}
+
+- (void)addVideoDownloadOperationForVideo:(YAVideo*)video {
+    NSURL *url = [NSURL URLWithString:video.url];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    //    [httpClient registerHTTPOperationClass:[AFHTTPRequestOperation class]];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSData* videoData = (NSData*)responseObject;
         
-        gifCreationOperation.name = group.name;
-        gifCreationOperation.queuePriority = NSOperationQueuePriorityNormal;
-        [self.queue addOperation:gifCreationOperation];
-    }
+        NSString *hashStr       = [YAUtils uniqueId];
+        NSString *moveFilename  = [hashStr stringByAppendingPathExtension:@"mov"];
+        NSString *movPath       = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
+        NSURL    *movURL        = [NSURL fileURLWithPath:movPath];
+        
+        BOOL result = [videoData writeToURL:movURL atomically:YES];
+        if(result) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [video.realm beginWriteTransaction];
+                video.movFilename = moveFilename;
+                [video.realm commitWriteTransaction];
+                
+                NSLog(@"remote video downloaded for %@", video.localId);
+                [self addGifCreationOperationForVideo:video];
+            });
+        }
+        else {
+            NSLog(@"Error saving remote video data");
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if(error.code == NSURLErrorCancelled) {
+            NSLog(@"video download cancelled");
+        }
+        else {
+            NSLog(@"Error downloading video %@", error);
+        }
+    }];
+//uncomment me if you want to track progress
+//    [operation setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
+//        NSLog(@"download progress %lu out of %lld", bytesRead, totalBytesRead);
+//    }];
+    
+    NSLog(@"download operation created for url: %@", video.localId);
+    [self.downloadQueue addOperation:operation];
 }
 
 - (void)waitForAllOperationsToFinish
 {
-    [self.queue waitUntilAllOperationsAreFinished];
+    [self.downloadQueue waitUntilAllOperationsAreFinished];
+    [self.gifQueue waitUntilAllOperationsAreFinished];
 }
 
 @end
