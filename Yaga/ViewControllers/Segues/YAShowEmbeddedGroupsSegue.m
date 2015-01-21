@@ -52,7 +52,7 @@
         
         origin += groupsViewController.view.frame.size.height;
         
-        gridController.collectionViewController.view.frame = CGRectMake(0, origin, gridController.collectionViewController.view.frame.size.width, gridController.collectionViewController.view.frame.size.height);
+        gridController.collectionViewController.view.frame = CGRectMake(0, origin - VIEW_HEIGHT/2 + CAMERA_MARGIN, gridController.collectionViewController.view.frame.size.width, gridController.collectionViewController.view.frame.size.height);
         
     } completion:^(BOOL finished) {
         gridController.elevatorOpen = YES;

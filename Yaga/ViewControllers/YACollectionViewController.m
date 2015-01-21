@@ -275,6 +275,7 @@ static BOOL welcomeLabelRemoved = NO;
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:self.sortedVideos andInitialIndex:indexPath.row];
 
+    NSLog(@"before transition");
     CGRect initialFrame = attributes.frame;
     initialFrame.origin.y -= self.collectionView.contentOffset.y;
     initialFrame.origin.y += self.view.frame.origin.y;
@@ -283,7 +284,9 @@ static BOOL welcomeLabelRemoved = NO;
     
     swipingVC.transitioningDelegate = self;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
-    [self presentViewController:swipingVC animated:YES completion:nil];
+    [self presentViewController:swipingVC animated:YES completion:^{
+        NSLog(@"after transition");
+    }];
 }
 
 #pragma mark - UIScrollView

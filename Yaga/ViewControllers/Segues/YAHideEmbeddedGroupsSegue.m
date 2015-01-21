@@ -23,7 +23,7 @@
         gridController.cameraViewController.view.frame = CGRectMake(0, 0, gridController.cameraViewController.view.frame.size.width, gridController.cameraViewController.view.frame.size.height);
         
         CGFloat origin = gridController.cameraViewController.view.frame.origin.y + gridController.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
-        gridController.collectionViewController.view.frame = CGRectMake(0, origin + 2, gridController.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin - 2);
+        gridController.collectionViewController.view.frame = CGRectMake(0, origin - VIEW_HEIGHT/2 + CAMERA_MARGIN, gridController.collectionViewController.view.frame.size.width, VIEW_HEIGHT - CAMERA_MARGIN);
         
         [gridController.cameraViewController showCameraAccessories:YES];
         
