@@ -217,8 +217,10 @@
     
     for (UIImage *frameImage in images) {
         @autoreleasepool {
-            if(self.isCancelled)
+            if(self.isCancelled) {
+                CFRelease(destination);
                 return;
+            }
             
             CGImageDestinationAddImage(destination, frameImage.CGImage, (__bridge CFDictionaryRef)frameProperties);
         }
