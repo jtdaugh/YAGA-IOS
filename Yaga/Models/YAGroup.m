@@ -292,8 +292,9 @@ static BOOL groupsUpdateInProgress;
     NSMutableArray *newVideos = [NSMutableArray new];
     
     //supposing groups are coming sorted
-    for(NSInteger videoIndex = [videoDictionaries count] - 1;videoIndex >= 0;videoIndex--) {
-        NSDictionary *videoDic = videoDictionaries[videoIndex];
+    videoDictionaries = [videoDictionaries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_VIDEO_READY_AT ascending:NO]]];
+    
+    for(NSDictionary *videoDic in videoDictionaries) {
         
         if(![idsToAdd containsObject:videoDic[YA_RESPONSE_ID]])
             continue;
