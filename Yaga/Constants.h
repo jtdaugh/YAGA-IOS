@@ -29,6 +29,7 @@
 #define MAX_VIDEO_DURATION 8.0 
 
 #define ELEVATOR_MARGIN 50.0
+#define CAMERA_MARGIN 50.0
 
 #define PRIMARY_COLOR [UIColor colorWithRed: 236.0f/255.0f green: 0.0f/255.0f blue:140.0f/255.0f alpha:1.0]
 #define PRIMARY_COLOR_ACCENT [UIColor blackColor]

@@ -93,10 +93,22 @@
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
     [self.view addGestureRecognizer:tap];
+    
+    UILongPressGestureRecognizer *hold = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(pageHeld:)];
+    [self.view addGestureRecognizer:hold];
 }
 
 - (void)pageTapped:(id)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)pageHeld:(UITapGestureRecognizer *)recognizer {
+    NSLog(@"%ld", (unsigned long)recognizer.state);
+    if (recognizer.state == UIGestureRecognizerStateEnded) {
+        self.currentPage.playerView.player.rate = 1.0;
+    } else if (recognizer.state == UIGestureRecognizerStateBegan){
+        self.currentPage.playerView.player.rate = 3.0;
+    }
 }
 
 - (void)initPlayers {

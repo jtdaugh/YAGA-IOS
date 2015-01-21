@@ -50,7 +50,7 @@ static NSString *cellID = @"Cell";
     CGFloat spacing = 1.0f;
     
     self.gridLayout = [[UICollectionViewFlowLayout alloc] init];
-    [self.gridLayout setSectionInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+    [self.gridLayout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0)];
     [self.gridLayout setMinimumInteritemSpacing:spacing];
     [self.gridLayout setMinimumLineSpacing:spacing];
     [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
@@ -92,13 +92,13 @@ static NSString *cellID = @"Cell";
         [weakSelf refreshCurrentGroup];
     }];
     
-    YAActivityView *loadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/10, VIEW_WIDTH/10)];
+    YAActivityView *loadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 + 2 - 100, VIEW_WIDTH/10, VIEW_WIDTH/10)];
     loadingView.animateAtOnce = YES;
     
-    YAActivityView *stoppedView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/14, VIEW_WIDTH/14)];
+    YAActivityView *stoppedView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 + 2 - 100, VIEW_WIDTH/14, VIEW_WIDTH/14)];
     stoppedView.animateAtOnce = NO;
     
-    YAActivityView *triggeredView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/14, VIEW_WIDTH/14)];
+    YAActivityView *triggeredView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 + 2 - 100, VIEW_WIDTH/14, VIEW_WIDTH/14)];
     triggeredView.animateAtOnce = NO;
     
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
@@ -226,7 +226,7 @@ static NSString *cellID = @"Cell";
 
 - (void)refreshCurrentGroup {
     __weak typeof (self) weakSelf = self;
-    [self.delegate enableRecording:NO];
+//    [self.delegate enableRecording:NO];
     
     //since
     NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
@@ -248,7 +248,7 @@ static NSString *cellID = @"Cell";
         }
         
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
-        [weakSelf.delegate enableRecording:YES];
+//        [weakSelf.delegate enableRecording:YES];
     }];
 }
 
@@ -325,21 +325,19 @@ static BOOL welcomeLabelRemoved = NO;
     
     if(scrollOffset < 0){
         offset = 0;
-        cameraFrame.origin.y = 0;
-    } else if(scrollOffset > cameraFrame.size.height - 100){
-        offset = cameraFrame.size.height - 100;
-        cameraFrame.origin.y = -cameraFrame.size.height*2 + 100;
+    } else if(scrollOffset > (VIEW_HEIGHT/2 - 2 - CAMERA_MARGIN)){
+        offset = VIEW_HEIGHT/2 - 2 - CAMERA_MARGIN;
     } else {
         offset = scrollOffset;
-        cameraFrame.origin.y = -2*offset;
     }
     
+//    gridFrame.origin.y = VIEW_HEIGHT/2 + 2 - offset;
+//    gridFrame.size.height = VIEW_HEIGHT/2 + 2 + offset;
+//    
+    cameraFrame.origin.y = -offset;
     
-    gridFrame.origin.y = VIEW_HEIGHT/2 + 2 - offset;
-    gridFrame.size.height = VIEW_HEIGHT/2 + 2 + offset;
-    
-//    self.cameraView.view.frame = cameraFrame;
-//    self.view.frame = gridFrame;
+    self.cameraView.view.frame = cameraFrame;
+    self.view.frame = gridFrame;
     
     if(self.disableScrollHandling) {
         return;
@@ -353,22 +351,22 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    [self.delegate enableRecording:NO];
+//    [self.delegate enableRecording:NO];
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-    [self.delegate enableRecording:NO];
+//    [self.delegate enableRecording:NO];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     self.scrolling = NO;
-    [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+//    [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         [self playVisible:YES];
-        [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+//        [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
     }
 }
 
