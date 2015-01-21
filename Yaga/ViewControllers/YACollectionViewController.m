@@ -38,9 +38,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 static NSString *cellID = @"Cell";
 
-#define YA_GROUPS_UPDATED_AT     @"YA_GROUPS_UPDATED_AT"
-
-
 @implementation YACollectionViewController
 
 - (void)viewDidLoad {
@@ -144,7 +141,17 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reload {
+    BOOL needRefresh = NO;
     if(![YAUser currentUser].currentGroup.videos.count)
+        needRefresh = YES;
+    
+    NSDictionary *groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
+    NSDate *localGroupUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
+    if(!localGroupUpdateDate || [[YAUser currentUser].currentGroup.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+        needRefresh = YES;
+    }
+    
+    if(needRefresh)
         [self refreshCurrentGroup];
 
     [self.collectionView reloadData];

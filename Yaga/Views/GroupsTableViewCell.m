@@ -17,6 +17,8 @@
 #define subtitleDefaultHeight 18
 #define between_margin 4
 
+#define imageViewWidth 10
+
 @implementation GroupsTableViewCell
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
@@ -38,7 +40,7 @@
         self.detailTextLabel.numberOfLines = 0;
         [self.detailTextLabel setTextColor:PRIMARY_COLOR];
         [self.detailTextLabel setBackgroundColor:[UIColor clearColor]];
-        
+
         [self setBackgroundColor:[UIColor clearColor]];
         self.textLabel.adjustsFontSizeToFitWidth = YES;
         
@@ -48,6 +50,11 @@
         self.accessoryView = self.accessorryButton;
         
         [self.accessorryButton addTarget:self action:@selector(showGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
+        
+        self.imageView.clipsToBounds = YES;
+        self.imageView.layer.cornerRadius = imageViewWidth/2;
+        
+        self.imageView.contentMode = UIViewContentModeScaleAspectFit;
     }
     
     return self;
@@ -57,6 +64,9 @@
     [super layoutSubviews];
     
     [self.detailTextLabel sizeToFit];
+    
+    self.imageView.frame = CGRectMake(0, self.bounds.size.height/2 - imageViewWidth/2, imageViewWidth, imageViewWidth);
+    self.clipsToBounds = NO;
 }
 
 - (void)showGroupOptions:(id)sender {

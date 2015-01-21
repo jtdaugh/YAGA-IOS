@@ -38,7 +38,7 @@
 
 + (NSDictionary *)defaultPropertyValues
 {
-    return @{@"serverId":@""};
+    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0]};
 }
 
 - (NSString*)membersString {
@@ -53,7 +53,7 @@
         NSString *name = contact.username;
         if(contact.name.length) {
             if(![contact.name isEqualToString:contact.username] && ![contact.username isEqualToString:defaultUsername])
-                name = [NSString stringWithFormat:@"%@(%@)", contact.name, contact.username];
+                name = [NSString stringWithFormat:@"%@",contact.username];
             else
                 name = contact.name;
         }
@@ -89,6 +89,9 @@
 - (void)updateFromServerResponeDictionarty:(NSDictionary*)dictionary {
     self.serverId = dictionary[YA_RESPONSE_ID];
     self.name = dictionary[YA_RESPONSE_NAME];
+    
+    NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
+    self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
     
     [self.members removeAllObjects];
     
@@ -133,6 +136,8 @@ static BOOL groupsUpdateInProgress;
             [[RLMRealm defaultRealm] beginWriteTransaction];
             
             NSArray *groups = (NSArray*)response;
+            
+            groups = [groups sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_GROUP_UPDATED_AT ascending:NO]]];
             
             for (id d in groups) {
                 
@@ -291,7 +296,6 @@ static BOOL groupsUpdateInProgress;
     
     NSMutableArray *newVideos = [NSMutableArray new];
     
-    //supposing groups are coming sorted
     videoDictionaries = [videoDictionaries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_VIDEO_READY_AT ascending:NO]]];
     
     for(NSDictionary *videoDic in videoDictionaries) {

@@ -16,6 +16,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property NSString *name;
 @property NSString *localId;
 @property NSString *serverId;
+@property NSDate *updatedAt;
 @property BOOL muted;
 
 @property RLMArray<YAContact> *members;

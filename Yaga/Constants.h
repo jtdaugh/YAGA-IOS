@@ -48,8 +48,10 @@
 #define VIDEO_DID_DOWNLOAD_PART_NOTIFICATION    @"VIDEO_DID_DOWNLOAD_PART_NOTIFICATION"
 #define VIDEO_DID_GENERATE_PART_NOTIFICATION    @"VIDEO_DID_GENERATE_PART_NOTIFICATION"
 
-#define defaultUsername @"Yaga user"
+#define defaultUsername                         @"Yaga user"
 
-#define YA_DEVICE_TOKEN @"YAGA_DEVICE_TOKEN"
+#define YA_DEVICE_TOKEN                         @"YAGA_DEVICE_TOKEN"
+
+#define YA_GROUPS_UPDATED_AT                    @"YA_GROUPS_UPDATED_AT"
 
 #endif
