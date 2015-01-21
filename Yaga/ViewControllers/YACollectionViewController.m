@@ -30,7 +30,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
 @property (strong, nonatomic) UILabel *noVideosLabel;
-@property (strong, nonatomic) NSMutableArray *sortedVideos;
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
 
@@ -125,7 +124,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)showNoVideosMessageIfNeeded {
-    if(!self.sortedVideos.count) {
+    if(![YAUser currentUser].currentGroup.videos.count) {
         CGFloat width = VIEW_WIDTH * .8;
         if(!self.noVideosLabel) {
             self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 20, width, width)];
@@ -143,20 +142,11 @@ static NSString *cellID = @"Cell";
     }
 }
 
-- (void)updateSortedVideos {
-    self.sortedVideos = [NSMutableArray new];
-    for(YAVideo *video in [[YAUser currentUser].currentGroup sortedVideos]) {
-        [self.sortedVideos addObject:video];
-    }
-}
-
 - (void)reload {
-    [self updateSortedVideos];
-    
-    if(!self.sortedVideos.count)
+    if(![YAUser currentUser].currentGroup.videos.count)
         [self refreshCurrentGroup];
-    else
-        [self.collectionView reloadData];
+
+    [self.collectionView reloadData];
     
     [self showNoVideosMessageIfNeeded];
 }
@@ -166,7 +156,7 @@ static NSString *cellID = @"Cell";
     if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    NSUInteger videoIndex = [self.sortedVideos indexOfObject:video];
+    NSUInteger videoIndex = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
     
     if(!self.deleteDictionary)
         self.deleteDictionary = [NSMutableDictionary new];
@@ -183,8 +173,6 @@ static NSString *cellID = @"Cell";
     NSUInteger videoIndex = [[self.deleteDictionary objectForKey:videoId] integerValue];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
     
-    [self updateSortedVideos];
-    
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     
     [self.deleteDictionary removeObjectForKey:videoId];
@@ -195,7 +183,7 @@ static NSString *cellID = @"Cell";
     if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    NSUInteger index = [self.sortedVideos indexOfObject:video];
+    NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
     
     if(index != NSNotFound) {
         //do not refresh video if there is nothing to show
@@ -212,8 +200,6 @@ static NSString *cellID = @"Cell";
     YAVideo *video = notif.object;
     if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
-    
-    [self updateSortedVideos];
     
     [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
     
@@ -245,7 +231,6 @@ static NSString *cellID = @"Cell";
         [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
         
         if(newVideos.count) {
-            [weakSelf.sortedVideos insertObjects:newVideos atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newVideos.count)]];
             [weakSelf.collectionView performBatchUpdates:^{
                 [weakSelf.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
             } completion:^(BOOL finished) {
@@ -260,17 +245,17 @@ static NSString *cellID = @"Cell";
 #pragma mark - UICollectionView
 static BOOL welcomeLabelRemoved = NO;
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    if(self.sortedVideos.count && self.noVideosLabel && !welcomeLabelRemoved) {
+    if([YAUser currentUser].currentGroup.videos.count && self.noVideosLabel && !welcomeLabelRemoved) {
         [self.noVideosLabel removeFromSuperview];
         self.noVideosLabel = nil;
     }
-    return self.sortedVideos.count;
+    return [YAUser currentUser].currentGroup.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     
-    YAVideo *video = self.sortedVideos[indexPath.row];
+    YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     cell.video = video;
     
     return cell;
@@ -278,7 +263,7 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
-    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:self.sortedVideos andInitialIndex:indexPath.row];
+    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.row];
 
     CGRect initialFrame = attributes.frame;
     initialFrame.origin.y -= self.collectionView.contentOffset.y;

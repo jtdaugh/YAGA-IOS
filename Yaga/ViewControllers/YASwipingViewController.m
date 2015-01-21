@@ -11,7 +11,7 @@
 #import "YAVideoPage.h"
 #import "YAUtils.h"
 #import "YAVideo.h"
-
+#import "YAUser.h"
 
 @interface YASwipingViewController ()
 
@@ -27,19 +27,16 @@
 @property (nonatomic, strong) YAVideoPage *currentPage;
 
 @property (nonatomic, assign) NSUInteger initialIndex;
-
-@property (nonatomic, strong) NSArray *videos;
 @end
 
 #define kSeparator 10
 
 @implementation YASwipingViewController
 
-- (id)initWithVideos:(NSArray*)videos andInitialIndex:(NSUInteger)initialIndex {
+- (id)initWithInitialIndex:(NSUInteger)initialIndex {
     self = [super init];
     if(self) {
         self.initialIndex = initialIndex;
-        self.videos = videos;
     }
     return self;
 }
@@ -68,14 +65,14 @@
     
     self.pages = [[NSMutableArray alloc] init];
     
-    for (NSUInteger i = 0; i < self.videos.count; i++) {
+    for (NSUInteger i = 0; i < [YAUser currentUser].currentGroup.videos.count; i++) {
         CGRect frame = self.scrollView.bounds;
         
         frame.origin.x = i * frame.size.width;
         frame.size.width = frame.size.width - kSeparator;
         
         YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:frame];
-        page.video = self.videos[i];
+        page.video = [YAUser currentUser].currentGroup.videos[i];
         page.backgroundColor = [UIColor blackColor];
         
         [self.scrollView addSubview:page];
@@ -189,7 +186,7 @@
     if(pageIndex == lastPageIndex) {
         //additional check for quick swipe to the end
         YAVideoPlayerView *playerView = self.players[2];
-        YAVideo *video = self.videos[pageIndex];
+        YAVideo *video = [YAUser currentUser].currentGroup.videos[pageIndex];
         if([playerView.URL.absoluteString isEqualToString:[YAUtils urlFromFileName:video.movFilename].absoluteString])
             return;
     }
@@ -270,7 +267,7 @@
     
     page.playerView = playerView;
     
-    YAVideo *video = self.videos[[self.pages indexOfObject:page]];
+    YAVideo *video = [YAUser currentUser].currentGroup.videos[[self.pages indexOfObject:page]];
     if(video.movFilename.length)
         page.playerView.URL = [YAUtils urlFromFileName:video.movFilename];
     else
