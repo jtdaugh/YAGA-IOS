@@ -8,6 +8,9 @@
 #import "YAGroup.h" 
 #import <Foundation/Foundation.h>
 
-@interface YAVideoCreateOperation : NSOperation
+@interface YACreateRecordingOperation : NSOperation {
+    BOOL _executing;
+    BOOL _finished;
+}
 - (instancetype)initRecordingURL:(NSURL*)recordingURL group:(YAGroup*)group video:(YAVideo*)video;
 @end

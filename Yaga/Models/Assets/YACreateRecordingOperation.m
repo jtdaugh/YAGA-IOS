@@ -6,17 +6,17 @@
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
-#import "YAVideoCreateOperation.h"
+#import "YACreateRecordingOperation.h"
 #import "YAServerTransactionQueue.h"
 #import "YAUtils.h"
 #import "YAUser.h"
 
-@interface YAVideoCreateOperation ()
+@interface YACreateRecordingOperation ()
 @property (nonatomic, strong) YAGroup *group;
 @property (nonatomic, strong) NSURL *recordingURL;
 @property (nonatomic, strong) YAVideo *video;
 @end
-@implementation YAVideoCreateOperation
+@implementation YACreateRecordingOperation
 - (instancetype)initRecordingURL:(NSURL*)recordingURL group:(YAGroup*)group video:(YAVideo *)video
 {
     if (self = [super init])
@@ -28,9 +28,36 @@
     return self;
 }
 
-- (void)main
-{
+- (void)setExecuting:(BOOL)value {
+    [self willChangeValueForKey:@"isExecuting"];
+    _executing = value;
+    [self didChangeValueForKey:@"isExecuting"];
+}
+
+- (void)setFinished:(BOOL)value {
+    [self willChangeValueForKey:@"isFinished"];
+    _finished = value;
+    [self didChangeValueForKey:@"isFinished"];
+    
+    if(_finished) {
+        NSLog(@"Create video from Recording finished, cancelled: %d", self.isCancelled);
+    }
+}
+
+- (BOOL)isFinished {
+    return _finished;
+}
+
+- (BOOL)isExecuting {
+    return _executing;
+}
+
+- (void)start {
     @autoreleasepool {
+        NSLog(@"Create video from Recording operation started");
+
+        [self setExecuting:YES];
+        
         NSString *hashStr = [YAUtils uniqueId];
         NSString *moveFilename = [hashStr stringByAppendingPathExtension:@"mov"];
         NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
@@ -57,8 +84,12 @@
             //start uploading while generating gif
             [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video];
             
-        //    [self createJPGAndGIFForVideo:video];
+            [self setExecuting:NO];
+            [self setFinished:YES];
         });
+
+        
     }
 }
+
 @end

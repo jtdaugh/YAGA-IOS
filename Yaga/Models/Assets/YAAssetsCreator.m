@@ -17,13 +17,14 @@
 #import "YAServerTransactionQueue.h"
 
 #import "YAGifCreationOperation.h"
-#import "YAVideoCreateOperation.h"
+#import "YACreateRecordingOperation.h"
 #import "AFHTTPRequestOperation.h"
 
 @interface YAAssetsCreator ()
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
 @property (strong) NSOperationQueue *downloadQueue;
 @property (strong) NSOperationQueue *gifQueue;
+@property (strong) NSOperationQueue *recordingQueue;
 @end
 
 
@@ -46,6 +47,9 @@
         
         self.gifQueue = [[NSOperationQueue alloc] init];
         self.gifQueue.maxConcurrentOperationCount = 4;
+        
+        self.recordingQueue = [[NSOperationQueue alloc] init];
+        self.recordingQueue.maxConcurrentOperationCount = 4;
     }
     return self;
 }
@@ -175,15 +179,14 @@
 #pragma mark - Queue operations
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
                         addToGroup:(YAGroup*)group {
-#warning TODO
-    //bullshit
-//    
-//    YAVideo *video = [YAVideo video];
-//    YAVideoCreateOperation *videoCreateOperation = [[YAVideoCreateOperation alloc] initRecordingURL:recordingUrl group:group video:video];
-//    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
-//    [gifCreationOperation addDependency:videoCreateOperation];
-//    [self.queue addOperation:videoCreateOperation];
-//    [self.queue addOperation:gifCreationOperation];
+    
+    YAVideo *video = [YAVideo video];
+    YACreateRecordingOperation *recordingOperation = [[YACreateRecordingOperation alloc] initRecordingURL:recordingUrl group:group video:video];
+    [self.recordingQueue addOperation:recordingOperation];
+    
+    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
+    [gifCreationOperation addDependency:recordingOperation];
+    [self.recordingQueue addOperation:gifCreationOperation];
 }
 
 - (void)createAssetsForGroup:(YAGroup*)group {
@@ -281,6 +284,7 @@
 
 - (void)waitForAllOperationsToFinish
 {
+    [self.recordingQueue waitUntilAllOperationsAreFinished];
     [self.downloadQueue waitUntilAllOperationsAreFinished];
     [self.gifQueue waitUntilAllOperationsAreFinished];
 }

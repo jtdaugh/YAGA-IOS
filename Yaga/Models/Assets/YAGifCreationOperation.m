@@ -14,22 +14,14 @@
 
 @interface YAGifCreationOperation ()
 @property (strong) YAVideo *video;
-@property (readonly) NSString *filename;
-@property (readonly) NSURL *movURL;
-
+@property (strong) NSString *filename;
 @end
 
 @implementation YAGifCreationOperation
 
 - (instancetype)initWithVideo:(YAVideo*)video {
-    if (self = [super init])
-    {
+    if (self = [super init]) {
         _video = video;
-        
-        _filename = [self.video.movFilename stringByDeletingPathExtension];
-        NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.movFilename];
-        _movURL = [NSURL fileURLWithPath:movPath];
-        
     }
     return self;
 }
@@ -60,44 +52,51 @@
 
 - (void)start {
     @autoreleasepool {
-        NSLog(@"gif creation started");
-        
-        [self setExecuting:YES];
-        
-        AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:self.movURL options:nil];
-        NSArray *images = [self imagesArrayFromAsset:asset];
-        
-        if(self.isCancelled) {
-            [self setExecuting:NO];
-            [self setFinished:YES];
-            return;
-        }
-        
-        NSString *gifFilename = [self.filename stringByAppendingPathExtension:@"gif"];
-        NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
-        NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
-
-        [self makeAnimatedGifAtUrl:gifURL fromArray:images completionHandler:^(NSError *error) {
-            if(error) {
-                NSLog(@"makeAnimatedGifAtUrl Error occured: %@", error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.movFilename];
+            NSURL *movURL = [NSURL fileURLWithPath:movPath];
+            self.filename = [self.video.movFilename stringByDeletingPathExtension];
+            
+            NSLog(@"gif creation started");
+            
+            [self setExecuting:YES];
+            
+            AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
+            NSArray *images = [self imagesArrayFromAsset:asset];
+            
+            if(self.isCancelled) {
                 [self setExecuting:NO];
                 [self setFinished:YES];
-            }
-            else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.video.realm beginWriteTransaction];
-                    self.video.gifFilename = gifFilename;
-                    [self.video.realm commitWriteTransaction];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
-                                                                        object:self.video];
-                    NSLog(@"gif created");
-                    [self setExecuting:NO];
-                    [self setFinished:YES];
-                   
-                });
+                return;
             }
             
-        }];
+            NSString *gifFilename = [self.filename stringByAppendingPathExtension:@"gif"];
+            NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
+            NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
+            
+            [self makeAnimatedGifAtUrl:gifURL fromArray:images completionHandler:^(NSError *error) {
+                if(error) {
+                    NSLog(@"makeAnimatedGifAtUrl Error occured: %@", error);
+                    [self setExecuting:NO];
+                    [self setFinished:YES];
+                }
+                else {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.video.realm beginWriteTransaction];
+                        self.video.gifFilename = gifFilename;
+                        [self.video.realm commitWriteTransaction];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
+                                                                            object:self.video];
+                        NSLog(@"gif created");
+                        [self setExecuting:NO];
+                        [self setFinished:YES];
+                        
+                    });
+                }
+                
+            }];
+            
+        });
     }
 }
 
@@ -143,7 +142,7 @@
             NSLog(@"gif creation cancelled");
             break;
         }
-
+        
     }
     return imagesArray;
 }

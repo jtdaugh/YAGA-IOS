@@ -31,7 +31,7 @@
         groupsController.view.alpha = 0;
         
         //group can change
-        [gridController.cameraViewController updateCurrentGroup];
+        [gridController.cameraViewController updateCurrentGroupName];
         [gridController.collectionViewController reload];
     } completion:^(BOOL finished) {
         [groupsController removeFromParentViewController];
