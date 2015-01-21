@@ -78,13 +78,6 @@
     return result;
 }
 
-- (RLMResults*)sortedVideos {
-    if(!self.videos.count)
-        return nil;
-    
-    return [self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
-}
-
 #pragma mark - Server synchronisation: update from server
 - (void)updateFromServerResponeDictionarty:(NSDictionary*)dictionary {
     self.serverId = dictionary[YA_RESPONSE_ID];
@@ -136,8 +129,6 @@ static BOOL groupsUpdateInProgress;
             [[RLMRealm defaultRealm] beginWriteTransaction];
             
             NSArray *groups = (NSArray*)response;
-            
-            groups = [groups sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_GROUP_UPDATED_AT ascending:NO]]];
             
             for (id d in groups) {
                 
@@ -234,7 +225,7 @@ static BOOL groupsUpdateInProgress;
 }
 
 #pragma mark - Videos
-- (void)updateVideosSince:(NSDate*)sinceDate withCompletion:(updateVideosCompletionBlock)completion {
+- (void)updateVideosWithCompletion:(updateVideosCompletionBlock)completion {
     if(self.videosUpdateInProgress) {
         completion(nil, nil);
         return;
@@ -242,7 +233,14 @@ static BOOL groupsUpdateInProgress;
 
     self.videosUpdateInProgress = YES;
 
-    [[YAServer sharedServer] groupInfoWithId:self.serverId since:(NSDate*)sinceDate withCompletion:^(id response, NSError *error) {
+    //since
+    NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+    NSDate *lastUpdateDate = nil;
+    if([groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId]) {
+        lastUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
+    }
+    
+    [[YAServer sharedServer] groupInfoWithId:self.serverId since:lastUpdateDate withCompletion:^(id response, NSError *error) {
         self.videosUpdateInProgress = NO;
         if(error) {
             NSLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
@@ -250,6 +248,9 @@ static BOOL groupsUpdateInProgress;
                 completion(error, nil);
         }
         else {
+            [groupsUpdatedAt setObject:[NSDate date] forKey:[YAUser currentUser].currentGroup.localId];
+            [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
             NSLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
             
@@ -296,7 +297,7 @@ static BOOL groupsUpdateInProgress;
     
     NSMutableArray *newVideos = [NSMutableArray new];
     
-    videoDictionaries = [videoDictionaries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_VIDEO_READY_AT ascending:NO]]];
+    videoDictionaries = [videoDictionaries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_VIDEO_READY_AT ascending:YES]]];
     
     for(NSDictionary *videoDic in videoDictionaries) {
         

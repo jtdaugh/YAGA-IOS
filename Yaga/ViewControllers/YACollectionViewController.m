@@ -64,7 +64,7 @@ static NSString *cellID = @"Cell";
     
     [self.view addSubview:self.collectionView];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(insertVideo:)     name:VIDEO_ADDED_NOTIFICATION       object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(insertVideos:)     name:VIDEOS_ADDED_NOTIFICATION       object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
@@ -115,7 +115,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_ADDED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEOS_ADDED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
@@ -201,15 +201,24 @@ static NSString *cellID = @"Cell";
     }
 }
 
-- (void)insertVideo:(NSNotification*)notif {
-    YAVideo *video = notif.object;
-    if(![video.group isEqual:[YAUser currentUser].currentGroup])
+- (void)insertVideos:(NSNotification*)notif {
+    NSArray *videos = notif.object;
+
+    if(!videos.count)
         return;
     
-    [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+    YAVideo *firstVideo = (YAVideo*)[videos firstObject];
+    if(![firstVideo.group isEqual:[YAUser currentUser].currentGroup])
+        return;
     
     if(self.collectionView.contentOffset.y != 0)
         [self.collectionView setContentOffset:CGPointMake(0, 0) animated:YES];
+
+    [self.collectionView performBatchUpdates:^{
+        for(int i = 0; i < videos.count; i++) {
+            [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+        }
+    } completion:nil];
 }
 
 - (void)refreshGroup:(NSNotification*)notif {
@@ -224,18 +233,8 @@ static NSString *cellID = @"Cell";
     __weak typeof (self) weakSelf = self;
     [self.delegate enableRecording:NO];
     
-    //since
-    NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
-    NSDate *lastUpdateDate = nil;
-    if([groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId]) {
-        lastUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
-    }
-    
-    [[YAUser currentUser].currentGroup updateVideosSince:lastUpdateDate withCompletion:^(NSError *error, NSArray *newVideos) {
+    [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
         if(!error) {
-            [groupsUpdatedAt setObject:[NSDate date] forKey:[YAUser currentUser].currentGroup.localId];
-            [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
-            
             if(newVideos.count) {
                 [weakSelf.collectionView performBatchUpdates:^{
                     [weakSelf.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];

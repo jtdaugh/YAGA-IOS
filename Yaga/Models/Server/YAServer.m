@@ -543,6 +543,11 @@
                 self.lastUpdateTime = [NSDate date];
                 NSLog(@"groups updated from server successfully");
                 
+                [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEOS_ADDED_NOTIFICATION object:newVideos];
+                    
+                }];
+                
                 //send local changes to the server
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
                 
