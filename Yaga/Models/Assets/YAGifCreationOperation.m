@@ -61,41 +61,43 @@
             
             [self setExecuting:YES];
             
-            AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
-            NSArray *images = [self imagesArrayFromAsset:asset];
-            
-            if(self.isCancelled) {
-                [self setExecuting:NO];
-                [self setFinished:YES];
-                return;
-            }
-            
-            NSString *gifFilename = [self.filename stringByAppendingPathExtension:@"gif"];
-            NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
-            NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
-            
-            [self makeAnimatedGifAtUrl:gifURL fromArray:images completionHandler:^(NSError *error) {
-                if(error) {
-                    NSLog(@"makeAnimatedGifAtUrl Error occured: %@", error);
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                
+                AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
+                NSArray *images = [self imagesArrayFromAsset:asset];
+                
+                if(self.isCancelled) {
                     [self setExecuting:NO];
                     [self setFinished:YES];
-                }
-                else {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.video.realm beginWriteTransaction];
-                        self.video.gifFilename = gifFilename;
-                        [self.video.realm commitWriteTransaction];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
-                                                                            object:self.video];
-                        NSLog(@"gif created");
-                        [self setExecuting:NO];
-                        [self setFinished:YES];
-                        
-                    });
+                    return;
                 }
                 
-            }];
-            
+                NSString *gifFilename = [self.filename stringByAppendingPathExtension:@"gif"];
+                NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
+                NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
+                
+                [self makeAnimatedGifAtUrl:gifURL fromArray:images completionHandler:^(NSError *error) {
+                    if(error) {
+                        NSLog(@"makeAnimatedGifAtUrl Error occured: %@", error);
+                        [self setExecuting:NO];
+                        [self setFinished:YES];
+                    }
+                    else {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self.video.realm beginWriteTransaction];
+                            self.video.gifFilename = gifFilename;
+                            [self.video.realm commitWriteTransaction];
+                            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
+                                                                                object:self.video];
+                            NSLog(@"gif created");
+                            [self setExecuting:NO];
+                            [self setFinished:YES];
+                            
+                        });
+                    }
+                    
+                }];
+            });
         });
     }
 }
