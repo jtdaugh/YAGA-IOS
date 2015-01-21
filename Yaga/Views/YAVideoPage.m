@@ -11,6 +11,7 @@
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import "YAUtils.h"
+#import "YAServer.h"
 
 @interface YAVideoPage ();
 @property (nonatomic, strong) YAActivityView *activityView;
@@ -249,8 +250,23 @@
 
 - (void)likeButtonPressed {
     
+    __block NSInteger likesCount = 0;
+    if (!self.video.like) {
+        [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
+            [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
+                            forState:UIControlStateNormal];
+            likesCount = [response integerValue];
+        }];
+    } else {
+        [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
+            [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
+                            forState:UIControlStateNormal];
+            likesCount = [response integerValue];
+        }];
+    }
     [[RLMRealm defaultRealm] beginWriteTransaction];
     self.video.like = !self.video.like;
+    self.video.likes = likesCount;
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [self animateButton:self.likeButton withImageName:self.video.like ? @"Liked" : @"Like" completion:nil];
@@ -407,8 +423,7 @@
                                         [self.video removeFromCurrentGroup];
                                     }]];
         
-        
-        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+        [[[[[UIApplication sharedApplication] keyWindow] rootViewController] presentedViewController] presentViewController:alertController animated:YES completion:nil];
     }];
 }
 
@@ -465,7 +480,8 @@
     self.captionField.text = @"";
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.captionField.text = self.video.caption;
-    [self.likeCount setTitle:@"4" forState:UIControlStateNormal]; //TODO: make real number from realm
+    [self.likeCount setTitle:[NSString stringWithFormat:@"%ld", (long)self.video.likes]
+                    forState:UIControlStateNormal]; 
 }
 
 @end

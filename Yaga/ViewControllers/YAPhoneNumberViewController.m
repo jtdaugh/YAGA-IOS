@@ -42,77 +42,114 @@
     
     origin = [self getNewOrigin:self.logo];
     
-    self.cta = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.12)];
-    [self.cta setText:@"Enter your phone\n number to get started"];
-    [self.cta setNumberOfLines:2];
-    [self.cta setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    [self.cta setTextAlignment:NSTextAlignmentCenter];
-    [self.cta setTextColor:[UIColor whiteColor]];
-    [self.view addSubview:self.cta];
+    self.enterPhoneLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.12)];
+    [self.enterPhoneLabel setText:@"Enter your phone\n number to get started"];
+    [self.enterPhoneLabel setNumberOfLines:2];
+    [self.enterPhoneLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.enterPhoneLabel setTextAlignment:NSTextAlignmentCenter];
+    [self.enterPhoneLabel setTextColor:[UIColor whiteColor]];
+    [self.view addSubview:self.enterPhoneLabel];
     
-    origin = [self getNewOrigin:self.cta];
+    origin = [self getNewOrigin:self.enterPhoneLabel];
 
     CGFloat formWidth = VIEW_WIDTH *.7;
     CGFloat gutter = VIEW_WIDTH * .05;
-    self.number = [[UITextField alloc] initWithFrame:CGRectMake(VIEW_WIDTH-formWidth-gutter, origin, formWidth, VIEW_HEIGHT*.08)];
-    [self.number setBackgroundColor:[UIColor clearColor]];
-    [self.number setKeyboardType:UIKeyboardTypePhonePad];
-    [self.number setTextAlignment:NSTextAlignmentCenter];
-    [self.number setFont:[UIFont fontWithName:BIG_FONT size:32]];
-    [self.number setTextColor:[UIColor whiteColor]];
-    [self.number setTintColor:[UIColor whiteColor]];
-    [self.number setReturnKeyType:UIReturnKeyDone];
-    [self.number addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
-    [self.view addSubview:self.number];
+    self.phoneTextField = [[UITextField alloc] initWithFrame:CGRectMake(VIEW_WIDTH-formWidth-gutter, origin, formWidth, VIEW_HEIGHT*.08)];
+    [self.phoneTextField setBackgroundColor:[UIColor clearColor]];
+    [self.phoneTextField setKeyboardType:UIKeyboardTypePhonePad];
+    [self.phoneTextField setTextAlignment:NSTextAlignmentCenter];
+    [self.phoneTextField setFont:[UIFont fontWithName:BIG_FONT size:32]];
+    [self.phoneTextField setTextColor:[UIColor whiteColor]];
+    [self.phoneTextField setTintColor:[UIColor whiteColor]];
+    [self.phoneTextField setReturnKeyType:UIReturnKeyDone];
+    [self.phoneTextField addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
+    [self.view addSubview:self.phoneTextField];
     
-    self.country = [[UIButton alloc] initWithFrame:CGRectMake(gutter, origin, VIEW_WIDTH - formWidth - gutter*3, VIEW_HEIGHT*.08)];
-    [self.country setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
-    self.country.layer.borderColor = [[UIColor whiteColor] CGColor];
-    self.country.layer.borderWidth = 3.0f;
-    [self.country.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    [self.country addTarget:self action:@selector(selectCountryTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.country setBackgroundColor:[UIColor clearColor]];
-    [self.view addSubview:self.country];
+    self.countryButton = [[UIButton alloc] initWithFrame:CGRectMake(gutter, origin, VIEW_WIDTH - formWidth - gutter*3, VIEW_HEIGHT*.08)];
+    [self.countryButton setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
+    self.countryButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+    self.countryButton.layer.borderWidth = 3.0f;
+    [self.countryButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.countryButton addTarget:self action:@selector(selectCountryTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [self.countryButton setBackgroundColor:[UIColor clearColor]];
+    [self.view addSubview:self.countryButton];
     
-    origin = [self getNewOrigin:self.number];
+    origin = [self getNewOrigin:self.phoneTextField];
     
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
-    self.next = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
-    [self.next setBackgroundColor:PRIMARY_COLOR];
-    [self.next setTitle:@"Next" forState:UIControlStateNormal];
-    [self.next.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    [self.next setAlpha:0.0];
-    [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
-    [self.next setTitle:@"" forState:UIControlStateDisabled];
-    [self.view addSubview:self.next];
+    self.nextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
+    [self.nextButton setBackgroundColor:PRIMARY_COLOR];
+    [self.nextButton setTitle:@"Next" forState:UIControlStateNormal];
+    [self.nextButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.nextButton setAlpha:0.0];
+    [self.nextButton addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
+    [self.nextButton setTitle:@"" forState:UIControlStateDisabled];
+    [self.view addSubview:self.nextButton];
     
     //Init activity indicator
     self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    self.activityIndicator.center = self.next.center;
+    self.activityIndicator.center = self.nextButton.center;
     self.activityIndicator.hidesWhenStopped = YES;
     [self.view addSubview:self.activityIndicator];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    
+    [self layoutControls:VIEW_HEIGHT];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
+}
+
+- (void)layoutControls:(CGFloat)availableHeight {
+    self.logo.frame = CGRectMake(0, 0, VIEW_WIDTH, availableHeight/4);
+    self.enterPhoneLabel.frame = CGRectMake(0, availableHeight/4, VIEW_WIDTH, availableHeight/4);
+    
+    CGFloat gutter = VIEW_WIDTH * .05;
+    CGFloat formWidth = VIEW_WIDTH *.7;
+    CGFloat separator = 20;
+    
+    self.countryButton.frame = CGRectMake(gutter, availableHeight/2+separator, VIEW_WIDTH - formWidth - gutter*3, VIEW_HEIGHT*.08);
+    self.phoneTextField.frame = CGRectMake(VIEW_WIDTH-formWidth-gutter, availableHeight/2+separator, formWidth, VIEW_HEIGHT*.08);
+    CGFloat buttonWidth = VIEW_WIDTH * 0.7;
+    
+    CGFloat heightForButton = availableHeight - self.phoneTextField.frame.origin.y - self.phoneTextField.frame.size.height;
+    CGFloat buttonOrigin = self.phoneTextField.frame.origin.y + self.phoneTextField.frame.size.height + heightForButton/2 - VIEW_HEIGHT*.1/2;
+    
+    self.nextButton.frame = CGRectMake((VIEW_WIDTH-buttonWidth)/2, buttonOrigin, buttonWidth, VIEW_HEIGHT*.1);
+    self.activityIndicator.center = self.nextButton.center;
+}
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+    NSDictionary *info  = notification.userInfo;
+    NSValue      *value = info[UIKeyboardFrameEndUserInfoKey];
+    
+    CGRect rawFrame      = [value CGRectValue];
+    CGRect keyboardFrame = [self.view convertRect:rawFrame fromView:nil];
+    
+    CGFloat availableHeight = VIEW_HEIGHT - keyboardFrame.size.height;
+    [self layoutControls:availableHeight];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self.country setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
-    self.next.enabled = YES;
+    self.navigationController.navigationBarHidden = YES;
+    [self.countryButton setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
+    self.nextButton.enabled = YES;
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [self.number becomeFirstResponder];
+    [self.phoneTextField becomeFirstResponder];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    [self.number resignFirstResponder];
+    [self.phoneTextField resignFirstResponder];
 }
-
-
     
 - (CGFloat) getNewOrigin:(UIView *) anchor {
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
@@ -120,13 +157,13 @@
 
 - (void)editingChanged {
     
-    if([self.number.text length] > 6){
+    if([self.phoneTextField.text length] > 6){
         NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
         
-        NSLog(@"text: %@", self.number.text);
+        NSLog(@"text: %@", self.phoneTextField.text);
         
         NSError *anError = nil;
-        NBPhoneNumber *myNumber = [phoneUtil parse:self.number.text
+        NBPhoneNumber *myNumber = [phoneUtil parse:self.phoneTextField.text
                                      defaultRegion:[YAUser currentUser].countryCode error:&anError];
         
         NSError *error = nil;
@@ -134,15 +171,15 @@
                               numberFormat:NBEPhoneNumberFormatNATIONAL
                                      error:&error];
         
-        [self.number setText:text];
+        [self.phoneTextField setText:text];
         
         [UIView animateWithDuration:0.3 animations:^{
-            [self.next setAlpha:1.0];
+            [self.nextButton setAlpha:1.0];
         }];
         
     } else {
         [UIView animateWithDuration:0.3 animations:^{
-            [self.next setAlpha:0.0];
+            [self.nextButton setAlpha:0.0];
         }];
     }
 }
@@ -150,10 +187,10 @@
 - (void)nextScreen {
     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
     
-    NSLog(@"text: %@", self.number.text);
+    NSLog(@"text: %@", self.phoneTextField.text);
     
     NSError *anError = nil;
-    NBPhoneNumber *myNumber = [phoneUtil parse:self.number.text
+    NBPhoneNumber *myNumber = [phoneUtil parse:self.phoneTextField.text
                                  defaultRegion:[YAUser currentUser].countryCode error:&anError];
     
     NSError *error = nil;
@@ -163,7 +200,7 @@
     
     //Auth manager testing
     [self.activityIndicator startAnimating];
-    self.next.enabled = NO;
+    self.nextButton.enabled = NO;
     __weak typeof(self) weakSelf = self;
 
     [[YAServer sharedServer] authentificatePhoneNumberBySMS:formattedNumber withCompletion:^(NSString *responseDictionary, NSError *error) {
@@ -172,7 +209,7 @@
             dispatch_async(dispatch_get_main_queue(),  ^{
                 [YAUtils showNotification:responseDictionary
                                      type:AZNotificationTypeError];
-                weakSelf.next.enabled = YES;
+                weakSelf.nextButton.enabled = YES;
             });
         } else {
             [weakSelf performSegueWithIdentifier:@"AuthentificationViewController" sender:self];

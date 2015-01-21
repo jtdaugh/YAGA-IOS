@@ -58,7 +58,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         origin = 0;
     }
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.embeddedMode ? ELEVATOR_MARGIN : origin))];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.embeddedMode ? ELEVATOR_MARGIN : origin - 20))];
 
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];

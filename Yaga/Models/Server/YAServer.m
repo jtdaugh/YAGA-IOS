@@ -25,11 +25,13 @@
 #define API_ENDPOINT @"/yaga/api/v1"
 
 #define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
+#define API_USER_DEVICE_TEMPLATE            @"%@/user/device/"
+
 #define API_AUTH_TOKEN_TEMPLATE             @"%@/auth/obtain/"
 #define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
-#define API_RENAME_GROUP_TEMPLATE           @"%@/groups/%@/"
+#define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/members/mute/"
 
 #define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/members/add/"
@@ -38,9 +40,10 @@
 #define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/"
 #define API_GROUP_POST_DELETE               @"%@/groups/%@/posts/%@/"
 
+#define API_GROUP_POST_LIKE                 @"%@/groups/%@/posts/%@/like/"
 
-#define USER_PHONE @"phone"
-#define ERROR_DATA @"com.alamofire.serialization.response.error.data"
+#define USER_PHONE  @"phone"
+#define ERROR_DATA  @"com.alamofire.serialization.response.error.data"
 
 @interface YAServer ()
 
@@ -302,7 +305,7 @@
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_RENAME_GROUP_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
     
     NSDictionary *parameters = @{
                                  @"name": newName
@@ -315,11 +318,16 @@
     }];
 }
 
-- (void)groupInfoWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+- (void)groupInfoWithId:(NSString*)serverGroupId since:(NSDate*)since withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_RENAME_GROUP_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
+    
+    if(since) {
+        NSString *sinceString = [NSString stringWithFormat:@"?since=%lu", (unsigned long)[since timeIntervalSince1970]];
+        api = [api stringByAppendingString:sinceString];
+    }
     
     [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
@@ -426,6 +434,61 @@
               }];
 }
 
+
+- (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
+    NSAssert(self.token, @"token not set");
+    NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
+    NSString *serverVideoId = video.serverId;
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
+    [self.manager POST:api
+            parameters:nil
+               success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                   NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+                   NSNumber *likes = responseDict[YA_RESPONSE_LIKES];
+                   completion(likes, nil);
+               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                   completion(nil, nil);
+               }];
+}
+
+- (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
+    NSAssert(self.token, @"token not set");
+    NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
+    NSString *serverVideoId = video.serverId;
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
+    [self.manager   DELETE:api
+                parameters:nil
+                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                       NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+                       NSNumber *likes = responseDict[YA_RESPONSE_LIKES];
+                       completion(likes, nil);
+                   } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                       completion(nil, nil);
+                   }];
+}
+
+
+#pragma mark - Device token
+
+- (void)registerDeviceTokenWithCompletion:(responseBlock)completion {
+    NSAssert(self.token.length, @"token not set");
+    NSAssert([YAUser currentUser].deviceToken.length, @"device token not set");
+    
+    NSString *api = [NSString stringWithFormat:API_USER_DEVICE_TEMPLATE, self.base_api];
+    
+    NSDictionary *parameters = @{
+                                 @"vendor": @"IOS",
+                                 @"token": [YAUser currentUser].deviceToken
+                                 };
+    
+    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:YA_LAST_DEVICE_TOKEN_SYNC_DATE];
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+}
+
 #pragma mark - Utitlities
 //- (void)printErrorData:(NSError*)error
 //{
@@ -454,10 +517,25 @@
     return [self.reachability isReachable];
 }
 
+- (void)registerDeviceTokenIfNeeded {
+    if(![YAUser currentUser].deviceToken.length)
+        return;
+    //every day? maybe every month?
+    NSTimeInterval lastRegistrationDate = [[[NSUserDefaults standardUserDefaults] objectForKey:YA_LAST_DEVICE_TOKEN_SYNC_DATE] timeIntervalSinceNow];
+    if(!lastRegistrationDate || fabs(lastRegistrationDate) > 24 * 60 * 60) {
+        [self registerDeviceTokenWithCompletion:^(id response, NSError *error) {
+            if(error) {
+                [YAUtils showNotification:[NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription] type:AZNotificationTypeError];
+            }
+        }];
+    }
+}
 - (void)sync {
     NSLog(@"YAServer:sync, serverUp: %@", self.serverUp ? @"Yes" : @"No");
     
     if([[YAUser currentUser] loggedIn] && self.token.length && self.serverUp) {
+        
+        [self registerDeviceTokenIfNeeded];
         
         //read updates from server
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {

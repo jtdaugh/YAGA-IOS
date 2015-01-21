@@ -30,7 +30,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
 @property (strong, nonatomic) UILabel *noVideosLabel;
-@property (strong, nonatomic) RLMResults *sortedVideos;
+@property (strong, nonatomic) NSMutableArray *sortedVideos;
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
 
@@ -38,6 +38,9 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @end
 
 static NSString *cellID = @"Cell";
+
+#define YA_GROUPS_UPDATED_AT     @"YA_GROUPS_UPDATED_AT"
+
 
 @implementation YACollectionViewController
 
@@ -77,34 +80,28 @@ static NSString *cellID = @"Cell";
     self.animationController = [YAAnimatedTransitioningController new];
     
     [self setupPullToRefresh];
+    
+    //refresh current group on load
+    [self refreshGroup:[NSNotification notificationWithName:@"currentGroup" object:[YAUser currentUser].currentGroup userInfo:nil]];
 }
 
 - (void)setupPullToRefresh {
     //pull to refresh
     __weak typeof(self) weakSelf = self;
     [self.collectionView addPullToRefreshWithActionHandler:^{
-        [weakSelf.delegate enableRecording:NO];
-        [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error) {
-            [weakSelf reload];
-            [weakSelf.collectionView.pullToRefreshView stopAnimating];
-            [weakSelf.delegate enableRecording:YES];
-        }];
+        [weakSelf refreshCurrentGroup];
     }];
     
-    YAActivityView *loadinView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/10, VIEW_WIDTH/10)];
-    loadinView.animateAtOnce = YES;
+    YAActivityView *loadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/10, VIEW_WIDTH/10)];
+    loadingView.animateAtOnce = YES;
     
-    UILabel *stoppedView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 20)];
-    stoppedView.font = [UIFont fontWithName:THIN_FONT size:14];
-    stoppedView.textAlignment = NSTextAlignmentCenter;
-    stoppedView.text = @"Pull to refresh";
-
-    UILabel *triggeredView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 20)];
-    triggeredView.font = [UIFont fontWithName:THIN_FONT size:14];
-    triggeredView.textAlignment = NSTextAlignmentCenter;
-    triggeredView.text = @"Release to refresh";
+    YAActivityView *stoppedView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/14, VIEW_WIDTH/14)];
+    stoppedView.animateAtOnce = NO;
     
-    [self.collectionView.pullToRefreshView setCustomView:loadinView forState:SVPullToRefreshStateLoading];
+    YAActivityView *triggeredView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/14, VIEW_WIDTH/14)];
+    triggeredView.animateAtOnce = NO;
+    
+    [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
     [self.collectionView.pullToRefreshView setCustomView:stoppedView forState:SVPullToRefreshStateStopped];
     [self.collectionView.pullToRefreshView setCustomView:triggeredView forState:SVPullToRefreshStateTriggered];
 }
@@ -147,13 +144,20 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)updateSortedVideos {
-    self.sortedVideos = [[YAUser currentUser].currentGroup sortedVideos];
+    self.sortedVideos = [NSMutableArray new];
+    for(YAVideo *video in [[YAUser currentUser].currentGroup sortedVideos]) {
+        [self.sortedVideos addObject:video];
+    }
 }
 
 - (void)reload {
     [self updateSortedVideos];
     
-    [self.collectionView reloadData];
+    if(!self.sortedVideos.count)
+        [self refreshCurrentGroup];
+    else
+        [self.collectionView reloadData];
+    
     [self showNoVideosMessageIfNeeded];
 }
 
@@ -188,13 +192,15 @@ static NSString *cellID = @"Cell";
 
 - (void)reloadVideo:(NSNotification*)notif {
     YAVideo *video = notif.object;
-    NSLog(@"%@", video.serverId);
     if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
     NSUInteger index = [self.sortedVideos indexOfObject:video];
-    NSLog(@"%lu", (unsigned long)index);
-    [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+    
+    //do not refresh video if there is nothing to show
+    if(video.jpgFilename.length || video.gifFilename.length) {
+        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+    }
 }
 
 - (void)insertVideo:(NSNotification*)notif {
@@ -214,8 +220,36 @@ static NSString *cellID = @"Cell";
     YAGroup *groupToRefresh = [notif object];
     if([[YAUser currentUser].currentGroup.localId isEqualToString:groupToRefresh.localId]) {
         self.collectionView.contentOffset = CGPointMake(0, 0);
-        [self.collectionView triggerPullToRefresh];
+        //[self refreshCurrentGroup];
     }
+}
+
+- (void)refreshCurrentGroup {
+    __weak typeof (self) weakSelf = self;
+    [self.delegate enableRecording:NO];
+    
+    //since
+    NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+    NSDate *lastUpdateDate = nil;
+    if([groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId]) {
+        lastUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
+    }
+    
+    [[YAUser currentUser].currentGroup updateVideosSince:lastUpdateDate withCompletion:^(NSError *error, NSArray *newVideos) {
+        [groupsUpdatedAt setObject:[NSDate date] forKey:[YAUser currentUser].currentGroup.localId];
+        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+        
+        if(newVideos.count) {
+            [weakSelf.sortedVideos insertObjects:newVideos atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newVideos.count)]];
+            [weakSelf.collectionView performBatchUpdates:^{
+                [weakSelf.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+            } completion:^(BOOL finished) {
+            }];
+        }
+        
+        [weakSelf.collectionView.pullToRefreshView stopAnimating];
+        [weakSelf.delegate enableRecording:YES];
+    }];
 }
 
 #pragma mark - UICollectionView

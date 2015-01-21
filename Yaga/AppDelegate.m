@@ -75,7 +75,7 @@
         
         // Wait until the pending operations finish
         [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
-        //[[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
+        [[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
         
         [application endBackgroundTask: bgTask];
         bgTask = UIBackgroundTaskInvalid;
@@ -90,6 +90,8 @@
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", [self deviceTokenFromData:deviceToken]);
+    
+    [[NSUserDefaults standardUserDefaults] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
@@ -122,6 +124,12 @@
     token = [token stringByReplacingOccurrencesOfString:@">" withString:@""];
     
     return token;
+}
+
+#pragma mark - Memory Warning 
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
+{
+    NSLog(@"%@", application);
 }
 
 @end

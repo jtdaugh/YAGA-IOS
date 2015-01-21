@@ -229,25 +229,30 @@ static BOOL groupsUpdateInProgress;
 }
 
 #pragma mark - Videos
-- (void)updateVideosWithCompletion:(completionBlock)completion {
-    if(self.videosUpdateInProgress)
+- (void)updateVideosSince:(NSDate*)sinceDate withCompletion:(updateVideosCompletionBlock)completion {
+    if(self.videosUpdateInProgress) {
+        completion(nil, nil);
         return;
-    
+    }
+
     self.videosUpdateInProgress = YES;
 
-    [[YAServer sharedServer] groupInfoWithId:self.serverId withCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] groupInfoWithId:self.serverId since:(NSDate*)sinceDate withCompletion:^(id response, NSError *error) {
         self.videosUpdateInProgress = NO;
         if(error) {
             NSLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
             if(completion)
-                completion(error);
+                completion(error, nil);
         }
         else {
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
             NSLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
-            [self updateVideosFromDictionaries:videoDictionaries];
-            if(completion)
-                completion(nil);
+            
+            __block NSArray *newVideos = [self updateVideosFromDictionaries:videoDictionaries];
+            
+            if(completion) {
+                completion(nil, newVideos);
+            }
         }
     }];
 }
@@ -262,25 +267,29 @@ static BOOL groupsUpdateInProgress;
     return existingIds;
 }
 
-- (void)updateVideosFromDictionaries:(NSArray*)videoDictionaries {
+- (NSArray*)updateVideosFromDictionaries:(NSArray*)videoDictionaries {
     NSSet *existingIds = [self videoIds];
-    
-    //remove deleted videos first
-    NSMutableSet *idsToDelete = [NSMutableSet setWithSet:existingIds];
     NSSet *newIds = [NSSet setWithArray:[videoDictionaries valueForKey:YA_RESPONSE_ID]];
-    [idsToDelete minusSet:newIds];
     
-    for(NSString *idToDelete in idsToDelete) {
-        RLMResults *videosToDelete = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", idToDelete]];
-        if(videosToDelete.count) {
-            YAVideo *videoToDelete = [videosToDelete firstObject];
-            [videoToDelete removeFromCurrentGroup];
-        }
-    
-    }
+    #warning VIDEOS DELETION BY FLAG "deleted" not implemented
+//    //remove deleted videos first
+//    NSMutableSet *idsToDelete = [NSMutableSet setWithSet:existingIds];
+//
+//    [idsToDelete minusSet:newIds];
+//    
+//    for(NSString *idToDelete in idsToDelete) {
+//        RLMResults *videosToDelete = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", idToDelete]];
+//        if(videosToDelete.count) {
+//            YAVideo *videoToDelete = [videosToDelete firstObject];
+//            [videoToDelete removeFromCurrentGroup];
+//        }
+//    
+//    }
     
     NSMutableSet *idsToAdd = [NSMutableSet setWithSet:newIds];
     [idsToAdd minusSet:existingIds];
+    
+    NSMutableArray *newVideos = [NSMutableArray new];
     
     //supposing groups are coming sorted
     for(NSDictionary *videoDic in videoDictionaries) {
@@ -297,9 +306,42 @@ static BOOL groupsUpdateInProgress;
                 [video.realm commitWriteTransaction];
             }
         }
-        
-        [[YAAssetsCreator sharedCreator] createVideoFromRemoteDictionary:videoDic addToGroup:[YAUser currentUser].currentGroup];
+        else {
+            NSString *videoId = videoDic[YA_RESPONSE_ID];
+            
+            [self.realm beginWriteTransaction];
+            
+            YAVideo *video = [YAVideo video];
+            video.serverId = videoId;
+            video.creator = videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME];
+            video.likes = [videoDic[YA_RESPONSE_LIKES] integerValue];
+            NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
+            video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
+            video.url = videoDic[YA_VIDEO_ATTACHMENT];
+            video.group = self;
+            
+            //Insert video at proper positon
+            NSInteger index = 0;
+            for (int i = 0; i < self.videos.count; i++)
+            {
+                YAVideo *v = self.videos[i];
+                if ([v.createdAt compare:video.createdAt] == NSOrderedDescending)
+                {
+                    index = i;
+                    break;
+                }
+            }
+            
+            [self.videos insertObject:video atIndex:index];
+            
+            [self.realm commitWriteTransaction];
+            
+            [newVideos addObject:video];
+            
+            [[YAAssetsCreator sharedCreator] createAssetsForVideo:video inGroup:self];
+        }
     }
+    return newVideos;
 }
 
 - (BOOL)updateInProgress {

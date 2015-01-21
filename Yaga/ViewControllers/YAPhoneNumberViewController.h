@@ -10,8 +10,8 @@
 
 @interface YAPhoneNumberViewController : UIViewController<UITextFieldDelegate>
 @property (strong, nonatomic) UIImageView *logo;
-@property (strong, nonatomic) UILabel *cta;
-@property (strong, nonatomic) UITextField *number;
-@property (strong, nonatomic) IBOutlet UIButton *country;
-@property (strong, nonatomic) UIButton *next;
+@property (strong, nonatomic) UILabel *enterPhoneLabel;
+@property (strong, nonatomic) UITextField *phoneTextField;
+@property (strong, nonatomic) IBOutlet UIButton *countryButton;
+@property (strong, nonatomic) UIButton *nextButton;
 @end

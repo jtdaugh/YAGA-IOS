@@ -13,7 +13,6 @@
 #import "NSDate+NVTimeAgo.h"
 #import "YAAssetsCreator.h"
 #import "YAActivityView.h"
-#import "AVPlaybackViewController.h"
 #import "YAImageCache.h"
 
 typedef NS_ENUM(NSUInteger, YAVideoCellState) {
@@ -38,7 +37,6 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 @property (nonatomic, strong) YAActivityView *activityView;
 
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
-@property (nonatomic, strong) AVPlaybackViewController *playerVC;
 
 @property (nonatomic, assign) YAVideoCellState state;
 
@@ -105,7 +103,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
-    self.playerVC = nil;
+    //self.playerVC = nil;
     self.state = YAVideoCellStateLoading;
 }
 
@@ -501,23 +499,23 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
             break;
         }
         case YAVideoCellStateVideoPreview: {
-
-            [self showLoading:NO];
-            [self showControls:YES];
-            
-            //by some reason layoutSubviews is called twice when layoyt is changed
-            //using the following check to prevent two instances of a player created
-            NSURL *videoURL = [YAUtils urlFromFileName:self.video.movFilename];
-            if(self.playerVC && [self.playerVC.URL.absoluteString isEqualToString:videoURL.absoluteString])
-                return;
-            
-            self.playerVC = [AVPlaybackViewController new];
-            [self.playerVC playWhenReady];
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                self.playerVC.URL = videoURL;
-
-            });
+//not supported
+//            [self showLoading:NO];
+//            [self showControls:YES];
+//            
+//            //by some reason layoutSubviews is called twice when layoyt is changed
+//            //using the following check to prevent two instances of a player created
+//            NSURL *videoURL = [YAUtils urlFromFileName:self.video.movFilename];
+//            if(self.playerVC && [self.playerVC.URL.absoluteString isEqualToString:videoURL.absoluteString])
+//                return;
+//            
+//            self.playerVC = [AVPlaybackViewController new];
+//            [self.playerVC playWhenReady];
+//            
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//                self.playerVC.URL = videoURL;
+//
+//            });
             
             break;
         }
@@ -530,26 +528,26 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     }
 }
 
-- (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
-    if(_playerVC == playerVC)
-        return;
+//- (void)setPlayerVC:(AVPlaybackViewController *)playerVC {
+//    if(_playerVC == playerVC)
+//        return;
+//
+//    if(playerVC) {
+//        self.gifView.hidden = YES;
+//        playerVC.view.frame = self.bounds;
+//        [self.contentView addSubview:playerVC.view];
+//    }
+//    else {
+//        [self.playerVC.view removeFromSuperview];
+//        self.gifView.hidden = NO;
+//    }
+//    
+//    _playerVC = playerVC;
+//}
 
-    if(playerVC) {
-        self.gifView.hidden = YES;
-        playerVC.view.frame = self.bounds;
-        [self.contentView addSubview:playerVC.view];
-    }
-    else {
-        [self.playerVC.view removeFromSuperview];
-        self.gifView.hidden = NO;
-    }
-    
-    _playerVC = playerVC;
-}
-
-- (void)invalidateVideoPlayer {
-    self.playerVC = nil;
-}
+//- (void)invalidateVideoPlayer {
+//    self.playerVC = nil;
+//}
 
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
     id cachedImage = [[YAImageCache sharedCache] objectForKey:fileName];

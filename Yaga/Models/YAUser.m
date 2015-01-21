@@ -61,6 +61,7 @@
     }
     
     [[NSUserDefaults standardUserDefaults] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];
+    
     _currentGroup = group;
     
     [[YAAssetsCreator sharedCreator] createAssetsForGroup:self.currentGroup];
@@ -118,7 +119,7 @@
     return (NSMutableArray *) self.messages[groupId];
 }
 
-#pragma mark - Refactored - <delete me later
+#pragma mark - Refactored
 - (void)importContactsWithCompletion:(contactsImportedBlock)completion excludingPhoneNumbers:(NSSet*)excludePhonesSet {
     
     APAddressBook *addressBook = [[APAddressBook alloc] init];
@@ -206,6 +207,10 @@
 
 - (NSString*)phoneNumber {
     return [[YAUser currentUser] objectForKey:nPhone];
+}
+
+- (NSString*)deviceToken {
+    return [[YAUser currentUser] objectForKey:YA_DEVICE_TOKEN];
 }
 
 #pragma mark - iMessage

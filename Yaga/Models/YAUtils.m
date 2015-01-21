@@ -61,7 +61,9 @@
 }
 
 + (void)showNotification:(NSString*)message type:(AZNotificationType)type {
-    [AZNotification showNotificationWithTitle:message controller:[UIApplication sharedApplication].keyWindow.rootViewController
+    UIViewController *root = [[UIApplication sharedApplication] keyWindow].rootViewController;
+    UIViewController *vc = root.presentedViewController ? root.presentedViewController : root;
+    [AZNotification showNotificationWithTitle:message controller:vc
                              notificationType:type
                                  startedBlock:nil];
 }

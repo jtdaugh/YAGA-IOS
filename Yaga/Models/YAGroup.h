@@ -10,6 +10,7 @@
 #import "YAVideo.h"
 
 typedef void(^completionBlock)(NSError *error);
+typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 
 @interface YAGroup : RLMObject
 @property NSString *name;
@@ -32,7 +33,7 @@ typedef void(^completionBlock)(NSError *error);
 - (void)removeMember:(YAContact*)contact;
 - (void)leave;
 - (void)muteUnmute;
-- (void)updateVideosWithCompletion:(completionBlock)completion;
+- (void)updateVideosSince:(NSDate*)sinceDate withCompletion:(updateVideosCompletionBlock)completion;
 
 - (BOOL)updateInProgress;
 

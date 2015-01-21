@@ -13,10 +13,9 @@
 
 @interface YASMSAuthentificationViewController ()
 @property (strong, nonatomic) UIImageView *logo;
-@property (strong, nonatomic) UILabel *cta;
-@property (strong, nonatomic) UITextField *number;
-@property (strong, nonatomic) UIButton *country;
-@property (strong, nonatomic) UIButton *next;
+@property (strong, nonatomic) UILabel *enterCodeLabel;
+@property (strong, nonatomic) UITextField *codeTextField;
+@property (strong, nonatomic) UIButton *nextButton;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @end
 
@@ -41,71 +40,109 @@
     
     origin = [self getNewOrigin:self.logo];
     
-    self.cta = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.12)];
+    self.enterCodeLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.12)];
     
-    [self.cta setText:@"Enter confirmation code"];
-    [self.cta setNumberOfLines:2];
-    [self.cta setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.enterCodeLabel setText:@"Enter confirmation code"];
+    [self.enterCodeLabel setNumberOfLines:2];
+    [self.enterCodeLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
     
-    [self.cta setTextAlignment:NSTextAlignmentCenter];
-    [self.cta setTextColor:[UIColor whiteColor]];
-    [self.view addSubview:self.cta];
+    [self.enterCodeLabel setTextAlignment:NSTextAlignmentCenter];
+    [self.enterCodeLabel setTextColor:[UIColor whiteColor]];
+    [self.view addSubview:self.enterCodeLabel];
     
-    origin = [self getNewOrigin:self.cta];
+    origin = [self getNewOrigin:self.enterCodeLabel];
     
     
     CGFloat formWidth = VIEW_WIDTH *.7;
     CGFloat gutter = VIEW_WIDTH * .05;
-    self.number = [[UITextField alloc] initWithFrame:CGRectMake(VIEW_WIDTH-formWidth-gutter, origin, formWidth, VIEW_HEIGHT*.08)];
+    self.codeTextField = [[UITextField alloc] initWithFrame:CGRectMake(VIEW_WIDTH-formWidth-gutter, origin, formWidth, VIEW_HEIGHT*.08)];
     
-    CGPoint center = self.number.center;
+    CGPoint center = self.codeTextField.center;
     center.x = self.view.center.x;
-    self.number.center = center;
+    self.codeTextField.center = center;
     
-    [self.number setBackgroundColor:[UIColor clearColor]];
-    [self.number setKeyboardType:UIKeyboardTypePhonePad];
-    [self.number setTextAlignment:NSTextAlignmentCenter];
-    [self.number setFont:[UIFont fontWithName:BIG_FONT size:32]];
-    [self.number setTextColor:[UIColor whiteColor]];
-    [self.number becomeFirstResponder];
-    [self.number setTintColor:[UIColor whiteColor]];
-    [self.number setReturnKeyType:UIReturnKeyDone];
-    [self.number addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
-    [self.view addSubview:self.number];
+    [self.codeTextField setBackgroundColor:[UIColor clearColor]];
+    [self.codeTextField setKeyboardType:UIKeyboardTypePhonePad];
+    [self.codeTextField setTextAlignment:NSTextAlignmentCenter];
+    [self.codeTextField setFont:[UIFont fontWithName:BIG_FONT size:32]];
+    [self.codeTextField setTextColor:[UIColor whiteColor]];
+    [self.codeTextField becomeFirstResponder];
+    [self.codeTextField setTintColor:[UIColor whiteColor]];
+    [self.codeTextField setReturnKeyType:UIReturnKeyDone];
+    [self.codeTextField addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
+    [self.view addSubview:self.codeTextField];
     
-    origin = [self getNewOrigin:self.number];
+    origin = [self getNewOrigin:self.codeTextField];
     
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
-    self.next = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
-    [self.next setBackgroundColor:PRIMARY_COLOR];
-    [self.next setTitle:@"Next" forState:UIControlStateNormal];
-    [self.next setTitle:@"" forState:UIControlStateDisabled];
-    [self.next.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    [self.next setAlpha:0.0];
-    [self.next addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.next];
+    self.nextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
+    [self.nextButton setBackgroundColor:PRIMARY_COLOR];
+    [self.nextButton setTitle:@"Next" forState:UIControlStateNormal];
+    [self.nextButton setTitle:@"" forState:UIControlStateDisabled];
+    [self.nextButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.nextButton setAlpha:0.0];
+    [self.nextButton addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.nextButton];
     
     //Init activity indicator
     self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    self.activityIndicator.center = self.next.center;
+    self.activityIndicator.center = self.nextButton.center;
     self.activityIndicator.hidesWhenStopped = YES;
     [self.view addSubview:self.activityIndicator];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    
+    [self layoutControls:VIEW_HEIGHT];
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self.codeTextField becomeFirstResponder];
+}
+
+
+- (void)layoutControls:(CGFloat)availableHeight {
+    self.logo.frame = CGRectMake(0, 0, VIEW_WIDTH, availableHeight/4);
+    self.enterCodeLabel.frame = CGRectMake(0, availableHeight/4, VIEW_WIDTH, 30);
+    self.codeTextField.frame = CGRectMake(0, self.enterCodeLabel.frame.origin.y + self.enterCodeLabel.frame.size.height + 20, VIEW_WIDTH, VIEW_HEIGHT*.08);
+    CGFloat buttonWidth = VIEW_WIDTH * 0.7;
+    
+    CGFloat heightForButton = availableHeight - self.codeTextField.frame.origin.y - self.codeTextField.frame.size.height;
+    CGFloat buttonOrigin = self.codeTextField.frame.origin.y + self.codeTextField.frame.size.height + heightForButton/2 - VIEW_HEIGHT*.1/2;
+    
+    self.nextButton.frame = CGRectMake((VIEW_WIDTH-buttonWidth)/2, buttonOrigin, buttonWidth, VIEW_HEIGHT*.1);
+    self.activityIndicator.center = self.nextButton.center;
+}
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+    NSDictionary *info  = notification.userInfo;
+    NSValue      *value = info[UIKeyboardFrameEndUserInfoKey];
+    
+    CGRect rawFrame      = [value CGRectValue];
+    CGRect keyboardFrame = [self.view convertRect:rawFrame fromView:nil];
+    
+    CGFloat availableHeight = VIEW_HEIGHT - keyboardFrame.size.height - self.navigationController.navigationBar.frame.size.height;
+    [self layoutControls:availableHeight];
+}
 
 - (CGFloat) getNewOrigin:(UIView *) anchor {
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
 }
 
 - (void)editingChanged {
-    if([self.number.text length] > 3){
+    if([self.codeTextField.text length] > 3){
         [UIView animateWithDuration:0.3 animations:^{
-            [self.next setAlpha:1.0];
+            [self.nextButton setAlpha:1.0];
         }];
         
     } else {
         [UIView animateWithDuration:0.3 animations:^{
-            [self.next setAlpha:0.0];
+            [self.nextButton setAlpha:0.0];
         }];
     }
 }
@@ -113,12 +150,22 @@
 - (void)nextScreen
 {
     [self.activityIndicator startAnimating];
-    self.next.enabled = NO;
+    self.nextButton.enabled = NO;
     
-    [[YAUser currentUser] setAuthCode:self.number.text];
+    [[YAUser currentUser] setAuthCode:self.codeTextField.text];
     
     [[YAServer sharedServer] requestAuthTokenWithCompletion:^(id response, NSError *error) {
         if (!error) {
+            
+            //register device token
+            if([YAUser currentUser].deviceToken.length) {
+                [[YAServer sharedServer] registerDeviceTokenWithCompletion:^(id response, NSError *error) {
+                    if(error) {
+                        [YAUtils showNotification:[NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription] type:AZNotificationTypeError];
+                    }
+                }];
+            }
+            
             [[YAServer sharedServer] getInfoForCurrentUserWithCompletion:^(id response, NSError *error) {
                 //old user
                 if (!error) {
@@ -136,7 +183,7 @@
                             }
                             else {
                                 [self.activityIndicator stopAnimating];
-                                self.next.enabled = YES;
+                                self.nextButton.enabled = YES;
                                 
                                 [YAUtils showNotification:NSLocalizedString(@"Can't load user groups", @"") type:AZNotificationTypeError];
                             }
@@ -148,7 +195,7 @@
                     }
                 } else {
                     [self.activityIndicator stopAnimating];
-                    self.next.enabled = YES;
+                    self.nextButton.enabled = YES;
                     
                     [YAUtils showNotification:NSLocalizedString(@"Can't get user info", @"") type:AZNotificationTypeError];
                 }
@@ -157,7 +204,7 @@
         }
         else {
             [self.activityIndicator stopAnimating];
-            self.next.enabled = YES;
+            self.nextButton.enabled = YES;
             
             [YAUtils showNotification:NSLocalizedString(@"Incorrect confirmation code entered, try again", @"") type:AZNotificationTypeError];
         }

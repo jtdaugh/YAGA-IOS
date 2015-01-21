@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import "FLAnimatedImage.h"
-#import "AVPlaybackViewController.h"
 #import "YAVideo.h"
 
 @interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate>
@@ -17,6 +16,6 @@
 
 - (void)animateGifView:(BOOL)animate;
 
-- (void)invalidateVideoPlayer;
+//- (void)invalidateVideoPlayer;
 
 @end
