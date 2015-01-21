@@ -45,14 +45,15 @@
     //    #warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
     //    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
     
-    //#warning testing gif creation operation
-    //    for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
-    //        [video.realm beginWriteTransaction];
-    //        video.jpgFilename = @"";
-    //        video.gifFilename = @"";
-    //        [video.realm commitWriteTransaction];
-    //    }
-    //
+//    #warning Assets creator
+//        for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
+//            [video.realm beginWriteTransaction];
+//            video.jpgFilename = @"";
+//            video.gifFilename = @"";
+//            video.movFilename = @"";
+//            [video.realm commitWriteTransaction];
+//        }
+    
     
     NSString *identifier;
     if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
