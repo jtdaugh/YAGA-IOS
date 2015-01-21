@@ -64,7 +64,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         
         self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
         
-        [self setBackgroundColor:PRIMARY_COLOR];
+//        [self setBackgroundColor:PRIMARY_COLOR];
     }
     return self;
 }
