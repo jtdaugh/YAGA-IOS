@@ -34,6 +34,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 
 + (YAVideo*)video;
 - (void)removeFromCurrentGroup;
+- (void)rename:(NSString*)newName;
 @end
 
 // This protocol enables typed collections. i.e.:

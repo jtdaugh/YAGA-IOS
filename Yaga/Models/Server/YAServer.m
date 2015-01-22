@@ -37,8 +37,8 @@
 #define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/members/add/"
 #define API_REMOVE_GROUP_MEMBER_TEMPLATE    @"%@/groups/%@/members/remove/"
 
-#define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/"
-#define API_GROUP_POST_DELETE               @"%@/groups/%@/posts/%@/"
+#define API_GROUP_POSTS_TEMPLATE            @"%@/groups/%@/posts/"
+#define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/%@/"
 
 #define API_GROUP_POST_LIKE                 @"%@/groups/%@/posts/%@/like/"
 
@@ -372,7 +372,7 @@
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
     NSString *videoLocalId = [video.localId copy];
     [self.manager POST:api
             parameters:nil
@@ -422,9 +422,9 @@
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     NSAssert(serverVideoId, @"videoId is a required parameter");
-    NSAssert(serverGroupId, @"videoId is a required parameter");
+    NSAssert(serverGroupId, @"groupId is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_GROUP_POST_DELETE, self.base_api, serverGroupId, serverVideoId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId, serverVideoId];
     
     [self.manager DELETE:api
               parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -434,6 +434,30 @@
               }];
 }
 
+- (void)uploadVideoCaptionWithId:(NSString*)serverVideoId withCompletion:(responseBlock)completion {
+    NSAssert(self.token, @"token not set");
+    NSAssert(serverVideoId, @"videoId is a required parameter");
+    
+    RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", serverVideoId]];
+    if(!videos.count) {
+        NSLog(@"Error: unable to upload video caption");
+        return;
+    }
+    
+    YAVideo *video = [videos firstObject];
+    
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, video.group.serverId, serverVideoId];
+
+    NSDictionary *parameters = @{
+                                 @"name": video.caption
+                                 };
+    
+    [self.manager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+}
 
 - (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");

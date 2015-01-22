@@ -53,6 +53,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 //posts
 - (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)uploadVideoCaptionWithId:(NSString*)serverVideoId withCompletion:(responseBlock)completion;
 - (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 - (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 

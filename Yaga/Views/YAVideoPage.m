@@ -206,9 +206,7 @@
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    self.video.caption = textField.text;
-    [[RLMRealm defaultRealm] commitWriteTransaction];
+    [self.video rename:textField.text];
     
     [self.captionField resignFirstResponder];
     return YES;
@@ -426,17 +424,18 @@
 - (void)updateControls {
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.captionField.hidden = !myVideo;
-    self.captionButton.hidden = !myVideo;
+    self.captionButton.hidden = !myVideo || !self.video.caption.length;
     self.saveButton.hidden = !myVideo;
     self.deleteButton.hidden = !myVideo;
 
+    
     self.userLabel.text = self.video.creator;
     
     self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.captionField.text = self.video.caption;
     [self.likeCount setTitle:[NSString stringWithFormat:@"%ld", (long)self.video.likes]
-                    forState:UIControlStateNormal]; 
+                    forState:UIControlStateNormal];
 }
 
 @end

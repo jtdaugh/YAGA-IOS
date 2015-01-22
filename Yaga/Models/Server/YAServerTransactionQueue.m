@@ -106,7 +106,22 @@
     
     [self saveTransactionsData];
     [self processPendingTransactions];
+}
 
+- (void)addUpdateVideoCaptionTransaction:(YAVideo*)video {
+    //remove all transactions for that video
+    for(NSDictionary *transactionData in [self.transactionsData copy]) {
+        if([transactionData[YA_VIDEO_ID] isEqualToString:video.serverId] &&
+           [transactionData[YA_TRANSACTION_TYPE] isEqualToString:YA_TRANSACTION_TYPE_UPDATE_CAPTION]
+           ) {
+            [self.transactionsData removeObject:transactionData];
+        }
+    }
+    
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_UPDATE_CAPTION, YA_VIDEO_ID:video.serverId, YA_GROUP_ID:video.group.serverId}];
+    
+    [self saveTransactionsData];
+    [self processPendingTransactions];
 }
 
 - (NSString*)filepath {

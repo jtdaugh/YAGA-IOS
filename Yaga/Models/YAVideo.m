@@ -63,4 +63,12 @@
     NSLog(@"video deleted");
 }
 
+- (void)rename:(NSString*)newName {
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    self.caption = newName;
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    [[YAServerTransactionQueue sharedQueue] addUpdateVideoCaptionTransaction:self];
+}
+
 @end

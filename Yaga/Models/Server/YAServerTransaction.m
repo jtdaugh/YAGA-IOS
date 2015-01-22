@@ -57,6 +57,9 @@
     else if([type isEqualToString:YA_TRANSACTION_TYPE_DELETE_VIDEO]) {
         [self deleteVideoWithCompletion:completion];
     }
+    else if([type isEqualToString:YA_TRANSACTION_TYPE_UPDATE_CAPTION]) {
+        [self uploadeVideoCaptionWithCompletion:completion];
+    }
 }
 
 - (YAGroup*)groupFromData {
@@ -242,6 +245,22 @@
         }
         else {
             [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", videoId] type:AZNotificationTypeSuccess];
+            completion(nil, nil);
+        }
+        
+    }];
+}
+
+- (void)uploadeVideoCaptionWithCompletion:(responseBlock)completion {
+    NSString *videoId = self.data[YA_VIDEO_ID];
+    
+    [[YAServer sharedServer] uploadVideoCaptionWithId:videoId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            [self logEvent:[NSString stringWithFormat:@"unable to update video caption with id:%@, error %@", videoId, error.localizedDescription] type:AZNotificationTypeError];
+            completion(nil, error);
+        }
+        else {
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", videoId] type:AZNotificationTypeSuccess];
             completion(nil, nil);
         }
         

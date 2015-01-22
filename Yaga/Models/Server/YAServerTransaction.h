@@ -19,6 +19,7 @@
 
 #define YA_TRANSACTION_TYPE_UPLOAD_VIDEO            @"uploadVideo"
 #define YA_TRANSACTION_TYPE_DELETE_VIDEO            @"deleteVideo"
+#define YA_TRANSACTION_TYPE_UPDATE_CAPTION          @"updateCaption"
 
 #define YA_GROUP_ID                 @"groupId"
 #define YA_VIDEO_ID                 @"videoId"
