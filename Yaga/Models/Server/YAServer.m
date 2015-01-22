@@ -439,24 +439,37 @@
     NSAssert(serverVideoId, @"videoId is a required parameter");
     
     RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", serverVideoId]];
-    if(!videos.count) {
-        NSLog(@"Error: unable to upload video caption");
+    if(videos.count != 1) {
+        completion(nil, [NSError errorWithDomain:@"Can't upload new video caption, video doesn't exist anymore" code:0 userInfo:nil]);
         return;
     }
-    
     YAVideo *video = [videos firstObject];
     
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, video.group.serverId, serverVideoId];
 
+
     NSDictionary *parameters = @{
                                  @"name": video.caption
                                  };
+    id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
-    [self.manager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        completion(responseObject, nil);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        completion(nil, error);
-    }];
+    NSURL *url = [NSURL URLWithString:api];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"PUT"];
+    
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
+    [request setHTTPBody:json];
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                                                              NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                                                              NSLog(@"%@", [NSString stringFromHex:str]);
+                               completion(nil, connectionError);
+                           }];
 }
 
 - (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {

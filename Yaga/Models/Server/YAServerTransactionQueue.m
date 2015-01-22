@@ -118,7 +118,7 @@
         }
     }
     
-    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_UPDATE_CAPTION, YA_VIDEO_ID:video.serverId, YA_GROUP_ID:video.group.serverId}];
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_UPDATE_CAPTION, YA_VIDEO_ID:video.serverId}];
     
     [self saveTransactionsData];
     [self processPendingTransactions];

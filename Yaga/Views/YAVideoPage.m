@@ -207,6 +207,7 @@
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self.video rename:textField.text];
+    [self updateControls];
     
     [self.captionField resignFirstResponder];
     return YES;
@@ -214,7 +215,7 @@
 
 - (void)textButtonPressed {
     [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
-    
+
     [self.captionField becomeFirstResponder];
 }
 
@@ -424,7 +425,7 @@
 - (void)updateControls {
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.captionField.hidden = !myVideo;
-    self.captionButton.hidden = !myVideo || !self.video.caption.length;
+    self.captionButton.hidden = !myVideo || self.video.caption.length;
     self.saveButton.hidden = !myVideo;
     self.deleteButton.hidden = !myVideo;
 
