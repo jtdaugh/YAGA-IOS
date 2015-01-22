@@ -15,6 +15,7 @@
 #import "YAActivityView.h"
 #import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
+#import "THCircularProgressView.h"
 
 typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateLoading = 0,
@@ -38,7 +39,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 @property (nonatomic, strong) YAActivityView *activityView;
 
-@property (nonatomic, strong) UIProgressView *progressView;
+@property (nonatomic, strong) THCircularProgressView *progressView;
 
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
 
@@ -69,8 +70,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
         
         //progress view
-        self.progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
-        self.progressView.tintColor = PRIMARY_COLOR;
+        self.progressView = [[THCircularProgressView alloc] initWithCenter:self.center radius:self.bounds.size.width/6 lineWidth:2.0f progressMode:THProgressModeFill progressColor:PRIMARY_COLOR progressBackgroundMode:THProgressBackgroundModeNone progressBackgroundColor:[UIColor lightGrayColor] percentage:0.0f];
         self.progressView.alpha = 0;
         [self addSubview:self.progressView];
         
@@ -114,7 +114,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
 
-    self.progressView.progress = 0;
+    self.progressView.percentage = 0;
     self.progressView.alpha = 0;
 
     self.video = nil;
@@ -623,7 +623,6 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 }
 
 - (void)showProgress:(BOOL)show {
-    self.progressView.frame = CGRectMake(self.bounds.size.width/4, self.activityView.center.y + self.activityView.bounds.size.height/2 + 5, self.bounds.size.width/2, 5);
     self.progressView.alpha = show && [[YAAssetsCreator sharedCreator] urlDownloadInProgress:self.video.url] ? 1 : 0;
 }
 
@@ -634,7 +633,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         if(self.progressView) {
             NSNumber *value = notif.userInfo[@"progress"];
             
-            self.progressView.progress = value.floatValue;
+            self.progressView.percentage = value.floatValue;
             self.progressView.alpha = 1;
         }
     }
@@ -648,7 +647,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         if(self.progressView) {
             NSNumber *value = notif.userInfo[@"progress"];
             
-            self.progressView.progress = value.floatValue;
+            self.progressView.percentage = value.floatValue;
             self.progressView.alpha = 1;
         }
     }

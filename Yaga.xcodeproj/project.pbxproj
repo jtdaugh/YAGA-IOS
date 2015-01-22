@@ -95,6 +95,7 @@
 		86B864AC1A433343002256FF /* CountryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864AB1A433343002256FF /* CountryCell.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
+		F16108391A709C8D00698999 /* THCircularProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = F16108381A709C8D00698999 /* THCircularProgressView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -255,6 +256,8 @@
 		86B864AA1A433343002256FF /* CountryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CountryCell.h; sourceTree = "<group>"; };
 		86B864AB1A433343002256FF /* CountryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CountryCell.m; sourceTree = "<group>"; };
 		86EF0B8E1A40592F00FF4E3C /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		F16108371A709C8D00698999 /* THCircularProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = THCircularProgressView.h; sourceTree = "<group>"; };
+		F16108381A709C8D00698999 /* THCircularProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = THCircularProgressView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -512,6 +515,7 @@
 				865BD7A51A484548003B00DA /* AZNotification */,
 				6E73F4121A4324C0000B3A14 /* YAVideoCell.h */,
 				6E73F4131A4324C0000B3A14 /* YAVideoCell.m */,
+				F16108361A709C8D00698999 /* THCircularProgressView */,
 				6E9188B21A3F3A5A0034AB63 /* AVCamPreviewView.h */,
 				6E9188B31A3F3A5A0034AB63 /* AVCamPreviewView.m */,
 				6E9188B41A3F3A5A0034AB63 /* CliquePageControl.h */,
@@ -593,6 +597,15 @@
 				865BD7A11A484543003B00DA /* AZNotificationView.m */,
 			);
 			name = AZNotification;
+			sourceTree = "<group>";
+		};
+		F16108361A709C8D00698999 /* THCircularProgressView */ = {
+			isa = PBXGroup;
+			children = (
+				F16108371A709C8D00698999 /* THCircularProgressView.h */,
+				F16108381A709C8D00698999 /* THCircularProgressView.m */,
+			);
+			path = THCircularProgressView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -767,6 +780,7 @@
 				6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */,
 				6E6A090C1A562F91002F4A8B /* YAServerTransactionQueue.m in Sources */,
 				6E6A090B1A562F91002F4A8B /* YAServerTransaction.m in Sources */,
+				F16108391A709C8D00698999 /* THCircularProgressView.m in Sources */,
 				6E583B741A6535C400639BE5 /* YAVideoPage.m in Sources */,
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
 				6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */,
