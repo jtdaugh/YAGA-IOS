@@ -193,14 +193,16 @@ static NSString *CellIdentifier = @"GroupsCell";
     cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
     NSDate *localGroupUpdateDate = [self.groupsUpdatedAt objectForKey:group.localId];
-    if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
-        UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]];
-        cell.imageView.image = img;
+    if(self.embeddedMode) {
+        if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+            UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]];
+            cell.imageView.image = img;
+        }
+        else {
+            cell.imageView.image = nil;
+        }
     }
-    else {
-        cell.imageView.image = nil;
-    }
-        
+    
     return cell;
 }
 
