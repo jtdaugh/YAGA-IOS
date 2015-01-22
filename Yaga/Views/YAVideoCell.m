@@ -70,7 +70,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
         
         //progress view
-        self.progressView = [[THCircularProgressView alloc] initWithCenter:self.center radius:self.bounds.size.width/6 lineWidth:2.0f progressMode:THProgressModeFill progressColor:PRIMARY_COLOR progressBackgroundMode:THProgressBackgroundModeNone progressBackgroundColor:[UIColor lightGrayColor] percentage:0.0f];
+        self.progressView = [[THCircularProgressView alloc] initWithCenter:CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2) radius:self.bounds.size.width/6 lineWidth:2.0f progressMode:THProgressModeFill progressColor:[UIColor lightGrayColor] progressBackgroundMode:THProgressBackgroundModeNone progressBackgroundColor:[UIColor lightGrayColor] percentage:0.0f];
         self.progressView.alpha = 0;
         [self addSubview:self.progressView];
         
