@@ -17,14 +17,8 @@
 
 @property (nonatomic, strong) NSMutableArray *pages;
 
-@property (nonatomic, assign) CGFloat lastContentOffset;
-
-@property (nonatomic, readonly) BOOL scrollingRight;
-
-@property (nonatomic, strong) NSMutableSet *previousVisiblePage;
-
-@property (nonatomic, strong) NSMutableArray *players;
-@property (nonatomic, strong) YAVideoPage *currentPage;
+@property (nonatomic, assign) NSUInteger currentPageIndex;
+@property (nonatomic, assign) NSUInteger previousPageIndex;
 
 @property (nonatomic, assign) NSUInteger initialIndex;
 @end
@@ -37,6 +31,8 @@
     self = [super init];
     if(self) {
         self.initialIndex = initialIndex;
+        self.currentPageIndex = self.initialIndex;
+        self.previousPageIndex = self.initialIndex;
     }
     return self;
 }
@@ -52,8 +48,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    //self.view.backgroundColor = [UIColor redColor];
-    
     CGRect rect = self.view.bounds;
     rect.size.width += kSeparator;
     
@@ -63,31 +57,12 @@
     self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.scrollView];
     
-    self.pages = [[NSMutableArray alloc] init];
-    
-    for (NSUInteger i = 0; i < [YAUser currentUser].currentGroup.videos.count; i++) {
-        CGRect frame = self.scrollView.bounds;
-        
-        frame.origin.x = i * frame.size.width;
-        frame.size.width = frame.size.width - kSeparator;
-        
-        YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:frame];
-        page.video = [YAUser currentUser].currentGroup.videos[i];
-        page.backgroundColor = [UIColor blackColor];
-        
-        [self.scrollView addSubview:page];
-        
-        [self.pages addObject:page];
-    }
-    
-    self.scrollView.contentSize = CGSizeMake(self.pages.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
+    self.scrollView.contentSize = CGSizeMake([YAUser currentUser].currentGroup.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
     self.scrollView.pagingEnabled = YES;
     
-    //init players
-    [self initPlayers];
+    [self initPages];
     
     //gesture recognizers
-    
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
     [self.view addGestureRecognizer:tap];
 }
@@ -96,182 +71,176 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)initPlayers {
-    YAVideoPlayerView *player1 = [YAVideoPlayerView new];
-    YAVideoPlayerView *player2 = [YAVideoPlayerView new];
-    YAVideoPlayerView *player3 = [[YAVideoPlayerView alloc] initWithFrame:CGRectZero];
-    self.players = [@[player1, player2, player3] mutableCopy];
+- (NSUInteger)tileIndexFromPageIndex:(NSUInteger)pageIndex {
+    NSUInteger result = 0;
     
-    //play video at initial index
-    self.scrollView.contentOffset = CGPointMake(self.initialIndex  * self.scrollView.bounds.size.width, 0);
-    YAVideoPage *initialPage = self.pages[self.initialIndex];
-    [self didEndScrollingOnPage:initialPage];
-    NSUInteger initialPlayerIndex;
-    if(self.initialIndex == 0) {
-        initialPlayerIndex = 0;
+    if(pageIndex == 0) {
+        result = 0;
     }
     else {
-        if(self.initialIndex == self.pages.count - 1) {
-            initialPlayerIndex = 2;
+        if(pageIndex == [YAUser currentUser].currentGroup.videos.count - 1) {
+            result = pageIndex - 2;
         }
         else {
-            initialPlayerIndex = 1;
+            result = pageIndex - 1;
         }
     }
     
-    [self.players[initialPlayerIndex] setPlayWhenReady:YES];
+    return result;
 }
 
--(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-    NSUInteger pageIndex = scrollView.contentOffset.x/scrollView.frame.size.width;
+- (void)initPages {
+    self.pages = [[NSMutableArray alloc] initWithCapacity:3];
     
-    [self shiftPlayersForCurrentPageAtIndex:pageIndex];
+    NSUInteger initialTileIndex = [self tileIndexFromPageIndex:self.initialIndex];
     
-    [self didEndScrollingOnPage:self.pages[pageIndex]];
-    
-    //NSLog(@"scrolling stopped on page %lu", (unsigned long)pageIndex);
-}
-
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-    //NSLog(@"scrollViewWillEndDragging velocity %f", fabs(velocity.x));
-}
-
-- (void)willDisplayPage:(YAVideoPage*)page partially:(BOOL)partially {
-    //NSLog(@"willDisplayPage, playerView: %@", page.playerView);
-    if(!partially)
-        page.playerView.playWhenReady = YES;
-    
-    if(!page.playerView)
-        [page showLoading:YES];
-}
-
-- (void)didEndDisplayingPage:(YAVideoPage*)page {
-    //NSLog(@"didEndDisplayingPage %lu", [self.pages indexOfObject:page]);
-    [page.playerView pause];
-    page.playerView.playWhenReady = NO;
-}
-
--(void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    //scrolling direction
-    CGFloat currentOffset = scrollView.contentOffset.x;
-    _scrollingRight = self.lastContentOffset < currentOffset;
-    self.lastContentOffset = currentOffset;
-    
-    //willDisplayPage, didEndDisplayingPage
-    NSMutableSet *visiblePages = [NSMutableSet set];
-    for (YAVideoPage *page in self.pages) {
-        if (CGRectIntersectsRect(page.frame, self.scrollView.bounds)) {
-            [visiblePages addObject:page];
-            if(![self.previousVisiblePage containsObject:page]) {
-                CGRect pageRectWithSeparator = page.frame;
-                pageRectWithSeparator.size.width += kSeparator;
-                [self willDisplayPage:page partially:!CGRectEqualToRect(pageRectWithSeparator, self.scrollView.bounds)];
-            }
-        }
-        else {
-            if([self.previousVisiblePage containsObject:page])
-                [self didEndDisplayingPage:page];
-        }
+    for(NSUInteger i = initialTileIndex; i < initialTileIndex + 3; i++) {
+        CGRect pageFrame = CGRectMake(i * self.scrollView.bounds.size.width, 0, self.scrollView.bounds.size.width - kSeparator, self.scrollView.bounds.size.height);
+        
+        YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:pageFrame];
+        page.backgroundColor = [UIColor blackColor];
+        
+        [self.scrollView addSubview:page];
+        [self.pages addObject:page];
     }
     
-    self.previousVisiblePage = visiblePages;
+    //go to the initial page
+    self.scrollView.contentOffset = CGPointMake(self.initialIndex  * self.scrollView.bounds.size.width, 0);
+    [self updatePages:YES];
 }
 
-- (void)shiftPlayersForCurrentPageAtIndex:(NSUInteger)pageIndex {
-    NSUInteger lastPageIndex = self.pages.count - 1;
-    
-    if(self.currentPage == self.pages[pageIndex])
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    [self updatePages:YES];
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    //make sure we are in fullscreen(swiping controller is on screen when transitioning back to the grid)
+    if(self.scrollView.bounds.size.width < VIEW_WIDTH)
         return;
     
-    if(pageIndex == lastPageIndex) {
-        //additional check for quick swipe to the end
-        YAVideoPlayerView *playerView = self.players[2];
-        YAVideo *video = [YAUser currentUser].currentGroup.videos[pageIndex];
-        if([playerView.URL.absoluteString isEqualToString:[YAUtils urlFromFileName:video.movFilename].absoluteString])
-            return;
-    }
+    NSUInteger index = scrollView.contentOffset.x/scrollView.frame.size.width;
+
+    self.currentPageIndex = index;
     
-    if(pageIndex != 1 && self.scrollingRight) {
-        YAVideoPlayerView *tmp = self.players[0];
-        [self.players removeObjectAtIndex:0];
-        [self.players addObject:tmp];
-    }
-    else if(pageIndex != 0 && !self.scrollingRight) {
-        //do not do anything when swiped from the last one to the last but one
-        if(pageIndex == lastPageIndex - 1)
-            return;
-        
-        YAVideoPlayerView *tmp = self.players[2];
-        [self.players removeObjectAtIndex:2];
-        [self.players insertObject:tmp atIndex:0];
-    }
+    if(self.currentPageIndex != self.previousPageIndex)
+        [self updatePages:NO];
+    
+    self.previousPageIndex = self.currentPageIndex;
 }
 
-- (void)didEndScrollingOnPage:(YAVideoPage*)page {
-    NSUInteger pageIndex = [self.pages indexOfObject:page];
+- (void)updatePages:(BOOL)playVideo {
+    [self adjustPageFrames];
+    
+    NSUInteger tilePageIndex = 0;
     
     //first page, current on the left
-    if(pageIndex == 0) {
-        [self setPlayerAtIndex:0 forPage:page];
+    if(self.currentPageIndex == 0) {
+        [self updatePageAtIndex:0 withVideoAtIndex:0 shouldPlay:playVideo];
         
-        if(self.pages.count > 1) {
-            [self setPlayerAtIndex:1 forPage:[self.pages objectAtIndex:1]];
-        }
+        if([YAUser currentUser].currentGroup.videos.count > 1)
+            [self updatePageAtIndex:1 withVideoAtIndex:1 shouldPlay:playVideo];
         
-        if(self.pages.count > 2)
-            [self setPlayerAtIndex:2 forPage:[self.pages objectAtIndex:2]];
+        if([YAUser currentUser].currentGroup.videos.count > 2)
+            [self updatePageAtIndex:2 withVideoAtIndex:2 shouldPlay:playVideo];
+        
+        tilePageIndex = 0;
     }
     //last page, current on the right
-    else if(pageIndex == self.pages.count - 1) {
+    else if(self.currentPageIndex == [YAUser currentUser].currentGroup.videos.count - 1) {
         //special case when there is less than 3 videos
-        if(self.pages.count < 3) {
-            //pageIndex is always greater than 0 here, as previous condition pageIndex == 0 has already passed
-            [self setPlayerAtIndex:0 forPage:[self.pages objectAtIndex:pageIndex - 1]];
+        if([YAUser currentUser].currentGroup.videos.count < 3) {
+            //index is always greater than 0 here, as previous condition index == 0 has already passed
+            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPlay:playVideo];
+            [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPlay:playVideo];
             
-            [self setPlayerAtIndex:1 forPage:[self.pages objectAtIndex:pageIndex]];
-
+            tilePageIndex = 1;
         }
         else {
-            if(pageIndex > 1)
-                [self setPlayerAtIndex:0 forPage:[self.pages objectAtIndex:pageIndex - 2]];
+            if(self.currentPageIndex > 1)
+                [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 2 shouldPlay:playVideo];
             
-            if(pageIndex > 0)
-                [self setPlayerAtIndex:1 forPage:[self.pages objectAtIndex:pageIndex - 1]];
+            if(self.currentPageIndex > 0)
+                [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex - 1 shouldPlay:playVideo];
             
-            [self setPlayerAtIndex:2 forPage:[self.pages objectAtIndex:pageIndex]];
+            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex shouldPlay:playVideo];
+            
+            tilePageIndex = 2;
         }
     }
     //rest of pages, current in the middle
-    else if(pageIndex > 0) {
+    else if(self.currentPageIndex > 0) {
         
-        if(self.pages.count > 0)
-            [self setPlayerAtIndex:0 forPage:[self.pages objectAtIndex:pageIndex - 1]];
+        if([YAUser currentUser].currentGroup.videos.count > 0)
+            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPlay:playVideo];
         
-        [self setPlayerAtIndex:1 forPage:page];
+        [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPlay:playVideo];
         
-        if(pageIndex + 1 <= self.pages.count - 1)
-            [self setPlayerAtIndex:2 forPage:[self.pages objectAtIndex:pageIndex + 1]];
+        if(self.currentPageIndex + 1 <= [YAUser currentUser].currentGroup.videos.count - 1)
+            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPlay:playVideo];
+        
+        tilePageIndex = 1;
     }
     
-    
-    self.currentPage = page;
-    
-    if(![page.playerView isPlaying])
-        page.playerView.playWhenReady = YES;
-    
-    [self logState];
+    for(NSUInteger i = 0; i < 3; i++) {
+        YAVideoPage *page = self.pages[i];
+        if(i == tilePageIndex && playVideo) {
+            if(![page.playerView isPlaying])
+                page.playerView.playWhenReady = YES;
+        }
+        else {
+            page.playerView.playWhenReady = NO;
+            [page.playerView pause];
+        }
+    }
 }
 
-- (void)setPlayerAtIndex:(NSUInteger)playerIndex forPage:(YAVideoPage*)page {
-    YAVideoPlayerView *playerView = self.players[playerIndex];
+- (void)adjustPageFrames {
+    BOOL scrolledRight = NO;
     
-    page.playerView = playerView;
+    if(self.currentPageIndex == self.previousPageIndex) {
+        return;
+    }
+    else if(self.currentPageIndex > self.previousPageIndex) {
+        scrolledRight = YES;
+    }
     
-    YAVideo *video = [YAUser currentUser].currentGroup.videos[[self.pages indexOfObject:page]];
-    if(video.movFilename.length)
-        page.playerView.URL = [YAUtils urlFromFileName:video.movFilename];
-    else
-        page.playerView.URL = nil;
+    NSUInteger lastPageIndex = [YAUser currentUser].currentGroup.videos.count - 1;
+    
+    if(self.currentPageIndex == lastPageIndex)
+        return;
+    
+    YAVideoPage *left = self.pages[0];
+    YAVideoPage *right = self.pages[2];
+    
+    //moving left page to the right
+    if(self.currentPageIndex != 1 && scrolledRight) {
+        CGRect frame = left.frame;
+        frame.origin.x = right.frame.origin.x + right.frame.size.width + kSeparator;
+        left.frame = frame;
+        
+        [self.pages removeObject:left];
+        [self.pages addObject:left];
+        
+    }
+    //moving right page to the left
+    else if(self.currentPageIndex != 0 && !scrolledRight) {
+        //do not do anything when swiped from the last one to the last but one
+        if(self.currentPageIndex == lastPageIndex - 1)
+            return;
+        
+        CGRect frame = right.frame;
+        frame.origin.x = left.frame.origin.x - left.frame.size.width - kSeparator;
+        right.frame = frame;
+        
+        [self.pages removeObject:right];
+        [self.pages insertObject:right atIndex:0];
+    }
+}
+
+- (void)updatePageAtIndex:(NSUInteger)pageIndex withVideoAtIndex:(NSUInteger)videoIndex shouldPlay:(BOOL)shouldPlay {
+    YAVideo *video = [YAUser currentUser].currentGroup.videos[videoIndex];
+    YAVideoPage *page = self.pages[pageIndex];
+    [page setVideo:video shouldPlay:shouldPlay];
 }
 
 - (void)logState {

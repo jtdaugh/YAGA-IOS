@@ -33,26 +33,26 @@
     //    [[RLMRealm defaultRealm] commitWriteTransaction];
     //
     //    //#warning TESTING REMOVE ALL VIDEOS IN CURRENT GROUP
-    //            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"YA_GROUPS_UPDATED_AT"];
-    //        [[RLMRealm defaultRealm] beginWriteTransaction];
-    //        [[YAUser currentUser].currentGroup.videos removeAllObjects];
-    //        [[RLMRealm defaultRealm] commitWriteTransaction];
+    //                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"YA_GROUPS_UPDATED_AT"];
+    //            [[RLMRealm defaultRealm] beginWriteTransaction];
+    //            [[YAUser currentUser].currentGroup.videos removeAllObjects];
+    //            [[RLMRealm defaultRealm] commitWriteTransaction];
     //
-    //        [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:nil];
+    //            [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:nil];
     //
     //
     //    //
     //    #warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
     //    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
     
-//    #warning Assets creator
-//        for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
-//            [video.realm beginWriteTransaction];
-//            video.jpgFilename = @"";
-//            video.gifFilename = @"";
-//            video.movFilename = @"";
-//            [video.realm commitWriteTransaction];
-//        }
+    //    #warning Assets creator
+    //        for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
+    //            [video.realm beginWriteTransaction];
+    //            video.jpgFilename = @"";
+    //            video.gifFilename = @"";
+    //            video.movFilename = @"";
+    //            [video.realm commitWriteTransaction];
+    //        }
     
     
     NSString *identifier;

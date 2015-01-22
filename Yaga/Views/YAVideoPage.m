@@ -15,10 +15,8 @@
 
 @interface YAVideoPage ();
 @property (nonatomic, strong) YAActivityView *activityView;
-@property (nonatomic, assign) BOOL observingPlayer;
 
 //overlay controls
-@property (nonatomic, strong) NSMutableArray *controls;
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) UITextField *captionField;
@@ -39,6 +37,12 @@
     if(self) {
         self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
         [self addSubview:self.activityView];
+        _playerView = [YAVideoPlayerView new];
+        [self addSubview:self.playerView];
+        
+        [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+        
+        [self initOverlayControls];
     }
     return self;
 }
@@ -50,65 +54,42 @@
     self.activityView.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
 }
 
-- (void)willRemoveSubview:(UIView *)subview {
-    if([subview class] == [YAVideoPlayerView class])
-        [self showLoading:YES];
-}
+- (void)setVideo:(YAVideo *)video shouldPlay:(BOOL)shouldPlay {
 
-- (void)setVideo:(YAVideo *)video {
-    _video = video;
-    
-    [self initOverlayControls];
-    [self showControls:YES];
-}
-
-- (void)setPlayerView:(YAVideoPlayerView *)newPlayerView {
-    if(self.playerView == newPlayerView && self.playerView.superview == self)
-        return;
-    
-    if(!newPlayerView) {
-        if(self.observingPlayer) {
-            [_playerView removeObserver:self forKeyPath:@"readyToPlay"];
-        }
-        [self.playerView removeFromSuperview];
-    }
-    else {
-        if(newPlayerView.superview) {
-            YAVideoPage *page = (YAVideoPage*)newPlayerView.superview;
-            page.playerView = nil;
-        }
-        newPlayerView.frame = self.bounds;
-        [self insertSubview:newPlayerView belowSubview:self.activityView];
+    if(![_video.localId isEqualToString:video.localId]) {
+        _video = video;
         
-        if(self.observingPlayer) {
-            [_playerView removeObserver:self forKeyPath:@"readyToPlay"];
-        }
+        [self updateControls];
         
-        if(!newPlayerView.readyToPlay) {
-            [newPlayerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-            self.observingPlayer = YES;
+        if(!shouldPlay) {
+            self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
-        else {
-            self.observingPlayer = NO;
-            [self showLoading:NO];
-        }
     }
     
-    _playerView = newPlayerView;
-    
-    [self showControls:YES];
+    if(shouldPlay) {
+        NSURL *movUrl = [YAUtils urlFromFileName:self.video.movFilename];
+        [self showLoading:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
+        
+        if(self.video.movFilename.length)
+            self.playerView.URL = movUrl;
+        else
+            self.playerView.URL = nil;
+        
+        self.playerView.frame = self.bounds;
+    }
 }
+
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(YAVideoPlayerView*)vc change:(NSDictionary *)change context:(void *)context{
     [self showLoading:!vc.readyToPlay];
 }
 
 - (void)showLoading:(BOOL)show {
-    
-   // NSLog(@"showLoading: %d, page: %@, url: %@", show, self, self.playerView.URL.lastPathComponent);
-    
     if(show) {
+        if(self.activityView.isAnimating)
+            return;
+        
         [self.activityView startAnimating];
         
         [self bringSubviewToFront:self.activityView];
@@ -130,16 +111,12 @@
 }
 
 - (void)dealloc {
-    if(self.observingPlayer) {
-        [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
-    }
+    [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
 }
 
 #pragma mark - Overlay controls
 
 - (void)initOverlayControls {
-    self.controls = [[NSMutableArray alloc] init];
-    
     CGFloat height = 30;
     CGFloat gutter = 48;
     self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, 12, VIEW_WIDTH - gutter*2, height)];
@@ -150,7 +127,7 @@
     self.userLabel.layer.shadowRadius = 1.0f;
     self.userLabel.layer.shadowOpacity = 1.0;
     self.userLabel.layer.shadowOffset = CGSizeZero;
-    [self.controls addObject:self.userLabel];
+    [self addSubview:self.userLabel];
     
     CGFloat timeHeight = 24;
     self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, height + 12, VIEW_WIDTH - gutter*2, timeHeight)];
@@ -161,49 +138,46 @@
     self.timestampLabel.layer.shadowRadius = 1.0f;
     self.timestampLabel.layer.shadowOpacity = 1.0;
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
-    [self.controls addObject:self.timestampLabel];
+    [self addSubview:self.timestampLabel];
     
-    if([self.video.creator isEqualToString:[[YAUser currentUser] username]]) {
-        CGFloat captionHeight = 30;
-        CGFloat captionGutter = 2;
-        self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
-        [self.captionField setBackgroundColor:[UIColor clearColor]];
-        [self.captionField setTextAlignment:NSTextAlignmentCenter];
-        [self.captionField setTextColor:[UIColor whiteColor]];
-        [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
-        self.captionField.delegate = self;
-        [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
-        [self.captionField setReturnKeyType:UIReturnKeyDone];
-        self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.captionField.layer.shadowRadius = 1.0f;
-        self.captionField.layer.shadowOpacity = 1.0;
-        self.captionField.layer.shadowOffset = CGSizeZero;
-        [self.controls addObject:self.captionField];
-        
-        CGFloat tSize = 60;
-        self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
-        [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
-        [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
-        [self.controls addObject:self.captionButton];
-        [self addSubview:self.captionButton];
-        
-        CGFloat saveSize = 36;
-        self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
-        [self.saveButton setBackgroundImage:[UIImage imageNamed:@"Save"] forState:UIControlStateNormal];
-        [self.saveButton addTarget:self action:@selector(saveButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.controls addObject:self.saveButton];
-        
-        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake( VIEW_WIDTH - saveSize - 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
-        [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Delete"] forState:UIControlStateNormal];
-        [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.controls addObject:self.deleteButton];
-    }
+    CGFloat captionHeight = 30;
+    CGFloat captionGutter = 2;
+    self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    [self.captionField setBackgroundColor:[UIColor clearColor]];
+    [self.captionField setTextAlignment:NSTextAlignmentCenter];
+    [self.captionField setTextColor:[UIColor whiteColor]];
+    [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    self.captionField.delegate = self;
+    [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
+    [self.captionField setReturnKeyType:UIReturnKeyDone];
+    self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.captionField.layer.shadowRadius = 1.0f;
+    self.captionField.layer.shadowOpacity = 1.0;
+    self.captionField.layer.shadowOffset = CGSizeZero;
+    [self addSubview:self.captionField];
+    
+    CGFloat tSize = 60;
+    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
+    [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
+    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
+    [self addSubview:self.captionButton];
+    
+    CGFloat saveSize = 36;
+    self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
+    [self.saveButton setBackgroundImage:[UIImage imageNamed:@"Save"] forState:UIControlStateNormal];
+    [self.saveButton addTarget:self action:@selector(saveButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:self.saveButton];
+    
+    self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake( VIEW_WIDTH - saveSize - 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
+    [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Delete"] forState:UIControlStateNormal];
+    [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:self.deleteButton];
     
     CGFloat likeSize = 42;
     self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.controls addObject:self.likeButton];
+    [self addSubview:self.likeButton];
     
     CGFloat likeCountWidth = 24, likeCountHeight = 42;
     self.likeCount = [[UIButton alloc] initWithFrame:CGRectMake(self.likeButton.frame.origin.x + self.likeButton.frame.size.width + 8, VIEW_HEIGHT - likeCountHeight - 12, likeCountWidth, likeCountHeight)];
@@ -215,7 +189,7 @@
     self.likeCount.layer.shadowOpacity = 1.0;
     self.likeCount.layer.shadowOffset = CGSizeZero;
     //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
-    [self.controls addObject:self.likeCount];
+    [self addSubview:self.likeCount];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
@@ -232,8 +206,6 @@
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    
-    
     [[RLMRealm defaultRealm] beginWriteTransaction];
     self.video.caption = textField.text;
     [[RLMRealm defaultRealm] commitWriteTransaction];
@@ -450,34 +422,17 @@
     }];
     
 }
-- (void)showControls:(BOOL)show {
-    if(show) {
-        for(UIView *v in self.controls){
-            if(!v.superview) {
-                [self addSubview:v];
-            }
-            
-            [self bringSubviewToFront:v];
-        }
-    }
-    else {
-        for(UIView *v in self.controls){
-            [v removeFromSuperview];
-        }
-    }
-    
-    if(show)
-        [self updateControls];
-}
 
 - (void)updateControls {
-    if(!self.controls)
-        return;
-    
+    BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
+    self.captionField.hidden = !myVideo;
+    self.captionButton.hidden = !myVideo;
+    self.saveButton.hidden = !myVideo;
+    self.deleteButton.hidden = !myVideo;
+
     self.userLabel.text = self.video.creator;
     
     self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
-    self.captionField.text = @"";
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.captionField.text = self.video.caption;
     [self.likeCount setTitle:[NSString stringWithFormat:@"%ld", (long)self.video.likes]
