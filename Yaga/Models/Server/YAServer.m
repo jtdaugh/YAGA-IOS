@@ -515,7 +515,8 @@
     
     NSDictionary *parameters = @{
                                  @"vendor": @"IOS",
-                                 @"token": [YAUser currentUser].deviceToken
+                                 @"token": [YAUser currentUser].deviceToken,
+                                 @"locale": [[NSLocale preferredLanguages] objectAtIndex:0]
                                  };
     
     [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
