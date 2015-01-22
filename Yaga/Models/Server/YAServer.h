@@ -23,6 +23,7 @@
 #define YA_VIDEO_POSTS          @"posts"
 #define YA_VIDEO_ATTACHMENT     @"attachment"
 #define YA_VIDEO_READY_AT       @"ready_at"
+#define YA_VIDEO_DELETED        @"deleted"
 #define YA_GROUP_UPDATED_AT     @"updated_at"
 
 #define YA_LAST_DEVICE_TOKEN_SYNC_DATE @"lastTokenSyncDate"

@@ -277,21 +277,6 @@ static BOOL groupsUpdateInProgress;
     NSSet *existingIds = [self videoIds];
     NSSet *newIds = [NSSet setWithArray:[videoDictionaries valueForKey:YA_RESPONSE_ID]];
     
-    #warning VIDEOS DELETION BY FLAG "deleted" not implemented
-//    //remove deleted videos first
-//    NSMutableSet *idsToDelete = [NSMutableSet setWithSet:existingIds];
-//
-//    [idsToDelete minusSet:newIds];
-//    
-//    for(NSString *idToDelete in idsToDelete) {
-//        RLMResults *videosToDelete = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", idToDelete]];
-//        if(videosToDelete.count) {
-//            YAVideo *videoToDelete = [videosToDelete firstObject];
-//            [videoToDelete removeFromCurrentGroup];
-//        }
-//    
-//    }
-    
     NSMutableSet *idsToAdd = [NSMutableSet setWithSet:newIds];
     [idsToAdd minusSet:existingIds];
     
@@ -309,9 +294,16 @@ static BOOL groupsUpdateInProgress;
             RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_ID]]];
             if(videos.count) {
                 YAVideo *video = [videos firstObject];
-                [video.realm beginWriteTransaction];
-                video.caption = videoDic[YA_RESPONSE_NAME];
-                [video.realm commitWriteTransaction];
+                BOOL deleted = videoDic[YA_VIDEO_DELETED];
+                
+                if(deleted) {
+                    [video removeFromCurrentGroup];
+                }
+                else {
+                    [video.realm beginWriteTransaction];
+                    video.caption = videoDic[YA_RESPONSE_NAME];
+                    [video.realm commitWriteTransaction];
+                }
             }
         }
         else {
