@@ -220,24 +220,27 @@
 }
 
 - (void)likeButtonPressed {
-    
-    __block NSInteger likesCount = 0;
-    if (!self.video.like) {
+        if (!self.video.like) {
         [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
-            likesCount = [response integerValue];
+            
+            [[RLMRealm defaultRealm] beginWriteTransaction];
+            self.video.likes = [response integerValue];
+            [[RLMRealm defaultRealm] commitWriteTransaction];
         }];
     } else {
         [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
-            likesCount = [response integerValue];
+            [[RLMRealm defaultRealm] beginWriteTransaction];
+            self.video.likes = [response integerValue];
+            [[RLMRealm defaultRealm] commitWriteTransaction];
         }];
     }
+    
     [[RLMRealm defaultRealm] beginWriteTransaction];
     self.video.like = !self.video.like;
-    self.video.likes = likesCount;
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [self animateButton:self.likeButton withImageName:self.video.like ? @"Liked" : @"Like" completion:nil];
