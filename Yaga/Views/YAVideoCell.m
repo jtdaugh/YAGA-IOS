@@ -23,10 +23,9 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateGIFPreview,
     YAVideoCellStateVideoPreview,
 };
-<<<<<<< HEAD
+
 @interface YAVideoCell ()
-=======
->>>>>>> FETCH_HEAD
+
 
 @property (nonatomic, strong) THCircularProgressView *progressView;
 
@@ -178,10 +177,6 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-<<<<<<< HEAD
-
-=======
->>>>>>> FETCH_HEAD
     [self updateState];
 }
 
