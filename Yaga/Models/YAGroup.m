@@ -86,8 +86,6 @@
     NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
     
-    [self.members removeAllObjects];
-    
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     
     for(NSDictionary *memberDic in members){
@@ -97,11 +95,22 @@
         if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
             continue;
         
-        YAContact *contact = [YAContact contactFromPhoneNumber:phoneNumber andUsername:memberDic[YA_RESPONSE_USER][YA_RESPONSE_NAME]];
+        NSString *predicate = [NSString stringWithFormat:@"number = '%@'", phoneNumber];
+        RLMResults *existingContacts = [YAContact objectsWhere:predicate];
         
-        contact.registered = [memberDic objectForKey:YA_RESPONSE_MEMBER_JOINED_AT] != nil;
+        YAContact *contact;
+        if(existingContacts.count) {
+            contact = existingContacts[0];
+        }
+        else {
+            contact = [YAContact new];
+        }
         
-        [self.members addObject:contact];
+        [contact updateFromDictionary:memberDic];
+        
+        if(!existingContacts.count)
+            [self.members addObject:contact];
+
     }
 }
 
@@ -183,16 +192,16 @@ static BOOL groupsUpdateInProgress;
     [[YAServerTransactionQueue sharedQueue] addRenameTransactionForGroup:self];
 }
 
-- (void)addMembers:(NSArray*)membersDictionaries {
+- (void)addMembers:(NSArray*)contacts {
     [[RLMRealm defaultRealm] beginWriteTransaction];
     
-    for(NSDictionary *memberDic in membersDictionaries) {
-        [self.members addObject:[YAContact contactFromDictionary:memberDic]];
+    for(NSDictionary *contactDic in contacts) {
+        [self.members addObject:[YAContact contactFromDictionary:contactDic]];
     }
     
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
-    [[YAServerTransactionQueue sharedQueue] addAddMembersTransactionForGroup:self memberPhonesToAdd:[membersDictionaries valueForKey:nPhone]];
+    [[YAServerTransactionQueue sharedQueue] addAddMembersTransactionForGroup:self memberPhonesToAdd:[contacts valueForKey:nPhone]];
 }
 
 - (void)removeMember:(YAContact *)contact {

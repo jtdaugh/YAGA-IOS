@@ -115,6 +115,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     //size to fit table view
     if(!self.embeddedMode) {
+        [self.tableView reloadData];
         CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
         CGFloat rowsCount = [self tableView:self.tableView numberOfRowsInSection:0];
         CGFloat contentHeight = rowHeight * rowsCount;

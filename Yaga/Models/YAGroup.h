@@ -30,7 +30,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 //
 + (YAGroup*)groupWithName:(NSString*)name;
 - (void)rename:(NSString*)newName;
-- (void)addMembers:(NSArray*)membersArray;
+- (void)addMembers:(NSArray*)contacts;
 - (void)removeMember:(YAContact*)contact;
 - (void)leave;
 - (void)muteUnmute;

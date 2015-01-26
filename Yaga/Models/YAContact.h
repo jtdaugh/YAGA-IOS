@@ -27,12 +27,13 @@
 @property NSString *lastName;
 @property NSString *username;
 @property NSString *number;
+@property NSString *serverId;
 @property BOOL registered;
 
 - (NSString *) readableNumber;
 
 + (YAContact*)contactFromDictionary:(NSDictionary*)dictionary;
-+ (YAContact*)contactFromPhoneNumber:(NSString*)phoneNumber andUsername:(NSString*)username;
+- (void)updateFromDictionary:(NSDictionary*)dictionary;
 
 - (NSDictionary*)dictionaryRepresentation;
 @end
