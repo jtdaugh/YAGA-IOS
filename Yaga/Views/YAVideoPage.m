@@ -224,18 +224,11 @@
         [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
-            
-            [[RLMRealm defaultRealm] beginWriteTransaction];
-            self.video.likes = [response integerValue];
-            [[RLMRealm defaultRealm] commitWriteTransaction];
         }];
     } else {
         [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
-            [[RLMRealm defaultRealm] beginWriteTransaction];
-            self.video.likes = [response integerValue];
-            [[RLMRealm defaultRealm] commitWriteTransaction];
         }];
     }
     
@@ -270,8 +263,6 @@
 }
 
 - (void)showLikes {
-    // TODO: insert realm code here to get correct likes; hardcoded for now
-    NSArray *likes = @[@"ninajvir", @"rjvir", @"chriwend", @"a_j_r"];//, @"b9speed", @"dlg", @"valentin", @"iegor", @"victor", @"kyle"];
     
     CGFloat origin = self.likeCount.frame.origin.y;
     CGFloat height = 24;
@@ -279,9 +270,9 @@
     
     self.likeLabels = [[NSMutableArray alloc] init];
     
-    for(NSString *like in likes){
+    for(YAContact *cntct in self.video.likers){
         UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin + self.likeCount.frame.size.height/2, width, height)];
-        [label setText:like];
+        [label setText:cntct.username];
         [label setTextAlignment:NSTextAlignmentRight];
         [label setTextColor:[UIColor whiteColor]];
         [label setFont:[UIFont fontWithName:BIG_FONT size:16]];
@@ -440,6 +431,9 @@
     self.captionField.text = self.video.caption;
     [self.likeCount setTitle:[NSString stringWithFormat:@"%ld", (long)self.video.likes]
                     forState:UIControlStateNormal];
+    
+    //get likers for video
+
 }
 
 @end

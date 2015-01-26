@@ -12,6 +12,7 @@
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_NAME                @"name"
 #define YA_RESPONSE_LIKES               @"likes"
+#define YA_RESPONSE_LIKERS              @"likers"
 #define YA_RESPONSE_MEMBERS             @"members"
 #define YA_RESPONSE_MEMBER_PHONE        @"phone"
 #define YA_RESPONSE_MEMBER_JOINED_AT    @"joined_at"
@@ -61,6 +62,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 - (void)startMonitoringInternetConnection:(BOOL)start;
 
+- (void)likersForVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 - (void)getYagaUsersFromPhonesArray:(NSArray*)phones withCompletion:(responseBlock)completion;
 //
 @property (readonly) BOOL serverUp;

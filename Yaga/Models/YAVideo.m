@@ -71,4 +71,16 @@
     [[YAServerTransactionQueue sharedQueue] addUpdateVideoCaptionTransaction:self];
 }
 
+- (void)updateLikersWithArray:(NSArray *)likers {
+    self.likes = likers.count;
+    YAUser *user = [YAUser currentUser];
+    for (NSDictionary *dict in likers)
+    {
+        YAContact *contact = [YAContact contactFromDictionary:dict];
+        if ([[user username] isEqualToString:dict[nName]]) {
+            self.like = YES;
+        }
+        [self.likers addObject:contact];
+    }
+}
 @end

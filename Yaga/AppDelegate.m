@@ -103,7 +103,7 @@
 #pragma mark - Push notifications
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
     NSLog(@"didRegisterUserNotificationSettings %@", notificationSettings);
-    
+    NSLog(@"DEVICE TOKEN: %@", [[NSUserDefaults standardUserDefaults] objectForKey:YA_DEVICE_TOKEN]);
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
