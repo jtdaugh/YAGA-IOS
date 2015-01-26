@@ -14,6 +14,7 @@
 #define nToken @"token"
 #define nUserId @"user_id"
 #define nCompositeName @"composite_name"
+#define nName @"name"
 #define nFirstname @"firstname"
 #define nLastname @"lastname"
 #define nRegistered @"joined_at"

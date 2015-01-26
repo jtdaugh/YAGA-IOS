@@ -71,4 +71,14 @@
     [[YAServerTransactionQueue sharedQueue] addUpdateVideoCaptionTransaction:self];
 }
 
+- (void)updateLikersWithArray:(NSArray *)likers {
+    self.likes = likers.count;
+    for (NSDictionary *dict in likers)
+    {
+        NSPredicate *pred = [NSPredicate predicateWithFormat:@"name = '%@'", dict[@"name"]];
+        RLMArray *tanDogs = [YAContact objectsWithPredicate:pred];
+        YAContact *contact = [YAContact contactFromDictionary:dict];
+        [self.likers addObject:contact];
+    }
+}
 @end

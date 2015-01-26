@@ -224,18 +224,11 @@
         [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
-            
-            [[RLMRealm defaultRealm] beginWriteTransaction];
-            self.video.likes = [response integerValue];
-            [[RLMRealm defaultRealm] commitWriteTransaction];
         }];
     } else {
         [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
-            [[RLMRealm defaultRealm] beginWriteTransaction];
-            self.video.likes = [response integerValue];
-            [[RLMRealm defaultRealm] commitWriteTransaction];
         }];
     }
     
@@ -440,6 +433,9 @@
     self.captionField.text = self.video.caption;
     [self.likeCount setTitle:[NSString stringWithFormat:@"%ld", (long)self.video.likes]
                     forState:UIControlStateNormal];
+    
+    //get likers for video
+
 }
 
 @end

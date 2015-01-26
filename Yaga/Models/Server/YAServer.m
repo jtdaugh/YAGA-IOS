@@ -41,6 +41,7 @@
 #define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/%@/"
 
 #define API_GROUP_POST_LIKE                 @"%@/groups/%@/posts/%@/like/"
+#define API_GROUP_POST_LIKERS               @"%@/groups/%@/posts/%@/likers/"
 
 #define USER_PHONE  @"phone"
 #define ERROR_DATA  @"com.alamofire.serialization.response.error.data"
@@ -481,9 +482,19 @@
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-                   NSNumber *likes = responseDict[YA_RESPONSE_LIKES];
-                   completion(likes, nil);
+                   NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
+
+                   
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       [video.realm beginWriteTransaction];
+                       [video updateLikersWithArray:likers];
+                       [video.realm commitWriteTransaction];
+                   });
+                   
+                   completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                   NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+                   NSLog(@"%@", [NSString stringFromHex:hex]);
                    completion(nil, nil);
                }];
 }
@@ -497,13 +508,21 @@
                 parameters:nil
                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
                        NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-                       NSNumber *likes = responseDict[YA_RESPONSE_LIKES];
-                       completion(likes, nil);
+                       NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
+                       
+                       if ([likers count]) {
+                           dispatch_async(dispatch_get_main_queue(), ^{
+                               [video.realm beginWriteTransaction];
+                               [video updateLikersWithArray:likers];
+                               [video.realm commitWriteTransaction];
+                           });
+                       }
+                       
+                       completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                        completion(nil, nil);
                    }];
 }
-
 
 #pragma mark - Device token
 

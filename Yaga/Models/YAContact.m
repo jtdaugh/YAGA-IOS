@@ -30,7 +30,12 @@
 
 + (YAContact*)contactFromDictionary:(NSDictionary*)dictionary {
     YAContact *contact = [YAContact new];
-    contact.name = dictionary[nCompositeName];
+    NSString *name = dictionary[nCompositeName];
+    if (name) {
+        contact.name = dictionary[nCompositeName];
+    } else {
+        contact.name = dictionary[nName];
+    }
     contact.firstName = dictionary[nFirstname];
     contact.lastName  = dictionary[nLastname];
     contact.number = dictionary[nPhone];
