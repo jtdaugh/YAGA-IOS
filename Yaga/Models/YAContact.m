@@ -66,13 +66,13 @@
         self.username = username;
     }
     else {
-        self.username = @"";//[[NameGenerator sharedGeneratror] nameForPhoneNumber:phoneNumber];
+        self.username = [[NameGenerator sharedGeneratror] nameForPhoneNumber:phoneNumber];
     }
     
     if(existingUserData) {
-        self.name = existingUserData[nCompositeName];
-        self.firstName = existingUserData[nFirstname];
-        self.lastName  = existingUserData[nLastname];
+        self.name       = existingUserData[nCompositeName];
+        self.firstName  = existingUserData[nFirstname];
+        self.lastName   = existingUserData[nLastname];
         if(!self.username.length)
             self.username = existingUserData[nCompositeName];
     }
