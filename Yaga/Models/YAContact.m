@@ -48,8 +48,8 @@
         contact.name = dictionary[nName];
     }
 
-    contact.firstName = dictionary[nFirstname];
-    contact.lastName  = dictionary[nLastname];
+    contact.firstName = dictionary[nFirstname]  ? dictionary[nFirstname] : @"";
+    contact.lastName  = dictionary[nLastname]   ? dictionary[nLastname]  : @"";
     contact.number = dictionary[nPhone];
     contact.registered = NO;
 
