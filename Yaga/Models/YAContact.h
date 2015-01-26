@@ -8,16 +8,17 @@
 
 #import <Realm/Realm.h>
 
-#define nUsername @"username"
-#define nPhone @"phone"
-#define nCountry @"country"
-#define nToken @"token"
-#define nUserId @"user_id"
-#define nCompositeName @"composite_name"
-#define nName @"name"
-#define nFirstname @"firstname"
-#define nLastname @"lastname"
-#define nRegistered @"joined_at"
+#define nUsername       @"username"
+#define nPhone          @"phone"
+#define nCountry        @"country"
+#define nToken          @"token"
+#define nUserId         @"user_id"
+#define nCompositeName  @"composite_name"
+#define nName           @"name"
+#define nFirstname      @"firstname"
+#define nLastname       @"lastname"
+#define nRegistered     @"joined_at"
+#define nYagaUser       @"yagaUser"
 
 #define DIAL_CODE @"dial_code"
 #define COUNTRY_CODE @"code"

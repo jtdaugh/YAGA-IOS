@@ -189,8 +189,26 @@
         cell.detailTextLabel.text = [YAUtils readableNumberFromString:contact[nPhone]];
     }
     
-    [cell.textLabel setTextColor:[UIColor whiteColor]];
-    [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+    BOOL yagaUser = [((NSNumber*)contactDic[nYagaUser]) boolValue];
+    if (yagaUser){
+        [cell.textLabel       setTextColor:PRIMARY_COLOR];
+        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+        
+        UIImage *img = [UIImage imageNamed:@"Ball"];
+        cell.imageView.image = img;
+        
+        NSPredicate *pred = [NSPredicate predicateWithFormat:@"number = %@", contactDic[nPhone]];
+        YAContact *contact = [[YAContact objectsWithPredicate:pred] firstObject];
+        if (!contact) {
+            contact = [YAContact contactFromPhoneNumber:contactDic[nPhone] andUsername:nil];
+        }
+        
+        cell.detailTextLabel.text = contact.username;
+        
+    } else {
+        [cell.textLabel       setTextColor:[UIColor whiteColor]];
+        [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+    }
     [cell setBackgroundColor:[UIColor clearColor]];
     
     return cell;

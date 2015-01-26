@@ -16,6 +16,7 @@
 #import "YAAssetsCreator.h"
 #import "YAImageCache.h"
 #import "YAUtils.h"
+#import "YAServer.h"
 
 #define YA_CURRENT_GROUP_ID @"current_group_id"
 
@@ -140,6 +141,7 @@
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
             NSMutableArray *result = [NSMutableArray new];
+            NSMutableArray *phoneResults = [NSMutableArray new];
             _phonebook = [NSMutableDictionary new];
             
             for(int i = 0; i<[contacts count]; i++){
@@ -147,7 +149,9 @@
                 for(int j = 0; j<[contact.phones count]; j++){
                     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
                     NSError *aError = nil;
-                    NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j] defaultRegion:@"US" error:&aError];
+                    NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j]
+                                                 defaultRegion:[[NSLocale currentLocale] localeIdentifier]
+                                                         error:&aError];
                     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
                     
                     if(!num.length)
@@ -155,20 +159,37 @@
                     
 
                     
-                    NSDictionary *item = @{nCompositeName:[NSString stringWithFormat:@"%@", contact.compositeName],
+                    NSMutableDictionary *item = [NSMutableDictionary dictionaryWithDictionary:
+                                            @{nCompositeName:[NSString stringWithFormat:@"%@", contact.compositeName],
                                            nPhone:num,
                                            nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
                                            nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
-                                           nRegistered:[NSNumber numberWithBool:NO]};
+                                           nRegistered:[NSNumber numberWithBool:NO],
+                                           nYagaUser : [NSNumber numberWithBool:NO]}];
                     
                     if(![excludePhonesSet containsObject:num])
+                    {
                         [result addObject:item];
+                        [phoneResults addObject:num];
+                    }
                     
                     [self.phonebook setObject:item forKey:num];
                 }
             }
             if(completion)
-                completion(nil, result);
+            {
+                [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
+                    NSLog(@"%@", response);
+                    for (NSMutableDictionary *resultDict in result) {
+                        for (NSDictionary *responseDict in response) {
+                            if ([resultDict[nPhone] isEqualToString:responseDict[nPhone]]) {
+                                [resultDict setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];    
+                            }
+                        }
+                    }
+                    completion(nil, result);
+                }];
+            }
         }
         else
         {
