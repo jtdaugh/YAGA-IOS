@@ -73,11 +73,14 @@
 
 - (void)updateLikersWithArray:(NSArray *)likers {
     self.likes = likers.count;
+    YAUser *user = [YAUser currentUser];
     for (NSDictionary *dict in likers)
     {
-        NSPredicate *pred = [NSPredicate predicateWithFormat:@"name = '%@'", dict[@"name"]];
-        RLMArray *tanDogs = [YAContact objectsWithPredicate:pred];
-        YAContact *contact = [YAContact contactFromDictionary:dict];
+        YAContact *contact = [YAContact contactFromPhoneNumber:dict[nPhone]
+                                                   andUsername:dict[nName]];
+        if ([[user username] isEqualToString:dict[nName]]) {
+            self.like = YES;
+        }
         [self.likers addObject:contact];
     }
 }
