@@ -27,6 +27,8 @@
 #define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
 #define API_USER_DEVICE_TEMPLATE            @"%@/user/device/"
 
+#define API_USER_SEARCH_TEMPLATE            @"%@/user/search/"
+
 #define API_AUTH_TOKEN_TEMPLATE             @"%@/auth/obtain/"
 #define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
 
@@ -617,6 +619,30 @@
         
     }
     
+}
+
+- (void)getYagaUsersFromPhonesArray:(NSArray*)phones withCompletion:(responseBlock)completion {
+    NSAssert(self.token.length, @"token not set");
+    
+    NSMutableArray *correctPhones = [NSMutableArray arrayWithArray:[[NSSet setWithArray:phones] allObjects]];
+    for(NSString *phone in [correctPhones copy]) {
+        if(![YAUtils validatePhoneNumber:phone error:nil]) {
+            [correctPhones removeObject:phone];
+        }
+    }
+    
+    NSString *api = [NSString stringWithFormat:API_USER_SEARCH_TEMPLATE, self.base_api];
+    
+    NSDictionary *parameters = @{
+                                 @"phones": correctPhones
+                                 };
+    
+    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+
 }
 
 @end
