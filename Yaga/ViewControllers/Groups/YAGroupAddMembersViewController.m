@@ -173,8 +173,6 @@
     frame.origin.x = 0;
     [cell setFrame:frame];
     
-    //refactor in future
-    //can be YAContact in case of search by username or NSDictionary, if it's phonebook search
     id contact = self.filteredContacts[indexPath.row];
     
     cell.indentationLevel = 0;

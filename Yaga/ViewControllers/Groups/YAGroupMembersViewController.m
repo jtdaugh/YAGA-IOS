@@ -127,7 +127,10 @@ static NSString *CellID = @"CellID";
     
     cell.textLabel.text = contact.name.length ? contact.name : contact.username;
     
-    cell.detailTextLabel.text = contact.readableNumber;
+    if([[YAUser currentUser].phonebook objectForKey:contact.number])
+        cell.detailTextLabel.text = contact.readableNumber;
+    else
+        cell.detailTextLabel.text = @"";
     
     [cell.textLabel setTextColor:[UIColor whiteColor]];
     [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
