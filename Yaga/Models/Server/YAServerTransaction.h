@@ -24,7 +24,8 @@
 #define YA_GROUP_ID                 @"groupId"
 #define YA_VIDEO_ID                 @"videoId"
 #define YA_GROUP_NEW_NAME           @"newName"
-#define YA_GROUP_ADD_MEMBERS        @"membersToAdd"
+#define YA_GROUP_ADD_MEMBER_PHONES  @"memberPhonesToAdd"
+#define YA_GROUP_ADD_MEMBER_NAMES   @"memberUsernamesToAdd"
 #define YA_GROUP_DELETE_MEMBER      @"memberToDelete"
 
 

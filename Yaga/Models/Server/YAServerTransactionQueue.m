@@ -49,8 +49,8 @@
     [self processPendingTransactions];
 }
 
-- (void)addAddMembersTransactionForGroup:(YAGroup*)group memberPhonesToAdd:(NSArray*)phones {
-    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_ADD_GROUP_MEMBERS, YA_GROUP_ID:group.localId, YA_GROUP_ADD_MEMBERS:phones}];
+- (void)addAddMembersTransactionForGroup:(YAGroup*)group phones:(NSArray*)phones usernames:(NSArray*)usernames {
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_ADD_GROUP_MEMBERS, YA_GROUP_ID:group.localId, YA_GROUP_ADD_MEMBER_PHONES:phones, YA_GROUP_ADD_MEMBER_NAMES:usernames}];
     
     [self saveTransactionsData];
     [self processPendingTransactions];

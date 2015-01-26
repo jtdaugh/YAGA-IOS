@@ -195,13 +195,20 @@ static BOOL groupsUpdateInProgress;
 - (void)addMembers:(NSArray*)contacts {
     [[RLMRealm defaultRealm] beginWriteTransaction];
     
+    NSMutableArray *phones = [NSMutableArray new];
+    NSMutableArray *usernames = [NSMutableArray new];
+    
     for(NSDictionary *contactDic in contacts) {
         [self.members addObject:[YAContact contactFromDictionary:contactDic]];
+        if([[contactDic objectForKey:nPhone] length])
+            [phones addObject:contactDic[nPhone]];
+        else
+            [phones addObject:contactDic[nUsername]];
     }
     
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
-    [[YAServerTransactionQueue sharedQueue] addAddMembersTransactionForGroup:self memberPhonesToAdd:[contacts valueForKey:nPhone]];
+    [[YAServerTransactionQueue sharedQueue] addAddMembersTransactionForGroup:self phones:phones usernames:usernames];
 }
 
 - (void)removeMember:(YAContact *)contact {

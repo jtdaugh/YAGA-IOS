@@ -147,7 +147,7 @@
                 for(int j = 0; j<[contact.phones count]; j++){
                     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
                     NSError *aError = nil;
-                    NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j] defaultRegion:@"US" error:&aError];
+                    NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j] defaultRegion:[YAUser currentUser].countryCode error:&aError];
                     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
                     
                     if(!num.length)

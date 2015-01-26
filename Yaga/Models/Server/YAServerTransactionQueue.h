@@ -16,7 +16,7 @@
 
 - (void)addCreateTransactionForGroup:(YAGroup*)group;
 - (void)addRenameTransactionForGroup:(YAGroup*)group;
-- (void)addAddMembersTransactionForGroup:(YAGroup*)group memberPhonesToAdd:(NSArray*)phones;
+- (void)addAddMembersTransactionForGroup:(YAGroup*)group phones:(NSArray*)phones usernames:(NSArray*)usernames;
 - (void)addRemoveMemberTransactionForGroup:(YAGroup*)group memberPhoneToRemove:(NSString*)memberPhone;
 - (void)addLeaveGroupTransactionForGroupId:(NSString*)groupId;
 - (void)addMuteUnmuteTransactionForGroup:(YAGroup*)group;

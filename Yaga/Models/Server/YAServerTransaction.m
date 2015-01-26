@@ -126,7 +126,9 @@
 }
 
 - (void)addGroupMembersWithCompletion:(responseBlock)completion {
-    NSArray *phones = self.data[YA_GROUP_ADD_MEMBERS];
+    NSArray *phones = self.data[YA_GROUP_ADD_MEMBER_PHONES];
+    NSArray *usernames = self.data[YA_GROUP_ADD_MEMBER_NAMES];
+    
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
@@ -134,7 +136,7 @@
         return;
     }
     
-    [[YAServer sharedServer] addGroupMembersByPhones:phones toGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] addGroupMembersByPhones:phones andUsernames:usernames toGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"can't add members to the group with name %@, error %@", group.name, response] type:AZNotificationTypeError];
             completion(nil, error);

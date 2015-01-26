@@ -44,7 +44,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion;
 - (void)getGroupsWithCompletion:(responseBlock)completion;
 
-- (void)addGroupMembersByPhones:(NSArray*)phones toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
 - (void)groupInfoWithId:(NSString*)serverGroupId since:(NSDate*)since withCompletion:(responseBlock)completion;

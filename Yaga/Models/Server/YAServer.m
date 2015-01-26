@@ -237,12 +237,13 @@
     }];
 }
 
-- (void)addGroupMembersByPhones:(NSArray*)phones toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+- (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"group not synchronized with server yet");
     
     NSDictionary *parameters = @{
-                                 @"phones": phones
+                                 @"phones": phones,
+                                 @"names": usernames
                                  };
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];

@@ -173,17 +173,19 @@
     frame.origin.x = 0;
     [cell setFrame:frame];
     
-    id contact = self.filteredContacts[indexPath.row];
+    NSDictionary *contact = self.filteredContacts[indexPath.row];
     
     cell.indentationLevel = 0;
     cell.indentationWidth = 0.0f;
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
+    //suggest existing or non existing usernames
     if([contact[kSearchedByUsername] boolValue]) {
         cell.textLabel.text = [NSString stringWithFormat:@"Add @%@", contact[nUsername]];
         cell.detailTextLabel.text = @"";
     }
+    //existing phone book contacts
     else {
         cell.textLabel.text = contact[nCompositeName];
         cell.detailTextLabel.text = [YAUtils readableNumberFromString:contact[nPhone]];
@@ -257,6 +259,10 @@
         
         //search by username
         if([text rangeOfString:@" "].location == NSNotFound) {
+            if(text.length > 2) {
+                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+            }
+            
             NSString *contactsPredicate = [NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text];
             RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
             
@@ -267,7 +273,7 @@
                     contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
                     [self.filteredContacts addObject:contactDicMutable];
                 }
-
+                
             }
         }
         
@@ -327,7 +333,11 @@
 
 - (BOOL)validateSelectedContacts {
     NSString *errorsString = @"";
-    for (id contact in self.selectedContacts) {
+    for (NSDictionary *contact in self.selectedContacts) {
+        if([contact[kSearchedByUsername] boolValue]) {
+            continue;
+        }
+        
         NSString *phoneNumber = contact[nPhone];
         
         NSError *error;
