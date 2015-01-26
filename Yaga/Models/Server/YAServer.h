@@ -61,6 +61,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 - (void)startMonitoringInternetConnection:(BOOL)start;
 
+- (void)getYagaUsersFromPhonesArray:(NSArray*)phones withCompletion:(responseBlock)completion;
 //
 @property (readonly) BOOL serverUp;
 - (void)sync;
