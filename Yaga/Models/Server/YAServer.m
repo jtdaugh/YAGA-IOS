@@ -428,6 +428,9 @@
     NSAssert(serverVideoId, @"videoId is a required parameter");
     NSAssert(serverGroupId, @"groupId is a required parameter");
     
+    if (!serverVideoId || !serverVideoId)
+        return completion(nil, nil);
+    
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId, serverVideoId];
     
     [self.manager DELETE:api
