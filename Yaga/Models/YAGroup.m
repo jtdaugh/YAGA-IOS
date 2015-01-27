@@ -25,6 +25,7 @@
     if ([propertyName isEqualToString:@"localId"] || [propertyName isEqualToString:@"serverId"]) {
         attributes |= RLMPropertyAttributeIndexed;
     }
+        
     return attributes;
 }
 
@@ -172,7 +173,14 @@ static BOOL groupsUpdateInProgress;
             for (YAGroup *group in [YAGroup allObjects]) {
                 if(![serverGroupIds containsObject:group.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group]) {
                     BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
+                    
+                    for(YAVideo *videoToRemove in group.videos) {
+                        [videoToRemove purgeLocalAssets];
+                        [[RLMRealm defaultRealm] deleteObject:videoToRemove];
+                    }
+                    
                     [[RLMRealm defaultRealm] deleteObject:group];
+                    
                     if(currentGroupToRemove) {
                         [YAUser currentUser].currentGroup = [[YAGroup allObjects] firstObject];
                     }

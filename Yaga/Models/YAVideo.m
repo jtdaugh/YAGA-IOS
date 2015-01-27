@@ -83,4 +83,19 @@
         [self.likers addObject:contact];
     }
 }
+
+- (void)purgeLocalAssets {
+    NSArray *urlsToDelete = @[[YAUtils urlFromFileName:self.movFilename], [YAUtils urlFromFileName:self.gifFilename], [YAUtils urlFromFileName:self.jpgFilename]];
+    NSFileManager *fileMgr = [NSFileManager defaultManager];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        for(NSURL *urlToDelete in urlsToDelete) {
+            NSError *error;
+            [fileMgr removeItemAtURL:urlToDelete error:&error];
+        }
+    });
+    self.movFilename = @"";
+    self.gifFilename = @"";
+    self.jpgFilename = @"";
+}
 @end

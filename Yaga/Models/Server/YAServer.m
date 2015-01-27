@@ -620,6 +620,7 @@
         
     }
     
+    [[YAUser currentUser] purgeOldVideos];
 }
 
 - (void)getYagaUsersFromPhonesArray:(NSArray*)phones withCompletion:(responseBlock)completion {

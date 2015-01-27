@@ -56,4 +56,7 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 @property (nonatomic, readonly) NSMutableDictionary *phonebook;
 
 - (void)iMessageWithFriends:(NSArray*)friendNumbers withCompletion:(completionBlock)presentedBlock;
+
+//this will make sure caches folder isn't bigger than 300MB
+- (void)purgeOldVideos;
 @end

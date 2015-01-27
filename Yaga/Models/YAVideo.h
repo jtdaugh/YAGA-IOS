@@ -40,6 +40,8 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 - (void)rename:(NSString*)newName;
 
 - (void)updateLikersWithArray:(NSArray *)likers;
+
+- (void)purgeLocalAssets;
 @end
 
 // This protocol enables typed collections. i.e.:

@@ -282,4 +282,30 @@
     [[UIApplication sharedApplication].keyWindow.rootViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
+
+- (void)purgeOldVideos {
+    RLMResults *videosByDate = [[YAVideo allObjects] sortedResultsUsingProperty:@"createdAt" ascending:NO];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        while([self sizeOfCachesFolder] > 300 * 1024 * 1024) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                YAVideo *videoToPurge = [videosByDate objectAtIndex:0];
+                [videoToPurge purgeLocalAssets];
+            });
+        }
+    });
+}
+
+- (unsigned long long)sizeOfCachesFolder {
+    NSString *cachesDir = [YAUtils cachesDirectory];
+    NSArray *files = [[NSFileManager defaultManager] subpathsOfDirectoryAtPath:cachesDir error:nil];
+    NSEnumerator *enumerator = [files objectEnumerator];
+    NSString *fileName;
+    unsigned long long size = 0;
+    while (fileName = [enumerator nextObject]) {
+        NSError *error;
+        size += [[[NSFileManager defaultManager] attributesOfItemAtPath:[cachesDir stringByAppendingPathComponent:fileName] error:&error] fileSize];
+    }
+    return size;
+}
 @end
