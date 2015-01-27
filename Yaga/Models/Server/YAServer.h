@@ -62,7 +62,6 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 - (void)startMonitoringInternetConnection:(BOOL)start;
 
-- (void)likersForVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 - (void)getYagaUsersFromPhonesArray:(NSArray*)phones withCompletion:(responseBlock)completion;
 //
 @property (readonly) BOOL serverUp;

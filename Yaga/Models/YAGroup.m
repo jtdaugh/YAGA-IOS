@@ -50,14 +50,8 @@
     
     for(int i = 0; i < self.members.count; i++) {
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
-        NSString *name = contact.username;
-        if(contact.name.length) {
-            if(![contact.name isEqualToString:contact.username] && ![contact.username isEqualToString:defaultUsername])
-                name = [NSString stringWithFormat:@"%@",contact.username];
-            else
-                name = contact.name;
-        }
-        results = [results stringByAppendingFormat:@"%@%@", name, (i < self.members.count - 1 ? @", " : @"")];
+        
+        results = [results stringByAppendingFormat:@"%@%@", [contact displayName], (i < self.members.count - 1 ? @", " : @"")];
     }
     
     return results;
@@ -111,6 +105,13 @@
         if(!existingContacts.count)
             [self.members addObject:contact];
 
+    }
+    
+    //delete the rest
+    NSArray *existingContactIds = [[dictionary[@"members"] valueForKey:@"user"] valueForKey:@"id"];
+    for (YAContact *contact in self.members) {
+        if(![existingContactIds containsObject:contact.serverId])
+            [self removeMember:contact];
     }
 }
 
@@ -203,7 +204,7 @@ static BOOL groupsUpdateInProgress;
         if([[contactDic objectForKey:nPhone] length])
             [phones addObject:contactDic[nPhone]];
         else
-            [phones addObject:contactDic[nUsername]];
+            [usernames addObject:contactDic[nUsername]];
     }
     
     [[RLMRealm defaultRealm] commitWriteTransaction];

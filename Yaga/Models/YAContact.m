@@ -48,10 +48,12 @@
         contact.name = dictionary[nName];
     }
 
-    contact.firstName = dictionary[nFirstname];
-    contact.lastName  = dictionary[nLastname];
+    contact.firstName = dictionary[nFirstname]  ? dictionary[nFirstname] : @"";
+    contact.lastName  = dictionary[nLastname]   ? dictionary[nLastname]  : @"";
     contact.number = dictionary[nPhone];
     contact.registered = NO;
+    if([dictionary[nUsername] length])
+        contact.username = dictionary[nUsername];
 
     return contact;
 }
@@ -85,5 +87,18 @@
 - (NSDictionary*)dictionaryRepresentation {
     NSDictionary *result = @{nCompositeName:self.name, nFirstname:self.firstName, nLastname:self.lastName, nPhone:self.number, nRegistered:[NSNumber numberWithBool:self.registered], nUsername:self.username};
     return result;
+}
+
+- (NSString*)displayName {
+    NSString *name = self.username;
+    if(!name.length) {
+        if([[YAUser currentUser].phonebook objectForKey:self.number]) {
+            name = self[nCompositeName];
+        }
+        else {
+            name = defaultUsername;
+        }
+    }
+    return name;
 }
 @end

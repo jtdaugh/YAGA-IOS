@@ -125,7 +125,7 @@ static NSString *CellID = @"CellID";
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    cell.textLabel.text = contact.name.length ? contact.name : contact.username;
+    cell.textLabel.text = [contact displayName];
     
     if([[YAUser currentUser].phonebook objectForKey:contact.number])
         cell.detailTextLabel.text = contact.readableNumber;

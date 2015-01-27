@@ -191,8 +191,26 @@
         cell.detailTextLabel.text = [YAUtils readableNumberFromString:contact[nPhone]];
     }
     
-    [cell.textLabel setTextColor:[UIColor whiteColor]];
-    [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+    BOOL yagaUser = [((NSNumber*)contact[nYagaUser]) boolValue];
+    if (yagaUser){
+        [cell.textLabel       setTextColor:PRIMARY_COLOR];
+        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+        
+        UIImage *img = [UIImage imageNamed:@"Ball"];
+        cell.imageView.image = img;
+        
+        NSPredicate *pred = [NSPredicate predicateWithFormat:@"number = %@", contact[nPhone]];
+        YAContact *ya_contact = [[YAContact objectsWithPredicate:pred] firstObject];
+        if (!ya_contact) {
+            ya_contact = [YAContact contactFromDictionary:contact];
+        }
+        
+        cell.detailTextLabel.text = ya_contact.username;
+        
+    } else {
+        [cell.textLabel       setTextColor:[UIColor whiteColor]];
+        [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+    }
     [cell setBackgroundColor:[UIColor clearColor]];
     
     return cell;
@@ -263,7 +281,7 @@
                 [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
             }
             
-            NSString *contactsPredicate = [NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text];
+            NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
             RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
             
             NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];

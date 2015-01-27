@@ -187,7 +187,7 @@
         NSLog(@"init camera");
         
         self.session = [[AVCaptureSession alloc] init];
-        self.session.sessionPreset = AVCaptureSessionPresetMedium;
+        self.session.sessionPreset = AVCaptureSessionPreset1280x720;
         
         [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
         [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
