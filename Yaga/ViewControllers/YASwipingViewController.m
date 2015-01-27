@@ -65,6 +65,12 @@
     //gesture recognizers
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
     [self.view addGestureRecognizer:tap];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
 }
 
 - (void)pageTapped:(id)sender {
@@ -243,8 +249,15 @@
     [page setVideo:video shouldPlay:shouldPlay];
 }
 
-- (void)logState {
-    //NSLog(@"State: %@ | %@ | %@", [self.players[0] URL].lastPathComponent, [self.players[1] URL].lastPathComponent, [self.players[2] URL].lastPathComponent);
+#pragma mark - YAVideoPageDelegate 
+- (void)didDeleteVideo:(id)sender {
+    if(![YAUser currentUser].currentGroup.videos.count) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+        return;
+    }
+    
+    self.scrollView.contentSize = CGSizeMake([YAUser currentUser].currentGroup.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
+    
+    [self updatePages:YES];
 }
-
 @end

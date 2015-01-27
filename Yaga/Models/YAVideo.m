@@ -57,6 +57,7 @@
     [self purgeLocalAssets];
     
     [[RLMRealm defaultRealm] beginWriteTransaction];
+    [self.group.videos removeObjectAtIndex:[self.group.videos indexOfObject:self]];
     [[RLMRealm defaultRealm] deleteObject:self];
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
