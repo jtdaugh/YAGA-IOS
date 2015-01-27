@@ -363,7 +363,7 @@ static BOOL groupsUpdateInProgress;
             video.url = videoDic[YA_VIDEO_ATTACHMENT];
             video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
             video.group = self;
-            
+            NSLog(@"VIDEO GROUP!!!! %@", video);
             [self.videos insertObject:video atIndex:0];
             [self.realm commitWriteTransaction];
             
