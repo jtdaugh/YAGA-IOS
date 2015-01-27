@@ -68,7 +68,7 @@
         self.username = username;
     }
     else {
-        self.username = [[NameGenerator sharedGeneratror] nameForPhoneNumber:phoneNumber];
+        self.username = @"";//[[NameGenerator sharedGeneratror] nameForPhoneNumber:phoneNumber];
     }
     
     if(existingUserData) {
