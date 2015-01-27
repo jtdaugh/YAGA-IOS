@@ -194,7 +194,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 - (void)generationProgressChanged:(NSNotification*)notif {
     NSString *url = notif.object;
-    if([url isEqualToString:self.video.url]) {
+    if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
         
         if(self.progressView) {
             NSNumber *value = notif.userInfo[@"progress"];
@@ -208,7 +208,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 - (void)downloadProgressChanged:(NSNotification*)notif {
     NSString *url = notif.object;
-    if([url isEqualToString:self.video.url]) {
+    if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
         
         if(self.progressView) {
             NSNumber *value = notif.userInfo[@"progress"];
