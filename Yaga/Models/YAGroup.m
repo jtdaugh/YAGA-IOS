@@ -351,8 +351,8 @@ static BOOL groupsUpdateInProgress;
         else {
             NSString *videoId = videoDic[YA_RESPONSE_ID];
             
-            //skip vids without URL(in theory they shouldn't come from server at all)
-            if([videoDic[YA_VIDEO_ATTACHMENT] isKindOfClass:[NSNull class]])
+            //skip deleted vids
+            if([videoDic[YA_VIDEO_DELETED] boolValue])
                 continue;
             
             [self.realm beginWriteTransaction];
