@@ -28,7 +28,7 @@
 }
 
 + (NSDictionary *)defaultPropertyValues{
-    return @{@"jpgFilename":@"", @"gifFilename":@"", @"movFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@""};
+    return @{@"jpgFilename":@"", @"gifFilename":@"", @"movFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@"", @"localCreatedAt":[NSDate date]};
 }
 
 + (NSString *)primaryKey {
@@ -53,6 +53,8 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
     
     NSString *videoId = self.localId;
+    
+    [self purgeLocalAssets];
     
     [[RLMRealm defaultRealm] beginWriteTransaction];
     [[RLMRealm defaultRealm] deleteObject:self];
@@ -94,8 +96,11 @@
             [fileMgr removeItemAtURL:urlToDelete error:&error];
         }
     });
+    
+    [[RLMRealm defaultRealm] beginWriteTransaction];
     self.movFilename = @"";
     self.gifFilename = @"";
     self.jpgFilename = @"";
+    [[RLMRealm defaultRealm] commitWriteTransaction];
 }
 @end

@@ -24,6 +24,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *creator;
 @property NSString *caption;
 @property NSDate *createdAt;
+@property NSDate *localCreatedAt;
 
 //likes
 @property BOOL like;

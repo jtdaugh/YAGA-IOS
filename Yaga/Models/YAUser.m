@@ -284,7 +284,7 @@
 
 
 - (void)purgeOldVideos {
-    RLMResults *videosByDate = [[YAVideo allObjects] sortedResultsUsingProperty:@"createdAt" ascending:NO];
+    RLMResults *videosByDate = [[YAVideo allObjects] sortedResultsUsingProperty:@"localCreatedAt" ascending:YES];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         while([self sizeOfCachesFolder] > 300 * 1024 * 1024) {
