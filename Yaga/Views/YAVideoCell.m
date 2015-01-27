@@ -183,7 +183,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 #pragma mark - Download progress bar
 - (void)downloadStarted:(NSNotification*)notif {
     NSOperation *op = notif.object;
-    if([op.name isEqualToString:self.video.url]) {
+    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
         [self showProgress:YES];
     }
 }

@@ -56,7 +56,7 @@
 
 - (void)setVideo:(YAVideo *)video shouldPlay:(BOOL)shouldPlay {
 
-    if(![_video.localId isEqualToString:video.localId]) {
+    if([_video isInvalidated] || ![_video.localId isEqualToString:video.localId]) {
         _video = video;
         
         [self updateControls];
