@@ -36,4 +36,6 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (id)initWithDictionary:(NSDictionary*)dic;
 - (void)performWithCompletion:(responseBlock)completion;
 
+@property (nonatomic, readonly) NSDictionary *data;
+
 @end

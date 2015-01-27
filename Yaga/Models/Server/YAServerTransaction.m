@@ -15,7 +15,7 @@
 #import "YARealmObjectUnavailable.h"
 
 @interface YAServerTransaction ()
-@property (nonatomic, strong) NSDictionary *data;
+
 @end
 
 @implementation YAServerTransaction
@@ -24,7 +24,7 @@
     self = [super init];
     
     if(self) {
-        self.data = dic;
+        _data = dic;
     }
     
     return self;

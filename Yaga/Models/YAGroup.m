@@ -107,12 +107,17 @@
 
     }
     
-    //delete the rest
-    NSArray *existingContactIds = [[dictionary[@"members"] valueForKey:@"user"] valueForKey:@"id"];
+    //delete local contacts which do not exist on server anymore
+    NSArray *serverContactIds = [[dictionary[@"members"] valueForKey:@"user"] valueForKey:@"id"];
+    NSMutableSet *contactsTorRemove = [NSMutableSet set];
     for (YAContact *contact in self.members) {
-        if(![existingContactIds containsObject:contact.serverId])
-            [self removeMember:contact];
+        if(![serverContactIds containsObject:contact.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForContact:contact])
+            [contactsTorRemove addObject:contact];
+        
     }
+    
+    for(YAContact *contactToRemove in contactsTorRemove)
+        [self removeMember:contactToRemove];
 }
 
 static BOOL groupsUpdateInProgress;
@@ -162,7 +167,21 @@ static BOOL groupsUpdateInProgress;
                     [[RLMRealm defaultRealm] addObject:group];
             }
             
+            //delete local contacts which do not exist on server anymore
+            NSArray *serverGroupIds = [groups valueForKey:@"id"];
+            for (YAGroup *group in [YAGroup allObjects]) {
+                if(![serverGroupIds containsObject:group.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group]) {
+                    BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
+                    [[RLMRealm defaultRealm] deleteObject:group];
+                    if(currentGroupToRemove) {
+                        [YAUser currentUser].currentGroup = [[YAGroup allObjects] firstObject];
+                    }
+                }
+                    
+            }
+
             [[RLMRealm defaultRealm] commitWriteTransaction];
+            
             if(block)
                 block(nil);
         }
@@ -215,9 +234,7 @@ static BOOL groupsUpdateInProgress;
 - (void)removeMember:(YAContact *)contact {
     NSString *memberPhone = contact.number;
     
-    [[RLMRealm defaultRealm] beginWriteTransaction];
     [self.members removeObjectAtIndex:[self.members indexOfObject:contact]];
-    [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [[YAServerTransactionQueue sharedQueue] addRemoveMemberTransactionForGroup:self memberPhoneToRemove:memberPhone];
 }

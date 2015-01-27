@@ -197,4 +197,51 @@
     }];
 }
 
+- (BOOL)hasPendingAddTransactionForContact:(YAContact*)contact {
+    NSArray *pendingTransactions = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]];
+    
+    for(NSDictionary *transactionData in pendingTransactions) {
+        YAServerTransaction *transaction = [[YAServerTransaction alloc] initWithDictionary:transactionData];
+        
+        NSString *type = transaction.data[YA_TRANSACTION_TYPE];
+        
+        if(![type isEqualToString:YA_TRANSACTION_TYPE_ADD_GROUP_MEMBERS])
+            continue;
+
+        NSArray *phones = transaction.data[YA_GROUP_ADD_MEMBER_PHONES];
+        NSArray *usernames = transaction.data[YA_GROUP_ADD_MEMBER_NAMES];
+        
+        for (NSString *phone in phones) {
+            if([contact.number isEqualToString:phone])
+                return YES;
+        }
+        
+        for (NSString *username in usernames) {
+            if([contact.username isEqualToString:username])
+                return YES;
+        }
+
+    }
+    return NO;
+}
+
+- (BOOL)hasPendingAddTransactionForGroup:(YAGroup*)group {
+    NSArray *pendingTransactions = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]];
+    
+    for(NSDictionary *transactionData in pendingTransactions) {
+        YAServerTransaction *transaction = [[YAServerTransaction alloc] initWithDictionary:transactionData];
+        
+        NSString *type = transaction.data[YA_TRANSACTION_TYPE];
+        
+        if(![type isEqualToString:YA_TRANSACTION_TYPE_CREATE_GROUP])
+            continue;
+        
+        NSString *localGroupId = transaction.data[YA_GROUP_ID];
+        if([localGroupId isEqualToString:group.localId])
+            return YES;
+        
+    }
+    return NO;
+}
+
 @end

@@ -29,4 +29,7 @@
 
 //Debug
 - (void)clearTransactionQueue;
+
+- (BOOL)hasPendingAddTransactionForContact:(YAContact*)contact;
+- (BOOL)hasPendingAddTransactionForGroup:(YAGroup*)group;
 @end
