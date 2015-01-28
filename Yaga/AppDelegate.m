@@ -16,6 +16,7 @@
 #import "YAUtils.h"
 #import "YAServerTransactionQueue.h"
 #import "YAAssetsCreator.h"
+#import "YAImageCache.h"
 
 @implementation AppDelegate
 
@@ -27,33 +28,6 @@
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
     
-//#warning TESTING REMOVE ALL GROUPS
-//    [[RLMRealm defaultRealm] beginWriteTransaction];
-//    [[RLMRealm defaultRealm] deleteObjects:[YAGroup allObjects]];
-//    [[RLMRealm defaultRealm] commitWriteTransaction];
-//    
-//#warning TESTING REMOVE ALL VIDEOS IN CURRENT GROUP
-//    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"YA_GROUPS_UPDATED_AT"];
-//    [[RLMRealm defaultRealm] beginWriteTransaction];
-//    [[YAUser currentUser].currentGroup.videos removeAllObjects];
-//    [[RLMRealm defaultRealm] commitWriteTransaction];
-//    
-//    [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:nil];
-//    
-//
-//    
-//#warning TESTING REMOVE ALL VIDEOS IN TRANSATION QUEUE
-//    [[YAServerTransactionQueue sharedQueue] clearTransactionQueue];
-//    
-//#warning Assets creator
-//    for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
-//        [video.realm beginWriteTransaction];
-//        video.jpgFilename = @"";
-//        video.gifFilename = @"";
-//        video.movFilename = @"";
-//        [video.realm commitWriteTransaction];
-//    }
-//
 //    [[RLMRealm defaultRealm] beginWriteTransaction];
 //    [[RLMRealm defaultRealm] deleteAllObjects];
 //    [[RLMRealm defaultRealm] commitWriteTransaction];
@@ -147,6 +121,8 @@
 #pragma mark - Memory Warning
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 {
+    [[YAImageCache sharedCache] removeAllObjects];
+    
     NSLog(@"%@", application);
 }
 
