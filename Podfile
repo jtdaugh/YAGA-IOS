@@ -10,3 +10,4 @@ pod 'FrameAccessor', '~> 1.0'
 pod 'FLAnimatedImage'
 pod 'NSDate-Time-Ago', :inhibit_warnings => true
 pod 'SVPullToRefresh'
+pod 'UCZProgressView'

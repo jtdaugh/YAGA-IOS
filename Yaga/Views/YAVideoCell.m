@@ -15,7 +15,7 @@
 #import "YAActivityView.h"
 #import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
-#import "THCircularProgressView.h"
+#import "UCZProgressView.h"
 
 typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateLoading = 0,
@@ -27,7 +27,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 @interface YAVideoCell ()
 
 
-@property (nonatomic, strong) THCircularProgressView *progressView;
+@property (nonatomic, strong) UCZProgressView *progressView;
 
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
 
@@ -41,6 +41,8 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
+        
+        
         _gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
         _gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
@@ -50,12 +52,24 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
         
         //progress view
-        self.progressView = [[THCircularProgressView alloc] initWithCenter:CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2) radius:self.bounds.size.width/6 lineWidth:2.0f progressMode:THProgressModeFill progressColor:[UIColor lightGrayColor] progressBackgroundMode:THProgressBackgroundModeNone progressBackgroundColor:[UIColor lightGrayColor] percentage:0.0f];
-        self.progressView.alpha = 0;
+        self.progressView = [[UCZProgressView alloc] initWithFrame:self.bounds];
+        UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
+        progressBkgView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
+        self.progressView.backgroundView = progressBkgView;
+        self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
         [self addSubview:self.progressView];
         
-        [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
+        NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
         
+        self.progressView.indeterminate = NO;
+        self.progressView.showsText = YES;
+        self.progressView.lineWidth = 2;
+        self.progressView.tintColor = PRIMARY_COLOR;
+        self.progressView.alpha = 0;
+        
+        [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
 
     }
@@ -82,7 +96,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
 
-    self.progressView.percentage = 0;
+    self.progressView.progress = 0;
     self.progressView.alpha = 0;
 
     self.video = nil;
@@ -201,7 +215,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         if(self.progressView) {
             NSNumber *value = notif.userInfo[@"progress"];
             
-            self.progressView.percentage = value.floatValue;
+            [self.progressView setProgress:value.floatValue animated:NO];
             self.progressView.alpha = 1;
         }
     }
@@ -215,7 +229,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         if(self.progressView) {
             NSNumber *value = notif.userInfo[@"progress"];
             
-            self.progressView.percentage = value.floatValue;
+            [self.progressView setProgress:value.floatValue animated:NO];
             self.progressView.alpha = 1;
         }
     }
