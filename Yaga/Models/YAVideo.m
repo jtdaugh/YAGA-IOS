@@ -88,7 +88,14 @@
 }
 
 - (void)purgeLocalAssets {
-    NSArray *urlsToDelete = @[[YAUtils urlFromFileName:self.movFilename], [YAUtils urlFromFileName:self.gifFilename], [YAUtils urlFromFileName:self.jpgFilename]];
+    NSMutableArray *urlsToDelete = [NSMutableArray new];
+    if(self.movFilename.length)
+        [urlsToDelete addObject:[YAUtils urlFromFileName:self.movFilename]];
+    if(self.gifFilename.length)
+        [urlsToDelete addObject:[YAUtils urlFromFileName:self.gifFilename]];
+    if(self.jpgFilename.length)
+        [urlsToDelete addObject:[YAUtils urlFromFileName:self.jpgFilename]];
+    
     NSFileManager *fileMgr = [NSFileManager defaultManager];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
