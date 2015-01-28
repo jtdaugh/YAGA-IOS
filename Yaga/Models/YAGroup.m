@@ -298,7 +298,11 @@ static BOOL groupsUpdateInProgress;
             
             __block NSArray *newVideos = [self updateVideosFromDictionaries:videoDictionaries];
             
-            [[YAAssetsCreator sharedCreator] createAssetsForGroup:self];
+            [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[YAAssetsCreator sharedCreator] createAssetsForGroup:self];
+                });
+            }];
             
             if(completion) {
                 completion(nil, newVideos);
