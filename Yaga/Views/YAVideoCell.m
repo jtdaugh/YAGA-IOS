@@ -54,6 +54,8 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         self.progressView.alpha = 0;
         [self addSubview:self.progressView];
         
+        [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
 
     }
