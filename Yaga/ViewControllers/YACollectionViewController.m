@@ -319,8 +319,6 @@ static BOOL welcomeLabelRemoved = NO;
     CGFloat scrollOffset = scrollView.contentOffset.y;
     CGFloat offset = 0;
     
-    NSLog(@"scrolling: %f", scrollOffset);
-    
     if(scrollOffset < 0){
         offset = 0;
     } else if(scrollOffset > (VIEW_HEIGHT/2 - 2 - CAMERA_MARGIN)){

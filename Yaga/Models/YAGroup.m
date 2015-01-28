@@ -298,6 +298,8 @@ static BOOL groupsUpdateInProgress;
             
             __block NSArray *newVideos = [self updateVideosFromDictionaries:videoDictionaries];
             
+            [[YAAssetsCreator sharedCreator] createAssetsForGroup:self];
+            
             if(completion) {
                 completion(nil, newVideos);
             }
@@ -372,11 +374,9 @@ static BOOL groupsUpdateInProgress;
             [self.realm commitWriteTransaction];
             
             [newVideos addObject:video];
-            
-            [[YAAssetsCreator sharedCreator] createAssetsForVideo:video inGroup:self];
         }
     }
-
+    
     return newVideos;
 }
 
