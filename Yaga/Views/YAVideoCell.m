@@ -51,24 +51,6 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         
         self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
         
-        //progress view
-        self.progressView = [[UCZProgressView alloc] initWithFrame:self.bounds];
-        UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
-        progressBkgView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
-        self.progressView.backgroundView = progressBkgView;
-        self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
-        [self addSubview:self.progressView];
-        
-        NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
-        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-        
-        self.progressView.indeterminate = NO;
-        self.progressView.showsText = YES;
-        self.progressView.lineWidth = 2;
-        self.progressView.tintColor = PRIMARY_COLOR;
-        self.progressView.alpha = 0;
-        
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
 
@@ -96,8 +78,8 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
 
-    self.progressView.progress = 0;
-    self.progressView.alpha = 0;
+    [self.progressView removeFromSuperview];
+    self.progressView = nil;
 
     self.video = nil;
     self.gifView.image = nil;
@@ -205,7 +187,30 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 }
 
 - (void)showProgress:(BOOL)show {
-    self.progressView.alpha = show && [[YAAssetsCreator sharedCreator] urlDownloadInProgress:self.video.url] ? 1 : 0;
+    if(show && [[YAAssetsCreator sharedCreator] urlDownloadInProgress:self.video.url]) {
+        [self createProgressView];
+    }
+    else {
+        [self.progressView removeFromSuperview];
+    }
+}
+
+- (void)createProgressView {
+    self.progressView = [[UCZProgressView alloc] initWithFrame:self.bounds];
+    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
+    progressBkgView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
+    self.progressView.backgroundView = progressBkgView;
+    self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self addSubview:self.progressView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+    
+    self.progressView.indeterminate = NO;
+    self.progressView.showsText = YES;
+    self.progressView.lineWidth = 2;
+    self.progressView.tintColor = PRIMARY_COLOR;
 }
 
 - (void)generationProgressChanged:(NSNotification*)notif {
@@ -216,7 +221,6 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
             NSNumber *value = notif.userInfo[@"progress"];
             
             [self.progressView setProgress:value.floatValue animated:NO];
-            self.progressView.alpha = 1;
         }
     }
 
@@ -230,7 +234,6 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
             NSNumber *value = notif.userInfo[@"progress"];
             
             [self.progressView setProgress:value.floatValue animated:NO];
-            self.progressView.alpha = 1;
         }
     }
 }
