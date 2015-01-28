@@ -11,11 +11,11 @@
 #import "YAGroup.h"
 
 typedef void (^cameraRollCompletion)(NSError *error);
+typedef void (^stopOperationsCompletion)(void);
 
 @interface YAAssetsCreator : NSObject
 
 + (instancetype)sharedCreator;
-- (void)createJPGAndGIFForVideo:(YAVideo*)video;
 
 - (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion;
 
@@ -24,8 +24,10 @@ typedef void (^cameraRollCompletion)(NSError *error);
 
 //
 - (void)createAssetsForGroup:(YAGroup*)group;
-- (void)stopAllJobsForGroup:(YAGroup*)group;
+- (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion;
 
 // on background
 - (void)waitForAllOperationsToFinish;
+
+- (BOOL)urlDownloadInProgress:(NSString*)url;
 @end

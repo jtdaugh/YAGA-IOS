@@ -1,7 +1,7 @@
 xcodeproj 'Yaga.xcodeproj'
 source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '7.0'
-pod 'Realm'
+pod 'Realm', '~> 0.90.2'
 pod 'AFNetworking', '~> 2.0'
 pod 'APAddressBook', '~> 0.0.7'
 pod 'libPhoneNumber-iOS', '~> 0.7'

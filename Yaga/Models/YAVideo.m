@@ -28,7 +28,7 @@
 }
 
 + (NSDictionary *)defaultPropertyValues{
-    return @{@"jpgFilename":@"", @"gifFilename":@"", @"movFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@""};
+    return @{@"jpgFilename":@"", @"gifFilename":@"", @"movFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@"", @"localCreatedAt":[NSDate date]};
 }
 
 + (NSString *)primaryKey {
@@ -54,7 +54,10 @@
     
     NSString *videoId = self.localId;
     
+    [self purgeLocalAssets];
+    
     [[RLMRealm defaultRealm] beginWriteTransaction];
+    [self.group.videos removeObjectAtIndex:[self.group.videos indexOfObject:self]];
     [[RLMRealm defaultRealm] deleteObject:self];
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
@@ -63,4 +66,42 @@
     NSLog(@"video deleted");
 }
 
+- (void)rename:(NSString*)newName {
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    self.caption = newName;
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    [[YAServerTransactionQueue sharedQueue] addUpdateVideoCaptionTransaction:self];
+}
+
+- (void)updateLikersWithArray:(NSArray *)likers {
+    self.likes = likers.count;
+    YAUser *user = [YAUser currentUser];
+    for (NSDictionary *dict in likers)
+    {
+        YAContact *contact = [YAContact contactFromDictionary:dict];
+        if ([[user username] isEqualToString:dict[nName]]) {
+            self.like = YES;
+        }
+        [self.likers addObject:contact];
+    }
+}
+
+- (void)purgeLocalAssets {
+    NSArray *urlsToDelete = @[[YAUtils urlFromFileName:self.movFilename], [YAUtils urlFromFileName:self.gifFilename], [YAUtils urlFromFileName:self.jpgFilename]];
+    NSFileManager *fileMgr = [NSFileManager defaultManager];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        for(NSURL *urlToDelete in urlsToDelete) {
+            NSError *error;
+            [fileMgr removeItemAtURL:urlToDelete error:&error];
+        }
+    });
+    
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    self.movFilename = @"";
+    self.gifFilename = @"";
+    self.jpgFilename = @"";
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+}
 @end

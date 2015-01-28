@@ -19,11 +19,13 @@
 
 #define YA_TRANSACTION_TYPE_UPLOAD_VIDEO            @"uploadVideo"
 #define YA_TRANSACTION_TYPE_DELETE_VIDEO            @"deleteVideo"
+#define YA_TRANSACTION_TYPE_UPDATE_CAPTION          @"updateCaption"
 
 #define YA_GROUP_ID                 @"groupId"
 #define YA_VIDEO_ID                 @"videoId"
 #define YA_GROUP_NEW_NAME           @"newName"
-#define YA_GROUP_ADD_MEMBERS        @"membersToAdd"
+#define YA_GROUP_ADD_MEMBER_PHONES  @"memberPhonesToAdd"
+#define YA_GROUP_ADD_MEMBER_NAMES   @"memberUsernamesToAdd"
 #define YA_GROUP_DELETE_MEMBER      @"memberToDelete"
 
 
@@ -33,5 +35,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 - (id)initWithDictionary:(NSDictionary*)dic;
 - (void)performWithCompletion:(responseBlock)completion;
+
+@property (nonatomic, readonly) NSDictionary *data;
 
 @end

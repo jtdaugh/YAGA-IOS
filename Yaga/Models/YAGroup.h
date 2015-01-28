@@ -16,6 +16,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property NSString *name;
 @property NSString *localId;
 @property NSString *serverId;
+@property NSDate *updatedAt;
 @property BOOL muted;
 
 @property RLMArray<YAContact> *members;
@@ -29,15 +30,13 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 //
 + (YAGroup*)groupWithName:(NSString*)name;
 - (void)rename:(NSString*)newName;
-- (void)addMembers:(NSArray*)membersArray;
+- (void)addMembers:(NSArray*)contacts;
 - (void)removeMember:(YAContact*)contact;
 - (void)leave;
 - (void)muteUnmute;
-- (void)updateVideosSince:(NSDate*)sinceDate withCompletion:(updateVideosCompletionBlock)completion;
+- (void)updateVideosWithCompletion:(updateVideosCompletionBlock)completion;
 
 - (BOOL)updateInProgress;
-
-- (RLMResults*)sortedVideos;
 @end
 
 // This protocol enables typed collections. i.e.:

@@ -27,6 +27,8 @@
 #define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
 #define API_USER_DEVICE_TEMPLATE            @"%@/user/device/"
 
+#define API_USER_SEARCH_TEMPLATE            @"%@/user/search/"
+
 #define API_AUTH_TOKEN_TEMPLATE             @"%@/auth/obtain/"
 #define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
 
@@ -37,10 +39,11 @@
 #define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/members/add/"
 #define API_REMOVE_GROUP_MEMBER_TEMPLATE    @"%@/groups/%@/members/remove/"
 
-#define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/"
-#define API_GROUP_POST_DELETE               @"%@/groups/%@/posts/%@/"
+#define API_GROUP_POSTS_TEMPLATE            @"%@/groups/%@/posts/"
+#define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/%@/"
 
 #define API_GROUP_POST_LIKE                 @"%@/groups/%@/posts/%@/like/"
+#define API_GROUP_POST_LIKERS               @"%@/groups/%@/posts/%@/likers/"
 
 #define USER_PHONE  @"phone"
 #define ERROR_DATA  @"com.alamofire.serialization.response.error.data"
@@ -234,12 +237,13 @@
     }];
 }
 
-- (void)addGroupMembersByPhones:(NSArray*)phones toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+- (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"group not synchronized with server yet");
     
     NSDictionary *parameters = @{
-                                 @"phones": phones
+                                 @"phones": phones,
+                                 @"names": usernames
                                  };
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
@@ -372,7 +376,7 @@
     NSAssert(self.token, @"token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
     NSString *videoLocalId = [video.localId copy];
     [self.manager POST:api
             parameters:nil
@@ -422,9 +426,12 @@
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
     NSAssert(serverVideoId, @"videoId is a required parameter");
-    NSAssert(serverGroupId, @"videoId is a required parameter");
+    NSAssert(serverGroupId, @"groupId is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_GROUP_POST_DELETE, self.base_api, serverGroupId, serverVideoId];
+    if (!serverVideoId || !serverVideoId)
+        return completion(nil, nil);
+    
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId, serverVideoId];
     
     [self.manager DELETE:api
               parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -434,6 +441,43 @@
               }];
 }
 
+- (void)uploadVideoCaptionWithId:(NSString*)serverVideoId withCompletion:(responseBlock)completion {
+    NSAssert(self.token, @"token not set");
+    NSAssert(serverVideoId, @"videoId is a required parameter");
+    
+    RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", serverVideoId]];
+    if(videos.count != 1) {
+        completion(nil, [NSError errorWithDomain:@"Can't upload new video caption, video doesn't exist anymore" code:0 userInfo:nil]);
+        return;
+    }
+    YAVideo *video = [videos firstObject];
+    
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, video.group.serverId, serverVideoId];
+
+
+    NSDictionary *parameters = @{
+                                 @"name": video.caption
+                                 };
+    id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
+    
+    NSURL *url = [NSURL URLWithString:api];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"PUT"];
+    
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
+    [request setHTTPBody:json];
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                                                              NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                                                              NSLog(@"%@", [NSString stringFromHex:str]);
+                               completion(nil, connectionError);
+                           }];
+}
 
 - (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
     NSAssert(self.token, @"token not set");
@@ -444,9 +488,19 @@
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-                   NSNumber *likes = responseDict[YA_RESPONSE_LIKES];
-                   completion(likes, nil);
+                   NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
+
+                   
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       [video.realm beginWriteTransaction];
+                       [video updateLikersWithArray:likers];
+                       [video.realm commitWriteTransaction];
+                   });
+                   
+                   completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                   NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+                   NSLog(@"%@", [NSString stringFromHex:hex]);
                    completion(nil, nil);
                }];
 }
@@ -460,13 +514,21 @@
                 parameters:nil
                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
                        NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-                       NSNumber *likes = responseDict[YA_RESPONSE_LIKES];
-                       completion(likes, nil);
+                       NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
+                       
+                       if ([likers count]) {
+                           dispatch_async(dispatch_get_main_queue(), ^{
+                               [video.realm beginWriteTransaction];
+                               [video updateLikersWithArray:likers];
+                               [video.realm commitWriteTransaction];
+                           });
+                       }
+                       
+                       completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                        completion(nil, nil);
                    }];
 }
-
 
 #pragma mark - Device token
 
@@ -478,7 +540,8 @@
     
     NSDictionary *parameters = @{
                                  @"vendor": @"IOS",
-                                 @"token": [YAUser currentUser].deviceToken
+                                 @"token": [YAUser currentUser].deviceToken,
+                                 @"locale": [[NSLocale preferredLanguages] objectAtIndex:0]
                                  };
     
     [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -543,6 +606,11 @@
                 self.lastUpdateTime = [NSDate date];
                 NSLog(@"groups updated from server successfully");
                 
+                [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEOS_ADDED_NOTIFICATION object:newVideos];
+                    
+                }];
+                
                 //send local changes to the server
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
                 
@@ -555,6 +623,31 @@
         
     }
     
+    [[YAUser currentUser] purgeOldVideos];
+}
+
+- (void)getYagaUsersFromPhonesArray:(NSArray*)phones withCompletion:(responseBlock)completion {
+    NSAssert(self.token.length, @"token not set");
+    
+    NSMutableArray *correctPhones = [NSMutableArray arrayWithArray:[[NSSet setWithArray:phones] allObjects]];
+    for(NSString *phone in [correctPhones copy]) {
+        if(![YAUtils validatePhoneNumber:phone error:nil]) {
+            [correctPhones removeObject:phone];
+        }
+    }
+    
+    NSString *api = [NSString stringWithFormat:API_USER_SEARCH_TEMPLATE, self.base_api];
+    
+    NSDictionary *parameters = @{
+                                 @"phones": correctPhones
+                                 };
+    
+    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+
 }
 
 @end

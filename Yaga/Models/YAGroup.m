@@ -25,6 +25,7 @@
     if ([propertyName isEqualToString:@"localId"] || [propertyName isEqualToString:@"serverId"]) {
         attributes |= RLMPropertyAttributeIndexed;
     }
+        
     return attributes;
 }
 
@@ -38,7 +39,7 @@
 
 + (NSDictionary *)defaultPropertyValues
 {
-    return @{@"serverId":@""};
+    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0]};
 }
 
 - (NSString*)membersString {
@@ -50,14 +51,8 @@
     
     for(int i = 0; i < self.members.count; i++) {
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
-        NSString *name = contact.username;
-        if(contact.name.length) {
-            if(![contact.name isEqualToString:contact.username] && ![contact.username isEqualToString:defaultUsername])
-                name = [NSString stringWithFormat:@"%@(%@)", contact.name, contact.username];
-            else
-                name = contact.name;
-        }
-        results = [results stringByAppendingFormat:@"%@%@", name, (i < self.members.count - 1 ? @", " : @"")];
+        
+        results = [results stringByAppendingFormat:@"%@%@", [contact displayName], (i < self.members.count - 1 ? @", " : @"")];
     }
     
     return results;
@@ -78,19 +73,13 @@
     return result;
 }
 
-- (RLMResults*)sortedVideos {
-    if(!self.videos.count)
-        return nil;
-    
-    return [self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
-}
-
 #pragma mark - Server synchronisation: update from server
 - (void)updateFromServerResponeDictionarty:(NSDictionary*)dictionary {
     self.serverId = dictionary[YA_RESPONSE_ID];
     self.name = dictionary[YA_RESPONSE_NAME];
     
-    [self.members removeAllObjects];
+    NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
+    self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
     
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     
@@ -101,12 +90,35 @@
         if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
             continue;
         
-        YAContact *contact = [YAContact contactFromPhoneNumber:phoneNumber andUsername:memberDic[YA_RESPONSE_USER][YA_RESPONSE_NAME]];
+        NSString *predicate = [NSString stringWithFormat:@"number = '%@'", phoneNumber];
+        RLMResults *existingContacts = [YAContact objectsWhere:predicate];
         
-        contact.registered = [memberDic objectForKey:YA_RESPONSE_MEMBER_JOINED_AT] != nil;
+        YAContact *contact;
+        if(existingContacts.count) {
+            contact = existingContacts[0];
+        }
+        else {
+            contact = [YAContact new];
+        }
         
-        [self.members addObject:contact];
+        [contact updateFromDictionary:memberDic];
+        
+        if(!existingContacts.count)
+            [self.members addObject:contact];
+
     }
+    
+    //delete local contacts which do not exist on server anymore
+    NSArray *serverContactIds = [[dictionary[@"members"] valueForKey:@"user"] valueForKey:@"id"];
+    NSMutableSet *contactsTorRemove = [NSMutableSet set];
+    for (YAContact *contact in self.members) {
+        if(![serverContactIds containsObject:contact.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForContact:contact])
+            [contactsTorRemove addObject:contact];
+        
+    }
+    
+    for(YAContact *contactToRemove in contactsTorRemove)
+        [self removeMember:contactToRemove];
 }
 
 static BOOL groupsUpdateInProgress;
@@ -156,7 +168,28 @@ static BOOL groupsUpdateInProgress;
                     [[RLMRealm defaultRealm] addObject:group];
             }
             
+            //delete local contacts which do not exist on server anymore
+            NSArray *serverGroupIds = [groups valueForKey:@"id"];
+            for (YAGroup *group in [YAGroup allObjects]) {
+                if(![serverGroupIds containsObject:group.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group]) {
+                    BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
+                    
+                    for(YAVideo *videoToRemove in group.videos) {
+                        [videoToRemove purgeLocalAssets];
+                        [[RLMRealm defaultRealm] deleteObject:videoToRemove];
+                    }
+                    
+                    [[RLMRealm defaultRealm] deleteObject:group];
+                    
+                    if(currentGroupToRemove) {
+                        [YAUser currentUser].currentGroup = [[YAGroup allObjects] firstObject];
+                    }
+                }
+                    
+            }
+
             [[RLMRealm defaultRealm] commitWriteTransaction];
+            
             if(block)
                 block(nil);
         }
@@ -187,24 +220,29 @@ static BOOL groupsUpdateInProgress;
     [[YAServerTransactionQueue sharedQueue] addRenameTransactionForGroup:self];
 }
 
-- (void)addMembers:(NSArray*)membersDictionaries {
+- (void)addMembers:(NSArray*)contacts {
     [[RLMRealm defaultRealm] beginWriteTransaction];
     
-    for(NSDictionary *memberDic in membersDictionaries) {
-        [self.members addObject:[YAContact contactFromDictionary:memberDic]];
+    NSMutableArray *phones = [NSMutableArray new];
+    NSMutableArray *usernames = [NSMutableArray new];
+    
+    for(NSDictionary *contactDic in contacts) {
+        [self.members addObject:[YAContact contactFromDictionary:contactDic]];
+        if([[contactDic objectForKey:nPhone] length])
+            [phones addObject:contactDic[nPhone]];
+        else
+            [usernames addObject:contactDic[nUsername]];
     }
     
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
-    [[YAServerTransactionQueue sharedQueue] addAddMembersTransactionForGroup:self memberPhonesToAdd:[membersDictionaries valueForKey:nPhone]];
+    [[YAServerTransactionQueue sharedQueue] addAddMembersTransactionForGroup:self phones:phones usernames:usernames];
 }
 
 - (void)removeMember:(YAContact *)contact {
     NSString *memberPhone = contact.number;
     
-    [[RLMRealm defaultRealm] beginWriteTransaction];
     [self.members removeObjectAtIndex:[self.members indexOfObject:contact]];
-    [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [[YAServerTransactionQueue sharedQueue] addRemoveMemberTransactionForGroup:self memberPhoneToRemove:memberPhone];
 }
@@ -229,7 +267,7 @@ static BOOL groupsUpdateInProgress;
 }
 
 #pragma mark - Videos
-- (void)updateVideosSince:(NSDate*)sinceDate withCompletion:(updateVideosCompletionBlock)completion {
+- (void)updateVideosWithCompletion:(updateVideosCompletionBlock)completion {
     if(self.videosUpdateInProgress) {
         completion(nil, nil);
         return;
@@ -237,7 +275,14 @@ static BOOL groupsUpdateInProgress;
 
     self.videosUpdateInProgress = YES;
 
-    [[YAServer sharedServer] groupInfoWithId:self.serverId since:(NSDate*)sinceDate withCompletion:^(id response, NSError *error) {
+    //since
+    NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+    NSDate *lastUpdateDate = nil;
+    if([groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId]) {
+        lastUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
+    }
+    
+    [[YAServer sharedServer] groupInfoWithId:self.serverId since:lastUpdateDate withCompletion:^(id response, NSError *error) {
         self.videosUpdateInProgress = NO;
         if(error) {
             NSLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
@@ -245,6 +290,9 @@ static BOOL groupsUpdateInProgress;
                 completion(error, nil);
         }
         else {
+            [groupsUpdatedAt setObject:[NSDate date] forKey:[YAUser currentUser].currentGroup.localId];
+            [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
             NSLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
             
@@ -271,28 +319,15 @@ static BOOL groupsUpdateInProgress;
     NSSet *existingIds = [self videoIds];
     NSSet *newIds = [NSSet setWithArray:[videoDictionaries valueForKey:YA_RESPONSE_ID]];
     
-    #warning VIDEOS DELETION BY FLAG "deleted" not implemented
-//    //remove deleted videos first
-//    NSMutableSet *idsToDelete = [NSMutableSet setWithSet:existingIds];
-//
-//    [idsToDelete minusSet:newIds];
-//    
-//    for(NSString *idToDelete in idsToDelete) {
-//        RLMResults *videosToDelete = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", idToDelete]];
-//        if(videosToDelete.count) {
-//            YAVideo *videoToDelete = [videosToDelete firstObject];
-//            [videoToDelete removeFromCurrentGroup];
-//        }
-//    
-//    }
-    
     NSMutableSet *idsToAdd = [NSMutableSet setWithSet:newIds];
     [idsToAdd minusSet:existingIds];
     
     NSMutableArray *newVideos = [NSMutableArray new];
     
-    //supposing groups are coming sorted
+    videoDictionaries = [videoDictionaries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_VIDEO_READY_AT ascending:YES]]];
+    
     for(NSDictionary *videoDic in videoDictionaries) {
+        
         if(![idsToAdd containsObject:videoDic[YA_RESPONSE_ID]])
             continue;
         
@@ -301,39 +336,39 @@ static BOOL groupsUpdateInProgress;
             RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_ID]]];
             if(videos.count) {
                 YAVideo *video = [videos firstObject];
-                [video.realm beginWriteTransaction];
-                video.caption = videoDic[YA_RESPONSE_NAME];
-                [video.realm commitWriteTransaction];
+                BOOL deleted = videoDic[YA_VIDEO_DELETED];
+                
+                if(deleted) {
+                    [video removeFromCurrentGroup];
+                }
+                else {
+                    [video.realm beginWriteTransaction];
+                    video.caption = videoDic[YA_RESPONSE_NAME];
+                    [video.realm commitWriteTransaction];
+                }
             }
         }
         else {
             NSString *videoId = videoDic[YA_RESPONSE_ID];
+            
+            //skip deleted vids
+            if([videoDic[YA_VIDEO_DELETED] boolValue])
+                continue;
             
             [self.realm beginWriteTransaction];
             
             YAVideo *video = [YAVideo video];
             video.serverId = videoId;
             video.creator = videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME];
-            video.likes = [videoDic[YA_RESPONSE_LIKES] integerValue];
+            NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
+            [video updateLikersWithArray:likers];
             NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
             video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
             video.url = videoDic[YA_VIDEO_ATTACHMENT];
+            video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
             video.group = self;
-            
-            //Insert video at proper positon
-            NSInteger index = 0;
-            for (int i = 0; i < self.videos.count; i++)
-            {
-                YAVideo *v = self.videos[i];
-                if ([v.createdAt compare:video.createdAt] == NSOrderedDescending)
-                {
-                    index = i;
-                    break;
-                }
-            }
-            
-            [self.videos insertObject:video atIndex:index];
-            
+            NSLog(@"VIDEO GROUP!!!! %@", video);
+            [self.videos insertObject:video atIndex:0];
             [self.realm commitWriteTransaction];
             
             [newVideos addObject:video];
@@ -341,6 +376,7 @@ static BOOL groupsUpdateInProgress;
             [[YAAssetsCreator sharedCreator] createAssetsForVideo:video inGroup:self];
         }
     }
+
     return newVideos;
 }
 

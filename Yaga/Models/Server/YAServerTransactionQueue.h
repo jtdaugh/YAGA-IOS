@@ -16,16 +16,20 @@
 
 - (void)addCreateTransactionForGroup:(YAGroup*)group;
 - (void)addRenameTransactionForGroup:(YAGroup*)group;
-- (void)addAddMembersTransactionForGroup:(YAGroup*)group memberPhonesToAdd:(NSArray*)phones;
+- (void)addAddMembersTransactionForGroup:(YAGroup*)group phones:(NSArray*)phones usernames:(NSArray*)usernames;
 - (void)addRemoveMemberTransactionForGroup:(YAGroup*)group memberPhoneToRemove:(NSString*)memberPhone;
 - (void)addLeaveGroupTransactionForGroupId:(NSString*)groupId;
 - (void)addMuteUnmuteTransactionForGroup:(YAGroup*)group;
 - (void)addUploadVideoTransaction:(YAVideo*)video;
 - (void)addDeleteVideoTransaction:(NSString*)videoId forGroupId:(NSString*)groupId;
+- (void)addUpdateVideoCaptionTransaction:(YAVideo*)video;
 
 //will pause automatically when no internet connection
 - (void)processPendingTransactions;
 
 //Debug
 - (void)clearTransactionQueue;
+
+- (BOOL)hasPendingAddTransactionForContact:(YAContact*)contact;
+- (BOOL)hasPendingAddTransactionForGroup:(YAGroup*)group;
 @end

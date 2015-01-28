@@ -144,6 +144,12 @@
     return self;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self updateCurrentGroupName];
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"applicationWillResignActive" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"applicationWillEnterForeground" object:nil];
@@ -181,7 +187,7 @@
         NSLog(@"init camera");
         
         self.session = [[AVCaptureSession alloc] init];
-        self.session.sessionPreset = AVCaptureSessionPresetMedium;
+        self.session.sessionPreset = AVCaptureSessionPreset1280x720;
         
         [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
         [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
@@ -558,9 +564,7 @@
         if(!newname.length)
             return;
         
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        [YAUser currentUser].currentGroup.name = newname;
-        [[RLMRealm defaultRealm] commitWriteTransaction];
+        [[YAUser currentUser].currentGroup rename:newname];
         
         [self.groupButton setTitle:newname forState:UIControlStateNormal];
     }]];
@@ -571,7 +575,7 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)updateCurrentGroup {
+- (void)updateCurrentGroupName {
     [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
 }
 

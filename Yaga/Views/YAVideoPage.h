@@ -13,6 +13,7 @@
 @interface YAVideoPage : UIView<UITextFieldDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
-@property (nonatomic, strong) YAVideoPlayerView *playerView;
-- (void)showLoading:(BOOL)show;
+@property (nonatomic, readonly) YAVideoPlayerView *playerView;
+
+- (void)setVideo:(YAVideo *)video shouldPlay:(BOOL)shouldPlay;
 @end

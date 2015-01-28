@@ -15,7 +15,7 @@
 #import "YARealmObjectUnavailable.h"
 
 @interface YAServerTransaction ()
-@property (nonatomic, strong) NSDictionary *data;
+
 @end
 
 @implementation YAServerTransaction
@@ -24,7 +24,7 @@
     self = [super init];
     
     if(self) {
-        self.data = dic;
+        _data = dic;
     }
     
     return self;
@@ -56,6 +56,9 @@
     }
     else if([type isEqualToString:YA_TRANSACTION_TYPE_DELETE_VIDEO]) {
         [self deleteVideoWithCompletion:completion];
+    }
+    else if([type isEqualToString:YA_TRANSACTION_TYPE_UPDATE_CAPTION]) {
+        [self uploadeVideoCaptionWithCompletion:completion];
     }
 }
 
@@ -123,7 +126,9 @@
 }
 
 - (void)addGroupMembersWithCompletion:(responseBlock)completion {
-    NSArray *phones = self.data[YA_GROUP_ADD_MEMBERS];
+    NSArray *phones = self.data[YA_GROUP_ADD_MEMBER_PHONES];
+    NSArray *usernames = self.data[YA_GROUP_ADD_MEMBER_NAMES];
+    
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
@@ -131,7 +136,7 @@
         return;
     }
     
-    [[YAServer sharedServer] addGroupMembersByPhones:phones toGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] addGroupMembersByPhones:phones andUsernames:usernames toGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"can't add members to the group with name %@, error %@", group.name, response] type:AZNotificationTypeError];
             completion(nil, error);
@@ -242,6 +247,22 @@
         }
         else {
             [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", videoId] type:AZNotificationTypeSuccess];
+            completion(nil, nil);
+        }
+        
+    }];
+}
+
+- (void)uploadeVideoCaptionWithCompletion:(responseBlock)completion {
+    NSString *videoId = self.data[YA_VIDEO_ID];
+    
+    [[YAServer sharedServer] uploadVideoCaptionWithId:videoId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            [self logEvent:[NSString stringWithFormat:@"unable to update video caption with id:%@, error %@", videoId, error.localizedDescription] type:AZNotificationTypeError];
+            completion(nil, error);
+        }
+        else {
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", videoId] type:AZNotificationTypeSuccess];
             completion(nil, nil);
         }
         

@@ -8,15 +8,17 @@
 
 #import <Realm/Realm.h>
 
-#define nUsername @"username"
-#define nPhone @"phone"
-#define nCountry @"country"
-#define nToken @"token"
-#define nUserId @"user_id"
-#define nCompositeName @"composite_name"
-#define nFirstname @"firstname"
-#define nLastname @"lastname"
-#define nRegistered @"joined_at"
+#define nUsername       @"username"
+#define nPhone          @"phone"
+#define nCountry        @"country"
+#define nToken          @"token"
+#define nUserId         @"user_id"
+#define nCompositeName  @"composite_name"
+#define nName           @"name"
+#define nFirstname      @"firstname"
+#define nLastname       @"lastname"
+#define nRegistered     @"joined_at"
+#define nYagaUser       @"yagaUser"
 
 #define DIAL_CODE @"dial_code"
 #define COUNTRY_CODE @"code"
@@ -27,14 +29,16 @@
 @property NSString *lastName;
 @property NSString *username;
 @property NSString *number;
+@property NSString *serverId;
 @property BOOL registered;
 
 - (NSString *) readableNumber;
 
 + (YAContact*)contactFromDictionary:(NSDictionary*)dictionary;
-+ (YAContact*)contactFromPhoneNumber:(NSString*)phoneNumber andUsername:(NSString*)username;
+- (void)updateFromDictionary:(NSDictionary*)dictionary;
 
 - (NSDictionary*)dictionaryRepresentation;
+- (NSString*)displayName;
 @end
 
 // This protocol enables typed collections. i.e.:

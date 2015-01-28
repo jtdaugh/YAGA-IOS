@@ -22,6 +22,7 @@
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;
+@property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -37,7 +38,6 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self.view addGestureRecognizer:tapToClose];
     }
     
-    self.groups = [YAGroup allObjects];
     self.view.backgroundColor = self.embeddedMode ? [UIColor whiteColor] : [UIColor blackColor];
     
     CGFloat width = VIEW_WIDTH * .8;
@@ -107,10 +107,15 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
+    
+    self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
+    
     [self.navigationController setNavigationBarHidden:YES];
     
     //size to fit table view
     if(!self.embeddedMode) {
+        [self.tableView reloadData];
         CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
         CGFloat rowsCount = [self tableView:self.tableView numberOfRowsInSection:0];
         CGFloat contentHeight = rowHeight * rowsCount;
@@ -123,7 +128,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
 }
-
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     if([touch.view isKindOfClass:[UITableViewCell class]])
@@ -189,6 +193,17 @@ static NSString *CellIdentifier = @"GroupsCell";
     cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
     cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
+    NSDate *localGroupUpdateDate = [self.groupsUpdatedAt objectForKey:group.localId];
+    if(self.embeddedMode) {
+        if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+            UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]];
+            cell.imageView.image = img;
+        }
+        else {
+            cell.imageView.image = nil;
+        }
+    }
+    
     return cell;
 }
 
@@ -241,7 +256,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self performSegueWithIdentifier:@"ShowAddMembers" sender:self];
     });
-
 
 }
 

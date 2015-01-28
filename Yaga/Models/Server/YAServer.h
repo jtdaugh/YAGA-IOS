@@ -12,6 +12,7 @@
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_NAME                @"name"
 #define YA_RESPONSE_LIKES               @"likes"
+#define YA_RESPONSE_LIKERS              @"likers"
 #define YA_RESPONSE_MEMBERS             @"members"
 #define YA_RESPONSE_MEMBER_PHONE        @"phone"
 #define YA_RESPONSE_MEMBER_JOINED_AT    @"joined_at"
@@ -23,6 +24,8 @@
 #define YA_VIDEO_POSTS          @"posts"
 #define YA_VIDEO_ATTACHMENT     @"attachment"
 #define YA_VIDEO_READY_AT       @"ready_at"
+#define YA_VIDEO_DELETED        @"deleted"
+#define YA_GROUP_UPDATED_AT     @"updated_at"
 
 #define YA_LAST_DEVICE_TOKEN_SYNC_DATE @"lastTokenSyncDate"
 
@@ -41,7 +44,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion;
 - (void)getGroupsWithCompletion:(responseBlock)completion;
 
-- (void)addGroupMembersByPhones:(NSArray*)phones toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
 - (void)groupInfoWithId:(NSString*)serverGroupId since:(NSDate*)since withCompletion:(responseBlock)completion;
@@ -51,6 +54,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 //posts
 - (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)uploadVideoCaptionWithId:(NSString*)serverVideoId withCompletion:(responseBlock)completion;
 - (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 - (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 
@@ -58,6 +62,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 - (void)startMonitoringInternetConnection:(BOOL)start;
 
+- (void)getYagaUsersFromPhonesArray:(NSArray*)phones withCompletion:(responseBlock)completion;
 //
 @property (readonly) BOOL serverUp;
 - (void)sync;

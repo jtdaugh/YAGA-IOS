@@ -24,6 +24,8 @@
 
 @end
 
+#define kSearchedByUsername @"SearchedByUsername"
+
 @implementation YAGroupAddMembersViewController
 
 - (void)viewDidLoad {
@@ -171,19 +173,44 @@
     frame.origin.x = 0;
     [cell setFrame:frame];
     
-    
-    NSDictionary *contactDic = self.filteredContacts[indexPath.row];
+    NSDictionary *contact = self.filteredContacts[indexPath.row];
     
     cell.indentationLevel = 0;
     cell.indentationWidth = 0.0f;
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    [cell.textLabel setText:contactDic[nCompositeName]];
-    [cell.detailTextLabel setText:[YAUtils readableNumberFromString:contactDic[nPhone]]];
+    //suggest existing or non existing usernames
+    if([contact[kSearchedByUsername] boolValue]) {
+        cell.textLabel.text = [NSString stringWithFormat:@"Add @%@", contact[nUsername]];
+        cell.detailTextLabel.text = @"";
+    }
+    //existing phone book contacts
+    else {
+        cell.textLabel.text = contact[nCompositeName];
+        cell.detailTextLabel.text = [YAUtils readableNumberFromString:contact[nPhone]];
+    }
     
-    [cell.textLabel setTextColor:[UIColor whiteColor]];
-    [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+    BOOL yagaUser = [((NSNumber*)contact[nYagaUser]) boolValue];
+    if (yagaUser){
+        [cell.textLabel       setTextColor:PRIMARY_COLOR];
+        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+        
+        UIImage *img = [UIImage imageNamed:@"Ball"];
+        cell.imageView.image = img;
+        
+        NSPredicate *pred = [NSPredicate predicateWithFormat:@"number = %@", contact[nPhone]];
+        YAContact *ya_contact = [[YAContact objectsWithPredicate:pred] firstObject];
+        if (!ya_contact) {
+            ya_contact = [YAContact contactFromDictionary:contact];
+        }
+        
+        cell.detailTextLabel.text = ya_contact.username;
+        
+    } else {
+        [cell.textLabel       setTextColor:[UIColor whiteColor]];
+        [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+    }
     [cell setBackgroundColor:[UIColor clearColor]];
     
     return cell;
@@ -208,12 +235,21 @@
     [self.filteredContacts removeObjectAtIndex:indexPath.row];
     [self.membersTableview deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     
+    //reload table view
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self tokenField:self.searchBar didChangeText:@""];
+    });
+
+    
     _existingGroupDirty = YES;
 }
 
 - (NSString *)tokenField:(VENTokenField *)tokenField titleForTokenAtIndex:(NSUInteger)index {
-    NSDictionary *contactDic = self.selectedContacts[index];
-    return contactDic[nCompositeName];
+    id contact = self.selectedContacts[index];
+    if([contact[kSearchedByUsername] boolValue])
+        return contact[nUsername];
+    else
+        return contact[nCompositeName];
 }
 
 - (void)tokenField:(VENTokenField *)tokenField didDeleteTokenAtIndex:(NSUInteger)index {
@@ -238,6 +274,26 @@
     } else {
         [self.filteredContacts removeAllObjects];
         [self.membersTableview reloadData];
+        
+        //search by username
+        if([text rangeOfString:@" "].location == NSNotFound) {
+            if(text.length > 2) {
+                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+            }
+            
+            NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
+            RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
+            
+            NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];
+            for(YAContact *contact in contactsByUsername) {
+                if(![selectedUsernames containsObject:contact.username]) {
+                    NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
+                    contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
+                    [self.filteredContacts addObject:contactDicMutable];
+                }
+                
+            }
+        }
         
         NSArray *keys = [[text lowercaseString] componentsSeparatedByString:@" "];
         
@@ -295,14 +351,19 @@
 
 - (BOOL)validateSelectedContacts {
     NSString *errorsString = @"";
-    for (NSDictionary *contactDic in self.selectedContacts) {
-        NSString *phoneNumber = contactDic[nPhone];
+    for (NSDictionary *contact in self.selectedContacts) {
+        if([contact[kSearchedByUsername] boolValue]) {
+            continue;
+        }
+        
+        NSString *phoneNumber = contact[nPhone];
         
         NSError *error;
         if(![YAUtils validatePhoneNumber:phoneNumber error:&error]) {
-            errorsString = [errorsString stringByAppendingFormat:@"%@ : %@ \n", contactDic[nCompositeName], contactDic[nPhone]];
+            errorsString = [errorsString stringByAppendingFormat:@"%@ : %@ \n", contact[nCompositeName], contact[nPhone]];
         }
     }
+    
     if(errorsString.length) {
         NSString *alertMessage = [NSString stringWithFormat:@"%@:\n\n%@", NSLocalizedString(@"SOME PHONE NUMBERS ARE INCORRECT MESSAGE", @""), errorsString];
         UIAlertController *alertController = [UIAlertController
@@ -317,6 +378,7 @@
         [alertController addAction:okAction];
         [self presentViewController:alertController animated:YES completion:nil];
     }
+    
     return errorsString.length == 0;
 }
 

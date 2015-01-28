@@ -125,9 +125,12 @@ static NSString *CellID = @"CellID";
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    cell.textLabel.text = contact.name.length ? contact.name : contact.username;
+    cell.textLabel.text = [contact displayName];
     
-    cell.detailTextLabel.text = contact.readableNumber;
+    if([[YAUser currentUser].phonebook objectForKey:contact.number])
+        cell.detailTextLabel.text = contact.readableNumber;
+    else
+        cell.detailTextLabel.text = @"";
     
     [cell.textLabel setTextColor:[UIColor whiteColor]];
     [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
@@ -159,7 +162,9 @@ static NSString *CellID = @"CellID";
         
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", @"") style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+            [[RLMRealm defaultRealm] beginWriteTransaction];
             [self.group removeMember:contact];
+            [[RLMRealm defaultRealm] commitWriteTransaction];
             [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
             
         }]];

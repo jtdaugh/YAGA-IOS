@@ -11,6 +11,6 @@
 @interface YASwipingViewController : UIViewController<UIScrollViewDelegate>
 @property (nonatomic, strong) UIScrollView *scrollView;
 
-- (id)initWithVideos:(NSArray*)videos andInitialIndex:(NSUInteger)initialIndex;
+- (id)initWithInitialIndex:(NSUInteger)initialIndex;
 @end
 
