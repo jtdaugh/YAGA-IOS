@@ -22,6 +22,7 @@
 - (instancetype)initWithVideo:(YAVideo*)video {
     if (self = [super init]) {
         _video = video;
+        self.name = video.url;
     }
     return self;
 }

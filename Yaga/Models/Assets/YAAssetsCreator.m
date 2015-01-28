@@ -209,8 +209,12 @@
     });
 }
 
-- (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group
-{
+- (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group {
+    NSAssert(video.url.length, @"Can't create assets for video with no url");
+    
+    if([self operationForVideoEnqueued:video])
+        return;
+    
     if(!video.movFilename.length) {
        [self addVideoDownloadOperationForVideo:video];
     }
@@ -272,6 +276,8 @@
 }
 
 - (BOOL)urlDownloadInProgress:(NSString*)url {
+    if(!url.length)
+        return NO;
     for(NSOperation *op in self.downloadQueue.operations) {
         if(!op.isExecuting)
             continue;
@@ -279,6 +285,23 @@
         if([op.name isEqualToString:url])
             return YES;
     }
+    return NO;
+}
+
+- (BOOL)operationForVideoEnqueued:(YAVideo*)video {
+    if(!video.url.length)
+        return NO;
+    
+    for(NSOperation *op in self.downloadQueue.operations) {
+        if([op.name isEqualToString:video.url])
+            return YES;
+    }
+    
+    for(NSOperation *op in self.gifQueue.operations) {
+        if([op.name isEqualToString:video.url])
+            return YES;
+    }
+    
     return NO;
 }
 
