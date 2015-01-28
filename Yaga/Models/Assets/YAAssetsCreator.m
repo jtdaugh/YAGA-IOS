@@ -248,6 +248,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [video.realm beginWriteTransaction];
                 video.movFilename = moveFilename;
+                video.localCreatedAt = [NSDate date];
                 [video.realm commitWriteTransaction];
                 
                 NSLog(@"remote video downloaded for %@", video.localId);

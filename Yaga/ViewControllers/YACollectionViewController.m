@@ -18,6 +18,7 @@
 
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAActivityView.h"
+#import "YAAssetsCreator.h"
 
 @protocol GridViewControllerDelegate;
 
@@ -263,6 +264,9 @@ static BOOL welcomeLabelRemoved = NO;
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     cell.video = video;
     
+    if(!video.gifFilename.length && video.url.length) {
+        [[YAAssetsCreator sharedCreator] createAssetsForVideo:video inGroup:video.group];
+    }
     return cell;
 }
 
