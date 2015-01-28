@@ -210,16 +210,14 @@
 }
 
 - (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group {
-    NSAssert(video.url.length, @"Can't create assets for video with no url");
-    
-    if([self operationForVideoEnqueued:video])
-        return;
-    
-    if(!video.movFilename.length) {
+    if(video.url.length && !video.movFilename.length && ![self operationForVideoEnqueued:video]) {
        [self addVideoDownloadOperationForVideo:video];
     }
-    else if(!video.gifFilename.length) {
+    else if(video.movFilename.length && !video.gifFilename.length && ![self operationForVideoEnqueued:video]) {
         [self addGifCreationOperationForVideo:video];
+    }
+    else {
+        NSLog(@"Error: broken video, not clear what should we do with it");
     }
 }
 
