@@ -28,9 +28,9 @@
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
     
-//    [[RLMRealm defaultRealm] beginWriteTransaction];
-//    [[RLMRealm defaultRealm] deleteAllObjects];
-//    [[RLMRealm defaultRealm] commitWriteTransaction];
+    //    [[RLMRealm defaultRealm] beginWriteTransaction];
+    //    [[RLMRealm defaultRealm] deleteAllObjects];
+    //    [[RLMRealm defaultRealm] commitWriteTransaction];
     
     NSString *identifier;
     if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
@@ -62,16 +62,21 @@
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-    [[YAServer sharedServer] startMonitoringInternetConnection:NO];
     __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
-        
-        // Wait until the pending operations finish
-        [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
-        [[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
-        
-        [application endBackgroundTask: bgTask];
         bgTask = UIBackgroundTaskInvalid;
     }];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
+
+        [[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
+
+        [[YAServerTransactionQueue sharedQueue] waitForAllTransactionsToFinish];
+
+        [[YAServer sharedServer] startMonitoringInternetConnection:NO];
+        
+        [application endBackgroundTask:bgTask];
+    });
 }
 
 #pragma mark - Push notifications

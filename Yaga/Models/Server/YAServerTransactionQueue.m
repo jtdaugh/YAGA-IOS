@@ -244,4 +244,12 @@
     return NO;
 }
 
+- (void)waitForAllTransactionsToFinish {
+    while (self.transactionsData.count) {
+        [NSThread sleepForTimeInterval:1.0];
+    }
+    NSLog(@"waitForAllTransactionsToFinish: all done.");
+    return;
+}
+
 @end

@@ -32,4 +32,6 @@
 
 - (BOOL)hasPendingAddTransactionForContact:(YAContact*)contact;
 - (BOOL)hasPendingAddTransactionForGroup:(YAGroup*)group;
+
+- (void)waitForAllTransactionsToFinish;
 @end
