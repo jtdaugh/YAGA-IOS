@@ -342,7 +342,7 @@ static BOOL groupsUpdateInProgress;
             RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_ID]]];
             if(videos.count) {
                 YAVideo *video = [videos firstObject];
-                BOOL deleted = videoDic[YA_VIDEO_DELETED];
+                BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue];
                 
                 if(deleted) {
                     [video removeFromCurrentGroup];
