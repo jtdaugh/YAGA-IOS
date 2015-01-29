@@ -178,6 +178,7 @@
             }
             if(completion)
             {
+                completion(nil, result);
                 [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
                     NSLog(@"%@", response);
                     for (NSMutableDictionary *resultDict in result) {

@@ -210,6 +210,7 @@
     } else {
         [cell.textLabel       setTextColor:[UIColor whiteColor]];
         [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+        cell.imageView.image = nil;
     }
     [cell setBackgroundColor:[UIColor clearColor]];
     
