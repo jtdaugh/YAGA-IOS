@@ -187,15 +187,16 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 }
 
 - (void)showProgress:(BOOL)show {
-    if(show && [[YAAssetsCreator sharedCreator] urlDownloadInProgress:self.video.url]) {
-        [self createProgressView];
-    }
-    else {
-        [self.progressView removeFromSuperview];
+    if(show) {
+        if([[YAAssetsCreator sharedCreator] urlDownloadInProgress:self.video.url])
+            [self createProgressViewIfNeeded];
     }
 }
 
-- (void)createProgressView {
+- (void)createProgressViewIfNeeded {
+    if(self.progressView)
+        return;
+    
     self.progressView = [[UCZProgressView alloc] initWithFrame:self.bounds];
     UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
     progressBkgView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
