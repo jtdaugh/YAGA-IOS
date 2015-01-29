@@ -85,12 +85,20 @@
                     }
                     else {
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            [self.video.realm beginWriteTransaction];
-                            self.video.gifFilename = gifFilename;
-                            [self.video.realm commitWriteTransaction];
-                            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
-                                                                                object:self.video];
-                            NSLog(@"gif created");
+                            if (![self.video isInvalidated]){
+                                [self.video.realm beginWriteTransaction];
+                                self.video.gifFilename = gifFilename;
+                                [self.video.realm commitWriteTransaction];
+                                [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
+                                                                                    object:self.video];
+                                
+                                NSLog(@"gif created");
+                            }
+                            else
+                            {
+                                
+                                [YAUtils showNotification:NSLocalizedString(@"Couldn't create gif, video invalidated", @"") type:AZNotificationTypeError];
+                            }
                             [self setExecuting:NO];
                             [self setFinished:YES];
                             
@@ -148,7 +156,11 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             CGFloat currentFrame = i + 1;
-            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_GENERATE_PART_NOTIFICATION object:self.video.url userInfo:@{@"progress": [NSNumber numberWithFloat:currentFrame * 0.3 / framesCount + 0.7]}];
+            if (![self.video isInvalidated]) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_GENERATE_PART_NOTIFICATION
+                                                                    object:self.video.url
+                                                                  userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:currentFrame * 0.3 / framesCount + 0.7]}];
+            }
         });
     }
     return imagesArray;
