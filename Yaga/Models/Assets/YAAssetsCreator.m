@@ -217,7 +217,7 @@
         [self addGifCreationOperationForVideo:video];
     }
     else {
-        NSLog(@"Error: broken video, not clear what should we do with it");
+       //skip it, it's in progress or all assets are in place
     }
 }
 
