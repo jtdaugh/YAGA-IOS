@@ -386,6 +386,7 @@
                                     style:UIAlertActionStyleDestructive
                                     handler:^(UIAlertAction *action) {
                                         [self.video removeFromCurrentGroup];
+                                        _video = nil;
                                     }]];
         
         [[[[[UIApplication sharedApplication] keyWindow] rootViewController] presentedViewController] presentViewController:alertController animated:YES completion:nil];
