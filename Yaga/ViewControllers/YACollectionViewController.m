@@ -47,7 +47,6 @@ static NSString *cellID = @"Cell";
     CGFloat spacing = 1.0f;
     
     self.gridLayout = [[UICollectionViewFlowLayout alloc] init];
-    [self.gridLayout setSectionInset:UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0)];
     [self.gridLayout setMinimumInteritemSpacing:spacing];
     [self.gridLayout setMinimumLineSpacing:spacing];
     [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
@@ -62,14 +61,14 @@ static NSString *cellID = @"Cell";
     [self.collectionView setAllowsMultipleSelection:NO];
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.collectionView.backgroundColor = [UIColor whiteColor];
-    
+    self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(insertVideos:)     name:VIDEOS_ADDED_NOTIFICATION       object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(insertVideos:)    name:VIDEOS_ADDED_NOTIFICATION      object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshGroup:)    name:REFRESH_GROUP_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshGroup:)    name:REFRESH_GROUP_NOTIFICATION     object:nil];
     
     //transitions
     self.animationController = [YAAnimatedTransitioningController new];
@@ -83,22 +82,23 @@ static NSString *cellID = @"Cell";
 - (void)setupPullToRefresh {
     //pull to refresh
     __weak typeof(self) weakSelf = self;
+    
     [self.collectionView addPullToRefreshWithActionHandler:^{
-        [weakSelf refreshCurrentGroup];
+        [weakSelf.delegate enableRecording:NO];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [weakSelf refreshCurrentGroup];
+            [weakSelf.delegate enableRecording:YES];
+        });
     }];
     
-    YAActivityView *loadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 + 2 - 100, VIEW_WIDTH/10, VIEW_WIDTH/10)];
+    YAActivityView *loadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - VIEW_WIDTH/10/2, 20, VIEW_WIDTH/10, VIEW_WIDTH/10)];
     loadingView.animateAtOnce = YES;
-    
-    YAActivityView *stoppedView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 + 2 - 100, VIEW_WIDTH/14, VIEW_WIDTH/14)];
-    stoppedView.animateAtOnce = NO;
-    
-    YAActivityView *triggeredView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 + 2 - 100, VIEW_WIDTH/14, VIEW_WIDTH/14)];
-    triggeredView.animateAtOnce = NO;
+    YAActivityView *stoppedView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2, 20 , VIEW_WIDTH/14, VIEW_WIDTH/14)];
     
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
     [self.collectionView.pullToRefreshView setCustomView:stoppedView forState:SVPullToRefreshStateStopped];
-    [self.collectionView.pullToRefreshView setCustomView:triggeredView forState:SVPullToRefreshStateTriggered];
+    [self.collectionView.pullToRefreshView setCustomView:stoppedView forState:SVPullToRefreshStateTriggered];
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -126,7 +126,7 @@ static NSString *cellID = @"Cell";
     if(![YAUser currentUser].currentGroup.videos.count) {
         CGFloat width = VIEW_WIDTH * .8;
         if(!self.noVideosLabel) {
-            self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, self.collectionView.frame.origin.y + 20, width, width)];
+            self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN + 20, width, width)];
             [self.noVideosLabel setText:NSLocalizedString(@"NO VIDOES IN NEW GROUP MESSAGE", @"")];
             [self.noVideosLabel setNumberOfLines:0];
             [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
@@ -318,7 +318,7 @@ static BOOL welcomeLabelRemoved = NO;
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
     CGRect cameraFrame = self.cameraView.view.frame;
-    CGRect gridFrame = self.view.frame;
+    //CGRect gridFrame = self.view.frame;
     
     CGFloat scrollOffset = scrollView.contentOffset.y;
     CGFloat offset = 0;
@@ -337,7 +337,7 @@ static BOOL welcomeLabelRemoved = NO;
     cameraFrame.origin.y = -offset;
     
     self.cameraView.view.frame = cameraFrame;
-    self.view.frame = gridFrame;
+    //self.view.frame = gridFrame;
     
     if(self.disableScrollHandling) {
         return;

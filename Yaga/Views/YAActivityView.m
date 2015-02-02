@@ -23,7 +23,7 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.imageView = [[UIImageView alloc] initWithFrame:self.frame];
+        self.imageView = [[UIImageView alloc] initWithFrame:self.bounds];
         self.imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.imageView.image = [UIImage imageNamed:@"Monkey_Grey"];
         [self addSubview:self.imageView];
