@@ -126,7 +126,7 @@ static NSString *cellID = @"Cell";
     if(![YAUser currentUser].currentGroup.videos.count) {
         CGFloat width = VIEW_WIDTH * .8;
         if(!self.noVideosLabel) {
-            self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN + 20, width, width)];
+            self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, 0, width, width)];
             [self.noVideosLabel setText:NSLocalizedString(@"NO VIDOES IN NEW GROUP MESSAGE", @"")];
             [self.noVideosLabel setNumberOfLines:0];
             [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
@@ -232,7 +232,6 @@ static NSString *cellID = @"Cell";
 
 - (void)refreshCurrentGroup {
     __weak typeof (self) weakSelf = self;
-//    [self.delegate enableRecording:NO];
     
     [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
         if(!error) {
@@ -244,7 +243,6 @@ static NSString *cellID = @"Cell";
             }
         }
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
-//        [weakSelf.delegate enableRecording:YES];
     }];
 }
 
@@ -318,7 +316,6 @@ static BOOL welcomeLabelRemoved = NO;
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
     CGRect cameraFrame = self.cameraView.view.frame;
-    //CGRect gridFrame = self.view.frame;
     
     CGFloat scrollOffset = scrollView.contentOffset.y;
     CGFloat offset = 0;
@@ -331,13 +328,9 @@ static BOOL welcomeLabelRemoved = NO;
         offset = scrollOffset;
     }
     
-//    gridFrame.origin.y = VIEW_HEIGHT/2 + 2 - offset;
-//    gridFrame.size.height = VIEW_HEIGHT/2 + 2 + offset;
-//    
     cameraFrame.origin.y = -offset;
     
     self.cameraView.view.frame = cameraFrame;
-    //self.view.frame = gridFrame;
     
     if(self.disableScrollHandling) {
         return;
