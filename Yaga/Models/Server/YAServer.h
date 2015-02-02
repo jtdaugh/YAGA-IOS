@@ -36,7 +36,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 //onboarding & token
 - (void)authentificatePhoneNumberBySMS:(NSString*)number withCompletion:(responseBlock)completion;
-- (void)requestAuthTokenWithCompletion:(responseBlock)completion;
+- (void)requestAuthTokenWithAuthCode:(NSString*)authCode withCompletion:(responseBlock)completion;
 - (void)getInfoForCurrentUserWithCompletion:(responseBlock)completion;
 - (void)registerUsername:(NSString*)name withCompletion:(responseBlock)completion;
 

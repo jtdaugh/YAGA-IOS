@@ -50,7 +50,7 @@
 
 @interface YAServer ()
 
-@property (nonatomic, strong) NSString *token;
+@property (atomic,    strong) NSString *token;
 @property (nonatomic, strong) NSString *base_api;
 @property (nonatomic, strong) NSString *phoneNumber;
 @property (nonatomic) AFHTTPRequestOperationManager *manager;
@@ -98,32 +98,24 @@
     return self;
 }
 
-- (void)setToken:(NSString *)token
-{
-    _token = token;
-    
-    NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.token];
-    
-    AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
-    
-    [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
-    
-    self.manager.requestSerializer = requestSerializer;
-    [[NSUserDefaults standardUserDefaults] setObject:token forKey:YA_RESPONSE_TOKEN];
-}
-
-- (NSString*)token {
-    NSString *newToken = [[NSUserDefaults standardUserDefaults] objectForKey:YA_RESPONSE_TOKEN];
-    if (![_token isEqualToString:newToken]) {
-        _token = newToken;
-        NSString *tokenString = [NSString stringWithFormat:@"Token %@", _token];
+- (void)setToken:(NSString *)token {
+    @synchronized(self) {
+        _token = token;
+        
+        NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.token];
         
         AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
         
         [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
+        
         self.manager.requestSerializer = requestSerializer;
     }
-    return _token;
+}
+
+- (NSString*)token {
+    @synchronized(self) {
+        return _token;
+    }
 }
 
 - (void)setPhoneNumber:(NSString *)phoneNumber
@@ -177,9 +169,7 @@
     
 }
 
-- (void)requestAuthTokenWithCompletion:(responseBlock)completion
-{
-    NSString *authCode = [[YAUser currentUser] authCode];
+- (void)requestAuthTokenWithAuthCode:(NSString*)authCode withCompletion:(responseBlock)completion {
     NSDictionary *parameters = @{
                                  @"phone": self.phoneNumber,
                                  @"code" : authCode

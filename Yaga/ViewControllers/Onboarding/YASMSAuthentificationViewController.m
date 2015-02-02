@@ -152,9 +152,7 @@
     [self.activityIndicator startAnimating];
     self.nextButton.enabled = NO;
     
-    [[YAUser currentUser] setAuthCode:self.codeTextField.text];
-    
-    [[YAServer sharedServer] requestAuthTokenWithCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] requestAuthTokenWithAuthCode:self.codeTextField.text withCompletion:^(id response, NSError *error) {
         if (!error) {
             
             //register device token
