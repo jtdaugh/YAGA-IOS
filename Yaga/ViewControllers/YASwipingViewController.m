@@ -85,7 +85,10 @@
     }
     else {
         if(pageIndex == [YAUser currentUser].currentGroup.videos.count - 1) {
-            result = pageIndex - 2;
+            if(pageIndex >= 2)
+                result = pageIndex - 2;
+            else
+                result = pageIndex - 1;
         }
         else {
             result = pageIndex - 1;
