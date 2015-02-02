@@ -53,8 +53,8 @@
 @property (atomic,    strong) NSString *token;
 @property (nonatomic, strong) NSString *base_api;
 @property (nonatomic, strong) NSString *phoneNumber;
-@property (nonatomic) AFHTTPRequestOperationManager *manager;
-@property (nonatomic, strong) AFNetworkReachabilityManager *reachability;
+@property (nonatomic, strong) AFHTTPRequestOperationManager *manager;
+@property (atomic, strong) AFNetworkReachabilityManager *reachability;
 
 @end
 
@@ -77,26 +77,8 @@
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
         _manager = [AFHTTPRequestOperationManager manager];
         _manager.requestSerializer = [AFJSONRequestSerializer serializer];
-       
-        unsigned int hostIpAddress = [YAServer sockAddrFromHost:HOST];
-        if (hostIpAddress != 0)
-        {
-            struct sockaddr_in address;
-            bzero(&address, sizeof(address));
-            address.sin_len = sizeof(address);
-            address.sin_family = AF_INET;
-            address.sin_addr.s_addr = htonl(hostIpAddress);
-            address.sin_port = htons(PORTNUM);
-            
-            self.reachability = [AFNetworkReachabilityManager managerForAddress:&address];
-        }
-        else
-        {
-            self.reachability = [AFNetworkReachabilityManager managerForDomain:HOST];
-        }
-        [self.reachability startMonitoring];
-        
     }
+    
     return self;
 }
 
@@ -558,13 +540,33 @@
 #pragma mark - Synchronization
 - (void)startMonitoringInternetConnection:(BOOL)start {
     if(start) {
-        self.reachability = [AFNetworkReachabilityManager managerForDomain:@"heroku.com"];
-        [self.reachability startMonitoring];
-        
-        __weak typeof(self) weakSelf = self;
-        [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-            [weakSelf sync];
-        }];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            unsigned int hostIpAddress = [YAServer sockAddrFromHost:HOST];
+            if (hostIpAddress != 0)
+            {
+                struct sockaddr_in address;
+                bzero(&address, sizeof(address));
+                address.sin_len = sizeof(address);
+                address.sin_family = AF_INET;
+                address.sin_addr.s_addr = htonl(hostIpAddress);
+                address.sin_port = htons(PORTNUM);
+                
+                self.reachability = [AFNetworkReachabilityManager managerForAddress:&address];
+            }
+            else
+            {
+                self.reachability = [AFNetworkReachabilityManager managerForDomain:HOST];
+            }
+            
+            [self.reachability startMonitoring];
+            
+            __weak typeof(self) weakSelf = self;
+            [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [weakSelf sync];
+                });
+            }];
+        });
     }
     else {
         [self.reachability stopMonitoring];
@@ -573,7 +575,9 @@
 }
 
 - (BOOL)serverUp {
-    return [self.reachability isReachable];
+    @synchronized(self) {
+        return [self.reachability isReachable];
+    }
 }
 
 - (void)registerDeviceTokenIfNeeded {
