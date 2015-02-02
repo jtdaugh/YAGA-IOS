@@ -100,6 +100,8 @@
 
 - (void)setToken:(NSString *)token
 {
+    _token = token;
+    
     NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.token];
     
     AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
