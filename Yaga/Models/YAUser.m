@@ -152,12 +152,13 @@
                     NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j]
                                                  defaultRegion:[[NSLocale currentLocale] localeIdentifier]
                                                          error:&aError];
-                    NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
-                    
-                    if(!num.length)
+                    if(aError)
                         continue;
                     
-
+                    NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&aError];
+                    
+                    if(!num.length && aError)
+                        continue;
                     
                     NSMutableDictionary *item = [NSMutableDictionary dictionaryWithDictionary:
                                             @{nCompositeName:[NSString stringWithFormat:@"%@", contact.compositeName],
