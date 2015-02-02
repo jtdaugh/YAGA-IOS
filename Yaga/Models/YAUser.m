@@ -149,8 +149,9 @@
                 for(int j = 0; j<[contact.phones count]; j++){
                     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
                     NSError *aError = nil;
+
                     NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j]
-                                                 defaultRegion:[[NSLocale currentLocale] localeIdentifier]
+                                                 defaultRegion:[YAUser currentUser].countryCode
                                                          error:&aError];
                     if(aError)
                         continue;
