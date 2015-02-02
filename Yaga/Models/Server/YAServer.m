@@ -567,7 +567,7 @@
                 });
             }];
         });
-    }
+    }  
     else {
         [self.reachability stopMonitoring];
         self.reachability = nil;
