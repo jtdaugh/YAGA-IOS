@@ -50,16 +50,14 @@
 
 @interface YAServer ()
 
-@property (atomic,    strong) NSString *token;
 @property (nonatomic, strong) NSString *base_api;
 @property (nonatomic, strong) NSString *phoneNumber;
 @property (nonatomic, strong) AFHTTPRequestOperationManager *manager;
 @property (atomic, strong) AFNetworkReachabilityManager *reachability;
-
+@property (atomic, readonly) NSString *authToken;
 @end
 
 @implementation YAServer
-@synthesize token = _token;
 
 + (instancetype)sharedServer {
     static YAServer *sManager = nil;
@@ -72,35 +70,25 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        _token = [[NSUserDefaults standardUserDefaults] objectForKey:YA_RESPONSE_TOKEN];
-        
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
         _manager = [AFHTTPRequestOperationManager manager];
         _manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    
+        [self applySavedAuthToken];
     }
     
     return self;
 }
 
-- (void)setToken:(NSString *)token {
-    @synchronized(self) {
-        _token = token;
-        
-        [[NSUserDefaults standardUserDefaults] setObject:token forKey:YA_RESPONSE_TOKEN];
-        
-        NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.token];
-        
-        AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
-        
-        [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
-        
-        self.manager.requestSerializer = requestSerializer;
-    }
-}
+- (void)applySavedAuthToken {
 
-- (NSString*)token {
-    @synchronized(self) {
-        return _token;
+    _authToken = [[NSUserDefaults standardUserDefaults] objectForKey:YA_RESPONSE_TOKEN];
+    
+    if(self.authToken.length) {
+        NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.authToken];
+        AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
+        [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
+        self.manager.requestSerializer = requestSerializer;
     }
 }
 
@@ -115,7 +103,7 @@
 }
 
 - (void)getInfoForCurrentUserWithCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api = [NSString stringWithFormat:API_USER_PROFILE_TEMPLATE, self.base_api];
     
@@ -136,7 +124,7 @@
 
 - (void)registerUsername:(NSString*)name withCompletion:(responseBlock)completion
 {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api = [NSString stringWithFormat:API_USER_PROFILE_TEMPLATE, self.base_api];
     
@@ -164,7 +152,11 @@
     NSString *api = [NSString stringWithFormat:API_AUTH_TOKEN_TEMPLATE, self.base_api];
     [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil] ;
-        self.token = [dict objectForKey:YA_RESPONSE_TOKEN];
+        NSString *token = [dict objectForKey:YA_RESPONSE_TOKEN];
+        
+        [[NSUserDefaults standardUserDefaults] setObject:token forKey:YA_RESPONSE_TOKEN];
+        [self applySavedAuthToken];
+        
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
@@ -198,7 +190,7 @@
 #pragma mark - Groups
 - (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion
 {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
     
@@ -216,7 +208,7 @@
 }
 
 - (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"group not synchronized with server yet");
     
     NSDictionary *parameters = @{
@@ -235,7 +227,7 @@
     
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
-    [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
     [NSURLConnection sendAsynchronousRequest:request
@@ -252,7 +244,7 @@
 }
 
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
     NSDictionary *parameters = @{
@@ -270,7 +262,7 @@
     
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
-    [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
     [NSURLConnection sendAsynchronousRequest:request
@@ -284,7 +276,7 @@
 
 
 - (void)renameGroupWithId:(NSString*)serverGroupId newName:(NSString*)newName withCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
     NSString *api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
@@ -301,7 +293,7 @@
 }
 
 - (void)groupInfoWithId:(NSString*)serverGroupId since:(NSDate*)since withCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
     NSString *api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
@@ -320,7 +312,7 @@
 }
 
 - (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion  {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
     NSString *api = [NSString stringWithFormat:API_MUTE_GROUP_TEMPLATE, self.base_api, serverGroupId];
@@ -338,7 +330,7 @@
 
 - (void)getGroupsWithCompletion:(responseBlock)completion
 {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
     
@@ -351,7 +343,7 @@
 
 #pragma mark - Posts
 - (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
     NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
@@ -402,7 +394,8 @@
 }
 
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
+    
     NSAssert(serverVideoId, @"videoId is a required parameter");
     NSAssert(serverGroupId, @"groupId is a required parameter");
     
@@ -420,7 +413,8 @@
 }
 
 - (void)uploadVideoCaptionWithId:(NSString*)serverVideoId withCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
+    
     NSAssert(serverVideoId, @"videoId is a required parameter");
     
     RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", serverVideoId]];
@@ -445,7 +439,7 @@
     
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
-    [request setValue:[NSString stringWithFormat:@"Token %@", self.token] forHTTPHeaderField:@"Authorization"];
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
     [NSURLConnection sendAsynchronousRequest:request
@@ -458,7 +452,8 @@
 }
 
 - (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
+    
     NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
     NSString *serverVideoId = video.serverId;
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
@@ -484,7 +479,8 @@
 }
 
 - (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
-    NSAssert(self.token, @"token not set");
+    NSAssert(self.authToken.length, @"auth token not set");
+    
     NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
     NSString *serverVideoId = video.serverId;
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
@@ -511,7 +507,7 @@
 #pragma mark - Device token
 
 - (void)registerDeviceTokenWithCompletion:(responseBlock)completion {
-    NSAssert(self.token.length, @"token not set");
+    NSAssert(self.authToken, @"token not set");
     NSAssert([YAUser currentUser].deviceToken.length, @"device token not set");
     
     NSString *api = [NSString stringWithFormat:API_USER_DEVICE_TEMPLATE, self.base_api];
@@ -596,7 +592,7 @@
 - (void)sync {
     NSLog(@"YAServer:sync, serverUp: %@", self.serverUp ? @"Yes" : @"No");
     
-    if([[YAUser currentUser] loggedIn] && self.token.length && self.serverUp) {
+    if([[YAUser currentUser] loggedIn] && self.authToken.length && self.serverUp) {
         
         [self registerDeviceTokenIfNeeded];
         
@@ -627,7 +623,7 @@
 }
 
 - (void)getYagaUsersFromPhonesArray:(NSArray*)phones withCompletion:(responseBlock)completion {
-    NSAssert(self.token.length, @"token not set");
+    NSAssert(self.authToken.length, @"token not set");
     
     NSMutableArray *correctPhones = [NSMutableArray arrayWithArray:[[NSSet setWithArray:phones] allObjects]];
     for(NSString *phone in [correctPhones copy]) {
