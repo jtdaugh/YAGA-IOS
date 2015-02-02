@@ -84,21 +84,18 @@ static NSString *cellID = @"Cell";
     __weak typeof(self) weakSelf = self;
     
     [self.collectionView addPullToRefreshWithActionHandler:^{
-        [weakSelf.delegate enableRecording:NO];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [weakSelf refreshCurrentGroup];
-            [weakSelf.delegate enableRecording:YES];
-        });
+        [weakSelf refreshCurrentGroup];
     }];
     
     YAActivityView *loadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - VIEW_WIDTH/10/2, 20, VIEW_WIDTH/10, VIEW_WIDTH/10)];
     loadingView.animateAtOnce = YES;
     YAActivityView *stoppedView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2, 20 , VIEW_WIDTH/14, VIEW_WIDTH/14)];
+    YAActivityView *triggeredView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2, 20 , VIEW_WIDTH/14, VIEW_WIDTH/14)];
     
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
     [self.collectionView.pullToRefreshView setCustomView:stoppedView forState:SVPullToRefreshStateStopped];
-    [self.collectionView.pullToRefreshView setCustomView:stoppedView forState:SVPullToRefreshStateTriggered];
-
+    [self.collectionView.pullToRefreshView setCustomView:triggeredView forState:SVPullToRefreshStateTriggered];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -154,7 +151,7 @@ static NSString *cellID = @"Cell";
     
     if(needRefresh)
         [self refreshCurrentGroup];
-
+    
     [self.collectionView reloadData];
     
     [self showNoVideosMessageIfNeeded];
@@ -204,7 +201,7 @@ static NSString *cellID = @"Cell";
 
 - (void)insertVideos:(NSNotification*)notif {
     NSArray *videos = notif.object;
-
+    
     if(!videos.count)
         return;
     
@@ -214,7 +211,7 @@ static NSString *cellID = @"Cell";
     
     if(self.collectionView.contentOffset.y != 0)
         [self.collectionView setContentOffset:CGPointMake(0, 0) animated:YES];
-
+    
     [self.collectionView performBatchUpdates:^{
         for(int i = 0; i < videos.count; i++) {
             [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
@@ -231,18 +228,20 @@ static NSString *cellID = @"Cell";
 
 - (void)refreshCurrentGroup {
     __weak typeof (self) weakSelf = self;
-    
+    [weakSelf.delegate enableRecording:NO];
     [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
         if(!error) {
             if(newVideos.count) {
                 [weakSelf.collectionView performBatchUpdates:^{
                     [weakSelf.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
-                    self.collectionView.contentOffset = CGPointMake(0, 0);
                 } completion:^(BOOL finished) {
                 }];
             }
         }
+        
+        [weakSelf.delegate enableRecording:YES];
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
+        [weakSelf playVisible:YES];
     }];
 }
 
@@ -271,7 +270,7 @@ static BOOL welcomeLabelRemoved = NO;
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.row];
-
+    
     NSLog(@"before transition");
     CGRect initialFrame = attributes.frame;
     initialFrame.origin.y -= self.collectionView.contentOffset.y;
@@ -329,29 +328,29 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-//    [self.delegate enableRecording:NO];
+    //    [self.delegate enableRecording:NO];
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-//    [self.delegate enableRecording:NO];
+    //    [self.delegate enableRecording:NO];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     self.scrolling = NO;
-//    [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+    //    [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         [self playVisible:YES];
-//        [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+        //        [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
     }
 }
 
 - (void)adjustWhileDraggingWithVelocity:(CGPoint)velocity {
     BOOL draggingFast = fabs(velocity.y) > 1;
     BOOL draggingUp = velocity.y == fabs(velocity.y);
-
+    
     
     //show/hide camera
     if(draggingFast && draggingUp) {
