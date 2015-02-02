@@ -72,6 +72,8 @@
 
 - (instancetype)init {
     if (self = [super init]) {
+        _token = [[NSUserDefaults standardUserDefaults] objectForKey:YA_RESPONSE_TOKEN];
+        
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
         _manager = [AFHTTPRequestOperationManager manager];
         _manager.requestSerializer = [AFJSONRequestSerializer serializer];
@@ -101,6 +103,8 @@
 - (void)setToken:(NSString *)token {
     @synchronized(self) {
         _token = token;
+        
+        [[NSUserDefaults standardUserDefaults] setObject:token forKey:YA_RESPONSE_TOKEN];
         
         NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.token];
         
