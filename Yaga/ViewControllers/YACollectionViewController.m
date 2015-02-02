@@ -225,8 +225,7 @@ static NSString *cellID = @"Cell";
 - (void)refreshGroup:(NSNotification*)notif {
     YAGroup *groupToRefresh = [notif object];
     if([[YAUser currentUser].currentGroup.localId isEqualToString:groupToRefresh.localId]) {
-        self.collectionView.contentOffset = CGPointMake(0, 0);
-        //[self refreshCurrentGroup];
+        [self refreshCurrentGroup];
     }
 }
 
@@ -238,6 +237,7 @@ static NSString *cellID = @"Cell";
             if(newVideos.count) {
                 [weakSelf.collectionView performBatchUpdates:^{
                     [weakSelf.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+                    self.collectionView.contentOffset = CGPointMake(0, 0);
                 } completion:^(BOOL finished) {
                 }];
             }
@@ -315,22 +315,7 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
-    CGRect cameraFrame = self.cameraView.view.frame;
-    
-    CGFloat scrollOffset = scrollView.contentOffset.y;
-    CGFloat offset = 0;
-    
-    if(scrollOffset < 0){
-        offset = 0;
-    } else if(scrollOffset > (VIEW_HEIGHT/2 - 2 - CAMERA_MARGIN)){
-        offset = VIEW_HEIGHT/2 - 2 - CAMERA_MARGIN;
-    } else {
-        offset = scrollOffset;
-    }
-    
-    cameraFrame.origin.y = -offset;
-    
-    self.cameraView.view.frame = cameraFrame;
+    [self.delegate collectionViewDidScroll];
     
     if(self.disableScrollHandling) {
         return;

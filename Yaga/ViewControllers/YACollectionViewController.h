@@ -6,13 +6,13 @@
 //
 //
 #import "YAVideoCell.h"
-#import "YACameraViewController.h"
 
 typedef void (^cameraCompletion)(void);
 
 @protocol YACollectionViewControllerDelegate <NSObject>
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion;
 - (void)enableRecording:(BOOL)enable;
+- (void)collectionViewDidScroll;
 @end
 
 @interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, UIViewControllerTransitioningDelegate> {
@@ -22,7 +22,6 @@ typedef void (^cameraCompletion)(void);
 }
 
 @property (strong, nonatomic) UICollectionView *collectionView;
-@property (strong, nonatomic) YACameraViewController *cameraView;
 @property (weak, nonatomic) id<YACollectionViewControllerDelegate> delegate;
 @property (nonatomic) BOOL scrolling;
 - (void)reload;

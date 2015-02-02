@@ -65,8 +65,6 @@
     [self addChildViewController:_cameraViewController];
     [self.view addSubview:_cameraViewController.view];
     
-    _collectionViewController.cameraView = _cameraViewController;
-    
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
     [self.navigationController setNavigationBarHidden:YES];
@@ -107,6 +105,26 @@
     [self.cameraViewController enableRecording:enable];
 }
 
+- (void)collectionViewDidScroll {
+    CGRect cameraFrame = self.cameraViewController.view.frame;
+    
+    CGFloat scrollOffset = self.collectionViewController.collectionView.contentOffset.y;
+    CGFloat offset = 0;
+    
+    if(scrollOffset < 0){
+        offset = 0;
+    } else if(scrollOffset > (VIEW_HEIGHT/2 - 2 - CAMERA_MARGIN)){
+        offset = VIEW_HEIGHT/2 - 2 - CAMERA_MARGIN;
+    } else {
+        offset = scrollOffset;
+    }
+    
+    cameraFrame.origin.y = -offset;
+    
+    self.cameraViewController.view.frame = cameraFrame;
+}
+
+#pragma mark -
 - (void)toggleGroups {
     if(self.elevatorOpen){
         [self closeGroups];
