@@ -112,7 +112,10 @@
     CGFloat scrollOffset = self.collectionViewController.collectionView.contentOffset.y;
     CGFloat offset = self.collectionViewController.collectionView.contentInset.top + scrollOffset;
     
-    if(offset > VIEW_HEIGHT/2 - CAMERA_MARGIN) {
+    if(offset < 0) {
+        offset = 0;
+    }
+    else if(offset > VIEW_HEIGHT/2 - CAMERA_MARGIN) {
         offset = VIEW_HEIGHT/2 - CAMERA_MARGIN;
     }
     
