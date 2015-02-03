@@ -82,27 +82,15 @@ static NSString *cellID = @"Cell";
     __weak typeof(self) weakSelf = self;
     
     [self.collectionView addPullToRefreshWithActionHandler:^{
-        //dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    [weakSelf refreshCurrentGroup];
-        //});
+        [weakSelf refreshCurrentGroup];
 
     }];
     
-    //adjust new height
-//    const CGFloat height = 100;
-//    CGRect rect = self.collectionView.pullToRefreshView.frame;
-//    rect.origin.y = -height;
-//    rect.size.height = height;
-//    self.collectionView.pullToRefreshView.frame = rect;
-    
     YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];
-//    YAActivityView *stoppedView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2, 20 , VIEW_WIDTH/14, VIEW_WIDTH/14)];
-//    YAActivityView *triggeredView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2, 20 , VIEW_WIDTH/14, VIEW_WIDTH/14)];
     
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
-    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
