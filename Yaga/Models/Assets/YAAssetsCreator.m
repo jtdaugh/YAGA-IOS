@@ -274,16 +274,20 @@
     [self.downloadQueue addOperation:operation];
 }
 
-- (BOOL)urlDownloadInProgress:(NSString*)url {
-    if(!url.length)
+- (BOOL)operationForVideoInProgress:(YAVideo*)video {
+    if(!video.url.length)
         return NO;
+    
     for(NSOperation *op in self.downloadQueue.operations) {
-        if(!op.isExecuting)
-            continue;
-        
-        if([op.name isEqualToString:url])
+        if(op.isExecuting && [op.name isEqualToString:video.url])
             return YES;
     }
+    
+    for(NSOperation *op in self.gifQueue.operations) {
+        if(op.isExecuting && [op.name isEqualToString:video.url])
+            return YES;
+    }
+    
     return NO;
 }
 

@@ -29,5 +29,5 @@ typedef void (^stopOperationsCompletion)(void);
 // on background
 - (void)waitForAllOperationsToFinish;
 
-- (BOOL)urlDownloadInProgress:(NSString*)url;
+- (BOOL)operationForVideoInProgress:(YAVideo*)video;
 @end

@@ -188,7 +188,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 - (void)showProgress:(BOOL)show {
     if(show) {
-        if([[YAAssetsCreator sharedCreator] urlDownloadInProgress:self.video.url])
+        if([[YAAssetsCreator sharedCreator] operationForVideoInProgress:self.video])
             [self createProgressViewIfNeeded];
     }
 }
@@ -201,10 +201,10 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
     self.progressView.radius = radius;
     UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
-    progressBkgView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
+    progressBkgView.backgroundColor = [UIColor clearColor];
     self.progressView.backgroundView = progressBkgView;
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self addSubview:self.progressView];
+    [self.contentView addSubview:self.progressView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
