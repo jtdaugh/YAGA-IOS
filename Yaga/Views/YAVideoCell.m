@@ -15,7 +15,7 @@
 #import "YAActivityView.h"
 #import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
-#import "UCZProgressView.h"
+#import "YAProgressView.h"
 
 typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateLoading = 0,
@@ -27,7 +27,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 @interface YAVideoCell ()
 
 
-@property (nonatomic, strong) UCZProgressView *progressView;
+@property (nonatomic, strong) YAProgressView *progressView;
 
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
 
@@ -53,7 +53,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
-
+        
     }
     return self;
 }
@@ -77,10 +77,10 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
-
+    
     [self.progressView removeFromSuperview];
     self.progressView = nil;
-
+    
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
@@ -96,7 +96,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
-
+    
     _video = video;
     
     [self setNeedsLayout];
@@ -109,7 +109,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         self.state = YAVideoCellStateJPEGPreview;
     else
         self.state = YAVideoCellStateLoading;
-
+    
     
     [self updateCell];
 }
@@ -197,7 +197,9 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     if(self.progressView)
         return;
     
-    self.progressView = [[UCZProgressView alloc] initWithFrame:self.bounds];
+    const CGFloat radius = 40;
+    self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
+    self.progressView.radius = radius;
     UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
     progressBkgView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
     self.progressView.backgroundView = progressBkgView;
@@ -220,11 +222,11 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         
         if(self.progressView) {
             NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            
             [self.progressView setProgress:value.floatValue animated:NO];
+            [self.progressView setCustomText:self.video.creator];
         }
     }
-
+    
 }
 
 - (void)downloadProgressChanged:(NSNotification*)notif {
@@ -233,8 +235,8 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         
         if(self.progressView) {
             NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            
             [self.progressView setProgress:value.floatValue animated:NO];
+            [self.progressView setCustomText:self.video.creator];
         }
     }
 }
