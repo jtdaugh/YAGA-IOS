@@ -59,12 +59,7 @@
     
     _currentGroup = group;
     
-    [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[YAAssetsCreator sharedCreator] createAssetsForGroup:self.currentGroup];
-        });
-        
-    }];
+    [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:nil];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[self currentGroup]];
 }

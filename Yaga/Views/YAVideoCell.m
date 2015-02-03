@@ -188,7 +188,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 - (void)showProgress:(BOOL)show {
     if(show) {
-        if([[YAAssetsCreator sharedCreator] operationForVideoInProgress:self.video])
+        if([[YAAssetsCreator sharedCreator] executingOperationForVideo:self.video])
             [self createProgressViewIfNeeded];
     }
 }
