@@ -90,11 +90,11 @@
         if(self.activityView.isAnimating)
             return;
         
-        [self.activityView startAnimating];
-        
         [self bringSubviewToFront:self.activityView];
         [UIView animateWithDuration:0.5 animations:^{
             self.activityView.alpha = 1;
+        } completion:^(BOOL finished) {
+            [self.activityView startAnimating];
         }];
         
     }
