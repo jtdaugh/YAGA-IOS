@@ -12,6 +12,8 @@
 #import "YAUtils.h"
 #import "YAAssetsCreator.h"
 
+#import <ClusterPrePermissions/ClusterPrePermissions.h>
+
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
@@ -113,7 +115,7 @@
         //switch groups button
         
         self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30, 40)];
-//        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
+        //        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
         [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
         [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
@@ -196,75 +198,96 @@
         [self setSessionQueue:sessionQueue];
         
         dispatch_async(sessionQueue, ^{
+            ClusterPrePermissions *permisions = [ClusterPrePermissions sharedPermissions];
+            [permisions showAVPermissionsWithType:ClusterAVAuthorizationTypeCamera
+                                            title:NSLocalizedString(@"Access camera", nil)
+                                          message:NSLocalizedString(@"Give Yaga access to camera", nil)
+                                  denyButtonTitle:NSLocalizedString(@"Deny", nil)
+                                 grantButtonTitle:NSLocalizedString(@"Granted", nil)
+                                completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
+                                    if (hasPermission) {
+                                        NSError *error = nil;
+                                        
+                                        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+                                        AVCaptureDevice *captureDevice = [devices firstObject];
+                                        
+                                        for (AVCaptureDevice *device in devices)
+                                        {
+                                            if ([device position] == AVCaptureDevicePositionBack)
+                                            {
+                                                captureDevice = device;
+                                                break;
+                                            }
+                                        }
+                                        
+                                        if([captureDevice lockForConfiguration:nil]){
+                                            if([captureDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+                                                [captureDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+                                            }
+                                            
+                                            if([captureDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
+                                                [captureDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+                                            }
+                                            [captureDevice unlockForConfiguration];
+                                        }
+                                        
+                                        self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+                                        
+                                        if (error)
+                                        {
+                                            NSLog(@"add video input error: %@", error);
+                                        }
+                                        
+                                        if ([self.session canAddInput:self.videoInput])
+                                        {
+                                            [self.session addInput:self.videoInput];
+                                        }
+                                        [permisions showAVPermissionsWithType:ClusterAVAuthorizationTypeMicrophone
+                                                                        title:NSLocalizedString(@"Access mic", nil)
+                                                                      message:NSLocalizedString(@"Give Yaga access to your mic", nil)
+                                                              denyButtonTitle:NSLocalizedString(@"Deny", nil)
+                                                             grantButtonTitle:NSLocalizedString(@"Granted", nil)
+                                                            completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
+                                                                if (hasPermission) {
+                                                                    NSError *error = nil;
+                                                                    AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
+                                                                    self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+                                                                    
+                                                                    if (error)
+                                                                    {
+                                                                        NSLog(@"add audio input error: %@", error);
+                                                                    }
+                                                                    
+                                                                    if ([self.session canAddInput:self.audioInput])
+                                                                    {
+                                                                        [self.session addInput:self.audioInput];
+                                                                    }
+                                                                    
+                                                                    self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+                                                                    
+                                                                    if ([self.session canAddOutput:self.movieFileOutput])
+                                                                    {
+                                                                        [self.session addOutput:self.movieFileOutput];
+                                                                    }
+                                                                }else if(!hasPermission
+                                                                         && userDialogResult == ClusterDialogResultNoActionTaken
+                                                                         && systemDialogResult == ClusterDialogResultNoActionTaken) {
+                                                                    [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeMicrophone];
+                                                                }
+                                                                
+                                                                
+                                                                [self.session startRunning];
+                                                                
+                                                            }];
+                                    } else if(!hasPermission
+                                              && userDialogResult == ClusterDialogResultNoActionTaken
+                                              && systemDialogResult == ClusterDialogResultNoActionTaken) {
+                                        [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeCamera];
+                                    }
+                                    
+                                }];
             
-            NSError *error = nil;
-            
-//            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-            
-            
-            NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-            AVCaptureDevice *captureDevice = [devices firstObject];
-            
-            for (AVCaptureDevice *device in devices)
-            {
-                if ([device position] == AVCaptureDevicePositionBack)
-                {
-                    captureDevice = device;
-                    break;
-                }
-            }
-            
-            //        [captureDevice lockForConfiguration:nil];
-            //        [captureDevice setActiveVideoMaxFrameDuration:CMTimeMake(1, 1)];
-            //        [captureDevice setActiveVideoMinFrameDuration:CMTimeMake(1, 1)];
-            //        [captureDevice unlockForConfiguration];
-            
-            if([captureDevice lockForConfiguration:nil]){
-                if([captureDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
-                    [captureDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-                }
-                
-                if([captureDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
-                    [captureDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
-                }
-                [captureDevice unlockForConfiguration];
-            }
-            
-            self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-            
-            if (error)
-            {
-                NSLog(@"add video input error: %@", error);
-            }
-            
-            if ([self.session canAddInput:self.videoInput])
-            {
-                [self.session addInput:self.videoInput];
-            }
-            
-            AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
-            self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
-            
-            if (error)
-            {
-                NSLog(@"add audio input error: %@", error);
-            }
-            
-            if ([self.session canAddInput:self.audioInput])
-            {
-                [self.session addInput:self.audioInput];
-            }
-            
-            self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-            
-            if ([self.session canAddOutput:self.movieFileOutput])
-            {
-                [self.session addOutput:self.movieFileOutput];
-            }
-            
-            [self.session startRunning];
         });
-        
     }
 }
 
@@ -579,4 +602,44 @@
     [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
 }
 
+- (void)presentAlertForClusterAVType:(ClusterAVAuthorizationType)type {
+    NSString *title;
+    NSString *message;
+    NSString *buttonTitle = NSLocalizedString(@"OK", nil);
+    if (type == ClusterAVAuthorizationTypeMicrophone) {
+        title = NSLocalizedString(@"Audio permissions not granted", nil);
+        message = NSLocalizedString(@"To be able to record audio, allow this in app settings", nil);
+
+    } else if (type == ClusterAVAuthorizationTypeCamera) {
+        title = NSLocalizedString(@"Video permissions not granted", nil);
+        message = NSLocalizedString(@"To be able to shoot video, allow this in app settings", nil);
+    }
+    
+    if ([UIAlertController class]) {
+        
+        UIAlertController *alertController =
+        [UIAlertController alertControllerWithTitle:title
+                                            message:message
+                                     preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction* ok = [UIAlertAction actionWithTitle:buttonTitle
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:nil];
+        [alertController addAction:ok];
+        
+        [self presentViewController:alertController
+                           animated:YES
+                         completion:nil];
+    }
+    else
+    {
+        UIAlertView *alertView =
+        [[UIAlertView alloc] initWithTitle:title
+                                   message:message
+                                  delegate:nil
+                         cancelButtonTitle:buttonTitle
+                         otherButtonTitles:nil];
+        [alertView show];
+    }
+}
 @end

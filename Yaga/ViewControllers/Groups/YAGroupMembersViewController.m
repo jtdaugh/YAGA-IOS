@@ -8,6 +8,7 @@
 
 #import "YAGroupMembersViewController.h"
 #import "YAGroupAddMembersViewController.h"
+#import <ClusterPrePermissions.h>
 
 @interface YAGroupMembersViewController ()
 @property (nonatomic, strong) YAGroup *group;
@@ -58,10 +59,15 @@ static NSString *CellID = @"CellID";
 
 - (void)adjustNavigationControls {
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:self.editing ? UIBarButtonSystemItemDone : UIBarButtonSystemItemEdit target:self action:@selector(changeEditingModeTapped)];
+    self.navigationItem.rightBarButtonItem =
+    [[UIBarButtonItem alloc] initWithBarButtonSystemItem:self.editing ? UIBarButtonSystemItemDone : UIBarButtonSystemItemEdit
+                                                  target:self
+                                                  action:@selector(changeEditingModeTapped)];
     
     if(self.tableView.editing) {
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addMembersTapped)];
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
+                                                                                              target:self
+                                                                                              action:@selector(addMembersTapped)];
     }
     else {
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", @"") style:UIBarButtonItemStylePlain target:self action:@selector(backTapped)];
@@ -79,7 +85,50 @@ static NSString *CellID = @"CellID";
 }
 
 - (void)changeEditingModeTapped {
-    [self setEditing:!self.editing animated:YES];
+    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
+    [permissions showContactsPermissionsWithTitle:NSLocalizedString(@"Contacts access", nil)
+                                          message:NSLocalizedString(@"Grant Yaga access to your contacts list", nil)
+                                  denyButtonTitle:NSLocalizedString(@"Deny", nil)
+                                 grantButtonTitle:NSLocalizedString(@"Grant", nil)
+                                completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
+                                    if (hasPermission) {
+                                        [self setEditing:!self.editing animated:YES];
+                                    } else if (!hasPermission
+                                               && userDialogResult == ClusterDialogResultNoActionTaken
+                                               && systemDialogResult == ClusterDialogResultNoActionTaken) {
+                                        NSString *title = NSLocalizedString(@"No contacts list access", nil);
+                                        NSString *message = NSLocalizedString(@"Yaga needs acces to your contacts, to add new people.\nPlease, grant access in Settings.app", nil);
+                                        NSString *buttonTitle = NSLocalizedString(@"OK", nil);
+                                        
+                                        if ([UIAlertController class]) {
+                                            
+                                            UIAlertController *alertController =
+                                            [UIAlertController alertControllerWithTitle:title
+                                                                                message:message
+                                                                         preferredStyle:UIAlertControllerStyleAlert];
+                                            
+                                            UIAlertAction* ok = [UIAlertAction actionWithTitle:buttonTitle
+                                                                                         style:UIAlertActionStyleDefault
+                                                                                       handler:nil];
+                                            [alertController addAction:ok];
+                                            
+                                            [self presentViewController:alertController
+                                                               animated:YES
+                                                             completion:nil];
+                                        }
+                                        else
+                                        {
+                                            UIAlertView *alertView =
+                                            [[UIAlertView alloc] initWithTitle:title
+                                                                       message:message
+                                                                      delegate:nil
+                                                             cancelButtonTitle:buttonTitle
+                                                             otherButtonTitles:nil];
+                                            [alertView show];
+                                        }
+
+                                    }
+                                }];
 }
 
 - (void)addMembersTapped {

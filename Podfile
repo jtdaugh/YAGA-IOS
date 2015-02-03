@@ -11,3 +11,4 @@ pod 'FLAnimatedImage'
 pod 'NSDate-Time-Ago', :inhibit_warnings => true
 pod 'SVPullToRefresh'
 pod 'UCZProgressView'
+pod 'ClusterPrePermissions', :git => 'https://github.com/tkorsi/ClusterPrePermissions.git'

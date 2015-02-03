@@ -55,3 +55,21 @@
 "iMESSAGE_COME_JOIN_ME_TEXT" = "Hey - I added you to %@, a group on Yaga. Come join me - http://getyaga.com";
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
+
+"Access camera" = "Access camera";
+"Give Yaga access to camera" = "Give Yaga access to camera";
+"Deny" = "Deny";
+"Granted" = "Granted";
+"Access mic" = "Access mic";
+"Give Yaga access to your mic" = "Give Yaga access to your mic";
+"Audio permissions not granted" = "Audio permissions not granted";
+"To be able to record audio, allow this in app settings" = "To be able to record audio, allow this in app settings";
+"Video permissions not granted" = "Video permissions not granted";
+"To be able to shoot video, allow this in app settings" = "To be able to shoot video, allow this in app settings";
+
+"Contacts access" = "Contacts access";
+"Grant Yaga access to your contacts list" = "Grant Yaga access to your contacts list";
+"No contacts list access" = "No contacts list access";
+"Yaga needs acces to your contacts, to add new people.\nPlease, grant access in Settings.app" = "Yaga needs acces to your contacts, to add new people.\nPlease, grant access in Settings.app";
+"Enable push notifications?" = "Enable push notifications?";
+"Yaga wants to send you push notifications" = "Yaga wants to send you push notifications";

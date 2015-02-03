@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
+#define ALREADY_LAUNCHED_KEY @"HasLaunchedOnce"
+
 #import "AppDelegate.h"
 #import <Crashlytics/Crashlytics.h>
 #import "YAUser.h"
@@ -17,11 +19,32 @@
 #import "YAServerTransactionQueue.h"
 #import "YAAssetsCreator.h"
 #import "YAImageCache.h"
-
+#import <ClusterPrePermissions.h>
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:ALREADY_LAUNCHED_KEY])
+    {
+        ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
+        [permissions
+         showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
+         title:NSLocalizedString(@"Enable push notifications?", nil)
+         message:NSLocalizedString(@"Yaga wants to send you push notifications", nil)
+         denyButtonTitle:@"Not Now"
+         grantButtonTitle:@"Enable"
+         completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
+             
+         }];
+       
+    }
+    else
+    {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:ALREADY_LAUNCHED_KEY];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        // This is the first launch ever
+    }
+    
     [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
     
     self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
