@@ -225,7 +225,7 @@ static NSString *cellID = @"Cell";
 
 - (void)refreshCurrentGroup {
     __weak typeof (self) weakSelf = self;
-    [weakSelf.delegate enableRecording:NO];
+//    [weakSelf.delegate enableRecording:NO];
     [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
         if(!error) {
             if(newVideos.count) {
@@ -236,7 +236,7 @@ static NSString *cellID = @"Cell";
             }
         }
         
-        [weakSelf.delegate enableRecording:YES];
+//        [weakSelf.delegate enableRecording:YES];
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
         [weakSelf playVisible:YES];
     }];
