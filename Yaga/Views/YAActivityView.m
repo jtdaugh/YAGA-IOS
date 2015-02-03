@@ -32,8 +32,6 @@
 }
 
 - (void)startAnimating {
-    [self stopAnimating];
-    
     [self rotateRight];
 }
 
