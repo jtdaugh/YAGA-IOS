@@ -107,21 +107,19 @@
 
 - (void)collectionViewDidScroll {
     CGRect cameraFrame = self.cameraViewController.view.frame;
+    CGRect gridFrame = self.collectionViewController.view.frame;
     
     CGFloat scrollOffset = self.collectionViewController.collectionView.contentOffset.y;
-    CGFloat offset = 0;
+    CGFloat offset = self.collectionViewController.collectionView.contentInset.top + scrollOffset;
     
-    if(scrollOffset < 0){
-        offset = 0;
-    } else if(scrollOffset > (VIEW_HEIGHT/2 - 2 - CAMERA_MARGIN)){
-        offset = VIEW_HEIGHT/2 - 2 - CAMERA_MARGIN;
-    } else {
-        offset = scrollOffset;
+    if(offset > VIEW_HEIGHT/2 - CAMERA_MARGIN) {
+        offset = VIEW_HEIGHT/2 - CAMERA_MARGIN;
     }
     
     cameraFrame.origin.y = -offset;
-    
+
     self.cameraViewController.view.frame = cameraFrame;
+    self.collectionViewController.view.frame = gridFrame;
 }
 
 #pragma mark -
