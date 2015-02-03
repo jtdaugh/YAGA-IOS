@@ -27,32 +27,38 @@
     self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-    
-    //    [[RLMRealm defaultRealm] beginWriteTransaction];
-    //    [[RLMRealm defaultRealm] deleteAllObjects];
-    //    [[RLMRealm defaultRealm] commitWriteTransaction];
-    
-    NSString *identifier;
-    if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
-        identifier = @"LoggedInUserNavigationController";
-    }
-    else if(![[YAUser currentUser] loggedIn]) {
-        identifier = @"OnboardingNavigationController";
-    }
-    else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && ![YAGroup allObjects].count) {
-        identifier = @"OnboardingNoGroupsNavigationController";
-    }
-    else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && [YAGroup allObjects].count) {
-        identifier = @"OnboardingSelectGroupNavigationController";
-    }
-    
-    UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
-    self.window.rootViewController = viewController;
-    
-    [self.window makeKeyAndVisible];
-    
-    [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
-    [application registerForRemoteNotifications];
+
+//#define TESTING_MODE - uncomment that line to cleanup everything
+#ifdef TESTING_MODE
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    [[RLMRealm defaultRealm] deleteAllObjects];
+    [[RLMRealm defaultRealm] commitWriteTransaction];
+    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+#endif
+        NSString *identifier;
+        if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
+            identifier = @"LoggedInUserNavigationController";
+        }
+        else if(![[YAUser currentUser] loggedIn]) {
+            identifier = @"OnboardingNavigationController";
+        }
+        else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && ![YAGroup allObjects].count) {
+            identifier = @"OnboardingNoGroupsNavigationController";
+        }
+        else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && [YAGroup allObjects].count) {
+            identifier = @"OnboardingSelectGroupNavigationController";
+        }
+        
+        UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
+        self.window.rootViewController = viewController;
+        
+        [self.window makeKeyAndVisible];
+        
+        [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
+        [application registerForRemoteNotifications];
+#ifdef TESTING_MODE
+    }];
+#endif
     
     return YES;
 }
@@ -68,11 +74,11 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
-
+        
         [[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
-
+        
         [[YAServerTransactionQueue sharedQueue] waitForAllTransactionsToFinish];
-
+        
         [[YAServer sharedServer] startMonitoringInternetConnection:NO];
         
         [application endBackgroundTask:bgTask];
