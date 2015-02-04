@@ -271,7 +271,9 @@
                                                             }else if(!hasPermission
                                                                      && userDialogResult == ClusterDialogResultNoActionTaken
                                                                      && systemDialogResult == ClusterDialogResultNoActionTaken) {
-                                                                [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeMicrophone];
+                                                                dispatch_async(dispatch_get_main_queue(), ^{
+                                                                    [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeMicrophone];
+                                                                });
                                                             }
                                                             
                                                             
@@ -281,10 +283,12 @@
                                 } else if(!hasPermission
                                           && userDialogResult == ClusterDialogResultNoActionTaken
                                           && systemDialogResult == ClusterDialogResultNoActionTaken) {
-                                    [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeCamera];
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeCamera];
+                                    });
                                 }
                                 
-                            }];   
+                            }];
     }
 }
 
