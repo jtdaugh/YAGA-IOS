@@ -272,7 +272,11 @@
     
     for(YAContact *cntct in self.video.likers){
         UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin + self.likeCount.frame.size.height/2, width, height)];
-        [label setText:cntct.username];
+        if (cntct.username.length) {
+            [label setText:cntct.username];
+        } else {
+            [label setText:cntct.name];
+        }
         [label setTextAlignment:NSTextAlignmentRight];
         [label setTextColor:[UIColor whiteColor]];
         [label setFont:[UIFont fontWithName:BIG_FONT size:16]];
