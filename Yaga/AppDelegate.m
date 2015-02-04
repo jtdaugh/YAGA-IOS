@@ -157,7 +157,7 @@
 {
     [[YAImageCache sharedCache] removeAllObjects];
     
-    NSLog(@"%@", application);
+    NSLog(@"applicationDidReceiveMemoryWarning!");
 }
 
 @end

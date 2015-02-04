@@ -287,13 +287,19 @@
 
 
 - (void)purgeOldVideos {
-    RLMResults *videosByDate = [[YAVideo allObjects] sortedResultsUsingProperty:@"localCreatedAt" ascending:YES];
-    if(!videosByDate.count)
-        return;
+    RLMResults *videos = [YAVideo objectsWhere:@"movFilename != '' OR gifFilename != '' OR jpgFilename != ''"];
+    RLMResults *videosByDate = [videos sortedResultsUsingProperty:@"localCreatedAt" ascending:YES];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         while([self sizeOfCachesFolder] > 300 * 1024 * 1024) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_sync(dispatch_get_main_queue(), ^{
+
+                if(!videosByDate.count) {
+                    [self purgeUnusedAssets];
+                    return;
+                }
+                
+                //RLMResults are updated live so no need to read them again
                 YAVideo *videoToPurge = [videosByDate objectAtIndex:0];
                 [videoToPurge purgeLocalAssets];
             });
@@ -312,5 +318,21 @@
         size += [[[NSFileManager defaultManager] attributesOfItemAtPath:[cachesDir stringByAppendingPathComponent:fileName] error:&error] fileSize];
     }
     return size;
+}
+- (void)purgeUnusedAssets {
+    NSString *cachesDir = [YAUtils cachesDirectory];
+    NSArray *files = [[NSFileManager defaultManager] subpathsOfDirectoryAtPath:cachesDir error:nil];
+    NSEnumerator *enumerator = [files objectEnumerator];
+    NSString *fileName;
+    NSFileManager *fileMgr = [NSFileManager defaultManager];
+    
+    while (fileName = [enumerator nextObject]) {
+        if([fileName.pathExtension isEqualToString:@"mov"] || [fileName.pathExtension isEqualToString:@"gif"] || [fileName.pathExtension isEqualToString:@"jpg"]) {
+            NSError *error;
+            NSURL *url = [NSURL fileURLWithPath:cachesDir];
+            url = [url URLByAppendingPathComponent:fileName];
+            [fileMgr removeItemAtURL:url error:&error];
+        }
+    }
 }
 @end
