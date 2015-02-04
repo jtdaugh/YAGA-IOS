@@ -211,7 +211,6 @@
     if(enquedOp.isExecuting)
         return;
     
-#warning beginning???
     //otherwise cancel and add new one to the beginning of the queue
     [enquedOp cancel];
     

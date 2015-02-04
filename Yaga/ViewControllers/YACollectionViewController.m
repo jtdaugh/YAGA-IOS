@@ -263,14 +263,9 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    
     if(![self.collectionView.indexPathsForVisibleItems containsObject:indexPath]) {
-        NSLog(@"didEndDisplayingCellAtIndexPath %lu INVISIBLE", indexPath.row);
         YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
         [[YAAssetsCreator sharedCreator] cancelCreatingAssetsForVideo:video];
-    }
-    else {
-        NSLog(@"didEndDisplayingCellAtIndexPath %lu visible", indexPath.row);
     }
 }
 

@@ -29,5 +29,5 @@ typedef void (^stopOperationsCompletion)(void);
 - (void)waitForAllOperationsToFinish;
 
 - (NSOperation*)executingOperationForVideo:(YAVideo*)video;
-
+- (NSOperation*)enqueuedOperationForVideo:(YAVideo*)video;
 @end
