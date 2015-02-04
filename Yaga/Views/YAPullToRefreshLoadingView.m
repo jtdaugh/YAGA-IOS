@@ -42,9 +42,7 @@
     [bezierPath addCurveToPoint: CGPointMake(CGRectGetMinX(frame) + 0.98758 * CGRectGetWidth(frame), CGRectGetMinY(frame) + 0.76087 * CGRectGetHeight(frame)) controlPoint1: CGPointMake(CGRectGetMinX(frame) + 0.78638 * CGRectGetWidth(frame), CGRectGetMinY(frame) + 0.76087 * CGRectGetHeight(frame)) controlPoint2: CGPointMake(CGRectGetMinX(frame) + 1.00195 * CGRectGetWidth(frame), CGRectGetMinY(frame) + -0.23913 * CGRectGetHeight(frame))];
 
     
-    [UIColor.blackColor setStroke];
     bezierPath.lineWidth = 1;
-    [bezierPath stroke];
     
     return bezierPath;
 }
