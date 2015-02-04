@@ -140,14 +140,17 @@
     
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
-            NSMutableArray *result = [NSMutableArray new];
+            __block NSMutableArray *result = [NSMutableArray new];
             NSMutableArray *phoneResults = [NSMutableArray new];
             _phonebook = [NSMutableDictionary new];
             
+            NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+            
             for(int i = 0; i<[contacts count]; i++){
                 APContact *contact = contacts[i];
+                
                 for(int j = 0; j<[contact.phones count]; j++){
-                    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+                    
                     NSError *aError = nil;
 
                     NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j]
@@ -182,7 +185,6 @@
             {
                 completion(nil, result);
                 [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
-                    NSLog(@"%@", response);
                     for (NSMutableDictionary *resultDict in result) {
                         for (NSDictionary *responseDict in response) {
                             if ([resultDict[nPhone] isEqualToString:responseDict[nPhone]]) {
