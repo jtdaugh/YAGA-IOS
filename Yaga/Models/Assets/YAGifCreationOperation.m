@@ -229,14 +229,10 @@
     CGImageDestinationSetProperties(destination, (__bridge CFDictionaryRef)fileProperties);
     
     for (UIImage *frameImage in images) {
-        @autoreleasepool {
-            if(self.isCancelled) {
-                CFRelease(destination);
-                return;
-            }
-            
-            CGImageDestinationAddImage(destination, frameImage.CGImage, (__bridge CFDictionaryRef)frameProperties);
-        }
+        if(self.isCancelled)
+            break;
+        
+        CGImageDestinationAddImage(destination, frameImage.CGImage, (__bridge CFDictionaryRef)frameProperties);
     }
     
     if (!CGImageDestinationFinalize(destination)) {
