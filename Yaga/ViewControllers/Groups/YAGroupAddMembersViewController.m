@@ -418,7 +418,10 @@
                                nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
                                nRegistered:[NSNumber numberWithBool:contact.registered]};
         [self.selectedContacts addObject:item];
-        [memberPhones addObject:[contact readableNumber]];
+        
+        NSString *memberPhone = [contact readableNumber];
+        if(memberPhone.length)
+            [memberPhones addObject:memberPhone];
     }
     
     self.filteredContacts = [[self.deviceContacts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (%K IN %@)", nPhone, memberPhones]] mutableCopy];
