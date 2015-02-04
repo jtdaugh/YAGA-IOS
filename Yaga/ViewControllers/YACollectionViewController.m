@@ -214,14 +214,13 @@ static NSString *cellID = @"Cell";
     if(![firstVideo.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    if(self.collectionView.contentOffset.y != 0)
-        [self.collectionView setContentOffset:CGPointMake(0, 0) animated:YES];
-    
     [self.collectionView performBatchUpdates:^{
         for(int i = 0; i < videos.count; i++) {
             [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
         }
-    } completion:nil];
+    } completion:^(BOOL finished) {
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+    }];
 }
 
 - (void)refreshGroup:(NSNotification*)notif {
