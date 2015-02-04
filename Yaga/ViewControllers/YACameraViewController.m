@@ -356,9 +356,8 @@
 }
 
 - (void) startRecordingVideo {
-    if([self.session.outputs containsObject:self.movieFileOutput]) {
+    if(!self.session.outputs.count)
         return;
-    }
     
     //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
     
