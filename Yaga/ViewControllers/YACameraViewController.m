@@ -352,6 +352,10 @@
 }
 
 - (void) startRecordingVideo {
+    if([self.session.outputs containsObject:self.movieFileOutput]) {
+        return;
+    }
+    
     //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
     
     //Create temporary URL to record to

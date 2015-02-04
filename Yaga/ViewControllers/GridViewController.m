@@ -52,7 +52,6 @@
     _collectionViewController = [YACollectionViewController new];
     _collectionViewController.delegate = self;
     _collectionViewController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
-//    [_collectionViewController.view.layer setMasksToBounds:NO];
     [_collectionViewController.collectionView.layer setMasksToBounds:NO];
 
     [self addChildViewController:_collectionViewController];
