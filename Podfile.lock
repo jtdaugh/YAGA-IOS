@@ -52,7 +52,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   ClusterPrePermissions:
-    :commit: 9671d8ec81310989f61db9d1f2c33d9c90b256bc
+    :commit: 71ccd0cb131d770e872065337d23962afb6415cf
     :git: https://github.com/tkorsi/ClusterPrePermissions.git
 
 SPEC CHECKSUMS:
