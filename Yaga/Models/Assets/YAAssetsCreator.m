@@ -50,6 +50,9 @@
         
         self.recordingQueue = [[NSOperationQueue alloc] init];
         self.recordingQueue.maxConcurrentOperationCount = 4;
+        
+        [self.downloadQueue addObserver:self forKeyPath:@"operations" options:0 context:NULL];
+        [self.gifQueue addObserver:self forKeyPath:@"operations" options:0 context:NULL];
     }
     return self;
 }
@@ -222,6 +225,7 @@
     }
     else {
        //skip it, it's in progress or all assets are in place
+        NSLog(@"skipping it's in progress or all assets are in place");
     }
 }
 
@@ -322,4 +326,27 @@
     [self.gifQueue waitUntilAllOperationsAreFinished];
 }
 
+#pragma mark - Observing count of operations
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
+                         change:(NSDictionary *)change context:(void *)context {
+    if ([keyPath isEqualToString:@"operations"] && self.gifQueue.operationCount == 0 && self.downloadQueue.operationCount == 0) {
+        NSLog(@"all operations in download queue and gif queue are finished");
+        NSLog(@"looping through all videos in current group and adding operations if needed");
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
+                if(video.url.length && !video.movFilename.length ) {
+                    [self addVideoDownloadOperationForVideo:video];
+                }
+                else if(video.movFilename.length && !video.gifFilename.length) {
+                    [self addGifCreationOperationForVideo:video];
+                }
+            }
+        });
+    }
+}
+
+- (void)dealloc {
+    
+}
 @end
