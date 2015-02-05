@@ -59,4 +59,6 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 
 //this will make sure caches folder isn't bigger than 300MB
 - (void)purgeOldVideos;
+
+- (BOOL)hasUnviewedVideosInGroups;
 @end

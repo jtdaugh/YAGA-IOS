@@ -337,4 +337,16 @@
         }
     }
 }
+
+#pragma mark -
+- (BOOL)hasUnviewedVideosInGroups {
+    NSDictionary *groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
+    for(YAGroup *group in [YAGroup allObjects]) {
+        NSDate *localGroupUpdateDate = [groupsUpdatedAt objectForKey:group.localId];
+        if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+            return YES;
+        }
+    }
+    return NO;
+}
 @end

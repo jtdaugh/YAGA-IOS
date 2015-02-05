@@ -35,4 +35,5 @@
 
 - (void)enableRecording:(BOOL)enable;
 
+- (void)updateUviewedViedeosBadge;
 @end

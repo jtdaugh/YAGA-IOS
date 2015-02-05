@@ -32,6 +32,7 @@
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 @property (strong, nonatomic) UIButton *switchCameraButton;
 @property (strong, nonatomic) UIButton *switchGroupsButton;
+@property (strong, nonatomic) UIImageView *unviewedVideosBadge;
 @property (strong, nonatomic) UIButton *groupButton;
 
 @property (strong, nonatomic) UIButton *flashButton;
@@ -129,6 +130,16 @@
         [self.cameraAccessories addObject:self.switchGroupsButton];
         [self.cameraView addSubview:self.switchGroupsButton];
         
+        //unviewed badge
+        const CGFloat badgeWidth = 10;
+        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchGroupsButton.frame.origin.x + badgeWidth + 10, self.switchGroupsButton.frame.origin.y + badgeWidth + 5, badgeWidth, badgeWidth)];
+        self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]];
+        self.unviewedVideosBadge.clipsToBounds = YES;
+        self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
+        [self.cameraAccessories addObject:self.unviewedVideosBadge];
+        [self.cameraView addSubview:self.unviewedVideosBadge];
+
+        
         [self initCamera];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -141,7 +152,16 @@
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(videosAdded:)
+                                                     name:VIDEOS_ADDED_NOTIFICATION
+                                                   object:nil];
+        
+        
+        
         [self enableRecording:YES];
+        
+        [self updateUviewedViedeosBadge];
     }
     return self;
 }
@@ -651,5 +671,15 @@
                          otherButtonTitles:nil];
         [alertView show];
     }
+}
+
+#pragma mark -
+
+- (void)videosAdded:(id)sender {
+    [self updateUviewedViedeosBadge];
+}
+
+- (void)updateUviewedViedeosBadge {
+    self.unviewedVideosBadge.hidden = ![[YAUser currentUser] hasUnviewedVideosInGroups];
 }
 @end
