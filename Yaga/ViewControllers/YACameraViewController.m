@@ -256,6 +256,13 @@
         [self.session addInput:self.videoInput];
     }
     
+    self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+    
+    if ([self.session canAddOutput:self.movieFileOutput])
+    {
+        [self.session addOutput:self.movieFileOutput];
+    }
+    
     AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
     if (audioStatus == AVAuthorizationStatusAuthorized) {
         [self setupAudioInput];
@@ -289,13 +296,6 @@
     if ([self.session canAddInput:self.audioInput])
     {
         [self.session addInput:self.audioInput];
-    }
-    
-    self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-    
-    if ([self.session canAddOutput:self.movieFileOutput])
-    {
-        [self.session addOutput:self.movieFileOutput];
     }
     
 }
