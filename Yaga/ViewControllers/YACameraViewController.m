@@ -115,9 +115,9 @@
         
         //switch groups button
         
-        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30, 40)];
+        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30-10, 40)];
         //        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
-        [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
+        [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
         [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"    %@", NSLocalizedString(@"Switch groups", @"")] forState:UIControlStateNormal];
@@ -139,7 +139,6 @@
         [self.cameraAccessories addObject:self.unviewedVideosBadge];
         [self.cameraView addSubview:self.unviewedVideosBadge];
 
-        
         [self initCamera];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -352,6 +351,7 @@
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
         [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+        [self.view bringSubviewToFront:self.white];
     }];
     
     [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
