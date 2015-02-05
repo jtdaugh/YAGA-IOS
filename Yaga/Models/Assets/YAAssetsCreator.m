@@ -22,7 +22,6 @@
 
 @interface YAAssetsCreator ()
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
-#warning check nonatomic
 @property (nonatomic, strong) NSOperationQueue *downloadQueue;
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
 @property (nonatomic, strong) NSOperationQueue *recordingQueue;

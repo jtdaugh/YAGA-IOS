@@ -279,7 +279,7 @@ static BOOL welcomeLabelRemoved = NO;
     //cancel assets creation
     if(![self.collectionView.indexPathsForVisibleItems containsObject:indexPath]) {
         //in only case visible are in progress, otherwise there is no need to cancel
-        if(![self assetsForVisibleVideosInProgress])
+        if(![self shouldCancelAssetsCreationForIvisibleItem])
             return;
         
         YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
@@ -400,7 +400,7 @@ static BOOL welcomeLabelRemoved = NO;
 
 - (void)cancelAssetsCreationForInvisibleVideosIfNeeded {
     //in only case visible are in progress, otherwise there is no need to cancel
-    if(![self assetsForVisibleVideosInProgress])
+    if(![self shouldCancelAssetsCreationForIvisibleItem])
         return;
         
     //they are added to the queue when visible are downloaded in assets creator
@@ -417,7 +417,8 @@ static BOOL welcomeLabelRemoved = NO;
     }
 }
 
-- (BOOL)assetsForVisibleVideosInProgress {
+- (BOOL)shouldCancelAssetsCreationForIvisibleItem {
+    //TODO: check operations count, we might not want to cancel invisible
     BOOL result = NO;
     for (YAVideoCell *cell in self.collectionView.visibleCells) {
         if([[YAAssetsCreator sharedCreator] enqueuedOperationForVideo:cell.video]) {
