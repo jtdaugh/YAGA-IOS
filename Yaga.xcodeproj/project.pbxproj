@@ -88,6 +88,7 @@
 		865BD7A31A484543003B00DA /* AZNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79F1A484543003B00DA /* AZNotification.m */; };
 		865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD7A11A484543003B00DA /* AZNotificationView.m */; };
 		86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */ = {isa = PBXBuildFile; fileRef = 86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */; };
+		86AB83F61A83B29B00EB36EA /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86AB83F51A83B29B00EB36EA /* Social.framework */; };
 		86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B642931A52E83400E095AD /* YASetNewRootVCSegue.m */; };
 		86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */; };
 		86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
@@ -249,6 +250,7 @@
 		865BD7A11A484543003B00DA /* AZNotificationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZNotificationView.m; sourceTree = "<group>"; };
 		86A9ED3A1A4D91B6002EDE76 /* UIImage+Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Color.h"; sourceTree = "<group>"; };
 		86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Color.m"; sourceTree = "<group>"; };
+		86AB83F51A83B29B00EB36EA /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		86B642921A52E83400E095AD /* YASetNewRootVCSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASetNewRootVCSegue.h; sourceTree = "<group>"; };
 		86B642931A52E83400E095AD /* YASetNewRootVCSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASetNewRootVCSegue.m; sourceTree = "<group>"; };
 		86B8649A1A41CA74002256FF /* NSDictionary+ResponseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+ResponseObject.h"; sourceTree = "<group>"; };
@@ -268,6 +270,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				86AB83F61A83B29B00EB36EA /* Social.framework in Frameworks */,
 				6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */,
 				41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */,
 				71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */,
@@ -576,6 +579,7 @@
 		71D0F56A190D998000C7DEE0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				86AB83F51A83B29B00EB36EA /* Social.framework */,
 				6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */,
 				41A2EC69197F887F008DF482 /* Crashlytics.framework */,
 				41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */,

@@ -12,6 +12,7 @@
 #import "YAAssetsCreator.h"
 #import "YAUtils.h"
 #import "YAServer.h"
+#import <Social/Social.h>
 
 @interface YAVideoPage ();
 @property (nonatomic, strong) YAActivityView *activityView;
@@ -411,17 +412,47 @@
 }
 
 #pragma mark - UIActionSheetDelegate 
-- (void)actionSheet:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex {
+- (void)actionSheet:(UIActionSheet *)popup didDismissWithButtonIndex:(NSInteger)buttonIndex {
     
     switch (buttonIndex) {
         case 0:
             [self copyToClipboard];
+            break;
+        case 1:
+        {
+            [self shareToFacebook];
+            break;
+        }
+        case 2:
+            [self shareToTwitter];
             break;
         case 3:
             [self saveToCameraRoll];
             break;
         default:
             break;
+    }
+}
+
+- (void)shareToFacebook
+{
+    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook]) {
+        SLComposeViewController *controller = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
+        
+        [controller setInitialText:NSLocalizedString(@"Check out my new Yaga video", nil)];
+        [controller addURL:[NSURL URLWithString:self.video.url]];
+        [[self topMostController] presentViewController:controller animated:YES completion:Nil];
+    }
+}
+
+- (void)shareToTwitter
+{
+    if ([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
+    {
+        SLComposeViewController *tweetSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
+        [tweetSheet setInitialText:NSLocalizedString(@"Check out my new Yaga video", nil)];
+        [tweetSheet addURL:[NSURL URLWithString:self.video.url]];
+        [[self topMostController] presentViewController:tweetSheet animated:YES completion:nil];
     }
 }
 
@@ -461,6 +492,17 @@
                             nil];
 
     [popup showInView:[UIApplication sharedApplication].keyWindow];//    [self animateButton:self.shareButton withImageName:nil completion:^{
+}
+
+- (UIViewController*)topMostController
+{
+    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
+    
+    while (topController.presentedViewController) {
+        topController = topController.presentedViewController;
+    }
+    
+    return topController;
 }
 
 @end
