@@ -298,10 +298,6 @@ static BOOL groupsUpdateInProgress;
             
             __block NSArray *newVideos = [self updateVideosFromDictionaries:videoDictionaries];
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[YAAssetsCreator sharedCreator] createAssetsForGroup:self];
-            });
-            
             if(completion) {
                 completion(nil, newVideos);
             }

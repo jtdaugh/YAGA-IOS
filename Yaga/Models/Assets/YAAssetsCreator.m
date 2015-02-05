@@ -43,13 +43,16 @@
     if (self = [super init]) {
 
         self.downloadQueue = [[NSOperationQueue alloc] init];
-        self.downloadQueue.maxConcurrentOperationCount = 4;
+        self.downloadQueue.maxConcurrentOperationCount = 8;
         
         self.gifQueue = [[NSOperationQueue alloc] init];
         self.gifQueue.maxConcurrentOperationCount = 4;
         
         self.recordingQueue = [[NSOperationQueue alloc] init];
         self.recordingQueue.maxConcurrentOperationCount = 4;
+        
+        [self.downloadQueue addObserver:self forKeyPath:@"operations" options:0 context:NULL];
+        [self.gifQueue addObserver:self forKeyPath:@"operations" options:0 context:NULL];
     }
     return self;
 }
@@ -189,12 +192,6 @@
     [self.recordingQueue addOperation:gifCreationOperation];
 }
 
-- (void)createAssetsForGroup:(YAGroup*)group {
-    for(YAVideo *video in group.videos) {
-        [self createAssetsForVideo:video inGroup:group];
-    }
-}
-
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
     [self.downloadQueue cancelAllOperations];
     [self.gifQueue cancelAllOperations];
@@ -210,14 +207,33 @@
 }
 
 - (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group {
-    if(video.url.length && !video.movFilename.length && ![self operationForVideoEnqueued:video]) {
+    NSLog(@"adding assets creation job to queue for video: %@", video.url.lastPathComponent);
+    
+    NSOperation *enquedOp = [self enqueuedOperationForVideo:video];
+    //already downloading/generating gif? do nothing
+    if(enquedOp.isExecuting)
+        return;
+    
+    //otherwise cancel and add new one to the beginning of the queue
+    [enquedOp cancel];
+    
+    if(video.url.length && !video.movFilename.length ) {
        [self addVideoDownloadOperationForVideo:video];
     }
-    else if(video.movFilename.length && !video.gifFilename.length && ![self operationForVideoEnqueued:video]) {
+    else if(video.movFilename.length && !video.gifFilename.length) {
         [self addGifCreationOperationForVideo:video];
     }
     else {
        //skip it, it's in progress or all assets are in place
+        NSLog(@"skipping it's in progress or all assets are in place");
+    }
+}
+
+- (void)cancelCreatingAssetsForVideo:(YAVideo*)video {
+    NSOperation *runningOperation = [self enqueuedOperationForVideo:video];
+    if(runningOperation) {
+        NSLog(@"cancelling asset creation operation for video: %@", video.url.lastPathComponent);
+        [runningOperation cancel];
     }
 }
 
@@ -274,38 +290,33 @@
     [self.downloadQueue addOperation:operation];
 }
 
-- (BOOL)operationForVideoInProgress:(YAVideo*)video {
-    if(!video.url.length)
-        return NO;
+- (NSOperation*)executingOperationForVideo:(YAVideo*)video {
+    NSOperation *op = [self enqueuedOperationForVideo:video];
     
-    for(NSOperation *op in self.downloadQueue.operations) {
-        if(op.isExecuting && [op.name isEqualToString:video.url])
-            return YES;
-    }
+    if(!op)
+        return nil;
     
-    for(NSOperation *op in self.gifQueue.operations) {
-        if(op.isExecuting && [op.name isEqualToString:video.url])
-            return YES;
-    }
+    if(op.isExecuting)
+        return op;
     
-    return NO;
+    return nil;
 }
 
-- (BOOL)operationForVideoEnqueued:(YAVideo*)video {
+- (NSOperation*)enqueuedOperationForVideo:(YAVideo*)video {
     if(!video.url.length)
-        return NO;
+        return nil;
     
     for(NSOperation *op in self.downloadQueue.operations) {
         if([op.name isEqualToString:video.url])
-            return YES;
+            return op;
     }
     
     for(NSOperation *op in self.gifQueue.operations) {
         if([op.name isEqualToString:video.url])
-            return YES;
+            return op;
     }
     
-    return NO;
+    return nil;
 }
 
 - (void)waitForAllOperationsToFinish
@@ -315,4 +326,27 @@
     [self.gifQueue waitUntilAllOperationsAreFinished];
 }
 
+#pragma mark - Observing count of operations
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
+                         change:(NSDictionary *)change context:(void *)context {
+    if ([keyPath isEqualToString:@"operations"] && self.gifQueue.operationCount == 0 && self.downloadQueue.operationCount == 0) {
+        NSLog(@"all operations in download queue and gif queue are finished");
+        NSLog(@"looping through all videos in current group and adding operations if needed");
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
+                if(video.url.length && !video.movFilename.length ) {
+                    [self addVideoDownloadOperationForVideo:video];
+                }
+                else if(video.movFilename.length && !video.gifFilename.length) {
+                    [self addGifCreationOperationForVideo:video];
+                }
+            }
+        });
+    }
+}
+
+- (void)dealloc {
+    
+}
 @end

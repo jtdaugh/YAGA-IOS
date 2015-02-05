@@ -21,13 +21,13 @@ typedef void (^stopOperationsCompletion)(void);
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
 - (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group;
+- (void)cancelCreatingAssetsForVideo:(YAVideo*)video;
 
-//
-- (void)createAssetsForGroup:(YAGroup*)group;
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion;
 
 // on background
 - (void)waitForAllOperationsToFinish;
 
-- (BOOL)operationForVideoInProgress:(YAVideo*)video;
+- (NSOperation*)executingOperationForVideo:(YAVideo*)video;
+- (NSOperation*)enqueuedOperationForVideo:(YAVideo*)video;
 @end

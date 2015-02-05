@@ -271,6 +271,13 @@ static BOOL welcomeLabelRemoved = NO;
     return cell;
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    if(![self.collectionView.indexPathsForVisibleItems containsObject:indexPath]) {
+        YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
+        [[YAAssetsCreator sharedCreator] cancelCreatingAssetsForVideo:video];
+    }
+}
+
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.row];
