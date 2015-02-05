@@ -196,8 +196,13 @@
         [cell.textLabel       setTextColor:PRIMARY_COLOR];
         [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
         
-        UIImage *img = [UIImage imageNamed:@"Ball"];
-        cell.imageView.image = img;
+//        UIImage *img = [UIImage imageNamed:@"Ball"];
+//        cell.imageView.image = img;
+        
+        UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey"]];
+        [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
+        cell.accessoryView = accessoryView;
+        
         
         NSPredicate *pred = [NSPredicate predicateWithFormat:@"number = %@", contact[nPhone]];
         YAContact *ya_contact = [[YAContact objectsWithPredicate:pred] firstObject];
@@ -210,7 +215,8 @@
     } else {
         [cell.textLabel       setTextColor:[UIColor whiteColor]];
         [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
-        cell.imageView.image = nil;
+//        cell.imageView.image = nil;
+        cell.accessoryView = nil;
     }
     [cell setBackgroundColor:[UIColor clearColor]];
     

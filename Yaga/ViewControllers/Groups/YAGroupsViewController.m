@@ -40,9 +40,11 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     self.view.backgroundColor = self.embeddedMode ? [UIColor whiteColor] : [UIColor blackColor];
     
-    CGFloat width = VIEW_WIDTH * .8;
+    CGFloat width = VIEW_WIDTH * 1.0;
     
-    CGFloat origin = VIEW_HEIGHT *.025;
+    CGFloat origin = VIEW_HEIGHT * 0.0;
+    
+    CGFloat buttonHeight = ELEVATOR_MARGIN * 1.5;
     
     if(!self.embeddedMode) {
         UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
@@ -58,7 +60,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         origin = 0;
     }
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, self.view.bounds.size.height - (VIEW_WIDTH - width)/2 - (self.embeddedMode ? ELEVATOR_MARGIN : origin - 20))];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.view.bounds.size.height - (self.embeddedMode ? buttonHeight : origin - 20))];
 
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];
@@ -81,22 +83,23 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     if(self.embeddedMode) {
         //create group button
-        UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, self.tableView.frame.size.height+1, VIEW_WIDTH, 1)];
-        separatorView.backgroundColor = [UIColor lightGrayColor];
-        separatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-        [self.view addSubview:separatorView];
+//        UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, self.tableView.frame.size.height+1, VIEW_WIDTH, 1)];
+//        separatorView.backgroundColor = [UIColor lightGrayColor];
+//        separatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+//        [self.view addSubview:separatorView];
         
         UIButton *createGroupButton = [[UIButton alloc] initWithFrame:
-                                       CGRectMake(44,
-                                                  self.tableView.frame.size.height+20,
-                                                  150,
-                                                  50)
+                                       CGRectMake(0,
+                                                  self.tableView.frame.size.height,
+                                                  VIEW_WIDTH,
+                                                  VIEW_HEIGHT - self.tableView.frame.size.height)
                                        ];
         createGroupButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-        [createGroupButton setTitle:@"Create Group  〉" forState:UIControlStateNormal];
-        [createGroupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
+        [createGroupButton setTitle:@"Create Group" forState:UIControlStateNormal];
+        [createGroupButton.titleLabel setFont:[UIFont fontWithName:@"Avenir-Black" size:24]];
         [createGroupButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-        [createGroupButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        [createGroupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [createGroupButton setBackgroundColor:PRIMARY_COLOR];
         createGroupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
         [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
         [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
