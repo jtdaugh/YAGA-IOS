@@ -20,6 +20,11 @@
 #import "YAAssetsCreator.h"
 #import "YAImageCache.h"
 #import <ClusterPrePermissions.h>
+
+@interface AppDelegate ()
+@property(nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
+@end
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -88,24 +93,34 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     [[YAServer sharedServer] startMonitoringInternetConnection:YES];
+    
+    [self endBackgroundTask];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-    __block UIBackgroundTaskIdentifier bgTask = [application beginBackgroundTaskWithExpirationHandler:^{
-        bgTask = UIBackgroundTaskInvalid;
-    }];
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [[NSOperationQueue mainQueue] waitUntilAllOperationsAreFinished];
-
+        
+        [self beginBackgroundTask];
+        
         [[YAAssetsCreator sharedCreator] waitForAllOperationsToFinish];
         
         [[YAServerTransactionQueue sharedQueue] waitForAllTransactionsToFinish];
         
         [[YAServer sharedServer] startMonitoringInternetConnection:NO];
         
-        [application endBackgroundTask:bgTask];
+        [self endBackgroundTask];
     });
+}
+
+- (void)beginBackgroundTask {
+    self.bgTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        [self endBackgroundTask];
+    }];
+}
+
+- (void)endBackgroundTask {
+    [[UIApplication sharedApplication] endBackgroundTask:self.bgTask];
+    self.bgTask = UIBackgroundTaskInvalid;
 }
 
 #pragma mark - Push notifications
