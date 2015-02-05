@@ -73,3 +73,8 @@
 "Yaga needs acces to your contacts, to add new people.\nPlease, grant access in Settings.app" = "Yaga needs acces to your contacts, to add new people.\nPlease, grant access in Settings.app";
 "Enable push notifications?" = "Enable push notifications?";
 "Yaga wants to send you push notifications" = "Yaga wants to send you push notifications";
+
+"Save to clipboard"     = "Copy to clipboard";
+"Share on Facebook"     = "Share on Facebook";
+"Share on Twitter"      = "Share on Twitter";
+"Save to Camera Roll"   = "Save to Camera Roll";

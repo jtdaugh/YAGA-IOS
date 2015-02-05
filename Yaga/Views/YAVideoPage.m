@@ -25,7 +25,7 @@
 @property BOOL likesShown;
 @property (nonatomic, strong) NSMutableArray *likeLabels;
 @property (nonatomic, strong) UIButton *captionButton;
-@property (nonatomic, strong) UIButton *saveButton;
+@property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
 
 @end
@@ -164,10 +164,10 @@
     [self addSubview:self.captionButton];
     
     CGFloat saveSize = 36;
-    self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
-    [self.saveButton setBackgroundImage:[UIImage imageNamed:@"Save"] forState:UIControlStateNormal];
-    [self.saveButton addTarget:self action:@selector(saveButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.saveButton];
+    self.shareButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
+    [self.shareButton setBackgroundImage:[UIImage imageNamed:@"Save"] forState:UIControlStateNormal];
+    [self.shareButton addTarget:self action:@selector(shareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:self.shareButton];
     
     self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake( VIEW_WIDTH - saveSize - 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
     [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Delete"] forState:UIControlStateNormal];
@@ -338,37 +338,6 @@
     
 }
 
-- (void)saveButtonPressed {
-    __block UIActivityIndicatorView *savingActivityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-    savingActivityView.frame = self.saveButton.frame;
-    savingActivityView.alpha = 0;
-    [self addSubview:savingActivityView];
-    [savingActivityView startAnimating];
-    
-    [self animateButton:self.saveButton withImageName:nil completion:^{
-        [UIView animateWithDuration:0.3 animations:^{
-            self.saveButton.alpha = 0;
-            savingActivityView.alpha = 1;
-        }];
-        [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.movFilename] completion:^(NSError *error) {
-            if (error) {
-                [YAUtils showNotification:NSLocalizedString(@"Can't save photos", @"") type:AZNotificationTypeError];
-            }
-            else {
-                [YAUtils showNotification:NSLocalizedString(@"Video saved to camera roll successfully", @"") type:AZNotificationTypeMessage];
-            }
-            
-            [UIView animateWithDuration:0.3 animations:^{
-                self.saveButton.alpha = 1;
-                savingActivityView.alpha = 0;
-                
-            } completion:^(BOOL finished) {
-                [savingActivityView removeFromSuperview];
-            }];
-        }];
-    }];
-}
-
 - (void)deleteButtonPressed {
     [self animateButton:self.deleteButton withImageName:nil completion:^{
         NSString *alertMessageText = [NSString stringWithFormat:@"Are you sure you want to delete this video from '%@'?", [YAUser currentUser].currentGroup.name];
@@ -425,7 +394,7 @@
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.captionField.hidden = !myVideo;
     self.captionButton.hidden = !myVideo || self.video.caption.length;
-    self.saveButton.hidden = !myVideo;
+    self.shareButton.hidden = !myVideo;
     self.deleteButton.hidden = !myVideo;
 
     
@@ -439,6 +408,59 @@
     
     //get likers for video
 
+}
+
+#pragma mark - UIActionSheetDelegate 
+- (void)actionSheet:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    switch (buttonIndex) {
+        case 0:
+            [self copyToClipboard];
+            break;
+        case 3:
+            [self saveToCameraRoll];
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)copyToClipboard
+{
+    NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.gifFilename]];
+    
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
+}
+
+- (void)saveToCameraRoll
+{
+    [UIView animateWithDuration:0.3 animations:^{
+        self.shareButton.alpha = 0;
+    }];
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.movFilename] completion:^(NSError *error) {
+        if (error) {
+            [YAUtils showNotification:NSLocalizedString(@"Can't save photos", @"") type:AZNotificationTypeError];
+        }
+        else {
+            [YAUtils showNotification:NSLocalizedString(@"Video saved to camera roll successfully", @"") type:AZNotificationTypeMessage];
+        }
+        
+        [UIView animateWithDuration:0.3 animations:^{
+            self.shareButton.alpha = 1;
+        }];
+    }];
+}
+
+- (void)shareButtonPressed {
+    UIActionSheet *popup = [[UIActionSheet alloc] initWithTitle:@"Select Sharing option:" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:
+                            NSLocalizedString(@"Save to clipboard", nil),
+                            NSLocalizedString(@"Share on Facebook", nil),
+                            NSLocalizedString(@"Share on Twitter", nil),
+                            NSLocalizedString(@"Save to Camera Roll", nil),
+                            nil];
+
+    [popup showInView:[UIApplication sharedApplication].keyWindow];//    [self animateButton:self.shareButton withImageName:nil completion:^{
 }
 
 @end

@@ -10,7 +10,7 @@
 #import "YAVideoPlayerView.h"
 #import "YAVideo.h"
 
-@interface YAVideoPage : UIView<UITextFieldDelegate>
+@interface YAVideoPage : UIView<UITextFieldDelegate, UIActionSheetDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
 @property (nonatomic, readonly) YAVideoPlayerView *playerView;
