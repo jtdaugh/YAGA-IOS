@@ -166,7 +166,7 @@
     
     CGFloat saveSize = 36;
     self.shareButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
-    [self.shareButton setBackgroundImage:[UIImage imageNamed:@"Save"] forState:UIControlStateNormal];
+    [self.shareButton setBackgroundImage:[UIImage imageNamed:@"Share"] forState:UIControlStateNormal];
     [self.shareButton addTarget:self action:@selector(shareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:self.shareButton];
     
@@ -416,15 +416,15 @@
     
     switch (buttonIndex) {
         case 0:
-            [self copyToClipboard];
+            [self shareToFacebook];
             break;
         case 1:
         {
-            [self shareToFacebook];
+            [self shareToTwitter];
             break;
         }
         case 2:
-            [self shareToTwitter];
+            [self copyToClipboard];
             break;
         case 3:
             [self saveToCameraRoll];
@@ -471,7 +471,7 @@
     }];
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.movFilename] completion:^(NSError *error) {
         if (error) {
-            [YAUtils showNotification:NSLocalizedString(@"Can't save photos", @"") type:AZNotificationTypeError];
+            [YAUtils showNotification:NSLocalizedString(@"Can't save video", @"") type:AZNotificationTypeError];
         }
         else {
             [YAUtils showNotification:NSLocalizedString(@"Video saved to camera roll successfully", @"") type:AZNotificationTypeMessage];
@@ -485,9 +485,9 @@
 
 - (void)shareButtonPressed {
     UIActionSheet *popup = [[UIActionSheet alloc] initWithTitle:@"Select Sharing option:" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:
-                            NSLocalizedString(@"Save to clipboard", nil),
                             NSLocalizedString(@"Share on Facebook", nil),
                             NSLocalizedString(@"Share on Twitter", nil),
+                            NSLocalizedString(@"Copy GIF", nil),
                             NSLocalizedString(@"Save to Camera Roll", nil),
                             nil];
 
