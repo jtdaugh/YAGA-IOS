@@ -332,11 +332,8 @@ static BOOL groupsUpdateInProgress;
     
     for(NSDictionary *videoDic in videoDictionaries) {
         
-        if(![idsToAdd containsObject:videoDic[YA_RESPONSE_ID]])
-            continue;
-        
         //video exists? update name
-        if([existingIds containsObject:videoDic[YA_RESPONSE_ID]] && ![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
+        if([existingIds containsObject:videoDic[YA_RESPONSE_ID]]) {
             RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_ID]]];
             if(videos.count) {
                 YAVideo *video = [videos firstObject];
@@ -347,7 +344,13 @@ static BOOL groupsUpdateInProgress;
                 }
                 else {
                     [video.realm beginWriteTransaction];
-                    video.caption = videoDic[YA_RESPONSE_NAME];
+                    if (![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
+                        video.caption = videoDic[YA_RESPONSE_NAME];
+                    }
+                    NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
+                    if (likers.count) {
+                        [video updateLikersWithArray:likers];
+                    }
                     [video.realm commitWriteTransaction];
                 }
             }
