@@ -38,9 +38,9 @@
     _finished = value;
     [self didChangeValueForKey:@"isFinished"];
     
-    if(_finished) {
-        NSLog(@"gif creation finished, cancelled: %d", self.isCancelled);
-    }
+//    if(_finished) {
+//        NSLog(@"gif creation finished, cancelled: %d", self.isCancelled);
+//    }
 }
 
 - (BOOL)isFinished {
@@ -57,8 +57,6 @@
             NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.movFilename];
             NSURL *movURL = [NSURL fileURLWithPath:movPath];
             self.filename = [self.video.movFilename stringByDeletingPathExtension];
-            
-            NSLog(@"gif creation started");
             
             [self setExecuting:YES];
             
@@ -92,7 +90,6 @@
                                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
                                                                                     object:self.video];
                                 
-                                NSLog(@"gif created");
                             }
                             else
                             {
@@ -178,7 +175,6 @@
             [weakSelf.video.realm commitWriteTransaction];
             
             [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:self.video];
-            NSLog(@"jpg created");
         });
     }
     else {

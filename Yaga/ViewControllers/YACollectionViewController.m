@@ -77,6 +77,9 @@ static NSString *cellID = @"Cell";
     self.animationController = [YAAnimatedTransitioningController new];
     
     [self setupPullToRefresh];
+    
+    //start assets creation for current group
+    [self enqueueAssetsCreationJobsForCurrentGroup];
 }
 
 - (void)setupPullToRefresh {
@@ -264,15 +267,21 @@ static BOOL welcomeLabelRemoved = NO;
     
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     cell.video = video;
-    
-    if(!video.gifFilename.length && video.url.length) {
-        [[YAAssetsCreator sharedCreator] createAssetsForVideo:video inGroup:video.group];
-    }
+
+    [self enqueueAssetsCreationJobForVideoIfNeeded:video];
     return cell;
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [cell animateGifView:NO];
+    
+    //cancel assets creation
     if(![self.collectionView.indexPathsForVisibleItems containsObject:indexPath]) {
+        //in only case visible are in progress, otherwise there is no need to cancel
+        if(![self assetsForVisibleVideosInProgress])
+            return;
+        
         YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
         [[YAAssetsCreator sharedCreator] cancelCreatingAssetsForVideo:video];
     }
@@ -319,10 +328,6 @@ static BOOL welcomeLabelRemoved = NO;
     return result;
 }
 
-- (void)playPauseOnScroll:(BOOL)scrollingFast {
-    [self playVisible:!scrollingFast];
-}
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
     [self.delegate collectionViewDidScroll];
@@ -333,28 +338,21 @@ static BOOL welcomeLabelRemoved = NO;
     
     BOOL scrollingFast = [self scrollingFast];
     
-    [self playPauseOnScroll:scrollingFast];
+    [self playVisible:!scrollingFast];
     
     self.scrolling = YES;
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    //    [self.delegate enableRecording:NO];
-}
-
-- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-    //    [self.delegate enableRecording:NO];
-}
-
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     self.scrolling = NO;
-    //    [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+    
+    [self cancelAssetsCreationForInvisibleVideosIfNeeded];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         [self playVisible:YES];
-        //        [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+        [self cancelAssetsCreationForInvisibleVideosIfNeeded];
     }
 }
 
@@ -384,6 +382,50 @@ static BOOL welcomeLabelRemoved = NO;
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
     }
+}
+
+#pragma mark - Assets creation
+
+- (void)enqueueAssetsCreationJobsForCurrentGroup {
+    for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
+        [self enqueueAssetsCreationJobForVideoIfNeeded:video];
+    }
+}
+
+- (void)enqueueAssetsCreationJobForVideoIfNeeded:(YAVideo*)video {
+    if(!video.gifFilename.length && video.url.length) {
+        [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideo:video inGroup:video.group];
+    }
+}
+
+- (void)cancelAssetsCreationForInvisibleVideosIfNeeded {
+    //in only case visible are in progress, otherwise there is no need to cancel
+    if(![self assetsForVisibleVideosInProgress])
+        return;
+        
+    //they are added to the queue when visible are downloaded in assets creator
+    NSArray *visibleRows = [self.collectionView.indexPathsForVisibleItems valueForKey:@"row"];
+    NSMutableArray *invisibleVideos = [NSMutableArray new];
+    
+    for (YAVideo *video in [YAUser currentUser].currentGroup.videos) {
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+        BOOL invisible = ![visibleRows containsObject:[NSNumber numberWithInteger:index]];
+        if(invisible) {
+            [[YAAssetsCreator sharedCreator] cancelCreatingAssetsForVideo:video];
+            [invisibleVideos addObject:video];
+        }
+    }
+}
+
+- (BOOL)assetsForVisibleVideosInProgress {
+    BOOL result = NO;
+    for (YAVideoCell *cell in self.collectionView.visibleCells) {
+        if([[YAAssetsCreator sharedCreator] enqueuedOperationForVideo:cell.video]) {
+            result = YES;
+            break;
+        }
+    }
+    return result;
 }
 
 #pragma mark - Custom transitions

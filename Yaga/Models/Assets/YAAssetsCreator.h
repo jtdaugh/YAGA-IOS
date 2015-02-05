@@ -20,7 +20,7 @@ typedef void (^stopOperationsCompletion)(void);
 - (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion;
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
-- (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group;
+- (void)enqueueAssetsCreationJobForVideo:(YAVideo*)video inGroup:(YAGroup*)group;
 - (void)cancelCreatingAssetsForVideo:(YAVideo*)video;
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion;

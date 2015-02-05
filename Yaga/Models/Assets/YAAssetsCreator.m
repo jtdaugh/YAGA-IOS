@@ -22,9 +22,10 @@
 
 @interface YAAssetsCreator ()
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
-@property (strong) NSOperationQueue *downloadQueue;
-@property (strong) NSOperationQueue *gifQueue;
-@property (strong) NSOperationQueue *recordingQueue;
+#warning check nonatomic
+@property (nonatomic, strong) NSOperationQueue *downloadQueue;
+@property (nonatomic, strong) NSOperationQueue *gifQueue;
+@property (nonatomic, strong) NSOperationQueue *recordingQueue;
 @end
 
 
@@ -42,8 +43,8 @@
 - (instancetype)init {
     if (self = [super init]) {
 
+        //let download queue decide itself how many concurent operations should be
         self.downloadQueue = [[NSOperationQueue alloc] init];
-        self.downloadQueue.maxConcurrentOperationCount = 8;
         
         self.gifQueue = [[NSOperationQueue alloc] init];
         self.gifQueue.maxConcurrentOperationCount = 4;
@@ -202,14 +203,14 @@
         if(completion)
             completion();
         
+        //meaning recording queue will still be alive, as it's important to save recordings
         NSLog(@"All jobs stopped");
     });
 }
 
-- (void)createAssetsForVideo:(YAVideo*)video inGroup:(YAGroup*)group {
-    NSLog(@"adding assets creation job to queue for video: %@", video.url.lastPathComponent);
-    
+- (void)enqueueAssetsCreationJobForVideo:(YAVideo*)video inGroup:(YAGroup*)group {
     NSOperation *enquedOp = [self enqueuedOperationForVideo:video];
+    
     //already downloading/generating gif? do nothing
     if(enquedOp.isExecuting)
         return;
@@ -232,7 +233,6 @@
 - (void)cancelCreatingAssetsForVideo:(YAVideo*)video {
     NSOperation *runningOperation = [self enqueuedOperationForVideo:video];
     if(runningOperation) {
-        NSLog(@"cancelling asset creation operation for video: %@", video.url.lastPathComponent);
         [runningOperation cancel];
     }
 }
@@ -240,13 +240,13 @@
 - (void)addGifCreationOperationForVideo:(YAVideo*)video {
     YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
     [self.gifQueue addOperation:gifCreationOperation];
-    NSLog(@"Gif creation operation created for %@", video.localId);
 }
 
 - (void)addVideoDownloadOperationForVideo:(YAVideo*)video {
     NSURL *url = [NSURL URLWithString:video.url];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+
     operation.name = video.url;
     //    [httpClient registerHTTPOperationClass:[AFHTTPRequestOperation class]];
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -265,7 +265,6 @@
                 video.localCreatedAt = [NSDate date];
                 [video.realm commitWriteTransaction];
                 
-                NSLog(@"remote video downloaded for %@", video.localId);
                 [self addGifCreationOperationForVideo:video];
             });
         }
@@ -280,13 +279,12 @@
             NSLog(@"Error downloading video %@", error);
         }
     }];
-
+    
     //uncomment me if you want to track progress
     [operation setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:video.url userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:(totalBytesRead - totalBytesRead * 0.3f) /(float)totalBytesExpectedToRead]}];
     }];
     
-    NSLog(@"download operation created %@", operation.name);
     [self.downloadQueue addOperation:operation];
 }
 
@@ -334,19 +332,23 @@
         NSLog(@"looping through all videos in current group and adding operations if needed");
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            BOOL allDone = YES;
             for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
                 if(video.url.length && !video.movFilename.length ) {
                     [self addVideoDownloadOperationForVideo:video];
+                    allDone = NO;
                 }
                 else if(video.movFilename.length && !video.gifFilename.length) {
                     [self addGifCreationOperationForVideo:video];
+                    allDone = NO;
                 }
+            }
+            
+            if(allDone) {
+                NSLog(@"All assets created for %@ group", [YAUser currentUser].currentGroup.name);
             }
         });
     }
 }
 
-- (void)dealloc {
-    
-}
 @end
