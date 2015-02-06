@@ -117,12 +117,20 @@
         
         //switch groups button
         
+        
+        
         self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30-10, 40)];
         //        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
         [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
         [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
-        [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"    %@", NSLocalizedString(@"Switch groups", @"")] forState:UIControlStateNormal];
+        [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"%@", NSLocalizedString(@"Switch groups", @"")] forState:UIControlStateNormal];
+        
+        CGFloat requiredWidth = [self.switchGroupsButton.titleLabel.attributedText size].width;
+        CGRect tempFrame = self.switchGroupsButton.frame;
+        tempFrame.origin.x = VIEW_WIDTH - 10 - requiredWidth;
+        tempFrame.size.width = requiredWidth;
+        [self.switchGroupsButton setFrame:tempFrame];
         
         self.switchGroupsButton.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.switchGroupsButton.layer.shadowRadius = 1.0f;
@@ -134,8 +142,9 @@
         
         //unviewed badge
         const CGFloat badgeWidth = 10;
-        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchGroupsButton.frame.origin.x + badgeWidth + 10, self.switchGroupsButton.frame.origin.y + badgeWidth + 5, badgeWidth, badgeWidth)];
-        self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]];
+        CGFloat badgeMargin = 8;
+        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchGroupsButton.frame.origin.x - badgeWidth - badgeMargin, self.switchGroupsButton.frame.origin.y + badgeWidth + 5, badgeWidth, badgeWidth)];
+        self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5]];
         self.unviewedVideosBadge.clipsToBounds = YES;
         self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
         [self.cameraAccessories addObject:self.unviewedVideosBadge];
