@@ -61,7 +61,9 @@
         
         self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self.white setBackgroundColor:[UIColor whiteColor]];
-        [self.white setAlpha:0.95];
+        [self.white setAlpha:0.8];
+        
+        [self.white setUserInteractionEnabled:YES];
         
         UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchFlashMode:)];
         tapGestureRecognizer.delegate = self;
@@ -346,12 +348,14 @@
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
     [self.indicator setUserInteractionEnabled:NO];
     [self.indicatorText setText:@"Recording..."];
-    [self.cameraView addSubview:self.indicator];
+    [self.view addSubview:self.indicator];
     
+    [self.view bringSubviewToFront:self.white];
+    [self.view bringSubviewToFront:self.indicator];
+
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
         [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-        [self.view bringSubviewToFront:self.white];
     }];
     
     [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
@@ -369,6 +373,8 @@
 
 - (void) endHold {
     if([self.recording boolValue]){
+        
+        [self.view bringSubviewToFront:self.cameraView];
         
         [UIView animateWithDuration:0.2 animations:^{
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
