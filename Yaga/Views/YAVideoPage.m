@@ -221,7 +221,7 @@
 }
 
 - (void)likeButtonPressed {
-        if (!self.video.like) {
+    if (!self.video.like) {
         [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
@@ -507,3 +507,4 @@
 }
 
 @end
+

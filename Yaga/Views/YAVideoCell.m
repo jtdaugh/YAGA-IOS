@@ -5,7 +5,7 @@
 //  Created by valentinkovalski on 12/18/14.
 //
 //
-
+#import "YAServer.h"
 #import "YAVideoCell.h"
 #import "YAUtils.h"
 #import "YAUser.h"
@@ -72,8 +72,12 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         self.progressView.showsText = YES;
         self.progressView.lineWidth = 2;
         self.progressView.tintColor = PRIMARY_COLOR;
-
         
+        // Add gesture recognizer for double tap like or change title
+        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+        tapRecognizer.numberOfTapsRequired = 2;
+        tapRecognizer.delaysTouchesBegan = YES;
+        [self addGestureRecognizer:tapRecognizer];
     }
     return self;
 }
@@ -236,5 +240,42 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         }
     }
 }
+
+#pragma mark - UITapGestureRecognizer actions 
+
+- (void)doubleTap:(UIGestureRecognizer *)sender {
+    BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
+    if (myVideo) {
+        if (!self.video.like) {
+            [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
+
+            }];
+        } else {
+            [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
+            }];
+        }
+        
+        [[RLMRealm defaultRealm] beginWriteTransaction];
+        self.video.like = !self.video.like;
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
+        UIImage *likeImage = self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"];
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:likeImage];
+        imageView.layer.opacity = 0.0f;
+        [self addSubview:imageView];
+        imageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+        CABasicAnimation *theAnimation;
+        theAnimation=[CABasicAnimation animationWithKeyPath:@"opacity"];
+        theAnimation.duration=0.4;
+        theAnimation.autoreverses = YES;
+        theAnimation.fromValue=[NSNumber numberWithFloat:0.0];
+        theAnimation.toValue=[NSNumber numberWithFloat:1.0];
+        
+        [imageView.layer addAnimation:theAnimation forKey:@"animateOpacity"];
+    } else {
+        
+    }
+}
+
 @end
 

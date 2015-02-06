@@ -490,13 +490,11 @@
                        NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
                        NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
                        
-                       if ([likers count]) {
-                           dispatch_async(dispatch_get_main_queue(), ^{
-                               [video.realm beginWriteTransaction];
-                               [video updateLikersWithArray:likers];
-                               [video.realm commitWriteTransaction];
-                           });
-                       }
+                       dispatch_async(dispatch_get_main_queue(), ^{
+                           [video.realm beginWriteTransaction];
+                           [video updateLikersWithArray:likers];
+                           [video.realm commitWriteTransaction];
+                       });
                        
                        completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

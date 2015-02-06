@@ -271,7 +271,6 @@ static BOOL welcomeLabelRemoved = NO;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    
     [cell animateGifView:NO];
 }
 
