@@ -83,7 +83,10 @@
         if ([[user username] isEqualToString:dict[nName]]) {
             self.like = YES;
         }
-        [self.likers addObject:contact];
+        NSUInteger index = [self.likers indexOfObject:contact];
+        if (index == NSNotFound) {
+            [self.likers addObject:contact];
+        }
     }
 }
 
