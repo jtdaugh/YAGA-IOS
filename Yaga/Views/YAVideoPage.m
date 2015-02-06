@@ -228,7 +228,7 @@
         }];
     } else {
         [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-            [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
+            [self.likeCount setTitle:[response integerValue] == 0 ? @"" : [NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
         }];
     }
@@ -403,8 +403,9 @@
     
     self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
+    self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
     self.captionField.text = self.video.caption;
-    [self.likeCount setTitle:[NSString stringWithFormat:@"%ld", (long)self.video.likes]
+    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
     
     //get likers for video

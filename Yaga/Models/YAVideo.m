@@ -76,6 +76,7 @@
 
 - (void)updateLikersWithArray:(NSArray *)likers {
     self.likes = likers.count;
+    self.likers = nil;
     YAUser *user = [YAUser currentUser];
     for (NSDictionary *dict in likers)
     {
@@ -83,10 +84,7 @@
         if ([[user username] isEqualToString:dict[nName]]) {
             self.like = YES;
         }
-        NSUInteger index = [self.likers indexOfObject:contact];
-        if (index == NSNotFound) {
-            [self.likers addObject:contact];
-        }
+        [self.likers addObject:contact];
     }
 }
 
