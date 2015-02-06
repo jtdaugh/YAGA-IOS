@@ -16,6 +16,7 @@
 #import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
 #import "YAProgressView.h"
+#import "YADownloadManager.h"
 
 typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateLoading = 0,
@@ -188,7 +189,8 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 - (void)showProgress:(BOOL)show {
     if(show) {
-        if([[YAAssetsCreator sharedCreator] executingOperationForVideo:self.video])
+#warning combine assetcreator and manager
+        if([[YADownloadManager sharedManager] executingOperationForVideo:self.video])
             [self createProgressViewIfNeeded];
     }
 }

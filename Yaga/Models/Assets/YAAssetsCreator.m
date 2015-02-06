@@ -18,11 +18,10 @@
 
 #import "YAGifCreationOperation.h"
 #import "YACreateRecordingOperation.h"
-#import "AFHTTPRequestOperation.h"
+#import "YADownloadManager.h"
 
 @interface YAAssetsCreator ()
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
-@property (nonatomic, strong) NSOperationQueue *downloadQueue;
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
 @property (nonatomic, strong) NSOperationQueue *recordingQueue;
 @end
@@ -41,18 +40,11 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-
-        //let download queue decide itself how many concurent operations should be
-        self.downloadQueue = [[NSOperationQueue alloc] init];
-        
         self.gifQueue = [[NSOperationQueue alloc] init];
-        self.gifQueue.maxConcurrentOperationCount = 4;
+        self.gifQueue.maxConcurrentOperationCount = 3;
         
         self.recordingQueue = [[NSOperationQueue alloc] init];
         self.recordingQueue.maxConcurrentOperationCount = 4;
-        
-        [self.downloadQueue addObserver:self forKeyPath:@"operations" options:0 context:NULL];
-        [self.gifQueue addObserver:self forKeyPath:@"operations" options:0 context:NULL];
     }
     return self;
 }
@@ -193,10 +185,11 @@
 }
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
-    [self.downloadQueue cancelAllOperations];
+    [[YADownloadManager sharedManager] cancelAllJobs];
     [self.gifQueue cancelAllOperations];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self.downloadQueue waitUntilAllOperationsAreFinished];
+        [[YADownloadManager sharedManager] waitUntilAllJobsAreFinished];
         [self.gifQueue waitUntilAllOperationsAreFinished];
         
         if(completion)
@@ -207,18 +200,12 @@
     });
 }
 
-- (void)enqueueAssetsCreationJobForVideo:(YAVideo*)video inGroup:(YAGroup*)group {
-    NSOperation *enquedOp = [self enqueuedOperationForVideo:video];
-    
-    //already downloading/generating gif? do nothing
-    if(enquedOp.isExecuting)
-        return;
-    
-    //otherwise cancel and add new one to the beginning of the queue
-    [enquedOp cancel];
-    
+- (void)enqueueAssetsCreationJobForVideo:(YAVideo*)video prioritizeDownload:(BOOL)prioritize {
     if(video.url.length && !video.movFilename.length ) {
-       [self addVideoDownloadOperationForVideo:video];
+        if(prioritize)
+            [[YADownloadManager sharedManager] prioritizeJobForVideo:video];
+        else
+            [[YADownloadManager sharedManager] addJobForVideo:video];
     }
     else if(video.movFilename.length && !video.gifFilename.length) {
         [self addGifCreationOperationForVideo:video];
@@ -229,125 +216,18 @@
     }
 }
 
-- (void)cancelCreatingAssetsForVideo:(YAVideo*)video {
-    NSOperation *runningOperation = [self enqueuedOperationForVideo:video];
-    if(runningOperation) {
-        [runningOperation cancel];
-    }
-}
-
 - (void)addGifCreationOperationForVideo:(YAVideo*)video {
+    if(!video.movFilename.length)
+        return;
+    
     YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
     [self.gifQueue addOperation:gifCreationOperation];
-}
-
-- (void)addVideoDownloadOperationForVideo:(YAVideo*)video {
-    NSURL *url = [NSURL URLWithString:video.url];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-
-    operation.name = video.url;
-    //    [httpClient registerHTTPOperationClass:[AFHTTPRequestOperation class]];
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSData* videoData = (NSData*)responseObject;
-        
-        NSString *hashStr       = [YAUtils uniqueId];
-        NSString *moveFilename  = [hashStr stringByAppendingPathExtension:@"mov"];
-        NSString *movPath       = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
-        NSURL    *movURL        = [NSURL fileURLWithPath:movPath];
-        
-        BOOL result = [videoData writeToURL:movURL atomically:YES];
-        if(result) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [video.realm beginWriteTransaction];
-                video.movFilename = moveFilename;
-                video.localCreatedAt = [NSDate date];
-                [video.realm commitWriteTransaction];
-                
-                [self addGifCreationOperationForVideo:video];
-            });
-        }
-        else {
-            NSLog(@"Error saving remote video data");
-        }
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        if(error.code == NSURLErrorCancelled) {
-            NSLog(@"video download cancelled");
-        }
-        else {
-            NSLog(@"Error downloading video %@", error);
-        }
-    }];
-    
-    //uncomment me if you want to track progress
-    [operation setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:video.url userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:(totalBytesRead - totalBytesRead * 0.3f) /(float)totalBytesExpectedToRead]}];
-    }];
-    
-    [self.downloadQueue addOperation:operation];
-}
-
-- (NSOperation*)executingOperationForVideo:(YAVideo*)video {
-    NSOperation *op = [self enqueuedOperationForVideo:video];
-    
-    if(!op)
-        return nil;
-    
-    if(op.isExecuting)
-        return op;
-    
-    return nil;
-}
-
-- (NSOperation*)enqueuedOperationForVideo:(YAVideo*)video {
-    if(!video.url.length)
-        return nil;
-    
-    for(NSOperation *op in self.downloadQueue.operations) {
-        if([op.name isEqualToString:video.url])
-            return op;
-    }
-    
-    for(NSOperation *op in self.gifQueue.operations) {
-        if([op.name isEqualToString:video.url])
-            return op;
-    }
-    
-    return nil;
 }
 
 - (void)waitForAllOperationsToFinish
 {
     [self.recordingQueue waitUntilAllOperationsAreFinished];
-    [self.downloadQueue waitUntilAllOperationsAreFinished];
+    [[YADownloadManager sharedManager] waitUntilAllJobsAreFinished];
     [self.gifQueue waitUntilAllOperationsAreFinished];
 }
-
-#pragma mark - Observing count of operations
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
-                         change:(NSDictionary *)change context:(void *)context {
-    if ([keyPath isEqualToString:@"operations"] && self.gifQueue.operationCount == 0 && self.downloadQueue.operationCount == 0) {
-        NSLog(@"all operations in download queue and gif queue are finished");
-        NSLog(@"looping through all videos in current group and adding operations if needed");
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            BOOL allDone = YES;
-            for(YAVideo *video in [YAUser currentUser].currentGroup.videos) {
-                if(video.url.length && !video.movFilename.length ) {
-                    [self addVideoDownloadOperationForVideo:video];
-                    allDone = NO;
-                }
-                else if(video.movFilename.length && !video.gifFilename.length) {
-                    [self addGifCreationOperationForVideo:video];
-                    allDone = NO;
-                }
-            }
-            
-            if(allDone) {
-                NSLog(@"All assets created for %@ group", [YAUser currentUser].currentGroup.name);
-            }
-        });
-    }
-}
-
 @end

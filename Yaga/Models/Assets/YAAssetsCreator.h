@@ -9,6 +9,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "YAVideo.h"
 #import "YAGroup.h"
+#import "AFHTTPRequestOperation.h"
 
 typedef void (^cameraRollCompletion)(NSError *error);
 typedef void (^stopOperationsCompletion)(void);
@@ -20,14 +21,11 @@ typedef void (^stopOperationsCompletion)(void);
 - (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion;
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
-- (void)enqueueAssetsCreationJobForVideo:(YAVideo*)video inGroup:(YAGroup*)group;
-- (void)cancelCreatingAssetsForVideo:(YAVideo*)video;
+- (void)addGifCreationOperationForVideo:(YAVideo*)video;
+- (void)enqueueAssetsCreationJobForVideo:(YAVideo*)video prioritizeDownload:(BOOL)prioritize;
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion;
 
 // on background
 - (void)waitForAllOperationsToFinish;
-
-- (NSOperation*)executingOperationForVideo:(YAVideo*)video;
-- (NSOperation*)enqueuedOperationForVideo:(YAVideo*)video;
 @end
