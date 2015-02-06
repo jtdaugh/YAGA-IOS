@@ -100,6 +100,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         self.captionField.layer.shadowRadius = 1.0f;
         self.captionField.layer.shadowOpacity = 1.0;
         self.captionField.layer.shadowOffset = CGSizeZero;
+        self.captionField.enabled = NO;
         [self addSubview:self.captionField];
     }
     return self;
@@ -294,8 +295,31 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         
         [self.likeImageView.layer addAnimation:theAnimation forKey:@"animateOpacity"];
     } else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:self];
+        self.captionField.enabled = YES;
         [self.captionField becomeFirstResponder];
     }
+}
+
+#pragma mark - UITextFieldDelegate 
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    NSDictionary *attributes = @{NSFontAttributeName: textField.font};
+    
+    CGFloat width = [text sizeWithAttributes:attributes].width;
+    
+    if(width <= self.captionField.frame.size.width){
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [self.video rename:textField.text];
+    [self.captionField resignFirstResponder];
+    self.captionField.enabled = NO;
+    return YES;
 }
 
 @end

@@ -73,11 +73,33 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshGroup:)    name:REFRESH_GROUP_NOTIFICATION     object:nil];
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollToCell:)    name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     //transitions
     self.animationController = [YAAnimatedTransitioningController new];
     
     [self setupPullToRefresh];
+}
+
+- (void)scrollToCell:(NSNotification *)notif
+{
+    YAVideoCell *cell = notif.object;
+    
+//    YAVideoCell *lastObject = self.collectionView.visibleCells.lastObject;
+//    YAVideoCell *objectBeforeLast = self.collectionView.visibleCells[self.collectionView.visibleCells.count - 2];
+//    if (cell == lastObject || cell == objectBeforeLast) {
+//        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+//        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
+//    }
+
+    const CGFloat kKeyboardHeight = 216.f;
+    CGFloat offset = cell.frame.origin.y - self.collectionView.contentOffset.y + kKeyboardHeight + cell.frame.size.height;
+    CGFloat pullUpHeight = offset - self.collectionView.frame.size.height;
+    if (pullUpHeight > 0.f) {
+        self.disableScrollHandling = YES;
+        [self.collectionView setContentOffset:CGPointMake(0.f, self.collectionView.contentOffset.y + pullUpHeight) animated:YES];
+        self.disableScrollHandling = NO;
+    }
+
 }
 
 - (void)setupPullToRefresh {
