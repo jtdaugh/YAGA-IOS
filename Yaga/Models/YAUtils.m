@@ -63,9 +63,11 @@
 + (void)showNotification:(NSString*)message type:(AZNotificationType)type {
     UIViewController *root = [[UIApplication sharedApplication] keyWindow].rootViewController;
     UIViewController *vc = root.presentedViewController ? root.presentedViewController : root;
-    [AZNotification showNotificationWithTitle:message controller:vc
-                             notificationType:type
-                                 startedBlock:nil];
+//    [AZNotification showNotificationWithTitle:message
+//                                   controller:vc
+//                             notificationType:type
+//                                 startedBlock:nil];
+    
 }
 
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error {

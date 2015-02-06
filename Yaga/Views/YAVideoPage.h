@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "YAVideoPlayerView.h"
 #import "YAVideo.h"
+#import "MBProgressHUD.h"
 
-@interface YAVideoPage : UIView<UITextFieldDelegate, UIActionSheetDelegate>
+@interface YAVideoPage : UIView<UITextFieldDelegate, UIActionSheetDelegate, MBProgressHUDDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
 @property (nonatomic, readonly) YAVideoPlayerView *playerView;

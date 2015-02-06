@@ -414,7 +414,11 @@
 
 #pragma mark - UIActionSheetDelegate 
 - (void)actionSheet:(UIActionSheet *)popup didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self];
+    [self addSubview:hud];
     
+    hud.delegate = self;
+
     switch (buttonIndex) {
         case 0:
             [self shareToFacebook];
@@ -425,11 +429,17 @@
             break;
         }
         case 2:
-            [self copyToClipboard];
+        {
+            hud.labelText = NSLocalizedString(@"Copying", nil);
+            [hud showWhileExecuting:@selector(copyToClipboard) onTarget:self withObject:nil animated:YES];
+        }
             break;
         case 3:
-            [self saveToCameraRoll];
+        {
+            hud.labelText = NSLocalizedString(@"Loading", nil);
+            [hud showWhileExecuting:@selector(saveToCameraRoll) onTarget:self withObject:nil animated:YES];
             break;
+        }
         default:
             break;
     }
@@ -459,7 +469,11 @@
 
 - (void)copyToClipboard
 {
-    NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.gifFilename]];
+    __block NSString *filename;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        filename = self.video.gifFilename;
+    });
+    NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:filename]];
     
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
@@ -470,7 +484,11 @@
     [UIView animateWithDuration:0.3 animations:^{
         self.shareButton.alpha = 0;
     }];
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.movFilename] completion:^(NSError *error) {
+    __block NSString *filename;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        filename = self.video.gifFilename;
+    });
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:filename] completion:^(NSError *error) {
         if (error) {
             [YAUtils showNotification:NSLocalizedString(@"Can't save video", @"") type:AZNotificationTypeError];
         }

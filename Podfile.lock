@@ -27,6 +27,7 @@ PODS:
   - FLAnimatedImage (1.0.8)
   - FrameAccessor (1.3.2)
   - libPhoneNumber-iOS (0.7.6)
+  - MBProgressHUD (0.9)
   - NSDate-Time-Ago (1.0.1)
   - OrderedDictionary (1.2)
   - Realm (0.90.5):
@@ -44,6 +45,7 @@ DEPENDENCIES:
   - FLAnimatedImage
   - FrameAccessor (~> 1.0)
   - libPhoneNumber-iOS (~> 0.7)
+  - MBProgressHUD (~> 0.8)
   - NSDate-Time-Ago
   - OrderedDictionary
   - Realm (~> 0.90.2)
@@ -68,6 +70,7 @@ SPEC CHECKSUMS:
   FLAnimatedImage: 8669ace2a531fc0bb7344a6326f48c3a4c3de84b
   FrameAccessor: 5eec95b29b5e9a3afe72a7a2e9ed25b000d3bcc3
   libPhoneNumber-iOS: d4316d494d4997c40a6059faf35a970d7f4eb1c0
+  MBProgressHUD: 2038dbcf3dce73215abed6001657043d53aa79a8
   NSDate-Time-Ago: 6c2f55530dec7471e90106d84bb34bba6660c139
   OrderedDictionary: f7dffc6f0b866461964952a66ed8497d15cf2028
   Realm: aea25534b97be77995650c2339aa6ed010dfcc8a
