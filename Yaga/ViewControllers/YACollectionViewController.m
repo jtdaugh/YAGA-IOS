@@ -19,6 +19,7 @@
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAActivityView.h"
 #import "YAAssetsCreator.h"
+
 #import "YAPullToRefreshLoadingView.h"
 
 #import <ClusterPrePermissions.h>
@@ -156,6 +157,8 @@ static NSString *cellID = @"Cell";
     
     if(needRefresh)
         [self refreshCurrentGroup];
+    else
+        [self enqueueAssetsCreationJobsForCurrentGroup];
     
     [self.collectionView reloadData];
     
@@ -232,7 +235,6 @@ static NSString *cellID = @"Cell";
 
 - (void)refreshCurrentGroup {
     __weak typeof (self) weakSelf = self;
-//    [weakSelf.delegate enableRecording:NO];
     [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
         if(!error) {
             if(newVideos.count) {
@@ -243,9 +245,9 @@ static NSString *cellID = @"Cell";
             }
         }
         
-//        [weakSelf.delegate enableRecording:YES];
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
         [weakSelf playVisible:YES];
+        [self enqueueAssetsCreationJobsForCurrentGroup];
     }];
 }
 
@@ -265,17 +267,12 @@ static BOOL welcomeLabelRemoved = NO;
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     cell.video = video;
     
-    if(!video.gifFilename.length && video.url.length) {
-        [[YAAssetsCreator sharedCreator] createAssetsForVideo:video inGroup:video.group];
-    }
     return cell;
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    if(![self.collectionView.indexPathsForVisibleItems containsObject:indexPath]) {
-        YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
-        [[YAAssetsCreator sharedCreator] cancelCreatingAssetsForVideo:video];
-    }
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [cell animateGifView:NO];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -319,12 +316,7 @@ static BOOL welcomeLabelRemoved = NO;
     return result;
 }
 
-- (void)playPauseOnScroll:(BOOL)scrollingFast {
-    [self playVisible:!scrollingFast];
-}
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
     [self.delegate collectionViewDidScroll];
     
     if(self.disableScrollHandling) {
@@ -333,28 +325,22 @@ static BOOL welcomeLabelRemoved = NO;
     
     BOOL scrollingFast = [self scrollingFast];
     
-    [self playPauseOnScroll:scrollingFast];
+    [self playVisible:!scrollingFast];
     
     self.scrolling = YES;
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    //    [self.delegate enableRecording:NO];
-}
-
-- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-    //    [self.delegate enableRecording:NO];
-}
-
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     self.scrolling = NO;
-    //    [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+    
+    [self prioritiseDownloadsForVisibleCells];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         [self playVisible:YES];
-        //        [self.delegate enableRecording:self.collectionView.pullToRefreshView.state != SVPullToRefreshStateLoading];
+        
+        [self prioritiseDownloadsForVisibleCells];
     }
 }
 
@@ -384,6 +370,18 @@ static BOOL welcomeLabelRemoved = NO;
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
     }
+}
+
+#pragma mark - Assets creation
+
+- (void)prioritiseDownloadsForVisibleCells {
+    for(YAVideoCell *cell in self.collectionView.visibleCells)
+        [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideo:cell.video prioritizeDownload:YES];
+}
+
+- (void)enqueueAssetsCreationJobsForCurrentGroup {
+    for(YAVideo *video in [YAUser currentUser].currentGroup.videos)
+            [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideo:video prioritizeDownload:NO];
 }
 
 #pragma mark - Custom transitions

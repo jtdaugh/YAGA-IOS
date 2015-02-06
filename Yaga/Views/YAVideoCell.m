@@ -16,6 +16,7 @@
 #import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
 #import "YAProgressView.h"
+#import "YADownloadManager.h"
 
 typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateLoading = 0,
@@ -54,6 +55,25 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
+        const CGFloat radius = 40;
+        self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
+        self.progressView.radius = radius;
+        UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
+        progressBkgView.backgroundColor = [UIColor clearColor];
+        self.progressView.backgroundView = progressBkgView;
+        self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.contentView addSubview:self.progressView];
+        
+        NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+        
+        self.progressView.indeterminate = NO;
+        self.progressView.showsText = YES;
+        self.progressView.lineWidth = 2;
+        self.progressView.tintColor = PRIMARY_COLOR;
+
+        
     }
     return self;
 }
@@ -78,19 +98,21 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
     
-    [self.progressView removeFromSuperview];
-    self.progressView = nil;
+    self.progressView.progress = 0;
+    [self.progressView setCustomText:@""];
     
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
-    //self.playerVC = nil;
     self.state = YAVideoCellStateLoading;
 }
 
 #pragma mark -
 
 - (void)setVideo:(YAVideo *)video {
+    
+    [self.progressView setCustomText:video.creator];
+    
     if(_video == video)
         return;
     
@@ -187,33 +209,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 }
 
 - (void)showProgress:(BOOL)show {
-    if(show) {
-        if([[YAAssetsCreator sharedCreator] executingOperationForVideo:self.video])
-            [self createProgressViewIfNeeded];
-    }
-}
-
-- (void)createProgressViewIfNeeded {
-    if(self.progressView)
-        return;
-    
-    const CGFloat radius = 40;
-    self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
-    self.progressView.radius = radius;
-    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
-    progressBkgView.backgroundColor = [UIColor clearColor];
-    self.progressView.backgroundView = progressBkgView;
-    self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.contentView addSubview:self.progressView];
-    
-    NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-    
-    self.progressView.indeterminate = NO;
-    self.progressView.showsText = YES;
-    self.progressView.lineWidth = 2;
-    self.progressView.tintColor = PRIMARY_COLOR;
+    self.progressView.backgroundView.hidden = !show;
 }
 
 - (void)generationProgressChanged:(NSNotification*)notif {

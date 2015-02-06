@@ -61,4 +61,6 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 - (void)purgeOldVideos;
 
 - (BOOL)hasUnviewedVideosInGroups;
+
+- (void)purgeUnusedAssets;
 @end
