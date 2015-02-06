@@ -73,7 +73,7 @@
     self = [super initWithFrame:frame];
     if(self) {
         self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-        [self addGestureRecognizer:self.tapToFocusRecognizer];
+//        [self addGestureRecognizer:self.tapToFocusRecognizer];
     }
     return self;
 }
@@ -137,7 +137,7 @@
             double focus_y = aPoint.y/screenHeight;
             if([device lockForConfiguration:nil]) {
                 [device setFocusPointOfInterest:CGPointMake(focus_x,focus_y)];
-                [device setFocusMode:AVCaptureFocusModeAutoFocus];
+                [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
                 if ([device isExposureModeSupported:AVCaptureExposureModeAutoExpose]){
                     [device setExposureMode:AVCaptureExposureModeAutoExpose];
                 }
