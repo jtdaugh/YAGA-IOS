@@ -13,7 +13,7 @@
 @end
 
 #define accessoryHeight 44
-#define xMargin 44
+#define xMargin 0
 #define subtitleDefaultHeight 18
 #define between_margin 4
 
