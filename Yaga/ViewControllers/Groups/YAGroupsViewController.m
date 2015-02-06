@@ -42,12 +42,12 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     CGFloat width = VIEW_WIDTH * 1.0;
     
-    CGFloat origin = VIEW_HEIGHT * 0.0;
+    CGFloat origin = VIEW_HEIGHT * 0.1;
     
     CGFloat buttonHeight = ELEVATOR_MARGIN * 1.5;
     
     if(!self.embeddedMode) {
-        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2 + 15, origin, width - 30, VIEW_HEIGHT*.3)];
         [titleLabel setText:NSLocalizedString(@"Looks like you're already a part of a group", @"")];
         [titleLabel setNumberOfLines:4];
         [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
@@ -60,7 +60,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         origin = 0;
     }
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.view.bounds.size.height - (self.embeddedMode ? buttonHeight : origin - 20))];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(22, origin, VIEW_WIDTH-22, self.view.bounds.size.height - (self.embeddedMode ? buttonHeight : origin + 10))];
 
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];
@@ -203,7 +203,8 @@ static NSString *CellIdentifier = @"GroupsCell";
             cell.imageView.image = img;
         }
         else {
-            cell.imageView.image = nil;
+            UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.0]];
+            cell.imageView.image = img;
         }
     }
     
