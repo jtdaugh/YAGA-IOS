@@ -220,8 +220,18 @@
     if(!video.movFilename.length)
         return;
     
-    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
-    [self.gifQueue addOperation:gifCreationOperation];
+    BOOL enqueued = NO;
+    for(NSOperation *op in self.gifQueue.operations) {
+        if([op.name isEqualToString:video.url]) {
+            enqueued = YES;
+            break;
+        }
+    }
+    
+    if(!enqueued) {
+        YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
+        [self.gifQueue addOperation:gifCreationOperation];
+    }
 }
 
 - (void)waitForAllOperationsToFinish

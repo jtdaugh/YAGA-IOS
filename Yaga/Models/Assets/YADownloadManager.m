@@ -145,7 +145,8 @@
     
     if(self.executingJobs.count == 0 && self.waitingJobs.count == 0) {
         NSLog(@"YADownloadManager all done");
-        dispatch_semaphore_signal(self.waiting_semaphore);
+        if(self.waiting_semaphore)
+            dispatch_semaphore_signal(self.waiting_semaphore);
         return;
     }
     
@@ -169,7 +170,7 @@
 }
 
 - (void)logState:(NSString*)method {
-    NSLog(@"%@: executing: %lu, waiting: %lu", method, self.executingJobs.allKeys.count, self.waitingJobs.allKeys.count);
+    NSLog(@"%@: executing: %lu, waiting: %lu", method, (unsigned long)self.executingJobs.allKeys.count, self.waitingJobs.allKeys.count);
 }
 
 - (void)cancelAllJobs {
