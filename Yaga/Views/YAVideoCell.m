@@ -18,6 +18,8 @@
 #import "YAProgressView.h"
 #import "YADownloadManager.h"
 
+#define LIKE_HEART_SIDE 40.f
+
 typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateLoading = 0,
     YAVideoCellStateJPEGPreview,
@@ -29,9 +31,9 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 
 @property (nonatomic, strong) YAProgressView *progressView;
-
+@property (nonatomic, strong) UITextField *captionField;
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
-
+@property (nonatomic, strong) UIImageView *likeImageView;
 @property (nonatomic, assign) YAVideoCellState state;
 
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
@@ -78,6 +80,27 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         tapRecognizer.numberOfTapsRequired = 2;
         tapRecognizer.delaysTouchesBegan = YES;
         [self addGestureRecognizer:tapRecognizer];
+        
+        self.likeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, LIKE_HEART_SIDE, LIKE_HEART_SIDE)];
+        self.likeImageView.layer.opacity = 0.0f;
+        self.likeImageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+        [self addSubview:self.likeImageView];
+        
+        CGFloat captionHeight = 30;
+        self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(0.f, 0.f, self.bounds.size.width*0.7f, captionHeight)];
+        self.captionField.center = self.likeImageView.center;
+        [self.captionField setBackgroundColor:[UIColor clearColor]];
+        [self.captionField setTextAlignment:NSTextAlignmentCenter];
+        [self.captionField setTextColor:[UIColor whiteColor]];
+        [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
+        self.captionField.delegate = self;
+        [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
+        [self.captionField setReturnKeyType:UIReturnKeyDone];
+        self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.captionField.layer.shadowRadius = 1.0f;
+        self.captionField.layer.shadowOpacity = 1.0;
+        self.captionField.layer.shadowOffset = CGSizeZero;
+        [self addSubview:self.captionField];
     }
     return self;
 }
@@ -245,7 +268,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 - (void)doubleTap:(UIGestureRecognizer *)sender {
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
-    if (myVideo) {
+    if (!myVideo) {
         if (!self.video.like) {
             [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
 
@@ -260,10 +283,8 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
         UIImage *likeImage = self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"];
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:likeImage];
-        imageView.layer.opacity = 0.0f;
-        [self addSubview:imageView];
-        imageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+        self.likeImageView.image = likeImage;
+
         CABasicAnimation *theAnimation;
         theAnimation=[CABasicAnimation animationWithKeyPath:@"opacity"];
         theAnimation.duration=0.4;
@@ -271,9 +292,9 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
         theAnimation.fromValue=[NSNumber numberWithFloat:0.0];
         theAnimation.toValue=[NSNumber numberWithFloat:1.0];
         
-        [imageView.layer addAnimation:theAnimation forKey:@"animateOpacity"];
+        [self.likeImageView.layer addAnimation:theAnimation forKey:@"animateOpacity"];
     } else {
-        
+        [self.captionField becomeFirstResponder];
     }
 }
 
