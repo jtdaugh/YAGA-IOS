@@ -49,9 +49,6 @@
 "CHANGE_GROUP_TITLE" = "Change group name";
 "CHANGE_GROUP_PLACEHOLDER" = "can not be empty";
 
-"Video saved to the camera roll successfully" = "Video saved to the camera roll successfully";
-"Are you sure you want to delete this video?" = "Are you sure you want to delete this video?";
-
 "iMESSAGE_COME_JOIN_ME_TEXT" = "Hey - I added you to %@, a group on Yaga. Come join me - http://getyaga.com";
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
@@ -74,9 +71,17 @@
 "Enable push notifications?" = "Enable push notifications?";
 "Yaga wants to send you push notifications" = "Yaga wants to send you push notifications";
 
-"Save to clipboard"     = "Copy to clipboard";
-"Share on Facebook"     = "Share on Facebook";
-"Share on Twitter"      = "Share on Twitter";
-"Save to Camera Roll"   = "Save to Camera Roll";
-
 "Check out my new Yaga video" = "Check out my new Yaga video";
+
+//video options
+"Choose action" = "Choose action";
+"Save to Camera Roll"   = "Save to Camera Roll";
+"Copy Gif" = "Copy Gif";
+"Share on Facebook" = "Share on Facebook";
+"Share on Twitter" = "Share on Twitter";
+"Delete" = "Delete";
+"Saving" = "Saving";
+"Copied to clipboard" = "Copied to clipboard";
+"Video saved to the camera roll" = "Video saved to the camera roll";
+"Are you sure you want to delete this video from '%@'?" = "Are you sure you want to delete this video from '%@'?";
+"Delete video" = "Delete video";

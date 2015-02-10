@@ -10,6 +10,9 @@
 #import "NBPhoneNumberUtil.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "YAUser.h"
+#import "YAAssetsCreator.h"
+#import <Social/Social.h>
+#import "MBProgressHUD.h"
 
 @implementation YAUtils
 
@@ -63,27 +66,27 @@
 + (void)showNotification:(NSString*)message type:(AZNotificationType)type {
     UIViewController *root = [[UIApplication sharedApplication] keyWindow].rootViewController;
     UIViewController *vc = root.presentedViewController ? root.presentedViewController : root;
-//    [AZNotification showNotificationWithTitle:message
-//                                   controller:vc
-//                             notificationType:type
-//                                 startedBlock:nil];
+    [AZNotification showNotificationWithTitle:message
+                                   controller:vc
+                             notificationType:type
+                                 startedBlock:nil];
     
 }
 
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error {
     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
-
+    
     NBPhoneNumber *myNumber = [phoneUtil parse:value
                                  defaultRegion:[YAUser currentUser].countryCode error:error];
     
     if(error && *error)
         return NO;
-//
-//    
-//    [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:error];
-//    
-//    if(*error)
-//        return NO;
+    //
+    //
+    //    [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:error];
+    //
+    //    if(*error)
+    //        return NO;
     
     
     return [phoneUtil isValidNumber:myNumber];
@@ -110,6 +113,131 @@
     UIGraphicsEndImageContext();
     
     return image;
+}
+
+#pragma mark - Video actions
++ (void)showVideoOptionsForVideo:(YAVideo*)video {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Choose action", @"") message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook]) {
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Share on Facebook", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [YAUtils shareVideoOnFacebook:video];
+        }]];
+    }
+    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Share on Twitter", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [YAUtils shareVideoOnTwitter:video];
+        }]];
+    }
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Save to Camera Roll", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [YAUtils saveVideoToCameraRoll:video];
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Copy Gif", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [YAUtils copyVideoToClipboard:video];
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [YAUtils deleteVideo:video];
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
+    
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    vc = [vc presentedViewController] ? [vc presentedViewController] : vc;
+    
+    [vc presentViewController:alert animated:YES completion:nil];
+}
+
++ (void)saveVideoToCameraRoll:(YAVideo*)video {
+    
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:hud];
+    hud.labelText = NSLocalizedString(@"Saving", nil);
+    [hud show:YES];
+    
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:video.gifFilename] completion:^(NSError *error) {
+        
+        [hud hide:YES];
+        
+        if (error) {
+            [YAUtils showNotification:NSLocalizedString(@"Can't save video", @"") type:AZNotificationTypeError];
+        }
+        else {
+            [YAUtils showNotification:NSLocalizedString(@"Video saved to the camera roll", @"") type:AZNotificationTypeMessage];
+        }
+    }];
+}
+
++ (void)copyVideoToClipboard:(YAVideo*)video {
+    NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:video.gifFilename]];
+    
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:hud];
+    hud.labelText = NSLocalizedString(@"Saving", nil);
+    [hud show:YES];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+        [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [hud hide:YES];
+            [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:AZNotificationTypeMessage];
+        });
+    });
+}
+
++ (void)deleteVideo:(YAVideo*)video {
+    NSString *alertMessageText = [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to delete this video from '%@'?", @""), [YAUser currentUser].currentGroup.name];
+    
+    NSString *alertMessage = NSLocalizedString(alertMessageText, nil);
+    UIAlertController *confirmAlert = [UIAlertController
+                                       alertControllerWithTitle:NSLocalizedString(@"Delete video", nil)
+                                       message:alertMessage
+                                       preferredStyle:UIAlertControllerStyleAlert];
+    
+    [confirmAlert addAction:[UIAlertAction
+                             actionWithTitle:NSLocalizedString(@"Cancel", nil)
+                             style:UIAlertActionStyleCancel
+                             handler:^(UIAlertAction *action) {
+                                 
+                             }]];
+    
+    [confirmAlert addAction:[UIAlertAction
+                             actionWithTitle:NSLocalizedString(@"Delete", nil)
+                             style:UIAlertActionStyleDestructive
+                             handler:^(UIAlertAction *action) {
+                                 [video removeFromCurrentGroup];
+                             }]];
+    
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    vc = [vc presentedViewController] ? [vc presentedViewController] : vc;
+    
+    [vc presentViewController:confirmAlert animated:YES completion:nil];
+}
+
++ (void)shareVideoOnFacebook:(YAVideo*)video {
+    SLComposeViewController *controller = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
+    
+    [controller setInitialText:NSLocalizedString(@"Check out my new Yaga video", nil)];
+    [controller addURL:[NSURL URLWithString:video.url]];
+    [controller addImage:[UIImage imageWithContentsOfFile:[YAUtils urlFromFileName:video.jpgFilename].path]];
+    
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    vc = [vc presentedViewController] ? [vc presentedViewController] : vc;
+    
+    [vc presentViewController:controller animated:YES completion:Nil];
+}
+
++ (void)shareVideoOnTwitter:(YAVideo*)video {
+    SLComposeViewController *tweetSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
+    [tweetSheet setInitialText:NSLocalizedString(@"Check out my new Yaga video", nil)];
+    [tweetSheet addURL:[NSURL URLWithString:video.url]];
+    [tweetSheet addImage:[UIImage imageWithContentsOfFile:[YAUtils urlFromFileName:video.jpgFilename].path]];
+    
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    vc = [vc presentedViewController] ? [vc presentedViewController] : vc;
+    
+    [vc presentViewController:tweetSheet animated:YES completion:nil];
 }
 
 @end

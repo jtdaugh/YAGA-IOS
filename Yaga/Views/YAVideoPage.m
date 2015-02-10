@@ -341,29 +341,7 @@
 
 - (void)deleteButtonPressed {
     [self animateButton:self.deleteButton withImageName:nil completion:^{
-        NSString *alertMessageText = [NSString stringWithFormat:@"Are you sure you want to delete this video from '%@'?", [YAUser currentUser].currentGroup.name];
-        NSString *alertMessage = NSLocalizedString(alertMessageText, nil);
-        UIAlertController *alertController = [UIAlertController
-                                              alertControllerWithTitle:NSLocalizedString(@"Delete Video", nil)
-                                              message:alertMessage
-                                              preferredStyle:UIAlertControllerStyleAlert];
-        
-        [alertController addAction:[UIAlertAction
-                                    actionWithTitle:NSLocalizedString(@"Cancel", nil)
-                                    style:UIAlertActionStyleCancel
-                                    handler:^(UIAlertAction *action) {
-                                        
-                                    }]];
-        
-        [alertController addAction:[UIAlertAction
-                                    actionWithTitle:NSLocalizedString(@"Delete", nil)
-                                    style:UIAlertActionStyleDestructive
-                                    handler:^(UIAlertAction *action) {
-                                        [self.video removeFromCurrentGroup];
-                                        _video = nil;
-                                    }]];
-        
-        [[[[[UIApplication sharedApplication] keyWindow] rootViewController] presentedViewController] presentViewController:alertController animated:YES completion:nil];
+        [YAUtils deleteVideo:self.video];
     }];
 }
 
@@ -412,117 +390,9 @@
 
 }
 
-#pragma mark - UIActionSheetDelegate 
-- (void)actionSheet:(UIActionSheet *)popup didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self];
-    [self addSubview:hud];
-    
-    hud.delegate = self;
-
-    switch (buttonIndex) {
-        case 0:
-            [self shareToFacebook];
-            break;
-        case 1:
-        {
-            [self shareToTwitter];
-            break;
-        }
-        case 2:
-        {
-            hud.labelText = NSLocalizedString(@"Copying", nil);
-            [hud showWhileExecuting:@selector(copyToClipboard) onTarget:self withObject:nil animated:YES];
-        }
-            break;
-        case 3:
-        {
-            hud.labelText = NSLocalizedString(@"Loading", nil);
-            [hud showWhileExecuting:@selector(saveToCameraRoll) onTarget:self withObject:nil animated:YES];
-            break;
-        }
-        default:
-            break;
-    }
-}
-
-- (void)shareToFacebook
-{
-    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook]) {
-        SLComposeViewController *controller = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
-        
-        [controller setInitialText:NSLocalizedString(@"Check out my new Yaga video", nil)];
-        [controller addURL:[NSURL URLWithString:self.video.url]];
-        [[self topMostController] presentViewController:controller animated:YES completion:Nil];
-    }
-}
-
-- (void)shareToTwitter
-{
-    if ([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
-    {
-        SLComposeViewController *tweetSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
-        [tweetSheet setInitialText:NSLocalizedString(@"Check out my new Yaga video", nil)];
-        [tweetSheet addURL:[NSURL URLWithString:self.video.url]];
-        [[self topMostController] presentViewController:tweetSheet animated:YES completion:nil];
-    }
-}
-
-- (void)copyToClipboard
-{
-    __block NSString *filename;
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        filename = self.video.gifFilename;
-    });
-    NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:filename]];
-    
-    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-    [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
-}
-
-- (void)saveToCameraRoll
-{
-    [UIView animateWithDuration:0.3 animations:^{
-        self.shareButton.alpha = 0;
-    }];
-    __block NSString *filename;
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        filename = self.video.gifFilename;
-    });
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:filename] completion:^(NSError *error) {
-        if (error) {
-            [YAUtils showNotification:NSLocalizedString(@"Can't save video", @"") type:AZNotificationTypeError];
-        }
-        else {
-            [YAUtils showNotification:NSLocalizedString(@"Video saved to camera roll successfully", @"") type:AZNotificationTypeMessage];
-        }
-        
-        [UIView animateWithDuration:0.3 animations:^{
-            self.shareButton.alpha = 1;
-        }];
-    }];
-}
-
 - (void)shareButtonPressed {
-    UIActionSheet *popup = [[UIActionSheet alloc] initWithTitle:@"Select Sharing option:" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:
-                            NSLocalizedString(@"Share on Facebook", nil),
-                            NSLocalizedString(@"Share on Twitter", nil),
-                            NSLocalizedString(@"Copy GIF", nil),
-                            NSLocalizedString(@"Save to Camera Roll", nil),
-                            nil];
-
-    [popup showInView:[UIApplication sharedApplication].keyWindow];//    [self animateButton:self.shareButton withImageName:nil completion:^{
+    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
+    [YAUtils showVideoOptionsForVideo:self.video];
 }
-
-- (UIViewController*)topMostController
-{
-    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
-    
-    while (topController.presentedViewController) {
-        topController = topController.presentedViewController;
-    }
-    
-    return topController;
-}
-
 @end
 

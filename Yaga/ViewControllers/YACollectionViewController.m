@@ -68,6 +68,13 @@ static NSString *cellID = @"Cell";
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
     
+    //long press on cell for options
+    UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc]
+       initWithTarget:self action:@selector(handleLongPress:)];
+    longPressRecognizer.minimumPressDuration = .5; //seconds
+    longPressRecognizer.delegate = self;
+    [self.collectionView addGestureRecognizer:longPressRecognizer];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(insertVideos:)    name:VIDEOS_ADDED_NOTIFICATION      object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
@@ -416,5 +423,19 @@ static BOOL welcomeLabelRemoved = NO;
     self.animationController.presentingMode = NO;
     
     return self.animationController;
+}
+
+#pragma mark - Gesture recognizers
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state != UIGestureRecognizerStateEnded)
+        return;
+    
+    CGPoint p = [gestureRecognizer locationInView:self.collectionView];
+    
+    NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:p];
+    if (indexPath) {
+        YAVideo *video = [[YAUser currentUser].currentGroup.videos objectAtIndex:indexPath.row];
+        [YAUtils showVideoOptionsForVideo:video];
+    }
 }
 @end

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AZNotification.h"
+#import "YAVideo.h"
 
 typedef void (^uploadDataCompletionBlock)(NSError *error);
 
@@ -24,4 +25,8 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (UIView*)createBackgroundViewWithFrame:(CGRect)frame alpha:(CGFloat)alpha;
 + (UIImage *)imageWithColor:(UIColor *)color;
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error;
+
+//video actions
++ (void)showVideoOptionsForVideo:(YAVideo*)video;
++ (void)deleteVideo:(YAVideo*)video;
 @end

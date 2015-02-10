@@ -15,7 +15,7 @@ typedef void (^cameraCompletion)(void);
 - (void)collectionViewDidScroll;
 @end
 
-@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, UIViewControllerTransitioningDelegate> {
+@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate> {
     CGPoint lastOffset;
     NSTimeInterval lastOffsetCapture;
     BOOL isScrollingFast;
