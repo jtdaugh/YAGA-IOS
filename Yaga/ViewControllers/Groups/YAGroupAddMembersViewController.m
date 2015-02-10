@@ -335,7 +335,7 @@
         NSArray *friendNumbers = [self.selectedContacts valueForKey:nPhone];
         [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
             if(error)
-                [YAUtils showNotification:@"Error: Can't send iMessage" type:AZNotificationTypeError];
+                [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
             
             [self.existingGroup addMembers:self.selectedContacts];
             
@@ -343,7 +343,7 @@
             
             NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
             
-            [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+            [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
         }];
     }
     //create default group

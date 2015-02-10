@@ -582,7 +582,7 @@
     if(!lastRegistrationDate || fabs(lastRegistrationDate) > 24 * 60 * 60) {
         [self registerDeviceTokenWithCompletion:^(id response, NSError *error) {
             if(error) {
-                [YAUtils showNotification:[NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription] type:AZNotificationTypeError];
+                [YAUtils showNotification:[NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription] type:YANotificationTypeError];
             }
         }];
     }

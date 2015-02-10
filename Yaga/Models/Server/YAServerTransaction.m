@@ -86,7 +86,7 @@
     
     [[YAServer sharedServer] createGroupWithName:group.name withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't create remote group with name %@, error %@", group.name, error.localizedDescription] type:AZNotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't create remote group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             
             completion(nil, error);
         }
@@ -96,7 +96,7 @@
                 group.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
                 [group.realm commitWriteTransaction];
                 
-                [self logEvent:[NSString stringWithFormat:@"remote group: %@ created on server with id: %@", group.name, group.serverId] type:AZNotificationTypeSuccess];
+                [self logEvent:[NSString stringWithFormat:@"remote group: %@ created on server with id: %@", group.name, group.serverId] type:YANotificationTypeSuccess];
                 
                 completion(group.serverId, nil);
             });
@@ -114,12 +114,12 @@
     
     [[YAServer sharedServer] renameGroupWithId:group.serverId newName:group.name withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't rename remote group with name %@, error %@", group.name, error.localizedDescription] type:AZNotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't rename remote group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
             
-            [self logEvent:[NSString stringWithFormat:@"remote group: %@ renamed", group.name] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"remote group: %@ renamed", group.name] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -138,11 +138,11 @@
     
     [[YAServer sharedServer] addGroupMembersByPhones:phones andUsernames:usernames toGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't add members to the group with name %@, error %@", group.name, response] type:AZNotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't add members to the group with name %@, error %@", group.name, response] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"members %@ added to the group: %@", phones, group.name] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"members %@ added to the group: %@", phones, group.name] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -160,11 +160,11 @@
     
     [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't remove member from the group with name %@, error %@", group.name, error.localizedDescription] type:AZNotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't remove member from the group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"member %@ removed from the group: %@", phone, group.name] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"member %@ removed from the group: %@", phone, group.name] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -176,11 +176,11 @@
     
     [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:groupId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't leave group with id: %@, error %@", groupId, error.localizedDescription] type:AZNotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't leave group with id: %@, error %@", groupId, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"successfully left group with id: %@", groupId] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"successfully left group with id: %@", groupId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -196,11 +196,11 @@
     
     [[YAServer sharedServer] muteGroupWithId:group.serverId mute:group.muted withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"mute/unmute group with name %@, error %@", group.name, error.localizedDescription] type:AZNotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"mute/unmute group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"%@ group %@", group.name, group.muted ? @"muted" : @"unmuted"] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"%@ group %@", group.name, group.muted ? @"muted" : @"unmuted"] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -216,7 +216,7 @@
     [[YAServer sharedServer] uploadVideo:video toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
         if(error) {
             NSString *localId = [response isKindOfClass:[NSString class]] ? (NSString*)response : @"None";
-            [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", localId, error.localizedDescription] type:AZNotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", localId, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
@@ -229,7 +229,7 @@
             video.url = location;
             [video.realm commitWriteTransaction];
             
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:YANotificationTypeSuccess];
             
             completion(nil, nil);
         }
@@ -242,11 +242,11 @@
     
     [[YAServer sharedServer] deleteVideoWithId:videoId fromGroup:groupId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"unable to delete video with id:%@, error %@", videoId, error.localizedDescription] type:AZNotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"unable to delete video with id:%@, error %@", videoId, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", videoId] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", videoId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
         
@@ -258,18 +258,18 @@
     
     [[YAServer sharedServer] uploadVideoCaptionWithId:videoId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"unable to update video caption with id:%@, error %@", videoId, error.localizedDescription] type:AZNotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"unable to update video caption with id:%@, error %@", videoId, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", videoId] type:AZNotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", videoId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
         
     }];
 }
 
-- (void)logEvent:(NSString*)message type:(AZNotificationType)type {
+- (void)logEvent:(NSString*)message type:(YANotificationType)type {
 #ifdef DEBUG
     [YAUtils showNotification:message type:type];
 #else

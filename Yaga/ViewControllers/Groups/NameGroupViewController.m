@@ -111,7 +111,7 @@
     
     [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
         if(error)
-            [YAUtils showNotification:@"Error: Can't send iMessage" type:AZNotificationTypeError];
+            [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
         
         if(!self.embeddedMode) {
             [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];

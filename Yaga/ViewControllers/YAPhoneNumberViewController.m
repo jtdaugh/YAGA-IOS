@@ -208,7 +208,7 @@
         {
             dispatch_async(dispatch_get_main_queue(),  ^{
                 [YAUtils showNotification:responseDictionary
-                                     type:AZNotificationTypeError];
+                                     type:YANotificationTypeError];
                 weakSelf.nextButton.enabled = YES;
             });
         } else {

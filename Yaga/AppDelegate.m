@@ -145,7 +145,7 @@
     NSLog(@"didReceiveRemoteNotification %@", userInfo);
     
     //http://stackoverflow.com/questions/1554751/how-to-handle-push-notifications-if-the-application-is-already-running
-    [YAUtils showNotification:[NSString stringWithFormat:@"Push: %@", [userInfo description]] type:AZNotificationTypeMessage];
+    [YAUtils showNotification:[NSString stringWithFormat:@"Push: %@", [userInfo description]] type:YANotificationTypeMessage];
     
     //for tests
     NSString *testAlert = @"New video at group ";

@@ -111,7 +111,7 @@
                                                  
                                                  if(error) {
                                                      [weakSelf.activityIndicator stopAnimating];
-                                                     [YAUtils showNotification:error.localizedDescription type:AZNotificationTypeError];
+                                                     [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
                                                  }
                                                  else {
                                                      [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
@@ -126,7 +126,7 @@
                                                          }
                                                          else {
                                                              [weakSelf.activityIndicator stopAnimating];
-                                                             [YAUtils showNotification:error.localizedDescription type:AZNotificationTypeError];
+                                                             [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
                                                          }
                                                      }];
                                                  }

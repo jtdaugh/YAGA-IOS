@@ -267,12 +267,12 @@
             
         case MessageComposeResultFailed:
         {
-            [YAUtils showNotification:@"failed to send message" type:AZNotificationTypeError];
+            [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
             break;
         }
             
         case MessageComposeResultSent:
-            [YAUtils showNotification:@"message sent" type:AZNotificationTypeSuccess];
+            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
             break;
             
         default:

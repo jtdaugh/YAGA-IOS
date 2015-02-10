@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AZNotification.h"
 #import "YAVideo.h"
+#import "YANotificationView.h"
 
 typedef void (^uploadDataCompletionBlock)(NSError *error);
 
@@ -20,7 +20,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (NSURL*)urlFromFileName:(NSString*)fileName;
 
 //UI
-+ (void)showNotification:(NSString*)message type:(AZNotificationType)type;
++ (void)showNotification:(NSString*)message type:(YANotificationType)type;
 
 + (UIView*)createBackgroundViewWithFrame:(CGRect)frame alpha:(CGFloat)alpha;
 + (UIImage *)imageWithColor:(UIColor *)color;

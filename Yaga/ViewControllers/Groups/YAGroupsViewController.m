@@ -348,7 +348,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         
         //just for now
         NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), group.name, group.muted ? NSLocalizedString(@"Muted", @"") : NSLocalizedString(@"Unmuted", @"")];
-        [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
         
     }]];
     
@@ -385,7 +385,7 @@ static NSString *CellIdentifier = @"GroupsCell";
             
             if([YAUser currentUser].currentGroup) {
                 NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@. Current group is %@.", groupToLeave, [YAUser currentUser].currentGroup.name];
-                [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+                [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
                 [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
             }
             else {
@@ -401,7 +401,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         }
         else {
             NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@", groupToLeave];
-            [YAUtils showNotification:notificationMessage type:AZNotificationTypeSuccess];
+            [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
         }
     }]];
     

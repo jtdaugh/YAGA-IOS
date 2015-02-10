@@ -63,14 +63,8 @@
     return [NSURL fileURLWithPath:path];
 }
 
-+ (void)showNotification:(NSString*)message type:(AZNotificationType)type {
-    UIViewController *root = [[UIApplication sharedApplication] keyWindow].rootViewController;
-    UIViewController *vc = root.presentedViewController ? root.presentedViewController : root;
-    [AZNotification showNotificationWithTitle:message
-                                   controller:vc
-                             notificationType:type
-                                 startedBlock:nil];
-    
++ (void)showNotification:(NSString*)message type:(YANotificationType)type {
+    [YANotificationView showMessage:message viewType:type];
 }
 
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error {
@@ -159,10 +153,10 @@
         [hud hide:YES];
         
         if (error) {
-            [YAUtils showNotification:NSLocalizedString(@"Can't save video", @"") type:AZNotificationTypeError];
+            [YAUtils showNotification:NSLocalizedString(@"Can't save video", @"") type:YANotificationTypeError];
         }
         else {
-            [YAUtils showNotification:NSLocalizedString(@"Video saved to the camera roll", @"") type:AZNotificationTypeMessage];
+            [YAUtils showNotification:NSLocalizedString(@"Video saved to the camera roll", @"") type:YANotificationTypeMessage];
         }
     }];
 }
@@ -181,7 +175,7 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [hud hide:YES];
-            [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:AZNotificationTypeMessage];
+            [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:YANotificationTypeMessage];
         });
     });
 }

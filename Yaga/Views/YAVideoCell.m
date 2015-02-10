@@ -9,7 +9,6 @@
 #import "YAVideoCell.h"
 #import "YAUtils.h"
 #import "YAUser.h"
-#import "AZNotification.h"
 #import "NSDate+NVTimeAgo.h"
 #import "YAAssetsCreator.h"
 #import "YAActivityView.h"

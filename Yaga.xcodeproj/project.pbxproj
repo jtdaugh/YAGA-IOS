@@ -75,6 +75,7 @@
 		6ECCCDF81A804EF000B1E1BC /* YAProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */; };
 		6EEDB8E01A8427B2000BB909 /* YADownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEDB8DF1A8427B2000BB909 /* YADownloadManager.m */; };
 		6EEDB8E21A8A10B7000BB909 /* push.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 6EEDB8E11A8A10B7000BB909 /* push.m4a */; };
+		6EEDB8E51A8A555C000BB909 /* YANotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEDB8E41A8A555C000BB909 /* YANotificationView.m */; };
 		71D0F56C190D998000C7DEE0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56B190D998000C7DEE0 /* Foundation.framework */; };
 		71D0F56E190D998000C7DEE0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */; };
 		71D0F570190D998000C7DEE0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56F190D998000C7DEE0 /* UIKit.framework */; };
@@ -86,9 +87,6 @@
 		861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */ = {isa = PBXBuildFile; fileRef = 861A90BE1A4AE77C00CAD2E3 /* NSData+Hex.m */; };
 		861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */; };
 		861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailable.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */; };
-		865BD7A21A484543003B00DA /* UIColor+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79D1A484543003B00DA /* UIColor+Additions.m */; };
-		865BD7A31A484543003B00DA /* AZNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD79F1A484543003B00DA /* AZNotification.m */; };
-		865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 865BD7A11A484543003B00DA /* AZNotificationView.m */; };
 		86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */ = {isa = PBXBuildFile; fileRef = 86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */; };
 		86AB83F61A83B29B00EB36EA /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86AB83F51A83B29B00EB36EA /* Social.framework */; };
 		86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B642931A52E83400E095AD /* YASetNewRootVCSegue.m */; };
@@ -232,6 +230,8 @@
 		6EEDB8DE1A8427B2000BB909 /* YADownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YADownloadManager.h; sourceTree = "<group>"; };
 		6EEDB8DF1A8427B2000BB909 /* YADownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YADownloadManager.m; sourceTree = "<group>"; };
 		6EEDB8E11A8A10B7000BB909 /* push.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = push.m4a; sourceTree = "<group>"; };
+		6EEDB8E31A8A555C000BB909 /* YANotificationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YANotificationView.h; sourceTree = "<group>"; };
+		6EEDB8E41A8A555C000BB909 /* YANotificationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YANotificationView.m; sourceTree = "<group>"; };
 		71D0F568190D998000C7DEE0 /* Yaga.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yaga.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71D0F56B190D998000C7DEE0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -247,12 +247,6 @@
 		861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "YAServer+HostManagment.m"; sourceTree = "<group>"; };
 		861AF47A1A5C2B4700F125C3 /* YARealmObjectUnavailable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YARealmObjectUnavailable.h; sourceTree = "<group>"; };
 		861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YARealmObjectUnavailable.m; sourceTree = "<group>"; };
-		865BD79C1A484543003B00DA /* UIColor+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Additions.h"; sourceTree = "<group>"; };
-		865BD79D1A484543003B00DA /* UIColor+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Additions.m"; sourceTree = "<group>"; };
-		865BD79E1A484543003B00DA /* AZNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZNotification.h; sourceTree = "<group>"; };
-		865BD79F1A484543003B00DA /* AZNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZNotification.m; sourceTree = "<group>"; };
-		865BD7A01A484543003B00DA /* AZNotificationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZNotificationView.h; sourceTree = "<group>"; };
-		865BD7A11A484543003B00DA /* AZNotificationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZNotificationView.m; sourceTree = "<group>"; };
 		86A9ED3A1A4D91B6002EDE76 /* UIImage+Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Color.h"; sourceTree = "<group>"; };
 		86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Color.m"; sourceTree = "<group>"; };
 		86AB83F51A83B29B00EB36EA /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
@@ -526,7 +520,6 @@
 				6E583B711A6535C400639BE5 /* YAVideoPage.m */,
 				6E583B721A6535C400639BE5 /* YAVideoPlayerView.h */,
 				6E583B731A6535C400639BE5 /* YAVideoPlayerView.m */,
-				865BD7A51A484548003B00DA /* AZNotification */,
 				6E73F4121A4324C0000B3A14 /* YAVideoCell.h */,
 				6E73F4131A4324C0000B3A14 /* YAVideoCell.m */,
 				6E9188B21A3F3A5A0034AB63 /* AVCamPreviewView.h */,
@@ -548,6 +541,8 @@
 				6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */,
 				6E0A374F1A807E4F0034ABB4 /* YAPullToRefreshLoadingView.h */,
 				6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */,
+				6EEDB8E31A8A555C000BB909 /* YANotificationView.h */,
+				6EEDB8E41A8A555C000BB909 /* YANotificationView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -602,19 +597,6 @@
 				06099F2997CD40A8B4FA1754 /* libPods.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		865BD7A51A484548003B00DA /* AZNotification */ = {
-			isa = PBXGroup;
-			children = (
-				865BD79C1A484543003B00DA /* UIColor+Additions.h */,
-				865BD79D1A484543003B00DA /* UIColor+Additions.m */,
-				865BD79E1A484543003B00DA /* AZNotification.h */,
-				865BD79F1A484543003B00DA /* AZNotification.m */,
-				865BD7A01A484543003B00DA /* AZNotificationView.h */,
-				865BD7A11A484543003B00DA /* AZNotificationView.m */,
-			);
-			name = AZNotification;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -758,7 +740,6 @@
 				6E1E209A1A6EF2E90041DF54 /* YAGifCreationOperation.m in Sources */,
 				6E583B781A65394800639BE5 /* YAAnimatedTransitioningController.m in Sources */,
 				6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */,
-				865BD7A21A484543003B00DA /* UIColor+Additions.m in Sources */,
 				6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */,
 				6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */,
 				6E1E20991A6EF2E90041DF54 /* YAAssetsCreator.m in Sources */,
@@ -767,7 +748,6 @@
 				86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */,
 				6E1E209B1A6EF2E90041DF54 /* YAImageCache.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
-				865BD7A41A484543003B00DA /* AZNotificationView.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E1E20A71A6FAB500041DF54 /* NameGenerator.m in Sources */,
 				86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */,
@@ -796,7 +776,6 @@
 				6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */,
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
-				865BD7A31A484543003B00DA /* AZNotification.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
@@ -814,6 +793,7 @@
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
 				6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */,
 				6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */,
+				6EEDB8E51A8A555C000BB909 /* YANotificationView.m in Sources */,
 				6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */,
 				6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */,
 				6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */,

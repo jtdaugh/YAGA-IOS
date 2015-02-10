@@ -23,6 +23,7 @@
 #import "YAPullToRefreshLoadingView.h"
 
 #import <ClusterPrePermissions.h>
+#import "YANotificationView.h"
 
 @protocol GridViewControllerDelegate;
 

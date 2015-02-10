@@ -159,7 +159,7 @@
             if([YAUser currentUser].deviceToken.length) {
                 [[YAServer sharedServer] registerDeviceTokenWithCompletion:^(id response, NSError *error) {
                     if(error) {
-                        [YAUtils showNotification:[NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription] type:AZNotificationTypeError];
+                        [YAUtils showNotification:[NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription] type:YANotificationTypeError];
                     }
                 }];
             }
@@ -183,7 +183,7 @@
                                 [self.activityIndicator stopAnimating];
                                 self.nextButton.enabled = YES;
                                 
-                                [YAUtils showNotification:NSLocalizedString(@"Can't load user groups", @"") type:AZNotificationTypeError];
+                                [YAUtils showNotification:NSLocalizedString(@"Can't load user groups", @"") type:YANotificationTypeError];
                             }
                         }];
                     }
@@ -195,7 +195,7 @@
                     [self.activityIndicator stopAnimating];
                     self.nextButton.enabled = YES;
                     
-                    [YAUtils showNotification:NSLocalizedString(@"Can't get user info", @"") type:AZNotificationTypeError];
+                    [YAUtils showNotification:NSLocalizedString(@"Can't get user info", @"") type:YANotificationTypeError];
                 }
                 
             }];
@@ -204,7 +204,7 @@
             [self.activityIndicator stopAnimating];
             self.nextButton.enabled = YES;
             
-            [YAUtils showNotification:NSLocalizedString(@"Incorrect confirmation code entered, try again", @"") type:AZNotificationTypeError];
+            [YAUtils showNotification:NSLocalizedString(@"Incorrect confirmation code entered, try again", @"") type:YANotificationTypeError];
         }
     }];
 }

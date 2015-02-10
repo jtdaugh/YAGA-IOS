@@ -94,7 +94,7 @@
                             else
                             {
                                 
-                                [YAUtils showNotification:NSLocalizedString(@"Couldn't create gif, video invalidated", @"") type:AZNotificationTypeError];
+                                [YAUtils showNotification:NSLocalizedString(@"Couldn't create gif, video invalidated", @"") type:YANotificationTypeError];
                             }
                             [self setExecuting:NO];
                             [self setFinished:YES];
