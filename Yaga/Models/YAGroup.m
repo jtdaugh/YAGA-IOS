@@ -170,6 +170,8 @@ static BOOL groupsUpdateInProgress;
             
             //delete local contacts which do not exist on server anymore
             NSArray *serverGroupIds = [groups valueForKey:@"id"];
+            NSMutableSet *groupsToDelete = [NSMutableSet set];
+            
             for (YAGroup *group in [YAGroup allObjects]) {
                 if(![serverGroupIds containsObject:group.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group]) {
                     BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
@@ -179,15 +181,17 @@ static BOOL groupsUpdateInProgress;
                         [[RLMRealm defaultRealm] deleteObject:videoToRemove];
                     }
                     
-                    [[RLMRealm defaultRealm] deleteObject:group];
+                    [groupsToDelete addObject:group];
                     
                     if(currentGroupToRemove) {
                         [YAUser currentUser].currentGroup = [[YAGroup allObjects] firstObject];
                     }
                 }
-                    
             }
 
+            for(YAGroup *group in [groupsToDelete copy])
+                [[RLMRealm defaultRealm] deleteObject:group];
+            
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
             if(block)
