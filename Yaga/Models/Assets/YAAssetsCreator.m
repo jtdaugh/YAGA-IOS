@@ -210,10 +210,6 @@
     else if(video.movFilename.length && !video.gifFilename.length) {
         [self addGifCreationOperationForVideo:video];
     }
-    else {
-       //skip it, it's in progress or all assets are in place
-        NSLog(@"skipping it's in progress or all assets are in place");
-    }
 }
 
 - (void)addGifCreationOperationForVideo:(YAVideo*)video {

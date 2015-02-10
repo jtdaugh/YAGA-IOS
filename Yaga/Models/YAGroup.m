@@ -283,6 +283,9 @@ static BOOL groupsUpdateInProgress;
     }
     
     [[YAServer sharedServer] groupInfoWithId:self.serverId since:lastUpdateDate withCompletion:^(id response, NSError *error) {
+        if(self.isInvalidated)
+            return;
+        
         self.videosUpdateInProgress = NO;
         if(error) {
             NSLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
