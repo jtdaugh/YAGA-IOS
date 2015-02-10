@@ -187,6 +187,9 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 }
 
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
+    if(!fileName.length)
+        return;
+    
     id cachedImage = [[YAImageCache sharedCache] objectForKey:fileName];
     if(cachedImage) {
         [self showCachedImage:cachedImage animatedImage:animatedImage];
@@ -202,10 +205,12 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
             else
                 image = [UIImage imageWithData:fileData];
             
-            [[YAImageCache sharedCache] setObject:image forKey:fileName];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self showCachedImage:image animatedImage:animatedImage];
-            });
+            if(image) {
+                [[YAImageCache sharedCache] setObject:image forKey:fileName];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self showCachedImage:image animatedImage:animatedImage];
+                });
+            }
         });
     }
 }
