@@ -435,7 +435,10 @@ static BOOL welcomeLabelRemoved = NO;
     NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:p];
     if (indexPath) {
         YAVideo *video = [[YAUser currentUser].currentGroup.videos objectAtIndex:indexPath.row];
-        [YAUtils showVideoOptionsForVideo:video];
+        BOOL myVideo = [video.creator isEqualToString:[[YAUser currentUser] username]];
+        
+        if(myVideo)
+            [YAUtils showVideoOptionsForVideo:video];
     }
 }
 @end
