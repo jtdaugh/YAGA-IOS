@@ -74,6 +74,7 @@
 		6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA9421B1A41E5C9001803C5 /* YAVideo.m */; };
 		6ECCCDF81A804EF000B1E1BC /* YAProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */; };
 		6EEDB8E01A8427B2000BB909 /* YADownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEDB8DF1A8427B2000BB909 /* YADownloadManager.m */; };
+		6EEDB8E21A8A10B7000BB909 /* push.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 6EEDB8E11A8A10B7000BB909 /* push.m4a */; };
 		71D0F56C190D998000C7DEE0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56B190D998000C7DEE0 /* Foundation.framework */; };
 		71D0F56E190D998000C7DEE0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */; };
 		71D0F570190D998000C7DEE0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56F190D998000C7DEE0 /* UIKit.framework */; };
@@ -230,6 +231,7 @@
 		6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAProgressView.m; sourceTree = "<group>"; };
 		6EEDB8DE1A8427B2000BB909 /* YADownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YADownloadManager.h; sourceTree = "<group>"; };
 		6EEDB8DF1A8427B2000BB909 /* YADownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YADownloadManager.m; sourceTree = "<group>"; };
+		6EEDB8E11A8A10B7000BB909 /* push.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = push.m4a; sourceTree = "<group>"; };
 		71D0F568190D998000C7DEE0 /* Yaga.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yaga.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71D0F56B190D998000C7DEE0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -464,6 +466,7 @@
 		6E91888C1A3F3A5A0034AB63 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				6EEDB8E11A8A10B7000BB909 /* push.m4a */,
 				6E1E209E1A6FAB500041DF54 /* Third party */,
 				6E0453FC1A5704F300EF961B /* bumper_360x480.mov */,
 				6E0453ED1A56C3ED00EF961B /* bumper.m4v */,
@@ -681,6 +684,7 @@
 			files = (
 				6E1E20A81A6FAB500041DF54 /* README in Resources */,
 				6E1E20A91A6FAB500041DF54 /* syllable.csv in Resources */,
+				6EEDB8E21A8A10B7000BB909 /* push.m4a in Resources */,
 				6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */,
 				6E9188D51A3F3A5A0034AB63 /* Images.xcassets in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
