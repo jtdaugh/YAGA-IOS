@@ -10,6 +10,13 @@
 #import "FLAnimatedImage.h"
 #import "YAVideo.h"
 
+typedef NS_ENUM(NSUInteger, YAVideoCellState) {
+    YAVideoCellStateLoading = 0,
+    YAVideoCellStateJPEGPreview,
+    YAVideoCellStateGIFPreview,
+    YAVideoCellStateVideoPreview,
+};
+
 @interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate>
 
 @property (nonatomic, strong) YAVideo *video;

@@ -13,6 +13,7 @@
 #import "YAUtils.h"
 #import "YAServer.h"
 #import <Social/Social.h>
+#import "YAProgressView.h"
 
 @interface YAVideoPage ();
 @property (nonatomic, strong) YAActivityView *activityView;
@@ -29,6 +30,8 @@
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
 
+@property (nonatomic, strong) YAProgressView *progressView;
+
 @end
 
 @implementation YAVideoPage
@@ -36,12 +39,18 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
+        //self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
         [self addSubview:self.playerView];
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+        
+         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
+        
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
         
         [self initOverlayControls];
     }
@@ -56,7 +65,6 @@
 }
 
 - (void)setVideo:(YAVideo *)video shouldPlay:(BOOL)shouldPlay {
-
     if([_video isInvalidated] || ![_video.localId isEqualToString:video.localId]) {
         _video = video;
         
@@ -73,9 +81,13 @@
         [self showLoading:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
         
         if(self.video.movFilename.length)
+        {
             self.playerView.URL = movUrl;
+        }
         else
+        {
             self.playerView.URL = nil;
+        }
         
         self.playerView.frame = self.bounds;
     }
@@ -88,31 +100,19 @@
 
 - (void)showLoading:(BOOL)show {
     if(show) {
-        if(self.activityView.isAnimating)
-            return;
-        
-        [self bringSubviewToFront:self.activityView];
-        [UIView animateWithDuration:0.5 animations:^{
-            self.activityView.alpha = 1;
-        } completion:^(BOOL finished) {
-            [self.activityView startAnimating];
-        }];
-        
+        self.progressView.hidden = NO;
     }
     else {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [UIView animateWithDuration:0.0 animations:^{
-                    self.activityView.alpha = 0;
-                    [self.activityView stopAnimating];
-                }];
-            });
-        });
+        self.progressView.hidden = YES;
+        [self.playerView play];
     }
 }
 
 - (void)dealloc {
     [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION      object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION      object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingOperationDidStartNotification object:nil];
 }
 
 #pragma mark - Overlay controls
@@ -191,6 +191,25 @@
     self.likeCount.layer.shadowOffset = CGSizeZero;
     //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
     [self addSubview:self.likeCount];
+    
+    const CGFloat radius = 40;
+    self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
+    self.progressView.radius = radius;
+    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
+    progressBkgView.backgroundColor = [UIColor clearColor];
+    self.progressView.backgroundView = progressBkgView;
+    self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self addSubview:self.progressView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+    
+    self.progressView.indeterminate = NO;
+    self.progressView.showsText = YES;
+    self.progressView.lineWidth = 2;
+    self.progressView.tintColor = PRIMARY_COLOR;
+
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
@@ -393,6 +412,45 @@
 - (void)shareButtonPressed {
     [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
     [YAUtils showVideoOptionsForVideo:self.video];
+}
+
+#pragma mark - YAProgressView
+- (void)downloadStarted:(NSNotification*)notif {
+    NSOperation *op = notif.object;
+    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+        [self showProgress:YES];
+    }
+}
+
+- (void)showProgress:(BOOL)show {
+    self.progressView.backgroundView.hidden = !show;
+}
+
+- (void)generationProgressChanged:(NSNotification*)notif {
+    NSString *url = notif.object;
+    if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
+        
+        if(self.progressView) {
+            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
+            [self.progressView setProgress:value.floatValue animated:NO];
+            if (value.floatValue == 1.f) {
+                [self setVideo:self.video shouldPlay:YES];
+            }
+        }
+    }
+    
+}
+
+- (void)downloadProgressChanged:(NSNotification*)notif {
+    NSString *url = notif.object;
+    if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
+        
+        if(self.progressView) {
+            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
+            [self.progressView setProgress:value.floatValue animated:NO];
+            [self.progressView setCustomText:self.video.creator];
+        }
+    }
 }
 @end
 

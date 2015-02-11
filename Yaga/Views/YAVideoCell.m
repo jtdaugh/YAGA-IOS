@@ -19,12 +19,6 @@
 
 #define LIKE_HEART_SIDE 40.f
 
-typedef NS_ENUM(NSUInteger, YAVideoCellState) {
-    YAVideoCellStateLoading = 0,
-    YAVideoCellStateJPEGPreview,
-    YAVideoCellStateGIFPreview,
-    YAVideoCellStateVideoPreview,
-};
 
 @interface YAVideoCell ()
 
