@@ -10,9 +10,10 @@
 #import "YAVideo.h"
 #import "YANotificationView.h"
 
+
 typedef void (^uploadDataCompletionBlock)(NSError *error);
 
-@interface YAUtils : NSObject
+@interface YAUtils : NSObject <UIAlertViewDelegate>
 + (NSString *)readableNumberFromString:(NSString*)input;
 + (UIColor*)inverseColor:(UIColor*)color;
 + (NSString*)cachesDirectory;
@@ -30,7 +31,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (void)showVideoOptionsForVideo:(YAVideo*)video;
 + (void)deleteVideo:(YAVideo*)video;
 //Alert view
-
++ (instancetype)sharedUtils;
 + (void)showAlertViewWithTitle:(NSString*)title
                        message:(NSString*)message
              forViewController:(UIViewController*)vc

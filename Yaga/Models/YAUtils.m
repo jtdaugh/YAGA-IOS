@@ -14,7 +14,27 @@
 #import <Social/Social.h>
 #import "MBProgressHUD.h"
 
+@interface YAUtils ()
+@property (copy) void (^acceptAction)();
+@property (copy) void (^dismissAction)();
+@end
+
 @implementation YAUtils
+
++ (YAUtils*)instance {
+    static dispatch_once_t _singletonPredicate;
+    static YAUtils *_singleton = nil;
+    
+    dispatch_once(&_singletonPredicate, ^{
+        _singleton = [[super allocWithZone:nil] init];
+    });
+    
+    return _singleton;
+}
+
++ (id)allocWithZone:(NSZone *)zone {
+    return [self instance];
+}
 
 + (NSString *)readableNumberFromString:(NSString*)input {
     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
@@ -243,6 +263,10 @@
                   cancelAction:(void (^)())cancelAction
 {
     
+    YAUtils *sharedUtils = [self sharedUtils];
+    sharedUtils.acceptAction = acceptAction;
+    sharedUtils.dismissAction = cancelAction;
+    
     if ([UIAlertController class]) {
         
         UIAlertController *alertController =
@@ -252,7 +276,7 @@
         
         UIAlertAction* ok = [UIAlertAction actionWithTitle:okButtonTitle
                                                      style:UIAlertActionStyleDefault
-                                                   handler:nil];
+                                                   handler:sharedUtils.acceptAction];
         [alertController addAction:ok];
         
         [vc   presentViewController:alertController
@@ -264,12 +288,32 @@
         UIAlertView *alertView =
         [[UIAlertView alloc] initWithTitle:title
                                    message:message
-                                  delegate:nil
+                                  delegate:sharedUtils
                          cancelButtonTitle:okButtonTitle
                          otherButtonTitles:nil];
         [alertView show];
     }
 
+}
+
+#pragma mark - UIAlertViewDelegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    switch (buttonIndex) {
+        case 0:
+        {
+            self.acceptAction();
+        }
+            break;
+        case 1:
+        {
+            self.dismissAction();
+        }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 @end
