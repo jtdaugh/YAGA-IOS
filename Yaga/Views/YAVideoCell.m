@@ -72,7 +72,8 @@
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
         tapRecognizer.numberOfTapsRequired = 2;
         tapRecognizer.delaysTouchesBegan = YES;
-        [self addGestureRecognizer:tapRecognizer];
+        // Unkoment this for double tap gesture recognizer
+        //[self addGestureRecognizer:tapRecognizer];
         
         self.likeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, LIKE_HEART_SIDE, LIKE_HEART_SIDE)];
         self.likeImageView.layer.opacity = 0.0f;
