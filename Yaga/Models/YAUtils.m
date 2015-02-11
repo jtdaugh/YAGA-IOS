@@ -234,4 +234,42 @@
     [vc presentViewController:tweetSheet animated:YES completion:nil];
 }
 
++ (void)showAlertViewWithTitle:(NSString*)title
+                       message:(NSString*)message
+             forViewController:(UIViewController*)vc
+                 accepthButton:(NSString*)okButtonTitle
+                  cancelButton:(NSString*)cancelButtonTitle
+                  acceptAction:(void (^)())acceptAction
+                  cancelAction:(void (^)())cancelAction
+{
+    
+    if ([UIAlertController class]) {
+        
+        UIAlertController *alertController =
+        [UIAlertController alertControllerWithTitle:title
+                                            message:message
+                                     preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction* ok = [UIAlertAction actionWithTitle:okButtonTitle
+                                                     style:UIAlertActionStyleDefault
+                                                   handler:nil];
+        [alertController addAction:ok];
+        
+        [vc   presentViewController:alertController
+                           animated:YES
+                         completion:nil];
+    }
+    else
+    {
+        UIAlertView *alertView =
+        [[UIAlertView alloc] initWithTitle:title
+                                   message:message
+                                  delegate:nil
+                         cancelButtonTitle:okButtonTitle
+                         otherButtonTitles:nil];
+        [alertView show];
+    }
+
+}
+
 @end

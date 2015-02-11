@@ -100,33 +100,13 @@ static NSString *CellID = @"CellID";
                                         NSString *message = NSLocalizedString(@"Yaga needs acces to your contacts, to add new people.\nPlease, grant access in Settings.app", nil);
                                         NSString *buttonTitle = NSLocalizedString(@"OK", nil);
                                         
-                                        if ([UIAlertController class]) {
-                                            
-                                            UIAlertController *alertController =
-                                            [UIAlertController alertControllerWithTitle:title
-                                                                                message:message
-                                                                         preferredStyle:UIAlertControllerStyleAlert];
-                                            
-                                            UIAlertAction* ok = [UIAlertAction actionWithTitle:buttonTitle
-                                                                                         style:UIAlertActionStyleDefault
-                                                                                       handler:nil];
-                                            [alertController addAction:ok];
-                                            
-                                            [self presentViewController:alertController
-                                                               animated:YES
-                                                             completion:nil];
-                                        }
-                                        else
-                                        {
-                                            UIAlertView *alertView =
-                                            [[UIAlertView alloc] initWithTitle:title
-                                                                       message:message
-                                                                      delegate:nil
-                                                             cancelButtonTitle:buttonTitle
-                                                             otherButtonTitles:nil];
-                                            [alertView show];
-                                        }
-
+                                        [YAUtils showAlertViewWithTitle:title
+                                                                message:message
+                                                      forViewController:self
+                                                          accepthButton:buttonTitle
+                                                           cancelButton:nil
+                                                           acceptAction:nil
+                                                           cancelAction:nil];
                                     }
                                 }];
 }

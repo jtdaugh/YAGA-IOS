@@ -29,4 +29,13 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 //video actions
 + (void)showVideoOptionsForVideo:(YAVideo*)video;
 + (void)deleteVideo:(YAVideo*)video;
+//Alert view
+
++ (void)showAlertViewWithTitle:(NSString*)title
+                       message:(NSString*)message
+             forViewController:(UIViewController*)vc
+                 accepthButton:(NSString*)okButtonTitle
+                  cancelButton:(NSString*)cancelButtonTitle
+                  acceptAction:(void (^)())acceptAction
+                  cancelAction:(void (^)())cancelAction;
 @end
