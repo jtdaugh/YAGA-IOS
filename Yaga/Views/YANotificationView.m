@@ -41,12 +41,12 @@
     [[UIApplication sharedApplication].keyWindow addSubview:messageView];
     
     [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-        messageView.center = CGPointMake(messageView.center.x, messageView.center.y + kHeight);
+        messageView.center = CGPointMake(messageView.center.x, messageView.frame.size.height/2);
     } completion:^(BOOL finished) {
         if(finished) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-                    messageView.center = CGPointMake(messageView.center.x, messageView.center.y - kHeight);
+                    messageView.center = CGPointMake(messageView.center.x, -messageView.frame.size.height/2);
                 } completion:nil];
                 
             });
