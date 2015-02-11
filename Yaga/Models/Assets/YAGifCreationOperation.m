@@ -233,8 +233,8 @@
     
     if (!CGImageDestinationFinalize(destination)) {
         NSLog(@"failed to finalize image destination");
-        handler([NSError errorWithDomain:@"YA" code:0 userInfo:nil]);
         CFRelease(destination);
+        handler([NSError errorWithDomain:@"YA" code:0 userInfo:nil]);
         return;
     }
     
