@@ -5,7 +5,7 @@
 //  Created by Iegor on 1/16/15.
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
-#import "YAVideo.h"
+
 #import "YAUtils.h"
 #import <AVFoundation/AVFoundation.h>
 #import <MobileCoreServices/MobileCoreServices.h>
@@ -15,13 +15,15 @@
 @interface YAGifCreationOperation ()
 @property (strong) YAVideo *video;
 @property (strong) NSString *filename;
+@property YAGifCreationQuality quality;
 @end
 
 @implementation YAGifCreationOperation
 
-- (instancetype)initWithVideo:(YAVideo*)video {
+- (instancetype)initWithVideo:(YAVideo*)video quality:(YAGifCreationQuality)quality {
     if (self = [super init]) {
         _video = video;
+        _quality = quality;
         self.name = video.url;
     }
     return self;
@@ -70,9 +72,13 @@
                     [self setFinished:YES];
                     return;
                 }
-                
-                NSString *gifFilename = [self.filename stringByAppendingPathExtension:@"gif"];
-                NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];
+                NSString *gifFilename;
+                if (self.quality == YAGifCreationNormalQuality) {
+                    gifFilename = [self.filename stringByAppendingPathExtension:@"gif"];
+                } else {
+                    gifFilename = [[self.filename stringByAppendingString:@"High"] stringByAppendingPathExtension:@"gif"];
+                }
+                NSString *gifPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:gifFilename];;
                 NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
                 
                 [self makeAnimatedGifAtUrl:gifURL fromArray:images completionHandler:^(NSError *error) {
@@ -85,7 +91,11 @@
                         dispatch_async(dispatch_get_main_queue(), ^{
                             if (![self.video isInvalidated]){
                                 [self.video.realm beginWriteTransaction];
-                                self.video.gifFilename = gifFilename;
+                                if (self.quality == YAGifCreationHighQuality) {
+                                    self.video.highQualityGifFilename = gifFilename;
+                                } else {
+                                    self.video.gifFilename = gifFilename;
+                                }
                                 [self.video.realm commitWriteTransaction];
                                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
                                                                                     object:self.video];
@@ -93,7 +103,6 @@
                             }
                             else
                             {
-                                
                                 [YAUtils showNotification:NSLocalizedString(@"Couldn't create gif, video invalidated", @"") type:YANotificationTypeError];
                             }
                             [self setExecuting:NO];
@@ -131,9 +140,11 @@
         CGImageRef image = [imageGenerator copyCGImageAtTime:time actualTime:&actualTime error:&error];
         UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
         if(newImage) {
-            newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
+            if (self.quality == YAGifCreationNormalQuality) {
+                newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
+                CFRelease(image);
+            }
             [imagesArray addObject:newImage];
-            CFRelease(image);
             
             if(self.isCancelled) {
                 NSLog(@"gif creation cancelled");

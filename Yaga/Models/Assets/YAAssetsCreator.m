@@ -179,7 +179,7 @@
     YACreateRecordingOperation *recordingOperation = [[YACreateRecordingOperation alloc] initRecordingURL:recordingUrl group:group video:video];
     [self.recordingQueue addOperation:recordingOperation];
     
-    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
+    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationNormalQuality];
     [gifCreationOperation addDependency:recordingOperation];
     [self.recordingQueue addOperation:gifCreationOperation];
 }
@@ -208,11 +208,11 @@
             [[YADownloadManager sharedManager] addJobForVideo:video];
     }
     else if(video.movFilename.length && !video.gifFilename.length) {
-        [self addGifCreationOperationForVideo:video];
+        [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
     }
 }
 
-- (void)addGifCreationOperationForVideo:(YAVideo*)video {
+- (void)addGifCreationOperationForVideo:(YAVideo*)video quality:(YAGifCreationQuality)quality{
     if(!video.movFilename.length)
         return;
     
@@ -225,7 +225,7 @@
     }
     
     if(!enqueued) {
-        YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video];
+        YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationNormalQuality];
         [self.gifQueue addOperation:gifCreationOperation];
     }
 }

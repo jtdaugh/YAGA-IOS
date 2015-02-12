@@ -8,6 +8,11 @@
 #import "YAContact.h"
 #import <Realm/Realm.h>
 
+typedef enum {
+    YAGifCreationNormalQuality = 0,
+    YAGifCreationHighQuality
+} YAGifCreationQuality;
+
 @class YAGroup;
 @class YAVideo;
 
@@ -19,6 +24,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @interface YAVideo : RLMObject
 @property NSString *movFilename;
 @property NSString *gifFilename;
+@property NSString *highQualityGifFilename;
 @property NSString *jpgFilename;
 
 @property NSString *creator;

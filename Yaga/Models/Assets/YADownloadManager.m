@@ -139,7 +139,7 @@
 }
 
 - (void)jobFinishedForVideo:(YAVideo*)video {
-    [[YAAssetsCreator sharedCreator] addGifCreationOperationForVideo:video];
+    [[YAAssetsCreator sharedCreator] addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
     [self logState:@"jobFinishedForVideo"];
     
     [self.executingJobs removeObjectForKey:video.url];

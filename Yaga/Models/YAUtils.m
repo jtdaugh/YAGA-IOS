@@ -13,6 +13,7 @@
 #import "YAAssetsCreator.h"
 #import <Social/Social.h>
 #import "MBProgressHUD.h"
+#import "YAGifCreationOperation.h"
 
 @interface YAUtils ()
 @property (copy) void (^acceptAction)();
@@ -147,7 +148,15 @@
         [YAUtils saveVideoToCameraRoll:video];
     }]];
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Copy Gif", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [YAUtils copyVideoToClipboard:video];
+        if (![video.highQualityGifFilename length]) {
+            YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationHighQuality];
+            gifCreationOperation.completionBlock = ^{
+                [YAUtils copyVideoToClipboard:video];
+            };
+            [gifCreationOperation start];
+        } else {
+            [YAUtils copyVideoToClipboard:video];
+        }
     }]];
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         [YAUtils deleteVideo:video];
@@ -182,20 +191,22 @@
 }
 
 + (void)copyVideoToClipboard:(YAVideo*)video {
-    NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:video.gifFilename]];
-    
-    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
-    [[UIApplication sharedApplication].keyWindow addSubview:hud];
-    hud.labelText = NSLocalizedString(@"Saving", nil);
-    [hud show:YES];
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-        [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:video.highQualityGifFilename]];
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [hud hide:YES];
-            [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:YANotificationTypeMessage];
+        MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+        [[UIApplication sharedApplication].keyWindow addSubview:hud];
+        hud.labelText = NSLocalizedString(@"Saving", nil);
+        [hud show:YES];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+            [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [hud hide:YES];
+                [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:YANotificationTypeMessage];
+            });
         });
     });
 }

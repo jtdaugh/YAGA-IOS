@@ -27,7 +27,7 @@
 }
 
 + (NSDictionary *)defaultPropertyValues{
-    return @{@"jpgFilename":@"", @"gifFilename":@"", @"movFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@"", @"localCreatedAt":[NSDate date]};
+    return @{@"highQualityGifFilename":@"", @"jpgFilename":@"", @"gifFilename":@"", @"movFilename":@"", @"caption":@"", @"createdAt":[NSDate date], @"url":@"", @"serverId":@"", @"localCreatedAt":[NSDate date]};
 }
 
 + (NSString *)primaryKey {
