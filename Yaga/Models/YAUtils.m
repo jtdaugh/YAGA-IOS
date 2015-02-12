@@ -274,7 +274,7 @@
                   cancelAction:(void (^)())cancelAction
 {
     
-    YAUtils *sharedUtils = [self sharedUtils];
+    YAUtils *sharedUtils = [self instance];
     sharedUtils.acceptAction = acceptAction;
     sharedUtils.dismissAction = cancelAction;
     

@@ -31,7 +31,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (void)showVideoOptionsForVideo:(YAVideo*)video;
 + (void)deleteVideo:(YAVideo*)video;
 //Alert view
-+ (instancetype)sharedUtils;
++ (instancetype)instance;
 + (void)showAlertViewWithTitle:(NSString*)title
                        message:(NSString*)message
              forViewController:(UIViewController*)vc
