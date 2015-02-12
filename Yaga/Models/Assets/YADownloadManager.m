@@ -49,7 +49,7 @@
     NSURL    *movURL        = [NSURL fileURLWithPath:movPath];
     
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    AFDownloadRequestOperation *operation = [[AFDownloadRequestOperation alloc] initWithRequest:request targetPath:movURL.path shouldResume:YES];
+    AFDownloadRequestOperation *operation = [[AFDownloadRequestOperation alloc] initWithRequest:request targetPath:movURL.path shouldResume:NO];
     operation.shouldOverwrite = YES;
     
     operation.name = video.url;
