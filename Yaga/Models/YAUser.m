@@ -282,13 +282,16 @@
     [[UIApplication sharedApplication].keyWindow.rootViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (BOOL)assetsFolderSizeExceeded {
+    return [self sizeOfCachesFolder] > 300 * 1024 * 1024;
+}
 
 - (void)purgeOldVideos {
     RLMResults *videos = [YAVideo objectsWhere:@"movFilename != '' OR gifFilename != '' OR jpgFilename != ''"];
     RLMResults *videosByDate = [videos sortedResultsUsingProperty:@"localCreatedAt" ascending:YES];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        while([self sizeOfCachesFolder] > 300 * 1024 * 1024) {
+        while([self assetsFolderSizeExceeded]) {
             dispatch_sync(dispatch_get_main_queue(), ^{
 
                 if(!videosByDate.count) {

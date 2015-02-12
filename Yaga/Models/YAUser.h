@@ -58,6 +58,8 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 - (void)iMessageWithFriends:(NSArray*)friendNumbers withCompletion:(completionBlock)presentedBlock;
 
 //this will make sure caches folder isn't bigger than 300MB
+- (BOOL)assetsFolderSizeExceeded;
+
 - (void)purgeOldVideos;
 
 - (BOOL)hasUnviewedVideosInGroups;
