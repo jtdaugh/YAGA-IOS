@@ -104,7 +104,6 @@
     }
     else {
         self.progressView.hidden = YES;
-        [self.playerView play];
     }
 }
 
