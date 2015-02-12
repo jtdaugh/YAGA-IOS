@@ -63,11 +63,15 @@
         }
     }
 
-    if(countOfNonames == 1)
-        results = [results stringByAppendingString:NSLocalizedString(@" and one more", @"")];
-    else if(countOfNonames > 1)
+    if(countOfNonames == 1) {
+        if(results.length)
+            results = [results stringByAppendingString:NSLocalizedString(@" and one more", @"")];
+        else
+            results = kDefaultUsername;
+    }
+    else if(countOfNonames > 1) {
         results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), countOfNonames];
-    
+    }
     return results;
 }
 
