@@ -28,7 +28,6 @@
     [self.tableView reloadData];
     
     self.title = NSLocalizedString(@"Choose your Country", @"");
-    self.navigationController.navigationBar.tintColor = PRIMARY_COLOR;
     
     self.searchBar.tintColor = PRIMARY_COLOR;
     self.searchBar.barTintColor = [UIColor blackColor];

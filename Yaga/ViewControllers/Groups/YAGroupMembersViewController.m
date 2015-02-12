@@ -47,41 +47,22 @@ static NSString *CellID = @"CellID";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationController.navigationBar.translucent = YES;;
     
     if(!self.group.members.count)
         [self setEditing:YES animated:YES];
+    
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
 }
 
 #pragma mark - Navigation bar buttons
 
 - (void)adjustNavigationControls {
     
-    self.navigationItem.rightBarButtonItem =
-    [[UIBarButtonItem alloc] initWithBarButtonSystemItem:self.editing ? UIBarButtonSystemItemDone : UIBarButtonSystemItemEdit
-                                                  target:self
-                                                  action:@selector(changeEditingModeTapped)];
-    
-    if(self.tableView.editing) {
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
                                                                                               target:self
                                                                                               action:@selector(addMembersTapped)];
-    }
-    else {
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", @"") style:UIBarButtonItemStylePlain target:self action:@selector(backTapped)];
-    }
-    
-    [self.navigationItem.rightBarButtonItem setTitleTextAttributes:@{
-                                                                     NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
-                                                                     } forState:UIControlStateNormal];
-    [self.navigationItem.rightBarButtonItem setTintColor:PRIMARY_COLOR];
-    
-    [self.navigationItem.leftBarButtonItem setTitleTextAttributes:@{
-                                                                    NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
-                                                                    } forState:UIControlStateNormal];
-    [self.navigationItem.leftBarButtonItem setTintColor:PRIMARY_COLOR];// : [UIColor lightGrayColor]];
 }
 
 - (void)changeEditingModeTapped {

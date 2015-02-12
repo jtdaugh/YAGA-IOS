@@ -89,14 +89,6 @@
     [doneButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.rightBarButtonItem = doneButton;
     
-    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Back", @"") style: UIBarButtonItemStylePlain target:self action:@selector(backTapped)];
-    [backButton setTitleTextAttributes:@{
-                                           NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
-                                           } forState:UIControlStateNormal];
-    [backButton setEnabled:YES];
-    [backButton setTintColor:PRIMARY_COLOR];//[UIColor lightGrayColor]];
-    self.navigationItem.leftBarButtonItem = backButton;
-    
     if(self.selectedContacts.count) {
         [self reloadSearchBox];
     }
@@ -128,8 +120,6 @@
     
     self.edgesForExtendedLayout = UIRectEdgeNone;
     [self.navigationController setNavigationBarHidden:NO animated:YES];
-    
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationController.navigationBar.translucent = NO;
     
@@ -140,8 +130,7 @@
     [super viewWillDisappear:animated];
     
     [self.searchBar resignFirstResponder];
-
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationController.navigationBar.translucent = YES;;
 
@@ -403,12 +392,12 @@
 
 #pragma mark - Actions
 - (void)backTapped {
-    if(self.existingGroup) {
-        [self.navigationController popToRootViewControllerAnimated:YES];
-    }
-    else {
+//    if(self.existingGroup) {
+//        [self.navigationController popToRootViewControllerAnimated:YES];
+//    }
+//    else {
         [self.navigationController popViewControllerAnimated:YES];
-    }
+//    }
 }
 
 #pragma mark -
