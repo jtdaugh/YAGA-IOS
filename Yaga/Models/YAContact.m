@@ -96,7 +96,7 @@
             name = self.name;
         }
         else {
-            name = defaultUsername;
+            name = kDefaultUsername;
         }
     }
     return name;

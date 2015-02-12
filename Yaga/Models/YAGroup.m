@@ -49,11 +49,24 @@
     
     NSString *results = @"";
     
+    NSUInteger countOfNonames = 0;
     for(int i = 0; i < self.members.count; i++) {
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
         
-        results = [results stringByAppendingFormat:@"%@%@", [contact displayName], (i < self.members.count - 1 ? @", " : @"")];
+        if([[contact displayName] isEqualToString:kDefaultUsername])
+            countOfNonames++;
+        else {
+            if(!results.length)
+                results = [contact displayName];
+            else
+                results = [results stringByAppendingFormat:@", %@", [contact displayName]];
+        }
     }
+
+    if(countOfNonames == 1)
+        results = [results stringByAppendingString:NSLocalizedString(@" and one more", @"")];
+    else if(countOfNonames > 1)
+        results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), countOfNonames];
     
     return results;
 }

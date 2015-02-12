@@ -40,6 +40,8 @@
 "Updated successfully" = "Updated successfully";
 "You have left" = "You have left";
 "Can't remove self from the group, use 'Leave' option when selecting group options." = "Can't remove self from the group, use 'Leave' option when selecting group options.";
+" and one more" = " and one more";
+"OTHER_CONTACTS_TEMPLATE" = " and %lu others";
 
 "SOME PHONE NUMBERS ARE INCORRECT MESSAGE" = "The following contacts have incorrect phone number, please fix phone numbers or remove them from the group";
 "NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";
