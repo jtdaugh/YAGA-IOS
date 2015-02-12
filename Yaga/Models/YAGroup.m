@@ -65,7 +65,7 @@
 
     if(countOfNonames == 1) {
         if(results.length)
-            results = [results stringByAppendingString:NSLocalizedString(@" and one more", @"")];
+            results = [results stringByAppendingString:NSLocalizedString(@" and 1 more", @"")];
         else
             results = kDefaultUsername;
     }

@@ -53,7 +53,7 @@
 #define VIDEO_DID_DOWNLOAD_PART_NOTIFICATION    @"VIDEO_DID_DOWNLOAD_PART_NOTIFICATION"
 #define VIDEO_DID_GENERATE_PART_NOTIFICATION    @"VIDEO_DID_GENERATE_PART_NOTIFICATION"
 
-#define kDefaultUsername                         @"Yaga user"
+#define kDefaultUsername                         @"Unknown user"
 
 #define YA_DEVICE_TOKEN                         @"YAGA_DEVICE_TOKEN"
 
