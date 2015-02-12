@@ -155,25 +155,6 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
 }
 
-- (void)showNoVideosMessageIfNeeded {
-    if(![YAUser currentUser].currentGroup.videos.count) {
-        CGFloat width = VIEW_WIDTH * .8;
-        if(!self.noVideosLabel) {
-            self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, 0, width, width)];
-            [self.noVideosLabel setText:NSLocalizedString(@"NO VIDOES IN NEW GROUP MESSAGE", @"")];
-            [self.noVideosLabel setNumberOfLines:0];
-            [self.noVideosLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-            [self.noVideosLabel setTextAlignment:NSTextAlignmentCenter];
-            [self.noVideosLabel setTextColor:PRIMARY_COLOR];
-        }
-        [self.collectionView addSubview:self.noVideosLabel];
-    }
-    else {
-        [self.noVideosLabel removeFromSuperview];
-        self.noVideosLabel = nil;
-    }
-}
-
 - (void)reload {
     BOOL needRefresh = NO;
     if(![YAUser currentUser].currentGroup.videos.count)
@@ -191,8 +172,6 @@ static NSString *cellID = @"Cell";
         [self enqueueAssetsCreationJobsForCurrentGroup];
     
     [self.collectionView reloadData];
-    
-    [self showNoVideosMessageIfNeeded];
 }
 
 -  (void)willDeleteVideo:(NSNotification*)notif {
