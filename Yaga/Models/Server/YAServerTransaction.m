@@ -13,6 +13,7 @@
 #import "YAUtils.h"
 #import "AFNetworking.h"
 #import "YARealmObjectUnavailable.h"
+#import <AVFoundation/AVFoundation.h>
 
 @interface YAServerTransaction ()
 
@@ -213,27 +214,67 @@
         return;
     }
     
-    [[YAServer sharedServer] uploadVideo:video toGroupWithId:[YAUser currentUser].currentGroup.serverId withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
-        if(error) {
-            NSString *localId = [response isKindOfClass:[NSString class]] ? (NSString*)response : @"None";
-            [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", localId, error.localizedDescription] type:YANotificationTypeError];
-            completion(nil, error);
-        }
-        else {
-            if (!video || [video isInvalidated]) {
-                completion(nil, [YARealmObjectUnavailable new]);
-                return;
-            }
-            [video.realm beginWriteTransaction];
-            NSString *location = [response allHeaderFields][@"Location"];
-            video.url = location;
-            [video.realm commitWriteTransaction];
-            
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:YANotificationTypeSuccess];
-            
-            completion(nil, nil);
-        }
+    // Encoding mov to mp4
+    NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:video.movFilename];
+    NSURL *movURL = [NSURL fileURLWithPath:movPath];
+    AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:movURL options:nil];
+
+    
+    AVAssetExportSession *exportSession = [[AVAssetExportSession alloc]initWithAsset:avAsset
+                                                                          presetName:AVAssetExportPresetHighestQuality];
+    [video.realm beginWriteTransaction];
+    video.mp4Filename = [[video.movFilename stringByDeletingPathExtension] stringByAppendingPathExtension:@"mp4"];
+    [video.realm commitWriteTransaction];
+    NSString *mp4Path = [[YAUtils cachesDirectory] stringByAppendingPathComponent:video.mp4Filename];
+    
+    exportSession.outputURL = [NSURL fileURLWithPath:mp4Path];
+    exportSession.shouldOptimizeForNetworkUse = NO;
+    exportSession.outputFileType = AVFileTypeMPEG4;
+    [exportSession exportAsynchronouslyWithCompletionHandler:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self exportFinished:exportSession withVideo:video completion:(responseBlock)completion];
+        });
     }];
+}
+
+- (void)exportFinished:(AVAssetExportSession*)exportSession withVideo:(YAVideo*)video completion:(responseBlock)completion
+{
+    switch ([exportSession status]) {
+        case AVAssetExportSessionStatusCompleted:
+        {
+            [[YAServer sharedServer] uploadVideo:video
+                                   toGroupWithId:[YAUser currentUser].currentGroup.serverId
+                                  withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
+                                      if(error) {
+                                          NSString *localId = [response isKindOfClass:[NSString class]] ? (NSString*)response : @"None";
+                                          [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", localId, error.localizedDescription] type:YANotificationTypeError];
+                                          completion(nil, error);
+                                      }
+                                      else {
+                                          if (!video || [video isInvalidated]) {
+                                              completion(nil, [YARealmObjectUnavailable new]);
+                                              return;
+                                          }
+                                          [video.realm beginWriteTransaction];
+                                          NSString *location = [response allHeaderFields][@"Location"];
+                                          video.url = location;
+                                          [video.realm commitWriteTransaction];
+                                          
+                                          [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:YANotificationTypeSuccess];
+                                          
+                                          completion(nil, nil);
+                                      }
+                                  }];}
+            break;
+        case AVAssetExportSessionStatusFailed:
+        {
+            [YAUtils showNotification:[[exportSession error] localizedDescription] type:YANotificationTypeError];
+        }
+            break;
+        default:
+            NSLog(@"HEllo");
+            break;
+    }
 }
 
 - (void)deleteVideoWithCompletion:(responseBlock)completion {

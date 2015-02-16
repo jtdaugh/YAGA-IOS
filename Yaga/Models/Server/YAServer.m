@@ -73,7 +73,7 @@
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
         _manager = [AFHTTPRequestOperationManager manager];
         _manager.requestSerializer = [AFJSONRequestSerializer serializer];
-    
+        
         [self applySavedAuthToken];
     }
     
@@ -81,7 +81,7 @@
 }
 
 - (void)applySavedAuthToken {
-
+    
     _authToken = [[NSUserDefaults standardUserDefaults] objectForKey:YA_RESPONSE_TOKEN];
     
     if(self.authToken.length) {
@@ -135,11 +135,11 @@
     [self.manager PUT:api
            parameters:parameters
               success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        completion(nil, nil);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
-        completion([NSString stringFromHex:hex], error);
-    }];
+                  completion(nil, nil);
+              } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                  NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+                  completion([NSString stringFromHex:hex], error);
+              }];
     
 }
 
@@ -345,7 +345,7 @@
 - (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
-    
+
     NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
     NSString *videoLocalId = [video.localId copy];
     [self.manager POST:api
@@ -360,16 +360,19 @@
                    NSLog(@"uploadVideoData, recieved params for S3 upload. Making multipart upload...");
                    
                    NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-                   
-                   [video.realm beginWriteTransaction];
-                   video.serverId = dict[YA_RESPONSE_ID];
-                   [video.realm commitWriteTransaction];
-                   
-                   NSDictionary *meta = dict[@"meta"];
-                   NSString *endpoint = meta[@"endpoint"];
-                   
-                   NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.movFilename].path];
-                   [self multipartUpload:endpoint withParameters:meta[@"fields"] withFile:videoData completion:completion];
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       
+                       [video.realm beginWriteTransaction];
+                       video.serverId = dict[YA_RESPONSE_ID];
+                       [video.realm commitWriteTransaction];
+                       
+                       NSDictionary *meta = dict[@"meta"];
+                       NSString *endpoint = meta[@"endpoint"];
+
+                       NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.mp4Filename].path];
+                       [self multipartUpload:endpoint withParameters:meta[@"fields"] withFile:videoData completion:completion];
+                       
+                   });
                    
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                    completion(nil, error);
@@ -425,8 +428,8 @@
     YAVideo *video = [videos firstObject];
     
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, video.group.serverId, serverVideoId];
-
-
+    
+    
     NSDictionary *parameters = @{
                                  @"name": video.caption
                                  };
@@ -445,8 +448,8 @@
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                                                              NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                                                              NSLog(@"%@", [NSString stringFromHex:str]);
+                               NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                               NSLog(@"%@", [NSString stringFromHex:str]);
                                completion(nil, connectionError);
                            }];
 }
@@ -462,7 +465,7 @@
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
                    NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
-
+                   
                    
                    dispatch_async(dispatch_get_main_queue(), ^{
                        [video.realm beginWriteTransaction];
@@ -561,7 +564,7 @@
                 });
             }];
         });
-    }  
+    }
     else {
         [self.reachability stopMonitoring];
         self.reachability = nil;
@@ -641,7 +644,7 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
     }];
-
+    
 }
 
 @end
