@@ -230,6 +230,7 @@
     exportSession.outputURL = [NSURL fileURLWithPath:mp4Path];
     exportSession.shouldOptimizeForNetworkUse = NO;
     exportSession.outputFileType = AVFileTypeMPEG4;
+    exportSession.canPerformMultiplePassesOverSourceMediaData = YES;
     [exportSession exportAsynchronouslyWithCompletionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
             [self exportFinished:exportSession withVideo:video completion:(responseBlock)completion];
