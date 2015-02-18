@@ -127,7 +127,7 @@
     imageGenerator.maximumSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.height/2, [[UIScreen mainScreen] applicationFrame].size.height/2);
     
     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
-    NSUInteger framesCount = movieDuration * 10;
+    NSUInteger framesCount = movieDuration * 1;
     
     NSMutableArray *imagesArray = [NSMutableArray arrayWithCapacity:framesCount];
     
@@ -228,7 +228,7 @@
     
     NSDictionary *frameProperties = @{
                                       (__bridge id)kCGImagePropertyGIFDictionary: @{
-                                              (__bridge id)kCGImagePropertyGIFDelayTime: @0.05f, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
+                                              (__bridge id)kCGImagePropertyGIFDelayTime: @0.2f, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
                                               }
                                       };
     
