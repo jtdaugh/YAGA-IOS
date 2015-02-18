@@ -127,7 +127,7 @@
     imageGenerator.maximumSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.height/2, [[UIScreen mainScreen] applicationFrame].size.height/2);
     
     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
-    NSUInteger framesCount = movieDuration * 1;
+    NSUInteger framesCount = movieDuration * 2;
     
     NSMutableArray *imagesArray = [NSMutableArray arrayWithCapacity:framesCount];
     
