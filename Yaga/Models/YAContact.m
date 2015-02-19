@@ -81,7 +81,7 @@
     
     self.serverId = serverId;
     self.number = phoneNumber;
-    self.registered = YES;
+    self.registered = [dictionary[nRegistered] length];
 }
 
 - (NSDictionary*)dictionaryRepresentation {
