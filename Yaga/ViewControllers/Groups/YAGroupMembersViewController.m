@@ -135,7 +135,11 @@ static NSString *CellID = @"CellID";
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    cell.textLabel.text = [contact displayName];
+    if ([[YAUser currentUser].phonebook objectForKey:contact.number]) {
+        cell.textLabel.text = contact.name;
+    } else {
+        cell.textLabel.text = [YAUtils readableNumberFromString:contact.number];
+    }
     
     if([[YAUser currentUser].phonebook objectForKey:contact.number]) {
         NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
@@ -145,7 +149,7 @@ static NSString *CellID = @"CellID";
         cell.detailTextLabel.text = @"";
     
     
-    if (contact.registered)
+    if (!contact.registered)
     {
         [cell.textLabel setTextColor:PRIMARY_COLOR];
         [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
