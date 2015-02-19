@@ -13,6 +13,7 @@
 
 typedef void (^cameraRollCompletion)(NSError *error);
 typedef void (^stopOperationsCompletion)(void);
+typedef void (^jpgCompletion)(void);
 
 @interface YAAssetsCreator : NSObject
 
@@ -21,11 +22,17 @@ typedef void (^stopOperationsCompletion)(void);
 - (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion;
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
-- (void)addGifCreationOperationForVideo:(YAVideo*)video quality:(YAGifCreationQuality)quality;
-- (void)enqueueAssetsCreationJobForVideo:(YAVideo*)video prioritizeDownload:(BOOL)prioritize;
+- (void)enqueueAssetsCreationJobForVideos:(NSArray*)videos prioritizeDownload:(BOOL)prioritize;
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion;
 
 // on background
 - (void)waitForAllOperationsToFinish;
+
+//
+- (void)enqueueJpgCreationForVideo:(YAVideo*)video;
+- (UIImage *)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img;
+- (void)cancelGifOperations;
+
+
 @end

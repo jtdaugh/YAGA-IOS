@@ -149,8 +149,40 @@
     [self logState:@"prioritizeJobForVideo"];
 }
 
+- (BOOL)executingOperationForVideo:(YAVideo*)video {
+    return [self.executingJobs objectForKey:video.url] != nil;
+}
+
+- (void)logState:(NSString*)method {
+    NSLog(@"%@: executing: %lu, waiting: %lu", method, (unsigned long)self.executingJobs.allKeys.count, self.waitingJobs.allKeys.count);
+}
+
+- (void)cancelAllJobs {
+    for (AFDownloadRequestOperation *executingJob in self.executingJobs.allValues) {
+        [executingJob cancel];
+    }
+    [self.executingJobs removeAllObjects];
+    
+    for (AFDownloadRequestOperation *waitingJob in self.waitingJobs.allValues) {
+        if(waitingJob.isPaused)
+            [waitingJob cancel];
+    }
+    
+    [self.waitingJobs removeAllObjects];
+}
+
+- (void)waitUntilAllJobsAreFinished {
+    if(self.executingJobs.count == 0 && self.waitingJobs.count == 0)
+        return;
+    
+    self.waiting_semaphore = dispatch_semaphore_create(0);
+    
+    dispatch_semaphore_wait(self.waiting_semaphore, DISPATCH_TIME_FOREVER);
+}
+
 - (void)jobFinishedForVideo:(YAVideo*)video {
-    [[YAAssetsCreator sharedCreator] addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
+    [[YAAssetsCreator sharedCreator] enqueueJpgCreationForVideo:video];
+    
     [self logState:@"jobFinishedForVideo"];
     
     [self.executingJobs removeObjectForKey:video.url];
@@ -188,34 +220,4 @@
     [self.waitingJobs removeObjectForKey:waitingUrl];
 }
 
-- (BOOL)executingOperationForVideo:(YAVideo*)video {
-    return [self.executingJobs objectForKey:video.url] != nil;
-}
-
-- (void)logState:(NSString*)method {
-    NSLog(@"%@: executing: %lu, waiting: %lu", method, (unsigned long)self.executingJobs.allKeys.count, self.waitingJobs.allKeys.count);
-}
-
-- (void)cancelAllJobs {
-    for (AFDownloadRequestOperation *executingJob in self.executingJobs.allValues) {
-        [executingJob cancel];
-    }
-    [self.executingJobs removeAllObjects];
-    
-    for (AFDownloadRequestOperation *waitingJob in self.waitingJobs.allValues) {
-        if(waitingJob.isPaused)
-            [waitingJob cancel];
-    }
-    
-    [self.waitingJobs removeAllObjects];
-}
-
-- (void)waitUntilAllJobsAreFinished {
-    if(self.executingJobs.count == 0 && self.waitingJobs.count == 0)
-        return;
-    
-    self.waiting_semaphore = dispatch_semaphore_create(0);
-    
-    dispatch_semaphore_wait(self.waiting_semaphore, DISPATCH_TIME_FOREVER);
-}
 @end

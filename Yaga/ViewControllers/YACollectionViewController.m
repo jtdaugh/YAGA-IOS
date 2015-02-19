@@ -40,6 +40,9 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 
 @property (nonatomic, assign) NSUInteger paginationThreshold;
+
+@property (assign, nonatomic) BOOL assetsPrioritisationHandled;
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -177,6 +180,8 @@ static NSString *cellID = @"Cell";
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     
     [self.collectionView reloadData];
+    
+    [self prioritiseDownloadsForVisibleCells];
 }
 
 -  (void)willDeleteVideo:(NSNotification*)notif {
@@ -332,6 +337,10 @@ static NSString *cellID = @"Cell";
     [self.delegate collectionViewDidScroll];
     
     [self handlePaging];
+
+    [[YAAssetsCreator sharedCreator] cancelGifOperations];
+    
+    self.assetsPrioritisationHandled = NO;
     
     if(self.disableScrollHandling) {
         return;
@@ -342,12 +351,14 @@ static NSString *cellID = @"Cell";
     [self playVisible:!scrollingFast];
     
     self.scrolling = YES;
+
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     self.scrolling = NO;
     
-    [self prioritiseDownloadsForVisibleCells];
+    if(!self.assetsPrioritisationHandled)
+        [self prioritiseDownloadsForVisibleCells];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
@@ -355,6 +366,7 @@ static NSString *cellID = @"Cell";
         [self playVisible:YES];
         
         [self prioritiseDownloadsForVisibleCells];
+        self.assetsPrioritisationHandled = YES;
     }
 }
 
@@ -389,8 +401,11 @@ static NSString *cellID = @"Cell";
 #pragma mark - Assets creation
 
 - (void)prioritiseDownloadsForVisibleCells {
+    NSMutableArray *videos = [NSMutableArray new];
     for(YAVideoCell *cell in self.collectionView.visibleCells)
-        [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideo:cell.video prioritizeDownload:YES];
+        [videos addObject:cell.video];
+    
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:YES];
 }
 
 - (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
@@ -398,9 +413,12 @@ static NSString *cellID = @"Cell";
     if(maxCount > [YAUser currentUser].currentGroup.videos.count)
         maxCount = [YAUser currentUser].currentGroup.videos.count;
     
+    NSMutableArray *videos = [NSMutableArray new];
     for(NSUInteger videoIndex = initialIndex; videoIndex < maxCount; videoIndex++) {
-        [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideo:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex] prioritizeDownload:NO];
+        [videos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
     }
+    
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:NO];
 }
 
 #pragma mark - Custom transitions

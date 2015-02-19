@@ -56,7 +56,7 @@
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
 
-//#define TESTING_MODE - uncomment that line to cleanup everything
+#define TESTING_MODE - uncomment that line to cleanup everything
 #ifdef TESTING_MODE
     [[RLMRealm defaultRealm] beginWriteTransaction];
     [[RLMRealm defaultRealm] deleteAllObjects];

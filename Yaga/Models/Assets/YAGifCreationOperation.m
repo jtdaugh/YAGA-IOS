@@ -11,9 +11,9 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <ImageIO/ImageIO.h>
 #import "YAGifCreationOperation.h"
+#import "YAAssetsCreator.h"
 
 @interface YAGifCreationOperation ()
-@property (strong) YAVideo *video;
 @property (strong) NSString *filename;
 @property YAGifCreationQuality quality;
 @end
@@ -56,6 +56,13 @@
 - (void)start {
     @autoreleasepool {
         dispatch_async(dispatch_get_main_queue(), ^{
+            //skip if gif is generated already
+            if(self.video.gifFilename.length) {
+                [self setExecuting:NO];
+                [self setFinished:YES];
+                return;
+            }
+            
             NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.movFilename];
             NSURL *movURL = [NSURL fileURLWithPath:movPath];
             self.filename = [self.video.movFilename stringByDeletingPathExtension];
@@ -141,7 +148,7 @@
         UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
         if(newImage) {
             if (self.quality == YAGifCreationNormalQuality) {
-                newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
+                newImage = [[YAAssetsCreator sharedCreator] deviceSpecificCroppedThumbnailFromImage:newImage];
                 CFRelease(image);
             }
             [imagesArray addObject:newImage];
@@ -150,11 +157,6 @@
                 NSLog(@"gif creation cancelled");
                 break;
             }
-            
-            if(i == 0) {
-                [self createJpgFromImage:newImage];
-            }
-            
         }
         
         if(self.isCancelled) {
@@ -172,50 +174,6 @@
         });
     }
     return imagesArray;
-}
-
-- (void)createJpgFromImage:(UIImage*)image {
-    NSString *jpgFilename = [self.filename stringByAppendingPathExtension:@"jpg"];
-    NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
-    
-    if([UIImageJPEGRepresentation(image, 0.8) writeToFile:jpgPath atomically:NO]) {
-        __weak typeof(self) weakSelf = self;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf.video.realm beginWriteTransaction];
-            weakSelf.video.jpgFilename = jpgFilename;
-            [weakSelf.video.realm commitWriteTransaction];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:self.video];
-        });
-    }
-    else {
-        NSLog(@"Error: Can't save jpg by some reason...");
-        [self cancel];
-        return;
-    }
-}
-
-- (UIImage *)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img {
-    CGSize gifFrameSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2, [[UIScreen mainScreen] applicationFrame].size.height/4);
-    
-    CGFloat widthDiff = img.size.width - gifFrameSize.width ;
-    CGFloat heightDiff = img.size.height - gifFrameSize.height;
-    
-    CGRect cropRect = CGRectMake(widthDiff/2, heightDiff/2, gifFrameSize.width, gifFrameSize.height);
-    
-    if (img.scale > 1.0f) {
-        cropRect = CGRectMake(cropRect.origin.x * img.scale,
-                              cropRect.origin.y * img.scale,
-                              cropRect.size.width * img.scale,
-                              cropRect.size.height * img.scale);
-    }
-    
-    CGImageRef imageRef = CGImageCreateWithImageInRect(img.CGImage, cropRect);
-    UIImage *result = [UIImage imageWithCGImage:imageRef scale:img.scale orientation:img.imageOrientation];
-    CGImageRelease(imageRef);
-    
-    
-    return result;
 }
 
 - (void)makeAnimatedGifAtUrl:(NSURL*)fileURL fromArray:(NSArray*)images completionHandler:(gifCreatedCompletionHandler)handler {

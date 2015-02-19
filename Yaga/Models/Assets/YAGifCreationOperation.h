@@ -15,4 +15,6 @@
 }
 - (instancetype)initWithVideo:(YAVideo*)video quality:(YAGifCreationQuality)quality;
 
+@property (nonatomic, readonly) YAVideo *video;
+
 @end
