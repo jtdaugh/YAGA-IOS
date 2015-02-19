@@ -11,6 +11,7 @@
 #import "YAUtils.h"
 #import "YAAssetsCreator.h"
 #import "AFDownloadRequestOperation.h"
+#import "YAUser.h"
 
 @interface YADownloadManager ()
 @property (strong) MutableOrderedDictionary *waitingJobs;
@@ -153,6 +154,17 @@
     
     if(self.waitingJobs.count == 0)
         return;
+    
+    //caches folder too big?
+    if([[YAUser currentUser] assetsFolderSizeExceeded]) {
+        //stop downloads in background mode
+        if([UIApplication sharedApplication].applicationState != UIApplicationStateActive)
+            return;
+        else {
+            //delete oldest to keep folder size static
+            [[YAUser currentUser] purgeOldVideos];
+        }
+    }
     
     //start/resume waiting job
     NSString *waitingUrl = [self.waitingJobs keyAtIndex:0];

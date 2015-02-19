@@ -283,7 +283,7 @@
 }
 
 - (BOOL)assetsFolderSizeExceeded {
-    return [self sizeOfCachesFolder] > 300 * 1024 * 1024;
+    return [self sizeOfCachesFolder] > 500 * 1024 * 1024;
 }
 
 - (void)purgeOldVideos {
