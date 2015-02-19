@@ -82,8 +82,16 @@
 
 - (void)addJobForVideo:(YAVideo*)video {
     //already executing?
-    if([self.executingJobs objectForKey:video.url])
+    if([self.executingJobs objectForKey:video.url]) {
+        NSLog(@"addJobForVideo: %@ is already executing, skipping.", video.movFilename);
         return;
+    }
+    
+    //waiting already?
+    if([self.waitingJobs objectForKey:video.url]) {
+        NSLog(@"addJobForVideo: %@ is already waiting, skipping.", video.movFilename);
+        return;
+    }
     
     AFDownloadRequestOperation *job = [self createJobForVideo:video];
     
@@ -101,9 +109,11 @@
 
 - (void)prioritizeJobForVideo:(YAVideo*)video {
     //already executing?
-    if([self.executingJobs objectForKey:video.url])
+    if([self.executingJobs objectForKey:video.url]) {
+        NSLog(@"prioritizeJobForVideo: %@ is already executing, skipping.", video.movFilename);
         return;
-    
+    }
+        
     //get paused or create new one
     AFDownloadRequestOperation *job = [self.waitingJobs objectForKey:video.url];
     if(!job)
