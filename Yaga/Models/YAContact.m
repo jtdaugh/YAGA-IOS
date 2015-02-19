@@ -66,6 +66,7 @@
     NSDictionary *existingUserData = [YAUser currentUser].phonebook[phoneNumber];
     if(![username isKindOfClass:[NSNull class]]) {
         self.username = username;
+        self.registered = YES;
     }
     else {
         self.username = @"";//[[NameGenerator sharedGeneratror] nameForPhoneNumber:phoneNumber];
@@ -81,7 +82,6 @@
     
     self.serverId = serverId;
     self.number = phoneNumber;
-    self.registered = [dictionary[nRegistered] length];
 }
 
 - (NSDictionary*)dictionaryRepresentation {

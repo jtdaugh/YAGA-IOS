@@ -136,7 +136,7 @@ static NSString *CellID = @"CellID";
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
     if (contact.name.length) {
-        cell.textLabel.text = contact.name;
+        cell.textLabel.text = [contact displayName];
     } else {
         cell.textLabel.text = [YAUtils readableNumberFromString:contact.number];
     }
