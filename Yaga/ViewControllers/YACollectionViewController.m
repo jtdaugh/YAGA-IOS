@@ -231,6 +231,7 @@ static NSString *cellID = @"Cell";
     if(![firstVideo.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
+    self.paginationThreshold += videos.count;
     [self.collectionView performBatchUpdates:^{
         for(int i = 0; i < videos.count; i++) {
             [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
