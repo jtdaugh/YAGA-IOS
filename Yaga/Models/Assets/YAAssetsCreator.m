@@ -25,7 +25,7 @@
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
 @property (nonatomic, strong) NSOperationQueue *jpgQueue;
 @property (nonatomic, strong) NSOperationQueue *recordingQueue;
-@property (nonatomic, strong) NSMutableArray *prioritizedVideos;
+@property (strong) NSMutableArray *prioritizedVideos;
 @end
 
 
@@ -192,10 +192,11 @@
 }
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
-    [[YADownloadManager sharedManager] cancelAllJobs];
-    [self.gifQueue cancelAllOperations];
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[YADownloadManager sharedManager] cancelAllJobs];
+        [self.gifQueue cancelAllOperations];
+    
+        
         [[YADownloadManager sharedManager] waitUntilAllJobsAreFinished];
         [self.gifQueue waitUntilAllOperationsAreFinished];
         
@@ -208,34 +209,38 @@
 }
 
 - (void)enqueueAssetsCreationJobForVideos:(NSArray*)videos prioritizeDownload:(BOOL)prioritize {
-    if(prioritize) {
-//        //make sure visible in progress aren't cancelled
-//        NSSet *urlsSet = [NSSet setWithArray:[videos valueForKey:@"url"]];
-//        for(YAGifCreationOperation *op in self.gifQueue.operations) {
-//            if(![urlsSet containsObject:op.name] && op.queuePriority == NSOperationQueuePriorityHigh) {
-//                [op cancel];
-//            }
-//        }
+    void (^enqueueBlock)(void) = ^{
         
-//val todo: do not cancel visible
-        [self.gifQueue cancelAllOperations];
-        self.prioritizedVideos = [NSMutableArray arrayWithArray:videos];
-    }
-    
-    for(YAVideo *video in videos) {
-        if(video.url.length && !video.movFilename.length ) {
-            if(prioritize)
-                [[YADownloadManager sharedManager] prioritizeJobForVideo:video];
-            else
-                [[YADownloadManager sharedManager] addJobForVideo:video];
-        }
-        else if(video.movFilename.length && !video.gifFilename.length) {
-            if(prioritize) {
-                [self.prioritizedVideos removeObject:video];
-                [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
+        for(YAVideo *video in videos) {
+            if(video.url.length && !video.movFilename.length ) {
+                if(prioritize)
+                    [[YADownloadManager sharedManager] prioritizeJobForVideo:video];
+                else
+                    [[YADownloadManager sharedManager] addJobForVideo:video];
             }
-
+            else if(video.movFilename.length && !video.gifFilename.length) {
+                if(prioritize) {
+                    [self.prioritizedVideos removeObject:video];
+                    [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
+                }
+                
+            }
         }
+    };
+    
+    if(prioritize) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self.gifQueue cancelAllOperations];
+            
+            self.prioritizedVideos = [NSMutableArray arrayWithArray:videos];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                enqueueBlock();
+            });
+        });
+    }
+    else {
+        enqueueBlock();
     }
 }
 

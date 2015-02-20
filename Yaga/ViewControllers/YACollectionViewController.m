@@ -180,8 +180,6 @@ static NSString *cellID = @"Cell";
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     
     [self.collectionView reloadData];
-    
-    [self prioritiseDownloadsForVisibleCells];
 }
 
 -  (void)willDeleteVideo:(NSNotification*)notif {
@@ -413,12 +411,20 @@ static NSString *cellID = @"Cell";
     if(maxCount > [YAUser currentUser].currentGroup.videos.count)
         maxCount = [YAUser currentUser].currentGroup.videos.count;
     
-    NSMutableArray *videos = [NSMutableArray new];
+    NSMutableArray *visibleVideos = [NSMutableArray new];
+    NSMutableArray *invisibleVideos = [NSMutableArray new];
     for(NSUInteger videoIndex = initialIndex; videoIndex < maxCount; videoIndex++) {
-        [videos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+        if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
+            [visibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+        }
+        else {
+            [invisibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+        }
+        
     }
     
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:NO];
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:visibleVideos prioritizeDownload:YES];
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:invisibleVideos prioritizeDownload:NO];
 }
 
 #pragma mark - Custom transitions
