@@ -135,17 +135,30 @@ static NSString *CellID = @"CellID";
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    cell.textLabel.text = [contact displayName];
+    if (contact.name.length) {
+        cell.textLabel.text = [contact displayName];
+    } else {
+        cell.textLabel.text = [YAUtils readableNumberFromString:contact.number];
+    }
     
-    if([[YAUser currentUser].phonebook objectForKey:contact.number])
-        cell.detailTextLabel.text = contact.readableNumber;
+    if([[YAUser currentUser].phonebook objectForKey:contact.number]) {
+        NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
+        cell.detailTextLabel.text = userDict[@"composite_name"];
+    }
     else
         cell.detailTextLabel.text = @"";
     
-    [cell.textLabel setTextColor:[UIColor whiteColor]];
-    [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
-    [cell setBackgroundColor:[UIColor clearColor]];
     
+    if (contact.registered)
+    {
+        [cell.textLabel setTextColor:PRIMARY_COLOR];
+        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+    } else {
+        [cell.textLabel setTextColor:[UIColor whiteColor]];
+        [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+    }
+    
+    [cell setBackgroundColor:[UIColor clearColor]];
     
     return cell;
 }

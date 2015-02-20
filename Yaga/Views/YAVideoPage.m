@@ -46,7 +46,7 @@
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
-         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
@@ -208,7 +208,7 @@
     self.progressView.showsText = YES;
     self.progressView.lineWidth = 2;
     self.progressView.tintColor = PRIMARY_COLOR;
-
+    
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
@@ -234,17 +234,37 @@
 
 - (void)textButtonPressed {
     [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
-
+    
     [self.captionField becomeFirstResponder];
 }
 
 - (void)likeButtonPressed {
+    NSString *likeCountSelf = self.likeCount.titleLabel.text;
+    NSNumberFormatter *f = [NSNumberFormatter new];
+    f.numberStyle = NSNumberFormatterDecimalStyle;
+    NSUInteger likeCountNumber = [[f numberFromString:likeCountSelf] integerValue];
     if (!self.video.like) {
+        if (likeCountNumber == 0) {
+            self.likeCount.hidden = YES;
+            [self.likeCount setTitle:@"0"
+                            forState:UIControlStateNormal];
+        } else {
+            [self.likeCount setTitle:[NSString stringWithFormat:@"%lu", (unsigned long)++likeCountNumber]
+                            forState:UIControlStateNormal];
+        }
         [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
         }];
     } else {
+        if (likeCountNumber <= 1) {
+            self.likeCount.hidden = YES;
+            [self.likeCount setTitle:@"0"
+                            forState:UIControlStateNormal];
+        } else {
+            [self.likeCount setTitle:[NSString stringWithFormat:@"%lu", (unsigned long)--likeCountNumber]
+                            forState:UIControlStateNormal];
+        }
         [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
             [self.likeCount setTitle:[response integerValue] == 0 ? @"" : [NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
@@ -393,7 +413,7 @@
     self.captionButton.hidden = !myVideo || self.video.caption.length;
     self.shareButton.hidden = !myVideo;
     self.deleteButton.hidden = !myVideo;
-
+    
     
     self.userLabel.text = self.video.creator;
     
@@ -405,7 +425,7 @@
                     forState:UIControlStateNormal];
     
     //get likers for video
-
+    
 }
 
 - (void)shareButtonPressed {

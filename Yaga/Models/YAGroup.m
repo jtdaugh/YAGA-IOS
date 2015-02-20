@@ -350,6 +350,8 @@ static BOOL groupsUpdateInProgress;
     
     videoDictionaries = [videoDictionaries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_VIDEO_READY_AT ascending:YES]]];
     
+    [[RLMRealm defaultRealm] beginWriteTransaction];
+    
     for(NSDictionary *videoDic in videoDictionaries) {
         
         //video exists? update name
@@ -363,7 +365,7 @@ static BOOL groupsUpdateInProgress;
                     [video removeFromCurrentGroup];
                 }
                 else {
-                    [video.realm beginWriteTransaction];
+                    
                     if (![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
                         video.caption = videoDic[YA_RESPONSE_NAME];
                     }
@@ -371,7 +373,6 @@ static BOOL groupsUpdateInProgress;
                     if (likers.count) {
                         [video updateLikersWithArray:likers];
                     }
-                    [video.realm commitWriteTransaction];
                 }
             }
         }
@@ -381,8 +382,6 @@ static BOOL groupsUpdateInProgress;
             //skip deleted vids
             if([videoDic[YA_VIDEO_DELETED] boolValue])
                 continue;
-            
-            [self.realm beginWriteTransaction];
             
             YAVideo *video = [YAVideo video];
             video.serverId = videoId;
@@ -395,11 +394,11 @@ static BOOL groupsUpdateInProgress;
             video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
             video.group = self;
             [self.videos insertObject:video atIndex:0];
-            [self.realm commitWriteTransaction];
             
             [newVideos addObject:video];
         }
     }
+    [[RLMRealm defaultRealm] commitWriteTransaction];
     
     return newVideos;
 }

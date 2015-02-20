@@ -23,7 +23,9 @@
 @interface YAAssetsCreator ()
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
+@property (nonatomic, strong) NSOperationQueue *jpgQueue;
 @property (nonatomic, strong) NSOperationQueue *recordingQueue;
+@property (strong) NSMutableArray *prioritizedVideos;
 @end
 
 
@@ -41,10 +43,15 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.gifQueue = [[NSOperationQueue alloc] init];
-        self.gifQueue.maxConcurrentOperationCount = 3;
+        self.gifQueue.maxConcurrentOperationCount = 4;
+        
+        self.jpgQueue = [[NSOperationQueue alloc] init];
+        self.jpgQueue.maxConcurrentOperationCount = 2;
         
         self.recordingQueue = [[NSOperationQueue alloc] init];
         self.recordingQueue.maxConcurrentOperationCount = 4;
+        
+        self.prioritizedVideos = [NSMutableArray new];
     }
     return self;
 }
@@ -185,10 +192,11 @@
 }
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
-    [[YADownloadManager sharedManager] cancelAllJobs];
-    [self.gifQueue cancelAllOperations];
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[YADownloadManager sharedManager] cancelAllJobs];
+        [self.gifQueue cancelAllOperations];
+    
+        
         [[YADownloadManager sharedManager] waitUntilAllJobsAreFinished];
         [self.gifQueue waitUntilAllOperationsAreFinished];
         
@@ -200,34 +208,64 @@
     });
 }
 
-- (void)enqueueAssetsCreationJobForVideo:(YAVideo*)video prioritizeDownload:(BOOL)prioritize {
-    if(video.url.length && !video.movFilename.length ) {
-        if(prioritize)
-            [[YADownloadManager sharedManager] prioritizeJobForVideo:video];
-        else
-            [[YADownloadManager sharedManager] addJobForVideo:video];
+- (void)enqueueAssetsCreationJobForVideos:(NSArray*)videos prioritizeDownload:(BOOL)prioritize {
+    void (^enqueueBlock)(void) = ^{
+        
+        for(YAVideo *video in videos) {
+            if(video.url.length && !video.movFilename.length ) {
+                if(prioritize)
+                    [[YADownloadManager sharedManager] prioritizeJobForVideo:video];
+                else
+                    [[YADownloadManager sharedManager] addJobForVideo:video];
+            }
+            else if(video.movFilename.length && !video.gifFilename.length) {
+                if(prioritize) {
+                    [self.prioritizedVideos removeObject:video];
+                    [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
+                }
+                
+            }
+        }
+    };
+    
+    if(prioritize) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self.gifQueue cancelAllOperations];
+            
+            self.prioritizedVideos = [NSMutableArray arrayWithArray:videos];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                enqueueBlock();
+            });
+        });
     }
-    else if(video.movFilename.length && !video.gifFilename.length) {
-        [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
+    else {
+        enqueueBlock();
     }
 }
 
-- (void)addGifCreationOperationForVideo:(YAVideo*)video quality:(YAGifCreationQuality)quality{
+- (void)addGifCreationOperationForVideo:(YAVideo*)video quality:(YAGifCreationQuality)quality {
     if(!video.movFilename.length)
         return;
     
-    BOOL enqueued = NO;
+    if([self gifOperationInProgressForUrl:video.url])
+        return;
+    
+    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:quality];
+    [self.gifQueue addOperation:gifCreationOperation];
+}
+
+- (BOOL)gifOperationInProgressForUrl:(NSString*)url {
     for(NSOperation *op in self.gifQueue.operations) {
-        if([op.name isEqualToString:video.url]) {
-            enqueued = YES;
-            break;
+        if([op.name isEqualToString:url]) {
+            return YES;
         }
     }
-    
-    if(!enqueued) {
-        YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationNormalQuality];
-        [self.gifQueue addOperation:gifCreationOperation];
-    }
+    return NO;
+}
+
+- (void)cancelGifOperations {
+    [self.gifQueue cancelAllOperations];
 }
 
 - (void)waitForAllOperationsToFinish
@@ -235,5 +273,98 @@
     [self.recordingQueue waitUntilAllOperationsAreFinished];
     [[YADownloadManager sharedManager] waitUntilAllJobsAreFinished];
     [self.gifQueue waitUntilAllOperationsAreFinished];
+}
+
+- (void)enqueueJpgCreationForVideo:(YAVideo*)video {
+    [self.jpgQueue addOperationWithBlock:^{
+        dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:video.movFilename];
+            NSURL *movURL = [NSURL fileURLWithPath:movPath];
+            NSString *filename =  [video.movFilename stringByDeletingPathExtension];
+            NSString *jpgFilename = [filename stringByAppendingPathExtension:@"jpg"];
+            NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
+                
+                AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+                imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
+                imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
+                imageGenerator.appliesPreferredTrackTransform = YES;
+                imageGenerator.maximumSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.height/2, [[UIScreen mainScreen] applicationFrame].size.height/2);
+                CMTime time = CMTimeMakeWithSeconds(0, asset.duration.timescale);
+                
+                NSError *error;
+                CMTime actualTime;
+                CGImageRef image = [imageGenerator copyCGImageAtTime:time actualTime:&actualTime error:&error];
+                UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
+                if(newImage) {
+                    newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
+                    [self createJpgFromImage:newImage atPath:(NSString*)jpgPath forVideo:video];
+                    
+                    CFRelease(image);
+                }
+                
+                dispatch_semaphore_signal(sema);
+            });
+        });
+        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self jpgCreatedForVideo:video];
+        });
+    
+    }];
+}
+
+- (UIImage *)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img {
+    CGSize gifFrameSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2, [[UIScreen mainScreen] applicationFrame].size.height/4);
+    
+    CGFloat widthDiff = img.size.width - gifFrameSize.width ;
+    CGFloat heightDiff = img.size.height - gifFrameSize.height;
+    
+    CGRect cropRect = CGRectMake(widthDiff/2, heightDiff/2, gifFrameSize.width, gifFrameSize.height);
+    
+    if (img.scale > 1.0f) {
+        cropRect = CGRectMake(cropRect.origin.x * img.scale,
+                              cropRect.origin.y * img.scale,
+                              cropRect.size.width * img.scale,
+                              cropRect.size.height * img.scale);
+    }
+    
+    CGImageRef imageRef = CGImageCreateWithImageInRect(img.CGImage, cropRect);
+    UIImage *result = [UIImage imageWithCGImage:imageRef scale:img.scale orientation:img.imageOrientation];
+    CGImageRelease(imageRef);
+    
+    
+    return result;
+}
+
+- (BOOL)createJpgFromImage:(UIImage*)image atPath:(NSString*)jpgPath forVideo:(YAVideo*)video {
+    BOOL result = YES;
+    if([UIImageJPEGRepresentation(image, 0.8) writeToFile:jpgPath atomically:NO]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [video.realm beginWriteTransaction];
+            video.jpgFilename = jpgPath.lastPathComponent;
+            [video.realm commitWriteTransaction];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
+        });
+    }
+    else {
+        NSLog(@"Error: Can't save jpg by some reason...");
+        result = NO;
+    }
+    return result;
+}
+
+#pragma mark -
+- (void)jpgCreatedForVideo:(YAVideo*)video {
+    if([self.prioritizedVideos containsObject:video]) {
+        [self.prioritizedVideos removeObject:video];
+        [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
+    }
 }
 @end

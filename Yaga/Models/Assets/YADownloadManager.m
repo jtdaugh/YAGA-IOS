@@ -11,6 +11,7 @@
 #import "YAUtils.h"
 #import "YAAssetsCreator.h"
 #import "AFDownloadRequestOperation.h"
+#import "YAUser.h"
 
 @interface YADownloadManager ()
 @property (strong) MutableOrderedDictionary *waitingJobs;
@@ -81,8 +82,16 @@
 
 - (void)addJobForVideo:(YAVideo*)video {
     //already executing?
-    if([self.executingJobs objectForKey:video.url])
+    if([self.executingJobs objectForKey:video.url]) {
+        NSLog(@"addJobForVideo: %@ is already executing, skipping.", video.movFilename);
         return;
+    }
+    
+    //waiting already?
+    if([self.waitingJobs objectForKey:video.url]) {
+        NSLog(@"addJobForVideo: %@ is already waiting, skipping.", video.movFilename);
+        return;
+    }
     
     AFDownloadRequestOperation *job = [self createJobForVideo:video];
     
@@ -100,9 +109,11 @@
 
 - (void)prioritizeJobForVideo:(YAVideo*)video {
     //already executing?
-    if([self.executingJobs objectForKey:video.url])
+    if([self.executingJobs objectForKey:video.url]) {
+        NSLog(@"prioritizeJobForVideo: %@ is already executing, skipping.", video.movFilename);
         return;
-    
+    }
+        
     //get paused or create new one
     AFDownloadRequestOperation *job = [self.waitingJobs objectForKey:video.url];
     if(!job)
@@ -138,34 +149,6 @@
     [self logState:@"prioritizeJobForVideo"];
 }
 
-- (void)jobFinishedForVideo:(YAVideo*)video {
-    [[YAAssetsCreator sharedCreator] addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
-    [self logState:@"jobFinishedForVideo"];
-    
-    [self.executingJobs removeObjectForKey:video.url];
-    
-    if(self.executingJobs.count == 0 && self.waitingJobs.count == 0) {
-        NSLog(@"YADownloadManager all done");
-        if(self.waiting_semaphore)
-            dispatch_semaphore_signal(self.waiting_semaphore);
-        return;
-    }
-    
-    if(self.waitingJobs.count == 0)
-        return;
-    
-    //start/resume waiting job
-    NSString *waitingUrl = [self.waitingJobs keyAtIndex:0];
-    AFDownloadRequestOperation *waitingJob = [self.waitingJobs objectAtIndex:0];
-    if(waitingJob.isPaused)
-        [waitingJob resume];
-    else
-        [waitingJob start];
-    
-    [self.executingJobs setObject:waitingJob forKey:waitingUrl];
-    [self.waitingJobs removeObjectForKey:waitingUrl];
-}
-
 - (BOOL)executingOperationForVideo:(YAVideo*)video {
     return [self.executingJobs objectForKey:video.url] != nil;
 }
@@ -196,4 +179,45 @@
     
     dispatch_semaphore_wait(self.waiting_semaphore, DISPATCH_TIME_FOREVER);
 }
+
+- (void)jobFinishedForVideo:(YAVideo*)video {
+    [[YAAssetsCreator sharedCreator] enqueueJpgCreationForVideo:video];
+    
+    [self logState:@"jobFinishedForVideo"];
+    
+    [self.executingJobs removeObjectForKey:video.url];
+    
+    if(self.executingJobs.count == 0 && self.waitingJobs.count == 0) {
+        NSLog(@"YADownloadManager all done");
+        if(self.waiting_semaphore)
+            dispatch_semaphore_signal(self.waiting_semaphore);
+        return;
+    }
+    
+    if(self.waitingJobs.count == 0)
+        return;
+    
+    //caches folder too big?
+    if([[YAUser currentUser] assetsFolderSizeExceeded]) {
+        //stop downloads in background mode
+        if([UIApplication sharedApplication].applicationState != UIApplicationStateActive)
+            return;
+        else {
+            //delete oldest to keep folder size static
+            [[YAUser currentUser] purgeOldVideos];
+        }
+    }
+    
+    //start/resume waiting job
+    NSString *waitingUrl = [self.waitingJobs keyAtIndex:0];
+    AFDownloadRequestOperation *waitingJob = [self.waitingJobs objectAtIndex:0];
+    if(waitingJob.isPaused)
+        [waitingJob resume];
+    else
+        [waitingJob start];
+    
+    [self.executingJobs setObject:waitingJob forKey:waitingUrl];
+    [self.waitingJobs removeObjectForKey:waitingUrl];
+}
+
 @end

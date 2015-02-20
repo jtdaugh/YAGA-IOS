@@ -10,6 +10,7 @@
 #import "YAVideo.h"
 
 @interface YADownloadManager : NSObject
+
 @property (nonatomic, assign) NSUInteger maxConcurentJobs;
 
 + (instancetype)sharedManager;

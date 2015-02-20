@@ -35,14 +35,20 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
-@property (strong, nonatomic) UILabel *noVideosLabel;
-
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
 
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
+
+@property (nonatomic, assign) NSUInteger paginationThreshold;
+
+@property (assign, nonatomic) BOOL assetsPrioritisationHandled;
+
 @end
 
 static NSString *cellID = @"Cell";
+
+#define kPaginationItemsCountToStartLoadingNextPage 10
+#define kPaginationDefaultThreshold 100
 
 @implementation YACollectionViewController
 
@@ -71,7 +77,7 @@ static NSString *cellID = @"Cell";
     
     //long press on cell for options
     UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc]
-       initWithTarget:self action:@selector(handleLongPress:)];
+                                                         initWithTarget:self action:@selector(handleLongPress:)];
     longPressRecognizer.minimumPressDuration = .5; //seconds
     longPressRecognizer.delegate = self;
     [self.collectionView addGestureRecognizer:longPressRecognizer];
@@ -92,13 +98,13 @@ static NSString *cellID = @"Cell";
 {
     YAVideoCell *cell = notif.object;
     
-//    YAVideoCell *lastObject = self.collectionView.visibleCells.lastObject;
-//    YAVideoCell *objectBeforeLast = self.collectionView.visibleCells[self.collectionView.visibleCells.count - 2];
-//    if (cell == lastObject || cell == objectBeforeLast) {
-//        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
-//        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
-//    }
-
+    //    YAVideoCell *lastObject = self.collectionView.visibleCells.lastObject;
+    //    YAVideoCell *objectBeforeLast = self.collectionView.visibleCells[self.collectionView.visibleCells.count - 2];
+    //    if (cell == lastObject || cell == objectBeforeLast) {
+    //        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+    //        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
+    //    }
+    
     const CGFloat kKeyboardHeight = 216.f;
     CGFloat offset = cell.frame.origin.y - self.collectionView.contentOffset.y + kKeyboardHeight + cell.frame.size.height;
     CGFloat pullUpHeight = offset - self.collectionView.frame.size.height;
@@ -107,7 +113,7 @@ static NSString *cellID = @"Cell";
         [self.collectionView setContentOffset:CGPointMake(0.f, self.collectionView.contentOffset.y + pullUpHeight) animated:YES];
         self.disableScrollHandling = NO;
     }
-
+    
 }
 
 - (void)setupPullToRefresh {
@@ -124,7 +130,7 @@ static NSString *cellID = @"Cell";
          grantButtonTitle:@"Enable"
          completionHandler:nil];
         [weakSelf refreshCurrentGroup];
-
+        
     }];
     
     YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];
@@ -156,6 +162,8 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reload {
+    self.paginationThreshold = kPaginationDefaultThreshold;
+    
     BOOL needRefresh = NO;
     if(![YAUser currentUser].currentGroup.videos.count)
         needRefresh = YES;
@@ -169,7 +177,7 @@ static NSString *cellID = @"Cell";
     if(needRefresh)
         [self refreshCurrentGroup];
     else
-        [self enqueueAssetsCreationJobsForCurrentGroup];
+        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     
     [self.collectionView reloadData];
 }
@@ -226,6 +234,7 @@ static NSString *cellID = @"Cell";
     if(![firstVideo.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
+    self.paginationThreshold += videos.count;
     [self.collectionView performBatchUpdates:^{
         for(int i = 0; i < videos.count; i++) {
             [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
@@ -256,18 +265,16 @@ static NSString *cellID = @"Cell";
         
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
         [weakSelf playVisible:YES];
-        [self enqueueAssetsCreationJobsForCurrentGroup];
+        
+        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     }];
 }
 
 #pragma mark - UICollectionView
-static BOOL welcomeLabelRemoved = NO;
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    if([YAUser currentUser].currentGroup.videos.count && self.noVideosLabel && !welcomeLabelRemoved) {
-        [self.noVideosLabel removeFromSuperview];
-        self.noVideosLabel = nil;
-    }
-    return [YAUser currentUser].currentGroup.videos.count;
+    NSUInteger videosCount = [YAUser currentUser].currentGroup.videos.count;
+    
+    return self.paginationThreshold > videosCount ? videosCount : self.paginationThreshold;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -327,6 +334,12 @@ static BOOL welcomeLabelRemoved = NO;
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self.delegate collectionViewDidScroll];
     
+    [self handlePaging];
+
+    [[YAAssetsCreator sharedCreator] cancelGifOperations];
+    
+    self.assetsPrioritisationHandled = NO;
+    
     if(self.disableScrollHandling) {
         return;
     }
@@ -336,12 +349,14 @@ static BOOL welcomeLabelRemoved = NO;
     [self playVisible:!scrollingFast];
     
     self.scrolling = YES;
+
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     self.scrolling = NO;
     
-    [self prioritiseDownloadsForVisibleCells];
+    if(!self.assetsPrioritisationHandled)
+        [self prioritiseDownloadsForVisibleCells];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
@@ -349,6 +364,7 @@ static BOOL welcomeLabelRemoved = NO;
         [self playVisible:YES];
         
         [self prioritiseDownloadsForVisibleCells];
+        self.assetsPrioritisationHandled = YES;
     }
 }
 
@@ -383,13 +399,32 @@ static BOOL welcomeLabelRemoved = NO;
 #pragma mark - Assets creation
 
 - (void)prioritiseDownloadsForVisibleCells {
+    NSMutableArray *videos = [NSMutableArray new];
     for(YAVideoCell *cell in self.collectionView.visibleCells)
-        [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideo:cell.video prioritizeDownload:YES];
+        [videos addObject:cell.video];
+    
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:YES];
 }
 
-- (void)enqueueAssetsCreationJobsForCurrentGroup {
-    for(YAVideo *video in [YAUser currentUser].currentGroup.videos)
-            [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideo:video prioritizeDownload:NO];
+- (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
+    NSUInteger maxCount = self.paginationThreshold;
+    if(maxCount > [YAUser currentUser].currentGroup.videos.count)
+        maxCount = [YAUser currentUser].currentGroup.videos.count;
+    
+    NSMutableArray *visibleVideos = [NSMutableArray new];
+    NSMutableArray *invisibleVideos = [NSMutableArray new];
+    for(NSUInteger videoIndex = initialIndex; videoIndex < maxCount; videoIndex++) {
+        if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
+            [visibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+        }
+        else {
+            [invisibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+        }
+        
+    }
+    
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:visibleVideos prioritizeDownload:YES];
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:invisibleVideos prioritizeDownload:NO];
 }
 
 #pragma mark - Custom transitions
@@ -419,6 +454,29 @@ static BOOL welcomeLabelRemoved = NO;
         
         if(myVideo)
             [YAUtils showVideoOptionsForVideo:video];
+    }
+}
+
+#pragma mark - Paging
+- (void)handlePaging {
+    NSArray *visibleIndexes = [[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"];
+    if(!visibleIndexes.count)
+        return;
+    
+    NSUInteger max = [[visibleIndexes valueForKeyPath:@"@max.intValue"] integerValue];
+    
+    if (max > self.paginationThreshold - kPaginationItemsCountToStartLoadingNextPage) {
+        //load more
+        [self.collectionView reloadItemsAtIndexPaths:[self.collectionView indexPathsForVisibleItems]];
+        [self.collectionView reloadData];
+        
+        NSUInteger oldPaginationThreshold = self.paginationThreshold;
+        
+        // update the threshold
+        self.paginationThreshold += kPaginationDefaultThreshold;
+        
+        //enqueue new assets creation jobs
+        [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
     }
 }
 @end
