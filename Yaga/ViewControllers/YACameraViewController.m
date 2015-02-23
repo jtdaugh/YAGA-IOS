@@ -39,6 +39,7 @@
 @property (strong, nonatomic) UIButton *recordButton;
 
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizerCamera;
+@property (nonatomic) BOOL audioInputAdded;
 
 @end
 
@@ -323,6 +324,7 @@
         NSLog(@"add audio input error: %@", error);
     }
     //Don't add just now to allow bg audio to play
+    self.audioInputAdded = NO;
 //    if ([self.session canAddInput:self.audioInput])
 //    {
 //        [self.session addInput:self.audioInput];
@@ -352,9 +354,12 @@
     NSLog(@"starting hold");
 
     //We're starting to shoot so add audio
-    [self.session beginConfiguration];
-    [self.session addInput:self.audioInput];
-    [self.session commitConfiguration];
+    if (!self.audioInputAdded) {
+        [self.session beginConfiguration];
+        [self.session addInput:self.audioInput];
+        self.audioInputAdded = YES;
+        [self.session commitConfiguration];
+    }
     
     self.recording = [NSNumber numberWithBool:YES];
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
