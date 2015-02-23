@@ -353,14 +353,6 @@
 - (void)startHold {
     NSLog(@"starting hold");
 
-    //We're starting to shoot so add audio
-    if (!self.audioInputAdded) {
-        [self.session beginConfiguration];
-        [self.session addInput:self.audioInput];
-        self.audioInputAdded = YES;
-        [self.session commitConfiguration];
-    }
-    
     self.recording = [NSNumber numberWithBool:YES];
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
@@ -374,6 +366,16 @@
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
         [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    } completion:^(BOOL finished) {
+        
+        //We're starting to shoot so add audio
+        if (!self.audioInputAdded) {
+            [self.session beginConfiguration];
+            [self.session addInput:self.audioInput];
+            self.audioInputAdded = YES;
+            [self.session commitConfiguration];
+        }
+        
     }];
     
     [UIView animateWithDuration:10.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
@@ -384,7 +386,7 @@
         }
         //
     }];
-    
+
     [self startRecordingVideo];
     
 }
