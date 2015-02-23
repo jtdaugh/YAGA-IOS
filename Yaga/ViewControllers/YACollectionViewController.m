@@ -43,6 +43,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
 
+@property (nonatomic, strong) YAActivityView *activityView;
 @end
 
 static NSString *cellID = @"Cell";
@@ -92,6 +93,11 @@ static NSString *cellID = @"Cell";
     self.animationController = [YAAnimatedTransitioningController new];
     
     [self setupPullToRefresh];
+    
+    const CGFloat monkeyWidth  = 50;
+    self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
+    [self.collectionView addSubview:self.activityView];
+    [self.activityView startAnimating];
 }
 
 - (void)scrollToCell:(NSNotification *)notif
@@ -267,6 +273,8 @@ static NSString *cellID = @"Cell";
         [weakSelf playVisible:YES];
         
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+        
+        self.activityView.hidden = [YAUser currentUser].currentGroup.videos.count != 0;
     }];
 }
 
