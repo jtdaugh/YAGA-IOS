@@ -29,6 +29,15 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // Continue music playback in our app
+    NSError *error;
+    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
+    if (!success) {
+        //Handle error
+        NSLog(@"%@", [error localizedDescription]);
+    } else {
+        
+    }
     if ([[NSUserDefaults standardUserDefaults] boolForKey:ALREADY_LAUNCHED_KEY])
     {
         ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];

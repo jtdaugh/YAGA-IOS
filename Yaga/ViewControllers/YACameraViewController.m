@@ -310,7 +310,7 @@
     }
     
     
-    [self.session startRunning];
+   [self.session startRunning];
 }
 
 - (void)setupAudioInput {
@@ -322,11 +322,11 @@
     {
         NSLog(@"add audio input error: %@", error);
     }
-    
-    if ([self.session canAddInput:self.audioInput])
-    {
-        [self.session addInput:self.audioInput];
-    }
+    //Don't add just now to allow bg audio to play
+//    if ([self.session canAddInput:self.audioInput])
+//    {
+//        [self.session addInput:self.audioInput];
+//    }
     
 }
 
@@ -349,8 +349,12 @@
 }
 
 - (void)startHold {
-    
     NSLog(@"starting hold");
+
+    //We're starting to shoot so add audio
+    [self.session beginConfiguration];
+    [self.session addInput:self.audioInput];
+    [self.session commitConfiguration];
     
     self.recording = [NSNumber numberWithBool:YES];
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
