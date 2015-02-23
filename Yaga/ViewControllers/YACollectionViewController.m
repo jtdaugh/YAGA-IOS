@@ -93,11 +93,6 @@ static NSString *cellID = @"Cell";
     self.animationController = [YAAnimatedTransitioningController new];
     
     [self setupPullToRefresh];
-    
-    const CGFloat monkeyWidth  = 50;
-    self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
-    [self.collectionView addSubview:self.activityView];
-    [self.activityView startAnimating];
 }
 
 - (void)scrollToCell:(NSNotification *)notif
@@ -260,6 +255,14 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)refreshCurrentGroup {
+    const CGFloat monkeyWidth  = 50;
+    [self.activityView removeFromSuperview];
+    if(![YAUser currentUser].currentGroup.videos.count) {
+        self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
+        [self.collectionView addSubview:self.activityView];
+        [self.activityView startAnimating];
+    }
+    
     __weak typeof (self) weakSelf = self;
     [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
         if(!error) {
@@ -276,7 +279,8 @@ static NSString *cellID = @"Cell";
         
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         
-        self.activityView.hidden = [YAUser currentUser].currentGroup.videos.count != 0;
+        if([YAUser currentUser].currentGroup.videos.count)
+            [self.activityView removeFromSuperview];
     }];
 }
 
