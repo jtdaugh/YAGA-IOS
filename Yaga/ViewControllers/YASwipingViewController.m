@@ -107,6 +107,7 @@
         CGRect pageFrame = CGRectMake(i * self.scrollView.bounds.size.width, 0, self.scrollView.bounds.size.width - kSeparator, self.scrollView.bounds.size.height);
         
         YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:pageFrame];
+        page.presentingVC = self;
         page.backgroundColor = [UIColor blackColor];
         
         [self.scrollView addSubview:page];

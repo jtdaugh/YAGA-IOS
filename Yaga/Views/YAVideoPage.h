@@ -10,10 +10,11 @@
 #import "YAVideoPlayerView.h"
 #import "YAVideo.h"
 
-@interface YAVideoPage : UIView<UITextFieldDelegate, UIActionSheetDelegate>
+@interface YAVideoPage : UIView<UITextFieldDelegate, UIActionSheetDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
 @property (nonatomic, readonly) YAVideoPlayerView *playerView;
+@property (nonatomic, weak) id presentingVC;
 
 - (void)setVideo:(YAVideo *)video shouldPlay:(BOOL)shouldPlay;
 @end
