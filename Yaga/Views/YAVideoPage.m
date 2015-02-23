@@ -15,6 +15,8 @@
 #import <Social/Social.h>
 #import "YAProgressView.h"
 
+#define DOWN_MOVEMENT_TRESHHOLD 800.0f
+
 @interface YAVideoPage ();
 @property (nonatomic, strong) YAActivityView *activityView;
 
@@ -209,6 +211,20 @@
     self.progressView.lineWidth = 2;
     self.progressView.tintColor = PRIMARY_COLOR;
     
+    UIPanGestureRecognizer *pangesturerecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
+    pangesturerecognizer.delegate = self;
+
+    [self addGestureRecognizer:pangesturerecognizer];
+}
+
+- (void)panGesture:(UIPanGestureRecognizer *)rec
+{
+    CGPoint vel = [rec velocityInView:self];
+    if (vel.y > DOWN_MOVEMENT_TRESHHOLD) {
+        if ([self.presentingVC respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]) {
+            [self.presentingVC dismissViewControllerAnimated:YES completion:nil];
+        }
+    }
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
@@ -298,7 +314,6 @@
     [self removeGestureRecognizer:recognizer];
     [self hideLikes];
     self.likesShown = NO;
-    
 }
 
 - (void)showLikes {
@@ -470,6 +485,18 @@
             [self.progressView setCustomText:self.video.creator];
         }
     }
+}
+
+#pragma mark - UIPanGestureRecognizerDelegate 
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+    return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    return YES;
+}
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
+    return YES;
 }
 @end
 

@@ -43,6 +43,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
 
+@property (nonatomic, strong) YAActivityView *activityView;
 @end
 
 static NSString *cellID = @"Cell";
@@ -204,6 +205,8 @@ static NSString *cellID = @"Cell";
     NSUInteger videoIndex = [[self.deleteDictionary objectForKey:videoId] integerValue];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
     
+    self.paginationThreshold--;
+    
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     
     [self.deleteDictionary removeObjectForKey:videoId];
@@ -241,6 +244,7 @@ static NSString *cellID = @"Cell";
         }
     } completion:^(BOOL finished) {
         [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+        [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:YES];
     }];
 }
 
@@ -252,6 +256,14 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)refreshCurrentGroup {
+    const CGFloat monkeyWidth  = 50;
+    [self.activityView removeFromSuperview];
+    if(![YAUser currentUser].currentGroup.videos.count) {
+        self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
+        [self.collectionView addSubview:self.activityView];
+        [self.activityView startAnimating];
+    }
+    
     __weak typeof (self) weakSelf = self;
     [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
         if(!error) {
@@ -267,6 +279,9 @@ static NSString *cellID = @"Cell";
         [weakSelf playVisible:YES];
         
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+        
+        if([YAUser currentUser].currentGroup.videos.count)
+            [self.activityView removeFromSuperview];
     }];
 }
 
@@ -274,7 +289,7 @@ static NSString *cellID = @"Cell";
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     NSUInteger videosCount = [YAUser currentUser].currentGroup.videos.count;
     
-    return self.paginationThreshold > videosCount ? videosCount : self.paginationThreshold;
+    return videosCount < self.paginationThreshold ? videosCount : self.paginationThreshold;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
