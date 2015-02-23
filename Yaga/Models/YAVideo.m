@@ -113,11 +113,11 @@
             [fileMgr removeItemAtURL:urlToDelete error:&error];
         }
     });
-    
-    [[RLMRealm defaultRealm] beginWriteTransaction];
+
+    [self.realm beginWriteTransaction];
     self.movFilename = @"";
     self.gifFilename = @"";
     self.jpgFilename = @"";
-    [[RLMRealm defaultRealm] commitWriteTransaction];
+    [self.realm commitWriteTransaction];
 }
 @end

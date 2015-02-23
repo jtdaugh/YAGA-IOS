@@ -52,8 +52,10 @@
     contact.lastName  = dictionary[nLastname]   ? dictionary[nLastname]  : @"";
     contact.number = dictionary[nPhone];
     contact.registered = NO;
-    if([dictionary[nUsername] length])
+    if([dictionary[nUsername] length]) {
         contact.username = dictionary[nUsername];
+        contact.registered = YES;
+    }
 
     return contact;
 }
@@ -70,6 +72,7 @@
     }
     else {
         self.username = @"";//[[NameGenerator sharedGeneratror] nameForPhoneNumber:phoneNumber];
+        self.registered = NO;
     }
     
     if(existingUserData) {
