@@ -12,6 +12,7 @@
 
 @interface YAGroupMembersViewController ()
 @property (nonatomic, strong) YAGroup *group;
+@property (nonatomic, strong) RLMResults *filteredMembers;
 @end
 
 static NSString *CellID = @"CellID";
@@ -42,6 +43,7 @@ static NSString *CellID = @"CellID";
     [self adjustNavigationControls];
     
     self.title = self.group.name;
+    self.filteredMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -128,7 +130,7 @@ static NSString *CellID = @"CellID";
     frame.origin.x = 0;
     [cell setFrame:frame];
     
-    YAContact *contact = self.group.members[indexPath.row];
+    YAContact *contact = self.filteredMembers[indexPath.row];
     
     cell.indentationLevel = 0;
     cell.indentationWidth = 0.0f;
