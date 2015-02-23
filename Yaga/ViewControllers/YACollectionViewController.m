@@ -210,6 +210,8 @@ static NSString *cellID = @"Cell";
     NSUInteger videoIndex = [[self.deleteDictionary objectForKey:videoId] integerValue];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
     
+    self.paginationThreshold--;
+    
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     
     [self.deleteDictionary removeObjectForKey:videoId];
@@ -282,7 +284,7 @@ static NSString *cellID = @"Cell";
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     NSUInteger videosCount = [YAUser currentUser].currentGroup.videos.count;
     
-    return self.paginationThreshold > videosCount ? videosCount : self.paginationThreshold;
+    return videosCount < self.paginationThreshold ? videosCount : self.paginationThreshold;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
