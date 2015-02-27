@@ -107,6 +107,14 @@
     [[YAServer sharedServer] startMonitoringInternetConnection:YES];
     
     [self endBackgroundTask];
+    
+    [self removeNotificationsBadge];
+}
+
+- (void)removeNotificationsBadge {
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    //and clean notifications center
+    [[UIApplication sharedApplication] cancelAllLocalNotifications];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
