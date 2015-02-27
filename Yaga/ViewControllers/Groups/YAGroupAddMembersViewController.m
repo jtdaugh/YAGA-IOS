@@ -322,10 +322,16 @@
 - (void)doneTapped {
     if(![self validateSelectedContacts])
         return;
-    
+
     if(self.existingGroup && self.existingGroupDirty) {
         
-        NSArray *friendNumbers = [self.selectedContacts valueForKey:nPhone];
+        NSMutableArray *friendNumbers = [NSMutableArray new];
+        
+        for(NSDictionary *selectedContact in self.selectedContacts) {
+            if([YAUtils validatePhoneNumber:selectedContact[nPhone] error:nil])
+                [friendNumbers addObject:selectedContact[nPhone]];
+        }
+
         [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
             if(error)
                 [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];

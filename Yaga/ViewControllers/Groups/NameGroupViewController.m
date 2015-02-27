@@ -106,7 +106,8 @@
     
     NSMutableArray *friendNumbers = [NSMutableArray arrayWithCapacity:[YAUser currentUser].currentGroup.members.count];
     for(YAContact *member in [YAUser currentUser].currentGroup.members) {
-        [friendNumbers addObject:member.number];
+        if([YAUtils validatePhoneNumber:member.number error:nil])
+            [friendNumbers addObject:member.number];
     }
     
     [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {

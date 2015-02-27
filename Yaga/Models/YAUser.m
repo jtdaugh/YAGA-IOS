@@ -234,11 +234,15 @@
 }
 
 #pragma mark - iMessage
-- (void)iMessageWithFriends:(NSArray*)friendNumbers withCompletion:(completionBlock)presentedBlock {
+- (void)iMessageWithFriends:(NSArray*)friendNumbers withCompletion:(completionBlock)completion {
+    if(!friendNumbers.count && completion) {
+        completion(nil);
+        return;
+    }
     if(![MFMessageComposeViewController canSendText]) {
-        if(presentedBlock) {
+        if(completion) {
             NSError *error = [NSError errorWithDomain:@"YAGA" code:0 userInfo:nil];
-            presentedBlock(error);
+            completion(error);
         }
         
         return;
@@ -254,8 +258,8 @@
     
     // Present message view controller on screen
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:messageController animated:YES completion:^{
-        if(presentedBlock)
-            presentedBlock(nil);
+        if(completion)
+            completion(nil);
     }];
 }
 
