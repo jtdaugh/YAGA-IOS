@@ -159,7 +159,7 @@
             if([YAUser currentUser].deviceToken.length) {
                 [[YAServer sharedServer] registerDeviceTokenWithCompletion:^(id response, NSError *error) {
                     if(error) {
-                        [YAUtils showNotification:[NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription] type:YANotificationTypeError];
+                        NSLog(@"YASMSAuthentificationViewControlller error: %@", [NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription]);
                     }
                 }];
             }

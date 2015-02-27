@@ -154,7 +154,7 @@
 }
 
 - (void)logState:(NSString*)method {
-    NSLog(@"%@: executing: %lu, waiting: %lu", method, (unsigned long)self.executingJobs.allKeys.count, self.waitingJobs.allKeys.count);
+    NSLog(@"%@: executing: %lu, waiting: %lu", method, (unsigned long)self.executingJobs.allKeys.count, (unsigned long)self.waitingJobs.allKeys.count);
 }
 
 - (void)cancelAllJobs {

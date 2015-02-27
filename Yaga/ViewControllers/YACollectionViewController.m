@@ -270,7 +270,7 @@ static NSString *cellID = @"Cell";
     }
     
     __weak typeof (self) weakSelf = self;
-    [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
+    [[YAUser currentUser].currentGroup refreshWithCompletion:^(NSError *error, NSArray *newVideos) {
         if(!error) {
             if(newVideos.count) {
                 [weakSelf.collectionView performBatchUpdates:^{

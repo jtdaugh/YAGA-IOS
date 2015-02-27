@@ -14,7 +14,12 @@ typedef NS_ENUM(NSInteger, YANotificationType) {
     YANotificationTypeMessage
 };
 
+typedef void (^actionHandlerBlock)(void);
+
 @interface YANotificationView : NSObject
+
 + (void)showMessage:(NSString*)message viewType:(YANotificationType)type;
+
+- (void)showMessage:(NSString*)message viewType:(YANotificationType)type actionHandler:(actionHandlerBlock)actionHandler;
 
 @end

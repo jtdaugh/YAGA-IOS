@@ -8,10 +8,16 @@
 
 #import "YANotificationView.h"
 
+
+@interface YANotificationView ()
+@property (nonatomic, copy) actionHandlerBlock actionHandler;
+@end
+
 #define kHeight 80
 
 @implementation YANotificationView
-+ (void)showMessage:(NSString*)message viewType:(YANotificationType)type {
+
+- (void)showMessage:(NSString*)message viewType:(YANotificationType)type actionHandler:(void(^)(void))actionHandler {
 
     UIView *messageView = [[UIView alloc] initWithFrame:CGRectMake(0, -kHeight, VIEW_WIDTH, kHeight)];
     
@@ -40,6 +46,12 @@
     
     [[UIApplication sharedApplication].keyWindow addSubview:messageView];
     
+    if(actionHandler) {
+        self.actionHandler = actionHandler;
+        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
+        [messageView addGestureRecognizer:tapRecognizer];
+    }
+    
     [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         messageView.center = CGPointMake(messageView.center.x, messageView.frame.size.height/2);
     } completion:^(BOOL finished) {
@@ -53,4 +65,14 @@
         }
     }];
 }
+
+- (void)tapped:(id)sender {
+    self.actionHandler();
+}
+
++ (void)showMessage:(NSString*)message viewType:(YANotificationType)type {
+    YANotificationView *notificationView = [YANotificationView new];
+    [notificationView showMessage:message viewType:type actionHandler:nil];
+}
+
 @end

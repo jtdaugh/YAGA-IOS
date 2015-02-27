@@ -21,6 +21,9 @@
 #import "YAImageCache.h"
 #import <ClusterPrePermissions.h>
 
+#import "YANotificationView.h"
+#import "YAPushNotificationHandler.h"
+
 @interface AppDelegate ()
 @property(nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
 @end
@@ -160,7 +163,7 @@
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSLog(@"didReceiveRemoteNotification %@", userInfo);
-    
+
     //http://stackoverflow.com/questions/1554751/how-to-handle-push-notifications-if-the-application-is-already-running
     [YAUtils showNotification:[NSString stringWithFormat:@"Push: %@", [userInfo description]] type:YANotificationTypeMessage];
     
@@ -174,8 +177,19 @@
             [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
         }
     }
+    
+//    if(application.applicationState == UIApplicationStateActive) {
+//        YANotificationView *notificationView = [YANotificationView new];
+//
+//        NSString *alert = userInfo[@"aps"][@"alert"];
+//        [notificationView showMessage:alert viewType:YANotificationTypeMessage actionHandler:^{
+//            [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:userInfo];
+//        }];
+//    }
+//    else {
+//        [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:userInfo];
+//    }
 }
-
 
 #pragma mark - utils
 - (NSString *)deviceTokenFromData:(NSData *)data {

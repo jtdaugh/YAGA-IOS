@@ -53,7 +53,7 @@
     for(int i = 0; i < self.members.count; i++) {
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
         
-        if([[contact displayName] isEqualToString:kDefaultUsername])
+        if([[contact displayName] isEqualToString:kDefaultUsername] || ! [contact displayName])
             countOfNonames++;
         else {
             if(!results.length)
@@ -67,10 +67,16 @@
         if(results.length)
             results = [results stringByAppendingString:NSLocalizedString(@" and 1 more", @"")];
         else
-            results = kDefaultUsername;
+            results = NSLocalizedString(@"ONE_UNKOWN_USER", @"");
     }
     else if(countOfNonames > 1) {
-        results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), countOfNonames];
+        if(!results.length) {
+            results = [results stringByAppendingFormat:NSLocalizedString(@"N_UNKOWN_USERS_TEMPLATE", @""), countOfNonames];
+        }
+        else {
+            results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), countOfNonames];
+        }
+       
     }
     return results;
 }
@@ -120,7 +126,7 @@
         
         [contact updateFromDictionary:memberDic];
         
-        if(!existingContacts.count)
+        if([self.members indexOfObject:contact] == NSNotFound)
             [self.members addObject:contact];
 
     }
@@ -288,7 +294,7 @@ static BOOL groupsUpdateInProgress;
 }
 
 #pragma mark - Videos
-- (void)updateVideosWithCompletion:(updateVideosCompletionBlock)completion {
+- (void)refreshWithCompletion:(updateVideosCompletionBlock)completion {
     if(self.videosUpdateInProgress) {
         completion(nil, nil);
         return;
@@ -316,7 +322,11 @@ static BOOL groupsUpdateInProgress;
         else {
             [groupsUpdatedAt setObject:[NSDate date] forKey:[YAUser currentUser].currentGroup.localId];
             [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
-
+            
+            [self.realm beginWriteTransaction];
+            [self updateFromServerResponeDictionarty:response];
+            [self.realm commitWriteTransaction];
+            
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
             NSLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
             
