@@ -54,7 +54,6 @@
     contact.registered = NO;
     if([dictionary[nUsername] length]) {
         contact.username = dictionary[nUsername];
-        contact.registered = YES;
     }
 
     return contact;
