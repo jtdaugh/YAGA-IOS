@@ -142,17 +142,17 @@
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
     [self addSubview:self.timestampLabel];
     
-    CGFloat captionHeight = 30;
+    CGFloat captionHeight = 300;
     CGFloat captionGutter = 2;
     self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
     [self.captionField setBackgroundColor:[UIColor clearColor]];
     [self.captionField setTextAlignment:NSTextAlignmentCenter];
-    [self.captionField setTextColor:[UIColor whiteColor]];
-    [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.captionField setTextColor:PRIMARY_COLOR];
+    [self.captionField setFont:[UIFont fontWithName:@"MarkerFelt-Wide" size:60]];
     self.captionField.delegate = self;
     [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.captionField setReturnKeyType:UIReturnKeyDone];
-    self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.captionField.layer.shadowColor = [[UIColor whiteColor] CGColor];
     self.captionField.layer.shadowRadius = 1.0f;
     self.captionField.layer.shadowOpacity = 1.0;
     self.captionField.layer.shadowOffset = CGSizeZero;

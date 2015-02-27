@@ -236,6 +236,11 @@
             
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                                      completionHandler:^(BOOL granted) {
+                                         self.session = [[AVCaptureSession alloc] init];
+                                         self.session.sessionPreset = AVCaptureSessionPresetMedium;
+                                         
+                                         [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
+                                         [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
                                          if (granted) {
                                              [self setupVideoInput];
                                          }
