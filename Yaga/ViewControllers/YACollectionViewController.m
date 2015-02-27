@@ -245,6 +245,11 @@ static NSString *cellID = @"Cell";
     } completion:^(BOOL finished) {
         [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
         [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:YES];
+        
+        if(self.activityView) {
+            [self.activityView removeFromSuperview];
+            self.activityView = nil;
+        }
     }];
 }
 
