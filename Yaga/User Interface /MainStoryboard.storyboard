@@ -274,8 +274,8 @@
                     <navigationItem key="navigationItem" id="sPE-sa-3og"/>
                     <connections>
                         <segue destination="54o-Be-McY" kind="custom" identifier="SelectExistingGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="fvS-6s-erS"/>
-                        <segue destination="aCm-EC-oWm" kind="show" identifier="ShowAddMembers" id="ira-DT-4cj"/>
                         <segue destination="Df3-gO-NpP" kind="unwind" identifier="HideEmbeddedUserGroups" unwindAction="unwindToGrid:" id="aB8-gW-n0s"/>
+                        <segue destination="HLA-dy-d1e" kind="show" identifier="NameGroup" id="u33-D9-9Ph"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zUg-0n-BZp" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -319,7 +319,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="uHU-Xp-n1O"/>
                     <connections>
-                        <segue destination="HLA-dy-d1e" kind="show" identifier="NameGroup" id="Ou0-GX-MAs"/>
+                        <segue destination="54o-Be-McY" kind="show" identifier="CompleteOnboarding" id="6XQ-46-kxg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wON-sz-6d3" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -340,7 +340,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
-                        <segue destination="54o-Be-McY" kind="custom" identifier="NameNewGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="OXh-u4-OoS"/>
+                        <segue destination="aCm-EC-oWm" kind="show" identifier="AddMembers" id="AAY-Qg-ULv"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xwl-Cb-13J" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -349,9 +349,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="6XQ-46-kxg"/>
+        <segue reference="AAY-Qg-ULv"/>
         <segue reference="rfC-CX-Kmk"/>
         <segue reference="zAA-Ft-OZ6"/>
-        <segue reference="ulu-fm-wh2"/>
-        <segue reference="OXh-u4-OoS"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -285,7 +285,7 @@ static NSString *cellID = @"Cell";
         
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         
-        if([YAUser currentUser].currentGroup.videos.count)
+        if([YAUser currentUser].currentGroup.videos.count || ([YAUser currentUser].currentGroup.videos.count == 0 && newVideos.count == 0))
             [self.activityView removeFromSuperview];
     }];
 }
@@ -294,7 +294,8 @@ static NSString *cellID = @"Cell";
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     NSUInteger videosCount = [YAUser currentUser].currentGroup.videos.count;
     
-    return videosCount < self.paginationThreshold ? videosCount : self.paginationThreshold;
+    NSUInteger result = videosCount < self.paginationThreshold ? videosCount : self.paginationThreshold;
+    return result;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {

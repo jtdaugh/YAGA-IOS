@@ -347,11 +347,21 @@
     }
     //create default group
     else {
-        [YAUser currentUser].currentGroup = [YAGroup groupWithName:@"Default"];
-        
         [[YAUser currentUser].currentGroup addMembers:self.selectedContacts];
+
+        NSMutableArray *friendNumbers = [NSMutableArray arrayWithCapacity:[YAUser currentUser].currentGroup.members.count];
+        for(YAContact *member in [YAUser currentUser].currentGroup.members) {
+            if([YAUtils validatePhoneNumber:member.number error:nil])
+                [friendNumbers addObject:member.number];
+        }
         
-        [self performSegueWithIdentifier:@"NameGroup" sender:self];
+        [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
+            if(error)
+                [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
+            
+            [self performSegueWithIdentifier:@"CompleteOnboarding" sender:self];
+
+        }];
     }
 }
 
