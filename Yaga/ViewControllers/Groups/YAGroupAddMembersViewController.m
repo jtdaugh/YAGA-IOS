@@ -274,20 +274,24 @@
         //search by username
         if([text rangeOfString:@" "].location == NSNotFound) {
             if(text.length > 2) {
-                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
-            }
-            
-            NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
-            RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
-            
-            NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];
-            for(YAContact *contact in contactsByUsername) {
-                if(![selectedUsernames containsObject:contact.username]) {
-                    NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
-                    contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
-                    [self.filteredContacts addObject:contactDicMutable];
+                
+                NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
+                RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
+                
+                NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];
+                for(YAContact *contact in contactsByUsername) {
+                    if(![selectedUsernames containsObject:contact.username]) {
+                        NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
+                        contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
+                        [self.filteredContacts addObject:contactDicMutable];
+                    }
+                    
                 }
                 
+                NSArray *foundUsernames = [self.filteredContacts valueForKey:nUsername];
+                if(![foundUsernames containsObject:text]) {
+                    [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+                }
             }
         }
         
