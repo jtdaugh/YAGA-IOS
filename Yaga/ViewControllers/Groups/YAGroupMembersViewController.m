@@ -136,12 +136,8 @@ static NSString *CellID = @"CellID";
     cell.indentationWidth = 0.0f;
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
-    
-    if (contact.name.length) {
-        cell.textLabel.text = [contact displayName];
-    } else {
-        cell.textLabel.text = [YAUtils readableNumberFromString:contact.number];
-    }
+
+    cell.textLabel.text = [contact displayName];
     
     if([[YAUser currentUser].phonebook objectForKey:contact.number]) {
         NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
