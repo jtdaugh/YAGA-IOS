@@ -245,13 +245,18 @@ static NSString *cellID = @"Cell";
     } completion:^(BOOL finished) {
         [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
         [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:YES];
+        
+        if(self.activityView) {
+            [self.activityView removeFromSuperview];
+            self.activityView = nil;
+        }
     }];
 }
 
 - (void)refreshGroup:(NSNotification*)notif {
     YAGroup *groupToRefresh = [notif object];
     if([[YAUser currentUser].currentGroup.localId isEqualToString:groupToRefresh.localId]) {
-        [self refreshCurrentGroup];
+        [self reload];
     }
 }
 
@@ -265,7 +270,7 @@ static NSString *cellID = @"Cell";
     }
     
     __weak typeof (self) weakSelf = self;
-    [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
+    [[YAUser currentUser].currentGroup refreshWithCompletion:^(NSError *error, NSArray *newVideos) {
         if(!error) {
             if(newVideos.count) {
                 [weakSelf.collectionView performBatchUpdates:^{
@@ -280,7 +285,7 @@ static NSString *cellID = @"Cell";
         
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         
-        if([YAUser currentUser].currentGroup.videos.count)
+        if([YAUser currentUser].currentGroup.videos.count || ([YAUser currentUser].currentGroup.videos.count == 0 && newVideos.count == 0))
             [self.activityView removeFromSuperview];
     }];
 }
@@ -289,7 +294,8 @@ static NSString *cellID = @"Cell";
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     NSUInteger videosCount = [YAUser currentUser].currentGroup.videos.count;
     
-    return videosCount < self.paginationThreshold ? videosCount : self.paginationThreshold;
+    NSUInteger result = videosCount < self.paginationThreshold ? videosCount : self.paginationThreshold;
+    return result;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {

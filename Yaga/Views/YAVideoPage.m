@@ -210,21 +210,6 @@
     self.progressView.showsText = YES;
     self.progressView.lineWidth = 2;
     self.progressView.tintColor = PRIMARY_COLOR;
-    
-    UIPanGestureRecognizer *pangesturerecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
-    pangesturerecognizer.delegate = self;
-
-    [self addGestureRecognizer:pangesturerecognizer];
-}
-
-- (void)panGesture:(UIPanGestureRecognizer *)rec
-{
-    CGPoint vel = [rec velocityInView:self];
-    if (vel.y > DOWN_MOVEMENT_TRESHHOLD) {
-        if ([self.presentingVC respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]) {
-            [self.presentingVC dismissViewControllerAnimated:YES completion:nil];
-        }
-    }
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {

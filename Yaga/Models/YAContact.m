@@ -54,7 +54,6 @@
     contact.registered = NO;
     if([dictionary[nUsername] length]) {
         contact.username = dictionary[nUsername];
-        contact.registered = YES;
     }
 
     return contact;
@@ -79,8 +78,6 @@
         self.name       = existingUserData[nCompositeName];
         self.firstName  = existingUserData[nFirstname];
         self.lastName   = existingUserData[nLastname];
-        if(!self.username.length)
-            self.username = existingUserData[nCompositeName];
     }
     
     self.serverId = serverId;

@@ -42,6 +42,8 @@
 "Can't remove self from the group, use 'Leave' option when selecting group options." = "Can't remove self from the group, use 'Leave' option when selecting group options.";
 " and one more" = " and one more";
 "OTHER_CONTACTS_TEMPLATE" = " and %lu others";
+"N_UNKOWN_USERS_TEMPLATE" = "%lu users";
+"ONE_UNKOWN_USER" = "one user";
 
 "SOME PHONE NUMBERS ARE INCORRECT MESSAGE" = "The following contacts have incorrect phone number, please fix phone numbers or remove them from the group";
 "NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";
@@ -87,3 +89,8 @@
 "Video saved to the camera roll" = "Video saved to the camera roll";
 "Are you sure you want to delete this video from '%@'?" = "Are you sure you want to delete this video from '%@'?";
 "Delete video" = "Delete video";
+
+//pushes
+"CANT_OPEN_GROUP_MESSAGE" = "Can not open group because it doesn't exist or you are not a member anymore";
+"CANT_FETCH_GROUPS_ON_PUSH" = "Unable to fetch groups from server, try later";
+"CANT_FETCH_GROUP_VIDEOS_ON_PUSH" = "Unable to fetch group videos from server, try later";

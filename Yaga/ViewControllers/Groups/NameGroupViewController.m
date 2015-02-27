@@ -102,24 +102,15 @@
     // Start the animation
     [myIndicator startAnimating];
     
-    [[YAUser currentUser].currentGroup rename:self.groupNameTextField.text];
+    [YAUser currentUser].currentGroup = [YAGroup groupWithName:self.groupNameTextField.text];
     
-    NSMutableArray *friendNumbers = [NSMutableArray arrayWithCapacity:[YAUser currentUser].currentGroup.members.count];
-    for(YAContact *member in [YAUser currentUser].currentGroup.members) {
-        [friendNumbers addObject:member.number];
+       
+    if(!self.embeddedMode) {
+        [self performSegueWithIdentifier:@"AddMembers" sender:self];
     }
-    
-    [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
-        if(error)
-            [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
-        
-        if(!self.embeddedMode) {
-            [self performSegueWithIdentifier:@"NameNewGroupAndCompleteOnboarding" sender:self];
-        }
-        else {
-            [self.navigationController popToRootViewControllerAnimated:YES];
-        }
-    }];
+    else {
+        [self.navigationController popToRootViewControllerAnimated:YES];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

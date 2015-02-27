@@ -12,6 +12,7 @@
 #import "YAUtils.h"
 #import "YAVideo.h"
 #import "YAUser.h"
+#import "Yaga-Bridging-Header.h"
 
 @interface YASwipingViewController ()
 
@@ -24,6 +25,7 @@
 @end
 
 #define kSeparator 10
+#define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 @implementation YASwipingViewController
 
@@ -67,8 +69,33 @@
     [self.view addGestureRecognizer:tap];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
+    
+    UIPanGestureRecognizer *pangesturerecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
+    
+    [self.view addGestureRecognizer:pangesturerecognizer];
 }
 
+
+
+- (void)panGesture:(UIPanGestureRecognizer *)rec
+{
+    static BOOL insideAnimation = NO;
+    CGPoint vel = [rec velocityInView:self.view];
+    if (vel.y > DOWN_MOVEMENT_TRESHHOLD) {
+        if (!insideAnimation) {
+            insideAnimation = YES;
+            CATransition* transition = [CATransition animation];
+            transition.duration = 0.5;
+            transition.type = kCATransitionReveal;
+            transition.subtype = kCATransitionFromBottom;
+            [self.view.layer addAnimation:transition forKey:kCATransition];
+            [self dismissViewControllerAnimated:NO completion:^{
+                insideAnimation = NO;
+            }];
+        }
+   
+    }
+}
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
 }

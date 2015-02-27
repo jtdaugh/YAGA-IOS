@@ -312,11 +312,7 @@
 }
 
 - (void)logEvent:(NSString*)message type:(YANotificationType)type {
-#ifdef DEBUG
-    [YAUtils showNotification:message type:type];
-#else
     NSLog(@"%@", message);
-#endif
 }
 
 @end

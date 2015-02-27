@@ -274,20 +274,24 @@
         //search by username
         if([text rangeOfString:@" "].location == NSNotFound) {
             if(text.length > 2) {
-                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
-            }
-            
-            NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
-            RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
-            
-            NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];
-            for(YAContact *contact in contactsByUsername) {
-                if(![selectedUsernames containsObject:contact.username]) {
-                    NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
-                    contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
-                    [self.filteredContacts addObject:contactDicMutable];
+                
+                NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
+                RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
+                
+                NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];
+                for(YAContact *contact in contactsByUsername) {
+                    if(![selectedUsernames containsObject:contact.username]) {
+                        NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
+                        contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
+                        [self.filteredContacts addObject:contactDicMutable];
+                    }
+                    
                 }
                 
+                NSArray *foundUsernames = [self.filteredContacts valueForKey:nUsername];
+                if(![foundUsernames containsObject:text]) {
+                    [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+                }
             }
         }
         
@@ -318,10 +322,16 @@
 - (void)doneTapped {
     if(![self validateSelectedContacts])
         return;
-    
+
     if(self.existingGroup && self.existingGroupDirty) {
         
-        NSArray *friendNumbers = [self.selectedContacts valueForKey:nPhone];
+        NSMutableArray *friendNumbers = [NSMutableArray new];
+        
+        for(NSDictionary *selectedContact in self.selectedContacts) {
+            if([YAUtils validatePhoneNumber:selectedContact[nPhone] error:nil])
+                [friendNumbers addObject:selectedContact[nPhone]];
+        }
+
         [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
             if(error)
                 [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
@@ -337,11 +347,21 @@
     }
     //create default group
     else {
-        [YAUser currentUser].currentGroup = [YAGroup groupWithName:@"Default"];
-        
         [[YAUser currentUser].currentGroup addMembers:self.selectedContacts];
+
+        NSMutableArray *friendNumbers = [NSMutableArray arrayWithCapacity:[YAUser currentUser].currentGroup.members.count];
+        for(YAContact *member in [YAUser currentUser].currentGroup.members) {
+            if([YAUtils validatePhoneNumber:member.number error:nil])
+                [friendNumbers addObject:member.number];
+        }
         
-        [self performSegueWithIdentifier:@"NameGroup" sender:self];
+        [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
+            if(error)
+                [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
+            
+            [self performSegueWithIdentifier:@"CompleteOnboarding" sender:self];
+
+        }];
     }
 }
 

@@ -23,6 +23,7 @@
 		6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */ = {isa = PBXBuildFile; fileRef = 6E1E20A51A6FAB500041DF54 /* title.csv */; };
 		6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */; };
 		6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */; };
+		6E5333541AA09B2A00C221DC /* YAPushNotificationHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5333531AA09B2A00C221DC /* YAPushNotificationHandler.m */; };
 		6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E583B6E1A6535BC00639BE5 /* YASwipingViewController.m */; };
 		6E583B741A6535C400639BE5 /* YAVideoPage.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E583B711A6535C400639BE5 /* YAVideoPage.m */; };
 		6E583B751A6535C400639BE5 /* YAVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E583B731A6535C400639BE5 /* YAVideoPlayerView.m */; };
@@ -127,6 +128,8 @@
 		6E32D72B1A5AEEBA00EAB261 /* YACameraFocusSquare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraFocusSquare.h; sourceTree = "<group>"; };
 		6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACameraFocusSquare.m; sourceTree = "<group>"; };
 		6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		6E5333521AA09B2A00C221DC /* YAPushNotificationHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPushNotificationHandler.h; sourceTree = "<group>"; };
+		6E5333531AA09B2A00C221DC /* YAPushNotificationHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPushNotificationHandler.m; sourceTree = "<group>"; };
 		6E583B6D1A6535BC00639BE5 /* YASwipingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASwipingViewController.h; sourceTree = "<group>"; };
 		6E583B6E1A6535BC00639BE5 /* YASwipingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASwipingViewController.m; sourceTree = "<group>"; };
 		6E583B701A6535C400639BE5 /* YAVideoPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideoPage.h; sourceTree = "<group>"; };
@@ -453,6 +456,8 @@
 				6EA942181A405C80001803C5 /* YAUtils.m */,
 				6EA9421A1A41E5C9001803C5 /* YAVideo.h */,
 				6EA9421B1A41E5C9001803C5 /* YAVideo.m */,
+				6E5333521AA09B2A00C221DC /* YAPushNotificationHandler.h */,
+				6E5333531AA09B2A00C221DC /* YAPushNotificationHandler.m */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -764,6 +769,7 @@
 				6E583B751A6535C400639BE5 /* YAVideoPlayerView.m in Sources */,
 				6E62F7201A51A8CB008F5116 /* YAGroupAddMembersViewController.m in Sources */,
 				86B864AC1A433343002256FF /* CountryCell.m in Sources */,
+				6E5333541AA09B2A00C221DC /* YAPushNotificationHandler.m in Sources */,
 				861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */,
 				6E73F4221A432FAC000B3A14 /* YAGroupsViewController.m in Sources */,
 				6E6A09091A562F91002F4A8B /* NetworkManager.swift in Sources */,

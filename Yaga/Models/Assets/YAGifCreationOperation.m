@@ -110,7 +110,7 @@
                             }
                             else
                             {
-                                [YAUtils showNotification:NSLocalizedString(@"Couldn't create gif, video invalidated", @"") type:YANotificationTypeError];
+                                NSLog(NSLocalizedString(@"Couldn't create gif, video invalidated", @""));
                             }
                             [self setExecuting:NO];
                             [self setFinished:YES];

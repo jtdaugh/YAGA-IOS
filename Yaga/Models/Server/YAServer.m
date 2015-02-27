@@ -16,9 +16,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #import "YAServer+HostManagment.h"
-#define HOST @"https://yaga-dev.herokuapp.com"
 
-#define YAGA_HOST_IP_ADDRESS @"23.21.52.195"
+#define HOST @"https://yaga-dev.herokuapp.com"
 
 #define PORT @"443"
 #define PORTNUM 443
@@ -585,7 +584,7 @@
     if(!lastRegistrationDate || fabs(lastRegistrationDate) > 24 * 60 * 60) {
         [self registerDeviceTokenWithCompletion:^(id response, NSError *error) {
             if(error) {
-                [YAUtils showNotification:[NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription] type:YANotificationTypeError];
+                NSLog(@"registerDeviceTokenIfNeeded error: %@", [NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription]);
             }
         }];
     }
@@ -603,7 +602,7 @@
                 self.lastUpdateTime = [NSDate date];
                 NSLog(@"groups updated from server successfully");
                 
-                [[YAUser currentUser].currentGroup updateVideosWithCompletion:^(NSError *error, NSArray *newVideos) {
+                [[YAUser currentUser].currentGroup refreshWithCompletion:^(NSError *error, NSArray *newVideos) {
                     [[NSNotificationCenter defaultCenter] postNotificationName:VIDEOS_ADDED_NOTIFICATION object:newVideos];
                     
                 }];

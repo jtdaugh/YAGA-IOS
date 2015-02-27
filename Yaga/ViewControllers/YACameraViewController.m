@@ -168,6 +168,11 @@
                                                      name:VIDEOS_ADDED_NOTIFICATION
                                                    object:nil];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(refreshGroup:)
+                                                     name:REFRESH_GROUP_NOTIFICATION
+                                                   object:nil];
+        
         
         
         [self enableRecording:YES];
@@ -694,5 +699,9 @@
 
 - (void)updateUviewedViedeosBadge {
     self.unviewedVideosBadge.hidden = ![[YAUser currentUser] hasUnviewedVideosInGroups];
+}
+
+- (void)refreshGroup:(id)sender {
+    [self updateCurrentGroupName];
 }
 @end

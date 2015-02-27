@@ -21,8 +21,12 @@
 #import "YAImageCache.h"
 #import <ClusterPrePermissions.h>
 
+#import "YANotificationView.h"
+#import "YAPushNotificationHandler.h"
+
 @interface AppDelegate ()
-@property(nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
+@property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
+@property (nonatomic, strong) YANotificationView *notificationView;
 @end
 
 @implementation AppDelegate
@@ -107,6 +111,14 @@
     [[YAServer sharedServer] startMonitoringInternetConnection:YES];
     
     [self endBackgroundTask];
+    
+    [self removeNotificationsBadge];
+}
+
+- (void)removeNotificationsBadge {
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    //and clean notifications center
+    [[UIApplication sharedApplication] cancelAllLocalNotifications];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -141,7 +153,7 @@
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", [self deviceTokenFromData:deviceToken]);
+    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", deviceToken);
     
     [[NSUserDefaults standardUserDefaults] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
 }
@@ -153,21 +165,18 @@
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSLog(@"didReceiveRemoteNotification %@", userInfo);
     
-    //http://stackoverflow.com/questions/1554751/how-to-handle-push-notifications-if-the-application-is-already-running
-    [YAUtils showNotification:[NSString stringWithFormat:@"Push: %@", [userInfo description]] type:YANotificationTypeMessage];
-    
-    //for tests
-    NSString *testAlert = @"New video at group ";
-    if([userInfo[@"aps"][@"alert"] rangeOfString:testAlert].location != NSNotFound) {
-        NSString *groupId = [[userInfo[@"aps"][@"alert"] stringByReplacingOccurrencesOfString:testAlert withString:@""] stringByReplacingOccurrencesOfString:@"!" withString:@""];
-        NSLog(@"group id from push %@", groupId);
+    if(application.applicationState == UIApplicationStateActive) {
+        NSString *alert = userInfo[@"aps"][@"alert"];
         
-        if([groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
-        }
+        self.notificationView = [YANotificationView new];
+        [self.notificationView showMessage:alert viewType:YANotificationTypeMessage actionHandler:^{
+            [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:userInfo];
+        }];
+    }
+    else {
+        [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:userInfo];
     }
 }
-
 
 #pragma mark - utils
 - (NSString *)deviceTokenFromData:(NSData *)data {
