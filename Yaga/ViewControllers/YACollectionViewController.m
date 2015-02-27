@@ -256,7 +256,7 @@ static NSString *cellID = @"Cell";
 - (void)refreshGroup:(NSNotification*)notif {
     YAGroup *groupToRefresh = [notif object];
     if([[YAUser currentUser].currentGroup.localId isEqualToString:groupToRefresh.localId]) {
-        [self refreshCurrentGroup];
+        [self reload];
     }
 }
 

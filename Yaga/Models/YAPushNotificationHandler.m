@@ -61,10 +61,6 @@
     else if([eventName isEqualToString:@"like"]) {
         [self handleLike];
     }
-    
-    //        if([groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
-    //            [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
-    //        }
 }
 
 - (void)handlePostEvent {

@@ -38,6 +38,10 @@
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(5, 5, messageView.frame.size.width - 10, messageView.frame.size.height - 10)];
     label.textColor = [UIColor whiteColor];
     label.text = message;
+    if(actionHandler) {
+        label.text = [label.text stringByAppendingString:@" →"];
+    }
+    
     label.numberOfLines = 0;
     label.font = [UIFont fontWithName:BIG_FONT size:14];
     [label sizeToFit];
@@ -50,13 +54,23 @@
         self.actionHandler = actionHandler;
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
         [messageView addGestureRecognizer:tapRecognizer];
+        
+        //make view bigger if needed
+        const CGFloat minHeightForTap = 50;
+        if(messageView.frame.size.height < minHeightForTap) {
+            CGRect r = messageView.frame;
+            r.size.height = minHeightForTap;
+            messageView.frame = r;
+            label.frame = CGRectMake(5, 5, messageView.frame.size.width - 10, messageView.frame.size.height - 10);
+        }
     }
     
     [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         messageView.center = CGPointMake(messageView.center.x, messageView.frame.size.height/2);
     } completion:^(BOOL finished) {
         if(finished) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            CGFloat secondsToStayOnScreen = self.actionHandler ? 3 : 1;
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(secondsToStayOnScreen * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
                     messageView.center = CGPointMake(messageView.center.x, -messageView.frame.size.height/2);
                 } completion:nil];
