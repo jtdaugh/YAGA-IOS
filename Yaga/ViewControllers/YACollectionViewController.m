@@ -237,6 +237,11 @@ static NSString *cellID = @"Cell";
     if(![firstVideo.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
+    if ([firstVideo isEqual:[YAUser currentUser].currentGroup.videos.firstObject] && [YAUser currentUser].currentGroup.videos.count == 1) {
+        [self.collectionView reloadData];
+        return;
+    }
+    
     self.paginationThreshold += videos.count;
     [self.collectionView performBatchUpdates:^{
         for(int i = 0; i < videos.count; i++) {
