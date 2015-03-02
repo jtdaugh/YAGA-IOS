@@ -335,10 +335,10 @@
     }
     //Don't add just now to allow bg audio to play
     self.audioInputAdded = NO;
-//    if ([self.session canAddInput:self.audioInput])
-//    {
-//        [self.session addInput:self.audioInput];
-//    }
+    if ([self.session canAddInput:self.audioInput])
+    {
+        [self.session addInput:self.audioInput];
+    }
     
 }
 
@@ -364,13 +364,13 @@
     NSLog(@"starting hold");
     
     
-    //We're starting to shoot so add audio
-    if (!self.audioInputAdded) {
-        [self.session beginConfiguration];
-        [self.session addInput:self.audioInput];
-        self.audioInputAdded = YES;
-        [self.session commitConfiguration];
-    }
+//    //We're starting to shoot so add audio
+//    if (!self.audioInputAdded) {
+//        [self.session beginConfiguration];
+//        [self.session addInput:self.audioInput];
+//        self.audioInputAdded = YES;
+//        [self.session commitConfiguration];
+//    }
     self.recording = [NSNumber numberWithBool:YES];
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
