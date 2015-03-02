@@ -409,6 +409,7 @@
 
 - (void)updateControls {
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
+    myVideo = YES;
     self.captionField.hidden = !myVideo;
     self.captionButton.hidden = !myVideo || self.video.caption.length;
     self.shareButton.hidden = !myVideo;
