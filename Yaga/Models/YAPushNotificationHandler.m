@@ -101,8 +101,15 @@
 - (void)handleLike {
     NSString *groupId = self.meta[@"group_id"];
     NSString *postId = self.meta[@"post_id"];
+    
     [self openGroupWithId:groupId refresh:YES refreshCompletionHandler:^{
-#warning open video from push not implemented
+        RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", postId]];
+        if(videos.count != 1) {
+            NSLog(@"unable to find video with id %@", postId);
+            return;
+        }
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_VIDEO_NOTIFICATION object:nil userInfo:@{@"video":videos[0]}];
     }];
 }
 
@@ -153,6 +160,10 @@
         [newGroup refreshWithCompletion:^(NSError *error, NSArray *newVideos) {
             if(error) {
                 [YANotificationView showMessage:NSLocalizedString(@"CANT_FETCH_GROUP_VIDEOS_ON_PUSH", @"") viewType:YANotificationTypeError];
+            }
+            else {
+                if(refreshCompletion)
+                    refreshCompletion();
             }
         }];
     }
