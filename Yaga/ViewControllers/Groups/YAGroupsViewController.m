@@ -378,8 +378,10 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
         
         if(groupWasActive) {
-            if(self.groups.count)
+            if(self.groups.count) {
                 [YAUser currentUser].currentGroup = self.groups[0];
+                [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
+            }
             else
                 [YAUser currentUser].currentGroup = nil;
             
