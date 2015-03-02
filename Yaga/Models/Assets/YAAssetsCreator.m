@@ -70,7 +70,7 @@
     AVPlayerItem *playerItem = [self buildVideoSequenceComposition:videoURL];
     
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:(AVAsset*)playerItem.asset
-                                                                     presetName:AVAssetExportPresetHighestQuality];
+                                                                     presetName:AVAssetExportPreset640x480];
     session.videoComposition = playerItem.videoComposition;
     
     session.outputURL = outputUrl;
@@ -144,11 +144,11 @@
         } else {
             NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
             NSLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
-            CGFloat xMove = ([UIScreen mainScreen].nativeBounds.size.width - assetTrack.naturalSize.width)/2;
-            CGFloat yMove = ([UIScreen mainScreen].nativeBounds.size.height - assetTrack.naturalSize.height)/2;
+//            CGFloat xMove = ([UIScreen mainScreen].nativeBounds.size.width - assetTrack.naturalSize.width)/4;
+//            CGFloat yMove = ([UIScreen mainScreen].nativeBounds.size.height - assetTrack.naturalSize.height)/4;
             CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
-                                                                     xMove,
-                                                                     yMove);
+                                                                     50.f,
+                                                                     0.0f);
             
             
             [layerInstruction setTransform:transform atTime:kCMTimeZero];
