@@ -142,6 +142,13 @@
                                     atTime:kCMTimeZero];
             
         } else {
+            // Unkoment for medium quality
+//            NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
+//            NSLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
+//            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
+//                                                                     50.f,
+//                                                                     0.0f);
+            
             NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
             NSLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
             CGFloat xMove = ([UIScreen mainScreen].nativeBounds.size.width - assetTrack.naturalSize.width)/2;
@@ -149,7 +156,7 @@
             CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
                                                                      xMove,
                                                                      yMove);
-            
+
             
             [layerInstruction setTransform:transform atTime:kCMTimeZero];
         }

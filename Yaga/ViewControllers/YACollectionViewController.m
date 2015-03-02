@@ -89,6 +89,7 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshGroup:)    name:REFRESH_GROUP_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollToCell:)    name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
     //transitions
     self.animationController = [YAAnimatedTransitioningController new];
     
@@ -160,6 +161,9 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:REFRESH_GROUP_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_VIDEO_NOTIFICATION object:nil];
 }
 
 - (void)reload {
@@ -219,7 +223,9 @@ static NSString *cellID = @"Cell";
     
     NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
     
-    if(index != NSNotFound) {
+    NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:0];
+    
+    if(index != NSNotFound && index <= countOfItems) {
         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
     }
     else {
@@ -236,6 +242,11 @@ static NSString *cellID = @"Cell";
     YAVideo *firstVideo = (YAVideo*)[videos firstObject];
     if(![firstVideo.group isEqual:[YAUser currentUser].currentGroup])
         return;
+    
+    if ([firstVideo isEqual:[YAUser currentUser].currentGroup.videos.firstObject] && [YAUser currentUser].currentGroup.videos.count == 1) {
+        [self.collectionView reloadData];
+        return;
+    }
     
     self.paginationThreshold += videos.count;
     [self.collectionView performBatchUpdates:^{
@@ -312,6 +323,10 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [self openVideoAtIndexPath:indexPath];
+}
+
+- (void)openVideoAtIndexPath:(NSIndexPath*)indexPath {
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.row];
     
@@ -327,6 +342,19 @@ static NSString *cellID = @"Cell";
     [self presentViewController:swipingVC animated:YES completion:^{
         NSLog(@"after transition");
     }];
+}
+
+- (void)openVideo:(NSNotification*)notif {
+    YAVideo *video = notif.userInfo[@"video"];
+    NSUInteger videoIndex = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+    
+    if(videoIndex == NSNotFound) {
+        NSLog(@"can't find video index in current group");
+        return;
+    }
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
+    [self openVideoAtIndexPath:indexPath];
 }
 
 #pragma mark - UIScrollView
