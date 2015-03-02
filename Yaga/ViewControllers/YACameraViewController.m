@@ -230,7 +230,7 @@
         if (videoStatus == AVAuthorizationStatusAuthorized) {
             
             self.session = [[AVCaptureSession alloc] init];
-            self.session.sessionPreset = AVCaptureSessionPreset640x480;
+            self.session.sessionPreset = AVCaptureSessionPresetHigh;
             
             [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
             [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
@@ -242,7 +242,7 @@
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                                      completionHandler:^(BOOL granted) {
                                          self.session = [[AVCaptureSession alloc] init];
-                                         self.session.sessionPreset = AVCaptureSessionPreset640x480;
+                                         self.session.sessionPreset = AVCaptureSessionPresetHigh;
                                          
                                          [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
                                          [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];

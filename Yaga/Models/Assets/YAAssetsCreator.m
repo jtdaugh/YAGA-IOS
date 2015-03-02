@@ -70,7 +70,7 @@
     AVPlayerItem *playerItem = [self buildVideoSequenceComposition:videoURL];
     
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:(AVAsset*)playerItem.asset
-                                                                     presetName:AVAssetExportPreset640x480];
+                                                                     presetName:AVAssetExportPresetHighestQuality];
     session.videoComposition = playerItem.videoComposition;
     
     session.outputURL = outputUrl;
@@ -142,14 +142,21 @@
                                     atTime:kCMTimeZero];
             
         } else {
+            // Unkoment for medium quality
+//            NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
+//            NSLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
+//            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
+//                                                                     50.f,
+//                                                                     0.0f);
+            
             NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
             NSLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
-//            CGFloat xMove = ([UIScreen mainScreen].nativeBounds.size.width - assetTrack.naturalSize.width)/4;
-//            CGFloat yMove = ([UIScreen mainScreen].nativeBounds.size.height - assetTrack.naturalSize.height)/4;
+            CGFloat xMove = ([UIScreen mainScreen].nativeBounds.size.width - assetTrack.naturalSize.width)/2;
+            CGFloat yMove = ([UIScreen mainScreen].nativeBounds.size.height - assetTrack.naturalSize.height)/2;
             CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
-                                                                     50.f,
-                                                                     0.0f);
-            
+                                                                     xMove,
+                                                                     yMove);
+
             
             [layerInstruction setTransform:transform atTime:kCMTimeZero];
         }
