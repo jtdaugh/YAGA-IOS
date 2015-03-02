@@ -23,7 +23,7 @@
 //overlay controls
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
-@property (nonatomic, strong) UITextField *captionField;
+@property (nonatomic, strong) UITextView *captionField;
 @property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *likeCount;
 @property BOOL likesShown;
@@ -33,7 +33,8 @@
 @property (nonatomic, strong) UIButton *deleteButton;
 
 @property (nonatomic, strong) YAProgressView *progressView;
-
+@property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
+@property NSUInteger fontIndex;
 @end
 
 @implementation YAVideoPage
@@ -144,11 +145,11 @@
     
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 2;
-    self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
     [self.captionField setBackgroundColor:[UIColor clearColor]];
     [self.captionField setTextAlignment:NSTextAlignmentCenter];
     [self.captionField setTextColor:PRIMARY_COLOR];
-    [self.captionField setFont:[UIFont fontWithName:@"MarkerFelt-Wide" size:60]];
+    [self.captionField setFont:[UIFont fontWithName:@"MarkerFelt-Wide" size:72]];
     self.captionField.delegate = self;
     [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.captionField setReturnKeyType:UIReturnKeyDone];
@@ -157,6 +158,10 @@
     self.captionField.layer.shadowOpacity = 1.0;
     self.captionField.layer.shadowOffset = CGSizeZero;
     [self addSubview:self.captionField];
+    
+    self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
+//    self.panGesture.delegate = self;
+    [self.captionField addGestureRecognizer:self.panGesture];
     
     CGFloat tSize = 60;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
@@ -212,18 +217,40 @@
     self.progressView.tintColor = PRIMARY_COLOR;
 }
 
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
-    NSDictionary *attributes = @{NSFontAttributeName: textField.font};
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
-    CGFloat width = [text sizeWithAttributes:attributes].width;
-    
-    if(width <= self.captionField.frame.size.width){
-        return YES;
-    } else {
+    if([text isEqualToString:@"\n"]) {
+        [self.video rename:textView.text];
+        [self updateControls];
+        
+        [textView resignFirstResponder];
         return NO;
     }
+    
+    return YES;
 }
+
+- (void)panned:(UIPanGestureRecognizer *)recognizer {
+    
+    CGPoint translation = [recognizer translationInView:[[recognizer view] superview]];
+    NSLog(@"panned? %f", translation.y);
+    self.captionField.transform = CGAffineTransformMakeTranslation(translation.x, translation.y);
+}
+
+//- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+//    NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
+//    NSDictionary *attributes = @{NSFontAttributeName: textField.font};
+//    
+//    CGFloat width = [text sizeWithAttributes:attributes].width;
+//    
+////    if(width <= self.captionField.frame.size.width){
+////        return YES;
+////    } else {
+////        return NO;
+////    }
+//    
+//    return YES;
+//}
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [self.video rename:textField.text];
@@ -234,9 +261,36 @@
 }
 
 - (void)textButtonPressed {
-    [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
+//    [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
     
-    [self.captionField becomeFirstResponder];
+    NSArray *familyNames = [[NSArray alloc] initWithArray:[UIFont familyNames]];
+    
+    for (NSInteger indFamily=0; indFamily<[familyNames count]; ++indFamily)
+    {
+        NSLog(@"Family name: %@", [familyNames objectAtIndex:indFamily]);
+        
+        NSArray *fontNames = [[NSArray alloc] initWithArray:
+                              [UIFont fontNamesForFamilyName:[familyNames objectAtIndex:indFamily]]];
+        
+        for (NSInteger indFont=0; indFont<[fontNames count]; ++indFont)
+        {
+            NSLog(@"    Font name: %@", [fontNames objectAtIndex:indFont]);
+        }
+    }
+    
+    NSArray *fonts = @[@"ArialRoundedMTBold", @"AmericanTypewriter-Bold", @"Chalkduster",
+                       @"ChalkboardSE-Bold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide",
+                       @"Futura-CondensedExtraBold", @"SnellRoundhand-Black", @"AvenirNext-HeavyItalic"];
+    if(!self.fontIndex || (self.fontIndex >= [fonts count])){
+        self.fontIndex = 0;
+    }
+    
+    if([self.captionField isFirstResponder]){
+        [self.captionField setFont:[UIFont fontWithName:fonts[self.fontIndex] size:72]];
+        self.fontIndex++;
+    } else {
+        [self.captionField becomeFirstResponder];
+    }
 }
 
 - (void)likeButtonPressed {
@@ -410,7 +464,7 @@
 - (void)updateControls {
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.captionField.hidden = !myVideo;
-    self.captionButton.hidden = !myVideo || self.video.caption.length;
+    self.captionButton.hidden = !myVideo;
     self.shareButton.hidden = !myVideo;
     self.deleteButton.hidden = !myVideo;
     
