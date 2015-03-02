@@ -223,7 +223,9 @@ static NSString *cellID = @"Cell";
     
     NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
     
-    if(index != NSNotFound) {
+    NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:0];
+    
+    if(index != NSNotFound && index <= countOfItems) {
         [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
     }
     else {
