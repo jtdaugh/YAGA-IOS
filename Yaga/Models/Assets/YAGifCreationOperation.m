@@ -57,7 +57,8 @@
     @autoreleasepool {
         dispatch_async(dispatch_get_main_queue(), ^{
             //skip if gif is generated already
-            if(self.video.gifFilename.length) {
+            bool highQualityMode = self.quality == YAGifCreationHighQuality;
+            if(self.video.gifFilename.length && !highQualityMode) {
                 [self setExecuting:NO];
                 [self setFinished:YES];
                 return;
@@ -134,7 +135,8 @@
     imageGenerator.maximumSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.height/2, [[UIScreen mainScreen] applicationFrame].size.height/2);
     
     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
-    NSUInteger framesCount = movieDuration * 2;
+    NSUInteger frames = self.quality == YAGifCreationHighQuality ? 10 : 2;
+    NSUInteger framesCount = movieDuration * frames;
     
     NSMutableArray *imagesArray = [NSMutableArray arrayWithCapacity:framesCount];
     
@@ -183,10 +185,10 @@
                                              (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
                                              }
                                      };
-    
+    NSNumber *centiseconds = self.quality == YAGifCreationHighQuality ? @0.05f : @0.2f;
     NSDictionary *frameProperties = @{
                                       (__bridge id)kCGImagePropertyGIFDictionary: @{
-                                              (__bridge id)kCGImagePropertyGIFDelayTime: @0.2f, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
+                                              (__bridge id)kCGImagePropertyGIFDelayTime: centiseconds, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
                                               }
                                       };
     
