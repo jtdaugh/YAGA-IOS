@@ -349,9 +349,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="6XQ-46-kxg"/>
-        <segue reference="AAY-Qg-ULv"/>
         <segue reference="rfC-CX-Kmk"/>
         <segue reference="zAA-Ft-OZ6"/>
+        <segue reference="AAY-Qg-ULv"/>
+        <segue reference="6XQ-46-kxg"/>
     </inferredMetricsTieBreakers>
 </document>

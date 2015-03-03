@@ -12,7 +12,7 @@
 #import "NSString+Hash.h"
 #import <Realm/Realm.h>
 #import "YAUtils.h"
-
+#import "YAGroupAddMembersViewController.h"
 @interface NameGroupViewController ()
 @property (strong, nonatomic) UITextField *groupNameTextField;
 @property (strong, nonatomic) UIButton *nextButton;
@@ -110,6 +110,14 @@
     }
     else {
         [self.navigationController popToRootViewControllerAnimated:YES];
+    }
+}
+
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
+        ((YAGroupAddMembersViewController *)segue.destinationViewController).embeddedMode = self.embeddedMode;
     }
 }
 
