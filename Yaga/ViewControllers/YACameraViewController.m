@@ -55,9 +55,6 @@
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
         
-        //        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(configureFocusPoint:)];
-        //        [self.cameraView addGestureRecognizer:self.tapToFocusRecognizer];
-        
         self.cameraAccessories = [@[] mutableCopy];
         
         self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
@@ -363,7 +360,6 @@
 - (void)startHold {
     NSLog(@"starting hold");
     
-    
 //    //We're starting to shoot so add audio
 //    if (!self.audioInputAdded) {
 //        [self.session beginConfiguration];
@@ -383,6 +379,7 @@
 
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
+        [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     } completion:^(BOOL finished) {
         
@@ -407,6 +404,7 @@
         [self.view bringSubviewToFront:self.cameraView];
         
         [UIView animateWithDuration:0.2 animations:^{
+            [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self showCameraAccessories:YES];
         }];
