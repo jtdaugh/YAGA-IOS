@@ -73,6 +73,11 @@
     [self.view addSubview:self.nextButton];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+}
+
 - (CGFloat)getNewOrigin:(UIView *) anchor {
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
 }
