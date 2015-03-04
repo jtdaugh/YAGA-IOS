@@ -99,8 +99,14 @@
 }
 
 - (void)nextScreen {
-    if(!self.group)
+    if(!self.group) {
         self.group = [YAGroup groupWithName:self.groupNameTextField.text];
+        
+        //set current date as updatedAt for new group so unviewed badge isn't shown
+        NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+        [groupsUpdatedAt setObject:[NSDate date] forKey:self.group.localId];
+        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+    }
     
     [YAUser currentUser].currentGroup = self.group;
     
