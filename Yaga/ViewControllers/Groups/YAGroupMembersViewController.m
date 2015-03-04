@@ -96,8 +96,10 @@ static NSString *CellID = @"CellID";
 
 - (void)addMembersTapped {
     YAGroupAddMembersViewController *addMembersVC = [YAGroupAddMembersViewController new];
-    
+    [[YAUser currentUser] createPhoneBook];
     addMembersVC.existingGroup = self.group;
+    
+    
     [self.navigationController pushViewController:addMembersVC animated:YES];
 }
 

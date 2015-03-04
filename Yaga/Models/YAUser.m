@@ -49,9 +49,14 @@
         }
         
         //create phonebook
-        [self importContactsWithCompletion:nil excludingPhoneNumbers:nil];
+        //[self createPhoneBook];
     }
     return self;
+}
+
+- (void)createPhoneBook
+{
+    [self importContactsWithCompletion:nil excludingPhoneNumbers:nil];
 }
 
 - (void)setCurrentGroup:(YAGroup *)group {

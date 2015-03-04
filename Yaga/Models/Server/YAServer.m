@@ -127,8 +127,12 @@
     
     NSString *api = [NSString stringWithFormat:API_USER_PROFILE_TEMPLATE, self.base_api];
     
+    NSCharacterSet* chars = [NSCharacterSet characterSetWithRange:NSMakeRange(40, 1788)];
+    
+    NSString *strippedName = [YAUtils stripCharactersInSet:chars inString:name];
+    
     NSDictionary *parameters = @{
-                                 @"name": name
+                                 @"name": strippedName
                                  };
     
     [self.manager PUT:api

@@ -24,6 +24,8 @@
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
 
+#import <AddressBookUI/AddressBookUI.h>
+
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
 @property (nonatomic, strong) YANotificationView *notificationView;
@@ -44,6 +46,7 @@
     }
     if ([[NSUserDefaults standardUserDefaults] boolForKey:ALREADY_LAUNCHED_KEY])
     {
+
         ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
         [permissions
          showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
