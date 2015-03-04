@@ -24,11 +24,8 @@
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
 
-<<<<<<< HEAD
 #import <AddressBookUI/AddressBookUI.h>
-=======
 #import "Flurry.h"
->>>>>>> origin/master
 
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
