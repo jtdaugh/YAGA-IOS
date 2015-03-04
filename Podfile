@@ -15,3 +15,4 @@ pod 'ClusterPrePermissions', :git => 'https://github.com/tkorsi/ClusterPrePermis
 pod 'OrderedDictionary'
 pod 'AFDownloadRequestOperation'
 pod 'MBProgressHUD', '~> 0.8'
+pod 'FlurrySDK'

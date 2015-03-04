@@ -24,7 +24,11 @@
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
 
+<<<<<<< HEAD
 #import <AddressBookUI/AddressBookUI.h>
+=======
+#import "Flurry.h"
+>>>>>>> origin/master
 
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
@@ -35,6 +39,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    //flurry statistics
+    [Flurry startSession:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"YAFlurryAppId"]];
+    
     // Continue music playback in our app
     NSError *error;
     BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];

@@ -61,6 +61,9 @@
     else if([eventName isEqualToString:@"like"]) {
         [self handleLike];
     }
+    else if([eventName isEqualToString:@"caption"]) {
+        [self handleCaption];
+    }
 }
 
 - (void)handlePostEvent {
@@ -111,6 +114,10 @@
         
         [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_VIDEO_NOTIFICATION object:nil userInfo:@{@"video":videos[0]}];
     }];
+}
+
+- (void)handleCaption {
+    [self handleLike];
 }
 
 #pragma mark - Utils
