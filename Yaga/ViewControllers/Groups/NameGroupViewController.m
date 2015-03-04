@@ -13,10 +13,11 @@
 #import <Realm/Realm.h>
 #import "YAUtils.h"
 #import "YAGroupAddMembersViewController.h"
+
 @interface NameGroupViewController ()
 @property (strong, nonatomic) UITextField *groupNameTextField;
 @property (strong, nonatomic) UIButton *nextButton;
-
+@property (strong, nonatomic) YAGroup *group;
 @end
 
 @implementation NameGroupViewController
@@ -66,7 +67,7 @@
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
     self.nextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
     [self.nextButton setBackgroundColor:PRIMARY_COLOR];
-    [self.nextButton setTitle:@"Finish" forState:UIControlStateNormal];
+    [self.nextButton setTitle:NSLocalizedString(@"Next", @"") forState:UIControlStateNormal];
     [self.nextButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
     [self.nextButton setAlpha:0.0];
     [self.nextButton addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
@@ -76,6 +77,8 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
+    
+    [self.groupNameTextField becomeFirstResponder];
 }
 
 - (CGFloat)getNewOrigin:(UIView *) anchor {
@@ -96,20 +99,11 @@
 }
 
 - (void)nextScreen {
-    [self.nextButton setTitle:@"" forState:UIControlStateNormal];
-    UIActivityIndicatorView *myIndicator = [[UIActivityIndicatorView alloc]
-                                            initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    if(!self.group)
+        self.group = [YAGroup groupWithName:self.groupNameTextField.text];
     
-    // Position the spinner
-    [self.nextButton addSubview:myIndicator];
-    CGSize buttonSize = self.nextButton.frame.size;
-    [myIndicator setCenter:CGPointMake(buttonSize.width / 2, buttonSize.height / 2)];
-    // Start the animation
-    [myIndicator startAnimating];
+    [YAUser currentUser].currentGroup = self.group;
     
-    [YAUser currentUser].currentGroup = [YAGroup groupWithName:self.groupNameTextField.text];
-    
-       
     if(!self.embeddedMode) {
         [self performSegueWithIdentifier:@"AddMembers" sender:self];
     }
