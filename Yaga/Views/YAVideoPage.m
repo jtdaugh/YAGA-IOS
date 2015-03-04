@@ -34,7 +34,15 @@
 
 @property (nonatomic, strong) YAProgressView *progressView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
+
 @property NSUInteger fontIndex;
+@property (strong, nonatomic) NSArray *fonts;
+
+@property CGFloat lastScale;
+@property CGFloat lastRotation;
+@property CGFloat firstX;
+@property CGFloat firstY;
+
 @end
 
 @implementation YAVideoPage
@@ -46,6 +54,14 @@
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
         [self addSubview:self.playerView];
+        
+        self.fonts = @[@"ArialRoundedMTBold", @"AmericanTypewriter-Bold", @"Chalkduster",
+                           @"ChalkboardSE-Bold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide",
+                           @"Futura-CondensedExtraBold", @"SnellRoundhand-Black", @"AvenirNext-HeavyItalic"];
+
+        if(!self.fontIndex){
+            self.fontIndex = 0;
+        }
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
@@ -146,22 +162,30 @@
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 2;
     self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
-    [self.captionField setBackgroundColor:[UIColor clearColor]];
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
+    [self.captionField setAttributedText:string];
+    [self.captionField setBackgroundColor:[UIColor colorWithWhite:1.0 alpha:0.1]];
     [self.captionField setTextAlignment:NSTextAlignmentCenter];
     [self.captionField setTextColor:PRIMARY_COLOR];
     [self.captionField setFont:[UIFont fontWithName:@"MarkerFelt-Wide" size:72]];
     self.captionField.delegate = self;
     [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.captionField setReturnKeyType:UIReturnKeyDone];
-    self.captionField.layer.shadowColor = [[UIColor whiteColor] CGColor];
-    self.captionField.layer.shadowRadius = 1.0f;
-    self.captionField.layer.shadowOpacity = 1.0;
-    self.captionField.layer.shadowOffset = CGSizeZero;
+    
     [self addSubview:self.captionField];
     
-    self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
-//    self.panGesture.delegate = self;
-    [self.captionField addGestureRecognizer:self.panGesture];
+    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
+    [self.captionField addGestureRecognizer:panGesture];
+    
+    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(scaled:)];
+    [self.captionField addGestureRecognizer:pinchGesture];
+    
+    UIRotationGestureRecognizer *rotationGesture = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(rotated:)];
+    [self.captionField addGestureRecognizer:rotationGesture];
+    
+    NSLog(@"adding gesture recognizers?");
     
     CGFloat tSize = 60;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
@@ -230,67 +254,93 @@
     return YES;
 }
 
-- (void)panned:(UIPanGestureRecognizer *)recognizer {
+-(void)panned:(UIPanGestureRecognizer*)recognizer {
+    CGPoint translatedPoint = [recognizer translationInView:[[recognizer view] superview]];
+    NSLog(@"panned? %f", translatedPoint.y);
     
-    CGPoint translation = [recognizer translationInView:[[recognizer view] superview]];
-    NSLog(@"panned? %f", translation.y);
-    self.captionField.transform = CGAffineTransformMakeTranslation(translation.x, translation.y);
+    
+    if([recognizer state] == UIGestureRecognizerStateBegan) {
+        _firstX = [self.captionField center].x;
+        _firstY = [self.captionField center].y;
+    }
+    
+    translatedPoint = CGPointMake(_firstX+translatedPoint.x, _firstY+translatedPoint.y);
+    
+    [self.captionField setCenter:translatedPoint];
 }
 
-//- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-//    NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
-//    NSDictionary *attributes = @{NSFontAttributeName: textField.font};
-//    
-//    CGFloat width = [text sizeWithAttributes:attributes].width;
-//    
-////    if(width <= self.captionField.frame.size.width){
-////        return YES;
-////    } else {
-////        return NO;
-////    }
-//    
-//    return YES;
-//}
+-(void)scaled:(id)sender {
+    
+    if([(UIPinchGestureRecognizer*)sender state] == UIGestureRecognizerStateBegan) {
+        _lastScale = 1.0;
+    }
+    
+    CGFloat scale = 1.0 - (_lastScale - [(UIPinchGestureRecognizer*)sender scale]);
+    
+    CGAffineTransform currentTransform = self.captionField.transform;
+    CGAffineTransform newTransform = CGAffineTransformScale(currentTransform, scale, scale);
+    
+    [self.captionField setTransform:newTransform];
+    
+    _lastScale = [(UIPinchGestureRecognizer*)sender scale];
+//    [self showOverlayWithFrame:photoImage.frame];
+}
+
+-(void)rotated:(id)sender {
+    
+    if([(UIRotationGestureRecognizer*)sender state] == UIGestureRecognizerStateEnded) {
+        
+        _lastRotation = 0.0;
+        return;
+    }
+    
+    CGFloat rotation = 0.0 - (_lastRotation - [(UIRotationGestureRecognizer*)sender rotation]);
+    
+    CGAffineTransform currentTransform = self.captionField.transform;
+    CGAffineTransform newTransform = CGAffineTransformRotate(currentTransform,rotation);
+    
+    [self.captionField setTransform:newTransform];
+    
+    _lastRotation = [(UIRotationGestureRecognizer*)sender rotation];
+}
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [self.video rename:textField.text];
-    [self updateControls];
-    
-    [self.captionField resignFirstResponder];
+    [self doneEditing];
     return YES;
 }
 
 - (void)textButtonPressed {
 //    [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
     
-    NSArray *familyNames = [[NSArray alloc] initWithArray:[UIFont familyNames]];
-    
-    for (NSInteger indFamily=0; indFamily<[familyNames count]; ++indFamily)
-    {
-        NSLog(@"Family name: %@", [familyNames objectAtIndex:indFamily]);
-        
-        NSArray *fontNames = [[NSArray alloc] initWithArray:
-                              [UIFont fontNamesForFamilyName:[familyNames objectAtIndex:indFamily]]];
-        
-        for (NSInteger indFont=0; indFont<[fontNames count]; ++indFont)
-        {
-            NSLog(@"    Font name: %@", [fontNames objectAtIndex:indFont]);
-        }
-    }
-    
-    NSArray *fonts = @[@"ArialRoundedMTBold", @"AmericanTypewriter-Bold", @"Chalkduster",
-                       @"ChalkboardSE-Bold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide",
-                       @"Futura-CondensedExtraBold", @"SnellRoundhand-Black", @"AvenirNext-HeavyItalic"];
-    if(!self.fontIndex || (self.fontIndex >= [fonts count])){
-        self.fontIndex = 0;
-    }
     
     if([self.captionField isFirstResponder]){
-        [self.captionField setFont:[UIFont fontWithName:fonts[self.fontIndex] size:72]];
+        if(!self.fontIndex || (self.fontIndex >= [self.fonts count])){
+            self.fontIndex = 0;
+        }
+
+        [self.captionField setFont:[UIFont fontWithName:self.fonts[self.fontIndex] size:72]];
         self.fontIndex++;
     } else {
         [self.captionField becomeFirstResponder];
     }
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView {
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
+    [self addGestureRecognizer:tap];
+}
+
+- (void)doneEditingTapOut:(id)sender {
+    [self removeGestureRecognizer:(UIGestureRecognizer *)sender];
+    [self doneEditing];
+
+}
+
+- (void)doneEditing {
+    [self.video rename:self.captionField.text];
+    [self updateControls];
+    
+    [self.captionField resignFirstResponder];
 }
 
 - (void)likeButtonPressed {
