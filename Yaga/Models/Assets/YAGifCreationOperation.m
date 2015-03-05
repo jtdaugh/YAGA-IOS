@@ -136,7 +136,9 @@
     
     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
     NSUInteger frames = self.quality == YAGifCreationHighQuality ? 10 : 2;
-    NSUInteger framesCount = movieDuration * frames;
+    CGFloat framesCount = movieDuration * frames;
+    if(framesCount < 1)
+        framesCount = 1;
     
     NSMutableArray *imagesArray = [NSMutableArray arrayWithCapacity:framesCount];
     
