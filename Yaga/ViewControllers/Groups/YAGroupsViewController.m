@@ -380,7 +380,6 @@ static NSString *CellIdentifier = @"GroupsCell";
         if(groupWasActive) {
             if(self.groups.count) {
                 [YAUser currentUser].currentGroup = self.groups[0];
-                [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
             }
             else
                 [YAUser currentUser].currentGroup = nil;
@@ -388,7 +387,6 @@ static NSString *CellIdentifier = @"GroupsCell";
             if([YAUser currentUser].currentGroup) {
                 NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@. Current group is %@.", groupToLeave, [YAUser currentUser].currentGroup.name];
                 [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-                [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
             }
             else {
                 UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];

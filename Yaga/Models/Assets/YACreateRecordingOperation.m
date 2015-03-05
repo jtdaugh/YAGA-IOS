@@ -79,7 +79,7 @@
             [self.group.videos insertObject:self.video atIndex:0];
             
             [self.group.realm commitWriteTransaction];
-            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEOS_ADDED_NOTIFICATION object:@[self.video]];
+            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kVideos:@[self.video]}];
             
             //start uploading while generating gif
             [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video];

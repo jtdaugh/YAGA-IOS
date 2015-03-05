@@ -82,12 +82,14 @@ static NSString *cellID = @"Cell";
     longPressRecognizer.minimumPressDuration = .5; //seconds
     longPressRecognizer.delegate = self;
     [self.collectionView addGestureRecognizer:longPressRecognizer];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(insertVideos:)    name:VIDEOS_ADDED_NOTIFICATION      object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshGroup:)    name:REFRESH_GROUP_NOTIFICATION     object:nil];
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollToCell:)    name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
     //transitions
@@ -157,11 +159,13 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEOS_ADDED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_CHANGE_NOTIFICATION object:nil];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:REFRESH_GROUP_NOTIFICATION object:nil];
+
     [[NSNotificationCenter defaultCenter] removeObserver:self name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_VIDEO_NOTIFICATION object:nil];
 }
@@ -233,72 +237,63 @@ static NSString *cellID = @"Cell";
     }
 }
 
-- (void)insertVideos:(NSNotification*)notif {
-    NSArray *videos = notif.object;
+- (void)groupDidChange:(NSNotification*)notif {
+    [self reload];
+}
+
+- (void)refreshCurrentGroup {
+    [self showActivityIndicator:YES];
     
-    if(!videos.count)
+    [[YAUser currentUser].currentGroup refresh];
+}
+
+- (void)groupDidRefresh:(NSNotification*)notification {
+    if(![notification.object isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    YAVideo *firstVideo = (YAVideo*)[videos firstObject];
-    if(![firstVideo.group isEqual:[YAUser currentUser].currentGroup])
-        return;
+    NSArray *newVideos = notification.userInfo[kVideos];
     
-    if ([firstVideo isEqual:[YAUser currentUser].currentGroup.videos.firstObject] && [YAUser currentUser].currentGroup.videos.count == 1) {
-        [self.collectionView reloadData];
-        return;
+    if(newVideos.count) {
+        if([self.collectionView visibleCells].count)
+            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+        
+        [self.collectionView performBatchUpdates:^{
+            //simple workaround to avoid manipulations with paginationThreshold
+            if(newVideos.count == 1)
+                [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]]];
+            else
+                [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+        } completion:^(BOOL finished) {
+            [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+            
+            [self playVisible:YES];
+            
+            [self showActivityIndicator:NO];
+        }];
+    }
+    else {
+        [self showActivityIndicator:NO];
     }
     
-    self.paginationThreshold += videos.count;
-    [self.collectionView performBatchUpdates:^{
-        for(int i = 0; i < videos.count; i++) {
-            [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:0 inSection:0]]];
+    [self.collectionView.pullToRefreshView stopAnimating];
+}
+
+- (void)showActivityIndicator:(BOOL)show {
+    if(show) {
+        const CGFloat monkeyWidth  = 50;
+        [self.activityView removeFromSuperview];
+        if(![YAUser currentUser].currentGroup.videos.count) {
+            self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
+            [self.collectionView addSubview:self.activityView];
+            [self.activityView startAnimating];
         }
-    } completion:^(BOOL finished) {
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
-        [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:YES];
-        
+    }
+    else {
         if(self.activityView) {
             [self.activityView removeFromSuperview];
             self.activityView = nil;
         }
-    }];
-}
-
-- (void)refreshGroup:(NSNotification*)notif {
-    YAGroup *groupToRefresh = [notif object];
-    if([[YAUser currentUser].currentGroup.localId isEqualToString:groupToRefresh.localId]) {
-        [self reload];
     }
-}
-
-- (void)refreshCurrentGroup {
-    const CGFloat monkeyWidth  = 50;
-    [self.activityView removeFromSuperview];
-    if(![YAUser currentUser].currentGroup.videos.count) {
-        self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
-        [self.collectionView addSubview:self.activityView];
-        [self.activityView startAnimating];
-    }
-    
-    __weak typeof (self) weakSelf = self;
-    [[YAUser currentUser].currentGroup refreshWithCompletion:^(NSError *error, NSArray *newVideos) {
-        if(!error) {
-            if(newVideos.count) {
-                [weakSelf.collectionView performBatchUpdates:^{
-                    [weakSelf.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
-                } completion:^(BOOL finished) {
-                }];
-            }
-        }
-        
-        [weakSelf.collectionView.pullToRefreshView stopAnimating];
-        [weakSelf playVisible:YES];
-        
-        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-        
-        if([YAUser currentUser].currentGroup.videos.count || ([YAUser currentUser].currentGroup.videos.count == 0 && newVideos.count == 0))
-            [self.activityView removeFromSuperview];
-    }];
 }
 
 #pragma mark - UICollectionView

@@ -40,8 +40,9 @@
 #define THIN_FONT @"HelveticaNeue-UltraLight"
 
 //notifications
-#define REFRESH_GROUP_NOTIFICATION              @"REFRESH_GROUP_NOTIFICATION"
-#define VIDEOS_ADDED_NOTIFICATION               @"VIDEOS_ADDED_NOTIFICATION"
+#define GROUP_DID_REFRESH_NOTIFICATION          @"GROUP_DID_REFRESH_NOTIFICATION"
+#define GROUP_DID_CHANGE_NOTIFICATION           @"GROUP_DID_CHANGE_NOTIFICATION"
+
 #define VIDEO_CHANGED_NOTIFICATION              @"VIDEO_CHANGED_NOTIFICATION"
 #define VIDEO_WILL_DELETE_NOTIFICATION          @"VIDEO_WILL_DELETE_NOTIFICATION"
 #define VIDEO_DID_DELETE_NOTIFICATION           @"VIDEO_DID_DELETE_NOTIFICATION"
@@ -59,5 +60,7 @@
 #define YA_DEVICE_TOKEN                         @"YAGA_DEVICE_TOKEN"
 
 #define YA_GROUPS_UPDATED_AT                    @"YA_GROUPS_UPDATED_AT"
+
+#define kVideos                                 @"videos"
 
 #endif

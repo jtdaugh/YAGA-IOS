@@ -161,13 +161,13 @@
                                                    object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(videosAdded:)
-                                                     name:VIDEOS_ADDED_NOTIFICATION
+                                                 selector:@selector(groupDidRefresh:)
+                                                     name:GROUP_DID_REFRESH_NOTIFICATION
                                                    object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(refreshGroup:)
-                                                     name:REFRESH_GROUP_NOTIFICATION
+                                                 selector:@selector(groupDidChange:)
+                                                     name:GROUP_DID_CHANGE_NOTIFICATION
                                                    object:nil];
         
         
@@ -662,10 +662,6 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)updateCurrentGroupName {
-    [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
-}
-
 - (void)presentAlertForClusterAVType:(ClusterAVAuthorizationType)type {
     NSString *title;
     NSString *message;
@@ -691,15 +687,20 @@
 
 #pragma mark -
 
-- (void)videosAdded:(id)sender {
-    [self updateUviewedViedeosBadge];
+- (void)updateCurrentGroupName {
+    [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
 }
 
 - (void)updateUviewedViedeosBadge {
     self.unviewedVideosBadge.hidden = ![[YAUser currentUser] hasUnviewedVideosInGroups];
 }
 
-- (void)refreshGroup:(id)sender {
+#pragma mark Group Notifications
+- (void)groupDidRefresh:(NSNotification*)notification {
+    [self updateUviewedViedeosBadge];
+}
+
+- (void)groupDidChange:(NSNotification*)notification {
     [self updateCurrentGroupName];
 }
 @end

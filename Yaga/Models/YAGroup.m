@@ -144,15 +144,10 @@
         [self removeMember:contactToRemove];
 }
 
-static BOOL groupsUpdateInProgress;
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {
-    if(groupsUpdateInProgress)
-        return;
-    groupsUpdateInProgress = YES;
-    
+    NSLog(@"updating groups from server...");
     
     [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
-        groupsUpdateInProgress = NO;
         if(error) {
             NSLog(@"can't fetch remove groups, error: %@", error.localizedDescription);
             
@@ -294,11 +289,9 @@ static BOOL groupsUpdateInProgress;
 }
 
 #pragma mark - Videos
-- (void)refreshWithCompletion:(updateVideosCompletionBlock)completion {
-    if(self.videosUpdateInProgress) {
-        completion(nil, nil);
+- (void)refresh {
+    if(self.videosUpdateInProgress)
         return;
-    }
 
     self.videosUpdateInProgress = YES;
 
@@ -316,8 +309,8 @@ static BOOL groupsUpdateInProgress;
         self.videosUpdateInProgress = NO;
         if(error) {
             NSLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
-            if(completion)
-                completion(error, nil);
+            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
+            return;
         }
         else {
             [groupsUpdatedAt setObject:[NSDate date] forKey:[YAUser currentUser].currentGroup.localId];
@@ -330,11 +323,9 @@ static BOOL groupsUpdateInProgress;
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
             NSLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
             
-            __block NSArray *newVideos = [self updateVideosFromDictionaries:videoDictionaries];
+            NSArray *newVideos = [self updateVideosFromDictionaries:videoDictionaries];
             
-            if(completion) {
-                completion(nil, newVideos);
-            }
+            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:@{kVideos:newVideos}];
         }
     }];
 }
@@ -411,11 +402,5 @@ static BOOL groupsUpdateInProgress;
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
     return newVideos;
-}
-
-- (BOOL)updateInProgress {
-    @synchronized(self) {
-        return self.videosUpdateInProgress || groupsUpdateInProgress;
-    }
 }
 @end

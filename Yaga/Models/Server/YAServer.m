@@ -602,15 +602,16 @@
                 self.lastUpdateTime = [NSDate date];
                 NSLog(@"groups updated from server successfully");
                 
-                [[YAUser currentUser].currentGroup refreshWithCompletion:^(NSError *error, NSArray *newVideos) {
-                    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEOS_ADDED_NOTIFICATION object:newVideos];
-                    
-                }];
-                
                 //send local changes to the server
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
                 
-                [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
+                //current group never updated or updatedAt is older than local?
+                NSDictionary *groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
+                NSDate *localGroupUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
+                if(!localGroupUpdateDate || [[YAUser currentUser].currentGroup.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+                    [[[YAUser currentUser] currentGroup] refresh];
+                }
+
             }
             else {
                 NSLog(@"unable to read groups from server");

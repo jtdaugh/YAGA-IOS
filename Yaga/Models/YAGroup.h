@@ -34,9 +34,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 - (void)removeMember:(YAContact*)contact;
 - (void)leave;
 - (void)muteUnmute;
-- (void)refreshWithCompletion:(updateVideosCompletionBlock)completion;
-
-- (BOOL)updateInProgress;
+- (void)refresh;
 @end
 
 // This protocol enables typed collections. i.e.:
