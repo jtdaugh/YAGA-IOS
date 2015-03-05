@@ -24,6 +24,7 @@
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
 
+#import <AddressBookUI/AddressBookUI.h>
 #import "Flurry.h"
 
 @interface AppDelegate ()
@@ -49,6 +50,7 @@
     }
     if ([[NSUserDefaults standardUserDefaults] boolForKey:ALREADY_LAUNCHED_KEY])
     {
+
         ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
         [permissions
          showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
