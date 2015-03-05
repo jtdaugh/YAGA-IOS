@@ -158,10 +158,7 @@
             [YAUtils copyVideoToClipboard:video];
         }
     }]];
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Delete", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [YAUtils deleteVideo:video];
-    }]];
-    
+
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
     
     UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
