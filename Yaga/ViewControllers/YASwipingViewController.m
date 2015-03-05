@@ -70,9 +70,9 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     
-    UIPanGestureRecognizer *pangesturerecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
+    self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
     
-    [self.view addGestureRecognizer:pangesturerecognizer];
+    [self.view addGestureRecognizer:self.panGesture];
 }
 
 

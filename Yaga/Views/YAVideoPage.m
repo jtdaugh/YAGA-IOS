@@ -14,6 +14,7 @@
 #import "YAServer.h"
 #import <Social/Social.h>
 #import "YAProgressView.h"
+#import "YASwipingViewController.h"
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -38,8 +39,8 @@
 @property NSUInteger fontIndex;
 @property (strong, nonatomic) NSArray *fonts;
 
-@property CGFloat lastScale;
-@property CGFloat lastRotation;
+//@property CGFloat lastScale;
+//@property CGFloat lastRotation;
 @property CGFloat firstX;
 @property CGFloat firstY;
 
@@ -161,7 +162,7 @@
     
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 2;
-    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, 72)];
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
@@ -177,13 +178,11 @@
     [self addSubview:self.captionField];
     
     UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
+    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
+    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
+//    [panGesture requireGestureRecognizerToFail:((YASwipingViewController *) self.presentingVC).panGesture];
+    
     [self.captionField addGestureRecognizer:panGesture];
-    
-    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(scaled:)];
-    [self.captionField addGestureRecognizer:pinchGesture];
-    
-    UIRotationGestureRecognizer *rotationGesture = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(rotated:)];
-    [self.captionField addGestureRecognizer:rotationGesture];
     
     NSLog(@"adding gesture recognizers?");
     
@@ -258,7 +257,6 @@
     CGPoint translatedPoint = [recognizer translationInView:[[recognizer view] superview]];
     NSLog(@"panned? %f", translatedPoint.y);
     
-    
     if([recognizer state] == UIGestureRecognizerStateBegan) {
         _firstX = [self.captionField center].x;
         _firstY = [self.captionField center].y;
@@ -267,41 +265,6 @@
     translatedPoint = CGPointMake(_firstX+translatedPoint.x, _firstY+translatedPoint.y);
     
     [self.captionField setCenter:translatedPoint];
-}
-
--(void)scaled:(id)sender {
-    
-    if([(UIPinchGestureRecognizer*)sender state] == UIGestureRecognizerStateBegan) {
-        _lastScale = 1.0;
-    }
-    
-    CGFloat scale = 1.0 - (_lastScale - [(UIPinchGestureRecognizer*)sender scale]);
-    
-    CGAffineTransform currentTransform = self.captionField.transform;
-    CGAffineTransform newTransform = CGAffineTransformScale(currentTransform, scale, scale);
-    
-    [self.captionField setTransform:newTransform];
-    
-    _lastScale = [(UIPinchGestureRecognizer*)sender scale];
-//    [self showOverlayWithFrame:photoImage.frame];
-}
-
--(void)rotated:(id)sender {
-    
-    if([(UIRotationGestureRecognizer*)sender state] == UIGestureRecognizerStateEnded) {
-        
-        _lastRotation = 0.0;
-        return;
-    }
-    
-    CGFloat rotation = 0.0 - (_lastRotation - [(UIRotationGestureRecognizer*)sender rotation]);
-    
-    CGAffineTransform currentTransform = self.captionField.transform;
-    CGAffineTransform newTransform = CGAffineTransformRotate(currentTransform,rotation);
-    
-    [self.captionField setTransform:newTransform];
-    
-    _lastRotation = [(UIRotationGestureRecognizer*)sender rotation];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -518,7 +481,6 @@
     self.captionButton.hidden = !myVideo;
     self.shareButton.hidden = !myVideo;
     self.deleteButton.hidden = !myVideo;
-    
     
     self.userLabel.text = self.video.creator;
     
