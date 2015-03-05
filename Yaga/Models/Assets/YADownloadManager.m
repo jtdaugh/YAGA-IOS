@@ -210,15 +210,17 @@
         }
         
         //start/resume waiting job
-        NSString *waitingUrl = [self.waitingJobs keyAtIndex:0];
-        AFDownloadRequestOperation *waitingJob = [self.waitingJobs objectAtIndex:0];
-        if(waitingJob.isPaused)
-            [waitingJob resume];
-        else
-            [waitingJob start];
-        
-        [self.executingJobs setObject:waitingJob forKey:waitingUrl];
-        [self.waitingJobs removeObjectForKey:waitingUrl];
+        if(self.waitingJobs.allKeys.count) {
+            NSString *waitingUrl = [self.waitingJobs keyAtIndex:0];
+            AFDownloadRequestOperation *waitingJob = [self.waitingJobs objectAtIndex:0];
+            if(waitingJob.isPaused)
+                [waitingJob resume];
+            else
+                [waitingJob start];
+            
+            [self.executingJobs setObject:waitingJob forKey:waitingUrl];
+            [self.waitingJobs removeObjectForKey:waitingUrl];
+        }
     });
 }
 
