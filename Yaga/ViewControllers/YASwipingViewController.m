@@ -62,8 +62,6 @@
     self.scrollView.contentSize = CGSizeMake([YAUser currentUser].currentGroup.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
     self.scrollView.pagingEnabled = YES;
     
-    [self initPages];
-    
     //gesture recognizers
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
     [self.view addGestureRecognizer:tap];
@@ -75,7 +73,11 @@
     [self.view addGestureRecognizer:self.panGesture];
 }
 
-
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [self initPages];
+}
 
 - (void)panGesture:(UIPanGestureRecognizer *)rec
 {

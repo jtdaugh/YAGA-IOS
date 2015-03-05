@@ -55,9 +55,6 @@
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
         
-        //        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(configureFocusPoint:)];
-        //        [self.cameraView addGestureRecognizer:self.tapToFocusRecognizer];
-        
         self.cameraAccessories = [@[] mutableCopy];
         
         self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
@@ -164,13 +161,13 @@
                                                    object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(videosAdded:)
-                                                     name:VIDEOS_ADDED_NOTIFICATION
+                                                 selector:@selector(groupDidRefresh:)
+                                                     name:GROUP_DID_REFRESH_NOTIFICATION
                                                    object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(refreshGroup:)
-                                                     name:REFRESH_GROUP_NOTIFICATION
+                                                 selector:@selector(groupDidChange:)
+                                                     name:GROUP_DID_CHANGE_NOTIFICATION
                                                    object:nil];
         
         
@@ -363,7 +360,6 @@
 - (void)startHold {
     NSLog(@"starting hold");
     
-    
 //    //We're starting to shoot so add audio
 //    if (!self.audioInputAdded) {
 //        [self.session beginConfiguration];
@@ -383,6 +379,7 @@
 
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
+        [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     } completion:^(BOOL finished) {
         
@@ -407,6 +404,7 @@
         [self.view bringSubviewToFront:self.cameraView];
         
         [UIView animateWithDuration:0.2 animations:^{
+            [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self showCameraAccessories:YES];
         }];
@@ -664,10 +662,6 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)updateCurrentGroupName {
-    [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
-}
-
 - (void)presentAlertForClusterAVType:(ClusterAVAuthorizationType)type {
     NSString *title;
     NSString *message;
@@ -693,15 +687,20 @@
 
 #pragma mark -
 
-- (void)videosAdded:(id)sender {
-    [self updateUviewedViedeosBadge];
+- (void)updateCurrentGroupName {
+    [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
 }
 
 - (void)updateUviewedViedeosBadge {
     self.unviewedVideosBadge.hidden = ![[YAUser currentUser] hasUnviewedVideosInGroups];
 }
 
-- (void)refreshGroup:(id)sender {
+#pragma mark Group Notifications
+- (void)groupDidRefresh:(NSNotification*)notification {
+    [self updateUviewedViedeosBadge];
+}
+
+- (void)groupDidChange:(NSNotification*)notification {
     [self updateCurrentGroupName];
 }
 @end

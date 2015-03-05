@@ -28,12 +28,7 @@
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 
-
 - (void)showCameraAccessories:(BOOL)show;
 
-- (void)updateCurrentGroupName;
-
 - (void)enableRecording:(BOOL)enable;
-
-- (void)updateUviewedViedeosBadge;
 @end

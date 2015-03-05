@@ -14,6 +14,7 @@
 
 @interface YAPushNotificationHandler ()
 @property (nonatomic, strong) NSDictionary *meta;
+@property (nonatomic, strong) NSString *postIdToOpen;
 @end
 
 @implementation YAPushNotificationHandler
@@ -27,6 +28,18 @@
     return s;
 }
 
+- (id)init {
+    self = [super init];
+    if(self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
+    }
+    return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
+}
+
 - (void)handlePushWithUserInfo:(NSDictionary*)userInfo {
     NSDictionary *meta = userInfo[@"meta"];
     
@@ -34,6 +47,8 @@
         return;
     
     self.meta = meta;
+    
+    self.postIdToOpen = nil;
     
     NSString *eventName = meta[@"event"];
     
@@ -60,6 +75,9 @@
     }
     else if([eventName isEqualToString:@"like"]) {
         [self handleLike];
+    }
+    else if([eventName isEqualToString:@"caption"]) {
+        [self handleCaption];
     }
 }
 
@@ -102,23 +120,18 @@
     NSString *groupId = self.meta[@"group_id"];
     NSString *postId = self.meta[@"post_id"];
     
-    [self openGroupWithId:groupId refresh:YES refreshCompletionHandler:^{
-        RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", postId]];
-        if(videos.count != 1) {
-            NSLog(@"unable to find video with id %@", postId);
-            return;
-        }
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_VIDEO_NOTIFICATION object:nil userInfo:@{@"video":videos[0]}];
-    }];
+    self.postIdToOpen = postId;
+    
+    [self openGroupWithId:groupId refresh:YES];
+}
+
+- (void)handleCaption {
+    [self handleLike];
 }
 
 #pragma mark - Utils
-- (void)openGroupWithId:(NSString*)groupId refresh:(BOOL)refresh {
-    [self openGroupWithId:groupId refresh:refresh refreshCompletionHandler:nil];
-}
 
-- (void)openGroupWithId:(NSString*)groupId refresh:(BOOL)refresh refreshCompletionHandler:(void(^)(void))refreshCompletion {
+- (void)openGroupWithId:(NSString*)groupId refresh:(BOOL)refresh {
     RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", groupId]];
     
     //no local group? load groups list from server
@@ -135,7 +148,7 @@
                 }
                 
                 //group found after refreshing list of groups
-                [self setCurrentGroup:groups[0] refresh:refresh refreshCompletionHandler:refreshCompletion];
+                [self setCurrentGroup:groups[0] refresh:refresh];
             }
             else {
                 //can't update from server by some reason
@@ -145,27 +158,32 @@
     }
     else {
         //group exists? update current group and refresh if needed
-        [self setCurrentGroup:groups[0] refresh:refresh refreshCompletionHandler:refreshCompletion];
+        [self setCurrentGroup:groups[0] refresh:refresh];
     }
 }
 
-- (void)setCurrentGroup:(YAGroup*)newGroup refresh:(BOOL)refresh refreshCompletionHandler:(void(^)(void))refreshCompletion {
+- (void)setCurrentGroup:(YAGroup*)newGroup refresh:(BOOL)refresh {
     
     if(![[YAUser currentUser].currentGroup isEqual:newGroup]) {
         [YAUser currentUser].currentGroup = newGroup;
-        [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[YAUser currentUser].currentGroup];
     }
     
     if(refresh) {
-        [newGroup refreshWithCompletion:^(NSError *error, NSArray *newVideos) {
-            if(error) {
-                [YANotificationView showMessage:NSLocalizedString(@"CANT_FETCH_GROUP_VIDEOS_ON_PUSH", @"") viewType:YANotificationTypeError];
-            }
-            else {
-                if(refreshCompletion)
-                    refreshCompletion();
-            }
-        }];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION object:newGroup];
+        [newGroup refresh];
+    }
+}
+
+- (void)groupDidRefresh:(NSNotification*)notification {
+    //group didn't change?
+    if([notification.object isEqual:[YAUser currentUser].currentGroup]) {
+        RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", self.postIdToOpen]];
+        if(videos.count != 1) {
+            NSLog(@"unable to find video with id %@", self.postIdToOpen);
+            return;
+        }
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_VIDEO_NOTIFICATION object:nil userInfo:@{@"video":videos[0]}];
     }
 }
 @end

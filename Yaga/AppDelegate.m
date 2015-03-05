@@ -24,6 +24,9 @@
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
 
+#import <AddressBookUI/AddressBookUI.h>
+#import "Flurry.h"
+
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
 @property (nonatomic, strong) YANotificationView *notificationView;
@@ -33,6 +36,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    //flurry statistics
+    [Flurry startSession:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"YAFlurryAppId"]];
+    
     // Continue music playback in our app
     NSError *error;
     BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
@@ -44,6 +50,7 @@
     }
     if ([[NSUserDefaults standardUserDefaults] boolForKey:ALREADY_LAUNCHED_KEY])
     {
+
         ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
         [permissions
          showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge

@@ -39,4 +39,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
                   cancelButton:(NSString*)cancelButtonTitle
                   acceptAction:(void (^)())acceptAction
                   cancelAction:(void (^)())cancelAction;
+
++ (NSString *)stripCharactersInSet:(NSCharacterSet *)chars inString:(NSString *)string;
+
 @end

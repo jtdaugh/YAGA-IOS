@@ -49,19 +49,27 @@
         }
         
         //create phonebook
-        [self importContactsWithCompletion:nil excludingPhoneNumbers:nil];
+        //[self createPhoneBook];
     }
     return self;
+}
+
+- (void)createPhoneBook
+{
+    [self importContactsWithCompletion:nil excludingPhoneNumbers:nil];
 }
 
 - (void)setCurrentGroup:(YAGroup *)group {
     [[NSUserDefaults standardUserDefaults] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];
     
+    YAGroup *groupBefore = [self currentGroup];
+    
     _currentGroup = group;
     
     [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:nil];
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:REFRESH_GROUP_NOTIFICATION object:[self currentGroup]];
+    
+    if(![_currentGroup isEqual:groupBefore])
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_CHANGE_NOTIFICATION object:nil];
 }
 
 - (BOOL)loggedIn {

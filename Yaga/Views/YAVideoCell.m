@@ -45,7 +45,7 @@
         [self.contentView addSubview:self.gifView];
         self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
-        self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
+        self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
@@ -96,6 +96,10 @@
         self.captionField.layer.shadowOffset = CGSizeZero;
         self.captionField.enabled = NO;
         [self addSubview:self.captionField];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
+        
     }
     return self;
 }
@@ -117,9 +121,6 @@
 {
     [super prepareForReuse];
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
-    
     self.progressView.progress = 0;
     [self.progressView setCustomText:@""];
     
@@ -127,6 +128,11 @@
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
     self.state = YAVideoCellStateLoading;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
 }
 
 #pragma mark -
@@ -137,13 +143,10 @@
     
     if(_video == video)
         return;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
-    
+
     _video = video;
     
-    [self setNeedsLayout];
+    [self updateState];
 }
 
 - (void)updateState {
@@ -211,20 +214,13 @@
 }
 
 - (void)showCachedImage:(id)image animatedImage:(BOOL)animatedImage {
-    
     if(animatedImage) {
         self.gifView.animatedImage = image;
         [self.gifView startAnimating];
-        
     } else{
         self.gifView.image = image;
     }
     
-}
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    [self updateState];
 }
 
 #pragma mark - Download progress bar

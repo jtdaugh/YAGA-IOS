@@ -29,10 +29,6 @@
         
         [groupsController.view setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
         groupsController.view.alpha = 0;
-        
-        //group can change
-        [gridController.cameraViewController updateCurrentGroupName];
-        [gridController.collectionViewController reload];
     } completion:^(BOOL finished) {
         [groupsController removeFromParentViewController];
         [groupsController.view removeFromSuperview];
@@ -42,7 +38,6 @@
         [gridController.collectionViewController.view removeGestureRecognizer:groupsController.collectionTapToClose];
         
         gridController.cameraViewController.cameraView.tapToFocusRecognizer.enabled = YES;
-        [gridController.cameraViewController updateUviewedViedeosBadge];
     }];
 
 }

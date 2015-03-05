@@ -7,6 +7,7 @@
 //
 
 #import "YAGroupAddMembersViewController.h"
+#import "GridViewController.h"
 #import "NameGroupViewController.h"
 #import "APPhoneWithLabel.h"
 #import "NSString+Hash.h"
@@ -358,8 +359,19 @@
         [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
             if(error)
                 [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
+            //If we come from NoGroupsViewController
+            __block BOOL found = NO;
+            [self.navigationController.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                if ([obj isKindOfClass:[GridViewController class]]) {
+                    found = YES;
+                    [self.navigationController popToRootViewControllerAnimated:YES];
+                    *stop = YES;
+                }
+            }];
             
-            [self performSegueWithIdentifier:@"CompleteOnboarding" sender:self];
+            if (!found) {
+                [self performSegueWithIdentifier:@"CompleteOnboarding" sender:self];
+            }
 
         }];
     }
