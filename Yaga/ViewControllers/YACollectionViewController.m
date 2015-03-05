@@ -227,6 +227,11 @@ static NSString *cellID = @"Cell";
     
     NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
     
+    //invisible? we do not reload then
+    if(![[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:index]]) {
+        return;
+    }
+    
     NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:0];
     
     if(index != NSNotFound && index <= countOfItems) {

@@ -197,27 +197,29 @@
     if(self.waitingJobs.count == 0)
         return;
     
-    //caches folder too big?
-    if([[YAUser currentUser] assetsFolderSizeExceeded]) {
-        //stop downloads in background mode
-        if([UIApplication sharedApplication].applicationState != UIApplicationStateActive)
-            return;
-        else {
-            //delete oldest to keep folder size static
-            [[YAUser currentUser] purgeOldVideos];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //caches folder too big?
+        if([[YAUser currentUser] assetsFolderSizeExceeded]) {
+            //stop downloads in background mode
+            if([UIApplication sharedApplication].applicationState != UIApplicationStateActive)
+                return;
+            else {
+                //delete oldest to keep folder size static
+                [[YAUser currentUser] purgeOldVideos];
+            }
         }
-    }
-    
-    //start/resume waiting job
-    NSString *waitingUrl = [self.waitingJobs keyAtIndex:0];
-    AFDownloadRequestOperation *waitingJob = [self.waitingJobs objectAtIndex:0];
-    if(waitingJob.isPaused)
-        [waitingJob resume];
-    else
-        [waitingJob start];
-    
-    [self.executingJobs setObject:waitingJob forKey:waitingUrl];
-    [self.waitingJobs removeObjectForKey:waitingUrl];
+        
+        //start/resume waiting job
+        NSString *waitingUrl = [self.waitingJobs keyAtIndex:0];
+        AFDownloadRequestOperation *waitingJob = [self.waitingJobs objectAtIndex:0];
+        if(waitingJob.isPaused)
+            [waitingJob resume];
+        else
+            [waitingJob start];
+        
+        [self.executingJobs setObject:waitingJob forKey:waitingUrl];
+        [self.waitingJobs removeObjectForKey:waitingUrl];
+    });
 }
 
 @end

@@ -218,6 +218,8 @@
 - (void)enqueueAssetsCreationJobForVideos:(NSArray*)videos prioritizeDownload:(BOOL)prioritize {
     void (^enqueueBlock)(void) = ^{
         
+#warning refactor YADownloadManager in a way the following block can be executed not on main thread, that will fix the freeze on collection view when next 100 items are enqueued for download
+        
         for(YAVideo *video in videos) {
             if(video.url.length && !video.movFilename.length ) {
                 if(prioritize)
