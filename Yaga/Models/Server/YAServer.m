@@ -54,6 +54,7 @@
 @property (nonatomic, strong) AFHTTPRequestOperationManager *manager;
 @property (atomic, strong) AFNetworkReachabilityManager *reachability;
 @property (atomic, readonly) NSString *authToken;
+@property (atomic, strong) NSMutableDictionary *multipartUploadsInProgress;
 @end
 
 @implementation YAServer
@@ -72,6 +73,10 @@
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
         _manager = [AFHTTPRequestOperationManager manager];
         _manager.requestSerializer = [AFJSONRequestSerializer serializer];
+        
+        self.multipartUploadsInProgress = [NSMutableDictionary new];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:)  name:VIDEO_WILL_DELETE_NOTIFICATION  object:nil];
         
         [self applySavedAuthToken];
     }
@@ -373,8 +378,7 @@
                        NSString *endpoint = meta[@"endpoint"];
 
                        NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.mp4Filename].path];
-                       [self multipartUpload:endpoint withParameters:meta[@"fields"] withFile:videoData completion:completion];
-                       
+                       [self multipartUpload:endpoint withParameters:meta[@"fields"] withFile:videoData videoServerId:video.serverId completion:completion];
                    });
                    
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -382,11 +386,12 @@
                }];
 }
 
-- (void)multipartUpload:(NSString*)endpoint withParameters:(NSDictionary*)dict withFile:(NSData*)file completion:(responseBlock)completion {
+- (void)multipartUpload:(NSString*)endpoint withParameters:(NSDictionary*)dict withFile:(NSData*)file videoServerId:(NSString*)serverId completion:(responseBlock)completion {
     AFHTTPRequestOperationManager *newManager = [AFHTTPRequestOperationManager manager];
     AFXMLParserResponseSerializer *responseSerializer = [AFXMLParserResponseSerializer serializer];
     newManager.responseSerializer = responseSerializer;
-    [newManager POST:endpoint
+    
+    AFHTTPRequestOperation *postOperation = [newManager POST:endpoint
           parameters:dict constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
               if (file == nil)
                   NSLog(@"Hello");
@@ -394,9 +399,13 @@
               
           } success:^(AFHTTPRequestOperation *operation, id responseObject) {
               completion(operation.response, nil);
+              [self.multipartUploadsInProgress removeObjectForKey:serverId];
           } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
               completion(nil, error);
+              [self.multipartUploadsInProgress removeObjectForKey:serverId];
           }];
+    
+    [self.multipartUploadsInProgress setObject:postOperation forKey:serverId];
 }
 
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
@@ -648,7 +657,19 @@
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
     }];
+}
+
+#pragma mark Notifications
+- (void)willDeleteVideo:(NSNotification*)notif {
+    YAVideo *video = notif.object;
+    if(!video.serverId)
+        return;
     
+    AFHTTPRequestOperation *postOperation = [self.multipartUploadsInProgress objectForKey:video.serverId];
+    if(postOperation) {
+        [postOperation cancel];
+        [self.multipartUploadsInProgress removeObjectForKey:video.serverId];
+    }
 }
 
 @end

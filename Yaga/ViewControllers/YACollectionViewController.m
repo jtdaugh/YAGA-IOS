@@ -281,6 +281,7 @@ static NSString *cellID = @"Cell";
     }
     
     [self.collectionView.pullToRefreshView stopAnimating];
+    [self playVisible:YES];
 }
 
 - (void)showActivityIndicator:(BOOL)show {
