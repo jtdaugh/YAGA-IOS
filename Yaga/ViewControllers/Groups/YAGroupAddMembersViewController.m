@@ -102,6 +102,10 @@
         else {
             weakSelf.deviceContacts = contacts;
             
+            //do not show all device contacts if search results filtered already by user
+            if(self.searchBar.inputText.length)
+                return;
+            
             weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.membersTableview reloadData];
@@ -236,7 +240,6 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self tokenField:self.searchBar didChangeText:@""];
     });
-
     
     _existingGroupDirty = YES;
 }
