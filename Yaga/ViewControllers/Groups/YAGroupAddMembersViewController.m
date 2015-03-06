@@ -333,7 +333,7 @@
                 [friendNumbers addObject:selectedContact[nPhone]];
         }
 
-        [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
+        [[YAUser currentUser] iMessageWithFriends:friendNumbers group:self.existingGroup withCompletion:^(NSError *error) {
             if(error)
                 [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
             
@@ -356,7 +356,7 @@
                 [friendNumbers addObject:member.number];
         }
         
-        [[YAUser currentUser] iMessageWithFriends:friendNumbers withCompletion:^(NSError *error) {
+        [[YAUser currentUser] iMessageWithFriends:friendNumbers group:[YAUser currentUser].currentGroup withCompletion:^(NSError *error) {
             if(error)
                 [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
             //If we come from NoGroupsViewController

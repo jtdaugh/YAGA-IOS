@@ -242,7 +242,7 @@
 }
 
 #pragma mark - iMessage
-- (void)iMessageWithFriends:(NSArray*)friendNumbers withCompletion:(completionBlock)completion {
+- (void)iMessageWithFriends:(NSArray*)friendNumbers group:(YAGroup*)group withCompletion:(completionBlock)completion {
     if(!friendNumbers.count && completion) {
         completion(nil);
         return;
@@ -256,7 +256,7 @@
         return;
     }
     
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), self.currentGroup.name];
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), group.name];
     
     MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
     messageController.messageComposeDelegate = self;
