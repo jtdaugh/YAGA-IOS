@@ -125,14 +125,6 @@ static NSString *cellID = @"Cell";
     __weak typeof(self) weakSelf = self;
     
     [self.collectionView addPullToRefreshWithActionHandler:^{
-        ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
-        [permissions
-         showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
-         title:NSLocalizedString(@"Enable push notifications?", nil)
-         message:NSLocalizedString(@"Yaga wants to send you push notifications", nil)
-         denyButtonTitle:@"Not Now"
-         grantButtonTitle:@"Enable"
-         completionHandler:nil];
         [weakSelf refreshCurrentGroup];
         
     }];

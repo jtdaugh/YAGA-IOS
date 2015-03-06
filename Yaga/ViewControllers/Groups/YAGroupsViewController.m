@@ -19,6 +19,8 @@
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
 
+#import <ClusterPrePermissions.h>
+
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;
@@ -126,6 +128,19 @@ static NSString *CellIdentifier = @"GroupsCell";
             self.tableView.frame = CGRectMake(self.tableView.frame.origin.x, self.tableView.frame.origin.y, self.tableView.frame.size.width, contentHeight);
         }
     }
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
+    [permissions
+     showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
+     title:NSLocalizedString(@"Enable push notifications?", nil)
+     message:NSLocalizedString(@"Yaga wants to send you push notifications", nil)
+     denyButtonTitle:@"Not Now"
+     grantButtonTitle:@"Enable"
+     completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
+         
+     }];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {

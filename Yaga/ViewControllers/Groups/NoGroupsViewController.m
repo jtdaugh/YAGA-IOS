@@ -9,6 +9,7 @@
 #import "NoGroupsViewController.h"
 #import "YAGroupAddMembersViewController.h"
 #import "YAServer.h"
+#import <ClusterPrePermissions.h>
 
 @interface NoGroupsViewController ()
 
@@ -49,6 +50,19 @@
     
     [self.view addSubview:nextButton];
 
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
+    [permissions
+     showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
+     title:NSLocalizedString(@"Enable push notifications?", nil)
+     message:NSLocalizedString(@"Yaga wants to send you push notifications", nil)
+     denyButtonTitle:@"Not Now"
+     grantButtonTitle:@"Enable"
+     completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
+         
+     }];
 }
 
 - (void)didReceiveMemoryWarning {

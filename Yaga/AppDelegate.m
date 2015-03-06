@@ -19,7 +19,6 @@
 #import "YAServerTransactionQueue.h"
 #import "YAAssetsCreator.h"
 #import "YAImageCache.h"
-#import <ClusterPrePermissions.h>
 
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
@@ -50,17 +49,6 @@
     }
     if ([[NSUserDefaults standardUserDefaults] boolForKey:ALREADY_LAUNCHED_KEY])
     {
-
-        ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
-        [permissions
-         showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
-         title:NSLocalizedString(@"Enable push notifications?", nil)
-         message:NSLocalizedString(@"Yaga wants to send you push notifications", nil)
-         denyButtonTitle:@"Not Now"
-         grantButtonTitle:@"Enable"
-         completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
-             
-         }];
        
     }
     else
