@@ -63,11 +63,13 @@
     
     NSString *videoId = self.localId;
     
-    [self purgeLocalAssets];
     
     [[RLMRealm defaultRealm] beginWriteTransaction];
+    
+    [self purgeLocalAssets];
     [self.group.videos removeObjectAtIndex:[self.group.videos indexOfObject:self]];
     [[RLMRealm defaultRealm] deleteObject:self];
+    
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId];
@@ -116,10 +118,8 @@
         }
     });
 
-    [self.realm beginWriteTransaction];
     self.movFilename = @"";
     self.gifFilename = @"";
     self.jpgFilename = @"";
-    [self.realm commitWriteTransaction];
 }
 @end
