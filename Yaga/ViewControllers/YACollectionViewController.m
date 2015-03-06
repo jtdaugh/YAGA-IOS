@@ -44,6 +44,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
 
 @property (nonatomic, strong) YAActivityView *activityView;
+@property (nonatomic) BOOL hasToolTipOnOneOfTheCells;
 @end
 
 static NSString *cellID = @"Cell";
@@ -55,7 +56,7 @@ static NSString *cellID = @"Cell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    self.hasToolTipOnOneOfTheCells = NO;
     CGFloat spacing = 1.0f;
     
     self.gridLayout = [[UICollectionViewFlowLayout alloc] init];
@@ -315,7 +316,9 @@ static NSString *cellID = @"Cell";
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     cell.video = video;
     
-    if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped] && indexPath.row == 0) {
+    if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]
+       && indexPath.row == 0
+       && [[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
         //first start tooltips
         cell.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 120, VIEW_HEIGHT)];
         cell.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
@@ -340,6 +343,16 @@ static NSString *cellID = @"Cell";
     return cell;
 }
 
+- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    for (YAVideoCell *cell in self.collectionView.visibleCells) {
+        NSIndexPath *idx = [self.collectionView indexPathForCell:cell];
+        if (idx.row != 0) {
+            [cell.toolTipLabel removeFromSuperview];
+        }
+    }
+}
+
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     [cell animateGifView:NO];
 }
@@ -347,7 +360,8 @@ static NSString *cellID = @"Cell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == 0 && ![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kCellWasAlreadyTapped];
-        [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
+        YAVideoCell *cell = (YAVideoCell*)[self.collectionView cellForItemAtIndexPath:indexPath];
+        [cell.toolTipLabel removeFromSuperview];
     }
     
     [self openVideoAtIndexPath:indexPath];
