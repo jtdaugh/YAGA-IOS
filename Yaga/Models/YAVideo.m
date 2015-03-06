@@ -33,6 +33,8 @@
              @"movFilename":@"",
              @"mp4Filename":@"",
              @"caption":@"",
+             @"name_x":@50,
+             @"name_y":@50,
              @"createdAt":[NSDate date],
              @"url":@"",
              @"serverId":@"",

@@ -28,6 +28,9 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *highQualityGifFilename;
 @property NSString *jpgFilename;
 
+@property NSInteger name_x;
+@property NSInteger name_y;
+
 @property NSString *creator;
 @property NSString *caption;
 @property NSDate *createdAt;
