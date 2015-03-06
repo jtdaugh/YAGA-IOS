@@ -75,7 +75,7 @@
 }
 
 - (void)nextScreen {
-    [self performSegueWithIdentifier:@"AddMembers" sender:self];
+    [self performSegueWithIdentifier:@"NoGroupsNameGroup" sender:self];
 }
 
 @end
