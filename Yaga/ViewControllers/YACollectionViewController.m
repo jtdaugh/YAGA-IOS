@@ -282,6 +282,10 @@ static NSString *cellID = @"Cell";
 
 - (void)showActivityIndicator:(BOOL)show {
     if(show) {
+        //don't show spinning monkey if pull down to refresh is shown
+        if(self.collectionView.pullToRefreshView.state != SVPullToRefreshStateStopped)
+            return;
+        
         const CGFloat monkeyWidth  = 50;
         [self.activityView removeFromSuperview];
         if(![YAUser currentUser].currentGroup.videos.count) {
