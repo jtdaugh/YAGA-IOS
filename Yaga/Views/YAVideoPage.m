@@ -37,7 +37,6 @@
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 
 @property NSUInteger fontIndex;
-@property (strong, nonatomic) NSArray *fonts;
 
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
@@ -56,10 +55,6 @@
         _playerView = [YAVideoPlayerView new];
         [self addSubview:self.playerView];
         
-        self.fonts = @[@"ArialRoundedMTBold", @"AmericanTypewriter-Bold", @"Chalkduster",
-                           @"ChalkboardSE-Bold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide",
-                           @"Futura-CondensedExtraBold", @"SnellRoundhand-Black", @"AvenirNext-HeavyItalic"];
-
         if(!self.fontIndex){
             self.fontIndex = 0;
         }
@@ -277,11 +272,11 @@
     
     
     if([self.captionField isFirstResponder]){
-        if(!self.fontIndex || (self.fontIndex >= [self.fonts count])){
+        if(!self.fontIndex || (self.fontIndex >= [CAPTION_FONTS count])){
             self.fontIndex = 0;
         }
 
-        [self.captionField setFont:[UIFont fontWithName:self.fonts[self.fontIndex] size:72]];
+        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
         self.fontIndex++;
     } else {
         [self.captionField becomeFirstResponder];
@@ -489,6 +484,7 @@
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
     self.captionField.text = self.video.caption;
+//    [self.captionField setFont:[UIFont fontWithName:self.fonts[3] size:60]];
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
     

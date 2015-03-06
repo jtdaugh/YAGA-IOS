@@ -39,6 +39,8 @@
 #define BIG_FONT @"Avenir"
 #define THIN_FONT @"HelveticaNeue-UltraLight"
 
+#define CAPTION_FONTS @[@"ArialRoundedMTBold", @"AmericanTypewriter-Bold", @"Chalkduster", @"ChalkboardSE-Bold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide", @"Futura-CondensedExtraBold", @"SnellRoundhand-Black", @"AvenirNext-HeavyItalic"]
+
 //notifications
 #define GROUP_DID_REFRESH_NOTIFICATION          @"GROUP_DID_REFRESH_NOTIFICATION"
 #define GROUP_DID_CHANGE_NOTIFICATION           @"GROUP_DID_CHANGE_NOTIFICATION"
