@@ -96,7 +96,6 @@ static NSString *CellID = @"CellID";
 
 - (void)addMembersTapped {
     YAGroupAddMembersViewController *addMembersVC = [YAGroupAddMembersViewController new];
-    [[YAUser currentUser] createPhoneBook];
     addMembersVC.existingGroup = self.group;
     
     
@@ -139,14 +138,6 @@ static NSString *CellID = @"CellID";
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    if([[YAUser currentUser].phonebook objectForKey:contact.number]) {
-        NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
-        cell.detailTextLabel.text = userDict[@"composite_name"];
-    }
-    else
-        cell.detailTextLabel.text = @"";
-    
-    
     if (contact.registered)
     {
         cell.textLabel.text = [contact displayName];
@@ -154,7 +145,8 @@ static NSString *CellID = @"CellID";
         [cell.textLabel setTextColor:PRIMARY_COLOR];
         [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
     } else {
-        cell.textLabel.text = [contact number];
+        NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
+        cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
 
         [cell.textLabel setTextColor:[UIColor whiteColor]];
         [cell.detailTextLabel setTextColor:[UIColor whiteColor]];

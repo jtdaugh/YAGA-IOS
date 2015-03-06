@@ -141,6 +141,17 @@ static NSString *CellIdentifier = @"GroupsCell";
      completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
          
      }];
+    
+    //load phonebook if it wasn't done before
+    if(![YAUser currentUser].phonebook.count) {
+        [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
+            if (!error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.tableView reloadData];
+                });
+            }
+        } excludingPhoneNumbers:nil];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {

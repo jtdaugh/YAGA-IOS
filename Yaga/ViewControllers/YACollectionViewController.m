@@ -92,6 +92,7 @@ static NSString *cellID = @"Cell";
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollToCell:)    name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
+    
     //transitions
     self.animationController = [YAAnimatedTransitioningController new];
     
@@ -256,10 +257,13 @@ static NSString *cellID = @"Cell";
         
         [self.collectionView performBatchUpdates:^{
             //simple workaround to avoid manipulations with paginationThreshold
-            if(newVideos.count == 1)
+            if(newVideos.count == 1) {
+                self.paginationThreshold++;
                 [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]]];
-            else
+            }
+            else {
                 [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+            }
         } completion:^(BOOL finished) {
             [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
             

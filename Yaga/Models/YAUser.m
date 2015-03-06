@@ -20,6 +20,8 @@
 
 #define YA_CURRENT_GROUP_ID @"current_group_id"
 
+#define kContactsAccessWasRequested @"kContactsAccessWasRequested"
+
 @implementation YAUser
 
 + (YAUser*)currentUser {
@@ -48,15 +50,13 @@
             self.currentGroup = [YAGroup objectInRealm:[RLMRealm defaultRealm] forPrimaryKey:selectedGroupId];
         }
         
-        //create phonebook
-        //[self createPhoneBook];
+        //request an access to the contacts first time in Groups list(because we need to show correct member names)
+        //next times phonebook is loaded on app start
+        if([[NSUserDefaults standardUserDefaults] boolForKey:kContactsAccessWasRequested]) {
+            [self importContactsWithCompletion:nil excludingPhoneNumbers:nil];
+        }
     }
     return self;
-}
-
-- (void)createPhoneBook
-{
-    [self importContactsWithCompletion:nil excludingPhoneNumbers:nil];
 }
 
 - (void)setCurrentGroup:(YAGroup *)group {
@@ -143,6 +143,8 @@
     
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kContactsAccessWasRequested];
+            
             __block NSMutableArray *result = [NSMutableArray new];
             NSMutableArray *phoneResults = [NSMutableArray new];
             _phonebook = [NSMutableDictionary new];
@@ -242,7 +244,7 @@
 }
 
 #pragma mark - iMessage
-- (void)iMessageWithFriends:(NSArray*)friendNumbers withCompletion:(completionBlock)completion {
+- (void)iMessageWithFriends:(NSArray*)friendNumbers group:(YAGroup*)group withCompletion:(completionBlock)completion {
     if(!friendNumbers.count && completion) {
         completion(nil);
         return;
@@ -256,7 +258,7 @@
         return;
     }
     
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), self.currentGroup.name];
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), group.name];
     
     MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
     messageController.messageComposeDelegate = self;
@@ -303,6 +305,7 @@
     RLMResults *videosByDate = [videos sortedResultsUsingProperty:@"localCreatedAt" ascending:YES];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [[RLMRealm defaultRealm] beginWriteTransaction];
         while([self assetsFolderSizeExceeded]) {
             dispatch_sync(dispatch_get_main_queue(), ^{
 
@@ -316,6 +319,7 @@
                 [videoToPurge purgeLocalAssets];
             });
         }
+        [[RLMRealm defaultRealm] commitWriteTransaction];
     });
 }
 
