@@ -394,6 +394,7 @@
             video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
             video.url = videoDic[YA_VIDEO_ATTACHMENT];
             video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
+            video.font = ![videoDic[YA_RESPONSE_FONT] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_FONT] integerValue] : 0;
             video.group = self;
             [self.videos insertObject:video atIndex:0];
             
