@@ -31,6 +31,8 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSInteger name_x;
 @property NSInteger name_y;
 
+@property NSInteger font;
+
 @property NSString *creator;
 @property NSString *caption;
 @property NSDate *createdAt;
