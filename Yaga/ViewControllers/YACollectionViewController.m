@@ -308,9 +308,30 @@ static NSString *cellID = @"Cell";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     cell.video = video;
+    
+    if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped] && indexPath.row == 0) {
+        //first start tooltips
+        cell.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 120, VIEW_HEIGHT)];
+        cell.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap to enlarge"
+                                                                     attributes:@{
+                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+                                                                                  }];
+        
+        cell.toolTipLabel.textAlignment = NSTextAlignmentCenter;
+        cell.toolTipLabel.attributedText = string;
+        cell.toolTipLabel.numberOfLines = 3;
+        cell.toolTipLabel.textColor = PRIMARY_COLOR;
+        [cell addSubview:cell.toolTipLabel];
+        //warning create varible for all screen sizes
+        cell.toolTipLabel.center = cell.center;
+        cell.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
+    } else {
+        [cell.toolTipLabel removeFromSuperview];
+    }
     
     return cell;
 }
@@ -320,6 +341,11 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == 0 && ![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]) {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kCellWasAlreadyTapped];
+        [self.collectionView reloadItemsAtIndexPaths:@[indexPath]];
+    }
+    
     [self openVideoAtIndexPath:indexPath];
 }
 

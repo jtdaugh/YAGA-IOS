@@ -180,22 +180,31 @@
         
         if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
             //first start tooltips
-            self.recordTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 - 20, VIEW_WIDTH, 80)];
+            self.recordTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 120, VIEW_HEIGHT)];
             self.recordTooltipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
-            NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                                      NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                                      NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
+            NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap and hold to record\n \u2B07\U0000FE0E"
+                                                                         attributes:@{
+                                                                                      NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                      NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+                                                                                      }];
             
             self.recordTooltipLabel.textAlignment = NSTextAlignmentRight;
-            self.recordTooltipLabel.text = @"\u2B06\uFE0E\nTap and hold to record";;
-            self.recordTooltipLabel.numberOfLines = 0;
+            self.recordTooltipLabel.attributedText = string;
+            self.recordTooltipLabel.numberOfLines = 4;
             self.recordTooltipLabel.textColor = PRIMARY_COLOR;
             [self.view addSubview:self.recordTooltipLabel];
+            //warning create varible for all screen sizes
+            CGPoint center = self.view.center;
+            center.x -= 47.f;
+            center.y += 65.f;
+            self.recordTooltipLabel.center = center;
         }
 
     }
     return self;
 }
+
+
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
