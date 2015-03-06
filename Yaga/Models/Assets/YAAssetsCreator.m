@@ -70,7 +70,7 @@
     AVPlayerItem *playerItem = [self buildVideoSequenceComposition:videoURL];
     
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:(AVAsset*)playerItem.asset
-                                                                     presetName:AVAssetExportPresetHighestQuality];
+                                                                     presetName:AVAssetExportPreset640x480];
     session.videoComposition = playerItem.videoComposition;
     
     session.outputURL = outputUrl;
@@ -78,7 +78,7 @@
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputUrl.path;
         self.cameraRollCompletionBlock = completion;
-        UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError: contextInfo:), nil);
+        UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
     }];
 }
 
@@ -142,20 +142,19 @@
                                     atTime:kCMTimeZero];
             
         } else {
-            // Unkoment for medium quality
+            // Unkoment for 640x480
+            NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
+            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
+                                                                     100.f,
+                                                                     75.0f);
+// Unkoment for high quality
 //            NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
 //            NSLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
+//            CGFloat xMove = ([UIScreen mainScreen].nativeBounds.size.width - assetTrack.naturalSize.width)/2;
+//            CGFloat yMove = ([UIScreen mainScreen].nativeBounds.size.height - assetTrack.naturalSize.height)/2;
 //            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
-//                                                                     50.f,
-//                                                                     0.0f);
-            
-            NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
-            NSLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
-            CGFloat xMove = ([UIScreen mainScreen].nativeBounds.size.width - assetTrack.naturalSize.width)/2;
-            CGFloat yMove = ([UIScreen mainScreen].nativeBounds.size.height - assetTrack.naturalSize.height)/2;
-            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
-                                                                     xMove,
-                                                                     yMove);
+//                                                                     xMove,
+//                                                                     yMove);
 
             
             [layerInstruction setTransform:transform atTime:kCMTimeZero];
