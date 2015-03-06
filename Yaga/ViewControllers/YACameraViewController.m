@@ -41,6 +41,7 @@
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizerCamera;
 @property (nonatomic) BOOL audioInputAdded;
 
+@property (nonatomic, strong) UILabel *recordTooltipLabel;
 @end
 
 @implementation YACameraViewController
@@ -175,6 +176,23 @@
         [self enableRecording:YES];
         
         [self updateUviewedViedeosBadge];
+        
+        
+        if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
+            //first start tooltips
+            self.recordTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 - 20, VIEW_WIDTH, 80)];
+            self.recordTooltipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+            NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                                      NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                                      NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
+            
+            self.recordTooltipLabel.textAlignment = NSTextAlignmentRight;
+            self.recordTooltipLabel.text = @"\u2B06\uFE0E\nTap and hold to record";;
+            self.recordTooltipLabel.numberOfLines = 0;
+            self.recordTooltipLabel.textColor = PRIMARY_COLOR;
+            [self.view addSubview:self.recordTooltipLabel];
+        }
+
     }
     return self;
 }
@@ -446,6 +464,12 @@
 }
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
+    
+    if(self.recordTooltipLabel) {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
+        [self.recordTooltipLabel removeFromSuperview];
+        self.recordTooltipLabel = nil;
+    }
     
     BOOL RecordedSuccessfully = YES;
     if ([error code] != noErr) {
