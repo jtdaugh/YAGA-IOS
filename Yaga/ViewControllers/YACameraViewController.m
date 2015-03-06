@@ -404,6 +404,19 @@
     [self.view bringSubviewToFront:self.white];
     [self.view bringSubviewToFront:self.indicator];
 
+    if(self.recordTooltipLabel) {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
+        [UIView animateWithDuration:0.2 animations:^{
+            self.recordTooltipLabel.alpha = 0.0;
+        } completion:^(BOOL finished) {
+            [self.recordTooltipLabel removeFromSuperview];
+            self.recordTooltipLabel = nil;
+        }];
+        
+        [AnalyticsKit logEvent:@"First video post"];
+    }
+
+    
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
         [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
@@ -473,14 +486,8 @@
 }
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
 {
-    if(self.recordTooltipLabel) {
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
-        [self.recordTooltipLabel removeFromSuperview];
-        self.recordTooltipLabel = nil;
-        
-        [AnalyticsKit logEvent:@"First video post"];
-    }
 }
+
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
     
     BOOL RecordedSuccessfully = YES;

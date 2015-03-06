@@ -20,7 +20,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 @interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
-@property (nonatomic, strong) UILabel *toolTipLabel;
+//@property (nonatomic, strong) UILabel *toolTipLabel;
 
 - (void)animateGifView:(BOOL)animate;
 

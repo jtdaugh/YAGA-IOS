@@ -43,6 +43,8 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
 
+@property (strong, nonatomic) UILabel *toolTipLabel;
+
 @property (nonatomic, strong) YAActivityView *activityView;
 @property (nonatomic) BOOL hasToolTipOnOneOfTheCells;
 @end
@@ -261,6 +263,61 @@ static NSString *cellID = @"Cell";
             if(newVideos.count == 1) {
                 self.paginationThreshold++;
                 [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]]];
+                
+                
+                NSLog(@"wut");
+                if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]
+                   && [[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded] && !self.toolTipLabel) {
+                    NSLog(@"u lookin at?");
+                    //first start tooltips
+                    self.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2, VIEW_HEIGHT/4)];
+                    self.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+                    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap to \nenlarge"
+                                                                                 attributes:@{
+                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+                                                                                              }];
+                    
+                    self.toolTipLabel.textAlignment = NSTextAlignmentCenter;
+                    self.toolTipLabel.attributedText = string;
+                    self.toolTipLabel.numberOfLines = 3;
+                    self.toolTipLabel.textColor = PRIMARY_COLOR;
+                    self.toolTipLabel.alpha = 0.0;
+                    [self.collectionView addSubview:self.toolTipLabel];
+                    //warning create varible for all screen sizes
+                    
+                    [UIView animateKeyframesWithDuration:0.6 delay:0.6 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+                        //
+                        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
+                            //
+                            self.toolTipLabel.alpha = 1.0;
+                        }];
+                        
+                        for(float i = 0; i < 4; i++){
+                            [UIView addKeyframeWithRelativeStartTime:i/5.0 relativeDuration:i/(5.0) animations:^{
+                                //
+                                self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6 + M_PI/36 + (int)i%2 * -1* M_PI/18);
+                            }];
+                            
+                        }
+                        
+                        [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
+                            self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
+                        }];
+
+
+                    } completion:^(BOOL finished) {
+                        self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
+                    }];
+                    
+                    [UIView animateWithDuration:0.3 delay:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+                        //
+                        self.toolTipLabel.alpha = 1.0;
+                    } completion:^(BOOL finished) {
+                        //
+                    }];
+                }
+
             }
             else {
                 [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
@@ -316,41 +373,17 @@ static NSString *cellID = @"Cell";
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     cell.video = video;
     
-    if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]
-       && indexPath.row == 0
-       && [[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
-        //first start tooltips
-        cell.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 120, VIEW_HEIGHT)];
-        cell.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
-        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap to enlarge"
-                                                                     attributes:@{
-                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
-                                                                                  }];
-        
-        cell.toolTipLabel.textAlignment = NSTextAlignmentCenter;
-        cell.toolTipLabel.attributedText = string;
-        cell.toolTipLabel.numberOfLines = 3;
-        cell.toolTipLabel.textColor = PRIMARY_COLOR;
-        [cell addSubview:cell.toolTipLabel];
-        //warning create varible for all screen sizes
-        cell.toolTipLabel.center = cell.center;
-        cell.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
-    } else {
-        [cell.toolTipLabel removeFromSuperview];
-    }
-    
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    for (YAVideoCell *cell in self.collectionView.visibleCells) {
-        NSIndexPath *idx = [self.collectionView indexPathForCell:cell];
-        if (idx.row != 0) {
-            cell.toolTipLabel.hidden = YES;
-        }
-    }
+//    for (YAVideoCell *cell in self.collectionView.visibleCells) {
+//        NSIndexPath *idx = [self.collectionView indexPathForCell:cell];
+//        if (idx.row != 0) {
+//            cell.toolTipLabel.hidden = YES;
+//        }
+//    }
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -358,10 +391,9 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row == 0 && ![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]) {
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kCellWasAlreadyTapped];
-        YAVideoCell *cell = (YAVideoCell*)[self.collectionView cellForItemAtIndexPath:indexPath];
-        [cell.toolTipLabel removeFromSuperview];
+        [self.toolTipLabel removeFromSuperview];
     }
     
     [self openVideoAtIndexPath:indexPath];
