@@ -74,11 +74,17 @@
     session.videoComposition = playerItem.videoComposition;
     
     session.outputURL = outputUrl;
-    session.outputFileType = AVFileTypeQuickTimeMovie;
+    session.outputFileType = AVFileTypeMPEG4;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputUrl.path;
         self.cameraRollCompletionBlock = completion;
-        UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
+        if (UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(path)){
+            UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
+        }
+        else
+        {
+            self.cameraRollCompletionBlock([NSError new]);
+        }
     }];
 }
 
