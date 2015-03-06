@@ -203,6 +203,8 @@
     self.nextButton.enabled = NO;
     __weak typeof(self) weakSelf = self;
 
+    [AnalyticsKit logEvent:@"Entered phone number" withProperties:@{@"value":formattedNumber}];
+    
     [[YAServer sharedServer] authentificatePhoneNumberBySMS:formattedNumber withCompletion:^(NSString *responseDictionary, NSError *error) {
         if (error)
         {

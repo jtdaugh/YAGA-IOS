@@ -478,6 +478,8 @@
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
         [self.recordTooltipLabel removeFromSuperview];
         self.recordTooltipLabel = nil;
+        
+        [AnalyticsKit logEvent:@"First video post"];
     }
     
     BOOL RecordedSuccessfully = YES;

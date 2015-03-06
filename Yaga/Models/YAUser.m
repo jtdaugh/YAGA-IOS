@@ -276,16 +276,19 @@
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
 {
     switch (result) {
-        case MessageComposeResultCancelled:
+        case MessageComposeResultCancelled: {
+            [AnalyticsKit logEvent:@"iMessage cancelled"];
             break;
-            
+        }
         case MessageComposeResultFailed:
         {
+            [AnalyticsKit logEvent:@"iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
             break;
         }
             
         case MessageComposeResultSent:
+            [AnalyticsKit logEvent:@"iMessage sent"];
             [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
             break;
             

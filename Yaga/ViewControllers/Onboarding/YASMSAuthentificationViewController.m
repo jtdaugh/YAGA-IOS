@@ -155,6 +155,8 @@
     [[YAServer sharedServer] requestAuthTokenWithAuthCode:self.codeTextField.text withCompletion:^(id response, NSError *error) {
         if (!error) {
             
+            [AnalyticsKit logEvent:@"Verification code entered correctly"];
+            
             //register device token
             if([YAUser currentUser].deviceToken.length) {
                 [[YAServer sharedServer] registerDeviceTokenWithCompletion:^(id response, NSError *error) {
@@ -205,6 +207,7 @@
             self.nextButton.enabled = YES;
             
             [YAUtils showNotification:NSLocalizedString(@"Incorrect confirmation code entered, try again", @"") type:YANotificationTypeError];
+            [AnalyticsKit logEvent:@"Verification code entered incorrectly"];
         }
     }];
 }

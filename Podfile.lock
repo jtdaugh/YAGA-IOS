@@ -22,12 +22,19 @@ PODS:
   - AFNetworking/UIKit (2.5.0):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - AnalyticsKit/Core (1.2.4)
+  - AnalyticsKit/Mixpanel (1.2.4):
+    - AnalyticsKit/Core
+    - Mixpanel
   - APAddressBook (0.0.10)
   - ClusterPrePermissions (0.5.0)
   - FLAnimatedImage (1.0.8)
   - FrameAccessor (1.3.2)
   - libPhoneNumber-iOS (0.7.6)
   - MBProgressHUD (0.9)
+  - Mixpanel (2.7.2):
+    - Mixpanel/MPCategoryHelpers (= 2.7.2)
+  - Mixpanel/MPCategoryHelpers (2.7.2)
   - NSDate-Time-Ago (1.0.1)
   - OrderedDictionary (1.2)
   - Realm (0.90.5):
@@ -40,6 +47,7 @@ PODS:
 DEPENDENCIES:
   - AFDownloadRequestOperation
   - AFNetworking (~> 2.0)
+  - AnalyticsKit/Mixpanel
   - APAddressBook (~> 0.0.7)
   - ClusterPrePermissions (from `https://github.com/tkorsi/ClusterPrePermissions.git`)
   - FLAnimatedImage
@@ -65,12 +73,14 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   AFDownloadRequestOperation: e223a65bc56fb8e6ae5d289b649c7bcc6b307f0d
   AFNetworking: 0f54cb5d16ce38c1b76948faffb8d5fb705021c7
+  AnalyticsKit: 71523cf219183c95878d75bbdeee32de9c9e0923
   APAddressBook: d176555d6b845a3c900f3f3c3787c1b98d83151d
   ClusterPrePermissions: f7c18aed36022662a05048fffb44b24b9e796cff
   FLAnimatedImage: 8669ace2a531fc0bb7344a6326f48c3a4c3de84b
   FrameAccessor: 5eec95b29b5e9a3afe72a7a2e9ed25b000d3bcc3
   libPhoneNumber-iOS: d4316d494d4997c40a6059faf35a970d7f4eb1c0
   MBProgressHUD: 2038dbcf3dce73215abed6001657043d53aa79a8
+  Mixpanel: def38b9e600f101686b8d647e05660a72c089c65
   NSDate-Time-Ago: 6c2f55530dec7471e90106d84bb34bba6660c139
   OrderedDictionary: f7dffc6f0b866461964952a66ed8497d15cf2028
   Realm: aea25534b97be77995650c2339aa6ed010dfcc8a

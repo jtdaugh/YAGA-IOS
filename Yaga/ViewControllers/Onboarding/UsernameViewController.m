@@ -119,10 +119,14 @@
                                                      [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
                                                          [weakSelf.activityIndicator stopAnimating];
                                                          if(!error) {
-                                                             if([YAGroup allObjects].count)
+                                                             if([YAGroup allObjects].count) {
+                                                                 [AnalyticsKit logEvent:@"Onboarding user already a part of some groups"];
                                                                  [self performSegueWithIdentifier:@"MyGroups" sender:self];
-                                                             else
+                                                             }
+                                                             else {
+                                                                 [AnalyticsKit logEvent:@"Onboarding user doesn't have any groups"];
                                                                  [self performSegueWithIdentifier:@"NoGroups" sender:self];
+                                                             }
                                                          }
                                                          else {
                                                              [weakSelf.activityIndicator stopAnimating];

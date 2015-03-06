@@ -59,7 +59,7 @@
         [self deleteVideoWithCompletion:completion];
     }
     else if([type isEqualToString:YA_TRANSACTION_TYPE_UPDATE_CAPTION]) {
-        [self uploadeVideoCaptionWithCompletion:completion];
+        [self uploadVideoCaptionWithCompletion:completion];
     }
 }
 
@@ -264,6 +264,8 @@
                                           [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:YANotificationTypeSuccess];
                                           
                                           completion(nil, nil);
+                                          
+                                          [AnalyticsKit logEvent:@"Video posted"];
                                       }
                                   }];}
             break;
@@ -295,7 +297,7 @@
     }];
 }
 
-- (void)uploadeVideoCaptionWithCompletion:(responseBlock)completion {
+- (void)uploadVideoCaptionWithCompletion:(responseBlock)completion {
     NSString *videoId = self.data[YA_VIDEO_ID];
     
     [[YAServer sharedServer] uploadVideoCaptionWithId:videoId withCompletion:^(id response, NSError *error) {
@@ -304,10 +306,10 @@
             completion(nil, error);
         }
         else {
+            [AnalyticsKit logEvent:@"Video captioned"];
             [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", videoId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
-        
     }];
 }
 

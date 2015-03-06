@@ -323,6 +323,7 @@
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
         }];
+        [AnalyticsKit logEvent:@"Video liked"];
     } else {
         if (likeCountNumber <= 1) {
             self.likeCount.hidden = YES;
@@ -336,6 +337,7 @@
             [self.likeCount setTitle:[response integerValue] == 0 ? @"" : [NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
         }];
+        [AnalyticsKit logEvent:@"Video unliked"];
     }
     
     [[RLMRealm defaultRealm] beginWriteTransaction];

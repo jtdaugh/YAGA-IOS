@@ -15,4 +15,5 @@
     #import <Foundation/Foundation.h>
     #import "Constants.h"
     #import "YAUtils.h"
+    #import "AnalyticsKit.h"
 #endif

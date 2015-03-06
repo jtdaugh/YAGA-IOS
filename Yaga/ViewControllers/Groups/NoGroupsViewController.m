@@ -75,6 +75,7 @@
 }
 
 - (void)nextScreen {
+    [AnalyticsKit logEvent:@"Onboarding create group"];
     [self performSegueWithIdentifier:@"NoGroupsNameGroup" sender:self];
 }
 

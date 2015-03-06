@@ -25,6 +25,8 @@
 
 #import <AddressBookUI/AddressBookUI.h>
 
+#import "AnalyticsKitMixpanelProvider.h"
+
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
 @property (nonatomic, strong) YANotificationView *notificationView;
@@ -34,6 +36,11 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    //analytics
+    NSString *mixPanelAppId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"YAMixPanelAppId"];
+    AnalyticsKitMixpanelProvider *mixPanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:mixPanelAppId];
+    [AnalyticsKit initializeLoggers:@[mixPanel]];
+    
     // Continue music playback in our app
     NSError *error;
     BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
@@ -51,7 +58,9 @@
     {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:ALREADY_LAUNCHED_KEY];
         [[NSUserDefaults standardUserDefaults] synchronize];
+        
         // This is the first launch ever
+        [AnalyticsKit logEvent:@"Opened App for the first time"];
     }
     
     [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
@@ -100,6 +109,8 @@
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
+    [AnalyticsKit logEvent:@"Opened app"];
+    
     [[YAServer sharedServer] startMonitoringInternetConnection:YES];
     
     [self endBackgroundTask];
@@ -126,6 +137,18 @@
         
         [self endBackgroundTask];
     });
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    [AnalyticsKit applicationWillEnterForeground];
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    [AnalyticsKit applicationDidEnterBackground];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+    [AnalyticsKit applicationWillTerminate];
 }
 
 - (void)beginBackgroundTask {

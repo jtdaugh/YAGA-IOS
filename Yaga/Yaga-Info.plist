@@ -53,7 +53,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>YAFlurryAppId</key>
-	<string>DCCXH2PMDGXNGPHQQSTH</string>
+	<key>YAMixPanelAppId</key>
+	<string>30b5e350abfdd51dad650da6c8213af6</string>
 </dict>
 </plist>

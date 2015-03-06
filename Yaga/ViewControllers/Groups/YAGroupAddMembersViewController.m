@@ -338,6 +338,7 @@
                 [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
             
             [self.existingGroup addMembers:self.selectedContacts];
+            [AnalyticsKit logEvent:@"Group changed" withProperties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
             
             [self.navigationController popToRootViewControllerAnimated:YES];
             
@@ -346,10 +347,11 @@
             [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
         }];
     }
-    //create default group
+    //new group
     else {
         [[YAUser currentUser].currentGroup addMembers:self.selectedContacts];
-
+        [AnalyticsKit logEvent:@"Group created" withProperties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
+        
         NSMutableArray *friendNumbers = [NSMutableArray arrayWithCapacity:[YAUser currentUser].currentGroup.members.count];
         for(YAContact *member in [YAUser currentUser].currentGroup.members) {
             if([YAUtils validatePhoneNumber:member.number error:nil])
