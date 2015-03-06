@@ -385,6 +385,10 @@
             if([videoDic[YA_VIDEO_DELETED] boolValue])
                 continue;
             
+            //skip not ready yet vids
+            if([videoDic[YA_VIDEO_READY_AT] isEqual:[NSNull null]])
+                continue;
+            
             YAVideo *video = [YAVideo video];
             video.serverId = videoId;
             video.creator = videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME];
