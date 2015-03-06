@@ -471,9 +471,8 @@
     [self.movieFileOutput stopRecording];
     NSLog(@"stop recording video");
 }
-
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
-    
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
+{
     if(self.recordTooltipLabel) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
         [self.recordTooltipLabel removeFromSuperview];
@@ -481,6 +480,8 @@
         
         [AnalyticsKit logEvent:@"First video post"];
     }
+}
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
     
     BOOL RecordedSuccessfully = YES;
     if ([error code] != noErr) {
