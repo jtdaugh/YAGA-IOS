@@ -33,7 +33,7 @@
     NSDictionary *parsedObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&localError];
     
     if (localError != nil) {
-        NSLog(@"%@", [localError userInfo]);
+        DLog(@"%@", [localError userInfo]);
     }
     countriesList = (NSArray *)parsedObject;
 }

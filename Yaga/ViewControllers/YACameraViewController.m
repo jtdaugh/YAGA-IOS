@@ -243,10 +243,10 @@
     // only init camera if not simulator
     
     if(TARGET_IPHONE_SIMULATOR){
-        NSLog(@"no camera, simulator");
+        DLog(@"no camera, simulator");
     } else {
         
-        NSLog(@"init camera");
+        DLog(@"init camera");
         
         //set still image output
         
@@ -313,7 +313,7 @@
     
     if (error)
     {
-        NSLog(@"add video input error: %@", error);
+        DLog(@"add video input error: %@", error);
     }
     
     if ([self.session canAddInput:self.videoInput])
@@ -355,7 +355,7 @@
     
     if (error)
     {
-        NSLog(@"add audio input error: %@", error);
+        DLog(@"add audio input error: %@", error);
     }
     //Don't add just now to allow bg audio to play
     self.audioInputAdded = NO;
@@ -376,7 +376,7 @@
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
-    NSLog(@"%ld", (unsigned long)recognizer.state);
+    DLog(@"%ld", (unsigned long)recognizer.state);
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         [self endHold];
     } else if (recognizer.state == UIGestureRecognizerStateBegan){
@@ -385,7 +385,7 @@
 }
 
 - (void)startHold {
-    NSLog(@"starting hold");
+    DLog(@"starting hold");
     
 //    //We're starting to shoot so add audio
 //    if (!self.audioInputAdded) {
@@ -469,7 +469,7 @@
 
 - (void) stopRecordingVideo {
     [self.movieFileOutput stopRecording];
-    NSLog(@"stop recording video");
+    DLog(@"stop recording video");
 }
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
 {
@@ -503,7 +503,7 @@
         NSNumber *fileSizeNumber = [fileAttributes objectForKey:NSFileSize];
         long long fileSize = [fileSizeNumber longLongValue];
         
-        NSLog(@"file size: %lld", fileSize);
+        DLog(@"file size: %lld", fileSize);
         
         [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
         
@@ -593,7 +593,7 @@
 
 - (void)switchFlashMode:(id)sender {
     
-    NSLog(@"switching flash mode");
+    DLog(@"switching flash mode");
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
     
     if([currentVideoDevice position] == AVCaptureDevicePositionBack){
@@ -612,7 +612,7 @@
                 [currentVideoDevice setTorchModeOnWithLevel:0.8 error:&error];
             }
             if(error){
-                NSLog(@"error: %@", error);
+                DLog(@"error: %@", error);
             }
             
             [self configureFlashButton:YES];

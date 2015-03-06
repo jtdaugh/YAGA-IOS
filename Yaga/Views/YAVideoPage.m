@@ -174,7 +174,7 @@
     
 //    [self.captionField addGestureRecognizer:panGesture];
     
-    NSLog(@"adding gesture recognizers?");
+    DLog(@"adding gesture recognizers?");
     
     CGFloat tSize = 60;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
@@ -249,7 +249,7 @@
 
 -(void)panned:(UIPanGestureRecognizer*)recognizer {
     CGPoint translatedPoint = [recognizer translationInView:[[recognizer view] superview]];
-    NSLog(@"panned? %f", translatedPoint.y);
+    DLog(@"panned? %f", translatedPoint.y);
     
     if([recognizer state] == UIGestureRecognizerStateBegan) {
         _firstX = [self.captionField center].x;

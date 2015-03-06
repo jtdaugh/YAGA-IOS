@@ -179,7 +179,7 @@
     if([notification.object isEqual:[YAUser currentUser].currentGroup]) {
         RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", self.postIdToOpen]];
         if(videos.count != 1) {
-            NSLog(@"unable to find video with id %@", self.postIdToOpen);
+            DLog(@"unable to find video with id %@", self.postIdToOpen);
             return;
         }
         

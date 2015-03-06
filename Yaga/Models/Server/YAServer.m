@@ -277,7 +277,7 @@
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
                                //                               NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                               //                               NSLog(@"%@", [NSString stringFromHex:str]);
+                               //                               DLog(@"%@", [NSString stringFromHex:str]);
                                completion(nil, connectionError);
                            }];
 }
@@ -365,7 +365,7 @@
                        return;
                    }
                    
-                   NSLog(@"uploadVideoData, recieved params for S3 upload. Making multipart upload...");
+                   DLog(@"uploadVideoData, recieved params for S3 upload. Making multipart upload...");
                    
                    NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
                    dispatch_async(dispatch_get_main_queue(), ^{
@@ -394,7 +394,7 @@
     AFHTTPRequestOperation *postOperation = [newManager POST:endpoint
           parameters:dict constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
               if (file == nil)
-                  NSLog(@"Hello");
+                  DLog(@"Hello");
               [formData appendPartWithFormData:file name:@"file"];
               
           } success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -462,7 +462,7 @@
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
                                NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                               NSLog(@"%@", [NSString stringFromHex:str]);
+                               DLog(@"%@", [NSString stringFromHex:str]);
                                completion(nil, connectionError);
                            }];
 }
@@ -489,7 +489,7 @@
                    completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                    NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
-                   NSLog(@"%@", [NSString stringFromHex:hex]);
+                   DLog(@"%@", [NSString stringFromHex:hex]);
                    completion(nil, nil);
                }];
 }
@@ -544,7 +544,7 @@
 //- (void)printErrorData:(NSError*)error
 //{
 //    NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
-//    NSLog(@"%@", [NSString stringFromHex:hex]);
+//    DLog(@"%@", [NSString stringFromHex:hex]);
 //}
 
 #pragma mark - Synchronization
@@ -598,13 +598,13 @@
     if(!lastRegistrationDate || fabs(lastRegistrationDate) > 24 * 60 * 60) {
         [self registerDeviceTokenWithCompletion:^(id response, NSError *error) {
             if(error) {
-                NSLog(@"registerDeviceTokenIfNeeded error: %@", [NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription]);
+                DLog(@"registerDeviceTokenIfNeeded error: %@", [NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription]);
             }
         }];
     }
 }
 - (void)sync {
-    NSLog(@"YAServer:sync, serverUp: %@", self.serverUp ? @"Yes" : @"No");
+    DLog(@"YAServer:sync, serverUp: %@", self.serverUp ? @"Yes" : @"No");
     
     if([[YAUser currentUser] loggedIn] && self.authToken.length && self.serverUp) {
         
@@ -614,7 +614,7 @@
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
             if(!error) {
                 self.lastUpdateTime = [NSDate date];
-                NSLog(@"groups updated from server successfully");
+                DLog(@"groups updated from server successfully");
                 
                 //send local changes to the server
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
@@ -628,7 +628,7 @@
 
             }
             else {
-                NSLog(@"unable to read groups from server");
+                DLog(@"unable to read groups from server");
             }
         }];
         

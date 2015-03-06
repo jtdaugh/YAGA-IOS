@@ -33,7 +33,7 @@
     
     CGFloat width = VIEW_WIDTH * .8;
     
-    NSLog(@" view width: %f", VIEW_WIDTH);
+    DLog(@" view width: %f", VIEW_WIDTH);
     
     CGFloat origin = VIEW_HEIGHT *.05;
     

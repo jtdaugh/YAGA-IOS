@@ -90,7 +90,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     if ([self.URL.absoluteString isEqualToString:newURL.absoluteString])
         return;
     
-    //NSLog(@"%@ preparing to play", newURL.lastPathComponent);
+    //DLog(@"%@ preparing to play", newURL.lastPathComponent);
     
     _URL = [newURL copy];
     
@@ -137,7 +137,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     self.playerItem = nil;
     self.player = nil;
     
-    NSLog(@"YAVideoPlayerView deallocated");
+    DLog(@"YAVideoPlayerView deallocated");
 }
 
 - (BOOL)isPlaying
@@ -167,7 +167,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
         AVKeyValueStatus keyStatus = [asset statusOfValueForKey:thisKey error:&error];
         if (keyStatus == AVKeyValueStatusFailed)
         {
-            NSLog(@"assetFailedToPrepareForPlayback");
+            DLog(@"assetFailedToPrepareForPlayback");
             return;
         }
         /* If you are also implementing -[AVAsset cancelLoading], add your code here to bail out properly in the case of cancellation. */
@@ -177,7 +177,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     if (!asset.playable)
     {
         /* Display the error to the user. */
-        NSLog(@"assetFailedToPrepareForPlayback");
+        DLog(@"assetFailedToPrepareForPlayback");
         
         return;
     }
@@ -296,7 +296,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
             case AVPlayerItemStatusFailed:
             {
                 AVPlayerItem *playerItem = (AVPlayerItem *)object;
-                NSLog(@"assetFailedToPrepareForPlayback %@", playerItem.error);
+                DLog(@"assetFailedToPrepareForPlayback %@", playerItem.error);
             }
                 break;
         }
@@ -329,12 +329,12 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)play {
-    //NSLog(@"%@ playing", self.URL.lastPathComponent);
+    //DLog(@"%@ playing", self.URL.lastPathComponent);
     [self.player play];
 }
 
 - (void)pause {
-    //NSLog(@"%@ paused", self.URL.lastPathComponent);
+    //DLog(@"%@ paused", self.URL.lastPathComponent);
     [self.player pause];
 }
 

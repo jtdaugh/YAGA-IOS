@@ -33,7 +33,7 @@
             if(remoteAddr != NULL){
                 // Extract the ip address
                 unsigned int intIP41 = remoteAddr->sin_addr.s_addr;
-                NSLog(@"HOST IP ADDRESS IS: %s", inet_ntoa(remoteAddr->sin_addr));
+                DLog(@"HOST IP ADDRESS IS: %s", inet_ntoa(remoteAddr->sin_addr));
                 CFRelease(hostRef);
                 return intIP41;
             }

@@ -40,7 +40,7 @@
     [self didChangeValueForKey:@"isFinished"];
     
     if(_finished) {
-        NSLog(@"Create video from Recording finished, cancelled: %d", self.isCancelled);
+        DLog(@"Create video from Recording finished, cancelled: %d", self.isCancelled);
     }
 }
 
@@ -54,7 +54,7 @@
 
 - (void)start {
     @autoreleasepool {
-        NSLog(@"Create video from Recording operation started");
+        DLog(@"Create video from Recording operation started");
 
         [self setExecuting:YES];
         
@@ -66,7 +66,7 @@
         NSError *error;
         [[NSFileManager defaultManager] moveItemAtURL:self.recordingURL toURL:movURL error:&error];
         if(error) {
-            NSLog(@"Error in createVideoFromRecodingURL, can't move recording, %@", error);
+            DLog(@"Error in createVideoFromRecodingURL, can't move recording, %@", error);
             return;
         }
         

@@ -1216,7 +1216,7 @@ void HSPtoRGB(
 + (UIColor *) colorWithKelvin:(CGFloat)kelvin
 {
     if ((kelvin < 1000) || (kelvin > 40000))
-        NSLog(@"Warning: temperature should range between 1000 and 40000");
+        DLog(@"Warning: temperature should range between 1000 and 40000");
     
     CGFloat temperature = kelvin / 100;
     
@@ -1530,7 +1530,7 @@ static NSMutableArray *colorNames = nil;
     [self initializeColorDictionaries];
     if (!dictionaryName)
     {
-        NSLog(@"Error: invalid dictionary name");
+        DLog(@"Error: invalid dictionary name");
         return nil;
     }
     return colorNameDictionaries[dictionaryName];
@@ -1542,14 +1542,14 @@ static NSMutableArray *colorNames = nil;
     
     if (!dictionaryName || !name)
     {
-        NSLog(@"Error: invalid color or dictionary name");
+        DLog(@"Error: invalid color or dictionary name");
         return nil;
     }
     
     NSDictionary *colorDictionary = colorNameDictionaries[dictionaryName];
     if (!colorDictionary)
     {
-        NSLog(@"Error: invalid dictionary name");
+        DLog(@"Error: invalid dictionary name");
         return nil;
     }
     
@@ -1566,7 +1566,7 @@ static NSMutableArray *colorNames = nil;
     
     if (!name)
     {
-        NSLog(@"Error: invalid color name");
+        DLog(@"Error: invalid color name");
         return nil;
     }
     
@@ -1585,14 +1585,14 @@ static NSMutableArray *colorNames = nil;
     NSAssert(self.canProvideRGBComponents, @"Must be a RGB color to use closestColorName");
     if (!dictionaryName)
     {
-        NSLog(@"Error: Must suply dictionary name to look up color");
+        DLog(@"Error: Must suply dictionary name to look up color");
         return nil;
     }
     
     [UIColor initializeColorDictionaries];
     if (!colorNameDictionaries[dictionaryName])
     {
-        NSLog(@"Error: invalid dictionary name");
+        DLog(@"Error: invalid dictionary name");
         return nil;
     }
     

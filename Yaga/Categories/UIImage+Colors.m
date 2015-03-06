@@ -16,7 +16,7 @@
     CGFloat height = self.size.height;
     const UInt8* data = CFDataGetBytePtr(pixelData);
     
-//    NSLog(@"width: %f, height:%f", width, height);
+//    DLog(@"width: %f, height:%f", width, height);
     
     NSMutableArray *colors = [[NSMutableArray alloc] init];
     for(int i = 0; i < 16; i++){
@@ -26,7 +26,7 @@
         CGFloat x = col * (width/4) + width/8;
         CGFloat y = row * (height/4) + height/8;
         
-//        NSLog(@"x: %f, y: %f", x, y);
+//        DLog(@"x: %f, y: %f", x, y);
         
         int pixelInfo = (int) ((width * y) + x) * 4;
         
@@ -37,7 +37,7 @@
         UIColor* color = [UIColor colorWithRed:red/255.0f green:green/255.0f blue:blue/255.0f alpha:255.0f/255.0f]; // The pixel color info
         
         [colors addObject:[color hexStringValue]];
-//        NSLog(@"color as string: %@", [color closestColorName]);
+//        DLog(@"color as string: %@", [color closestColorName]);
     }
     
     return colors;

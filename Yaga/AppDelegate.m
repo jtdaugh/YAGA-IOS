@@ -46,7 +46,7 @@
     BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
     if (!success) {
         //Handle error
-        NSLog(@"%@", [error localizedDescription]);
+        DLog(@"%@", [error localizedDescription]);
     } else {
         
     }
@@ -163,21 +163,21 @@
 
 #pragma mark - Push notifications
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
-    NSLog(@"didRegisterUserNotificationSettings %@", notificationSettings);
+    DLog(@"didRegisterUserNotificationSettings %@", notificationSettings);
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", deviceToken);
+    DLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", deviceToken);
     
     [[NSUserDefaults standardUserDefaults] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-    NSLog(@"didFailToRegisterForRemoteNotificationsWithError %@", [error localizedDescription]);
+    DLog(@"didFailToRegisterForRemoteNotificationsWithError %@", [error localizedDescription]);
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    NSLog(@"didReceiveRemoteNotification %@", userInfo);
+    DLog(@"didReceiveRemoteNotification %@", userInfo);
     
     if(application.applicationState == UIApplicationStateActive) {
         NSString *alert = userInfo[@"aps"][@"alert"];
@@ -208,7 +208,7 @@
 {
     [[YAImageCache sharedCache] removeAllObjects];
     
-    NSLog(@"applicationDidReceiveMemoryWarning!");
+    DLog(@"applicationDidReceiveMemoryWarning!");
 }
 
 @end

@@ -268,7 +268,7 @@
     }
     
     [generatedNames setObject:result forKey:phoneNumber];
-//    NSLog(@"%@ %lu %@", result, seed, phoneNumber);
+//    DLog(@"%@ %lu %@", result, seed, phoneNumber);
     return result;
 }
 

@@ -145,11 +145,11 @@
 }
 
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {
-    NSLog(@"updating groups from server...");
+    DLog(@"updating groups from server...");
     
     [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
         if(error) {
-            NSLog(@"can't fetch remove groups, error: %@", error.localizedDescription);
+            DLog(@"can't fetch remove groups, error: %@", error.localizedDescription);
             
             if(block)
                 block(error);
@@ -313,7 +313,7 @@
         
         self.videosUpdateInProgress = NO;
         if(error) {
-            NSLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
+            DLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
             [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
             return;
         }
@@ -326,7 +326,7 @@
             [self.realm commitWriteTransaction];
             
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
-            NSLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
+            DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
             
             NSArray *newVideos = [self updateVideosFromDictionaries:videoDictionaries];
             
@@ -388,7 +388,7 @@
             
             //skip deleted vids
             if([videoDic[YA_VIDEO_DELETED] boolValue]) {
-                NSLog(@"skipping deleted videos");
+                DLog(@"skipping deleted videos");
                 continue;
             }
             

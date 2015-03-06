@@ -148,7 +148,7 @@ static NSString *cellID = @"Cell";
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     
-    NSLog(@"memory warning!!");
+    DLog(@"memory warning!!");
 }
 
 - (void)dealloc {
@@ -357,7 +357,7 @@ static NSString *cellID = @"Cell";
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.row];
     
-    NSLog(@"before transition");
+    DLog(@"before transition");
     CGRect initialFrame = attributes.frame;
     initialFrame.origin.y -= self.collectionView.contentOffset.y;
     initialFrame.origin.y += self.view.frame.origin.y;
@@ -367,7 +367,7 @@ static NSString *cellID = @"Cell";
     swipingVC.transitioningDelegate = self;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
     [self presentViewController:swipingVC animated:YES completion:^{
-        NSLog(@"after transition");
+        DLog(@"after transition");
     }];
 }
 
@@ -376,7 +376,7 @@ static NSString *cellID = @"Cell";
     NSUInteger videoIndex = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
     
     if(videoIndex == NSNotFound) {
-        NSLog(@"can't find video index in current group");
+        DLog(@"can't find video index in current group");
         return;
     }
     

@@ -41,7 +41,7 @@
     [self didChangeValueForKey:@"isFinished"];
     
 //    if(_finished) {
-//        NSLog(@"gif creation finished, cancelled: %d", self.isCancelled);
+//        DLog(@"gif creation finished, cancelled: %d", self.isCancelled);
 //    }
 }
 
@@ -91,7 +91,7 @@
                 
                 [self makeAnimatedGifAtUrl:gifURL fromArray:images completionHandler:^(NSError *error) {
                     if(error) {
-                        NSLog(@"makeAnimatedGifAtUrl Error occured: %@", error);
+                        DLog(@"makeAnimatedGifAtUrl Error occured: %@", error);
                         [self setExecuting:NO];
                         [self setFinished:YES];
                     }
@@ -111,7 +111,7 @@
                             }
                             else
                             {
-                                NSLog(NSLocalizedString(@"Couldn't create gif, video invalidated", @""));
+                                DLog(NSLocalizedString(@"Couldn't create gif, video invalidated", @""));
                             }
                             [self setExecuting:NO];
                             [self setFinished:YES];
@@ -158,13 +158,13 @@
             [imagesArray addObject:newImage];
             
             if(self.isCancelled) {
-                NSLog(@"gif creation cancelled");
+                DLog(@"gif creation cancelled");
                 break;
             }
         }
         
         if(self.isCancelled) {
-            NSLog(@"gif creation cancelled");
+            DLog(@"gif creation cancelled");
             break;
         }
         
@@ -205,7 +205,7 @@
     }
     
     if (!CGImageDestinationFinalize(destination)) {
-        NSLog(@"failed to finalize image destination");
+        DLog(@"failed to finalize image destination");
         CFRelease(destination);
         handler([NSError errorWithDomain:@"YA" code:0 userInfo:nil]);
         return;

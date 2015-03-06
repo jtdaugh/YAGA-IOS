@@ -121,7 +121,7 @@
                                          error:&error];
         
         if (error) {
-            NSLog(@"Error - %@", error.debugDescription);
+            DLog(@"Error - %@", error.debugDescription);
         }
         
         [audioCompositionTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetTrack.timeRange.duration)
@@ -129,7 +129,7 @@
                                         atTime:time
                                          error:&error];
         if (error) {
-            NSLog(@"Error - %@", error.debugDescription);
+            DLog(@"Error - %@", error.debugDescription);
         }
         
         AVMutableVideoCompositionInstruction *videoCompositionInstruction =
@@ -149,13 +149,13 @@
             
         } else {
             // Unkoment for 640x480
-            NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
+            DLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
             CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
                                                                      100.f,
                                                                      75.0f);
 // Unkoment for high quality
-//            NSLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
-//            NSLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
+//            DLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
+//            DLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
 //            CGFloat xMove = ([UIScreen mainScreen].nativeBounds.size.width - assetTrack.naturalSize.width)/2;
 //            CGFloat yMove = ([UIScreen mainScreen].nativeBounds.size.height - assetTrack.naturalSize.height)/2;
 //            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
@@ -216,7 +216,7 @@
             completion();
         
         //meaning recording queue will still be alive, as it's important to save recordings
-        NSLog(@"All jobs stopped");
+        DLog(@"All jobs stopped");
     });
 }
 
@@ -368,7 +368,7 @@
         });
     }
     else {
-        NSLog(@"Error: Can't save jpg by some reason...");
+        DLog(@"Error: Can't save jpg by some reason...");
         result = NO;
     }
     return result;

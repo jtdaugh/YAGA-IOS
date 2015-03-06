@@ -150,7 +150,7 @@
 
 - (void)processNextTransaction {
     if(![YAServer sharedServer].serverUp) {
-        NSLog(@"Connection to the server is not available. All transactions will be restored when it's up again.");
+        DLog(@"Connection to the server is not available. All transactions will be restored when it's up again.");
         return;
     }
     
@@ -169,7 +169,7 @@
     
     __weak typeof(self) weakSelf = self;
     
-    NSLog(@"performing transaction with data: %@", transactionData);
+    DLog(@"performing transaction with data: %@", transactionData);
     
     self.transactionInProgress = YES;
 
@@ -177,18 +177,18 @@
         
         self.transactionInProgress = NO;
         if(![[YAServer sharedServer] serverUp]) {
-            NSLog(@"Server is down or there is no internet connection.. Pausing transaction queue till it's up again.");
+            DLog(@"Server is down or there is no internet connection.. Pausing transaction queue till it's up again.");
             return;
         }
         if ([error isKindOfClass:[YARealmObjectUnavailable class]])
         {
-            NSLog(@"Transaction impossible, video invalidated");
+            DLog(@"Transaction impossible, video invalidated");
         }
         else if(error) {
-            NSLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
+            DLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
         }
         else {
-            NSLog(@"Transaction successfull!");
+            DLog(@"Transaction successfull!");
         }
         
         [weakSelf.transactionsData removeObject:transactionData];
@@ -248,7 +248,7 @@
     while (self.transactionsData.count) {
         [NSThread sleepForTimeInterval:1.0];
     }
-    NSLog(@"waitForAllTransactionsToFinish: all done.");
+    DLog(@"waitForAllTransactionsToFinish: all done.");
     return;
 }
 

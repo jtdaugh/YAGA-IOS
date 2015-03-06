@@ -32,7 +32,7 @@
     
     CGFloat width = VIEW_WIDTH * .8;
     
-    NSLog(@" view width: %f", VIEW_WIDTH);
+    DLog(@" view width: %f", VIEW_WIDTH);
     
     CGFloat origin = VIEW_HEIGHT *.025;
     self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, origin, VIEW_WIDTH, VIEW_HEIGHT*.1)];
@@ -160,7 +160,7 @@
     if([self.phoneTextField.text length] > 6){
         NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
         
-        NSLog(@"text: %@", self.phoneTextField.text);
+        DLog(@"text: %@", self.phoneTextField.text);
         
         NSError *anError = nil;
         NBPhoneNumber *myNumber = [phoneUtil parse:self.phoneTextField.text
@@ -187,7 +187,7 @@
 - (void)nextScreen {
     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
     
-    NSLog(@"text: %@", self.phoneTextField.text);
+    DLog(@"text: %@", self.phoneTextField.text);
     
     NSError *anError = nil;
     NBPhoneNumber *myNumber = [phoneUtil parse:self.phoneTextField.text

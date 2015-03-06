@@ -30,7 +30,7 @@
     
     CGFloat width = VIEW_WIDTH * .8;
     
-    NSLog(@" view width: %f", VIEW_WIDTH);
+    DLog(@" view width: %f", VIEW_WIDTH);
     
     CGFloat origin = VIEW_HEIGHT *.025;
     self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, origin, VIEW_WIDTH, VIEW_HEIGHT*.1)];
@@ -161,7 +161,7 @@
             if([YAUser currentUser].deviceToken.length) {
                 [[YAServer sharedServer] registerDeviceTokenWithCompletion:^(id response, NSError *error) {
                     if(error) {
-                        NSLog(@"YASMSAuthentificationViewControlller error: %@", [NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription]);
+                        DLog(@"YASMSAuthentificationViewControlller error: %@", [NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription]);
                     }
                 }];
             }

@@ -275,7 +275,7 @@
         }
             break;
         default:
-            NSLog(@"HEllo");
+            DLog(@"HEllo");
             break;
     }
 }
@@ -314,7 +314,7 @@
 }
 
 - (void)logEvent:(NSString*)message type:(YANotificationType)type {
-    NSLog(@"%@", message);
+    DLog(@"%@", message);
 }
 
 @end

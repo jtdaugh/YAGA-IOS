@@ -29,7 +29,7 @@
     
     CGFloat width = VIEW_WIDTH * .8;
     
-    NSLog(@" view width: %f", VIEW_WIDTH);
+    DLog(@" view width: %f", VIEW_WIDTH);
     
     CGFloat origin = VIEW_HEIGHT *.05;
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.08)];

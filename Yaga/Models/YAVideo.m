@@ -74,7 +74,7 @@
     
     [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId];
     
-    NSLog(@"video deleted");
+    DLog(@"video deleted");
 }
 
 - (void)rename:(NSString*)newName withFont:(NSInteger) font{

@@ -66,10 +66,10 @@
         });
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         if(error.code == NSURLErrorCancelled) {
-            NSLog(@"video download cancelled");
+            DLog(@"video download cancelled");
         }
         else {
-            NSLog(@"Error downloading video %@", error);
+            DLog(@"Error downloading video %@", error);
         }
         [self jobFinishedForVideo:video];
     }];
@@ -83,13 +83,13 @@
 - (void)addJobForVideo:(YAVideo*)video {
     //already executing?
     if([self.executingJobs objectForKey:video.url]) {
-        NSLog(@"addJobForVideo: %@ is already executing, skipping.", video.movFilename);
+        DLog(@"addJobForVideo: %@ is already executing, skipping.", video.movFilename);
         return;
     }
     
     //waiting already?
     if([self.waitingJobs objectForKey:video.url]) {
-        NSLog(@"addJobForVideo: %@ is already waiting, skipping.", video.movFilename);
+        DLog(@"addJobForVideo: %@ is already waiting, skipping.", video.movFilename);
         return;
     }
     
@@ -110,7 +110,7 @@
 - (void)prioritizeJobForVideo:(YAVideo*)video {
     //already executing?
     if([self.executingJobs objectForKey:video.url]) {
-        NSLog(@"prioritizeJobForVideo: %@ is already executing, skipping.", video.movFilename);
+        DLog(@"prioritizeJobForVideo: %@ is already executing, skipping.", video.movFilename);
         return;
     }
         
@@ -154,7 +154,7 @@
 }
 
 - (void)logState:(NSString*)method {
-    NSLog(@"%@: executing: %lu, waiting: %lu", method, (unsigned long)self.executingJobs.allKeys.count, (unsigned long)self.waitingJobs.allKeys.count);
+    DLog(@"%@: executing: %lu, waiting: %lu", method, (unsigned long)self.executingJobs.allKeys.count, (unsigned long)self.waitingJobs.allKeys.count);
 }
 
 - (void)cancelAllJobs {
@@ -188,7 +188,7 @@
     [self.executingJobs removeObjectForKey:video.url];
     
     if(self.executingJobs.count == 0 && self.waitingJobs.count == 0) {
-        NSLog(@"YADownloadManager all done");
+        DLog(@"YADownloadManager all done");
         if(self.waiting_semaphore)
             dispatch_semaphore_signal(self.waiting_semaphore);
         return;

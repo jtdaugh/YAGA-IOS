@@ -17,3 +17,9 @@
     #import "YAUtils.h"
     #import "AnalyticsKit.h"
 #endif
+
+#if DEBUG
+#    define DLog(...) NSLog(__VA_ARGS__)
+#else
+#    define DLog(...)
+#endif
