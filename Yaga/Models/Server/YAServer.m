@@ -443,7 +443,8 @@
     
     
     NSDictionary *parameters = @{
-                                 @"name": video.caption
+                                 @"name": video.caption,
+                                 @"font": [NSNumber numberWithInteger: video.font]
                                  };
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     

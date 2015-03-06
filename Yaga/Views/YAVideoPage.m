@@ -55,10 +55,6 @@
         _playerView = [YAVideoPlayerView new];
         [self addSubview:self.playerView];
         
-        if(!self.fontIndex){
-            self.fontIndex = 0;
-        }
-        
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
@@ -157,27 +153,26 @@
     
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 2;
-    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, 72)];
+    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
     [self.captionField setAttributedText:string];
-    [self.captionField setBackgroundColor:[UIColor colorWithWhite:1.0 alpha:0.1]];
+    [self.captionField setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
     [self.captionField setTextAlignment:NSTextAlignmentCenter];
     [self.captionField setTextColor:PRIMARY_COLOR];
-    [self.captionField setFont:[UIFont fontWithName:@"MarkerFelt-Wide" size:72]];
     self.captionField.delegate = self;
     [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.captionField setReturnKeyType:UIReturnKeyDone];
     
     [self addSubview:self.captionField];
     
-    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
-    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
-    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
+//    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
+//    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
+//    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
 //    [panGesture requireGestureRecognizerToFail:((YASwipingViewController *) self.presentingVC).panGesture];
     
-    [self.captionField addGestureRecognizer:panGesture];
+//    [self.captionField addGestureRecognizer:panGesture];
     
     NSLog(@"adding gesture recognizers?");
     
@@ -238,7 +233,7 @@
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
     if([text isEqualToString:@"\n"]) {
-        [self.video rename:textView.text];
+        [self.video rename:textView.text withFont:self.fontIndex];
         [self updateControls];
         
         [textView resignFirstResponder];
@@ -246,6 +241,10 @@
     }
     
     return YES;
+}
+
+- (void)textViewDidChange:(UITextView *)textView {
+    
 }
 
 -(void)panned:(UIPanGestureRecognizer*)recognizer {
@@ -272,12 +271,17 @@
     
     
     if([self.captionField isFirstResponder]){
-        if(!self.fontIndex || (self.fontIndex >= [CAPTION_FONTS count])){
+        if(!self.fontIndex){
+            self.fontIndex = self.video.font;
+        }
+
+        self.fontIndex++;
+        
+        if(self.fontIndex >= [CAPTION_FONTS count]){
             self.fontIndex = 0;
         }
 
         [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
-        self.fontIndex++;
     } else {
         [self.captionField becomeFirstResponder];
     }
@@ -295,7 +299,7 @@
 }
 
 - (void)doneEditing {
-    [self.video rename:self.captionField.text];
+    [self.video rename:self.captionField.text withFont:self.fontIndex];
     [self updateControls];
     
     [self.captionField resignFirstResponder];
@@ -484,7 +488,8 @@
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
     self.captionField.text = self.video.caption;
-//    [self.captionField setFont:[UIFont fontWithName:self.fonts[3] size:60]];
+    self.fontIndex = self.video.font;
+    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
     

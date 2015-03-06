@@ -11,6 +11,7 @@
 
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_NAME                @"name"
+#define YA_RESPONSE_FONT                @"font"
 #define YA_RESPONSE_LIKES               @"likes"
 #define YA_RESPONSE_LIKERS              @"likers"
 #define YA_RESPONSE_MEMBERS             @"members"

@@ -75,9 +75,10 @@
     NSLog(@"video deleted");
 }
 
-- (void)rename:(NSString*)newName {
+- (void)rename:(NSString*)newName withFont:(NSInteger) font{
     [[RLMRealm defaultRealm] beginWriteTransaction];
     self.caption = newName;
+    self.font = font;
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [[YAServerTransactionQueue sharedQueue] addUpdateVideoCaptionTransaction:self];

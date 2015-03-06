@@ -296,26 +296,5 @@
     }
 }
 
-#pragma mark - UITextFieldDelegate 
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
-    NSDictionary *attributes = @{NSFontAttributeName: textField.font};
-    
-    CGFloat width = [text sizeWithAttributes:attributes].width;
-    
-    if(width <= self.captionField.frame.size.width){
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [self.video rename:textField.text];
-    [self.captionField resignFirstResponder];
-    self.captionField.enabled = NO;
-    return YES;
-}
-
 @end
 

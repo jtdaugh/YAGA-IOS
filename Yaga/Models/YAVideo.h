@@ -50,7 +50,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 
 + (YAVideo*)video;
 - (void)removeFromCurrentGroup;
-- (void)rename:(NSString*)newName;
+- (void)rename:(NSString*)newName withFont:(NSInteger)font;
 
 - (void)updateLikersWithArray:(NSArray *)likers;
 

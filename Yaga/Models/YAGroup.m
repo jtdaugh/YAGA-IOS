@@ -369,6 +369,7 @@
                     
                     if (![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
                         video.caption = videoDic[YA_RESPONSE_NAME];
+                        video.font = [videoDic[YA_RESPONSE_FONT] integerValue];
                     }
                     NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
                     if (likers.count) {
