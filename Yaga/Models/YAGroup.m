@@ -194,7 +194,12 @@
                 if(![serverGroupIds containsObject:group.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group]) {
                     BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
                     
-                    for(YAVideo *videoToRemove in group.videos) {
+                    NSMutableArray *videosToRemove = [NSMutableArray new];
+                    
+                    for(YAVideo *videoToRemove in group.videos)
+                        [videosToRemove addObject:videoToRemove];
+                    
+                    for(YAVideo *videoToRemove in [videosToRemove copy]) {
                         [videoToRemove purgeLocalAssets];
                         [[RLMRealm defaultRealm] deleteObject:videoToRemove];
                     }
@@ -382,8 +387,10 @@
             NSString *videoId = videoDic[YA_RESPONSE_ID];
             
             //skip deleted vids
-            if([videoDic[YA_VIDEO_DELETED] boolValue])
+            if([videoDic[YA_VIDEO_DELETED] boolValue]) {
+                NSLog(@"skipping deleted videos");
                 continue;
+            }
             
             //skip not ready yet vids
             if([videoDic[YA_VIDEO_READY_AT] isEqual:[NSNull null]])
