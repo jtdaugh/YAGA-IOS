@@ -69,9 +69,12 @@
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
 
+    // Uncomments for testing tooltips
+//    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFirstVideoRecorded];
+//    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kCellWasAlreadyTapped];
+    
 //#define TESTING_MODE - uncomment that line to cleanup everything
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFirstVideoRecorded];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kCellWasAlreadyTapped];
+
 #ifdef TESTING_MODE
     [[RLMRealm defaultRealm] beginWriteTransaction];
     [[RLMRealm defaultRealm] deleteAllObjects];
