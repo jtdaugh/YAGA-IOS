@@ -348,7 +348,7 @@ static NSString *cellID = @"Cell";
     for (YAVideoCell *cell in self.collectionView.visibleCells) {
         NSIndexPath *idx = [self.collectionView indexPathForCell:cell];
         if (idx.row != 0) {
-            [cell.toolTipLabel removeFromSuperview];
+            cell.toolTipLabel.hidden = YES;
         }
     }
 }
