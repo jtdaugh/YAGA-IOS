@@ -65,4 +65,6 @@
 
 #define kVideos                                 @"videos"
 
+//first start tooltips
+#define kFirstVideoRecorded                     @"kFirstVideoRecorded"
 #endif

@@ -44,6 +44,9 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
 
 @property (nonatomic, strong) YAActivityView *activityView;
+
+@property (nonatomic, strong) UILabel *recordTooltipLabel;
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -92,10 +95,22 @@ static NSString *cellID = @"Cell";
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollToCell:)    name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
+    
     //transitions
     self.animationController = [YAAnimatedTransitioningController new];
     
     [self setupPullToRefresh];
+    
+//    if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
+//        //first start tooltips
+//        self.recordTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 - 20, VIEW_WIDTH, 80)];
+//        self.recordTooltipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+//        self.recordTooltipLabel.textAlignment = NSTextAlignmentCenter;
+//        self.recordTooltipLabel.text = @"\u2B06\uFE0E\nTap and hold to record";;
+//        self.recordTooltipLabel.numberOfLines = 0;
+//        self.recordTooltipLabel.textColor = PRIMARY_COLOR;
+//        [self.view addSubview:self.recordTooltipLabel];
+//    }
 }
 
 - (void)scrollToCell:(NSNotification *)notif
