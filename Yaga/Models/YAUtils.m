@@ -134,16 +134,17 @@
 + (void)showVideoOptionsForVideo:(YAVideo*)video {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Choose action", @"") message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     
-    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook]) {
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Share on Facebook", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            [YAUtils shareVideoOnFacebook:video];
-        }]];
-    }
-    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Share on Twitter", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            [YAUtils shareVideoOnTwitter:video];
-        }]];
-    }
+//    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook]) {
+//        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Share on Facebook", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+//            [YAUtils shareVideoOnFacebook:video];
+//        }]];
+//    }
+//    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
+//        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Share on Twitter", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+//            [YAUtils shareVideoOnTwitter:video];
+//        }]];
+//    }
+
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Save to Camera Roll", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         [YAUtils saveVideoToCameraRoll:video];
     }]];

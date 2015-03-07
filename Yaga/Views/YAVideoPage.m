@@ -483,6 +483,7 @@
     
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !myVideo;
+    self.shareButton.hidden = !myVideo;
     
     self.userLabel.text = self.video.creator;
     

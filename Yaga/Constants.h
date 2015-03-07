@@ -40,7 +40,7 @@
 #define BOLD_FONT @"Avenir-Black"
 #define THIN_FONT @"HelveticaNeue-UltraLight"
 
-#define CAPTION_FONTS @[@"ArialRoundedMTBold", @"AmericanTypewriter-Bold", @"Chalkduster", @"ChalkboardSE-Bold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide", @"Futura-CondensedExtraBold", @"SnellRoundhand-Black", @"AvenirNext-HeavyItalic"]
+#define CAPTION_FONTS @[ @"AvenirNext-HeavyItalic", @"ChalkboardSE-Bold", @"AmericanTypewriter-Bold", @"Chalkduster", @"ArialRoundedMTBold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide", @"Futura-CondensedExtraBold", @"SnellRoundhand-Black"]
 
 //notifications
 #define GROUP_DID_REFRESH_NOTIFICATION          @"GROUP_DID_REFRESH_NOTIFICATION"
