@@ -41,16 +41,18 @@
     if(!self.selectedContacts)
         _selectedContacts = [[NSMutableArray alloc] init];
     
-    [self.view setBackgroundColor:[UIColor blackColor]];
+    [self.view setBackgroundColor:PRIMARY_COLOR];
     
     VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 44)];
     searchBar.translatesAutoresizingMaskIntoConstraints = NO;
     [searchBar setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisVertical];
-    [searchBar setBackgroundColor:[UIColor blackColor]];
+    [searchBar setBackgroundColor:[UIColor whiteColor]];
     [searchBar setToLabelText:@""];
+//    [[UILabel appearanceWhenContainedIn:[UISearchBar class], nil] setTextColor:[UIColor redColor]];
+//    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setDefaultTextAttributes:@{NSForegroundColorAttributeName:[UIColor redColor]}];
     [searchBar setPlaceholderText:NSLocalizedString(@"SEARCH_TIP", @"")];
     [searchBar setColorScheme:PRIMARY_COLOR];
-    [searchBar setInputTextFieldTextColor:[UIColor whiteColor]];
+    [searchBar setInputTextFieldTextColor:PRIMARY_COLOR];
     searchBar.delegate = self;
     searchBar.dataSource = self;
     
@@ -59,7 +61,7 @@
     
     UIView *border = [[UIView alloc] init];
     border.translatesAutoresizingMaskIntoConstraints = NO;
-    border.backgroundColor = [UIColor darkGrayColor];
+    border.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:border];
     
     UITableView *membersList = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
@@ -87,6 +89,7 @@
                                             NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
                                             } forState:UIControlStateNormal];
     [doneButton setEnabled:NO];
+    
     [doneButton setTintColor:[UIColor lightGrayColor]];
     self.navigationItem.rightBarButtonItem = doneButton;
     
@@ -125,7 +128,6 @@
     
     self.edgesForExtendedLayout = UIRectEdgeNone;
     [self.navigationController setNavigationBarHidden:NO animated:YES];
-    self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationController.navigationBar.translucent = NO;
     
     self.title = self.existingGroup ? self.existingGroup.name : @"Add Members";
@@ -187,8 +189,8 @@
     
     BOOL yagaUser = [((NSNumber*)contact[nYagaUser]) boolValue];
     if (yagaUser){
-        [cell.textLabel       setTextColor:PRIMARY_COLOR];
-        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+        [cell.textLabel       setTextColor:[UIColor blackColor]];
+        [cell.detailTextLabel setTextColor:[UIColor blackColor]];
         
 //        UIImage *img = [UIImage imageNamed:@"Ball"];
 //        cell.imageView.image = img;
@@ -222,7 +224,7 @@
     
     if([self numberOfTokensInTokenField:self.searchBar] > 0){
         [self.navigationItem.rightBarButtonItem setEnabled:YES];
-        [self.navigationItem.rightBarButtonItem setTintColor:PRIMARY_COLOR];
+        [self.navigationItem.rightBarButtonItem setTintColor:[UIColor whiteColor]];
     } else {
         [self.navigationItem.rightBarButtonItem setEnabled:NO];
         [self.navigationItem.rightBarButtonItem setTintColor:[UIColor lightGrayColor]];

@@ -28,7 +28,7 @@
     
     self.title = @"";
     
-    [self.view setBackgroundColor:[UIColor blackColor]];
+    [self.view setBackgroundColor:PRIMARY_COLOR];
     
     CGFloat width = VIEW_WIDTH * .8;
     
@@ -78,18 +78,24 @@
     
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
     self.nextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
-    [self.nextButton setBackgroundColor:PRIMARY_COLOR];
+    [self.nextButton setBackgroundColor:[UIColor whiteColor]];
     [self.nextButton setTitle:@"Next" forState:UIControlStateNormal];
-    [self.nextButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.nextButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+    [self.nextButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [self.nextButton setAlpha:0.0];
     [self.nextButton addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
     [self.nextButton setTitle:@"" forState:UIControlStateDisabled];
+    
+    self.nextButton.layer.cornerRadius = 8.0;
+    self.nextButton.layer.masksToBounds = YES;
+    
     [self.view addSubview:self.nextButton];
     
     //Init activity indicator
     self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     self.activityIndicator.center = self.nextButton.center;
     self.activityIndicator.hidesWhenStopped = YES;
+    self.activityIndicator.color = PRIMARY_COLOR;
     [self.view addSubview:self.activityIndicator];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];

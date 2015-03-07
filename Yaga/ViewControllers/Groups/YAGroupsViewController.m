@@ -40,7 +40,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self.view addGestureRecognizer:tapToClose];
     }
     
-    self.view.backgroundColor = self.embeddedMode ? [UIColor whiteColor] : [UIColor blackColor];
+    self.view.backgroundColor = self.embeddedMode ? [UIColor whiteColor] : PRIMARY_COLOR;
     
     CGFloat width = VIEW_WIDTH * 1.0;
     
@@ -98,7 +98,7 @@ static NSString *CellIdentifier = @"GroupsCell";
                                        ];
         createGroupButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
         [createGroupButton setTitle:@"Create Group" forState:UIControlStateNormal];
-        [createGroupButton.titleLabel setFont:[UIFont fontWithName:@"Avenir-Black" size:24]];
+        [createGroupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
         [createGroupButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
         [createGroupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [createGroupButton setBackgroundColor:PRIMARY_COLOR];
@@ -218,8 +218,8 @@ static NSString *CellIdentifier = @"GroupsCell";
         cell.accessoryView = nil;
     
     
-    cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
-    cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
+    cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : (self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor]);
+    cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : (self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor]);
     cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
     NSDate *localGroupUpdateDate = [self.groupsUpdatedAt objectForKey:group.localId];

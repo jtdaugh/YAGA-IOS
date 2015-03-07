@@ -31,14 +31,14 @@
     [self setNavigationBarHidden:NO];
     
     [self.navigationBar setTranslucent:NO];
-    [self.navigationBar setTintColor:PRIMARY_COLOR];
+    [self.navigationBar setTintColor:[UIColor whiteColor]];
     [self.navigationBar setTitleTextAttributes:@{
                                      NSForegroundColorAttributeName: [UIColor whiteColor],
                                      NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:20]
                                      }];
     
     [self.navigationBar setShadowImage:[UIImage new]];
-    [self.navigationBar setBarTintColor:[UIColor blackColor]];
+    [self.navigationBar setBarTintColor:PRIMARY_COLOR];
     [self.navigationBar setBackgroundImage:[UIImage new]
                        forBarPosition:UIBarPositionAny
                            barMetrics:UIBarMetricsDefault];

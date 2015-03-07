@@ -36,7 +36,7 @@ static NSString *CellID = @"CellID";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.tableView.backgroundColor = [UIColor blackColor];
+    self.tableView.backgroundColor = PRIMARY_COLOR;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(30, 0, 0, 0);
     
@@ -49,7 +49,8 @@ static NSString *CellID = @"CellID";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
-    self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
+//    self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
+    self.navigationController.navigationBar.barTintColor = PRIMARY_COLOR;
     self.navigationController.navigationBar.translucent = YES;;
     
     if(!self.group.members.count)
@@ -142,14 +143,14 @@ static NSString *CellID = @"CellID";
     {
         cell.textLabel.text = [contact displayName];
 
-        [cell.textLabel setTextColor:PRIMARY_COLOR];
-        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+        [cell.textLabel setTextColor:[UIColor whiteColor]];
+        [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
     } else {
         NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
         cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
 
-        [cell.textLabel setTextColor:[UIColor whiteColor]];
-        [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+        [cell.textLabel setTextColor:[UIColor blackColor]];
+        [cell.detailTextLabel setTextColor:[UIColor blackColor]];
     }
     
     [cell setBackgroundColor:[UIColor clearColor]];

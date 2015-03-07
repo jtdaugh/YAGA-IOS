@@ -37,6 +37,7 @@
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 
 #define BIG_FONT @"Avenir"
+#define BOLD_FONT @"Avenir-Black"
 #define THIN_FONT @"HelveticaNeue-UltraLight"
 
 #define CAPTION_FONTS @[@"ArialRoundedMTBold", @"AmericanTypewriter-Bold", @"Chalkduster", @"ChalkboardSE-Bold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide", @"Futura-CondensedExtraBold", @"SnellRoundhand-Black", @"AvenirNext-HeavyItalic"]
