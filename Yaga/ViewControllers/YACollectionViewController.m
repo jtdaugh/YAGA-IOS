@@ -264,11 +264,8 @@ static NSString *cellID = @"Cell";
                 self.paginationThreshold++;
                 [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]]];
                 
-                
-                NSLog(@"wut");
                 if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]
                    && [[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded] && !self.toolTipLabel) {
-                    NSLog(@"u lookin at?");
                     //first start tooltips
                     self.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2, VIEW_HEIGHT/4)];
                     self.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
@@ -319,6 +316,7 @@ static NSString *cellID = @"Cell";
                 }
 
             }
+            
             else {
                 [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
             }
@@ -393,7 +391,9 @@ static NSString *cellID = @"Cell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     if (![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kCellWasAlreadyTapped];
-        [self.toolTipLabel removeFromSuperview];
+        if(self.toolTipLabel){
+            [self.toolTipLabel removeFromSuperview];
+        }
     }
     
     [self openVideoAtIndexPath:indexPath];
