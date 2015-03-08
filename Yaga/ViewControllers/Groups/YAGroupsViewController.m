@@ -131,16 +131,19 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
-    [permissions
-     showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
-     title:NSLocalizedString(@"Enable push notifications?", nil)
-     message:NSLocalizedString(@"Yaga wants to send you push notifications", nil)
-     denyButtonTitle:@"Not Now"
-     grantButtonTitle:@"Enable"
-     completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
-         
-     }];
+    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
+    
+//    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
+//    [permissions
+//     showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
+//     title:NSLocalizedString(@"Enable push notifications?", nil)
+//     message:NSLocalizedString(@"Yaga wants to send you push notifications", nil)
+//     denyButtonTitle:@"Not Now"
+//     grantButtonTitle:@"Enable"
+//     completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
+//         
+//     }];
     
     //load phonebook if it wasn't done before
     if(![YAUser currentUser].phonebook.count) {

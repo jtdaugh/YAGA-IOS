@@ -103,8 +103,6 @@
         
         [self.window makeKeyAndVisible];
         
-        [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
-        [application registerForRemoteNotifications];
 #ifdef TESTING_MODE
     }];
 #endif
