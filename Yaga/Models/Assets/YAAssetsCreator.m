@@ -68,6 +68,7 @@
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
     
     AVPlayerItem *playerItem = [self buildVideoSequenceComposition:videoURL];
+//    AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:videoURL];
     
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:(AVAsset*)playerItem.asset
                                                                      presetName:AVAssetExportPreset640x480];
@@ -94,7 +95,11 @@
 
 - (AVPlayerItem*)buildVideoSequenceComposition:(NSURL*)realVideoUrl {
     AVAsset *asset1 = [AVAsset assetWithURL:realVideoUrl];
-    NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"bumper_360x480" ofType:@"mov"];
+    
+    CGSize vidsize = ((AVAssetTrack *)[asset1 tracksWithMediaType:AVMediaTypeVideo].firstObject).naturalSize;
+    NSLog(@"vidsize x: %f, y: %f", vidsize.width, vidsize.height);
+    
+    NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"bumper480x640" ofType:@"m4v"];
     AVAsset *asset2 = [AVAsset assetWithURL:[NSURL fileURLWithPath:filePath2]];
     
     NSArray *assets = @[asset1, asset2];
@@ -149,10 +154,10 @@
             
         } else {
             // Unkoment for 640x480
-            DLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
-            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
-                                                                     100.f,
-                                                                     75.0f);
+//            DLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
+//            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
+//                                                                     100.f,
+//                                                                     75.0f);
 // Unkoment for high quality
 //            DLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
 //            DLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
@@ -163,7 +168,7 @@
 //                                                                     yMove);
 
             
-            [layerInstruction setTransform:transform atTime:kCMTimeZero];
+//            [layerInstruction setTransform:transform atTime:kCMTimeZero];
         }
         
         videoCompositionInstruction.layerInstructions = @[layerInstruction];

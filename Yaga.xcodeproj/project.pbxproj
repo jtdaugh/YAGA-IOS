@@ -9,8 +9,7 @@
 /* Begin PBXBuildFile section */
 		41A2EC6A197F887F008DF482 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A2EC69197F887F008DF482 /* Crashlytics.framework */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
-		6E0453EE1A56C3ED00EF961B /* bumper.m4v in Resources */ = {isa = PBXBuildFile; fileRef = 6E0453ED1A56C3ED00EF961B /* bumper.m4v */; };
-		6E0453FD1A5704F300EF961B /* bumper_360x480.mov in Resources */ = {isa = PBXBuildFile; fileRef = 6E0453FC1A5704F300EF961B /* bumper_360x480.mov */; };
+		41D519B91AABAE07000246CF /* bumper480x640.m4v in Resources */ = {isa = PBXBuildFile; fileRef = 41D519B81AABAE07000246CF /* bumper480x640.m4v */; };
 		6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */; };
 		6E1E20991A6EF2E90041DF54 /* YAAssetsCreator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20901A6EF2E90041DF54 /* YAAssetsCreator.m */; };
 		6E1E209A1A6EF2E90041DF54 /* YAGifCreationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20921A6EF2E90041DF54 /* YAGifCreationOperation.m */; };
@@ -107,8 +106,7 @@
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		41A2EC69197F887F008DF482 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		6E0453ED1A56C3ED00EF961B /* bumper.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.m4v; sourceTree = "<group>"; };
-		6E0453FC1A5704F300EF961B /* bumper_360x480.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = bumper_360x480.mov; sourceTree = "<group>"; };
+		41D519B81AABAE07000246CF /* bumper480x640.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper480x640.m4v; sourceTree = "<group>"; };
 		6E0A374F1A807E4F0034ABB4 /* YAPullToRefreshLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPullToRefreshLoadingView.h; sourceTree = "<group>"; };
 		6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPullToRefreshLoadingView.m; sourceTree = "<group>"; };
 		6E1E208F1A6EF2E90041DF54 /* YAAssetsCreator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAAssetsCreator.h; sourceTree = "<group>"; };
@@ -465,10 +463,9 @@
 		6E91888C1A3F3A5A0034AB63 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				41D519B81AABAE07000246CF /* bumper480x640.m4v */,
 				6EEDB8E11A8A10B7000BB909 /* push.m4a */,
 				6E1E209E1A6FAB500041DF54 /* Third party */,
-				6E0453FC1A5704F300EF961B /* bumper_360x480.mov */,
-				6E0453ED1A56C3ED00EF961B /* bumper.m4v */,
 				86B8649F1A43287C002256FF /* countries.json */,
 				6E91888D1A3F3A5A0034AB63 /* Images.xcassets */,
 				6E9188941A3F3A5A0034AB63 /* Yaga-Bridging-Header.h */,
@@ -678,10 +675,9 @@
 				6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
-				6E0453FD1A5704F300EF961B /* bumper_360x480.mov in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
-				6E0453EE1A56C3ED00EF961B /* bumper.m4v in Resources */,
 				6E1E20A61A6FAB500041DF54 /* name.csv in Resources */,
+				41D519B91AABAE07000246CF /* bumper480x640.m4v in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
