@@ -667,7 +667,7 @@
 }
 
 - (void)didEnterBackground {
-    if(self.flash && [[self.videoInput device] position] == AVCaptureDevicePositionFront){
+    if(self.flash){
         [self switchFlashMode:nil];
     }
     [self closeCamera];
