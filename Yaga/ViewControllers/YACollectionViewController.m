@@ -130,7 +130,6 @@ static NSString *cellID = @"Cell";
     
     [self.collectionView addPullToRefreshWithActionHandler:^{
         [weakSelf refreshCurrentGroup];
-        
     }];
     
     YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];

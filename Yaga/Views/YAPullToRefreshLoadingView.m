@@ -25,7 +25,8 @@
         [self addSubview:self.activityView];
         
         CGRect rect = self.bounds;
-        rect.size.height -= 10;
+        rect.size.height -= 14;
+        
         [self animateUsingPath:[self pathForFrame:rect]];
     }
     return self;
