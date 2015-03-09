@@ -454,6 +454,10 @@
         [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
         self.recording = [NSNumber numberWithBool:NO];
+        
+        if(self.flash){
+            [self switchFlashMode:nil];
+        }
     }
 }
 
