@@ -59,7 +59,6 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
-        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
         
@@ -524,8 +523,11 @@
         if(self.progressView) {
             NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
             [self.progressView setProgress:value.floatValue animated:NO];
-            if (value.floatValue == 1.f) {
+            NSLog(@"floatValue? %f", value.floatValue);
+            if (value.floatValue >= 1.f) {
+                NSLog(@"waaat");
                 [self setVideo:self.video shouldPlay:YES];
+                self.playerView.playWhenReady = YES;
             }
         }
     }
