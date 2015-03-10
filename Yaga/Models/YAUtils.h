@@ -40,6 +40,4 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
                   acceptAction:(void (^)())acceptAction
                   cancelAction:(void (^)())cancelAction;
 
-+ (NSString *)stripCharactersInSet:(NSCharacterSet *)chars inString:(NSString *)string;
-
 @end

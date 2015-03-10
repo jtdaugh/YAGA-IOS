@@ -240,10 +240,6 @@
     [vc presentViewController:confirmAlert animated:YES completion:nil];
 }
 
-+ (NSString *)stripCharactersInSet:(NSCharacterSet *)chars inString:(NSString *)string{
-    return [[string componentsSeparatedByCharactersInSet:chars] componentsJoinedByString:@""];
-}
-
 + (void)shareVideoOnFacebook:(YAVideo*)video {
     SLComposeViewController *controller = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
     

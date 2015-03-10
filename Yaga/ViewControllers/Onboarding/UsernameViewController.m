@@ -113,8 +113,10 @@
     [[YAServer sharedServer] registerUsername:self.usernameTextField.text
                                              withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
                                                  
+                                                 [weakSelf.activityIndicator stopAnimating];
+                                                 self.nextButton.enabled = YES;
+                                                 
                                                  if(error) {
-                                                     [weakSelf.activityIndicator stopAnimating];
                                                      [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
                                                  }
                                                  else {
@@ -133,7 +135,6 @@
                                                              }
                                                          }
                                                          else {
-                                                             [weakSelf.activityIndicator stopAnimating];
                                                              [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
                                                          }
                                                      }];
