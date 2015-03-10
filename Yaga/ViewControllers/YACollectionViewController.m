@@ -80,11 +80,11 @@ static NSString *cellID = @"Cell";
     [self.view addSubview:self.collectionView];
     
     //long press on cell for options
-    UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc]
-                                                         initWithTarget:self action:@selector(handleLongPress:)];
-    longPressRecognizer.minimumPressDuration = .5; //seconds
-    longPressRecognizer.delegate = self;
-    [self.collectionView addGestureRecognizer:longPressRecognizer];
+//    UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc]
+//                                                         initWithTarget:self action:@selector(handleLongPress:)];
+//    longPressRecognizer.minimumPressDuration = .5; //seconds
+//    longPressRecognizer.delegate = self;
+//    [self.collectionView addGestureRecognizer:longPressRecognizer];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
