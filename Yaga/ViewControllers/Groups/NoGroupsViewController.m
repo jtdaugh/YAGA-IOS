@@ -58,7 +58,6 @@
 - (void)viewDidAppear:(BOOL)animated {
     
     [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
-    [[UIApplication sharedApplication] registerForRemoteNotifications];
     
 //    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
 //    [permissions

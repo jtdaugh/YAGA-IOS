@@ -166,6 +166,7 @@
 
 #pragma mark - Push notifications
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
     DLog(@"didRegisterUserNotificationSettings %@", notificationSettings);
 }
 
