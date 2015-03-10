@@ -442,6 +442,7 @@
     if([self.recording boolValue]){
         
         [self.view bringSubviewToFront:self.cameraView];
+//        [self.view bringSubviewToFront:self.recordButton];
         
         [UIView animateWithDuration:0.2 animations:^{
             [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];

@@ -257,7 +257,7 @@
 
 - (void)resizeText {
     NSString *fontName = self.captionField.font.fontName;
-    CGFloat fontSize = self.captionField.font.pointSize;
+    CGFloat fontSize = 72;
     
     NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
     
@@ -268,7 +268,9 @@
                                                  attributes:attributes
                                                     context:nil];
     
-    while(rect.size.height > self.captionField.bounds.size.height){
+    NSLog(@"rect width: %f", rect.size.height);
+    while(rect.size.height > self.captionField.bounds.size.width){
+        
         fontSize = fontSize - 1.0f;
         NSDictionary *attributes = @{
                                      NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]
@@ -279,6 +281,17 @@
                                          context:nil];
         
         NSLog(@"new fontsize: %f", fontSize);
+    }
+    
+    for (NSString *word in [text componentsSeparatedByString:@" "]) {
+        NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+        float width = [word sizeWithAttributes:attributes].width;
+        
+        while (width > self.captionField.bounds.size.width && width != 0) {
+            fontSize -= 1.0f;
+            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+            width = [word sizeWithAttributes:attributes].width;
+        }
     }
     
     [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
