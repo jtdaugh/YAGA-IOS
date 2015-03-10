@@ -234,7 +234,6 @@
 - (void)showProgress:(BOOL)show {
     self.progressView.backgroundView.hidden = !show;
 }
-
 - (void)generationProgressChanged:(NSNotification*)notif {
     NSString *url = notif.object;
     if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {

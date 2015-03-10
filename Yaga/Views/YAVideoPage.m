@@ -36,7 +36,8 @@
 @property (nonatomic, strong) YAProgressView *progressView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 @property (strong, nonatomic) UITapGestureRecognizer *tapOutGestureRecognizer;
-
+@property (nonatomic) CGRect keyboardRect;
+@property (nonatomic, strong) UIButton *keyBoardAccessoryButton;
 @property NSUInteger fontIndex;
 
 //@property CGFloat lastScale;
@@ -63,10 +64,26 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inputModeChanged:) name:UITextInputCurrentInputModeDidChangeNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShown:) name:UIKeyboardDidShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
         [self initOverlayControls];
     }
     return self;
 }
+
+- (void)keyboardDown:(NSNotification*)n
+{
+    self.keyBoardAccessoryButton.hidden = YES;
+}
+
+- (void)keyboardShown:(NSNotification*)n
+{
+    NSNumber *info = n.userInfo[ UIKeyboardFrameEndUserInfoKey ];
+    self.keyboardRect = info.CGRectValue;
+}
+
 
 - (void)layoutSubviews {
     [super layoutSubviews];
@@ -102,11 +119,6 @@
         
         self.playerView.frame = self.bounds;
     }
-}
-
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(YAVideoPlayerView*)vc change:(NSDictionary *)change context:(void *)context{
-    [self showLoading:!vc.readyToPlay];
 }
 
 - (void)showLoading:(BOOL)show {
@@ -170,12 +182,12 @@
     
     [self addSubview:self.captionField];
     
-//    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
-//    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
-//    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
-//    [panGesture requireGestureRecognizerToFail:((YASwipingViewController *) self.presentingVC).panGesture];
+    //    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
+    //    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
+    //    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
+    //    [panGesture requireGestureRecognizerToFail:((YASwipingViewController *) self.presentingVC).panGesture];
     
-//    [self.captionField addGestureRecognizer:panGesture];
+    //    [self.captionField addGestureRecognizer:panGesture];
     
     DLog(@"adding gesture recognizers?");
     
@@ -264,9 +276,9 @@
     NSString *text = self.captionField.text;
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
     CGRect rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
-                                                    options:option
-                                                 attributes:attributes
-                                                    context:nil];
+                                     options:option
+                                  attributes:attributes
+                                     context:nil];
     
     NSLog(@"rect width: %f", rect.size.height);
     while(rect.size.height > self.captionField.bounds.size.height){
@@ -276,9 +288,9 @@
                                      NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]
                                      };
         rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
-                                         options:option
-                                      attributes:attributes
-                                         context:nil];
+                                  options:option
+                               attributes:attributes
+                                  context:nil];
         
         NSLog(@"new fontsize: %f", fontSize);
     }
@@ -298,7 +310,7 @@
     
     NSLog(@"max height: %f", self.captionField.bounds.size.height);
     NSLog(@"height: %f", rect.size.height);
-
+    
 }
 
 -(void)panned:(UIPanGestureRecognizer*)recognizer {
@@ -321,20 +333,20 @@
 }
 
 - (void)textButtonPressed {
-//    [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
+    //    [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
     
     
     if([self.captionField isFirstResponder]){
         if(!self.fontIndex){
             self.fontIndex = self.video.font;
         }
-
+        
         self.fontIndex++;
         
         if(self.fontIndex >= [CAPTION_FONTS count]){
             self.fontIndex = 0;
         }
-
+        
         [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
         [self resizeText];
     } else {
@@ -530,14 +542,14 @@
 }
 
 - (void)updateControls {
-
+    
     self.captionField.hidden = NO;
     self.captionButton.hidden = NO;
     self.shareButton.hidden = NO;
     
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !myVideo;
-//    self.shareButton.hidden = !myVideo;
+    //    self.shareButton.hidden = !myVideo;
     
     self.userLabel.text = self.video.creator;
     
@@ -561,18 +573,18 @@
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"YAGA";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     NSURL *videoFile = [YAUtils urlFromFileName:self.video.movFilename];
-//    NSURL *url = [NSURL URLWithString:@"http://getyaga.com"];
+    //    NSURL *url = [NSURL URLWithString:@"http://getyaga.com"];
     
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
                                       applicationActivities:nil];
     [self.presentingVC presentViewController:activityViewController
-                                       animated:YES
-                                     completion:^{
-                                         // ...
-                                     }];
+                                    animated:YES
+                                  completion:^{
+                                      // ...
+                                  }];
     
-//    [YAUtils showVideoOptionsForVideo:self.video];
+    //    [YAUtils showVideoOptionsForVideo:self.video];
 }
 
 #pragma mark - YAProgressView
@@ -617,7 +629,7 @@
     }
 }
 
-#pragma mark - UIPanGestureRecognizerDelegate 
+#pragma mark - UIPanGestureRecognizerDelegate
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
     return YES;
 }
@@ -627,6 +639,52 @@
 }
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
     return YES;
+}
+
+#pragma mark - KVO
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)vc change:(NSDictionary *)change context:(void *)context{
+    if ([vc isKindOfClass:[YAVideoPlayerView class]]) {
+        [self showLoading:!((YAVideoPlayerView*)vc).readyToPlay];
+    }
+}
+
+#pragma mark - Observing input mode
+- (void)inputModeChanged:(NSNotification*)sender {
+    NSString *mode = self.captionField.textInputMode.primaryLanguage;
+    //Adding additional "Done" button for emoji keyboard
+    if (mode == nil) { //Appears to corespond to emoji
+        if (!self.keyBoardAccessoryButton) {
+            CGFloat buttonHeight = 40.f;
+            CGFloat buttonWidth = 100.f;
+            CGFloat buttonMargin = 5.f;
+            CGFloat buttonLeftMargin = self.keyboardRect.size.width - buttonWidth - 5.f;
+            self.keyBoardAccessoryButton = [[UIButton alloc] initWithFrame:CGRectMake(buttonLeftMargin,
+                                                                                      self.keyboardRect.origin.y - buttonHeight - buttonMargin,
+                                                                                      buttonWidth,
+                                                                                      buttonHeight)];
+            self.keyBoardAccessoryButton.layer.cornerRadius = 4.f;
+            [self.keyBoardAccessoryButton setTitle:NSLocalizedString(@"Done", nil) forState:UIControlStateNormal];
+            [self.keyBoardAccessoryButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            self.keyBoardAccessoryButton.backgroundColor = PRIMARY_COLOR;
+            [self.keyBoardAccessoryButton addTarget:self
+                                             action:@selector(accessoryButtonTaped:)
+                                   forControlEvents:UIControlEventTouchUpInside];
+            [self addSubview:self.keyBoardAccessoryButton];
+        }
+        self.keyBoardAccessoryButton.hidden = NO;
+    }
+    else
+    {
+        self.keyBoardAccessoryButton.hidden = YES;
+    }
+}
+
+- (void)accessoryButtonTaped:(id)sender {
+    [self.video rename:self.captionField.text withFont:self.fontIndex];
+    [self removeGestureRecognizer:self.tapOutGestureRecognizer];
+    [self updateControls];
+    
+    [self.captionField resignFirstResponder];    self.keyBoardAccessoryButton.hidden = YES;
 }
 @end
 
