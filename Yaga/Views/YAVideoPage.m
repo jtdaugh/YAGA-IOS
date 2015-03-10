@@ -269,7 +269,7 @@
                                                     context:nil];
     
     NSLog(@"rect width: %f", rect.size.height);
-    while(rect.size.height > self.captionField.bounds.size.width){
+    while(rect.size.height > self.captionField.bounds.size.height){
         
         fontSize = fontSize - 1.0f;
         NSDictionary *attributes = @{
@@ -288,7 +288,7 @@
         float width = [word sizeWithAttributes:attributes].width;
         
         while (width > self.captionField.bounds.size.width && width != 0) {
-            fontSize -= 1.0f;
+            fontSize = fontSize - 1.0f;
             NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
             width = [word sizeWithAttributes:attributes].width;
         }
