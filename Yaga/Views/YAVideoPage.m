@@ -152,7 +152,7 @@
     [self addSubview:self.timestampLabel];
     
     CGFloat captionHeight = 300;
-    CGFloat captionGutter = 2;
+    CGFloat captionGutter = 10;
     self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
@@ -161,9 +161,12 @@
     [self.captionField setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
     [self.captionField setTextAlignment:NSTextAlignmentCenter];
     [self.captionField setTextColor:PRIMARY_COLOR];
-    self.captionField.delegate = self;
     [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.captionField setReturnKeyType:UIReturnKeyDone];
+    [self.captionField setScrollEnabled:NO];
+    self.captionField.textContainer.lineFragmentPadding = 0;
+    self.captionField.textContainerInset = UIEdgeInsetsZero;
+    self.captionField.delegate = self;
     
     [self addSubview:self.captionField];
     
@@ -240,11 +243,49 @@
         return NO;
     }
     
-    return YES;
+    // limit to 100 characters
+    return textView.text.length + (text.length - range.length) <= 100;
 }
 
 - (void)textViewDidChange:(UITextView *)textView {
     
+    NSLog(@"text view did change? wtf?");
+    
+    [self resizeText];
+    
+}
+
+- (void)resizeText {
+    NSString *fontName = self.captionField.font.fontName;
+    CGFloat fontSize = self.captionField.font.pointSize;
+    
+    NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
+    
+    NSString *text = self.captionField.text;
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+    CGRect rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
+                                                    options:option
+                                                 attributes:attributes
+                                                    context:nil];
+    
+    while(rect.size.height > self.captionField.bounds.size.height){
+        fontSize = fontSize - 1.0f;
+        NSDictionary *attributes = @{
+                                     NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]
+                                     };
+        rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
+                                         options:option
+                                      attributes:attributes
+                                         context:nil];
+        
+        NSLog(@"new fontsize: %f", fontSize);
+    }
+    
+    [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
+    
+    NSLog(@"max height: %f", self.captionField.bounds.size.height);
+    NSLog(@"height: %f", rect.size.height);
+
 }
 
 -(void)panned:(UIPanGestureRecognizer*)recognizer {
@@ -282,6 +323,7 @@
         }
 
         [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
+        [self resizeText];
     } else {
         [self.captionField becomeFirstResponder];
     }
@@ -492,6 +534,7 @@
     self.captionField.text = self.video.caption;
     self.fontIndex = self.video.font;
     [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
+    [self resizeText];
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
     
@@ -502,8 +545,8 @@
 - (void)shareButtonPressed {
     [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
     
-    NSString *caption = self.video.caption ? self.video.caption : @"YAGA";
-    NSString *detailText = [NSString stringWithFormat:@"%@ - http://getyaga.com", caption];
+    NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"YAGA";
+    NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     NSURL *videoFile = [YAUtils urlFromFileName:self.video.movFilename];
 //    NSURL *url = [NSURL URLWithString:@"http://getyaga.com"];
     

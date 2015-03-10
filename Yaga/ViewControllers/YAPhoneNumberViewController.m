@@ -214,6 +214,7 @@
     [[YAServer sharedServer] authentificatePhoneNumberBySMS:formattedNumber withCompletion:^(NSString *responseDictionary, NSError *error) {
         if (error)
         {
+            NSLog(@"response dictionary: %@", responseDictionary);
             dispatch_async(dispatch_get_main_queue(),  ^{
                 [YAUtils showNotification:responseDictionary
                                      type:YANotificationTypeError];
