@@ -40,4 +40,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
                   acceptAction:(void (^)())acceptAction
                   cancelAction:(void (^)())cancelAction;
 
+//GIF
++ (void)copyVideoToClipboard:(YAVideo*)video;
+
 @end
