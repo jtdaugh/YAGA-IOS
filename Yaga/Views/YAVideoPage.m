@@ -35,6 +35,7 @@
 
 @property (nonatomic, strong) YAProgressView *progressView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
+@property (strong, nonatomic) UITapGestureRecognizer *tapOutGestureRecognizer;
 
 @property NSUInteger fontIndex;
 
@@ -287,18 +288,17 @@
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
-    [self addGestureRecognizer:tap];
+    self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
+    [self addGestureRecognizer:self.tapOutGestureRecognizer];
 }
 
 - (void)doneEditingTapOut:(id)sender {
-    [self removeGestureRecognizer:(UIGestureRecognizer *)sender];
     [self doneEditing];
-
 }
 
 - (void)doneEditing {
     [self.video rename:self.captionField.text withFont:self.fontIndex];
+    [self removeGestureRecognizer:self.tapOutGestureRecognizer];
     [self updateControls];
     
     [self.captionField resignFirstResponder];
@@ -482,7 +482,7 @@
     
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !myVideo;
-    self.shareButton.hidden = !myVideo;
+//    self.shareButton.hidden = !myVideo;
     
     self.userLabel.text = self.video.creator;
     
@@ -501,7 +501,22 @@
 
 - (void)shareButtonPressed {
     [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
-    [YAUtils showVideoOptionsForVideo:self.video];
+    
+    NSString *caption = self.video.caption ? self.video.caption : @"YAGA";
+    NSString *detailText = [NSString stringWithFormat:@"%@ - http://getyaga.com", caption];
+    NSURL *videoFile = [YAUtils urlFromFileName:self.video.movFilename];
+//    NSURL *url = [NSURL URLWithString:@"http://getyaga.com"];
+    
+    UIActivityViewController *activityViewController =
+    [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
+                                      applicationActivities:nil];
+    [self.presentingVC presentViewController:activityViewController
+                                       animated:YES
+                                     completion:^{
+                                         // ...
+                                     }];
+    
+//    [YAUtils showVideoOptionsForVideo:self.video];
 }
 
 #pragma mark - YAProgressView
