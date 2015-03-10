@@ -697,7 +697,11 @@
     [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
         textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
         textField.text = [YAUser currentUser].currentGroup.name;
+        [textField setKeyboardType:UIKeyboardTypeAlphabet];
+        [textField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
+        [textField setAutocorrectionType:UITextAutocorrectionTypeNo];
     }];
+    
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         NSString *newname = [alert.textFields[0] text];
         if(!newname.length)

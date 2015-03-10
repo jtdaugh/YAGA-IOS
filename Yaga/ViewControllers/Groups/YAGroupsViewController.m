@@ -317,6 +317,9 @@ static NSString *CellIdentifier = @"GroupsCell";
         [changeTitleAlert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
             textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
             textField.text = group.name;
+            [textField setKeyboardType:UIKeyboardTypeAlphabet];
+            [textField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
+            [textField setAutocorrectionType:UITextAutocorrectionTypeNo];
         }];
         [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             NSString *newname = [changeTitleAlert.textFields[0] text];
