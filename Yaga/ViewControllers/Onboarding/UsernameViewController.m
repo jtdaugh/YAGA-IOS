@@ -105,6 +105,12 @@
 }
 
 - (void)nextButtonTapped:(id)sender {
+    
+    if([self.usernameTextField.text rangeOfString:@" "].location != NSNotFound) {
+        [YAUtils showNotification:NSLocalizedString(@"Spaces are not allowed in username", @"") type:YANotificationTypeError];
+        return;
+    }
+    
     //Auth manager testing
     [self.activityIndicator startAnimating];
     self.nextButton.enabled = NO;
