@@ -63,14 +63,9 @@
     
     NSString *videoId = self.localId;
     
-    
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    
     [self purgeLocalAssets];
     [self.group.videos removeObjectAtIndex:[self.group.videos indexOfObject:self]];
     [[RLMRealm defaultRealm] deleteObject:self];
-    
-    [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId];
     
