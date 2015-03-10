@@ -662,9 +662,12 @@
                                                                                       self.keyboardRect.origin.y - buttonHeight - buttonMargin,
                                                                                       buttonWidth,
                                                                                       buttonHeight)];
-            self.keyBoardAccessoryButton.layer.cornerRadius = 4.f;
+            self.keyBoardAccessoryButton.layer.cornerRadius = 8.0f;
             [self.keyBoardAccessoryButton setTitle:NSLocalizedString(@"Done", nil) forState:UIControlStateNormal];
             [self.keyBoardAccessoryButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [self.keyBoardAccessoryButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
+            self.keyBoardAccessoryButton.layer.borderColor = [UIColor whiteColor].CGColor;
+            self.keyBoardAccessoryButton.layer.borderWidth = 2.0f;
             self.keyBoardAccessoryButton.backgroundColor = PRIMARY_COLOR;
             [self.keyBoardAccessoryButton addTarget:self
                                              action:@selector(accessoryButtonTaped:)
