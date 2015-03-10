@@ -94,3 +94,7 @@
 "CANT_OPEN_GROUP_MESSAGE" = "Can not open group because it doesn't exist or you are not a member anymore";
 "CANT_FETCH_GROUPS_ON_PUSH" = "Unable to fetch groups from server, try later";
 "CANT_FETCH_GROUP_VIDEOS_ON_PUSH" = "Unable to fetch group videos from server, try later";
+
+
+//onboarding
+"Incorrect phone format." = "Incorrect phone format.";

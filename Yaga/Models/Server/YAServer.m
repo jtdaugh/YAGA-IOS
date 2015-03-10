@@ -180,18 +180,9 @@
     
     NSString *api = [NSString stringWithFormat:API_AUTH_BY_SMS_TEMPLATE, self.base_api];
     [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        
-        NSInteger code = operation.response.statusCode;
-        NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
-        
-        if (code == 400){
-            completion([NSString stringWithFormat:@"%@\n%@", [NSString stringFromHex:hex], @"Wait for 5 minutes."], error);
-        } else {
-            completion(NSLocalizedString(@"Application error", nil), error);
-        }
+        completion(nil, error);
     }];
 }
 

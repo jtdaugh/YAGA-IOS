@@ -16,6 +16,7 @@
 
 //#import "Yaga-Swift.h"
 #import "YAServer.h"
+#import "AFNetworking.h"
 
 @interface YAPhoneNumberViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
@@ -216,13 +217,23 @@
         {
             NSLog(@"response dictionary: %@", responseDictionary);
             dispatch_async(dispatch_get_main_queue(),  ^{
-                [YAUtils showNotification:responseDictionary
-                                     type:YANotificationTypeError];
-                weakSelf.nextButton.enabled = YES;
+                NSString *errorBody = [[NSString alloc] initWithData:error.userInfo [AFNetworkingOperationFailingURLResponseDataErrorKey] encoding:NSUTF8StringEncoding];
+                
+                if([errorBody rangeOfString:@"Incorrect phone format."].location != NSNotFound) {
+                     NSString *errorMessage = NSLocalizedString(@"Incorrect phone format", @"");
+                
+                    [YAUtils showNotification:errorMessage
+                                         type:YANotificationTypeError];
+                }
+                else {
+                    [weakSelf performSegueWithIdentifier:@"AuthentificationViewController" sender:self];
+                }
             });
         } else {
             [weakSelf performSegueWithIdentifier:@"AuthentificationViewController" sender:self];
         }
+        
+        weakSelf.nextButton.enabled = YES;
         [weakSelf.activityIndicator stopAnimating];
     }];
 }
