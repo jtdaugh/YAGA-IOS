@@ -87,6 +87,7 @@
 		861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */ = {isa = PBXBuildFile; fileRef = 861A90BE1A4AE77C00CAD2E3 /* NSData+Hex.m */; };
 		861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */; };
 		861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailable.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */; };
+		8695EF881AAF519900431E44 /* YAGifCopyActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8695EF871AAF519900431E44 /* YAGifCopyActivity.m */; };
 		86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */ = {isa = PBXBuildFile; fileRef = 86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */; };
 		86AB83F61A83B29B00EB36EA /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86AB83F51A83B29B00EB36EA /* Social.framework */; };
 		86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B642931A52E83400E095AD /* YASetNewRootVCSegue.m */; };
@@ -248,6 +249,8 @@
 		861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "YAServer+HostManagment.m"; sourceTree = "<group>"; };
 		861AF47A1A5C2B4700F125C3 /* YARealmObjectUnavailable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YARealmObjectUnavailable.h; sourceTree = "<group>"; };
 		861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YARealmObjectUnavailable.m; sourceTree = "<group>"; };
+		8695EF861AAF519900431E44 /* YAGifCopyActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGifCopyActivity.h; sourceTree = "<group>"; };
+		8695EF871AAF519900431E44 /* YAGifCopyActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGifCopyActivity.m; sourceTree = "<group>"; };
 		86A9ED3A1A4D91B6002EDE76 /* UIImage+Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Color.h"; sourceTree = "<group>"; };
 		86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Color.m"; sourceTree = "<group>"; };
 		86AB83F51A83B29B00EB36EA /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
@@ -435,6 +438,8 @@
 				86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */,
 				861AF4171A5976E000F125C3 /* YAServer+HostManagment.h */,
 				861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */,
+				8695EF861AAF519900431E44 /* YAGifCopyActivity.h */,
+				8695EF871AAF519900431E44 /* YAGifCopyActivity.m */,
 			);
 			path = Categories;
 			sourceTree = "<group>";
@@ -783,6 +788,7 @@
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
 				6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */,
 				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,
+				8695EF881AAF519900431E44 /* YAGifCopyActivity.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
 				6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */,
 				6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */,

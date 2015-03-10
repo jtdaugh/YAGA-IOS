@@ -99,3 +99,6 @@
 //onboarding
 "Incorrect phone format." = "Incorrect phone format.";
 "Spaces are not allowed in username" = "Spaces are not allowed in username";
+
+// Activity
+"Copy GIF" = "Copy GIF";

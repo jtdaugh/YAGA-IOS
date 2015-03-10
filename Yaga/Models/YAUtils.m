@@ -189,24 +189,46 @@
 }
 
 + (void)copyVideoToClipboard:(YAVideo*)video {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:video.highQualityGifFilename]];
-        
+    if (![video.highQualityGifFilename length]) {
         MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
         [[UIApplication sharedApplication].keyWindow addSubview:hud];
         hud.labelText = NSLocalizedString(@"Saving", nil);
         [hud show:YES];
-        
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-            [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
-            
+        YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationHighQuality];
+        gifCreationOperation.completionBlock = ^{
             dispatch_async(dispatch_get_main_queue(), ^{
-                [hud hide:YES];
-                [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:YANotificationTypeMessage];
+                NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:video.highQualityGifFilename]];
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+                    [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:YANotificationTypeMessage];
+                    });
+                });
+            });
+            dispatch_async(dispatch_get_main_queue(), ^{
+                           [hud hide:YES]; 
+            });
+        };
+        [gifCreationOperation start];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSURL *gifURL = [NSURL fileURLWithPath:[[YAUtils cachesDirectory] stringByAppendingPathComponent:video.highQualityGifFilename]];
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+                [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:YANotificationTypeMessage];
+                });
             });
         });
-    });
+    }
 }
 
 + (void)deleteVideo:(YAVideo*)video {
