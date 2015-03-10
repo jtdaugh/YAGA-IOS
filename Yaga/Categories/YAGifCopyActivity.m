@@ -18,13 +18,12 @@
 
 - (NSString *)activityTitle
 {
-#warning implement this
     return NSLocalizedString(@"Copy GIF", nil);
 }
 
 - (UIImage *)activityImage
 {
-    return [UIImage imageNamed:@"AppIcon"];
+    return [UIImage imageNamed:@"Settings"];
 }
 
 - (BOOL)canPerformWithActivityItems:(NSArray *)activityItems
