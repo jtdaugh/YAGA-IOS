@@ -101,16 +101,20 @@
         [self.cameraView addSubview:self.groupButton];
         
         //record button
-        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
+        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - 1.0*recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
         [self.recordButton setBackgroundColor:[UIColor redColor]];
         [self.recordButton.layer setCornerRadius:recordButtonWidth/2.0];
         [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
         [self.recordButton.layer setBorderWidth:4.0f];
-        self.recordButton.transform = CGAffineTransformMakeScale(0, 0);
         
-        UILongPressGestureRecognizer *longPressGestureRecognizerButton = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-        [longPressGestureRecognizerButton setMinimumPressDuration:0.2f];
-        [self.recordButton addGestureRecognizer:longPressGestureRecognizerButton];
+        [self.recordButton addTarget:self action:@selector(startHold) forControlEvents:UIControlEventTouchDown];
+        [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpInside];
+        [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpOutside];
+        
+//        UILongPressGestureRecognizer *longPressGestureRecognizerButton = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+//        [longPressGestureRecognizerButton setMinimumPressDuration:0.2f];
+//        [self.recordButton addGestureRecognizer:longPressGestureRecognizerButton];
+
         [self.cameraAccessories addObject:self.recordButton];
         [self.view addSubview:self.recordButton];
         
@@ -234,9 +238,9 @@
     else {
         [self.cameraView removeGestureRecognizer:self.longPressGestureRecognizerCamera];
     }
-    [UIView animateWithDuration:0.2 animations:^{
-        self.recordButton.transform = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
-    }];
+//    [UIView animateWithDuration:0.2 animations:^{
+//        self.recordButton.transform = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
+//    }];
 }
 
 - (void)initCamera {
@@ -445,7 +449,7 @@
 //        [self.view bringSubviewToFront:self.recordButton];
         
         [UIView animateWithDuration:0.2 animations:^{
-            [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+            [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2)];
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self showCameraAccessories:YES];
         }];
