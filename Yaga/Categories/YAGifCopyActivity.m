@@ -23,7 +23,7 @@
 
 - (UIImage *)activityImage
 {
-    return [UIImage imageNamed:@"Settings"];
+    return [UIImage imageNamed:@"GIF"];
 }
 
 - (BOOL)canPerformWithActivityItems:(NSArray *)activityItems
