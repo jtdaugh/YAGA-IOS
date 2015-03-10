@@ -933,7 +933,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "f93fa7ff-b584-44aa-9b53-75e37d3ad7d4";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
