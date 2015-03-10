@@ -93,7 +93,7 @@
     NSString *name = self.username;
     if(!name.length) {
         if([[YAUser currentUser].phonebook objectForKey:self.number]) {
-            name = self.name;
+            name = [[YAUser currentUser].phonebook objectForKey:self.number][nCompositeName];
         }
         else {
             name = kDefaultUsername;
