@@ -19,8 +19,6 @@
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
 
-#import <ClusterPrePermissions.h>
-
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;

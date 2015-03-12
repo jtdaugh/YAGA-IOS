@@ -12,8 +12,6 @@
 #import "YAUtils.h"
 #import "YAAssetsCreator.h"
 
-#import <ClusterPrePermissions/ClusterPrePermissions.h>
-
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
@@ -265,8 +263,7 @@
             
             [self setupVideoInput];
             
-        } else if (videoStatus == AVAuthorizationStatusNotDetermined) {
-            
+        } else {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                                      completionHandler:^(BOOL granted) {
                                          self.session = [[AVCaptureSession alloc] init];
@@ -278,11 +275,6 @@
                                              [self setupVideoInput];
                                          }
                                      }];
-            
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeCamera];
-            });
         }
     }
 }
@@ -335,19 +327,14 @@
     AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
     if (audioStatus == AVAuthorizationStatusAuthorized) {
         [self setupAudioInput];
-    } else if (audioStatus == AVAuthorizationStatusNotDetermined) {
+    } else {
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
                                  completionHandler:^(BOOL granted) {
                                      if (granted) {
                                          [self setupAudioInput];
                                      }
                                  }];
-    }else{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeMicrophone];
-        });
     }
-    
     
    [self.session startRunning];
 }
@@ -716,29 +703,6 @@
     }]];
     
     [self presentViewController:alert animated:YES completion:nil];
-}
-
-- (void)presentAlertForClusterAVType:(ClusterAVAuthorizationType)type {
-    NSString *title;
-    NSString *message;
-    NSString *buttonTitle = NSLocalizedString(@"OK", nil);
-    if (type == ClusterAVAuthorizationTypeMicrophone) {
-        title = NSLocalizedString(@"Audio permissions not granted", nil);
-        message = NSLocalizedString(@"To be able to record audio, allow this in app settings", nil);
-        
-    } else if (type == ClusterAVAuthorizationTypeCamera) {
-        title = NSLocalizedString(@"Video permissions not granted", nil);
-        message = NSLocalizedString(@"To be able to shoot video, allow this in app settings", nil);
-    }
-    
-    [YAUtils showAlertViewWithTitle:title
-                            message:message
-                  forViewController:self
-                      accepthButton:buttonTitle
-                       cancelButton:nil
-                       acceptAction:nil
-                       cancelAction:nil];
-
 }
 
 #pragma mark -

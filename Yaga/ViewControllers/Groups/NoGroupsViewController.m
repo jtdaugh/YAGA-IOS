@@ -9,7 +9,6 @@
 #import "NoGroupsViewController.h"
 #import "YAGroupAddMembersViewController.h"
 #import "YAServer.h"
-#import <ClusterPrePermissions.h>
 
 @interface NoGroupsViewController ()
 
