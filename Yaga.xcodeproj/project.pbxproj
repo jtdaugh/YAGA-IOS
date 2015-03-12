@@ -89,6 +89,8 @@
 		861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */; };
 		861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailable.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */; };
 		8695EF881AAF519900431E44 /* YAGifCopyActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8695EF871AAF519900431E44 /* YAGifCopyActivity.m */; };
+		86A1C6341AB1D38600817F89 /* YASaveVideoActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 86A1C6331AB1D38600817F89 /* YASaveVideoActivity.m */; };
+		86A1C66C1AB1E35100817F89 /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 86A1C66B1AB1E35100817F89 /* bumper.mp4 */; };
 		86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */ = {isa = PBXBuildFile; fileRef = 86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */; };
 		86AB83F61A83B29B00EB36EA /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86AB83F51A83B29B00EB36EA /* Social.framework */; };
 		86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B642931A52E83400E095AD /* YASetNewRootVCSegue.m */; };
@@ -254,6 +256,9 @@
 		861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YARealmObjectUnavailable.m; sourceTree = "<group>"; };
 		8695EF861AAF519900431E44 /* YAGifCopyActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGifCopyActivity.h; sourceTree = "<group>"; };
 		8695EF871AAF519900431E44 /* YAGifCopyActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGifCopyActivity.m; sourceTree = "<group>"; };
+		86A1C6321AB1D38600817F89 /* YASaveVideoActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASaveVideoActivity.h; sourceTree = "<group>"; };
+		86A1C6331AB1D38600817F89 /* YASaveVideoActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASaveVideoActivity.m; sourceTree = "<group>"; };
+		86A1C66B1AB1E35100817F89 /* bumper.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.mp4; sourceTree = "<group>"; };
 		86A9ED3A1A4D91B6002EDE76 /* UIImage+Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Color.h"; sourceTree = "<group>"; };
 		86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Color.m"; sourceTree = "<group>"; };
 		86AB83F51A83B29B00EB36EA /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
@@ -443,6 +448,8 @@
 				861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */,
 				8695EF861AAF519900431E44 /* YAGifCopyActivity.h */,
 				8695EF871AAF519900431E44 /* YAGifCopyActivity.m */,
+				86A1C6321AB1D38600817F89 /* YASaveVideoActivity.h */,
+				86A1C6331AB1D38600817F89 /* YASaveVideoActivity.m */,
 			);
 			path = Categories;
 			sourceTree = "<group>";
@@ -473,6 +480,7 @@
 		6E91888C1A3F3A5A0034AB63 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				86A1C66B1AB1E35100817F89 /* bumper.mp4 */,
 				41D519B81AABAE07000246CF /* bumper480x640.m4v */,
 				6EEDB8E11A8A10B7000BB909 /* push.m4a */,
 				6E1E209E1A6FAB500041DF54 /* Third party */,
@@ -683,6 +691,7 @@
 				6E9188D51A3F3A5A0034AB63 /* Images.xcassets in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
 				6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */,
+				86A1C66C1AB1E35100817F89 /* bumper.mp4 in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
@@ -794,6 +803,7 @@
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
 				6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */,
 				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,
+				86A1C6341AB1D38600817F89 /* YASaveVideoActivity.m in Sources */,
 				8695EF881AAF519900431E44 /* YAGifCopyActivity.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
 				6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */,

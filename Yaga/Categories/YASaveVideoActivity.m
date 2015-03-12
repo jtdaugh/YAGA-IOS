@@ -1,0 +1,56 @@
+//
+//  YASaveVideoActivity.m
+//  Yaga
+//
+//  Created by Iegor on 3/12/15.
+//  Copyright (c) 2015 Raj Vir. All rights reserved.
+//
+
+#import "YASaveVideoActivity.h"
+@interface YASaveVideoActivity ()
+@property (nonatomic, strong) NSArray *items;
+@end
+@implementation YASaveVideoActivity
+- (NSString *)activityType
+{
+    return @"yaga.save.video";
+}
+
+- (NSString *)activityTitle
+{
+#warning add to Strings
+    return NSLocalizedString(@"Save video", nil);
+}
+
+- (UIImage *)activityImage
+{
+    return [UIImage imageNamed:@"GIF"];
+}
+
+- (BOOL)canPerformWithActivityItems:(NSArray *)activityItems
+{
+    NSLog(@"%s", __FUNCTION__);
+    return YES;
+}
+
+- (void)prepareWithActivityItems:(NSArray *)activityItems
+{
+    NSLog(@"%s",__FUNCTION__);
+    self.items = activityItems;
+}
+
+- (UIViewController *)activityViewController
+{
+    NSLog(@"%s",__FUNCTION__);
+    return nil;
+}
+
+- (void)performActivity
+{
+    // This is where you can do anything you want, and is the whole reason for creating a custom
+    // UIActivity
+    YAVideo *video = self.items.lastObject;
+    [YAUtils saveVideoToCameraRoll:video];
+    [self activityDidFinish:YES];
+}
+@end

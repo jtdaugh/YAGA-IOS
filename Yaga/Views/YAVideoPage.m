@@ -16,6 +16,7 @@
 #import "YAProgressView.h"
 #import "YASwipingViewController.h"
 #import "YAGifCopyActivity.h"
+#import "YASaveVideoActivity.h"
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 @interface YAVideoPage ();
@@ -568,10 +569,11 @@
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     NSURL *videoFile = [YAUtils urlFromFileName:self.video.movFilename];
     //    NSURL *url = [NSURL URLWithString:@"http://getyaga.com"];
-    YAGifCopyActivity *activity = [YAGifCopyActivity new];
+    YAGifCopyActivity   *activityGif = [YAGifCopyActivity new];
+    YASaveVideoActivity *activitySaveVideo = [YASaveVideoActivity new];
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]
-                                      applicationActivities:@[activity]];
+                                      applicationActivities:@[activitySaveVideo, activityGif]];
     [self.presentingVC presentViewController:activityViewController
                                     animated:YES
                                   completion:^{

@@ -42,5 +42,6 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 
 //GIF
 + (void)copyVideoToClipboard:(YAVideo*)video;
-
+// Bumper
++ (void)saveVideoToCameraRoll:(YAVideo*)video;
 @end

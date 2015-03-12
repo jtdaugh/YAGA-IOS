@@ -64,18 +64,18 @@
 
 #pragma mark - Camera roll
 - (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion {
-    NSURL *outputUrl = [YAUtils urlFromFileName:@"for_camera_roll.mov"];
+    NSURL *outputUrl = [YAUtils urlFromFileName:@"for_camera_roll.m4v"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
     
     AVPlayerItem *playerItem = [self buildVideoSequenceComposition:videoURL];
 //    AVPlayerItem *playerItem = [AVPlayerItem playerItemWithURL:videoURL];
     
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:(AVAsset*)playerItem.asset
-                                                                     presetName:AVAssetExportPreset640x480];
+                                                                     presetName:AVAssetExportPresetPassthrough];
     session.videoComposition = playerItem.videoComposition;
-    
+    NSLog(@"%@", [session supportedFileTypes]);
     session.outputURL = outputUrl;
-    session.outputFileType = AVFileTypeMPEG4;
+    session.outputFileType = AVFileTypeAppleM4V;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputUrl.path;
         self.cameraRollCompletionBlock = completion;
@@ -99,7 +99,7 @@
     CGSize vidsize = ((AVAssetTrack *)[asset1 tracksWithMediaType:AVMediaTypeVideo].firstObject).naturalSize;
     NSLog(@"vidsize x: %f, y: %f", vidsize.width, vidsize.height);
     
-    NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"bumper480x640" ofType:@"m4v"];
+    NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"bumper" ofType:@"mp4"];
     AVAsset *asset2 = [AVAsset assetWithURL:[NSURL fileURLWithPath:filePath2]];
     
     NSArray *assets = @[asset1, asset2];
