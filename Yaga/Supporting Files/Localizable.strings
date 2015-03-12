@@ -105,3 +105,7 @@
 
 //Permissions
 "Enable Camera" = "Enable Camera";
+"Push notifications" = "Push notifications";//pushes permissions alert title
+"Push notifications are disabled" = "Push notifications are disabled";//pushes permissions alert message
+"Never show this again" = "Never show this again";//pushes permissions option 1
+"Remind me later" = "Remind me later";//pushes permissions option 2

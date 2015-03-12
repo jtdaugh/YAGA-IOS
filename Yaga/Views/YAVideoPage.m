@@ -192,8 +192,6 @@
     
     //    [self.captionField addGestureRecognizer:panGesture];
     
-    DLog(@"adding gesture recognizers?");
-    
     CGFloat tSize = 60;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
@@ -283,7 +281,6 @@
                                   attributes:attributes
                                      context:nil];
     
-    NSLog(@"rect width: %f", rect.size.height);
     while(rect.size.height > self.captionField.bounds.size.height){
         
         fontSize = fontSize - 1.0f;
@@ -294,8 +291,6 @@
                                   options:option
                                attributes:attributes
                                   context:nil];
-        
-        NSLog(@"new fontsize: %f", fontSize);
     }
     
     for (NSString *word in [text componentsSeparatedByString:@" "]) {
@@ -310,10 +305,6 @@
     }
     
     [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
-    
-    NSLog(@"max height: %f", self.captionField.bounds.size.height);
-    NSLog(@"height: %f", rect.size.height);
-    
 }
 
 -(void)panned:(UIPanGestureRecognizer*)recognizer {

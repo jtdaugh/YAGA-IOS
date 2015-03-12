@@ -9,6 +9,7 @@
 #import "NoGroupsViewController.h"
 #import "YAGroupAddMembersViewController.h"
 #import "YAServer.h"
+#import "YAUserPermissions.h"
 
 @interface NoGroupsViewController ()
 
@@ -55,19 +56,8 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    
-    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
-    
-//    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
-//    [permissions
-//     showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
-//     title:NSLocalizedString(@"Enable push notifications?", nil)
-//     message:NSLocalizedString(@"Yaga wants to send you push notifications", nil)
-//     denyButtonTitle:@"Not Now"
-//     grantButtonTitle:@"Enable"
-//     completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
-//         
-//     }];
+    if(![YAUserPermissions pushPermissionsRequestedBefore])
+        [YAUserPermissions registerUserNotificationSettings];
 }
 
 - (void)didReceiveMemoryWarning {

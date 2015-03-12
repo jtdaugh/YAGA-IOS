@@ -27,6 +27,8 @@
 
 #import "AnalyticsKitMixpanelProvider.h"
 
+#import "YAUserPermissions.h"
+
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
 @property (nonatomic, strong) YANotificationView *notificationView;
@@ -106,6 +108,9 @@
 #ifdef TESTING_MODE
     }];
 #endif
+    
+    if([YAUserPermissions pushPermissionsRequestedBefore])
+        [YAUserPermissions registerUserNotificationSettings];
     
     return YES;
 }

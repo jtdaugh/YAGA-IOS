@@ -73,6 +73,7 @@
 		6EA942191A405C80001803C5 /* YAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942181A405C80001803C5 /* YAUtils.m */; };
 		6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA9421B1A41E5C9001803C5 /* YAVideo.m */; };
 		6ECCCDF81A804EF000B1E1BC /* YAProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */; };
+		6ED379E41AB1C6F40099BDC1 /* YAUserPermissions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED379E31AB1C6F40099BDC1 /* YAUserPermissions.m */; };
 		6EEDB8E01A8427B2000BB909 /* YADownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEDB8DF1A8427B2000BB909 /* YADownloadManager.m */; };
 		6EEDB8E21A8A10B7000BB909 /* push.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 6EEDB8E11A8A10B7000BB909 /* push.m4a */; };
 		6EEDB8E51A8A555C000BB909 /* YANotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEDB8E41A8A555C000BB909 /* YANotificationView.m */; };
@@ -229,6 +230,8 @@
 		6EA9421B1A41E5C9001803C5 /* YAVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideo.m; sourceTree = "<group>"; };
 		6ECCCDF61A804EF000B1E1BC /* YAProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAProgressView.h; sourceTree = "<group>"; };
 		6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAProgressView.m; sourceTree = "<group>"; };
+		6ED379E21AB1C6F40099BDC1 /* YAUserPermissions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAUserPermissions.h; sourceTree = "<group>"; };
+		6ED379E31AB1C6F40099BDC1 /* YAUserPermissions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAUserPermissions.m; sourceTree = "<group>"; };
 		6EEDB8DE1A8427B2000BB909 /* YADownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YADownloadManager.h; sourceTree = "<group>"; };
 		6EEDB8DF1A8427B2000BB909 /* YADownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YADownloadManager.m; sourceTree = "<group>"; };
 		6EEDB8E11A8A10B7000BB909 /* push.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = push.m4a; sourceTree = "<group>"; };
@@ -461,6 +464,8 @@
 				6EA9421B1A41E5C9001803C5 /* YAVideo.m */,
 				6E5333521AA09B2A00C221DC /* YAPushNotificationHandler.h */,
 				6E5333531AA09B2A00C221DC /* YAPushNotificationHandler.m */,
+				6ED379E21AB1C6F40099BDC1 /* YAUserPermissions.h */,
+				6ED379E31AB1C6F40099BDC1 /* YAUserPermissions.m */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -771,6 +776,7 @@
 				6E62F7201A51A8CB008F5116 /* YAGroupAddMembersViewController.m in Sources */,
 				86B864AC1A433343002256FF /* CountryCell.m in Sources */,
 				6E5333541AA09B2A00C221DC /* YAPushNotificationHandler.m in Sources */,
+				6ED379E41AB1C6F40099BDC1 /* YAUserPermissions.m in Sources */,
 				861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */,
 				6E73F4221A432FAC000B3A14 /* YAGroupsViewController.m in Sources */,
 				6E6A09091A562F91002F4A8B /* NetworkManager.swift in Sources */,
