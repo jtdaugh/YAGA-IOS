@@ -117,4 +117,14 @@
     self.gifFilename = @"";
     self.jpgFilename = @"";
 }
+#pragma mark - UIActivity 
+- (id)activityViewController:(UIActivityViewController*) activityViewController itemForActivityType:(NSString *)activityType
+{
+    return self;
+}
+
+- (id)activityViewControllerPlaceholderItem:(UIActivityViewController *)activityViewController
+{
+    return @"";
+}
 @end
