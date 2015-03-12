@@ -104,7 +104,8 @@ static NSString *CellIdentifier = @"GroupsCell";
         [createGroupButton setBackgroundColor:PRIMARY_COLOR];
         createGroupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
         [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
-        [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
+        UIColor *bkgColor = self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor];
+        [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[bkgColor colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
         [self.view addSubview:createGroupButton];
     }
 }
