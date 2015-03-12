@@ -40,6 +40,8 @@
 @property (nonatomic) BOOL audioInputAdded;
 
 @property (nonatomic, strong) UILabel *recordTooltipLabel;
+
+@property (nonatomic, strong) UIButton *openSettingsButton;
 @end
 
 @implementation YACameraViewController
@@ -261,7 +263,11 @@
             [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
             [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
             
-            [self setupVideoInput];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [self setupVideoInput];
+            });
+            
+            [self removeOpenSettingsButton];
             
         } else {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
@@ -273,6 +279,11 @@
                                          [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
                                          if (granted) {
                                              [self setupVideoInput];
+                                         } else {
+                                             dispatch_async(dispatch_get_main_queue(), ^{
+                                                 [self addOpenSettingsButton];
+                                             });
+                                             
                                          }
                                      }];
         }
@@ -517,6 +528,8 @@
 }
 
 - (void)switchCamera:(id)sender { //switch cameras front and rear camerashiiegor@gmail.com
+    if(self.openSettingsButton)
+        return;
     
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
     AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
@@ -723,4 +736,37 @@
 - (void)groupDidChange:(NSNotification*)notification {
     [self updateCurrentGroupName];
 }
+
+#pragma mark Settings
+- (void)addOpenSettingsButton {
+    if(!self.openSettingsButton) {
+        const CGFloat topControlsHeight = 60;
+        CGRect r = self.cameraView.bounds;
+        r.size.height -= topControlsHeight * 2;
+        r.origin.y += topControlsHeight;
+        
+        self.openSettingsButton = [[UIButton alloc] initWithFrame:r];
+        [self.openSettingsButton setTitle:NSLocalizedString(@"Enable Camera", @"") forState:UIControlStateNormal];
+        [self.openSettingsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        self.openSettingsButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:40];
+        [self.openSettingsButton addTarget:self action:@selector(openSettings:) forControlEvents:UIControlEventTouchUpInside];
+        [self.cameraView addSubview:self.openSettingsButton];
+    }
+}
+
+- (void)removeOpenSettingsButton {
+    if(self.openSettingsButton) {
+        [self.openSettingsButton removeFromSuperview];
+        self.openSettingsButton = nil;
+    }
+}
+
+- (void)openSettings:(id)sender {
+    BOOL canOpenSettings = (&UIApplicationOpenSettingsURLString != NULL);
+    if (canOpenSettings) {
+        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+        [[UIApplication sharedApplication] openURL:url];
+    }
+}
+
 @end
