@@ -6,17 +6,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "settings.png"
+      "filename" : "gif.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "settings-1.png"
+      "filename" : "gif-1.png"
     },
     {
       "idiom" : "universal",
       "scale" : "3x",
-      "filename" : "settings-2.png"
+      "filename" : "gif-2.png"
     }
   ],
   "info" : {

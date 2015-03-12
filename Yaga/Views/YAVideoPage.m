@@ -573,7 +573,7 @@
 - (void)shareButtonPressed {
     [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
     
-    NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"YAGA";
+    NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     NSURL *videoFile = [YAUtils urlFromFileName:self.video.movFilename];
     //    NSURL *url = [NSURL URLWithString:@"http://getyaga.com"];
