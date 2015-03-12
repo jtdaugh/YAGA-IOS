@@ -45,6 +45,7 @@
 //    [self.navigationBar setBackgroundColor:[UIColor blackColor]];
     // Do any additional setup after loading the view.
     
+    [self.view setBackgroundColor:PRIMARY_COLOR];
     [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(-1000, -1000) forBarMetrics:UIBarMetricsDefault];
 }
 

@@ -67,12 +67,15 @@
     [self.view addSubview:self.phoneTextField];
     
     self.countryButton = [[UIButton alloc] initWithFrame:CGRectMake(gutter, origin, VIEW_WIDTH - formWidth - gutter*3, VIEW_HEIGHT*.08)];
-    [self.countryButton setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
-    self.countryButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+    [self.countryButton setTitle:[NSString stringWithFormat:@"%@ 〉", [[YAUser currentUser] countryCode]] forState:UIControlStateNormal];
+    self.countryButton.layer.borderColor = [[UIColor blackColor] CGColor];
     self.countryButton.layer.borderWidth = 3.0f;
-    [self.countryButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    self.countryButton.layer.cornerRadius = 8.0f;
+    self.countryButton.layer.masksToBounds = YES;
+    [self.countryButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.countryButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
     [self.countryButton addTarget:self action:@selector(selectCountryTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.countryButton setBackgroundColor:[UIColor clearColor]];
+    [self.countryButton setBackgroundColor:[UIColor whiteColor]];
     [self.view addSubview:self.countryButton];
     
     origin = [self getNewOrigin:self.phoneTextField];
@@ -142,7 +145,9 @@
 {
     [super viewWillAppear:animated];
     self.navigationController.navigationBarHidden = YES;
-    [self.countryButton setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
+    [self.countryButton setTitle:[NSString stringWithFormat:@"%@ ‣", [[YAUser currentUser] countryCode]] forState:UIControlStateNormal];
+
+//    [self.countryButton setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
     self.nextButton.enabled = YES;
 }
 

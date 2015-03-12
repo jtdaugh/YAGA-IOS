@@ -25,14 +25,20 @@
     self.dataRows = [dataSource countries];
     // Initialize the filteredCandyArray with a capacity equal to the candyArray's capacity
     self.filteredCountries = [NSMutableArray arrayWithArray:self.dataRows];
+    //self.tableView.b
     [self.tableView reloadData];
     
     self.title = NSLocalizedString(@"Choose your Country", @"");
     
-    self.searchBar.tintColor = PRIMARY_COLOR;
-    self.searchBar.barTintColor = [UIColor blackColor];
-    self.searchBar.backgroundColor = [UIColor blackColor];
+}
 
+- (void)viewWillAppear:(BOOL)animated {
+    [self.view setBackgroundColor:PRIMARY_COLOR];
+    
+    self.searchBar.tintColor = PRIMARY_COLOR;
+    self.searchBar.barTintColor = [UIColor whiteColor];
+    
+    [self.tableView setBackgroundColor:[UIColor clearColor]];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -63,6 +69,10 @@
     }
 }
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    cell.backgroundColor = [UIColor clearColor];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *cellIdentifier = @"Cell";
     
@@ -85,6 +95,10 @@
     } else {
         cell.textLabel.text = @"Unknown error";
     }
+    [cell.contentView setBackgroundColor:[UIColor clearColor]];
+//    [cell setBackgroundColor:PRIMARY_COLOR];
+    [cell.textLabel setTextColor:[UIColor whiteColor]];
+    [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
     
     return cell;
 }
