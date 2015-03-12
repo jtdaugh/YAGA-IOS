@@ -192,7 +192,7 @@
     if (![video.highQualityGifFilename length]) {
         MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
         [[UIApplication sharedApplication].keyWindow addSubview:hud];
-        hud.labelText = NSLocalizedString(@"Saving", nil);
+        hud.labelText = NSLocalizedString(@"Copying to clipboard", nil);
         [hud show:YES];
         YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationHighQuality];
         gifCreationOperation.completionBlock = ^{
