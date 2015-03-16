@@ -185,7 +185,7 @@
             DLog(@"Transaction impossible, video invalidated");
         }
         else if(error) {
-            DLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
+            //DLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
         }
         else {
             DLog(@"Transaction successfull!");

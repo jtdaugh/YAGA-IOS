@@ -218,10 +218,14 @@
     NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:video.movFilename];
     NSURL *movURL = [NSURL fileURLWithPath:movPath];
     AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:movURL options:nil];
-
+    
+    NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
+    NSLog(@"%@", compatiblePresets);
+    
     
     AVAssetExportSession *exportSession = [[AVAssetExportSession alloc]initWithAsset:avAsset
                                                                           presetName:AVAssetExportPresetHighestQuality];
+  
     [video.realm beginWriteTransaction];
     video.mp4Filename = [[video.movFilename stringByDeletingPathExtension] stringByAppendingPathExtension:@"mp4"];
     [video.realm commitWriteTransaction];
@@ -272,6 +276,7 @@
         case AVAssetExportSessionStatusFailed:
         {
             [YAUtils showNotification:[[exportSession error] localizedDescription] type:YANotificationTypeError];
+            completion(nil, [NSError new]);
         }
             break;
         default:
