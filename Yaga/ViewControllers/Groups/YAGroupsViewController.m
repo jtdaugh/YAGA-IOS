@@ -112,16 +112,23 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    [self updateState];
+    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+        [self updateState];
+    }];
+}
+
+- (void)updateState {
     
     self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
     self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
     
     [self.navigationController setNavigationBarHidden:YES];
-    
     //size to fit table view
     if(!self.embeddedMode) {
         [self.tableView reloadData];
+
         CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
         CGFloat rowsCount = [self tableView:self.tableView numberOfRowsInSection:0];
         CGFloat contentHeight = rowHeight * rowsCount;
@@ -275,7 +282,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)createGroup {
-        [self close];
+    [self close];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self performSegueWithIdentifier:@"NameGroup" sender:self];
     });
