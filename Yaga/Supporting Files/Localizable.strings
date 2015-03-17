@@ -104,7 +104,7 @@
 "Copy GIF" = "Copy GIF";
 
 //Permissions
-"Enable Camera" = "Enable Camera";
+"Enable Camera" = "Tap here to enable Camera";
 "Push notifications" = "Push notifications";//pushes permissions alert title
 "Push notifications are disabled" = "Push notifications are disabled";//pushes permissions alert message
 "Never show this again" = "Never show this again";//pushes permissions option 1

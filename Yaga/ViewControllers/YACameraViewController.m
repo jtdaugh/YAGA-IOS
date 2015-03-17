@@ -51,7 +51,7 @@
     if(self) {
         self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
         self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2);
-        [self.cameraView setBackgroundColor:[UIColor whiteColor]];
+        [self.cameraView setBackgroundColor:[UIColor blackColor]];
         [self.view addSubview:self.cameraView];
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
@@ -742,14 +742,19 @@
     if(!self.openSettingsButton) {
         const CGFloat topControlsHeight = 60;
         CGRect r = self.cameraView.bounds;
-        r.size.height -= topControlsHeight * 2;
-        r.origin.y += topControlsHeight;
+        r.size.height /= 2;
+        r.size.width *= .6;
+        r.origin.x = (self.view.frame.size.width - r.size.width)/2;
+//        r.origin.y = 0;
         
         self.openSettingsButton = [[UIButton alloc] initWithFrame:r];
         [self.openSettingsButton setTitle:NSLocalizedString(@"Enable Camera", @"") forState:UIControlStateNormal];
-        [self.openSettingsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
-        self.openSettingsButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:40];
+        [self.openSettingsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        self.openSettingsButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:24];
         [self.openSettingsButton addTarget:self action:@selector(openSettings:) forControlEvents:UIControlEventTouchUpInside];
+        [self.openSettingsButton.titleLabel setTextAlignment:NSTextAlignmentCenter];
+        [self.openSettingsButton.titleLabel setNumberOfLines:0];
+        self.openSettingsButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
         [self.cameraView addSubview:self.openSettingsButton];
     }
 }
