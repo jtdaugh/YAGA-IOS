@@ -42,6 +42,8 @@
 @property (nonatomic, strong) UILabel *recordTooltipLabel;
 
 @property (nonatomic, strong) UIButton *openSettingsButton;
+
+@property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
 @end
 
 @implementation YACameraViewController
@@ -483,19 +485,33 @@
         }
     }
     //Start recording
-    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
     
+    self.recordingSemaphore = dispatch_semaphore_create(0);
+    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
 }
 
 - (void) stopRecordingVideo {
-    [self.movieFileOutput stopRecording];
-    DLog(@"stop recording video");
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        if(self.recordingSemaphore)
+            dispatch_semaphore_wait(self.recordingSemaphore, DISPATCH_TIME_FOREVER);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.movieFileOutput stopRecording];
+            DLog(@"stop recording video");
+        });
+    });
 }
+
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
 {
+    dispatch_semaphore_signal(self.recordingSemaphore);
+    
+    DLog(@"didStartRecordingToOutputFileAtURL");
 }
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
+    
+    DLog(@"didFinishRecordingToOutputFileAtURL");
     
     BOOL RecordedSuccessfully = YES;
     if ([error code] != noErr) {
