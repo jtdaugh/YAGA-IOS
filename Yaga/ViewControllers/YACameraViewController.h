@@ -31,4 +31,6 @@
 - (void)showCameraAccessories:(BOOL)show;
 
 - (void)enableRecording:(BOOL)enable;
+- (void)updateCurrentGroupName;
+
 @end
