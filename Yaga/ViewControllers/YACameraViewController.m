@@ -454,13 +454,14 @@
         
         [self.indicatorText setText:NSLocalizedString(@"RECORD_TIP", @"")];
         [self.indicator removeFromSuperview];
-        [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
         self.recording = [NSNumber numberWithBool:NO];
         
         if(self.flash){
             [self switchFlashMode:nil];
         }
+
+        [self stopRecordingVideo];
     }
 }
 
@@ -488,11 +489,14 @@
 }
 
 - (void) stopRecordingVideo {
-    [self.movieFileOutput stopRecording];
-    DLog(@"stop recording video");
+    if(self.movieFileOutput.recording){
+        [self.movieFileOutput stopRecording];
+        DLog(@"stop recording video");
+    }
 }
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
 {
+    NSLog(@"started recording");
 }
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {

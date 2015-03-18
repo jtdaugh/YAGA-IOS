@@ -103,7 +103,6 @@
     
     NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
-    
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     
     for(NSDictionary *memberDic in members){
@@ -375,6 +374,7 @@
                     if (![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
                         video.caption = videoDic[YA_RESPONSE_NAME];
                         video.font = [videoDic[YA_RESPONSE_FONT] integerValue];
+                        video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
                     }
                     NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
                     if (likers.count) {
@@ -405,6 +405,11 @@
             video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
             video.url = videoDic[YA_VIDEO_ATTACHMENT];
             video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
+            if(![videoDic[YA_RESPONSE_NAMER] isKindOfClass:[NSNull class]]){
+                video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
+            } else {
+                video.namer = @"";
+            }
             video.font = ![videoDic[YA_RESPONSE_FONT] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_FONT] integerValue] : 0;
             video.group = self;
             [self.videos insertObject:video atIndex:0];

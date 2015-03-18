@@ -33,6 +33,7 @@
              @"movFilename":@"",
              @"mp4Filename":@"",
              @"caption":@"",
+             @"namer":@"",
              @"font": @0,
              @"createdAt":[NSDate date],
              @"url":@"",
@@ -76,6 +77,10 @@
     [[RLMRealm defaultRealm] beginWriteTransaction];
     self.caption = newName;
     self.font = font;
+    self.namer = [YAUser currentUser].username;
+    
+    NSLog(@"renaming... %@", [YAUser currentUser].username);
+    
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
     [[YAServerTransactionQueue sharedQueue] addUpdateVideoCaptionTransaction:self];
