@@ -392,7 +392,7 @@
     if (!input.length) return [NSMutableAttributedString new];
     NSMutableAttributedString *labelAttributes = [[NSMutableAttributedString alloc] initWithString:input];
 
-    [labelAttributes addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-2.0] range:NSMakeRange(0, labelAttributes.length)];
+    [labelAttributes addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, labelAttributes.length)];
     [labelAttributes addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, labelAttributes.length)];
     
     return labelAttributes;
