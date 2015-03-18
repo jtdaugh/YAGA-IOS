@@ -756,7 +756,6 @@
 #pragma mark Settings
 - (void)addOpenSettingsButton {
     if(!self.openSettingsButton) {
-        const CGFloat topControlsHeight = 60;
         CGRect r = self.cameraView.bounds;
         r.size.height /= 2;
         r.size.width *= .6;

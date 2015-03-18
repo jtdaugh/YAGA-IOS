@@ -119,6 +119,27 @@
         }
         
         self.playerView.frame = self.bounds;
+        
+        //add fullscreen jpg preview
+        [self addFullscreenJpgPreview];
+    }
+}
+
+- (void)addFullscreenJpgPreview {
+    if(self.video.jpgFullscreenFilename.length) {
+        UIImageView *jpgImageView;
+        
+        if(self.playerView.subviews.count)
+            jpgImageView = self.playerView.subviews[0];
+        else {
+            jpgImageView = [[UIImageView alloc] init];
+            jpgImageView.frame = self.bounds;
+            [self.playerView addSubview:jpgImageView];
+        }
+        
+        NSString *jpgPath = [YAUtils urlFromFileName:self.video.jpgFullscreenFilename].path;
+        UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
+        jpgImageView.image = jpgImage;
     }
 }
 

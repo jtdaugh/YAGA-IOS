@@ -27,6 +27,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *gifFilename;
 @property NSString *highQualityGifFilename;
 @property NSString *jpgFilename;
+@property NSString *jpgFullscreenFilename;
 
 @property NSInteger name_x;
 @property NSInteger name_y;

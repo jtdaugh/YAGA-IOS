@@ -11,6 +11,7 @@
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
 		41D519B91AABAE07000246CF /* bumper480x640.m4v in Resources */ = {isa = PBXBuildFile; fileRef = 41D519B81AABAE07000246CF /* bumper480x640.m4v */; };
 		6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */; };
+		6E11CB8C1AB9C8FB00B821A2 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11CB8B1AB9C8FB00B821A2 /* UIImage+Resize.m */; };
 		6E1E20991A6EF2E90041DF54 /* YAAssetsCreator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20901A6EF2E90041DF54 /* YAAssetsCreator.m */; };
 		6E1E209A1A6EF2E90041DF54 /* YAGifCreationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20921A6EF2E90041DF54 /* YAGifCreationOperation.m */; };
 		6E1E209B1A6EF2E90041DF54 /* YAImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20941A6EF2E90041DF54 /* YAImageCache.m */; };
@@ -113,6 +114,8 @@
 		41D519B81AABAE07000246CF /* bumper480x640.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper480x640.m4v; sourceTree = "<group>"; };
 		6E0A374F1A807E4F0034ABB4 /* YAPullToRefreshLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPullToRefreshLoadingView.h; sourceTree = "<group>"; };
 		6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPullToRefreshLoadingView.m; sourceTree = "<group>"; };
+		6E11CB8A1AB9C8FB00B821A2 /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
+		6E11CB8B1AB9C8FB00B821A2 /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Resize.m"; sourceTree = "<group>"; };
 		6E1E208F1A6EF2E90041DF54 /* YAAssetsCreator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAAssetsCreator.h; sourceTree = "<group>"; };
 		6E1E20901A6EF2E90041DF54 /* YAAssetsCreator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = YAAssetsCreator.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		6E1E20911A6EF2E90041DF54 /* YAGifCreationOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGifCreationOperation.h; sourceTree = "<group>"; };
@@ -312,6 +315,8 @@
 		6E1E208E1A6EF2E90041DF54 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				6E11CB8A1AB9C8FB00B821A2 /* UIImage+Resize.h */,
+				6E11CB8B1AB9C8FB00B821A2 /* UIImage+Resize.m */,
 				6E1E208F1A6EF2E90041DF54 /* YAAssetsCreator.h */,
 				6E1E20901A6EF2E90041DF54 /* YAAssetsCreator.m */,
 				6E1E20911A6EF2E90041DF54 /* YAGifCreationOperation.h */,
@@ -822,6 +827,7 @@
 				6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */,
 				6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */,
 				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,
+				6E11CB8C1AB9C8FB00B821A2 /* UIImage+Resize.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

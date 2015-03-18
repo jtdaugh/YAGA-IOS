@@ -22,6 +22,8 @@
 @property (nonatomic, assign) NSUInteger previousPageIndex;
 
 @property (nonatomic, assign) NSUInteger initialIndex;
+
+@property (nonatomic, strong) UIImageView *jpgImageView;
 @end
 
 #define kSeparator 10
@@ -71,12 +73,39 @@
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
     
     [self.view addGestureRecognizer:self.panGesture];
+    
+    //show selected video fullscreen jpg preview
+    [self showJpgPreview:YES];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    //hide selected video fullscreen jpg preview
+    [self showJpgPreview:NO];
+    
     [self initPages];
+}
+
+- (void)showJpgPreview:(BOOL)show {
+    if(show) {
+        YAVideo *video  = [[YAUser currentUser].currentGroup.videos objectAtIndex:self.initialIndex];
+        NSString *jpgPath = [YAUtils urlFromFileName:video.jpgFullscreenFilename].path;
+        UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
+        if(!self.jpgImageView) {
+            self.jpgImageView = [[UIImageView alloc] initWithImage:jpgImage];
+            self.jpgImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        }
+        else
+            self.jpgImageView.image = jpgImage;
+        
+
+        [self.view addSubview:self.jpgImageView];
+    }
+    else {
+        [self.jpgImageView removeFromSuperview];
+        self.jpgImageView = nil;
+    }
 }
 
 - (void)panGesture:(UIPanGestureRecognizer *)rec

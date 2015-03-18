@@ -19,6 +19,7 @@
 #import "YAGifCreationOperation.h"
 #import "YACreateRecordingOperation.h"
 #import "YADownloadManager.h"
+#import "UIImage+Resize.h"
 
 @interface YAAssetsCreator ()
 @property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
@@ -303,7 +304,9 @@
             NSURL *movURL = [NSURL fileURLWithPath:movPath];
             NSString *filename =  [video.movFilename stringByDeletingPathExtension];
             NSString *jpgFilename = [filename stringByAppendingPathExtension:@"jpg"];
+            NSString *jpgFullscreenFilename = [[filename  stringByAppendingString:@"_fullscreen"] stringByAppendingPathExtension:@"jpg"];
             NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
+            NSString *jpgFullscreenPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFullscreenFilename];
             
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
@@ -312,7 +315,6 @@
                 imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
                 imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
                 imageGenerator.appliesPreferredTrackTransform = YES;
-                imageGenerator.maximumSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.height/2, [[UIScreen mainScreen] applicationFrame].size.height/2);
                 CMTime time = CMTimeMakeWithSeconds(0, asset.duration.timescale);
                 
                 NSError *error;
@@ -320,8 +322,11 @@
                 CGImageRef image = [imageGenerator copyCGImageAtTime:time actualTime:&actualTime error:&error];
                 UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
                 if(newImage) {
-                    newImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
-                    [self createJpgFromImage:newImage atPath:(NSString*)jpgPath forVideo:video];
+                    UIImage *croppedImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
+                    
+                    newImage = [self deviceSpecificFullscreenImageFromImage:newImage];
+                    
+                    [self createJpgFromImage:newImage croppedImage:croppedImage atPath:(NSString*)jpgFullscreenPath croppedPath:jpgPath forVideo:video];
                     
                     CFRelease(image);
                 }
@@ -338,8 +343,24 @@
     }];
 }
 
+- (UIImage *)deviceSpecificFullscreenImageFromImage:(UIImage *)image{
+    //make resized fullscreen image
+    CGFloat f = [UIScreen mainScreen].bounds.size.height/image.size.height;
+    CGSize fullscreenSize = CGSizeMake(image.size.width * f, image.size.height *f);
+
+    image = [image resizedImageToFitInSize:fullscreenSize scaleIfSmaller:YES];
+    
+    image = [self croppedImageFromImage:image cropSize:[UIScreen mainScreen].bounds.size];
+    return image;
+}
+
 - (UIImage *)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img {
-    CGSize gifFrameSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2, [[UIScreen mainScreen] applicationFrame].size.height/4);
+    CGSize thumbnailSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2, [[UIScreen mainScreen] applicationFrame].size.height/4);
+    return [self croppedImageFromImage:img cropSize:thumbnailSize];
+}
+
+- (UIImage *)croppedImageFromImage:(UIImage*)img cropSize:(CGSize)cropSize {
+    CGSize gifFrameSize = cropSize;
     
     CGFloat widthDiff = img.size.width - gifFrameSize.width ;
     CGFloat heightDiff = img.size.height - gifFrameSize.height;
@@ -361,12 +382,15 @@
     return result;
 }
 
-- (BOOL)createJpgFromImage:(UIImage*)image atPath:(NSString*)jpgPath forVideo:(YAVideo*)video {
+- (BOOL)createJpgFromImage:(UIImage*)image croppedImage:(UIImage*)croppedImage atPath:(NSString*)jpgPath croppedPath:(NSString*)jpgCroppedPath forVideo:(YAVideo*)video {
     BOOL result = YES;
-    if([UIImageJPEGRepresentation(image, 0.8) writeToFile:jpgPath atomically:NO]) {
+    if([UIImageJPEGRepresentation(image, 0.6) writeToFile:jpgPath atomically:NO] && [UIImageJPEGRepresentation(croppedImage, 0.8) writeToFile:jpgCroppedPath atomically:NO]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [video.realm beginWriteTransaction];
-            video.jpgFilename = jpgPath.lastPathComponent;
+            
+            video.jpgFullscreenFilename = jpgPath.lastPathComponent;
+            video.jpgFilename = jpgCroppedPath.lastPathComponent;
+            
             [video.realm commitWriteTransaction];
             
             [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];

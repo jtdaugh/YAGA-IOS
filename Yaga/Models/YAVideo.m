@@ -29,6 +29,7 @@
 + (NSDictionary *)defaultPropertyValues{
     return @{@"highQualityGifFilename":@"",
              @"jpgFilename":@"",
+             @"jpgFullscreenFilename":@"",
              @"gifFilename":@"",
              @"movFilename":@"",
              @"mp4Filename":@"",

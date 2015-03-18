@@ -43,7 +43,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     _readyToPlay = readyToPlay;
     
     if(self.readyToPlay && self.playWhenReady) {
-        [self.player play];
+        [self play];
     }
 }
 
@@ -51,7 +51,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     _playWhenReady = playWhenReady;
     
     if(self.readyToPlay && playWhenReady)
-        [self.player play];
+        [self play];
 }
 
 #pragma mark Asset URL
@@ -329,12 +329,15 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)play {
-    //DLog(@"%@ playing", self.URL.lastPathComponent);
+    //hide fullscreen jpg preview
+    if(self.subviews.count && [self.subviews[0] isKindOfClass:[UIImageView class]]) {
+        UIImageView *jpgView = self.subviews[0];
+        [jpgView removeFromSuperview];
+    }
     [self.player play];
 }
 
 - (void)pause {
-    //DLog(@"%@ paused", self.URL.lastPathComponent);
     [self.player pause];
 }
 
