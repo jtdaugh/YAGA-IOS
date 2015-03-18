@@ -81,12 +81,12 @@
         
         NSAttributedString *atString = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                                   NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
+                                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
 
         
         [self.username setTextAlignment:NSTextAlignmentCenter];
         [self.username setTextColor:PRIMARY_COLOR];
-        [self.username setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+        [self.username setFont:[UIFont fontWithName:BOLD_FONT size:30]];
         self.username.attributedText = atString;
         [self addSubview:self.username];
         
@@ -117,34 +117,34 @@
 //        self.progressView.lineWidth = 2;
 //        self.progressView.tintColor = PRIMARY_COLOR;
         
-        // Add gesture recognizer for double tap like or change title
-        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-        tapRecognizer.numberOfTapsRequired = 2;
-        tapRecognizer.delaysTouchesBegan = YES;
-        // Unkoment this for double tap gesture recognizer
-        //[self addGestureRecognizer:tapRecognizer];
-        
-        self.likeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, LIKE_HEART_SIDE, LIKE_HEART_SIDE)];
-        self.likeImageView.layer.opacity = 0.0f;
-        self.likeImageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
-        [self addSubview:self.likeImageView];
-        
-        CGFloat captionHeight = 30;
-        self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(0.f, 0.f, self.bounds.size.width*0.7f, captionHeight)];
-        self.captionField.center = self.likeImageView.center;
-        [self.captionField setBackgroundColor:[UIColor clearColor]];
-        [self.captionField setTextAlignment:NSTextAlignmentCenter];
-        [self.captionField setTextColor:[UIColor whiteColor]];
-        [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
-        self.captionField.delegate = self;
-        [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
-        [self.captionField setReturnKeyType:UIReturnKeyDone];
-        self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.captionField.layer.shadowRadius = 1.0f;
-        self.captionField.layer.shadowOpacity = 1.0;
-        self.captionField.layer.shadowOffset = CGSizeZero;
-        self.captionField.enabled = NO;
-        [self addSubview:self.captionField];
+//        // Add gesture recognizer for double tap like or change title
+//        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+//        tapRecognizer.numberOfTapsRequired = 2;
+//        tapRecognizer.delaysTouchesBegan = YES;
+//        // Unkoment this for double tap gesture recognizer
+//        //[self addGestureRecognizer:tapRecognizer];
+//        
+//        self.likeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, LIKE_HEART_SIDE, LIKE_HEART_SIDE)];
+//        self.likeImageView.layer.opacity = 0.0f;
+//        self.likeImageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+//        [self addSubview:self.likeImageView];
+//        
+//        CGFloat captionHeight = 30;
+//        self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(0.f, 0.f, self.bounds.size.width*0.7f, captionHeight)];
+//        self.captionField.center = self.likeImageView.center;
+//        [self.captionField setBackgroundColor:[UIColor clearColor]];
+//        [self.captionField setTextAlignment:NSTextAlignmentCenter];
+//        [self.captionField setTextColor:[UIColor whiteColor]];
+//        [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
+//        self.captionField.delegate = self;
+//        [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
+//        [self.captionField setReturnKeyType:UIReturnKeyDone];
+//        self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
+//        self.captionField.layer.shadowRadius = 1.0f;
+//        self.captionField.layer.shadowOpacity = 1.0;
+//        self.captionField.layer.shadowOffset = CGSizeZero;
+//        self.captionField.enabled = NO;
+//        [self addSubview:self.captionField];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
@@ -194,7 +194,7 @@
     self.username.text = video.creator;
     if(video.caption){
         self.caption.text = video.caption;
-        [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:24]];
+        [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:30]];
     } else {
         self.caption.text = @"";
     }
