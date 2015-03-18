@@ -24,10 +24,12 @@
 @property (nonatomic, assign) NSUInteger initialIndex;
 
 @property (nonatomic, strong) UIImageView *jpgImageView;
+
+@property (nonatomic, assign) BOOL dismissed;
 @end
 
 #define kSeparator 10
-#define DOWN_MOVEMENT_TRESHHOLD 800.0f
+#define kDismissalTreshold 800.0f
 
 @implementation YASwipingViewController
 
@@ -71,7 +73,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
-    
     [self.view addGestureRecognizer:self.panGesture];
     
     //show selected video fullscreen jpg preview
@@ -110,23 +111,36 @@
 
 - (void)panGesture:(UIPanGestureRecognizer *)rec
 {
-    static BOOL insideAnimation = NO;
     CGPoint vel = [rec velocityInView:self.view];
-    if (vel.y > DOWN_MOVEMENT_TRESHHOLD) {
-        if (!insideAnimation) {
-            insideAnimation = YES;
-            CATransition* transition = [CATransition animation];
-            transition.duration = 0.5;
-            transition.type = kCATransitionReveal;
-            transition.subtype = kCATransitionFromBottom;
-            [self.view.layer addAnimation:transition forKey:kCATransition];
-            [self dismissViewControllerAnimated:NO completion:^{
-                insideAnimation = NO;
+    CGPoint tr = [rec translationInView:self.view];
+    
+    if(tr.y > 0 && !self.dismissed) {
+        self.view.frame = CGRectMake(self.view.frame.origin.x, tr.y, self.view.frame.size.width, self.view.frame.size.height);
+    }
+    
+    if(rec.state == UIGestureRecognizerStateEnded && !self.dismissed) {
+        
+        if(vel.y > kDismissalTreshold) {
+            self.dismissed = YES;
+            
+            //dismiss
+            [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+                self.view.frame = CGRectMake(self.view.frame.origin.x, [UIScreen mainScreen].bounds.size.height, self.view.frame.size.width, self.view.frame.size.height);
+                
+            } completion:^(BOOL finished) {
+                if(finished)
+                    [self dismissViewControllerAnimated:NO completion:nil];
             }];
+            return;
         }
-   
+        
+        //put back
+        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+            self.view.frame = CGRectMake(self.view.frame.origin.x, 0, self.view.frame.size.width, self.view.frame.size.height);
+        } completion:nil];
     }
 }
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
 }
