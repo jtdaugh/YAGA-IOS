@@ -127,6 +127,9 @@
 }
 
 - (void)addFullscreenJpgPreview {
+    if([self.playerView isPlaying])
+       return;
+       
     if(self.video.jpgFullscreenFilename.length) {
         UIImageView *jpgImageView;
         
