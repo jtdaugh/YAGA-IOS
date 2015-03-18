@@ -26,6 +26,7 @@
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) UITextView *captionField;
+@property (nonatomic, strong) UILabel *captionerLabel;
 @property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *likeCount;
 @property BOOL likesShown;
@@ -207,6 +208,18 @@
     
     [self addSubview:self.captionField];
     
+    self.captionerLabel = [[UILabel alloc] initWithFrame:CGRectMake(captionGutter, self.captionField.frame.size.height + self.captionField.frame.origin.y, VIEW_WIDTH - captionGutter*2, 24)];
+    [self.captionerLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
+    [self.captionerLabel setTextColor:[UIColor whiteColor]];
+    [self.captionerLabel setBackgroundColor:[UIColor clearColor]];
+    [self.captionerLabel setTextAlignment:NSTextAlignmentCenter];
+    self.captionerLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.captionerLabel.layer.shadowRadius = 1.0f;
+    self.captionerLabel.layer.shadowOpacity = 1.0;
+    self.captionerLabel.layer.shadowOffset = CGSizeZero;
+
+    [self addSubview:self.captionerLabel];
+    
     //    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
     //    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
     //    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
@@ -292,7 +305,7 @@
 
 - (void)resizeText {
     NSString *fontName = self.captionField.font.fontName;
-    CGFloat fontSize = 72;
+    CGFloat fontSize = 60;
     
     NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
     
@@ -306,9 +319,6 @@
     while(rect.size.height > self.captionField.bounds.size.height){
         
         fontSize = fontSize - 1.0f;
-        NSDictionary *attributes = @{
-                                     NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]
-                                     };
         rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
                                   options:option
                                attributes:attributes
@@ -316,7 +326,6 @@
     }
     
     for (NSString *word in [text componentsSeparatedByString:@" "]) {
-        NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
         float width = [word sizeWithAttributes:attributes].width;
         
         while (width > self.captionField.bounds.size.width && width != 0) {
@@ -326,7 +335,12 @@
         }
     }
     
+    CGFloat finalHeight = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX) options:option attributes:attributes context:nil].size.height;
+    
     [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
+    CGRect captionerFrame = self.captionerLabel.frame;
+    captionerFrame.origin.y = self.captionField.frame.origin.y + finalHeight;
+    [self.captionerLabel setFrame:captionerFrame];
 }
 
 -(void)panned:(UIPanGestureRecognizer*)recognizer {
@@ -363,7 +377,7 @@
             self.fontIndex = 0;
         }
         
-        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
+        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
         [self resizeText];
     } else {
         [self.captionField becomeFirstResponder];
@@ -574,8 +588,15 @@
     self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
     self.captionField.text = self.video.caption;
     self.fontIndex = self.video.font;
-    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
+    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
+    if(![self.video.namer isEqual:@""]){
+        [self.captionerLabel setText:[NSString stringWithFormat:@"- %@", self.video.namer]];
+    } else {
+        [self.captionerLabel setText:@""];
+    }
+    
     [self resizeText];
+    
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
     
@@ -594,7 +615,7 @@
     YASaveVideoActivity *activitySaveVideo = [YASaveVideoActivity new];
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]
-                                      applicationActivities:@[activitySaveVideo, activityGif]];
+                                      applicationActivities:@[activityGif]];
     [self.presentingVC presentViewController:activityViewController
                                     animated:YES
                                   completion:^{

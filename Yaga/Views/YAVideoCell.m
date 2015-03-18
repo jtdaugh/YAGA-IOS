@@ -28,8 +28,15 @@
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
 @property (nonatomic, strong) UIImageView *likeImageView;
 @property (nonatomic, assign) YAVideoCellState state;
-
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
+
+@property (strong, nonatomic) UIView *loader;
+@property (strong, nonatomic) NSTimer *loaderTimer;
+@property (strong, nonatomic) NSMutableArray *loaderTiles;
+
+@property (strong, nonatomic) UILabel *username;
+@property (strong, nonatomic) UILabel *caption;
+
 @end
 
 @implementation YAVideoCell
@@ -50,52 +57,94 @@
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
-        const CGFloat radius = 40;
-        self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
-        self.progressView.radius = radius;
-        UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
-        progressBkgView.backgroundColor = [UIColor clearColor];
-        self.progressView.backgroundView = progressBkgView;
-        self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
-        [self.contentView addSubview:self.progressView];
+        self.loader = [[UIView alloc] initWithFrame:self.bounds];
+//        [self.loader setBackgroundColor:PRIMARY_COLOR];
+        self.loaderTiles = [[NSMutableArray alloc] init];
+        CGFloat lwidth = self.loader.frame.size.width/((float)LOADER_WIDTH);
+        CGFloat lheight = self.loader.frame.size.height/((float)LOADER_HEIGHT);
         
-        NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
-        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+        NSLog(@"lwidth: %f, lheight: %f", lwidth, lheight);
         
-        self.progressView.indeterminate = NO;
-        self.progressView.showsText = YES;
-        self.progressView.lineWidth = 2;
-        self.progressView.tintColor = PRIMARY_COLOR;
+        for(int i = 0; i < LOADER_WIDTH*LOADER_HEIGHT; i++){
+            
+            int xPos = i%LOADER_WIDTH;
+            int yPos = i/LOADER_HEIGHT;
+            
+            UIView *loaderTile = [[UIView alloc] initWithFrame:CGRectMake(xPos * lwidth, yPos*lheight, lwidth, lheight)];
+            [self.loader addSubview:loaderTile];
+            [self.loaderTiles addObject:loaderTile];
+        }
         
-        // Add gesture recognizer for double tap like or change title
-        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-        tapRecognizer.numberOfTapsRequired = 2;
-        tapRecognizer.delaysTouchesBegan = YES;
-        // Unkoment this for double tap gesture recognizer
-        //[self addGestureRecognizer:tapRecognizer];
+        [self addSubview:self.loader];
         
-        self.likeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, LIKE_HEART_SIDE, LIKE_HEART_SIDE)];
-        self.likeImageView.layer.opacity = 0.0f;
-        self.likeImageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
-        [self addSubview:self.likeImageView];
+        self.username = [[UILabel alloc] initWithFrame:self.bounds];
         
-        CGFloat captionHeight = 30;
-        self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(0.f, 0.f, self.bounds.size.width*0.7f, captionHeight)];
-        self.captionField.center = self.likeImageView.center;
-        [self.captionField setBackgroundColor:[UIColor clearColor]];
-        [self.captionField setTextAlignment:NSTextAlignmentCenter];
-        [self.captionField setTextColor:[UIColor whiteColor]];
-        [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
-        self.captionField.delegate = self;
-        [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
-        [self.captionField setReturnKeyType:UIReturnKeyDone];
-        self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.captionField.layer.shadowRadius = 1.0f;
-        self.captionField.layer.shadowOpacity = 1.0;
-        self.captionField.layer.shadowOffset = CGSizeZero;
-        self.captionField.enabled = NO;
-        [self addSubview:self.captionField];
+        NSAttributedString *atString = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
+
+        
+        [self.username setTextAlignment:NSTextAlignmentCenter];
+        [self.username setTextColor:PRIMARY_COLOR];
+        [self.username setFont:[UIFont fontWithName:BOLD_FONT size:30]];
+        self.username.attributedText = atString;
+        [self addSubview:self.username];
+        
+        CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
+        self.caption = [[UILabel alloc] initWithFrame:captionFrame];
+        [self.caption setNumberOfLines:0];
+        self.caption.attributedText = atString;
+        [self.caption setTextColor:PRIMARY_COLOR];
+        [self.caption setTextAlignment:NSTextAlignmentCenter];
+        
+        [self addSubview:self.caption];
+
+//        const CGFloat radius = 40;
+//        self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
+//        self.progressView.radius = radius;
+//        UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
+//        progressBkgView.backgroundColor = [UIColor clearColor];
+//        self.progressView.backgroundView = progressBkgView;
+//        self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
+//        [self.contentView addSubview:self.progressView];
+//        
+//        NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
+//        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+//        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+//        
+//        self.progressView.indeterminate = YES;
+//        self.progressView.showsText = YES;
+//        self.progressView.lineWidth = 2;
+//        self.progressView.tintColor = PRIMARY_COLOR;
+        
+//        // Add gesture recognizer for double tap like or change title
+//        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+//        tapRecognizer.numberOfTapsRequired = 2;
+//        tapRecognizer.delaysTouchesBegan = YES;
+//        // Unkoment this for double tap gesture recognizer
+//        //[self addGestureRecognizer:tapRecognizer];
+//        
+//        self.likeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, LIKE_HEART_SIDE, LIKE_HEART_SIDE)];
+//        self.likeImageView.layer.opacity = 0.0f;
+//        self.likeImageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+//        [self addSubview:self.likeImageView];
+//        
+//        CGFloat captionHeight = 30;
+//        self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(0.f, 0.f, self.bounds.size.width*0.7f, captionHeight)];
+//        self.captionField.center = self.likeImageView.center;
+//        [self.captionField setBackgroundColor:[UIColor clearColor]];
+//        [self.captionField setTextAlignment:NSTextAlignmentCenter];
+//        [self.captionField setTextColor:[UIColor whiteColor]];
+//        [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
+//        self.captionField.delegate = self;
+//        [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
+//        [self.captionField setReturnKeyType:UIReturnKeyDone];
+//        self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
+//        self.captionField.layer.shadowRadius = 1.0f;
+//        self.captionField.layer.shadowOpacity = 1.0;
+//        self.captionField.layer.shadowOffset = CGSizeZero;
+//        self.captionField.enabled = NO;
+//        [self addSubview:self.captionField];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
@@ -139,7 +188,16 @@
 
 - (void)setVideo:(YAVideo *)video {
     
+    NSLog(@"setvideo?");
+    
     [self.progressView setCustomText:video.creator];
+    self.username.text = video.creator;
+    if(video.caption){
+        self.caption.text = video.caption;
+        [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:30]];
+    } else {
+        self.caption.text = @"";
+    }
     
     if(_video == video)
         return;
@@ -164,17 +222,17 @@
 - (void)updateCell {
     switch (self.state) {
         case YAVideoCellStateLoading: {
-            [self showProgress:YES];
+            [self showLoader:YES];
             break;
         }
         case YAVideoCellStateJPEGPreview: {
-            [self showProgress:YES];
+            [self showLoader:YES];
             [self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
             break;
         }
         case YAVideoCellStateGIFPreview: {
             //loading is removed when gif is shown in showImageAsyncFromFilename
-            [self showProgress:NO];
+            [self showLoader:NO];
             [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
             break;
         }
@@ -227,13 +285,54 @@
 - (void)downloadStarted:(NSNotification*)notif {
     NSOperation *op = notif.object;
     if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
-        [self showProgress:YES];
+        [self showLoader:YES];
     }
 }
 
 - (void)showProgress:(BOOL)show {
     self.progressView.backgroundView.hidden = !show;
 }
+
+- (void)showLoader:(BOOL)show {
+    self.loader.hidden = !show;
+    self.username.hidden = !show;
+    self.caption.hidden = show;
+    if(show){
+        if(!self.loaderTimer){
+            self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1
+                                                                target: self
+                                                              selector:@selector(loaderTick:)
+                                                              userInfo: nil repeats:YES];
+            [[NSRunLoop mainRunLoop] addTimer:self.loaderTimer forMode:NSRunLoopCommonModes];
+        }
+    } else {
+        if([self.loaderTimer isValid]){
+            NSLog(@"valid?!?!");
+            [self.loaderTimer invalidate];
+        }
+        self.loaderTimer = nil;
+    }
+    
+}
+
+- (void)loaderTick:(NSTimer *)timer {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //Your main thread code goes in here
+        for(UIView *v in self.loaderTiles){
+            UIColor *p = PRIMARY_COLOR;
+            p = [p colorWithAlphaComponent:(arc4random() % 128 / 256.0)];
+//            CGFloat hue = ( arc4random() % 256 / 256.0 );  //  0.0 to 1.0
+//            CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from white
+//            CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
+//            UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
+//            
+            [v setBackgroundColor:p];
+        }
+
+    });
+//    NSLog(@"loader tick!");
+}
+
 - (void)generationProgressChanged:(NSNotification*)notif {
     NSString *url = notif.object;
     if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
