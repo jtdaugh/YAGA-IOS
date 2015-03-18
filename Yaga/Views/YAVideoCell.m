@@ -79,21 +79,14 @@
         
         self.username = [[UILabel alloc] initWithFrame:self.bounds];
         
-        NSAttributedString *atString = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
-
-        
         [self.username setTextAlignment:NSTextAlignmentCenter];
         [self.username setTextColor:PRIMARY_COLOR];
-        [self.username setFont:[UIFont fontWithName:BOLD_FONT size:30]];
-        self.username.attributedText = atString;
+        [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
         [self addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
         [self.caption setNumberOfLines:0];
-        self.caption.attributedText = atString;
         [self.caption setTextColor:PRIMARY_COLOR];
         [self.caption setTextAlignment:NSTextAlignmentCenter];
         
@@ -191,9 +184,9 @@
     NSLog(@"setvideo?");
     
     [self.progressView setCustomText:video.creator];
-    self.username.text = video.creator;
+    self.username.attributedText = [self myLabelAttributes:video.creator];
     if(video.caption){
-        self.caption.text = video.caption;
+        self.caption.attributedText = [self myLabelAttributes:video.caption];
         [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:30]];
     } else {
         self.caption.text = @"";
@@ -392,6 +385,17 @@
         self.captionField.enabled = YES;
         [self.captionField becomeFirstResponder];
     }
+}
+
+- (NSMutableAttributedString *)myLabelAttributes:(NSString *)input
+{
+    if (!input.length) return [NSMutableAttributedString new];
+    NSMutableAttributedString *labelAttributes = [[NSMutableAttributedString alloc] initWithString:input];
+
+    [labelAttributes addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, labelAttributes.length)];
+    [labelAttributes addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, labelAttributes.length)];
+    
+    return labelAttributes;
 }
 
 @end
