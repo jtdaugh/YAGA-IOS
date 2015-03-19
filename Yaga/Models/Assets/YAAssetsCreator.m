@@ -50,7 +50,7 @@
         self.jpgQueue.maxConcurrentOperationCount = 2;
         
         self.recordingQueue = [[NSOperationQueue alloc] init];
-        self.recordingQueue.maxConcurrentOperationCount = 4;
+        self.recordingQueue.maxConcurrentOperationCount = 1;
         
         self.prioritizedVideos = [NSMutableArray new];
     }
@@ -204,6 +204,10 @@
     YACreateRecordingOperation *recordingOperation = [[YACreateRecordingOperation alloc] initRecordingURL:recordingUrl group:group video:video];
     [self.recordingQueue addOperation:recordingOperation];
     
+    [self.recordingQueue addOperationWithBlock:^{
+        [self createJpgForVideo:video];
+    }];
+    
     YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationNormalQuality];
     [gifCreationOperation addDependency:recordingOperation];
     [self.recordingQueue addOperation:gifCreationOperation];
@@ -295,51 +299,55 @@
     [self.gifQueue waitUntilAllOperationsAreFinished];
 }
 
+- (void)createJpgForVideo:(YAVideo*)video {
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:video.movFilename];
+        NSURL *movURL = [NSURL fileURLWithPath:movPath];
+        NSString *filename =  [video.movFilename stringByDeletingPathExtension];
+        NSString *jpgFilename = [filename stringByAppendingPathExtension:@"jpg"];
+        NSString *jpgFullscreenFilename = [[filename  stringByAppendingString:@"_fullscreen"] stringByAppendingPathExtension:@"jpg"];
+        NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
+        NSString *jpgFullscreenPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFullscreenFilename];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
+            
+            AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+            imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
+            imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
+            imageGenerator.appliesPreferredTrackTransform = YES;
+            CMTime time = CMTimeMakeWithSeconds(0, asset.duration.timescale);
+            
+            NSError *error;
+            CMTime actualTime;
+            CGImageRef image = [imageGenerator copyCGImageAtTime:time actualTime:&actualTime error:&error];
+            UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
+            if(newImage) {
+                UIImage *croppedImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
+                
+                newImage = [self deviceSpecificFullscreenImageFromImage:newImage];
+                
+                [self createJpgFromImage:newImage croppedImage:croppedImage atPath:(NSString*)jpgFullscreenPath croppedPath:jpgPath forVideo:video];
+                
+                CFRelease(image);
+            }
+            
+            dispatch_semaphore_signal(sema);
+        });
+    });
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self jpgCreatedForVideo:video];
+    });
+}
+
+
 - (void)enqueueJpgCreationForVideo:(YAVideo*)video {
     [self.jpgQueue addOperationWithBlock:^{
-        dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:video.movFilename];
-            NSURL *movURL = [NSURL fileURLWithPath:movPath];
-            NSString *filename =  [video.movFilename stringByDeletingPathExtension];
-            NSString *jpgFilename = [filename stringByAppendingPathExtension:@"jpg"];
-            NSString *jpgFullscreenFilename = [[filename  stringByAppendingString:@"_fullscreen"] stringByAppendingPathExtension:@"jpg"];
-            NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
-            NSString *jpgFullscreenPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFullscreenFilename];
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
-                
-                AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
-                imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
-                imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
-                imageGenerator.appliesPreferredTrackTransform = YES;
-                CMTime time = CMTimeMakeWithSeconds(0, asset.duration.timescale);
-                
-                NSError *error;
-                CMTime actualTime;
-                CGImageRef image = [imageGenerator copyCGImageAtTime:time actualTime:&actualTime error:&error];
-                UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
-                if(newImage) {
-                    UIImage *croppedImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
-                    
-                    newImage = [self deviceSpecificFullscreenImageFromImage:newImage];
-                    
-                    [self createJpgFromImage:newImage croppedImage:croppedImage atPath:(NSString*)jpgFullscreenPath croppedPath:jpgPath forVideo:video];
-                    
-                    CFRelease(image);
-                }
-                
-                dispatch_semaphore_signal(sema);
-            });
-        });
-        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self jpgCreatedForVideo:video];
-        });
-    
+        [self createJpgForVideo:video];
     }];
 }
 
