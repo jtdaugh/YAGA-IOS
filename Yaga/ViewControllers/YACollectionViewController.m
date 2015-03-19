@@ -355,7 +355,6 @@ static NSString *cellID = @"Cell";
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     
-    NSLog(@"set video...");
     cell.video = video;
     
     return cell;

@@ -299,11 +299,7 @@
 }
 
 - (void)textViewDidChange:(UITextView *)textView {
-    
-    NSLog(@"text view did change? wtf?");
-    
     [self resizeText];
-    
 }
 
 - (void)resizeText {

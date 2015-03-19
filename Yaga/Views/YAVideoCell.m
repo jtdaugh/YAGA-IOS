@@ -180,9 +180,6 @@
 #pragma mark -
 
 - (void)setVideo:(YAVideo *)video {
-    
-    NSLog(@"setvideo?");
-    
     [self.progressView setCustomText:video.creator];
     self.username.attributedText = [self myLabelAttributes:video.creator];
     if(video.caption){

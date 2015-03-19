@@ -80,9 +80,10 @@
     self.font = font;
     self.namer = [YAUser currentUser].username;
     
-    NSLog(@"renaming... %@", [YAUser currentUser].username);
+    DLog(@"renaming... %@", [YAUser currentUser].username);
     
     [[RLMRealm defaultRealm] commitWriteTransaction];
+    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:self];
     
     [[YAServerTransactionQueue sharedQueue] addUpdateVideoCaptionTransaction:self];
 }
