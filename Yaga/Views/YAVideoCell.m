@@ -181,12 +181,28 @@
 
 - (void)setVideo:(YAVideo *)video {
     [self.progressView setCustomText:video.creator];
-    self.username.attributedText = [self myLabelAttributes:video.creator];
-    if(video.caption){
-        self.caption.attributedText = [self myLabelAttributes:video.caption];
-        [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:30]];
+    NSString *creator = video.creator;
+    if (!creator.length) {
+        self.username.attributedText = [NSAttributedString new];
     } else {
-        self.caption.text = @"";
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            NSAttributedString *str = [self myLabelAttributes:creator];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.username.attributedText = str;
+            });
+        });
+    }
+    NSString *caption = video.caption;
+    if(caption){
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                NSAttributedString *str = [self myLabelAttributes:caption];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self.caption.attributedText = str;
+                    [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:30]];
+                });
+            });
+    } else {
+        self.caption.attributedText = [NSAttributedString new];
     }
     
     if(_video == video)
@@ -386,7 +402,6 @@
 
 - (NSMutableAttributedString *)myLabelAttributes:(NSString *)input
 {
-    if (!input.length) return [NSMutableAttributedString new];
     NSMutableAttributedString *labelAttributes = [[NSMutableAttributedString alloc] initWithString:input];
 
     [labelAttributes addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, labelAttributes.length)];
