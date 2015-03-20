@@ -120,6 +120,24 @@
     
     CGPoint vel = [rec velocityInView:self.view];
     CGPoint tr = [rec translationInView:self.view];
+
+    
+    if(tr.y > 0) {
+        CGFloat f = tr.y / [UIScreen mainScreen].bounds.size.height;
+        if(f < 1) {
+            self.view.transform = CGAffineTransformMakeScale(1.0f - f, 1.0f - f*1.1);
+            CGRect r = self.view.frame;
+            r.origin.y = tr.y;
+            self.view.frame = r;
+        }
+        else {
+            [self dismissAnimated];
+            return;
+        }
+    }
+    else {
+        [self restoreAnimated];
+    }
     
     if(rec.state == UIGestureRecognizerStateEnded) {
         if(vel.y > kDismissalTreshold) {
@@ -130,23 +148,6 @@
         //put back
         [self restoreAnimated];
     }
-
-        if(tr.y > 0) {
-            CGFloat f = tr.y / [UIScreen mainScreen].bounds.size.height;
-            if(f < 1) {
-                self.view.transform = CGAffineTransformMakeScale(1.0f - f, 1.0f - f*1.1);
-                CGRect r = self.view.frame;
-                r.origin.y = tr.y;
-                self.view.frame = r;
-            }
-            else {
-                [self dismissAnimated];
-                return;
-            }
-        }
-        else {
-            [self restoreAnimated];
-        }
     
 }
 
@@ -164,7 +165,7 @@
 
 - (void)restoreAnimated {
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-        self.view.transform = CGAffineTransformIdentity;
+        self.view.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
         self.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     } completion:nil];
 }
