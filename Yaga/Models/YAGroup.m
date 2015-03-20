@@ -157,6 +157,7 @@
             
         }
         else {
+            DLog(@"updated.");
             NSAssert([response isKindOfClass:[NSArray class]], @"unexpected server result");
             
             [[RLMRealm defaultRealm] beginWriteTransaction];

@@ -26,6 +26,7 @@
 @property (nonatomic, strong) UIImageView *jpgImageView;
 
 @property (nonatomic, assign) BOOL dismissed;
+
 @end
 
 #define kSeparator 10
@@ -53,6 +54,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.view.clipsToBounds = YES;
     
     CGRect rect = self.view.bounds;
     rect.size.width += kSeparator;
@@ -109,36 +112,61 @@
     }
 }
 
+#pragma mark - Animated dismissal
 - (void)panGesture:(UIPanGestureRecognizer *)rec
 {
+    if(self.dismissed)
+        return;
+    
     CGPoint vel = [rec velocityInView:self.view];
     CGPoint tr = [rec translationInView:self.view];
     
-    if(tr.y > 0 && !self.dismissed) {
-        self.view.frame = CGRectMake(self.view.frame.origin.x, tr.y, self.view.frame.size.width, self.view.frame.size.height);
-    }
-    
-    if(rec.state == UIGestureRecognizerStateEnded && !self.dismissed) {
-        
+    if(rec.state == UIGestureRecognizerStateEnded) {
         if(vel.y > kDismissalTreshold) {
-            self.dismissed = YES;
-            
-            //dismiss
-            [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-                self.view.frame = CGRectMake(self.view.frame.origin.x, [UIScreen mainScreen].bounds.size.height, self.view.frame.size.width, self.view.frame.size.height);
-                
-            } completion:^(BOOL finished) {
-                if(finished)
-                    [self dismissViewControllerAnimated:NO completion:nil];
-            }];
+            [self dismissAnimated];
             return;
         }
         
         //put back
-        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-            self.view.frame = CGRectMake(self.view.frame.origin.x, 0, self.view.frame.size.width, self.view.frame.size.height);
-        } completion:nil];
+        [self restoreAnimated];
     }
+
+        if(tr.y > 0) {
+            CGFloat f = tr.y / [UIScreen mainScreen].bounds.size.height;
+            if(f < 1) {
+                self.view.transform = CGAffineTransformMakeScale(1.0f - f, 1.0f - f*1.1);
+                CGRect r = self.view.frame;
+                r.origin.y = tr.y;
+                self.view.frame = r;
+            }
+            else {
+                [self dismissAnimated];
+                return;
+            }
+        }
+        else {
+            [self restoreAnimated];
+        }
+    
+}
+
+- (void)dismissAnimated {
+    self.dismissed = YES;
+    
+    //dismiss
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+        self.view.transform = CGAffineTransformMakeScale(0,0);
+    } completion:^(BOOL finished) {
+        if(finished)
+            [self dismissViewControllerAnimated:NO completion:nil];
+    }];
+}
+
+- (void)restoreAnimated {
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+        self.view.transform = CGAffineTransformIdentity;
+        self.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+    } completion:nil];
 }
 
 - (void)dealloc {
