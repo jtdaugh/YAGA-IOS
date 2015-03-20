@@ -15,7 +15,7 @@
 
 #import "YAUtils.h"
 #import "YAHideEmbeddedGroupsSegue.h"
-
+#import "YACollectionSwipeViewController.h"
 //Swift headers
 //#import "Yaga-Swift.h"
 
@@ -49,13 +49,14 @@
 }
 
 - (void)setupView {
-    _collectionViewController = [YACollectionViewController new];
-    _collectionViewController.delegate = self;
-    _collectionViewController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
-    [_collectionViewController.collectionView.layer setMasksToBounds:NO];
+//    _collectionViewController = [YACollectionViewController new];
+    _collectionSwipe = [YACollectionSwipeViewController new];
+    //_collectionViewController.delegate = self;
+    _collectionSwipe.scrollView.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
+   // [_collectionSwipe.collectionView.layer setMasksToBounds:NO];
 
-    [self addChildViewController:_collectionViewController];
-    [self.view addSubview:_collectionViewController.view];
+    [self addChildViewController:_collectionSwipe];
+    [self.view addSubview:_collectionSwipe.view];
     
     _cameraViewController = [YACameraViewController new];
     _cameraViewController.delegate = self;

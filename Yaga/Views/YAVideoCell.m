@@ -194,13 +194,13 @@
     }
     NSString *caption = video.caption;
     if(caption){
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-                NSAttributedString *str = [self myLabelAttributes:caption];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.caption.attributedText = str;
-                    [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:30]];
-                });
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            NSAttributedString *str = [self myLabelAttributes:caption];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.caption.attributedText = str;
+                [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:30]];
             });
+        });
     } else {
         self.caption.attributedText = [NSAttributedString new];
     }
