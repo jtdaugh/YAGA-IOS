@@ -609,9 +609,7 @@
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"YAGA";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     NSURL *videoFile = [YAUtils urlFromFileName:self.video.movFilename];
-    //    NSURL *url = [NSURL URLWithString:@"http://getyaga.com"];
     YAGifCopyActivity   *activityGif = [YAGifCopyActivity new];
-    YASaveVideoActivity *activitySaveVideo = [YASaveVideoActivity new];
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]
                                       applicationActivities:@[activityGif]];
@@ -620,8 +618,14 @@
                                   completion:^{
                                       // ...
                                   }];
-    
-    //    [YAUtils showVideoOptionsForVideo:self.video];
+    activityViewController.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+        if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
+            [YAUtils showNotification:NSLocalizedString(completed ? @"Video saved to camera roll" : @"Video failed to save to camera roll", @"") type:YANotificationTypeSuccess];
+        }
+        else if([activityType isEqualToString:@"com.apple.UIKit.activity.CopyToPasteboard"]) {
+            [YAUtils showNotification:NSLocalizedString(completed ? @"Video copied to clipboard" : @"Video failed to copy to clipboard", @"") type:YANotificationTypeSuccess];
+        }
+    };
 }
 
 #pragma mark - YAProgressView

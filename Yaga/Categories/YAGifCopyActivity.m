@@ -50,7 +50,7 @@
     // UIActivity
     YAVideo *video = self.items.lastObject;
     
-    [YAUtils copyVideoToClipboard:video];
+    [YAUtils copyGIFToClipboard:video];
     [self activityDidFinish:YES];
 }
 @end
