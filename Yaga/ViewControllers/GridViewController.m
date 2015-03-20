@@ -51,7 +51,7 @@
 - (void)setupView {
 //    _collectionViewController = [YACollectionViewController new];
     _collectionSwipe = [YACollectionSwipeViewController new];
-    //_collectionViewController.delegate = self;
+    _collectionSwipe.delegate = self;
     _collectionSwipe.scrollView.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
    // [_collectionSwipe.collectionView.layer setMasksToBounds:NO];
 
@@ -82,7 +82,7 @@
         }
         CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
         CGFloat separator = show ? 2 : 0;
-        self.collectionViewController.view.frame = CGRectMake(0, origin + separator, self.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin - separator);
+        self.collectionSwipe.scrollView.frame = CGRectMake(0, origin + separator, self.collectionSwipe.scrollView.frame.size.width, VIEW_HEIGHT - origin - separator);
         
         [self.cameraViewController showCameraAccessories:(show && !showPart)];
     };
@@ -106,11 +106,11 @@
 }
 
 - (void)collectionViewDidScroll {
-    CGRect cameraFrame = self.cameraViewController.view.frame;
-    CGRect gridFrame = self.collectionViewController.view.frame;
+    CGRect cameraFrame = self.collectionSwipe.scrollView.frame;
+    CGRect gridFrame = self.collectionSwipe.scrollView.frame;
     
-    CGFloat scrollOffset = self.collectionViewController.collectionView.contentOffset.y;
-    CGFloat offset = self.collectionViewController.collectionView.contentInset.top + scrollOffset;
+    CGFloat scrollOffset = self.collectionSwipe.currentCollectionView.collectionView.contentOffset.y;
+    CGFloat offset = self.collectionSwipe.currentCollectionView.collectionView.contentInset.top + scrollOffset;
     
     if(offset < 0) {
         offset = 0;
@@ -122,7 +122,7 @@
     cameraFrame.origin.y = -offset;
 
     self.cameraViewController.view.frame = cameraFrame;
-    self.collectionViewController.view.frame = gridFrame;
+    self.collectionSwipe.scrollView.frame = gridFrame;
 }
 
 #pragma mark -

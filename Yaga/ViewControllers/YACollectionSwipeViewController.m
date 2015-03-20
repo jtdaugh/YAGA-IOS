@@ -43,13 +43,12 @@
         
        // [self.scrollView addSubview:page];
         [self.pages addObject:ctr];
+        ctr.delegate = self.delegate;
     }
     
     //go to the initial page
     self.scrollView.contentOffset = CGPointMake(self.initialIndex  * self.scrollView.bounds.size.width, 0);
-    //[self updatePages:YES];
-    YACollectionViewController *controller = [self.pages objectAtIndex:initialTileIndex];
-    self.delegate = controller.delegate;
+    [self updatePages:YES];
 }
 
 - (NSUInteger)tileIndexFromPageIndex:(NSUInteger)pageIndex {
@@ -188,6 +187,15 @@
         [self.pages removeObject:right];
         [self.pages insertObject:right atIndex:0];
     }
+    
+    
+    YACollectionViewController *controller = [self.pages objectAtIndex:self.currentPageIndex];
+    self.delegate = controller.delegate;
+}
+
+- (YACollectionViewController *)currentCollectionView
+{
+    return self.pages[self.currentPageIndex];
 }
 
 @end

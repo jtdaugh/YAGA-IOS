@@ -10,5 +10,5 @@
 
 @interface YACollectionSwipeViewController : YASwipingViewController
 @property (weak, nonatomic) id<YACollectionViewControllerDelegate> delegate;
-
+@property (nonatomic, readonly) YACollectionViewController *currentCollectionView;
 @end
