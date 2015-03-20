@@ -83,10 +83,9 @@
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
-        [self.caption setNumberOfLines:0];
-        [self.caption setTextColor:PRIMARY_COLOR];
+        [self.caption setNumberOfLines:3];
         [self.caption setTextAlignment:NSTextAlignmentCenter];
-        
+        [self.caption setTextColor:PRIMARY_COLOR];
         [self addSubview:self.caption];
     }
     return self;
@@ -121,14 +120,6 @@
 #pragma mark -
 
 - (void)setVideo:(YAVideo *)video {
-    self.username.attributedText = [self myLabelAttributes:video.creator];
-    if(video.caption){
-        self.caption.attributedText = [self myLabelAttributes:video.caption];
-        [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:30]];
-    } else {
-        self.caption.text = @"";
-    }
-    
     if(_video == video)
         return;
 
@@ -227,6 +218,9 @@
     self.loader.hidden = !show;
     self.username.hidden = !show;
     self.caption.hidden = show;
+    
+    [self updateCaptionAndUsername];
+    
     if(show){
         if(!self.loaderTimer){
             self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1
@@ -237,12 +231,26 @@
         }
     } else {
         if([self.loaderTimer isValid]){
-            NSLog(@"valid?!?!");
             [self.loaderTimer invalidate];
         }
         self.loaderTimer = nil;
     }
+}
+
+- (void)updateCaptionAndUsername {
+    NSString *caption = self.video.caption;
     
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(caption.length && !self.caption.hidden) {
+            self.caption.attributedText = [self attributedStringFromString:caption font:[UIFont fontWithName:CAPTION_FONTS[self.video.font] size:30]];
+        } else {
+            self.caption.text = @"";
+        }
+        
+        if(!self.username.hidden)
+            self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
+    });
+
 }
 
 - (void)loaderTick:(NSTimer *)timer {
@@ -299,15 +307,19 @@
     }
 }
 
-- (NSMutableAttributedString *)myLabelAttributes:(NSString *)input
-{
-    if (!input.length) return [NSMutableAttributedString new];
-    NSMutableAttributedString *labelAttributes = [[NSMutableAttributedString alloc] initWithString:input];
-
-    [labelAttributes addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, labelAttributes.length)];
-    [labelAttributes addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, labelAttributes.length)];
+- (NSMutableAttributedString *)attributedStringFromString:(NSString *)input font:(UIFont*)font {
+    if (!input.length) return
+        [NSMutableAttributedString new];
     
-    return labelAttributes;
+    NSMutableAttributedString *result = [[NSMutableAttributedString alloc] initWithString:input];
+    
+    [result addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, result.length)];
+    [result addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, result.length)];
+    
+    if(font)
+        [result addAttribute:NSFontAttributeName value:font range:NSMakeRange(0, result.length)];
+    
+    return result;
 }
 
 @end
