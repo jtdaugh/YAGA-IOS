@@ -16,7 +16,7 @@
 #import "YAProgressView.h"
 #import "YASwipingViewController.h"
 #import "YAGifCopyActivity.h"
-#import "YASaveVideoActivity.h"
+
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 @interface YAVideoPage ();
