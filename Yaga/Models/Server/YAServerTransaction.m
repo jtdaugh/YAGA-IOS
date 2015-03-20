@@ -251,8 +251,7 @@
                                    toGroupWithId:[YAUser currentUser].currentGroup.serverId
                                   withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
                                       if(error) {
-                                          NSString *localId = [response isKindOfClass:[NSString class]] ? (NSString*)response : @"None";
-                                          [self logEvent:[NSString stringWithFormat:@"unable to upload video with id:%@, error %@", localId, error.localizedDescription] type:YANotificationTypeError];
+                                          DLog(@"can't upload video, deleted already");
                                           completion(nil, error);
                                       }
                                       else {

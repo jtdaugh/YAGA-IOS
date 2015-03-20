@@ -152,11 +152,11 @@
         if (![video.highQualityGifFilename length]) {
             YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationHighQuality];
             gifCreationOperation.completionBlock = ^{
-                [YAUtils copyVideoToClipboard:video];
+                [YAUtils copyGIFToClipboard:video];
             };
             [gifCreationOperation start];
         } else {
-            [YAUtils copyVideoToClipboard:video];
+            [YAUtils copyGIFToClipboard:video];
         }
     }]];
 
@@ -188,7 +188,7 @@
     }];
 }
 
-+ (void)copyVideoToClipboard:(YAVideo*)video {
++ (void)copyGIFToClipboard:(YAVideo*)video {
     if (![video.highQualityGifFilename length]) {
         MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
         [[UIApplication sharedApplication].keyWindow addSubview:hud];
@@ -204,13 +204,12 @@
                     [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
                     
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        
-                        [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:YANotificationTypeMessage];
+                        [YAUtils showNotification:NSLocalizedString(@"GIF copied to clipboard", @"") type:YANotificationTypeMessage];
                     });
                 });
             });
             dispatch_async(dispatch_get_main_queue(), ^{
-                           [hud hide:YES]; 
+                [hud hide:YES];
             });
         };
         [gifCreationOperation start];
@@ -221,10 +220,9 @@
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
                 [pasteboard setData:[[NSData alloc] initWithContentsOfURL:gifURL] forPasteboardType:@"com.compuserve.gif"];
-                
                 dispatch_async(dispatch_get_main_queue(), ^{
                     
-                    [YAUtils showNotification:NSLocalizedString(@"Copied to clipboard", @"") type:YANotificationTypeMessage];
+                    [YAUtils showNotification:NSLocalizedString(@"GIF copied to clipboard", @"") type:YANotificationTypeMessage];
                 });
             });
         });

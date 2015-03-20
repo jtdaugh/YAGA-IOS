@@ -81,7 +81,7 @@
         
         [self.username setTextAlignment:NSTextAlignmentCenter];
         [self.username setTextColor:PRIMARY_COLOR];
-        [self.username setFont:[UIFont fontWithName:BOLD_FONT size:30]];
+        [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
         [self addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
@@ -180,9 +180,6 @@
 #pragma mark -
 
 - (void)setVideo:(YAVideo *)video {
-    
-    NSLog(@"setvideo?");
-    
     [self.progressView setCustomText:video.creator];
     self.username.attributedText = [self myLabelAttributes:video.creator];
     if(video.caption){
@@ -392,7 +389,7 @@
     if (!input.length) return [NSMutableAttributedString new];
     NSMutableAttributedString *labelAttributes = [[NSMutableAttributedString alloc] initWithString:input];
 
-    [labelAttributes addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-2.0] range:NSMakeRange(0, labelAttributes.length)];
+    [labelAttributes addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, labelAttributes.length)];
     [labelAttributes addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, labelAttributes.length)];
     
     return labelAttributes;

@@ -45,6 +45,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (strong, nonatomic) UILabel *toolTipLabel;
 
 @property (nonatomic, strong) YAActivityView *activityView;
+
 @property (nonatomic) BOOL hasToolTipOnOneOfTheCells;
 @end
 
@@ -77,13 +78,6 @@ static NSString *cellID = @"Cell";
     self.collectionView.backgroundColor = [UIColor whiteColor];
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
-    
-    //long press on cell for options
-//    UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc]
-//                                                         initWithTarget:self action:@selector(handleLongPress:)];
-//    longPressRecognizer.minimumPressDuration = .5; //seconds
-//    longPressRecognizer.delegate = self;
-//    [self.collectionView addGestureRecognizer:longPressRecognizer];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
@@ -104,13 +98,6 @@ static NSString *cellID = @"Cell";
 - (void)scrollToCell:(NSNotification *)notif
 {
     YAVideoCell *cell = notif.object;
-    
-    //    YAVideoCell *lastObject = self.collectionView.visibleCells.lastObject;
-    //    YAVideoCell *objectBeforeLast = self.collectionView.visibleCells[self.collectionView.visibleCells.count - 2];
-    //    if (cell == lastObject || cell == objectBeforeLast) {
-    //        NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
-    //        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionBottom animated:YES];
-    //    }
     
     const CGFloat kKeyboardHeight = 216.f;
     CGFloat offset = cell.frame.origin.y - self.collectionView.contentOffset.y + kKeyboardHeight + cell.frame.size.height;
@@ -368,7 +355,6 @@ static NSString *cellID = @"Cell";
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     
-    NSLog(@"set video...");
     cell.video = video;
     
     return cell;

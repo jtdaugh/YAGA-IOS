@@ -85,7 +85,13 @@
 "Share on Twitter" = "Share on Twitter";
 "Delete" = "Delete";
 "Saving" = "Saving";
-"Copied to clipboard" = "Copied to clipboard";
+
+"Video saved to camera roll" = "Video saved to camera roll";
+"Video failed to save to camera roll" = "Video failed to save to camera roll";
+"GIF copied to clipboard" = "GIF copied to clipboard";
+"Video copied to clipboard" = "Video copied to clipboard";
+"Video failed to copy to clipboard" = "Video failed to copy to clipboard";
+
 "Video saved to the camera roll" = "Video saved to the camera roll";
 "Are you sure you want to delete this video from '%@'?" = "Are you sure you want to delete this video from '%@'?";
 "Delete video" = "Delete video";
