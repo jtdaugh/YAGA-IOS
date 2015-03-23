@@ -72,7 +72,6 @@
 
 #pragma mark - YACollectionViewControllerDelegate
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion {
-    
     void (^showHideBlock)(void) = ^void(void) {
         if(show) {
             self.cameraViewController.view.frame = CGRectMake(0, 0, self.cameraViewController.view.frame.size.width, self.cameraViewController.view.frame.size.height);
@@ -90,7 +89,6 @@
     if(animated) {
         [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
             showHideBlock();
-            
         } completion:^(BOOL finished) {
             if(finished && completion)
                 completion();

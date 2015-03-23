@@ -14,7 +14,6 @@
 #import "YAActivityView.h"
 #import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
-#import "YAProgressView.h"
 #import "YADownloadManager.h"
 
 #define LIKE_HEART_SIDE 40.f
@@ -22,8 +21,6 @@
 
 @interface YAVideoCell ()
 
-
-@property (nonatomic, strong) YAProgressView *progressView;
 @property (nonatomic, strong) UITextField *captionField;
 @property (nonatomic, readonly) FLAnimatedImageView *gifView;
 @property (nonatomic, strong) UIImageView *likeImageView;
@@ -86,62 +83,10 @@
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
-        [self.caption setNumberOfLines:0];
-        [self.caption setTextColor:PRIMARY_COLOR];
+        [self.caption setNumberOfLines:3];
         [self.caption setTextAlignment:NSTextAlignmentCenter];
-        
+        [self.caption setTextColor:PRIMARY_COLOR];
         [self addSubview:self.caption];
-
-//        const CGFloat radius = 40;
-//        self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
-//        self.progressView.radius = radius;
-//        UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
-//        progressBkgView.backgroundColor = [UIColor clearColor];
-//        self.progressView.backgroundView = progressBkgView;
-//        self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
-//        [self.contentView addSubview:self.progressView];
-//        
-//        NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
-//        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-//        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-//        
-//        self.progressView.indeterminate = YES;
-//        self.progressView.showsText = YES;
-//        self.progressView.lineWidth = 2;
-//        self.progressView.tintColor = PRIMARY_COLOR;
-        
-//        // Add gesture recognizer for double tap like or change title
-//        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-//        tapRecognizer.numberOfTapsRequired = 2;
-//        tapRecognizer.delaysTouchesBegan = YES;
-//        // Unkoment this for double tap gesture recognizer
-//        //[self addGestureRecognizer:tapRecognizer];
-//        
-//        self.likeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, LIKE_HEART_SIDE, LIKE_HEART_SIDE)];
-//        self.likeImageView.layer.opacity = 0.0f;
-//        self.likeImageView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
-//        [self addSubview:self.likeImageView];
-//        
-//        CGFloat captionHeight = 30;
-//        self.captionField = [[UITextField alloc] initWithFrame:CGRectMake(0.f, 0.f, self.bounds.size.width*0.7f, captionHeight)];
-//        self.captionField.center = self.likeImageView.center;
-//        [self.captionField setBackgroundColor:[UIColor clearColor]];
-//        [self.captionField setTextAlignment:NSTextAlignmentCenter];
-//        [self.captionField setTextColor:[UIColor whiteColor]];
-//        [self.captionField setFont:[UIFont fontWithName:BIG_FONT size:24]];
-//        self.captionField.delegate = self;
-//        [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
-//        [self.captionField setReturnKeyType:UIReturnKeyDone];
-//        self.captionField.layer.shadowColor = [[UIColor blackColor] CGColor];
-//        self.captionField.layer.shadowRadius = 1.0f;
-//        self.captionField.layer.shadowOpacity = 1.0;
-//        self.captionField.layer.shadowOffset = CGSizeZero;
-//        self.captionField.enabled = NO;
-//        [self addSubview:self.captionField];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
-        
     }
     return self;
 }
@@ -163,9 +108,6 @@
 {
     [super prepareForReuse];
     
-    self.progressView.progress = 0;
-    [self.progressView setCustomText:@""];
-    
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
@@ -173,13 +115,12 @@
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
 }
 
 #pragma mark -
 
 - (void)setVideo:(YAVideo *)video {
+<<<<<<< HEAD
     [self.progressView setCustomText:video.creator];
     NSString *creator = video.creator;
     if (!creator.length) {
@@ -205,6 +146,8 @@
         self.caption.attributedText = [NSAttributedString new];
     }
     
+=======
+>>>>>>> v2
     if(_video == video)
         return;
 
@@ -296,13 +239,16 @@
 }
 
 - (void)showProgress:(BOOL)show {
-    self.progressView.backgroundView.hidden = !show;
+    //do nothing, tile loader is used
 }
 
 - (void)showLoader:(BOOL)show {
     self.loader.hidden = !show;
     self.username.hidden = !show;
     self.caption.hidden = show;
+    
+    [self updateCaptionAndUsername];
+    
     if(show){
         if(!self.loaderTimer){
             self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1
@@ -313,12 +259,26 @@
         }
     } else {
         if([self.loaderTimer isValid]){
-            NSLog(@"valid?!?!");
             [self.loaderTimer invalidate];
         }
         self.loaderTimer = nil;
     }
+}
+
+- (void)updateCaptionAndUsername {
+    NSString *caption = self.video.caption;
     
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(caption.length && !self.caption.hidden) {
+            self.caption.attributedText = [self attributedStringFromString:caption font:[UIFont fontWithName:CAPTION_FONTS[self.video.font] size:30]];
+        } else {
+            self.caption.text = @"";
+        }
+        
+        if(!self.username.hidden)
+            self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
+    });
+
 }
 
 - (void)loaderTick:(NSTimer *)timer {
@@ -339,32 +299,7 @@
 //    NSLog(@"loader tick!");
 }
 
-- (void)generationProgressChanged:(NSNotification*)notif {
-    NSString *url = notif.object;
-    if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
-        
-        if(self.progressView) {
-            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            [self.progressView setProgress:value.floatValue animated:NO];
-            [self.progressView setCustomText:self.video.creator];
-        }
-    }
-    
-}
-
-- (void)downloadProgressChanged:(NSNotification*)notif {
-    NSString *url = notif.object;
-    if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
-        
-        if(self.progressView) {
-            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            [self.progressView setProgress:value.floatValue animated:NO];
-            [self.progressView setCustomText:self.video.creator];
-        }
-    }
-}
-
-#pragma mark - UITapGestureRecognizer actions 
+#pragma mark - UITapGestureRecognizer actions
 
 - (void)doubleTap:(UIGestureRecognizer *)sender {
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
@@ -400,14 +335,28 @@
     }
 }
 
+<<<<<<< HEAD
 - (NSMutableAttributedString *)myLabelAttributes:(NSString *)input
 {
     NSMutableAttributedString *labelAttributes = [[NSMutableAttributedString alloc] initWithString:input];
 
     [labelAttributes addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, labelAttributes.length)];
     [labelAttributes addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, labelAttributes.length)];
+=======
+- (NSMutableAttributedString *)attributedStringFromString:(NSString *)input font:(UIFont*)font {
+    if (!input.length) return
+        [NSMutableAttributedString new];
     
-    return labelAttributes;
+    NSMutableAttributedString *result = [[NSMutableAttributedString alloc] initWithString:input];
+    
+    [result addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, result.length)];
+    [result addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, result.length)];
+    
+    if(font)
+        [result addAttribute:NSFontAttributeName value:font range:NSMakeRange(0, result.length)];
+>>>>>>> v2
+    
+    return result;
 }
 
 @end

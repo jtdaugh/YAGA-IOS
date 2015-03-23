@@ -440,7 +440,6 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [self.delegate collectionViewDidScroll];
     
     [self handlePaging];
 
@@ -457,7 +456,7 @@ static NSString *cellID = @"Cell";
     [self playVisible:!scrollingFast];
     
     self.scrolling = YES;
-
+    [self.delegate collectionViewDidScroll];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
