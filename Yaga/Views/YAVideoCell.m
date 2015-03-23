@@ -120,34 +120,6 @@
 #pragma mark -
 
 - (void)setVideo:(YAVideo *)video {
-<<<<<<< HEAD
-    [self.progressView setCustomText:video.creator];
-    NSString *creator = video.creator;
-    if (!creator.length) {
-        self.username.attributedText = [NSAttributedString new];
-    } else {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            NSAttributedString *str = [self myLabelAttributes:creator];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.username.attributedText = str;
-            });
-        });
-    }
-    NSString *caption = video.caption;
-    if(caption){
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            NSAttributedString *str = [self myLabelAttributes:caption];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.caption.attributedText = str;
-                [self.caption setFont:[UIFont fontWithName:CAPTION_FONTS[video.font] size:30]];
-            });
-        });
-    } else {
-        self.caption.attributedText = [NSAttributedString new];
-    }
-    
-=======
->>>>>>> v2
     if(_video == video)
         return;
 
@@ -335,14 +307,6 @@
     }
 }
 
-<<<<<<< HEAD
-- (NSMutableAttributedString *)myLabelAttributes:(NSString *)input
-{
-    NSMutableAttributedString *labelAttributes = [[NSMutableAttributedString alloc] initWithString:input];
-
-    [labelAttributes addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, labelAttributes.length)];
-    [labelAttributes addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, labelAttributes.length)];
-=======
 - (NSMutableAttributedString *)attributedStringFromString:(NSString *)input font:(UIFont*)font {
     if (!input.length) return
         [NSMutableAttributedString new];
@@ -354,7 +318,6 @@
     
     if(font)
         [result addAttribute:NSFontAttributeName value:font range:NSMakeRange(0, result.length)];
->>>>>>> v2
     
     return result;
 }
