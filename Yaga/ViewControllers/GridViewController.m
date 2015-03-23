@@ -105,7 +105,7 @@
 
 - (void)collectionViewDidScroll {
     CGRect cameraFrame = self.collectionSwipe.scrollView.frame;
-    CGRect gridFrame = self.collectionSwipe.currentCollectionView.collectionView.frame;
+    CGRect gridFrame = self.collectionSwipe.scrollView.frame;
     
     CGFloat scrollOffset = self.collectionSwipe.currentCollectionView.collectionView.contentOffset.y;
     CGFloat offset = self.collectionSwipe.currentCollectionView.collectionView.contentInset.top + scrollOffset;
@@ -120,7 +120,7 @@
     cameraFrame.origin.y = -offset;
 
     self.cameraViewController.view.frame = cameraFrame;
-    self.collectionSwipe.currentCollectionView.collectionView.frame = gridFrame;
+    self.collectionSwipe.scrollView.frame = gridFrame;
 }
 
 #pragma mark -

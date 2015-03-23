@@ -73,8 +73,8 @@
 
 
 - (void)updatePageAtIndex:(NSUInteger)pageIndex withVideoAtIndex:(NSUInteger)videoIndex shouldPlay:(BOOL)shouldPlay {
-    YAVideo *video = [YAUser currentUser].currentGroup.videos[videoIndex];
-    NSLog(@"swiped");
+//    YAVideo *video = [YAUser currentUser].currentGroup.videos[videoIndex];
+//    NSLog(@"swiped");
 //    YAVideoPage *page = self.pages[pageIndex];
     //[page setVideo:video shouldPlay:shouldPlay];
 }
