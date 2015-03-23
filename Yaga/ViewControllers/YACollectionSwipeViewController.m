@@ -28,7 +28,6 @@
 @implementation YACollectionSwipeViewController
 - (void)initPages {
     self.pages = [[NSMutableArray alloc] initWithCapacity:3];
-    
     NSUInteger initialTileIndex = [self tileIndexFromPageIndex:self.initialIndex];
     
     for(NSUInteger i = initialTileIndex; i < initialTileIndex + 3; i++) {
@@ -187,10 +186,6 @@
         [self.pages removeObject:right];
         [self.pages insertObject:right atIndex:0];
     }
-    
-    
-    YACollectionViewController *controller = [self.pages objectAtIndex:self.currentPageIndex];
-    self.delegate = controller.delegate;
 }
 
 - (YACollectionViewController *)currentCollectionView
@@ -198,4 +193,22 @@
     return self.pages[self.currentPageIndex];
 }
 
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    [self updatePages:YES];
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    //make sure we are in fullscreen(swiping controller is on screen when transitioning back to the grid)
+    if(self.scrollView.bounds.size.width < VIEW_WIDTH)
+        return;
+    
+    NSUInteger index = scrollView.contentOffset.x/scrollView.frame.size.width;
+    
+    self.currentPageIndex = index;
+    
+    if(self.currentPageIndex != self.previousPageIndex)
+        [self updatePages:NO];
+    
+    self.previousPageIndex = self.currentPageIndex;
+}
 @end
