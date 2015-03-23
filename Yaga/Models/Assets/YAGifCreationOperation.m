@@ -12,6 +12,7 @@
 #import <ImageIO/ImageIO.h>
 #import "YAGifCreationOperation.h"
 #import "YAAssetsCreator.h"
+#import "YAServer.h"
 
 @interface YAGifCreationOperation ()
 @property (strong) NSString *filename;
@@ -108,6 +109,8 @@
                                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
                                                                                     object:self.video];
                                 
+                                //check whether we need to upload gif
+                                [[YAServer sharedServer] uploadGIFForVideoWithServerId:self.video.serverId];
                             }
                             else
                             {

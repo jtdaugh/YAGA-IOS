@@ -363,7 +363,7 @@
 }
 
 - (UIImage *)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img {
-    CGSize thumbnailSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.width/2, [[UIScreen mainScreen] applicationFrame].size.height/4);
+    CGSize thumbnailSize = CGSizeMake(240, 240);
     return [self croppedImageFromImage:img cropSize:thumbnailSize];
 }
 

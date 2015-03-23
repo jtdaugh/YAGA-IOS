@@ -69,4 +69,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 @property (readonly) BOOL serverUp;
 - (void)sync;
 @property (nonatomic, strong) NSDate *lastUpdateTime;
+
+//execute when after recording, when gif is generated
+- (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId;
 @end
