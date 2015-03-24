@@ -30,7 +30,7 @@
 @end
 
 #define kSeparator 10
-#define kDismissalTreshold 800.0f
+#define kDismissalTreshold 300.0f
 
 @implementation YASwipingViewController
 
@@ -125,7 +125,7 @@
     if(tr.y > 0) {
         CGFloat f = tr.y / [UIScreen mainScreen].bounds.size.height;
         if(f < 1) {
-            self.view.transform = CGAffineTransformMakeScale(1.0f - f, 1.0f - f*1.1);
+//            self.view.transform = CGAffineTransformMakeScale(1.0f - f, 1.0f - f*1.1);
             CGRect r = self.view.frame;
             r.origin.y = tr.y;
             self.view.frame = r;
@@ -155,8 +155,9 @@
     self.dismissed = YES;
     
     //dismiss
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-        self.view.transform = CGAffineTransformMakeScale(0,0);
+    [UIView animateWithDuration:0.2 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
+        self.view.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+//        self.view.transform = CGAffineTransformMakeScale(0,0);
     } completion:^(BOOL finished) {
         if(finished)
             [self dismissViewControllerAnimated:NO completion:nil];
@@ -164,7 +165,7 @@
 }
 
 - (void)restoreAnimated {
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.0 options:0 animations:^{
         self.view.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
         self.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     } completion:nil];
