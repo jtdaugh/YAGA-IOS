@@ -439,9 +439,7 @@ static NSString *cellID = @"Cell";
     return result;
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [self.delegate collectionViewDidScroll];
-    
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {    
     [self handlePaging];
 
     [[YAAssetsCreator sharedCreator] cancelGifOperations];
@@ -457,7 +455,7 @@ static NSString *cellID = @"Cell";
     [self playVisible:!scrollingFast];
     
     self.scrolling = YES;
-
+    [self.delegate collectionViewDidScroll];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
