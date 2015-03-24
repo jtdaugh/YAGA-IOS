@@ -58,6 +58,7 @@ static NSString *cellID = @"Cell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     self.hasToolTipOnOneOfTheCells = NO;
     CGFloat spacing = 1.0f;
     
@@ -456,7 +457,10 @@ static NSString *cellID = @"Cell";
     [self playVisible:!scrollingFast];
     
     self.scrolling = YES;
-    [self.delegate collectionViewDidScroll];
+    
+    CGRect rect = [self.delegate getOffsetForScroll];
+
+    NSLog(@"%@", NSStringFromCGRect(rect));
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {

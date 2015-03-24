@@ -27,6 +27,7 @@
 
 @property (nonatomic, assign) BOOL dismissed;
 
+
 @end
 
 #define kSeparator 10
@@ -70,8 +71,8 @@
     self.scrollView.pagingEnabled = YES;
     
     //gesture recognizers
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
-    [self.view addGestureRecognizer:tap];
+    self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
+    [self.view addGestureRecognizer:self.tapGesture];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     
@@ -80,6 +81,12 @@
     
     //show selected video fullscreen jpg preview
     [self showJpgPreview:YES];
+}
+
+- (void)removeGestures
+{
+    [self.view removeGestureRecognizer:self.panGesture];
+    [self.view removeGestureRecognizer:self.tapGesture];
 }
 
 - (void)viewDidAppear:(BOOL)animated {

@@ -27,6 +27,8 @@
 
 @implementation YACollectionSwipeViewController
 - (void)initPages {
+    [super removeGestures];
+
     self.pages = [[NSMutableArray alloc] initWithCapacity:3];
     NSUInteger initialTileIndex = [self tileIndexFromPageIndex:self.initialIndex];
     
@@ -42,7 +44,7 @@
         
        // [self.scrollView addSubview:page];
         [self.pages addObject:ctr];
-        ctr.delegate = self.delegate;
+        ctr.delegate = self.gridController;
     }
     
     //go to the initial page

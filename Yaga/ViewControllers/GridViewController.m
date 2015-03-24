@@ -51,10 +51,11 @@
 - (void)setupView {
 //    _collectionViewController = [YACollectionViewController new];
     _collectionSwipe = [YACollectionSwipeViewController new];
-    _collectionSwipe.delegate = self;
-    _collectionSwipe.scrollView.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
-   // [_collectionSwipe.collectionView.layer setMasksToBounds:NO];
-
+   // _collectionSwipe.delegate = self;
+    _collectionSwipe.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
+   // _collectionSwipe.scrollView.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
+    // [_collectionSwipe.collectionView.layer setMasksToBounds:NO];
+    _collectionSwipe.gridController = self;
     [self addChildViewController:_collectionSwipe];
     [self.view addSubview:_collectionSwipe.view];
     
@@ -103,8 +104,30 @@
     [self.cameraViewController enableRecording:enable];
 }
 
-- (void)collectionViewDidScroll {
-    CGRect cameraFrame = self.collectionSwipe.scrollView.frame;
+//- (void)collectionViewDidScroll {
+//    CGRect cameraFrame = self.collectionSwipe.scrollView.frame;
+//    CGRect gridFrame = self.collectionSwipe.currentCollectionView.collectionView.frame;
+//    
+//    CGFloat scrollOffset = self.collectionSwipe.currentCollectionView.collectionView.contentOffset.y;
+//    CGFloat offset = self.collectionSwipe.currentCollectionView.collectionView.contentInset.top + scrollOffset;
+//    
+//    if(offset < 0) {
+//        offset = 0;
+//    }
+//    else if(offset > VIEW_HEIGHT/2 - CAMERA_MARGIN) {
+//        offset = VIEW_HEIGHT/2 - CAMERA_MARGIN;
+//    }
+//    
+//    cameraFrame.origin.y = -offset;
+//
+//    self.cameraViewController.view.frame = cameraFrame;
+//    self.collectionSwipe.currentCollectionView.collectionView.frame = gridFrame;
+//}
+
+- (CGRect)getOffsetForScroll
+{
+    CGRect sViewFrame = self.collectionSwipe.currentCollectionView.collectionView.frame;
+    CGRect cameraFrame = self.cameraViewController.view.frame;
     CGRect gridFrame = self.collectionSwipe.scrollView.frame;
     
     CGFloat scrollOffset = self.collectionSwipe.currentCollectionView.collectionView.contentOffset.y;
@@ -118,9 +141,13 @@
     }
     
     cameraFrame.origin.y = -offset;
-
+    gridFrame.origin.y = offset;
+    sViewFrame.origin.y = -offset;
     self.cameraViewController.view.frame = cameraFrame;
     self.collectionSwipe.scrollView.frame = gridFrame;
+    self.collectionSwipe.currentCollectionView.collectionView.frame = sViewFrame;
+
+    return gridFrame;
 }
 
 #pragma mark -

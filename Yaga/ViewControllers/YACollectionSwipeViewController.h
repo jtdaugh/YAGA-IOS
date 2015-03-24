@@ -8,7 +8,10 @@
 #import "YACollectionViewController.h"
 #import "YASwipingViewController.h"
 
+@class GridViewController;
 @interface YACollectionSwipeViewController : YASwipingViewController
 @property (weak, nonatomic) id<YACollectionViewControllerDelegate> delegate;
 @property (nonatomic, readonly) YACollectionViewController *currentCollectionView;
+
+@property (nonatomic, weak) GridViewController *gridController;
 @end
