@@ -49,15 +49,15 @@
 - (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
 {
     YACollectionViewController *ctr = self.collectionViewControllers[index];
-    ctr.controllersGroup = [[YAUser currentUser] currentGroup];
+    ctr.controllersGroup = [[YAGroup allObjects] objectAtIndex:index];
     ctr.delegate = self.collectionDelegate;
     ctr.view.frame = self.swipeView.bounds;
     return ctr.view;
 }
-
-- (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
-{
-    YACollectionViewController *ctr = self.currentCollectionView;
-}
+//
+//- (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
+//{
+//    YACollectionViewController *ctr = self.currentCollectionView;
+//}
 
 @end
