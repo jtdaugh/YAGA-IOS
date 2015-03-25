@@ -79,12 +79,12 @@
         else {
             self.cameraViewController.view.frame = CGRectMake(0, -self.cameraViewController.view.frame.size.height + (showPart ? ELEVATOR_MARGIN : 0) + recordButtonWidth / 2, self.cameraViewController.view.frame.size.width, self.cameraViewController.view.frame.size.height);
         }
-        CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
-        CGFloat separator = show ? 2 : 0;
-        self.collectionSwipe.view.frame = CGRectMake(0,
-                                                     origin + separator,
-                                                     self.collectionSwipe.view.frame.size.width,
-                                                     VIEW_HEIGHT - origin - separator);
+//        CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
+//        CGFloat separator = show ? 2 : 0;
+//        self.collectionSwipe.view.frame = CGRectMake(0,
+//                                                     origin + separator,
+//                                                     self.collectionSwipe.view.frame.size.width,
+//                                                     VIEW_HEIGHT - origin - separator);
         
         [self.cameraViewController showCameraAccessories:(show && !showPart)];
     };

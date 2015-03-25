@@ -54,10 +54,13 @@
     ctr.view.frame = self.swipeView.bounds;
     return ctr.view;
 }
-//
-//- (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
-//{
-//    YACollectionViewController *ctr = self.currentCollectionView;
-//}
+
+- (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
+{
+    YACollectionViewController *ctr = self.currentCollectionView;
+    [self.collectionDelegate showCamera:YES showPart:YES animated:NO completion:^{
+        //ctr.collectionView.contentOffset = CGPointZero;
+    }];
+}
 
 @end
