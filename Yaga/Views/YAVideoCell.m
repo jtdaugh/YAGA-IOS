@@ -14,7 +14,6 @@
 #import "YAActivityView.h"
 #import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
-#import "YADownloadManager.h"
 
 #define LIKE_HEART_SIDE 40.f
 

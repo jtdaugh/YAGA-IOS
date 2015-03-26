@@ -407,6 +407,7 @@
             NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
             video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
             video.url = videoDic[YA_VIDEO_ATTACHMENT];
+            video.gifUrl = ![videoDic[YA_VIDEO_ATTACHMENT_PREVIEW] isKindOfClass:[NSNull class]] ? videoDic[YA_VIDEO_ATTACHMENT_PREVIEW] : @"";
             video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
             if(![videoDic[YA_RESPONSE_NAMER] isKindOfClass:[NSNull class]]){
                 video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];

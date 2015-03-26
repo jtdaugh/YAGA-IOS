@@ -22,12 +22,13 @@
 #define YA_RESPONSE_USER                @"user"
 #define YA_RESPONSE_TOKEN               @"token"
 
-#define YA_VIDEO_POST           @"post"
-#define YA_VIDEO_POSTS          @"posts"
-#define YA_VIDEO_ATTACHMENT     @"attachment"
-#define YA_VIDEO_READY_AT       @"ready_at"
-#define YA_VIDEO_DELETED        @"deleted"
-#define YA_GROUP_UPDATED_AT     @"updated_at"
+#define YA_VIDEO_POST                   @"post"
+#define YA_VIDEO_POSTS                  @"posts"
+#define YA_VIDEO_ATTACHMENT             @"attachment"
+#define YA_VIDEO_ATTACHMENT_PREVIEW     @"attachment_preview"
+#define YA_VIDEO_READY_AT               @"ready_at"
+#define YA_VIDEO_DELETED                @"deleted"
+#define YA_GROUP_UPDATED_AT             @"updated_at"
 
 #define YA_LAST_DEVICE_TOKEN_SYNC_DATE @"lastTokenSyncDate"
 

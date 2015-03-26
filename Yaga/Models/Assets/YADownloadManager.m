@@ -40,29 +40,36 @@
     return self;
 }
 
-- (AFDownloadRequestOperation*)createJobForVideo:(YAVideo*)video {
+- (AFDownloadRequestOperation*)createJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
     
-    NSURL *url = [NSURL URLWithString:video.url];
+    NSString *stringUrl = gifJob ? video.gifUrl : video.url;
     
-    NSString *hashStr       = url.lastPathComponent;
-    NSString *moveFilename  = [hashStr stringByAppendingPathExtension:@"mov"];
-    NSString *movPath       = [[YAUtils cachesDirectory] stringByAppendingPathComponent:moveFilename];
-    NSURL    *movURL        = [NSURL fileURLWithPath:movPath];
+    NSURL *url = [NSURL URLWithString:stringUrl];
+    
+    NSString *hashStr   = url.lastPathComponent;
+    NSString *filename  = [hashStr stringByAppendingPathExtension:gifJob ? @"gif" : @"mov"];
+    NSString *filePath  = [[YAUtils cachesDirectory] stringByAppendingPathComponent:filename];
+    NSURL    *fileUrl   = [NSURL fileURLWithPath:filePath];
     
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    AFDownloadRequestOperation *operation = [[AFDownloadRequestOperation alloc] initWithRequest:request targetPath:movURL.path shouldResume:NO];
+    AFDownloadRequestOperation *operation = [[AFDownloadRequestOperation alloc] initWithRequest:request targetPath:fileUrl.path shouldResume:NO];
     operation.shouldOverwrite = YES;
     
-    operation.name = video.url;
+    operation.name = stringUrl;
     
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         dispatch_async(dispatch_get_main_queue(), ^{
+            
             [video.realm beginWriteTransaction];
-            video.movFilename = moveFilename;
+            if(gifJob)
+                video.gifFilename = filename;
+            else
+                video.movFilename = filename;
+            
             video.localCreatedAt = [NSDate date];
             [video.realm commitWriteTransaction];
             
-            [self jobFinishedForVideo:video];
+            [self jobFinishedForVideo:video gifJob:gifJob];
         });
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         if(error.code == NSURLErrorCancelled) {
@@ -71,53 +78,57 @@
         else {
             DLog(@"Error downloading video %@", error);
         }
-        [self jobFinishedForVideo:video];
+        [self jobFinishedForVideo:video gifJob:gifJob];
     }];
     
     [operation setProgressiveDownloadProgressBlock:^(AFDownloadRequestOperation *operation, NSInteger bytesRead, long long totalBytesRead, long long totalBytesExpected, long long totalBytesReadForFile, long long totalBytesExpectedToReadForFile) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:video.url userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:(totalBytesReadForFile - totalBytesReadForFile * 0.3) /(float)totalBytesExpectedToReadForFile]}];
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:url userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:(totalBytesReadForFile - totalBytesReadForFile * 0.3) /(float)totalBytesExpectedToReadForFile]}];
     }];
     return operation;
 }
 
-- (void)addJobForVideo:(YAVideo*)video {
+- (void)addDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
+    NSString *url = gifJob ? video.gifUrl : video.url;
+    
     //already executing?
-    if([self.executingJobs objectForKey:video.url]) {
-        DLog(@"addJobForVideo: %@ is already executing, skipping.", video.movFilename);
+    if([self.executingJobs objectForKey:url]) {
+        DLog(@"addJobForVideo: %@ is already executing, skipping.", url);
         return;
     }
     
     //waiting already?
-    if([self.waitingJobs objectForKey:video.url]) {
-        DLog(@"addJobForVideo: %@ is already waiting, skipping.", video.movFilename);
+    if([self.waitingJobs objectForKey:url]) {
+        DLog(@"addJobForVideo: %@ is already waiting, skipping.", url);
         return;
     }
     
-    AFDownloadRequestOperation *job = [self createJobForVideo:video];
+    AFDownloadRequestOperation *job = [self createJobForVideo:video gifJob:gifJob];
     
     //can start immediately?
     if(self.executingJobs.allKeys.count < self.maxConcurentJobs) {
-        [self.executingJobs setObject:job forKey:video.url];
+        [self.executingJobs setObject:job forKey:url];
         [job start];
     }
     else {
-        [self.waitingJobs setObject:job forKey:video.url];
+        [self.waitingJobs setObject:job forKey:url];
     }
     
     [self logState:@"addJobForVideo"];
 }
 
-- (void)prioritizeJobForVideo:(YAVideo*)video {
+- (void)prioritizeDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
+    NSString *url = gifJob ? video.gifUrl : video.url;
+    
     //already executing?
-    if([self.executingJobs objectForKey:video.url]) {
-        DLog(@"prioritizeJobForVideo: %@ is already executing, skipping.", video.movFilename);
+    if([self.executingJobs objectForKey:url]) {
+        DLog(@"prioritizeJobForVideo: %@ is already executing, skipping.", url);
         return;
     }
         
     //get paused or create new one
-    AFDownloadRequestOperation *job = [self.waitingJobs objectForKey:video.url];
+    AFDownloadRequestOperation *job = [self.waitingJobs objectForKey:url];
     if(!job)
-        job = [self createJobForVideo:video];
+        job = [self createJobForVideo:video gifJob:gifJob];
     
     //start or resume immediately
     if(job.isPaused)
@@ -127,8 +138,8 @@
     
     //can add without pausing another?
     if(self.executingJobs.allKeys.count < self.maxConcurentJobs) {
-        [self.executingJobs setObject:job forKey:video.url];
-        [self.waitingJobs removeObjectForKey:video.url];
+        [self.executingJobs setObject:job forKey:url];
+        [self.waitingJobs removeObjectForKey:url];
         [self logState:@"prioritizeJobForVideo"];
         return;
     }
@@ -143,14 +154,10 @@
     [self.waitingJobs insertObject:jobToPause forKey:urlToPause atIndex:0];
     
     //then add new one
-    [self.executingJobs setObject:job forKey:video.url];
-    [self.waitingJobs removeObjectForKey:video.url];
+    [self.executingJobs setObject:job forKey:url];
+    [self.waitingJobs removeObjectForKey:url];
     
     [self logState:@"prioritizeJobForVideo"];
-}
-
-- (BOOL)executingOperationForVideo:(YAVideo*)video {
-    return [self.executingJobs objectForKey:video.url] != nil;
 }
 
 - (void)logState:(NSString*)method {
@@ -180,10 +187,11 @@
     dispatch_semaphore_wait(self.waiting_semaphore, DISPATCH_TIME_FOREVER);
 }
 
-- (void)jobFinishedForVideo:(YAVideo*)video {
-    [[YAAssetsCreator sharedCreator] enqueueJpgCreationForVideo:video];
+- (void)jobFinishedForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
+    if(!gifJob)
+        [[YAAssetsCreator sharedCreator] enqueueJpgCreationForVideo:video];
     
-    [self logState:@"jobFinishedForVideo"];
+    [self logState:[NSString stringWithFormat:@"jobFinishedForVideo, gifJob: %d", gifJob]];
     
     [self.executingJobs removeObjectForKey:video.url];
     
