@@ -44,7 +44,7 @@
 
 - (NSInteger)numberOfItemsInSwipeView:(SwipeView *)swipeView
 {
-    return 3;
+    return [[YAGroup allObjects] count];
 }
 - (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
 {
@@ -58,6 +58,8 @@
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
 {
     YACollectionViewController *ctr = self.currentCollectionView;
+    YAGroup *group = [[YAGroup allObjects] objectAtIndex:self.swipeView.currentPage];
+    [[YAUser currentUser] setCurrentGroup:group];
     [self.collectionDelegate showCamera:YES showPart:YES animated:NO completion:^{
         //ctr.collectionView.contentOffset = CGPointZero;
     }];

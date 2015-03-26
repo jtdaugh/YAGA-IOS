@@ -43,8 +43,7 @@
     
     [self closeGroups];
     
-    [self presentViewController:vc animated:NO completion:^{
-    }];
+    [self presentViewController:vc animated:NO completion:^{}];
     
 }
 
