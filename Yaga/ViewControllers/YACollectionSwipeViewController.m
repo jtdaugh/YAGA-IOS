@@ -16,8 +16,9 @@
 - (instancetype)init
 {
     if (self = [super init]) {
+        NSUInteger count = [[YAGroup allObjects] count];
         self.collectionViewControllers = [NSMutableArray new];
-        for (int i = 0; i <=2; i++){
+        for (int i = 0; i <=count; i++){
             YACollectionViewController *ctr = [YACollectionViewController new];
             [self.collectionViewControllers addObject:ctr];
         }
