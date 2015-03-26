@@ -29,7 +29,7 @@
 
         [gridController.cameraViewController showCameraAccessories:YES];
         
-        [groupsController.view setTransform:CGAffineTransformMakeScale(0.75, 0.0)];
+        [groupsController.view setTransform:CGAffineTransformMakeScale(0.0, 0.0)];
         groupsController.view.alpha = 0;
     } completion:^(BOOL finished) {
         [groupsController removeFromParentViewController];

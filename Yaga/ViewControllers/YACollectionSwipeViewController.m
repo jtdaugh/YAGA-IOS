@@ -59,8 +59,13 @@
     return ctr.view;
 }
 
+- (CGSize)swipeViewItemSize:(SwipeView *)swipeView {
+    return CGSizeMake(swipeView.frame.size.width + 2.0f, swipeView.frame.size.height);
+}
+
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
 {
+    NSLog(@"did change?!?!?!?!");
     YAGroup *group = [[YAGroup allObjects] objectAtIndex:self.swipeView.currentPage];
     [[YAUser currentUser] setCurrentGroup:group];
 //    [self.collectionDelegate showCamera:YES showPart:YES animated:NO completion:^{

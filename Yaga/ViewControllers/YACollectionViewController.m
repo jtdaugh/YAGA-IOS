@@ -78,6 +78,7 @@ static NSString *cellID = @"Cell";
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.collectionView.backgroundColor = [UIColor whiteColor];
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
+    self.collectionView.layoutMargins = UIEdgeInsetsMake(0, 1.0f, 0, 1.0f);
     [self.view addSubview:self.collectionView];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
