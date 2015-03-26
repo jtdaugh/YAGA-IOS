@@ -23,7 +23,7 @@
         
 //        CGFloat origin = gridController.cameraViewController.view.frame.origin.y + gridController.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
         
-        gridController.collectionViewController.view.frame = CGRectMake(0, CAMERA_MARGIN, gridController.collectionViewController.view.frame.size.width, VIEW_HEIGHT - CAMERA_MARGIN);
+        gridController.collectionSwipe.view.frame = CGRectMake(0, CAMERA_MARGIN, gridController.collectionSwipe.view.frame.size.width, VIEW_HEIGHT - CAMERA_MARGIN);
         
         gridController.cameraViewController.view.frame = CGRectMake(0, 0, gridController.cameraViewController.view.frame.size.width, gridController.cameraViewController.view.frame.size.height);
 
@@ -37,7 +37,7 @@
         gridController.elevatorOpen = NO;
         
         [gridController.cameraViewController.view removeGestureRecognizer:groupsController.cameraTapToClose];
-        [gridController.collectionViewController.view removeGestureRecognizer:groupsController.collectionTapToClose];
+        [gridController.collectionSwipe.view removeGestureRecognizer:groupsController.collectionTapToClose];
         
         gridController.cameraViewController.cameraView.tapToFocusRecognizer.enabled = YES;
         [gridController.cameraViewController updateCurrentGroupName];

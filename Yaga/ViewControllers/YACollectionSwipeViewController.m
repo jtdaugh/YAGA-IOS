@@ -32,6 +32,7 @@
     self.swipeView.delegate = self;
     self.swipeView.dataSource = self;
     self.swipeView.pagingEnabled = YES;
+    self.swipeView.wrapEnabled = YES;
     self.swipeView.itemsPerPage = 1;
     [self.view addSubview:self.swipeView];
 }
@@ -61,9 +62,9 @@
     YACollectionViewController *ctr = self.currentCollectionView;
     YAGroup *group = [[YAGroup allObjects] objectAtIndex:self.swipeView.currentPage];
     [[YAUser currentUser] setCurrentGroup:group];
-    [self.collectionDelegate showCamera:YES showPart:YES animated:NO completion:^{
-        //ctr.collectionView.contentOffset = CGPointZero;
-    }];
+//    [self.collectionDelegate showCamera:YES showPart:YES animated:NO completion:^{
+//        //ctr.collectionView.contentOffset = CGPointZero;
+//    }];
 }
 
 @end

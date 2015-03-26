@@ -33,7 +33,7 @@
     groupsViewController.cameraTapToClose = tapToClose1;
     
     UITapGestureRecognizer *tapToClose2 = [[UITapGestureRecognizer alloc] initWithTarget:gridController action:@selector(closeGroups)];
-    [gridController.collectionViewController.view addGestureRecognizer:tapToClose2];
+    [gridController.collectionSwipe.view addGestureRecognizer:tapToClose2];
     groupsViewController.collectionTapToClose = tapToClose2;
     
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
@@ -52,7 +52,7 @@
         
         origin += groupsViewController.view.frame.size.height;
         
-        gridController.collectionViewController.view.frame = CGRectMake(0, origin - VIEW_HEIGHT/2 + CAMERA_MARGIN, gridController.collectionViewController.view.frame.size.width, gridController.collectionViewController.view.frame.size.height);
+        gridController.collectionSwipe.view.frame = CGRectMake(0, origin - VIEW_HEIGHT/2 + CAMERA_MARGIN, gridController.collectionSwipe.view.frame.size.width, gridController.collectionSwipe.view.frame.size.height);
         
     } completion:^(BOOL finished) {
         gridController.elevatorOpen = YES;
