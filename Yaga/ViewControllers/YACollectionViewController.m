@@ -67,7 +67,7 @@ static NSString *cellID = @"Cell";
     [self.gridLayout setMinimumLineSpacing:spacing];
     [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
     
-    self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
+    self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.frame collectionViewLayout:self.gridLayout];
     
     self.collectionView.alwaysBounceVertical = YES;
     

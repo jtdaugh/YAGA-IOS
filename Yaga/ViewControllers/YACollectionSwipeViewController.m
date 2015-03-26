@@ -28,12 +28,14 @@
 
 - (void)viewDidLoad
 {
-    self.swipeView = [[SwipeView alloc] initWithFrame:self.view.bounds];
+    self.swipeView = [[SwipeView alloc] initWithFrame:self.view.frame];
     self.swipeView.delegate = self;
     self.swipeView.dataSource = self;
     self.swipeView.pagingEnabled = YES;
     self.swipeView.wrapEnabled = YES;
     self.swipeView.itemsPerPage = 1;
+    self.swipeView.defersItemViewLoading = YES;
+    [self.swipeView reloadData];
     [self.view addSubview:self.swipeView];
 }
 
@@ -53,13 +55,12 @@
     YACollectionViewController *ctr = self.collectionViewControllers[index];
     ctr.controllersGroup = [[YAGroup allObjects] objectAtIndex:index];
     ctr.delegate = self.collectionDelegate;
-    ctr.view.frame = self.swipeView.bounds;
+    ctr.view.frame = self.swipeView.frame;
     return ctr.view;
 }
 
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
 {
-    YACollectionViewController *ctr = self.currentCollectionView;
     YAGroup *group = [[YAGroup allObjects] objectAtIndex:self.swipeView.currentPage];
     [[YAUser currentUser] setCurrentGroup:group];
 //    [self.collectionDelegate showCamera:YES showPart:YES animated:NO completion:^{

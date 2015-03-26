@@ -111,6 +111,7 @@
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
+    self.caption.text = @"";
     self.state = YAVideoCellStateLoading;
 }
 
@@ -272,40 +273,6 @@
 }
 
 #pragma mark - UITapGestureRecognizer actions
-
-- (void)doubleTap:(UIGestureRecognizer *)sender {
-    BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
-    if (!myVideo) {
-        if (!self.video.like) {
-            [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-
-            }];
-        } else {
-            [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-            }];
-        }
-        
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        self.video.like = !self.video.like;
-        [[RLMRealm defaultRealm] commitWriteTransaction];
-        
-        UIImage *likeImage = self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"];
-        self.likeImageView.image = likeImage;
-
-        CABasicAnimation *theAnimation;
-        theAnimation=[CABasicAnimation animationWithKeyPath:@"opacity"];
-        theAnimation.duration=0.4;
-        theAnimation.autoreverses = YES;
-        theAnimation.fromValue=[NSNumber numberWithFloat:0.0];
-        theAnimation.toValue=[NSNumber numberWithFloat:1.0];
-        
-        [self.likeImageView.layer addAnimation:theAnimation forKey:@"animateOpacity"];
-    } else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:self];
-        self.captionField.enabled = YES;
-        [self.captionField becomeFirstResponder];
-    }
-}
 
 - (NSMutableAttributedString *)attributedStringFromString:(NSString *)input font:(UIFont*)font {
     if (!input.length) return
