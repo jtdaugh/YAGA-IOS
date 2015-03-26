@@ -16,6 +16,7 @@
 #import "YAProgressView.h"
 #import "YASwipingViewController.h"
 #import "YAGifCopyActivity.h"
+#import "ViewFrameAccessor.h"
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -41,6 +42,7 @@
 @property (nonatomic) CGRect keyboardRect;
 @property (nonatomic, strong) UIButton *keyBoardAccessoryButton;
 @property NSUInteger fontIndex;
+@property BOOL canDecreseFontFurther;
 
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
@@ -54,6 +56,7 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
+        self.canDecreseFontFurther = YES;
         //self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
@@ -285,7 +288,9 @@
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    
+    if(!self.canDecreseFontFurther && text.length != 0){ // We can't add and we're not deleting
+        return NO;
+    }
     if([text isEqualToString:@"\n"]) {
         [self.video rename:textView.text withFont:self.fontIndex];
         [self updateControls];
@@ -301,7 +306,6 @@
 - (void)textViewDidChange:(UITextView *)textView {
     [self resizeText];
 }
-
 - (void)resizeText {
     NSString *fontName = self.captionField.font.fontName;
     CGFloat fontSize = 60;
@@ -314,10 +318,13 @@
                                      options:option
                                   attributes:attributes
                                      context:nil];
-    
+        self.canDecreseFontFurther = YES;
     while(rect.size.height > self.captionField.bounds.size.height){
-        
         fontSize = fontSize - 1.0f;
+        if (fontSize <= 0) {
+            self.canDecreseFontFurther = NO;
+            return;
+        }
         rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
                                   options:option
                                attributes:attributes
@@ -329,7 +336,11 @@
         
         while (width > self.captionField.bounds.size.width && width != 0) {
             fontSize = fontSize - 1.0f;
-            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+            if (fontSize <= 0) {
+                self.canDecreseFontFurther = NO;
+                return;
+            }
+            attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
             width = [word sizeWithAttributes:attributes].width;
         }
     }
@@ -338,7 +349,7 @@
     
     [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
     CGRect captionerFrame = self.captionerLabel.frame;
-    captionerFrame.origin.y = self.captionField.frame.origin.y + finalHeight;
+    captionerFrame.origin.y = self.captionField.top + finalHeight;
     [self.captionerLabel setFrame:captionerFrame];
 }
 

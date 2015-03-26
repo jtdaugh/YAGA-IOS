@@ -70,15 +70,23 @@
             return;
         }
         
+        NSDate *currentDate = [NSDate date];
         dispatch_sync(dispatch_get_main_queue(), ^{
             [self.group.realm beginWriteTransaction];
             self.video.creator = [[YAUser currentUser] username];
-            self.video.createdAt = [NSDate date];
+            self.video.createdAt = currentDate;
             self.video.movFilename = moveFilename;
             self.video.group = self.group;
+            self.group.updatedAt = currentDate;
             [self.group.videos insertObject:self.video atIndex:0];
             
             [self.group.realm commitWriteTransaction];
+            
+            //update local update time so the "new" badge isn't shown
+            NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+            [groupsUpdatedAt setObject:currentDate forKey:self.group.localId];
+            [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+            
             [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kVideos:@[self.video]}];
             
             //start uploading while generating gif
