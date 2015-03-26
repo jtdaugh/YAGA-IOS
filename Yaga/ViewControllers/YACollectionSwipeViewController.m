@@ -60,7 +60,7 @@
 }
 
 - (CGSize)swipeViewItemSize:(SwipeView *)swipeView {
-    return CGSizeMake(swipeView.frame.size.width + 2.0f, swipeView.frame.size.height);
+    return CGSizeMake(swipeView.frame.size.width, swipeView.frame.size.height);
 }
 
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
