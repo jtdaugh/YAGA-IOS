@@ -237,23 +237,34 @@
         
 #warning refactor YADownloadManager in a way the following block can be executed not on main thread, that will fix the freeze on collection view when next 100 items are enqueued for download
         
-        
+
+        //first loop prioritise videos, second loop prioritise gifs so they go first
         for(YAVideo *video in videos) {
-            BOOL hasRemoteGIFButNoLocal = video.gifUrl.length && !video.gifFilename.length;
+  
             BOOL hasRemoteMOVButNoLocal = video.url.length && !video.movFilename.length;
             BOOL hasLocalMOVButNoGIF = video.movFilename.length && !video.gifFilename.length;
             
-            if(hasRemoteGIFButNoLocal || hasRemoteMOVButNoLocal) {
-//                if(prioritize)
-//                    [[YADownloadManager sharedManager] prioritizeDownloadJobForVideo:video];
-//                else
-//                    [[YADownloadManager sharedManager] addDownloadJobForVideo:video];
+            if(hasRemoteMOVButNoLocal) {
+                if(prioritize)
+                    [[YADownloadManager sharedManager] prioritizeDownloadJobForVideo:video gifJob:NO];
+                else
+                    [[YADownloadManager sharedManager] addDownloadJobForVideo:video gifJob:NO];
             }
             else if(hasLocalMOVButNoGIF) {
                 if(prioritize) {
                     [self.prioritizedVideos removeObject:video];
                     [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
                 }
+                
+            }
+        }
+        
+        //second loop
+        if(prioritize) {
+            for(YAVideo *video in videos) {
+                BOOL hasRemoteGIFButNoLocal = video.gifUrl.length && !video.gifFilename.length;
+                if(hasRemoteGIFButNoLocal)
+                     [[YADownloadManager sharedManager] prioritizeDownloadJobForVideo:video gifJob:YES];
                 
             }
         }
