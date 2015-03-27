@@ -13,4 +13,5 @@
 @property (nonatomic, strong) SwipeView *swipeView;
 @property (nonatomic, weak) id<YACollectionViewControllerDelegate> collectionDelegate;
 - (YACollectionViewController*)currentCollectionView;
+- (void)scrollToCurrentGroup;
 @end

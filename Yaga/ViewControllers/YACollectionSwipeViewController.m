@@ -44,6 +44,13 @@
     return self.collectionViewControllers[self.swipeView.currentPage];
 }
 
+- (void)scrollToCurrentGroup
+{
+    YAGroup *currentGroup = [[YAUser currentUser] currentGroup];
+    NSUInteger index = [[YAGroup allObjects] indexOfObject:currentGroup];
+    [self.swipeView scrollToItemAtIndex:index duration:0.2f];
+}
+
 #pragma mark SwipeViewDataSource/Delegate
 
 - (NSInteger)numberOfItemsInSwipeView:(SwipeView *)swipeView
