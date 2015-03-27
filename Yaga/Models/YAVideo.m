@@ -38,6 +38,7 @@
              @"font": @0,
              @"createdAt":[NSDate date],
              @"url":@"",
+             @"gifUrl":@"",
              @"serverId":@"",
              @"localCreatedAt":[NSDate date]};
 }
