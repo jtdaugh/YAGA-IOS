@@ -197,7 +197,9 @@
     
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 10;
-    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
+    self.captionField.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
@@ -214,11 +216,12 @@
     
     [self addSubview:self.captionField];
     
-    self.captionerLabel = [[UILabel alloc] initWithFrame:CGRectMake(captionGutter, self.captionField.frame.size.height + self.captionField.frame.origin.y, VIEW_WIDTH - captionGutter*2, 24)];
+    self.captionerLabel = [[UILabel alloc] initWithFrame:CGRectMake(captionGutter*2, self.captionField.frame.size.height + self.captionField.frame.origin.y, VIEW_WIDTH - captionGutter*4, 24)];
+    self.captionerLabel.alpha = 0.75;
     [self.captionerLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
     [self.captionerLabel setTextColor:[UIColor whiteColor]];
     [self.captionerLabel setBackgroundColor:[UIColor clearColor]];
-    [self.captionerLabel setTextAlignment:NSTextAlignmentCenter];
+    [self.captionerLabel setTextAlignment:NSTextAlignmentRight];
     self.captionerLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.captionerLabel.layer.shadowRadius = 1.0f;
     self.captionerLabel.layer.shadowOpacity = 1.0;
@@ -233,7 +236,7 @@
     
     //    [self.captionField addGestureRecognizer:panGesture];
     
-    CGFloat tSize = 60;
+    CGFloat tSize = MAX_FONT_SIZE;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
     [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -308,7 +311,7 @@
 }
 - (void)resizeText {
     NSString *fontName = self.captionField.font.fontName;
-    CGFloat fontSize = 60;
+    CGFloat fontSize = MAX_FONT_SIZE;
     
     NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
     
@@ -387,7 +390,7 @@
             self.fontIndex = 0;
         }
         
-        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
+        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_FONT_SIZE]];
         [self resizeText];
     } else {
         [self.captionField becomeFirstResponder];
@@ -598,7 +601,7 @@
     self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
     self.captionField.text = self.video.caption;
     self.fontIndex = self.video.font;
-    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
+    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_FONT_SIZE]];
     if(![self.video.namer isEqual:@""]){
         [self.captionerLabel setText:[NSString stringWithFormat:@"- %@", self.video.namer]];
     } else {

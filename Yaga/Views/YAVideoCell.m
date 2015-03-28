@@ -141,6 +141,7 @@
 }
 
 - (void)updateCell {
+    
     switch (self.state) {
         case YAVideoCellStateLoading: {
             [self showLoader:YES];
@@ -166,6 +167,9 @@
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
     if(!fileName.length)
         return;
+    
+    [self setBackgroundColor:[PRIMARY_COLOR colorWithAlphaComponent:(arc4random() % 128 / 256.0)]];
+//    [self setBackgroundColor:PRIMARY_COLOR];
     
     id cachedImage = [[YAImageCache sharedCache] objectForKey:fileName];
     if(cachedImage) {
@@ -228,6 +232,7 @@
                                                               selector:@selector(loaderTick:)
                                                               userInfo: nil repeats:YES];
             [[NSRunLoop mainRunLoop] addTimer:self.loaderTimer forMode:NSRunLoopCommonModes];
+            [self loaderTick:self.loaderTimer];
         }
     } else {
         if([self.loaderTimer isValid]){
