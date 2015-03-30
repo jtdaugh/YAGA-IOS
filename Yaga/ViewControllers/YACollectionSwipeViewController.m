@@ -57,12 +57,12 @@
 {
     return [[YAGroup allObjects] count];
 }
+
 - (UIView *)swipeView:(SwipeView *)swipeView viewForItemAtIndex:(NSInteger)index reusingView:(UIView *)view
 {
     YACollectionViewController *ctr = self.collectionViewControllers[index];
     ctr.controllersGroup = [[YAGroup allObjects] objectAtIndex:index];
     ctr.delegate = self.collectionDelegate;
-    ctr.view.frame = self.swipeView.frame;
     return ctr.view;
 }
 
@@ -72,12 +72,15 @@
 
 - (void)swipeViewCurrentItemIndexDidChange:(SwipeView *)swipeView
 {
-    NSLog(@"did change?!?!?!?!");
     YAGroup *group = [[YAGroup allObjects] objectAtIndex:self.swipeView.currentPage];
     [[YAUser currentUser] setCurrentGroup:group];
-//    [self.collectionDelegate showCamera:YES showPart:YES animated:NO completion:^{
-//        //ctr.collectionView.contentOffset = CGPointZero;
+    YACollectionViewController *ctr = self.currentCollectionView;
+    NSLog(@"%@", NSStringFromCGPoint(ctr.collectionView.contentOffset));
+    [ctr.delegate adjustCollectionView];
+//    [UIView animateWithDuration:0.5f animations:^{
+//        ctr.collectionView.contentOffset = CGPointZero;
 //    }];
+
 }
 
 @end

@@ -13,6 +13,7 @@ typedef void (^cameraCompletion)(void);
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion;
 - (void)enableRecording:(BOOL)enable;
 - (void)collectionViewDidScroll;
+- (void)adjustCollectionView;
 @end
 
 @interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate> {
