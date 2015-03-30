@@ -82,7 +82,7 @@
     }];
     
     [operation setProgressiveDownloadProgressBlock:^(AFDownloadRequestOperation *operation, NSInteger bytesRead, long long totalBytesRead, long long totalBytesExpected, long long totalBytesReadForFile, long long totalBytesExpectedToReadForFile) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:url userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:(totalBytesReadForFile - totalBytesReadForFile * 0.3) /(float)totalBytesExpectedToReadForFile]}];
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:stringUrl userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:(totalBytesReadForFile - totalBytesReadForFile * 0.3) /(float)totalBytesExpectedToReadForFile]}];
     }];
     return operation;
 }
