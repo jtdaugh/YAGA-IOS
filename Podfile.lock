@@ -60,20 +60,20 @@ DEPENDENCIES:
   - UCZProgressView
 
 SPEC CHECKSUMS:
-  AFDownloadRequestOperation: e223a65bc56fb8e6ae5d289b649c7bcc6b307f0d
-  AFNetworking: 8bee59492a6ff15d69130efa4d0dc67e0094a52a
-  AnalyticsKit: 71523cf219183c95878d75bbdeee32de9c9e0923
-  APAddressBook: d176555d6b845a3c900f3f3c3787c1b98d83151d
-  FLAnimatedImage: 8669ace2a531fc0bb7344a6326f48c3a4c3de84b
-  FrameAccessor: 5eec95b29b5e9a3afe72a7a2e9ed25b000d3bcc3
+  AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
+  AFNetworking: 10e85a00bb0f475124e4ff2677bf15693b2c1523
+  AnalyticsKit: df362a1727580586230c61e6383a60e13696d161
+  APAddressBook: 11582a756dc59228effdbba0faf6d4675bac6b77
+  FLAnimatedImage: f9422f796135aff80d8c00b2afc48015bb746e24
+  FrameAccessor: 0f7ba6ce37be9a5d0302a27c731dca70af8d438b
   libPhoneNumber-iOS: dbfc7b4128510a4955df3e5a6f125393fc9ebc2f
-  MBProgressHUD: f3747dcbd45a9e855a6b0674550651e0b7ed250c
+  MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
   Mixpanel: 1d387d76800e07e953958c62c97fea27f13632dd
-  NSDate-Time-Ago: 6c2f55530dec7471e90106d84bb34bba6660c139
-  OrderedDictionary: f7dffc6f0b866461964952a66ed8497d15cf2028
-  Realm: 6c3facc11964ab9f828f47de6d0e9bf9c4d9c818
-  SVPullToRefresh: d5161ebc833a38b465364412e5e307ca80bbb190
-  SwipeView: 0093c212acf3d715b09334c50d568a4418404150
-  UCZProgressView: 9db75f32cb45b0775a75fdb886f0de10704615dd
+  NSDate-Time-Ago: e9de167d0659ebe465c273e833e7b582f061fc41
+  OrderedDictionary: 9cc5d69c5c5314ad696ed1839190724e83d534c7
+  Realm: a4b2766a29006293693a0f26664ecb5a84a54455
+  SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
+  SwipeView: bd67cfaf7760c036438446b3ccb28a3b84fce009
+  UCZProgressView: 32fa5c572ff1300bf22553c8286600d9ae42f50f
 
-COCOAPODS: 0.36.0.beta.1
+COCOAPODS: 0.36.1

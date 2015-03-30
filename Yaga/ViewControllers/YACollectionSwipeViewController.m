@@ -48,7 +48,7 @@
 {
     YAGroup *currentGroup = [[YAUser currentUser] currentGroup];
     NSUInteger index = [[YAGroup allObjects] indexOfObject:currentGroup];
-    [self.swipeView scrollToItemAtIndex:index duration:0.2f];
+    [self.swipeView scrollToItemAtIndex:index duration:0];
 }
 
 #pragma mark SwipeViewDataSource/Delegate
