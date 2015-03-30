@@ -135,6 +135,7 @@
 //            self.view.transform = CGAffineTransformMakeScale(1.0f - f, 1.0f - f*1.1);
             CGRect r = self.view.frame;
             r.origin.y = tr.y;
+            r.origin.x = tr.x;
             self.view.frame = r;
         }
         else {
@@ -162,9 +163,10 @@
     self.dismissed = YES;
     
     //dismiss
-    [UIView animateWithDuration:0.2 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
-        self.view.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
-//        self.view.transform = CGAffineTransformMakeScale(0,0);
+    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
+        self.view.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height * .5, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+        self.view.alpha = 0.0;
+        self.view.transform = CGAffineTransformMakeScale(0.5,0.5);
     } completion:^(BOOL finished) {
         if(finished)
             [self dismissViewControllerAnimated:NO completion:nil];
