@@ -63,7 +63,6 @@
     YACollectionViewController *ctr = self.collectionViewControllers[index];
     ctr.controllersGroup = [[YAGroup allObjects] objectAtIndex:index];
     ctr.delegate = self.collectionDelegate;
-    ctr.view.frame = self.swipeView.frame;
     return ctr.view;
 }
 
@@ -75,6 +74,13 @@
 {
     YAGroup *group = [[YAGroup allObjects] objectAtIndex:self.swipeView.currentPage];
     [[YAUser currentUser] setCurrentGroup:group];
+    YACollectionViewController *ctr = self.currentCollectionView;
+    NSLog(@"%@", NSStringFromCGPoint(ctr.collectionView.contentOffset));
+    [ctr.delegate adjustCollectionView];
+//    [UIView animateWithDuration:0.5f animations:^{
+//        ctr.collectionView.contentOffset = CGPointZero;
+//    }];
+
 }
 
 @end

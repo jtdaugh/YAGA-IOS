@@ -105,6 +105,13 @@
     [self.cameraViewController enableRecording:enable];
 }
 
+- (void)adjustCollectionView
+{
+    [UIView animateWithDuration:0.5f animations:^{
+        [self collectionViewDidScroll];
+    }];
+}
+
 - (void)collectionViewDidScroll {
     CGRect cameraFrame = self.cameraViewController.view.frame;
    // CGRect gridFrame = self.collectionSwipe.currentCollectionView.collectionView.frame;
