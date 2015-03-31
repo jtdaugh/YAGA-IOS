@@ -89,7 +89,6 @@
 		861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */ = {isa = PBXBuildFile; fileRef = 861A90BE1A4AE77C00CAD2E3 /* NSData+Hex.m */; };
 		861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */; };
 		861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailable.m in Sources */ = {isa = PBXBuildFile; fileRef = 861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */; };
-		868595E51ABC472300BBFA29 /* YACollectionSwipeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 868595E41ABC472300BBFA29 /* YACollectionSwipeViewController.m */; };
 		8695EF881AAF519900431E44 /* YAGifCopyActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 8695EF871AAF519900431E44 /* YAGifCopyActivity.m */; };
 		86A1C66C1AB1E35100817F89 /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 86A1C66B1AB1E35100817F89 /* bumper.mp4 */; };
 		86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */ = {isa = PBXBuildFile; fileRef = 86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */; };
@@ -257,8 +256,6 @@
 		861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "YAServer+HostManagment.m"; sourceTree = "<group>"; };
 		861AF47A1A5C2B4700F125C3 /* YARealmObjectUnavailable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YARealmObjectUnavailable.h; sourceTree = "<group>"; };
 		861AF47B1A5C2B4700F125C3 /* YARealmObjectUnavailable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YARealmObjectUnavailable.m; sourceTree = "<group>"; };
-		868595E31ABC472300BBFA29 /* YACollectionSwipeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YACollectionSwipeViewController.h; path = Yaga/ViewControllers/YACollectionSwipeViewController.h; sourceTree = SOURCE_ROOT; };
-		868595E41ABC472300BBFA29 /* YACollectionSwipeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YACollectionSwipeViewController.m; path = Yaga/ViewControllers/YACollectionSwipeViewController.m; sourceTree = SOURCE_ROOT; };
 		8695EF861AAF519900431E44 /* YAGifCopyActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGifCopyActivity.h; sourceTree = "<group>"; };
 		8695EF871AAF519900431E44 /* YAGifCopyActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGifCopyActivity.m; sourceTree = "<group>"; };
 		86A1C66B1AB1E35100817F89 /* bumper.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.mp4; sourceTree = "<group>"; };
@@ -501,8 +498,6 @@
 				6E73F41B1A432FAC000B3A14 /* Groups */,
 				6E9188A41A3F3A5A0034AB63 /* Onboarding */,
 				6E5E667A1A424E3300B58E49 /* Segues */,
-				868595E31ABC472300BBFA29 /* YACollectionSwipeViewController.h */,
-				868595E41ABC472300BBFA29 /* YACollectionSwipeViewController.m */,
 				6E73F4251A43337D000B3A14 /* YACollectionViewController.h */,
 				6E73F4261A43337D000B3A14 /* YACollectionViewController.m */,
 				6E91889A1A3F3A5A0034AB63 /* GridViewController.h */,
@@ -773,7 +768,6 @@
 				86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */,
 				6E1E209B1A6EF2E90041DF54 /* YAImageCache.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
-				868595E51ABC472300BBFA29 /* YACollectionSwipeViewController.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E1E20A71A6FAB500041DF54 /* NameGenerator.m in Sources */,
 				86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */,
@@ -961,7 +955,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "f93fa7ff-b584-44aa-9b53-75e37d3ad7d4";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;

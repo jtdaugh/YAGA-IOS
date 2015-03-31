@@ -16,7 +16,6 @@
 #import "YAProgressView.h"
 #import "YASwipingViewController.h"
 #import "YAGifCopyActivity.h"
-#import "ViewFrameAccessor.h"
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -42,7 +41,6 @@
 @property (nonatomic) CGRect keyboardRect;
 @property (nonatomic, strong) UIButton *keyBoardAccessoryButton;
 @property NSUInteger fontIndex;
-@property BOOL canDecreseFontFurther;
 
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
@@ -56,7 +54,6 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.canDecreseFontFurther = YES;
         //self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
@@ -197,9 +194,7 @@
     
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 10;
-    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH - captionGutter*2, captionHeight)];
-    self.captionField.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
-    self.captionField.alpha = 0.75;
+    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
@@ -216,12 +211,11 @@
     
     [self addSubview:self.captionField];
     
-    self.captionerLabel = [[UILabel alloc] initWithFrame:CGRectMake(captionGutter*2, self.captionField.frame.size.height + self.captionField.frame.origin.y, VIEW_WIDTH - captionGutter*4, 24)];
-    self.captionerLabel.alpha = 0.75;
+    self.captionerLabel = [[UILabel alloc] initWithFrame:CGRectMake(captionGutter, self.captionField.frame.size.height + self.captionField.frame.origin.y, VIEW_WIDTH - captionGutter*2, 24)];
     [self.captionerLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
     [self.captionerLabel setTextColor:[UIColor whiteColor]];
     [self.captionerLabel setBackgroundColor:[UIColor clearColor]];
-    [self.captionerLabel setTextAlignment:NSTextAlignmentRight];
+    [self.captionerLabel setTextAlignment:NSTextAlignmentCenter];
     self.captionerLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.captionerLabel.layer.shadowRadius = 1.0f;
     self.captionerLabel.layer.shadowOpacity = 1.0;
@@ -236,7 +230,7 @@
     
     //    [self.captionField addGestureRecognizer:panGesture];
     
-    CGFloat tSize = MAX_FONT_SIZE;
+    CGFloat tSize = 60;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
     [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -291,9 +285,7 @@
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    if(!self.canDecreseFontFurther && text.length != 0){ // We can't add and we're not deleting
-        return NO;
-    }
+    
     if([text isEqualToString:@"\n"]) {
         [self.video rename:textView.text withFont:self.fontIndex];
         [self updateControls];
@@ -309,9 +301,10 @@
 - (void)textViewDidChange:(UITextView *)textView {
     [self resizeText];
 }
+
 - (void)resizeText {
     NSString *fontName = self.captionField.font.fontName;
-    CGFloat fontSize = MAX_FONT_SIZE;
+    CGFloat fontSize = 60;
     
     NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
     
@@ -321,13 +314,10 @@
                                      options:option
                                   attributes:attributes
                                      context:nil];
-        self.canDecreseFontFurther = YES;
+    
     while(rect.size.height > self.captionField.bounds.size.height){
+        
         fontSize = fontSize - 1.0f;
-        if (fontSize <= 0) {
-            self.canDecreseFontFurther = NO;
-            return;
-        }
         rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
                                   options:option
                                attributes:attributes
@@ -339,11 +329,7 @@
         
         while (width > self.captionField.bounds.size.width && width != 0) {
             fontSize = fontSize - 1.0f;
-            if (fontSize <= 0) {
-                self.canDecreseFontFurther = NO;
-                return;
-            }
-            attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
             width = [word sizeWithAttributes:attributes].width;
         }
     }
@@ -352,7 +338,7 @@
     
     [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
     CGRect captionerFrame = self.captionerLabel.frame;
-    captionerFrame.origin.y = self.captionField.top + finalHeight;
+    captionerFrame.origin.y = self.captionField.frame.origin.y + finalHeight;
     [self.captionerLabel setFrame:captionerFrame];
 }
 
@@ -390,7 +376,7 @@
             self.fontIndex = 0;
         }
         
-        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_FONT_SIZE]];
+        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
         [self resizeText];
     } else {
         [self.captionField becomeFirstResponder];
@@ -601,7 +587,7 @@
     self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
     self.captionField.text = self.video.caption;
     self.fontIndex = self.video.font;
-    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_FONT_SIZE]];
+    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
     if(![self.video.namer isEqual:@""]){
         [self.captionerLabel setText:[NSString stringWithFormat:@"- %@", self.video.namer]];
     } else {

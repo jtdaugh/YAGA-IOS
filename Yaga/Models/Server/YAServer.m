@@ -35,7 +35,8 @@
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/members/mute/"
 
-#define API_GROUP_MEMBERS_TEMPLATE          @"%@/groups/%@/members/"
+#define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/members/add/"
+#define API_REMOVE_GROUP_MEMBER_TEMPLATE    @"%@/groups/%@/members/remove/"
 
 #define API_GROUP_POSTS_TEMPLATE            @"%@/groups/%@/posts/"
 #define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/%@/"
@@ -205,16 +206,14 @@
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"group not synchronized with server yet");
     
-    NSMutableDictionary *parameters = @{
+    NSDictionary *parameters = @{
                                  @"phones": phones,
                                  @"names": usernames
-                                 }.mutableCopy;
-    
-    if (![usernames count]) { [parameters removeObjectForKey:@"names"]; };
+                                 };
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
-    NSString *api = [NSString stringWithFormat:API_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_ADD_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
     
     NSURL *url = [NSURL URLWithString:api];
     
@@ -249,12 +248,12 @@
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
-    NSString *api = [NSString stringWithFormat:API_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_REMOVE_GROUP_MEMBER_TEMPLATE, self.base_api, serverGroupId];
     
     NSURL *url = [NSURL URLWithString:api];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [request setHTTPMethod:@"DELETE"];
+    [request setHTTPMethod:@"PUT"];
     
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
@@ -341,7 +340,7 @@
 - (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
-    
+
     NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
     NSString *videoLocalId = [video.localId copy];
     [self.manager POST:api
@@ -428,18 +427,18 @@
     newManager.responseSerializer = responseSerializer;
     
     AFHTTPRequestOperation *postOperation = [newManager POST:endpoint
-                                                  parameters:dict constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-                                                      if (file == nil)
-                                                          DLog(@"Hello");
-                                                      [formData appendPartWithFormData:file name:@"file"];
-                                                      
-                                                  } success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                                                      completion(operation.response, nil);
-                                                      [self.multipartUploadsInProgress removeObjectForKey:serverId];
-                                                  } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                                                      completion(nil, error);
-                                                      [self.multipartUploadsInProgress removeObjectForKey:serverId];
-                                                  }];
+          parameters:dict constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+              if (file == nil)
+                  DLog(@"Hello");
+              [formData appendPartWithFormData:file name:@"file"];
+              
+          } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+              completion(operation.response, nil);
+              [self.multipartUploadsInProgress removeObjectForKey:serverId];
+          } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+              completion(nil, error);
+              [self.multipartUploadsInProgress removeObjectForKey:serverId];
+          }];
     
     [self.multipartUploadsInProgress setObject:postOperation forKey:serverId];
 }
@@ -661,7 +660,7 @@
                 if(!localGroupUpdateDate || [[YAUser currentUser].currentGroup.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
                     [[[YAUser currentUser] currentGroup] refresh];
                 }
-                
+
             }
             else {
                 DLog(@"unable to read groups from server");

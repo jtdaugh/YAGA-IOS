@@ -33,8 +33,6 @@
 #define ELEVATOR_MARGIN 50.0
 #define CAMERA_MARGIN 50.0
 
-#define MAX_FONT_SIZE 54
-
 #define PRIMARY_COLOR [UIColor colorWithRed: 236.0f/255.0f green: 0.0f/255.0f blue:140.0f/255.0f alpha:1.0]
 #define PRIMARY_COLOR_ACCENT [UIColor blackColor]
 #define SECONDARY_COLOR [UIColor colorWithRed: 5.0f/255.0f green: 135.0f/255.0f blue:195.0f/255.0f alpha:1.0]
