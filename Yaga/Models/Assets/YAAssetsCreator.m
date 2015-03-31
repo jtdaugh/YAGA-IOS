@@ -381,7 +381,7 @@
 }
 
 - (UIImage *)deviceSpecificCroppedThumbnailFromImage:(UIImage*)img {
-    CGSize thumbnailSize = CGSizeMake(239, 239);
+    CGSize thumbnailSize = CGSizeMake(240, 240);
     return [self croppedImageFromImage:img cropSize:thumbnailSize];
 }
 
@@ -391,7 +391,7 @@
     CGFloat widthDiff = img.size.width - gifFrameSize.width ;
     CGFloat heightDiff = img.size.height - gifFrameSize.height;
     
-    CGRect cropRect = CGRectMake(widthDiff/2, heightDiff/2, gifFrameSize.width, gifFrameSize.height);
+    CGRect cropRect = CGRectMake(round(widthDiff/2), round(heightDiff/2), gifFrameSize.width, gifFrameSize.height);
     
     if (img.scale > 1.0f) {
         cropRect = CGRectMake(cropRect.origin.x * img.scale,
