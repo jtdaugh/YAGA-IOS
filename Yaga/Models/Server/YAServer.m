@@ -35,8 +35,7 @@
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/members/mute/"
 
-#define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/members/add/"
-#define API_REMOVE_GROUP_MEMBER_TEMPLATE    @"%@/groups/%@/members/remove/"
+#define API_GROUP_MEMBERS_TEMPLATE          @"%@/groups/%@/members/"
 
 #define API_GROUP_POSTS_TEMPLATE            @"%@/groups/%@/posts/"
 #define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/%@/"
@@ -206,14 +205,16 @@
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"group not synchronized with server yet");
     
-    NSDictionary *parameters = @{
+    NSMutableDictionary *parameters = @{
                                  @"phones": phones,
                                  @"names": usernames
-                                 };
+                                 }.mutableCopy;
+    
+    if (![usernames count]) { [parameters removeObjectForKey:@"names"]; };
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
-    NSString *api = [NSString stringWithFormat:API_ADD_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
     
     NSURL *url = [NSURL URLWithString:api];
     
@@ -248,12 +249,12 @@
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
-    NSString *api = [NSString stringWithFormat:API_REMOVE_GROUP_MEMBER_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
     
     NSURL *url = [NSURL URLWithString:api];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [request setHTTPMethod:@"PUT"];
+    [request setHTTPMethod:@"DELETE"];
     
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     

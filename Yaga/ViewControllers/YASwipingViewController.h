@@ -11,6 +11,11 @@
 @interface YASwipingViewController : UIViewController<UIScrollViewDelegate>
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
+@property (strong, nonatomic) UITapGestureRecognizer *tapGesture;
+
 - (id)initWithInitialIndex:(NSUInteger)initialIndex;
+
+- (void)removeGestures;
+
 @end
 

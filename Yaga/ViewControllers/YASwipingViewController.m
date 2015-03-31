@@ -27,10 +27,11 @@
 
 @property (nonatomic, assign) BOOL dismissed;
 
+
 @end
 
 #define kSeparator 10
-#define kDismissalTreshold 800.0f
+#define kDismissalTreshold 300.0f
 
 @implementation YASwipingViewController
 
@@ -70,8 +71,8 @@
     self.scrollView.pagingEnabled = YES;
     
     //gesture recognizers
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
-    [self.view addGestureRecognizer:tap];
+    self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
+    [self.view addGestureRecognizer:self.tapGesture];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     
@@ -80,6 +81,12 @@
     
     //show selected video fullscreen jpg preview
     [self showJpgPreview:YES];
+}
+
+- (void)removeGestures
+{
+    [self.view removeGestureRecognizer:self.panGesture];
+    [self.view removeGestureRecognizer:self.tapGesture];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -125,9 +132,10 @@
     if(tr.y > 0) {
         CGFloat f = tr.y / [UIScreen mainScreen].bounds.size.height;
         if(f < 1) {
-            self.view.transform = CGAffineTransformMakeScale(1.0f - f, 1.0f - f*1.1);
+//            self.view.transform = CGAffineTransformMakeScale(1.0f - f, 1.0f - f*1.1);
             CGRect r = self.view.frame;
             r.origin.y = tr.y;
+            r.origin.x = tr.x;
             self.view.frame = r;
         }
         else {
@@ -155,8 +163,10 @@
     self.dismissed = YES;
     
     //dismiss
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-        self.view.transform = CGAffineTransformMakeScale(0,0);
+    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
+        self.view.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height * .5, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+        self.view.alpha = 0.0;
+        self.view.transform = CGAffineTransformMakeScale(0.5,0.5);
     } completion:^(BOOL finished) {
         if(finished)
             [self dismissViewControllerAnimated:NO completion:nil];
@@ -164,7 +174,7 @@
 }
 
 - (void)restoreAnimated {
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.0 options:0 animations:^{
         self.view.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
         self.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     } completion:nil];

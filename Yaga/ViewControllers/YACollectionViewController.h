@@ -13,6 +13,7 @@ typedef void (^cameraCompletion)(void);
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion;
 - (void)enableRecording:(BOOL)enable;
 - (void)collectionViewDidScroll;
+- (void)adjustCollectionView;
 @end
 
 @interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate> {
@@ -24,5 +25,6 @@ typedef void (^cameraCompletion)(void);
 @property (strong, nonatomic) UICollectionView *collectionView;
 @property (weak, nonatomic) id<YACollectionViewControllerDelegate> delegate;
 @property (nonatomic) BOOL scrolling;
+@property (nonatomic, strong) YAGroup *controllersGroup;
 - (void)reload;
 @end

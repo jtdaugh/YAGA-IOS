@@ -12,13 +12,14 @@
 #import "YACollectionViewController.h"
 #import "YACameraViewController.h"
 #import "YAGroupsViewController.h"
-
+#import "YACollectionSwipeViewController.h"
 @interface GridViewController : UIViewController <UIApplicationDelegate,
 YACameraViewControllerDelegate, YACollectionViewControllerDelegate>
 
 @property (assign, nonatomic) BOOL elevatorOpen;
 @property (nonatomic, readonly) YACameraViewController *cameraViewController;
 @property (nonatomic, readonly) YACollectionViewController *collectionViewController;
+@property (nonatomic, readonly) YACollectionSwipeViewController *collectionSwipe;
 @property (nonatomic, weak) YAGroupsViewController *groupsViewController;
 
 @end

@@ -59,7 +59,7 @@
         CGFloat lwidth = self.loader.frame.size.width/((float)LOADER_WIDTH);
         CGFloat lheight = self.loader.frame.size.height/((float)LOADER_HEIGHT);
         
-        NSLog(@"lwidth: %f, lheight: %f", lwidth, lheight);
+//        NSLog(@"lwidth: %f, lheight: %f", lwidth, lheight);
         
         for(int i = 0; i < LOADER_WIDTH*LOADER_HEIGHT; i++){
             
@@ -110,6 +110,7 @@
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
+    self.caption.text = @"";
     self.state = YAVideoCellStateLoading;
 }
 
@@ -140,6 +141,7 @@
 }
 
 - (void)updateCell {
+    
     switch (self.state) {
         case YAVideoCellStateLoading: {
             [self showLoader:YES];
@@ -165,6 +167,9 @@
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
     if(!fileName.length)
         return;
+    
+    [self setBackgroundColor:[PRIMARY_COLOR colorWithAlphaComponent:(arc4random() % 128 / 256.0)]];
+//    [self setBackgroundColor:PRIMARY_COLOR];
     
     id cachedImage = [[YAImageCache sharedCache] objectForKey:fileName];
     if(cachedImage) {
@@ -227,6 +232,7 @@
                                                               selector:@selector(loaderTick:)
                                                               userInfo: nil repeats:YES];
             [[NSRunLoop mainRunLoop] addTimer:self.loaderTimer forMode:NSRunLoopCommonModes];
+            [self loaderTick:self.loaderTimer];
         }
     } else {
         if([self.loaderTimer isValid]){
@@ -271,40 +277,6 @@
 }
 
 #pragma mark - UITapGestureRecognizer actions
-
-- (void)doubleTap:(UIGestureRecognizer *)sender {
-    BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
-    if (!myVideo) {
-        if (!self.video.like) {
-            [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-
-            }];
-        } else {
-            [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-            }];
-        }
-        
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        self.video.like = !self.video.like;
-        [[RLMRealm defaultRealm] commitWriteTransaction];
-        
-        UIImage *likeImage = self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"];
-        self.likeImageView.image = likeImage;
-
-        CABasicAnimation *theAnimation;
-        theAnimation=[CABasicAnimation animationWithKeyPath:@"opacity"];
-        theAnimation.duration=0.4;
-        theAnimation.autoreverses = YES;
-        theAnimation.fromValue=[NSNumber numberWithFloat:0.0];
-        theAnimation.toValue=[NSNumber numberWithFloat:1.0];
-        
-        [self.likeImageView.layer addAnimation:theAnimation forKey:@"animateOpacity"];
-    } else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:self];
-        self.captionField.enabled = YES;
-        [self.captionField becomeFirstResponder];
-    }
-}
 
 - (NSMutableAttributedString *)attributedStringFromString:(NSString *)input font:(UIFont*)font {
     if (!input.length) return

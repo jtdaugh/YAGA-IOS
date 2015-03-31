@@ -58,6 +58,7 @@ static NSString *cellID = @"Cell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     self.hasToolTipOnOneOfTheCells = NO;
     CGFloat spacing = 1.0f;
     
@@ -66,7 +67,7 @@ static NSString *cellID = @"Cell";
     [self.gridLayout setMinimumLineSpacing:spacing];
     [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
     
-    self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
+    self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.frame collectionViewLayout:self.gridLayout];
     
     self.collectionView.alwaysBounceVertical = YES;
     
@@ -77,6 +78,7 @@ static NSString *cellID = @"Cell";
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.collectionView.backgroundColor = [UIColor whiteColor];
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
+    self.collectionView.layoutMargins = UIEdgeInsetsMake(0, 1.0f, 0, 1.0f);
     [self.view addSubview:self.collectionView];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
@@ -155,12 +157,12 @@ static NSString *cellID = @"Cell";
     self.paginationThreshold = kPaginationDefaultThreshold;
     
     BOOL needRefresh = NO;
-    if(![YAUser currentUser].currentGroup.videos.count)
+    if(!self.controllersGroup.videos.count)
         needRefresh = YES;
     
     NSDictionary *groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
-    NSDate *localGroupUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
-    if(!localGroupUpdateDate || [[YAUser currentUser].currentGroup.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+    NSDate *localGroupUpdateDate = [groupsUpdatedAt objectForKey:self.controllersGroup.localId];
+    if(!localGroupUpdateDate || [self.controllersGroup.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
         needRefresh = YES;
     }
     
@@ -174,10 +176,10 @@ static NSString *cellID = @"Cell";
 
 -  (void)willDeleteVideo:(NSNotification*)notif {
     YAVideo *video = notif.object;
-    if(![video.group isEqual:[YAUser currentUser].currentGroup])
+    if(![video.group isEqual:self.controllersGroup])
         return;
     
-    NSUInteger videoIndex = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+    NSUInteger videoIndex = [self.controllersGroup.videos indexOfObject:video];
     
     if(!self.deleteDictionary)
         self.deleteDictionary = [NSMutableDictionary new];
@@ -203,10 +205,10 @@ static NSString *cellID = @"Cell";
 
 - (void)reloadVideo:(NSNotification*)notif {
     YAVideo *video = notif.object;
-    if(![video.group isEqual:[YAUser currentUser].currentGroup])
+    if(![video.group isEqual:self.controllersGroup])
         return;
     
-    NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+    NSUInteger index = [self.controllersGroup.videos indexOfObject:video];
     
     //invisible? we do not reload then
     if(![[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:index]]) {
@@ -230,11 +232,11 @@ static NSString *cellID = @"Cell";
 - (void)refreshCurrentGroup {
     [self showActivityIndicator:YES];
     
-    [[YAUser currentUser].currentGroup refresh];
+    [self.controllersGroup refresh];
 }
 
 - (void)groupDidRefresh:(NSNotification*)notification {
-    if(![notification.object isEqual:[YAUser currentUser].currentGroup])
+    if(![notification.object isEqual:self.controllersGroup])
         return;
     
     NSArray *newVideos = notification.userInfo[kVideos];
@@ -329,7 +331,7 @@ static NSString *cellID = @"Cell";
         
         const CGFloat monkeyWidth  = 50;
         [self.activityView removeFromSuperview];
-        if(![YAUser currentUser].currentGroup.videos.count) {
+        if(!self.controllersGroup.videos.count) {
             self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
             [self.collectionView addSubview:self.activityView];
             [self.activityView startAnimating];
@@ -345,7 +347,7 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - UICollectionView
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    NSUInteger videosCount = [YAUser currentUser].currentGroup.videos.count;
+    NSUInteger videosCount = self.controllersGroup.videos.count;
     
     NSUInteger result = videosCount < self.paginationThreshold ? videosCount : self.paginationThreshold;
     return result;
@@ -353,7 +355,7 @@ static NSString *cellID = @"Cell";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
+    YAVideo *video = self.controllersGroup.videos[indexPath.row];
     
     cell.video = video;
     
@@ -405,7 +407,7 @@ static NSString *cellID = @"Cell";
 
 - (void)openVideo:(NSNotification*)notif {
     YAVideo *video = notif.userInfo[@"video"];
-    NSUInteger videoIndex = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+    NSUInteger videoIndex = [self.controllersGroup.videos indexOfObject:video];
     
     if(videoIndex == NSNotFound) {
         DLog(@"can't find video index in current group");
@@ -440,8 +442,6 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [self.delegate collectionViewDidScroll];
-    
     [self handlePaging];
 
     [[YAAssetsCreator sharedCreator] cancelGifOperations];
@@ -457,7 +457,7 @@ static NSString *cellID = @"Cell";
     [self playVisible:!scrollingFast];
     
     self.scrolling = YES;
-
+    [self.delegate collectionViewDidScroll];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -516,17 +516,17 @@ static NSString *cellID = @"Cell";
 
 - (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
     NSUInteger maxCount = self.paginationThreshold;
-    if(maxCount > [YAUser currentUser].currentGroup.videos.count)
-        maxCount = [YAUser currentUser].currentGroup.videos.count;
+    if(maxCount > self.controllersGroup.videos.count)
+        maxCount = self.controllersGroup.videos.count;
     
     NSMutableArray *visibleVideos = [NSMutableArray new];
     NSMutableArray *invisibleVideos = [NSMutableArray new];
     for(NSUInteger videoIndex = initialIndex; videoIndex < maxCount; videoIndex++) {
         if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
-            [visibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+            [visibleVideos addObject:[self.controllersGroup.videos objectAtIndex:videoIndex]];
         }
         else {
-            [invisibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+            [invisibleVideos addObject:[self.controllersGroup.videos objectAtIndex:videoIndex]];
         }
         
     }
@@ -557,7 +557,7 @@ static NSString *cellID = @"Cell";
     
     NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:p];
     if (indexPath) {
-        YAVideo *video = [[YAUser currentUser].currentGroup.videos objectAtIndex:indexPath.row];
+        YAVideo *video = [self.controllersGroup.videos objectAtIndex:indexPath.row];
         BOOL myVideo = [video.creator isEqualToString:[[YAUser currentUser] username]];
         
         if(myVideo)

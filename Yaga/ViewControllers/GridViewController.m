@@ -15,7 +15,7 @@
 
 #import "YAUtils.h"
 #import "YAHideEmbeddedGroupsSegue.h"
-
+#import "YACollectionSwipeViewController.h"
 //Swift headers
 //#import "Yaga-Swift.h"
 
@@ -43,19 +43,19 @@
     
     [self closeGroups];
     
-    [self presentViewController:vc animated:NO completion:^{
-    }];
+    [self presentViewController:vc animated:NO completion:^{}];
     
 }
 
 - (void)setupView {
-    _collectionViewController = [YACollectionViewController new];
-    _collectionViewController.delegate = self;
-    _collectionViewController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
-    [_collectionViewController.collectionView.layer setMasksToBounds:NO];
-
-    [self addChildViewController:_collectionViewController];
-    [self.view addSubview:_collectionViewController.view];
+//    _collectionViewController = [YACollectionViewController new];
+    _collectionSwipe = [YACollectionSwipeViewController new];
+    _collectionSwipe.collectionDelegate = self;
+    _collectionSwipe.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
+   // _collectionSwipe.scrollView.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
+    // [_collectionSwipe.collectionView.layer setMasksToBounds:NO];
+    [self addChildViewController:_collectionSwipe];
+    [self.view addSubview:_collectionSwipe.view];
     
     _cameraViewController = [YACameraViewController new];
     _cameraViewController.delegate = self;
@@ -71,7 +71,6 @@
 
 #pragma mark - YACollectionViewControllerDelegate
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion {
-    
     void (^showHideBlock)(void) = ^void(void) {
         if(show) {
             self.cameraViewController.view.frame = CGRectMake(0, 0, self.cameraViewController.view.frame.size.width, self.cameraViewController.view.frame.size.height);
@@ -79,9 +78,12 @@
         else {
             self.cameraViewController.view.frame = CGRectMake(0, -self.cameraViewController.view.frame.size.height + (showPart ? ELEVATOR_MARGIN : 0) + recordButtonWidth / 2, self.cameraViewController.view.frame.size.width, self.cameraViewController.view.frame.size.height);
         }
-        CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
-        CGFloat separator = show ? 2 : 0;
-        self.collectionViewController.view.frame = CGRectMake(0, origin + separator, self.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin - separator);
+//        CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
+//        CGFloat separator = show ? 2 : 0;
+//        self.collectionSwipe.view.frame = CGRectMake(0,
+//                                                     origin + separator,
+//                                                     self.collectionSwipe.view.frame.size.width,
+//                                                     VIEW_HEIGHT - origin - separator);
         
         [self.cameraViewController showCameraAccessories:(show && !showPart)];
     };
@@ -89,7 +91,6 @@
     if(animated) {
         [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
             showHideBlock();
-            
         } completion:^(BOOL finished) {
             if(finished && completion)
                 completion();
@@ -104,12 +105,19 @@
     [self.cameraViewController enableRecording:enable];
 }
 
+- (void)adjustCollectionView
+{
+    [UIView animateWithDuration:0.5f animations:^{
+        [self collectionViewDidScroll];
+    }];
+}
+
 - (void)collectionViewDidScroll {
     CGRect cameraFrame = self.cameraViewController.view.frame;
-    CGRect gridFrame = self.collectionViewController.view.frame;
+   // CGRect gridFrame = self.collectionSwipe.currentCollectionView.collectionView.frame;
     
-    CGFloat scrollOffset = self.collectionViewController.collectionView.contentOffset.y;
-    CGFloat offset = self.collectionViewController.collectionView.contentInset.top + scrollOffset;
+    CGFloat scrollOffset = self.collectionSwipe.currentCollectionView.collectionView.contentOffset.y;
+    CGFloat offset = self.collectionSwipe.currentCollectionView.collectionView.contentInset.top + scrollOffset;
     
     if(offset < 0) {
         offset = 0;
@@ -121,7 +129,7 @@
     cameraFrame.origin.y = -offset;
 
     self.cameraViewController.view.frame = cameraFrame;
-    self.collectionViewController.view.frame = gridFrame;
+   // self.collectionSwipe.currentCollectionView.collectionView.frame = gridFrame;
 }
 
 #pragma mark -

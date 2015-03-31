@@ -26,6 +26,7 @@
 @end
 
 #define kSearchedByUsername @"SearchedByUsername"
+#define kSearchedByPhone @"SearchedByPhone"
 
 @implementation YAGroupAddMembersViewController
 
@@ -180,6 +181,9 @@
     if([contact[kSearchedByUsername] boolValue]) {
         cell.textLabel.text = [NSString stringWithFormat:@"Add @%@", contact[nUsername]];
         cell.detailTextLabel.text = @"";
+    } else if ( [contact[kSearchedByPhone] boolValue]) {
+        cell.textLabel.text = [NSString stringWithFormat:@"Add @%@", contact[nPhone]];
+        cell.detailTextLabel.text = @"";
     }
     //existing phone book contacts
     else {
@@ -296,7 +300,12 @@
                 
                 NSArray *foundUsernames = [self.filteredContacts valueForKey:nUsername];
                 if(![foundUsernames containsObject:text]) {
-                    [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+                    bool textIsPhoneNumber = [YAUtils validatePhoneNumber:text error:nil];
+                    if (textIsPhoneNumber) {
+                        [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:text, nRegistered:[NSNumber numberWithBool:NO], nUsername:@"",  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
+                    } else {
+                        [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+                    }
                 }
             }
         }
