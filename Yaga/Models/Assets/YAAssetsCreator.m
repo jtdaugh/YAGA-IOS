@@ -328,6 +328,7 @@
         NSString *jpgFullscreenFilename = [[filename  stringByAppendingString:@"_fullscreen"] stringByAppendingPathExtension:@"jpg"];
         NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
         NSString *jpgFullscreenPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFullscreenFilename];
+        BOOL hasGif = video.gifFilename.length;
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
@@ -343,13 +344,18 @@
             CGImageRef image = [imageGenerator copyCGImageAtTime:time actualTime:&actualTime error:&error];
             UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
             if(newImage) {
-                UIImage *croppedImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
+                
+                //generate cropped jpeg in only case there is no gif
+                UIImage *croppedImage;
+                if(!hasGif)
+                    croppedImage = [self deviceSpecificCroppedThumbnailFromImage:newImage];
                 
                 newImage = [self deviceSpecificFullscreenImageFromImage:newImage];
                 
-                [self createJpgFromImage:newImage croppedImage:croppedImage atPath:(NSString*)jpgFullscreenPath croppedPath:jpgPath forVideo:video];
-                
-                CFRelease(image);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self createJpgFromImage:newImage croppedImage:croppedImage atPath:(NSString*)jpgFullscreenPath croppedPath:jpgPath forVideo:video];
+                    CFRelease(image);
+                });
             }
             
             dispatch_semaphore_signal(sema);
@@ -408,25 +414,21 @@
     return result;
 }
 
-- (BOOL)createJpgFromImage:(UIImage*)image croppedImage:(UIImage*)croppedImage atPath:(NSString*)jpgPath croppedPath:(NSString*)jpgCroppedPath forVideo:(YAVideo*)video {
-    BOOL result = YES;
-    if([UIImageJPEGRepresentation(image, 0.6) writeToFile:jpgPath atomically:NO] && [UIImageJPEGRepresentation(croppedImage, 0.8) writeToFile:jpgCroppedPath atomically:NO]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [video.realm beginWriteTransaction];
-            
-            video.jpgFullscreenFilename = jpgPath.lastPathComponent;
-            video.jpgFilename = jpgCroppedPath.lastPathComponent;
-            
-            [video.realm commitWriteTransaction];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
-        });
+- (void)createJpgFromImage:(UIImage*)image croppedImage:(UIImage*)croppedImage atPath:(NSString*)jpgPath croppedPath:(NSString*)jpgCroppedPath forVideo:(YAVideo*)video {
+    
+    [video.realm beginWriteTransaction];
+    
+    if(image && [UIImageJPEGRepresentation(image, 0.6) writeToFile:jpgPath atomically:NO]) {
+        video.jpgFullscreenFilename = jpgPath.lastPathComponent;
     }
-    else {
-        DLog(@"Error: Can't save jpg by some reason...");
-        result = NO;
+    
+    if(croppedImage && [UIImageJPEGRepresentation(croppedImage, 0.8) writeToFile:jpgCroppedPath atomically:NO]) {
+        video.jpgFilename = jpgCroppedPath.lastPathComponent;
     }
-    return result;
+    
+    [video.realm commitWriteTransaction];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
 }
 
 #pragma mark -
