@@ -204,7 +204,7 @@
 #pragma mark - Download progress bar
 - (void)downloadStarted:(NSNotification*)notif {
     NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.gifUrl]) {
         [self showLoader:YES];
     }
 }
