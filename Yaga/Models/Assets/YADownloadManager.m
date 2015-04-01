@@ -69,6 +69,8 @@
             video.localCreatedAt = [NSDate date];
             [video.realm commitWriteTransaction];
             
+            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
+                                                                object:video];
             [self jobFinishedForVideo:video gifJob:gifJob];
         });
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -193,7 +195,9 @@
     
     [self logState:[NSString stringWithFormat:@"jobFinishedForVideo, gifJob: %d", gifJob]];
     
-    [self.executingJobs removeObjectForKey:video.url];
+    NSString *url = gifJob ? video.gifUrl : video.url;
+    
+    [self.executingJobs removeObjectForKey:url];
     
     if(self.executingJobs.count == 0 && self.waitingJobs.count == 0) {
         DLog(@"YADownloadManager all done");
