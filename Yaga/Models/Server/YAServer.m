@@ -17,11 +17,11 @@
 #include <netinet/in.h>
 #import "YAServer+HostManagment.h"
 
-#ifdef DEBUG
-#define HOST @"https://yaga-dev.herokuapp.com"
-#else
+//#ifdef DEBUG
+//#define HOST @"https://yaga-dev.herokuapp.com"
+//#else
 #define HOST @"https://api.yagaprivate.com"
-#endif
+//#endif
 
 #define PORT @"443"
 #define PORTNUM 443
