@@ -22,7 +22,6 @@ typedef void (^gifCreatedCompletionHandler)(NSError *error);
 typedef void (^uploadCompletionHandler)(NSError *error);
 
 @interface YAVideo : RLMObject
-@property NSString *movFilename;
 @property NSString *mp4Filename;
 @property NSString *gifFilename;
 @property NSString *highQualityGifFilename;

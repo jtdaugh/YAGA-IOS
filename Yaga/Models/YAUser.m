@@ -305,7 +305,7 @@
 }
 
 - (void)purgeOldVideos {
-    RLMResults *videos = [YAVideo objectsWhere:@"movFilename != '' OR gifFilename != '' OR jpgFilename != ''"];
+    RLMResults *videos = [YAVideo objectsWhere:@"mp4Filename != '' OR gifFilename != '' OR jpgFilename != ''"];
     RLMResults *videosByDate = [videos sortedResultsUsingProperty:@"localCreatedAt" ascending:YES];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
@@ -339,6 +339,7 @@
     }
     return size;
 }
+
 - (void)purgeUnusedAssets {
     NSString *cachesDir = [YAUtils cachesDirectory];
     NSArray *files = [[NSFileManager defaultManager] subpathsOfDirectoryAtPath:cachesDir error:nil];
@@ -347,7 +348,7 @@
     NSFileManager *fileMgr = [NSFileManager defaultManager];
     
     while (fileName = [enumerator nextObject]) {
-        if([fileName.pathExtension isEqualToString:@"mov"] || [fileName.pathExtension isEqualToString:@"gif"] || [fileName.pathExtension isEqualToString:@"jpg"]) {
+        if([fileName.pathExtension isEqualToString:@"mp4"] || [fileName.pathExtension isEqualToString:@"gif"] || [fileName.pathExtension isEqualToString:@"jpg"]) {
             NSError *error;
             NSURL *url = [NSURL fileURLWithPath:cachesDir];
             url = [url URLByAppendingPathComponent:fileName];

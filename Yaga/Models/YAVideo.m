@@ -31,7 +31,6 @@
              @"jpgFilename":@"",
              @"jpgFullscreenFilename":@"",
              @"gifFilename":@"",
-             @"movFilename":@"",
              @"mp4Filename":@"",
              @"caption":@"",
              @"namer":@"",
@@ -105,8 +104,8 @@
 
 - (void)purgeLocalAssets {
     NSMutableArray *urlsToDelete = [NSMutableArray new];
-    if(self.movFilename.length)
-        [urlsToDelete addObject:[YAUtils urlFromFileName:self.movFilename]];
+    if(self.mp4Filename.length)
+        [urlsToDelete addObject:[YAUtils urlFromFileName:self.mp4Filename]];
     if(self.gifFilename.length)
         [urlsToDelete addObject:[YAUtils urlFromFileName:self.gifFilename]];
     if(self.jpgFilename.length)
@@ -121,7 +120,7 @@
         }
     });
 
-    self.movFilename = @"";
+    self.mp4Filename = @"";
     self.gifFilename = @"";
     self.jpgFilename = @"";
 }

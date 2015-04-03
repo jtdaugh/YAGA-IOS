@@ -65,9 +65,9 @@
                 return;
             }
             
-            NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.movFilename];
+            NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.mp4Filename];
             NSURL *movURL = [NSURL fileURLWithPath:movPath];
-            self.filename = [self.video.movFilename stringByDeletingPathExtension];
+            self.filename = [self.video.mp4Filename stringByDeletingPathExtension];
             
             [self setExecuting:YES];
             

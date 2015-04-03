@@ -47,7 +47,7 @@
     NSURL *url = [NSURL URLWithString:stringUrl];
     
     NSString *hashStr   = url.lastPathComponent;
-    NSString *filename  = [hashStr stringByAppendingPathExtension:gifJob ? @"gif" : @"mov"];
+    NSString *filename  = [hashStr stringByAppendingPathExtension:gifJob ? @"gif" : @"mp4"];
     NSString *filePath  = [[YAUtils cachesDirectory] stringByAppendingPathComponent:filename];
     NSURL    *fileUrl   = [NSURL fileURLWithPath:filePath];
     
@@ -64,7 +64,7 @@
             if(gifJob)
                 video.gifFilename = filename;
             else
-                video.movFilename = filename;
+                video.mp4Filename = filename;
             
             video.localCreatedAt = [NSDate date];
             [video.realm commitWriteTransaction];
@@ -230,8 +230,10 @@
             else
                 [waitingJob start];
             
-            [self.executingJobs setObject:waitingJob forKey:waitingUrl];
-            [self.waitingJobs removeObjectForKey:waitingUrl];
+            if(self.executingJobs.allKeys.count < self.maxConcurentJobs) {
+                [self.executingJobs setObject:waitingJob forKey:waitingUrl];
+                [self.waitingJobs removeObjectForKey:waitingUrl];
+            }
         }
     });
 }

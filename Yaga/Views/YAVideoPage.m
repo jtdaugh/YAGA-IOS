@@ -107,10 +107,10 @@
     }
     
     if(shouldPlay) {
-        NSURL *movUrl = [YAUtils urlFromFileName:self.video.movFilename];
+        NSURL *movUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
         [self showLoading:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
         
-        if(self.video.movFilename.length)
+        if(self.video.mp4Filename.length)
         {
             self.playerView.URL = movUrl;
         }
@@ -608,7 +608,7 @@
     
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"YAGA";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-    NSURL *videoFile = [YAUtils urlFromFileName:self.video.movFilename];
+    NSURL *videoFile = [YAUtils urlFromFileName:self.video.mp4Filename];
     YAGifCopyActivity   *activityGif = [YAGifCopyActivity new];
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]

@@ -783,11 +783,8 @@
 }
 
 - (void)openSettings:(id)sender {
-    BOOL canOpenSettings = (&UIApplicationOpenSettingsURLString != NULL);
-    if (canOpenSettings) {
-        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-        [[UIApplication sharedApplication] openURL:url];
-    }
+    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    [[UIApplication sharedApplication] openURL:url];
 }
 
 @end

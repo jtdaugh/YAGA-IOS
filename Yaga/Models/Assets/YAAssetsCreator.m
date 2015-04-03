@@ -241,8 +241,8 @@
         //first loop prioritise videos, second loop prioritise gifs so they go first
         for(YAVideo *video in videos) {
   
-            BOOL hasRemoteMOVButNoLocal = video.url.length && !video.movFilename.length;
-            BOOL hasLocalMOVButNoGIF = video.movFilename.length && !video.gifFilename.length;
+            BOOL hasRemoteMOVButNoLocal = video.url.length && !video.mp4Filename.length;
+            BOOL hasLocalMOVButNoGIF = video.mp4Filename.length && !video.gifFilename.length;
             
             if(hasRemoteMOVButNoLocal) {
                 if(prioritize)
@@ -287,7 +287,7 @@
 }
 
 - (void)addGifCreationOperationForVideo:(YAVideo*)video quality:(YAGifCreationQuality)quality {
-    if(!video.movFilename.length)
+    if(!video.mp4Filename.length)
         return;
     
     if([self gifOperationInProgressForUrl:video.url])
@@ -321,9 +321,9 @@
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:video.movFilename];
+        NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:video.mp4Filename];
         NSURL *movURL = [NSURL fileURLWithPath:movPath];
-        NSString *filename =  [video.movFilename stringByDeletingPathExtension];
+        NSString *filename =  [video.mp4Filename stringByDeletingPathExtension];
         NSString *jpgFilename = [filename stringByAppendingPathExtension:@"jpg"];
         NSString *jpgFullscreenFilename = [[filename  stringByAppendingString:@"_fullscreen"] stringByAppendingPathExtension:@"jpg"];
         NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
