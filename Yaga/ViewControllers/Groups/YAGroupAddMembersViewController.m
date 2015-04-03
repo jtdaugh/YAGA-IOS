@@ -379,7 +379,6 @@
             if (!found) {
                 [self performSegueWithIdentifier:@"CompleteOnboarding" sender:self];
             }
-
         }];
     }
 }

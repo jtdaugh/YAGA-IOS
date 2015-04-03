@@ -43,6 +43,8 @@
         
         
         _gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
+        _gifView.contentMode = UIViewContentModeScaleAspectFill;
+        _gifView.clipsToBounds = YES;
         _gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
         [self.contentView addSubview:self.gifView];
