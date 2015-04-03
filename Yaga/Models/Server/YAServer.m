@@ -17,11 +17,11 @@
 #include <netinet/in.h>
 #import "YAServer+HostManagment.h"
 
-#ifdef DEBUG
+//#ifdef DEBUG
 #define HOST @"https://yaga-dev.herokuapp.com"
-#else
-#define HOST @"https://api.yagaprivate.com"
-#endif
+//#else
+//#define HOST @"https://api.yagaprivate.com"
+//#endif
 
 #define PORT @"443"
 #define PORTNUM 443
@@ -431,6 +431,12 @@
 }
 
 - (void)multipartUpload:(NSString*)endpoint withParameters:(NSDictionary*)dict withFile:(NSData*)file videoServerId:(NSString*)serverId completion:(responseBlock)completion {
+    
+    if(!file.length) {
+        DLog(@"File is 0 bytes, can't upload");
+        return;
+    }
+    
     AFHTTPRequestOperationManager *newManager = [AFHTTPRequestOperationManager manager];
     AFXMLParserResponseSerializer *responseSerializer = [AFXMLParserResponseSerializer serializer];
     newManager.responseSerializer = responseSerializer;

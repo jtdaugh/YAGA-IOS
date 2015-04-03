@@ -208,9 +208,9 @@
         [self createJpgForVideo:video];
     }];
     
-    YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationNormalQuality];
-    [gifCreationOperation addDependency:recordingOperation];
-    [self.recordingQueue addOperation:gifCreationOperation];
+    //no need to create gif here, recording operation will post GROUP_DID_REFRESH_NOTIFICATION and AssetsCreator will make sure gif is created for the new item
+    //in case of two gif operations for the same video there will be the following issue:
+    //one operation can create gif earlier and start uploading, second operation will clean up the file for saving new gif date and and that moment zero bytes are read for uploading.
 }
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
