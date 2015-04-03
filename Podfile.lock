@@ -76,4 +76,4 @@ SPEC CHECKSUMS:
   SwipeView: bd67cfaf7760c036438446b3ccb28a3b84fce009
   UCZProgressView: 13f0a95a722db76eaffacea97ba406fd2e0362a8
 
-COCOAPODS: 0.36.0.beta.1
+COCOAPODS: 0.36.3

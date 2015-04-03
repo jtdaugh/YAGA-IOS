@@ -509,8 +509,8 @@
             
             CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
             //            CGAffineTransformMake
-            CGFloat translateX = xRadius - fabsf(xRadius*cosf(angle));
-            CGFloat translateY = -fabsf(yRadius*sinf(angle));
+            CGFloat translateX = xRadius - fabs(xRadius*cosf(angle));
+            CGFloat translateY = -fabs(yRadius*sinf(angle));
             [label setTransform:CGAffineTransformTranslate(rotate, translateX, translateY)];
             
             i++;

@@ -427,7 +427,7 @@ static NSString *cellID = @"Cell";
     //The multiply by 10, / 1000 isn't really necessary.......
     CGFloat scrollSpeedNotAbs = (distance * 10) / 1000; //in pixels per millisecond
     
-    CGFloat scrollSpeed = fabsf(scrollSpeedNotAbs);
+    CGFloat scrollSpeed = fabs(scrollSpeedNotAbs);
     if (scrollSpeed > 0.06) {
         result = YES;
     } else {
