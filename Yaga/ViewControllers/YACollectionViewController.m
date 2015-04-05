@@ -75,6 +75,7 @@ static NSString *cellID = @"Cell";
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
     [self.collectionView setAllowsMultipleSelection:NO];
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.backgroundColor = [UIColor whiteColor];
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
