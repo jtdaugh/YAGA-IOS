@@ -135,7 +135,9 @@
     imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
     imageGenerator.appliesPreferredTrackTransform = YES;
     
-    imageGenerator.maximumSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.height/2, [[UIScreen mainScreen] applicationFrame].size.height/2);
+    CGFloat maxWidth = 240;
+    CGFloat aspectRatio = [[UIScreen mainScreen] applicationFrame].size.height / [[UIScreen mainScreen] applicationFrame].size.width;
+    imageGenerator.maximumSize = CGSizeMake(maxWidth, maxWidth * aspectRatio);
     
     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
     NSUInteger frames = self.quality == YAGifCreationHighQuality ? 10 : 2;
