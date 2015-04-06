@@ -47,6 +47,7 @@
 @property CGFloat firstX;
 @property CGFloat firstY;
 
+@property (nonatomic, assign) BOOL shouldPreload;
 @end
 
 @implementation YAVideoPage
@@ -61,15 +62,20 @@
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadDidStart:) name:AFNetworkingOperationDidStartNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadDidFinish:) name:AFNetworkingOperationDidFinishNotification object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
+
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inputModeChanged:) name:UITextInputCurrentInputModeDidChangeNotification object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShown:) name:UIKeyboardDidShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
+        
         [self initOverlayControls];
     }
     return self;
@@ -94,36 +100,43 @@
     self.activityView.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
 }
 
-- (void)setVideo:(YAVideo *)video shouldPlay:(BOOL)shouldPlay {
+- (void)setVideo:(YAVideo *)video shouldPreload:(BOOL)shouldPreload {
     if([_video isInvalidated] || ![_video.localId isEqualToString:video.localId]) {
-        _video = video;
         
+        _video = video;
+
         [self updateControls];
         
-        if(!shouldPlay) {
+        if(!shouldPreload) {
             self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
     }
     
-    if(shouldPlay) {
-        NSURL *movUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
-        [self showLoading:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
-        
-        if(self.video.mp4Filename.length)
-        {
-            self.playerView.URL = movUrl;
-        }
-        else
-        {
-            self.playerView.URL = nil;
-        }
-        
-        self.playerView.frame = self.bounds;
-        
-        //add fullscreen jpg preview
-        [self addFullscreenJpgPreview];
+    self.shouldPreload = shouldPreload;
+    
+    if(shouldPreload) {
+        [self prepareVideoForPlaying];
     }
+}
+
+- (void)prepareVideoForPlaying {
+    NSURL *movUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
+    [self showLoading:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
+    
+    if(self.video.mp4Filename.length)
+    {
+        self.playerView.URL = movUrl;
+    }
+    else
+    {
+        self.playerView.URL = nil;
+    }
+    
+    self.playerView.frame = self.bounds;
+    
+    //add fullscreen jpg preview
+    [self addFullscreenJpgPreview];
 }
 
 - (void)addFullscreenJpgPreview {
@@ -159,8 +172,11 @@
 - (void)dealloc {
     [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION      object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION      object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION      object:nil];
+
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingOperationDidStartNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingOperationDidFinishNotification object:nil];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextInputCurrentInputModeDidChangeNotification object:nil];
@@ -629,33 +645,22 @@
 }
 
 #pragma mark - YAProgressView
-- (void)downloadStarted:(NSNotification*)notif {
+- (void)downloadDidStart:(NSNotification*)notif {
     NSOperation *op = notif.object;
     if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
         [self showProgress:YES];
     }
 }
 
-- (void)showProgress:(BOOL)show {
-    self.progressView.backgroundView.hidden = !show;
+- (void)downloadDidFinish:(NSNotification*)notif {
+    NSOperation *op = notif.object;
+    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+        [self showProgress:NO];
+    }
 }
 
-- (void)generationProgressChanged:(NSNotification*)notif {
-    NSString *url = notif.object;
-    if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
-        
-        if(self.progressView) {
-            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            [self.progressView setProgress:value.floatValue animated:NO];
-            NSLog(@"floatValue? %f", value.floatValue);
-            if (value.floatValue >= 1.f) {
-                NSLog(@"waaat");
-                [self setVideo:self.video shouldPlay:YES];
-                self.playerView.playWhenReady = YES;
-            }
-        }
-    }
-    
+- (void)showProgress:(BOOL)show {
+    self.progressView.backgroundView.hidden = !show;
 }
 
 - (void)downloadProgressChanged:(NSNotification*)notif {
@@ -667,6 +672,16 @@
             [self.progressView setProgress:value.floatValue animated:NO];
             [self.progressView setCustomText:self.video.creator];
         }
+    }
+}
+
+- (void)videoChanged:(NSNotification*)notif {
+    if([notif.object isEqual:self.video] && !self.playerView.URL && self.shouldPreload && self.video.mp4Filename.length) {
+        
+        //setURL will remove playWhenReady flag, so saving it and using later
+        BOOL playWhenReady = self.playerView.playWhenReady;
+        [self prepareVideoForPlaying];
+        self.playerView.playWhenReady = playWhenReady;
     }
 }
 
@@ -683,9 +698,9 @@
 }
 
 #pragma mark - KVO
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)vc change:(NSDictionary *)change context:(void *)context{
-    if ([vc isKindOfClass:[YAVideoPlayerView class]]) {
-        [self showLoading:!((YAVideoPlayerView*)vc).readyToPlay];
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
+    if ([object isKindOfClass:[YAVideoPlayerView class]]) {
+        [self showLoading:!((YAVideoPlayerView*)object).readyToPlay];
     }
 }
 
@@ -728,7 +743,9 @@
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
     [self updateControls];
     
-    [self.captionField resignFirstResponder];    self.keyBoardAccessoryButton.hidden = YES;
+    [self.captionField resignFirstResponder];
+    self.keyBoardAccessoryButton.hidden = YES;
 }
+
 @end
 

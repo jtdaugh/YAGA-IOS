@@ -16,5 +16,5 @@
 @property (nonatomic, readonly) YAVideoPlayerView *playerView;
 @property (nonatomic, weak) id presentingVC;
 
-- (void)setVideo:(YAVideo *)video shouldPlay:(BOOL)shouldPlay;
+- (void)setVideo:(YAVideo *)video shouldPreload:(BOOL)shouldPreload;
 @end

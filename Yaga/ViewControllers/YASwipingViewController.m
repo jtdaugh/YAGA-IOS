@@ -241,20 +241,20 @@
     self.previousPageIndex = self.currentPageIndex;
 }
 
-- (void)updatePages:(BOOL)playVideo {
+- (void)updatePages:(BOOL)preload {
     [self adjustPageFrames];
     
     NSUInteger tilePageIndex = 0;
     
     //first page, current on the left
     if(self.currentPageIndex == 0) {
-        [self updatePageAtIndex:0 withVideoAtIndex:0 shouldPlay:playVideo];
+        [self updatePageAtIndex:0 withVideoAtIndex:0 shouldPreload:preload];
         
         if([YAUser currentUser].currentGroup.videos.count > 1)
-            [self updatePageAtIndex:1 withVideoAtIndex:1 shouldPlay:playVideo];
+            [self updatePageAtIndex:1 withVideoAtIndex:1 shouldPreload:preload];
         
         if([YAUser currentUser].currentGroup.videos.count > 2)
-            [self updatePageAtIndex:2 withVideoAtIndex:2 shouldPlay:playVideo];
+            [self updatePageAtIndex:2 withVideoAtIndex:2 shouldPreload:preload];
         
         tilePageIndex = 0;
     }
@@ -263,19 +263,19 @@
         //special case when there is less than 3 videos
         if([YAUser currentUser].currentGroup.videos.count < 3) {
             //index is always greater than 0 here, as previous condition index == 0 has already passed
-            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPlay:playVideo];
-            [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPlay:playVideo];
+            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
+            [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
             
             tilePageIndex = 1;
         }
         else {
             if(self.currentPageIndex > 1)
-                [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 2 shouldPlay:playVideo];
+                [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 2 shouldPreload:preload];
             
             if(self.currentPageIndex > 0)
-                [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex - 1 shouldPlay:playVideo];
+                [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
             
-            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex shouldPlay:playVideo];
+            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
             
             tilePageIndex = 2;
         }
@@ -284,19 +284,19 @@
     else if(self.currentPageIndex > 0) {
         
         if([YAUser currentUser].currentGroup.videos.count > 0)
-            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPlay:playVideo];
+            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
         
-        [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPlay:playVideo];
+        [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
         
         if(self.currentPageIndex + 1 <= [YAUser currentUser].currentGroup.videos.count - 1)
-            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPlay:playVideo];
+            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPreload:preload];
         
         tilePageIndex = 1;
     }
     
     for(NSUInteger i = 0; i < 3; i++) {
         YAVideoPage *page = self.pages[i];
-        if(i == tilePageIndex && playVideo) {
+        if(i == tilePageIndex && preload) {
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
         }
@@ -350,10 +350,10 @@
     }
 }
 
-- (void)updatePageAtIndex:(NSUInteger)pageIndex withVideoAtIndex:(NSUInteger)videoIndex shouldPlay:(BOOL)shouldPlay {
+- (void)updatePageAtIndex:(NSUInteger)pageIndex withVideoAtIndex:(NSUInteger)videoIndex shouldPreload:(BOOL)shouldPlay {
     YAVideo *video = [YAUser currentUser].currentGroup.videos[videoIndex];
     YAVideoPage *page = self.pages[pageIndex];
-    [page setVideo:video shouldPlay:shouldPlay];
+    [page setVideo:video shouldPreload:shouldPlay];
 }
 
 #pragma mark - YAVideoPageDelegate 

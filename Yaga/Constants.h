@@ -58,7 +58,6 @@
 #define kVideoDownloadNotificationUserInfoKey   @"kVideoDownloadingNotificationName"
 
 #define VIDEO_DID_DOWNLOAD_PART_NOTIFICATION    @"VIDEO_DID_DOWNLOAD_PART_NOTIFICATION"
-#define VIDEO_DID_GENERATE_PART_NOTIFICATION    @"VIDEO_DID_GENERATE_PART_NOTIFICATION"
 
 #define kDefaultUsername                        @"Unknown user"
 
