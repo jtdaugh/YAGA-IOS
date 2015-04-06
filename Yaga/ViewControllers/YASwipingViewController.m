@@ -211,7 +211,7 @@
         
         YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:pageFrame];
         page.presentingVC = self;
-        page.backgroundColor = [UIColor blackColor];
+        page.backgroundColor = PRIMARY_COLOR;
         
         [self.scrollView addSubview:page];
         [self.pages addObject:page];

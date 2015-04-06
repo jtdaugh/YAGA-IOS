@@ -71,6 +71,8 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShown:) name:UIKeyboardDidShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
         [self initOverlayControls];
+        
+        [self setBackgroundColor:PRIMARY_COLOR];
     }
     return self;
 }
@@ -273,6 +275,7 @@
     UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
     progressBkgView.backgroundColor = [UIColor clearColor];
     self.progressView.backgroundView = progressBkgView;
+    
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:self.progressView];
     
@@ -281,9 +284,9 @@
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
     
     self.progressView.indeterminate = NO;
-    self.progressView.showsText = YES;
-    self.progressView.lineWidth = 2;
-    self.progressView.tintColor = PRIMARY_COLOR;
+    self.progressView.lineWidth = 4;
+    self.progressView.showsText = NO;
+    self.progressView.tintColor = [UIColor whiteColor];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -667,7 +670,7 @@
         if(self.progressView) {
             NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
             [self.progressView setProgress:value.floatValue animated:NO];
-            [self.progressView setCustomText:self.video.creator];
+//            [self.progressView setCustomText:self.video.creator];
         }
     }
 }
