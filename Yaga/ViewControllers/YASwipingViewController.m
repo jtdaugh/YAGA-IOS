@@ -70,8 +70,8 @@
     self.scrollView.pagingEnabled = YES;
     
     //gesture recognizers
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
-    [self.view addGestureRecognizer:tap];
+    //UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
+    //[self.view addGestureRecognizer:tap];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     
@@ -211,7 +211,7 @@
         
         YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:pageFrame];
         page.presentingVC = self;
-        page.backgroundColor = [UIColor blackColor];
+        page.backgroundColor = PRIMARY_COLOR;
         
         [self.scrollView addSubview:page];
         [self.pages addObject:page];

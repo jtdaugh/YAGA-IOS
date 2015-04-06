@@ -77,6 +77,8 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
         
         [self initOverlayControls];
+        
+        [self setBackgroundColor:PRIMARY_COLOR];
     }
     return self;
 }
@@ -210,7 +212,9 @@
     
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 10;
-    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
+    self.captionField.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
@@ -287,6 +291,7 @@
     UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
     progressBkgView.backgroundColor = [UIColor clearColor];
     self.progressView.backgroundView = progressBkgView;
+    
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:self.progressView];
     
@@ -295,9 +300,9 @@
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
     
     self.progressView.indeterminate = NO;
-    self.progressView.showsText = YES;
-    self.progressView.lineWidth = 2;
-    self.progressView.tintColor = PRIMARY_COLOR;
+    self.progressView.lineWidth = 4;
+    self.progressView.showsText = NO;
+    self.progressView.tintColor = [UIColor whiteColor];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -677,7 +682,6 @@
 
 - (void)videoChanged:(NSNotification*)notif {
     if([notif.object isEqual:self.video] && !self.playerView.URL && self.shouldPreload && self.video.mp4Filename.length) {
-        
         //setURL will remove playWhenReady flag, so saving it and using later
         BOOL playWhenReady = self.playerView.playWhenReady;
         [self prepareVideoForPlaying];
