@@ -194,7 +194,9 @@
     
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 10;
-    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
+    self.captionField.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
