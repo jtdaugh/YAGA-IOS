@@ -155,10 +155,10 @@
             
         } else {
             // Unkoment for 640x480
-//            DLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
-//            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
-//                                                                     100.f,
-//                                                                     75.0f);
+            DLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
+            CGAffineTransform transform = CGAffineTransformTranslate(assetTrack.preferredTransform,
+                                                                     100.f,
+                                                                     75.0f);
 // Unkoment for high quality
 //            DLog(@"%@", NSStringFromCGSize(assetTrack.naturalSize));
 //            DLog(@"%@", NSStringFromCGRect([UIScreen mainScreen].nativeBounds));
@@ -169,7 +169,7 @@
 //                                                                     yMove);
 
             
-//            [layerInstruction setTransform:transform atTime:kCMTimeZero];
+            [layerInstruction setTransform:transform atTime:kCMTimeZero];
         }
         
         videoCompositionInstruction.layerInstructions = @[layerInstruction];

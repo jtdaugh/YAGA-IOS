@@ -100,6 +100,7 @@
 		86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A51A433185002256FF /* YACountriesTableViewController.m */; };
 		86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A81A43322F002256FF /* CountryListDataSource.m */; };
 		86B864AC1A433343002256FF /* CountryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864AB1A433343002256FF /* CountryCell.m */; };
+		86D9B9251AD40CEC00994674 /* YASaveToCameraRollActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -273,6 +274,8 @@
 		86B864A81A43322F002256FF /* CountryListDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CountryListDataSource.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		86B864AA1A433343002256FF /* CountryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CountryCell.h; sourceTree = "<group>"; };
 		86B864AB1A433343002256FF /* CountryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CountryCell.m; sourceTree = "<group>"; };
+		86D9B9231AD40CEC00994674 /* YASaveToCameraRollActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASaveToCameraRollActivity.h; sourceTree = "<group>"; };
+		86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASaveToCameraRollActivity.m; sourceTree = "<group>"; };
 		86EF0B8E1A40592F00FF4E3C /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -448,8 +451,7 @@
 				86A9ED3B1A4D91B6002EDE76 /* UIImage+Color.m */,
 				861AF4171A5976E000F125C3 /* YAServer+HostManagment.h */,
 				861AF4181A5976E000F125C3 /* YAServer+HostManagment.m */,
-				8695EF861AAF519900431E44 /* YAGifCopyActivity.h */,
-				8695EF871AAF519900431E44 /* YAGifCopyActivity.m */,
+				86D9B9261AD40CFB00994674 /* Activities */,
 			);
 			path = Categories;
 			sourceTree = "<group>";
@@ -619,6 +621,17 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		86D9B9261AD40CFB00994674 /* Activities */ = {
+			isa = PBXGroup;
+			children = (
+				8695EF861AAF519900431E44 /* YAGifCopyActivity.h */,
+				8695EF871AAF519900431E44 /* YAGifCopyActivity.m */,
+				86D9B9231AD40CEC00994674 /* YASaveToCameraRollActivity.h */,
+				86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */,
+			);
+			name = Activities;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -652,7 +665,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = QWZRQYKU9P;
+						DevelopmentTeam = 69VNPN45P3;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -797,6 +810,7 @@
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
 				6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */,
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
+				86D9B9251AD40CEC00994674 /* YASaveToCameraRollActivity.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,

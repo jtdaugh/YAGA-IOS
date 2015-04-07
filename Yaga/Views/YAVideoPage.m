@@ -16,6 +16,7 @@
 #import "YAProgressView.h"
 #import "YASwipingViewController.h"
 #import "YAGifCopyActivity.h"
+#import "YASaveToCameraRollActivity.h"
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -630,10 +631,14 @@
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     NSURL *videoFile = [YAUtils urlFromFileName:self.video.mp4Filename];
-    YAGifCopyActivity   *activityGif = [YAGifCopyActivity new];
+    YAGifCopyActivity           *activityGif    = [YAGifCopyActivity new];
+    YASaveToCameraRollActivity  *activitySave   = [YASaveToCameraRollActivity new];
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]
-                                      applicationActivities:@[activityGif]];
+                                      applicationActivities:@[activitySave, activityGif]];
+    NSArray *excludeActivities = @[UIActivityTypeSaveToCameraRoll,UIActivityTypeCopyToPasteboard];
+    activityViewController.excludedActivityTypes = excludeActivities;
+    
     [self.presentingVC presentViewController:activityViewController
                                     animated:YES
                                   completion:^{
