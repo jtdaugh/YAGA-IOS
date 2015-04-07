@@ -123,6 +123,8 @@ static NSString *cellID = @"Cell";
         [weakSelf refreshCurrentGroup];
     }];
     
+//    self.collectionView.pullToRefreshView.
+    
     YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];
     
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
@@ -284,7 +286,7 @@ static NSString *cellID = @"Cell";
                     [self.collectionView addSubview:self.toolTipLabel];
                     //warning create varible for all screen sizes
                     
-                    [UIView animateKeyframesWithDuration:0.6 delay:0.6 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+                    [UIView animateKeyframesWithDuration:0.6 delay:1.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
                         //
                         [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
                             //

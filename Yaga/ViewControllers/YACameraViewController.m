@@ -186,8 +186,14 @@
         
         if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
             //first start tooltips
-            self.recordTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 120, VIEW_HEIGHT)];
-            self.recordTooltipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+            
+            CGFloat tooltipPadding = recordButtonWidth / 2 * 3 / 2;
+            
+            self.recordTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - 108, 0, 120, VIEW_HEIGHT/2 - tooltipPadding)];
+            NSString *fontName = @"AvenirNext-HeavyItalic";
+            CGFloat fontSize = 26;
+
+            self.recordTooltipLabel.font = [UIFont fontWithName:fontName size:fontSize];
             NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap and hold to record\n \u2B07\U0000FE0E"
                                                                          attributes:@{
                                                                                       NSStrokeColorAttributeName:[UIColor whiteColor],
@@ -199,11 +205,27 @@
             self.recordTooltipLabel.numberOfLines = 4;
             self.recordTooltipLabel.textColor = PRIMARY_COLOR;
             [self.view addSubview:self.recordTooltipLabel];
+            
+            
+            NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
+            
+            NSString *text = self.recordTooltipLabel.text;
+            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+            
+            CGRect rect = [text boundingRectWithSize:CGSizeMake(self.recordTooltipLabel.frame.size.width, CGFLOAT_MAX)
+                                             options:option
+                                          attributes:attributes
+                                             context:nil];
+
+            CGRect frame = self.recordTooltipLabel.frame;
+            frame.origin.y = VIEW_HEIGHT/2 - rect.size.height - tooltipPadding;
+            frame.size.height = rect.size.height;
+            self.recordTooltipLabel.frame = frame;
             //warning create varible for all screen sizes
-            CGPoint center = self.view.center;
-            center.x -= 47.f;
-            center.y += 65.f;
-            self.recordTooltipLabel.center = center;
+//            CGPoint center = self.view.center;
+//            center.x -= 47.f;
+//            center.y += 65.f;
+//            self.recordTooltipLabel.center = center;
         }
 
     }
@@ -410,6 +432,7 @@
 
     if(self.recordTooltipLabel) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
+        
         [UIView animateWithDuration:0.2 animations:^{
             self.recordTooltipLabel.alpha = 0.0;
         } completion:^(BOOL finished) {
