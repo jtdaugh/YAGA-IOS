@@ -335,8 +335,6 @@ static NSString *cellID = @"Cell";
         [self showActivityIndicator:NO];
     }
     
-    [self playVisible:YES];
-    
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
 
     double hidePullToRefreshAfter = 1 - seconds;
@@ -345,8 +343,8 @@ static NSString *cellID = @"Cell";
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self.collectionView.pullToRefreshView stopAnimating];
+        [self playVisible:YES];
     });
-    
 }
 
 - (void)showActivityIndicator:(BOOL)show {
