@@ -47,6 +47,9 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, strong) YAActivityView *activityView;
 
 @property (nonatomic) BOOL hasToolTipOnOneOfTheCells;
+
+//needed to have pull down to refresh shown for at least 1 second
+@property (nonatomic, strong) NSDate *willRefreshDate;
 @end
 
 static NSString *cellID = @"Cell";
@@ -80,6 +83,7 @@ static NSString *cellID = @"Cell";
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
 
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupWillRefresh:) name:GROUP_WILL_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
     
@@ -126,6 +130,11 @@ static NSString *cellID = @"Cell";
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
 }
 
+- (void)manualTriggerPullToRefresh {
+    self.collectionView.contentOffset = CGPointMake(0, -(self.collectionView.contentInset.top + self.collectionView.pullToRefreshView.bounds.size.height));
+    [self.collectionView triggerPullToRefresh];
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
@@ -141,6 +150,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_WILL_REFRESH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_CHANGE_NOTIFICATION object:nil];
     
@@ -234,6 +244,11 @@ static NSString *cellID = @"Cell";
     [[YAUser currentUser].currentGroup refresh];
 }
 
+- (void)groupWillRefresh:(NSNotification*)notification {
+    [self manualTriggerPullToRefresh];
+    self.willRefreshDate = [NSDate date];
+}
+
 - (void)groupDidRefresh:(NSNotification*)notification {
     if(![notification.object isEqual:[YAUser currentUser].currentGroup])
         return;
@@ -318,8 +333,18 @@ static NSString *cellID = @"Cell";
         [self showActivityIndicator:NO];
     }
     
-    [self.collectionView.pullToRefreshView stopAnimating];
     [self playVisible:YES];
+    
+    NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
+
+    double hidePullToRefreshAfter = 1 - seconds;
+    if(hidePullToRefreshAfter < 0)
+        hidePullToRefreshAfter = 0;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.collectionView.pullToRefreshView stopAnimating];
+    });
+    
 }
 
 - (void)showActivityIndicator:(BOOL)show {
