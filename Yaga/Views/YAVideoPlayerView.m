@@ -329,12 +329,14 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)play {
+    [self.player play];
+
     //hide fullscreen jpg preview
     if(self.subviews.count && [self.subviews[0] isKindOfClass:[UIImageView class]]) {
         UIImageView *jpgView = self.subviews[0];
-        [jpgView removeFromSuperview];
+//        [jpgView removeFromSuperview];
+        [self sendSubviewToBack:jpgView];
     }
-    [self.player play];
 }
 
 - (void)pause {
