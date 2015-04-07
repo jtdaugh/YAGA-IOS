@@ -142,7 +142,7 @@
     if(self.executingJobs.allKeys.count < self.maxConcurentJobs) {
         [self.executingJobs setObject:job forKey:url];
         [self.waitingJobs removeObjectForKey:url];
-        [self logState:@"prioritizeJobForVideo"];
+        [self logState:[NSString stringWithFormat:@"prioritizeJobForVideo, gifJob: %d", gifJob]];
         return;
     }
     
@@ -159,7 +159,7 @@
     [self.executingJobs setObject:job forKey:url];
     [self.waitingJobs removeObjectForKey:url];
     
-    [self logState:@"prioritizeJobForVideo"];
+    [self logState:[NSString stringWithFormat:@"prioritizeJobForVideo, gifJob: %d", gifJob]];
 }
 
 - (void)logState:(NSString*)method {
