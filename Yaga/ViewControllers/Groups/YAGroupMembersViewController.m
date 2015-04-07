@@ -8,7 +8,6 @@
 
 #import "YAGroupMembersViewController.h"
 #import "YAGroupAddMembersViewController.h"
-#import <ClusterPrePermissions.h>
 
 @interface YAGroupMembersViewController ()
 @property (nonatomic, strong) YAGroup *group;
@@ -66,33 +65,6 @@ static NSString *CellID = @"CellID";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
                                                                                               target:self
                                                                                               action:@selector(addMembersTapped)];
-}
-
-- (void)changeEditingModeTapped {
-    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
-    [permissions showContactsPermissionsWithTitle:NSLocalizedString(@"Contacts access", nil)
-                                          message:NSLocalizedString(@"Grant Yaga access to your contacts list", nil)
-                                  denyButtonTitle:NSLocalizedString(@"Deny", nil)
-                                 grantButtonTitle:NSLocalizedString(@"Grant", nil)
-                                completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
-                                    if (hasPermission) {
-                                        [self setEditing:!self.editing animated:YES];
-                                    } else if (!hasPermission
-                                               && userDialogResult == ClusterDialogResultNoActionTaken
-                                               && systemDialogResult == ClusterDialogResultNoActionTaken) {
-                                        NSString *title = NSLocalizedString(@"No contacts list access", nil);
-                                        NSString *message = NSLocalizedString(@"Yaga needs acces to your contacts, to add new people.\nPlease, grant access in Settings.app", nil);
-                                        NSString *buttonTitle = NSLocalizedString(@"OK", nil);
-                                        
-                                        [YAUtils showAlertViewWithTitle:title
-                                                                message:message
-                                                      forViewController:self
-                                                          accepthButton:buttonTitle
-                                                           cancelButton:nil
-                                                           acceptAction:nil
-                                                           cancelAction:nil];
-                                    }
-                                }];
 }
 
 - (void)addMembersTapped {

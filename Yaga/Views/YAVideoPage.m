@@ -16,6 +16,7 @@
 #import "YAProgressView.h"
 #import "YASwipingViewController.h"
 #import "YAGifCopyActivity.h"
+
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 @interface YAVideoPage ();
@@ -25,6 +26,7 @@
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) UITextView *captionField;
+@property (nonatomic, strong) UILabel *captionerLabel;
 @property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *likeCount;
 @property BOOL likesShown;
@@ -45,6 +47,7 @@
 @property CGFloat firstX;
 @property CGFloat firstY;
 
+@property (nonatomic, assign) BOOL shouldPreload;
 @end
 
 @implementation YAVideoPage
@@ -59,16 +62,23 @@
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadDidStart:) name:AFNetworkingOperationDidStartNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadDidFinish:) name:AFNetworkingOperationDidFinishNotification object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadProgressChanged:) name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(generationProgressChanged:) name:VIDEO_DID_GENERATE_PART_NOTIFICATION object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
+
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inputModeChanged:) name:UITextInputCurrentInputModeDidChangeNotification object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShown:) name:UIKeyboardDidShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
+        
         [self initOverlayControls];
+        
+        [self setBackgroundColor:PRIMARY_COLOR];
     }
     return self;
 }
@@ -92,32 +102,63 @@
     self.activityView.center = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
 }
 
-- (void)setVideo:(YAVideo *)video shouldPlay:(BOOL)shouldPlay {
+- (void)setVideo:(YAVideo *)video shouldPreload:(BOOL)shouldPreload {
     if([_video isInvalidated] || ![_video.localId isEqualToString:video.localId]) {
-        _video = video;
         
+        _video = video;
+
         [self updateControls];
         
-        if(!shouldPlay) {
+        if(!shouldPreload) {
             self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
     }
     
-    if(shouldPlay) {
-        NSURL *movUrl = [YAUtils urlFromFileName:self.video.movFilename];
-        [self showLoading:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
+    self.shouldPreload = shouldPreload;
+    
+    if(shouldPreload) {
+        [self prepareVideoForPlaying];
+    }
+}
+
+- (void)prepareVideoForPlaying {
+    NSURL *movUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
+    [self showLoading:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
+    
+    if(self.video.mp4Filename.length)
+    {
+        self.playerView.URL = movUrl;
+    }
+    else
+    {
+        self.playerView.URL = nil;
+    }
+    
+    self.playerView.frame = self.bounds;
+    
+    //add fullscreen jpg preview
+    [self addFullscreenJpgPreview];
+}
+
+- (void)addFullscreenJpgPreview {
+    if([self.playerView isPlaying])
+       return;
+       
+    if(self.video.jpgFullscreenFilename.length) {
+        UIImageView *jpgImageView;
         
-        if(self.video.movFilename.length)
-        {
-            self.playerView.URL = movUrl;
-        }
-        else
-        {
-            self.playerView.URL = nil;
+        if(self.playerView.subviews.count)
+            jpgImageView = self.playerView.subviews[0];
+        else {
+            jpgImageView = [[UIImageView alloc] init];
+            jpgImageView.frame = self.bounds;
+            [self.playerView addSubview:jpgImageView];
         }
         
-        self.playerView.frame = self.bounds;
+        NSString *jpgPath = [YAUtils urlFromFileName:self.video.jpgFullscreenFilename].path;
+        UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
+        jpgImageView.image = jpgImage;
     }
 }
 
@@ -133,8 +174,11 @@
 - (void)dealloc {
     [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION      object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_GENERATE_PART_NOTIFICATION      object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION      object:nil];
+
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingOperationDidStartNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingOperationDidFinishNotification object:nil];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextInputCurrentInputModeDidChangeNotification object:nil];
@@ -168,7 +212,9 @@
     
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 10;
-    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(captionGutter, self.timestampLabel.frame.size.height + self.timestampLabel.frame.origin.y, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH - captionGutter*2, captionHeight)];
+    self.captionField.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
+    self.captionField.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
@@ -185,14 +231,24 @@
     
     [self addSubview:self.captionField];
     
+    self.captionerLabel = [[UILabel alloc] initWithFrame:CGRectMake(captionGutter, self.captionField.frame.size.height + self.captionField.frame.origin.y, VIEW_WIDTH - captionGutter*2, 24)];
+    [self.captionerLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
+    [self.captionerLabel setTextColor:[UIColor whiteColor]];
+    [self.captionerLabel setBackgroundColor:[UIColor clearColor]];
+    [self.captionerLabel setTextAlignment:NSTextAlignmentCenter];
+    self.captionerLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.captionerLabel.layer.shadowRadius = 1.0f;
+    self.captionerLabel.layer.shadowOpacity = 1.0;
+    self.captionerLabel.layer.shadowOffset = CGSizeZero;
+
+    [self addSubview:self.captionerLabel];
+    
     //    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
     //    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
     //    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
     //    [panGesture requireGestureRecognizerToFail:((YASwipingViewController *) self.presentingVC).panGesture];
     
     //    [self.captionField addGestureRecognizer:panGesture];
-    
-    DLog(@"adding gesture recognizers?");
     
     CGFloat tSize = 60;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
@@ -235,6 +291,7 @@
     UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
     progressBkgView.backgroundColor = [UIColor clearColor];
     self.progressView.backgroundView = progressBkgView;
+    
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:self.progressView];
     
@@ -243,9 +300,9 @@
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
     
     self.progressView.indeterminate = NO;
-    self.progressView.showsText = YES;
-    self.progressView.lineWidth = 2;
-    self.progressView.tintColor = PRIMARY_COLOR;
+    self.progressView.lineWidth = 4;
+    self.progressView.showsText = NO;
+    self.progressView.tintColor = [UIColor whiteColor];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -263,16 +320,12 @@
 }
 
 - (void)textViewDidChange:(UITextView *)textView {
-    
-    NSLog(@"text view did change? wtf?");
-    
     [self resizeText];
-    
 }
 
 - (void)resizeText {
     NSString *fontName = self.captionField.font.fontName;
-    CGFloat fontSize = 72;
+    CGFloat fontSize = 60;
     
     NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
     
@@ -283,23 +336,16 @@
                                   attributes:attributes
                                      context:nil];
     
-    NSLog(@"rect width: %f", rect.size.height);
     while(rect.size.height > self.captionField.bounds.size.height){
         
         fontSize = fontSize - 1.0f;
-        NSDictionary *attributes = @{
-                                     NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]
-                                     };
         rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
                                   options:option
                                attributes:attributes
                                   context:nil];
-        
-        NSLog(@"new fontsize: %f", fontSize);
     }
     
     for (NSString *word in [text componentsSeparatedByString:@" "]) {
-        NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
         float width = [word sizeWithAttributes:attributes].width;
         
         while (width > self.captionField.bounds.size.width && width != 0) {
@@ -309,11 +355,12 @@
         }
     }
     
+    CGFloat finalHeight = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX) options:option attributes:attributes context:nil].size.height;
+    
     [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
-    
-    NSLog(@"max height: %f", self.captionField.bounds.size.height);
-    NSLog(@"height: %f", rect.size.height);
-    
+    CGRect captionerFrame = self.captionerLabel.frame;
+    captionerFrame.origin.y = self.captionField.frame.origin.y + finalHeight;
+    [self.captionerLabel setFrame:captionerFrame];
 }
 
 -(void)panned:(UIPanGestureRecognizer*)recognizer {
@@ -350,7 +397,7 @@
             self.fontIndex = 0;
         }
         
-        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
+        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
         [self resizeText];
     } else {
         [self.captionField becomeFirstResponder];
@@ -483,8 +530,8 @@
             
             CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
             //            CGAffineTransformMake
-            CGFloat translateX = xRadius - fabsf(xRadius*cosf(angle));
-            CGFloat translateY = -fabsf(yRadius*sinf(angle));
+            CGFloat translateX = xRadius - fabs(xRadius*cosf(angle));
+            CGFloat translateY = -fabs(yRadius*sinf(angle));
             [label setTransform:CGAffineTransformTranslate(rotate, translateX, translateY)];
             
             i++;
@@ -561,8 +608,15 @@
     self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
     self.captionField.text = self.video.caption;
     self.fontIndex = self.video.font;
-    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:72]];
+    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
+    if(![self.video.namer isEqual:@""]){
+        [self.captionerLabel setText:[NSString stringWithFormat:@"- %@", self.video.namer]];
+    } else {
+        [self.captionerLabel setText:@""];
+    }
+    
     [self resizeText];
+    
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
     
@@ -575,49 +629,43 @@
     
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-    NSURL *videoFile = [YAUtils urlFromFileName:self.video.movFilename];
-    //    NSURL *url = [NSURL URLWithString:@"http://getyaga.com"];
-    YAGifCopyActivity *activity = [YAGifCopyActivity new];
+    NSURL *videoFile = [YAUtils urlFromFileName:self.video.mp4Filename];
+    YAGifCopyActivity   *activityGif = [YAGifCopyActivity new];
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]
-                                      applicationActivities:@[activity]];
+                                      applicationActivities:@[activityGif]];
     [self.presentingVC presentViewController:activityViewController
                                     animated:YES
                                   completion:^{
                                       // ...
                                   }];
-    
-    //    [YAUtils showVideoOptionsForVideo:self.video];
+    activityViewController.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+        if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
+            [YAUtils showNotification:NSLocalizedString(completed ? @"Video saved to camera roll" : @"Video failed to save to camera roll", @"") type:YANotificationTypeSuccess];
+        }
+        else if([activityType isEqualToString:@"com.apple.UIKit.activity.CopyToPasteboard"]) {
+            [YAUtils showNotification:NSLocalizedString(completed ? @"Video copied to clipboard" : @"Video failed to copy to clipboard", @"") type:YANotificationTypeSuccess];
+        }
+    };
 }
 
 #pragma mark - YAProgressView
-- (void)downloadStarted:(NSNotification*)notif {
+- (void)downloadDidStart:(NSNotification*)notif {
     NSOperation *op = notif.object;
     if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
         [self showProgress:YES];
     }
 }
 
-- (void)showProgress:(BOOL)show {
-    self.progressView.backgroundView.hidden = !show;
+- (void)downloadDidFinish:(NSNotification*)notif {
+    NSOperation *op = notif.object;
+    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+        [self showProgress:NO];
+    }
 }
 
-- (void)generationProgressChanged:(NSNotification*)notif {
-    NSString *url = notif.object;
-    if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
-        
-        if(self.progressView) {
-            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            [self.progressView setProgress:value.floatValue animated:NO];
-            NSLog(@"floatValue? %f", value.floatValue);
-            if (value.floatValue >= 1.f) {
-                NSLog(@"waaat");
-                [self setVideo:self.video shouldPlay:YES];
-                self.playerView.playWhenReady = YES;
-            }
-        }
-    }
-    
+- (void)showProgress:(BOOL)show {
+    self.progressView.backgroundView.hidden = !show;
 }
 
 - (void)downloadProgressChanged:(NSNotification*)notif {
@@ -629,6 +677,15 @@
             [self.progressView setProgress:value.floatValue animated:NO];
             [self.progressView setCustomText:self.video.creator];
         }
+    }
+}
+
+- (void)videoChanged:(NSNotification*)notif {
+    if([notif.object isEqual:self.video] && !self.playerView.URL && self.shouldPreload && self.video.mp4Filename.length) {
+        //setURL will remove playWhenReady flag, so saving it and using later
+        BOOL playWhenReady = self.playerView.playWhenReady;
+        [self prepareVideoForPlaying];
+        self.playerView.playWhenReady = playWhenReady;
     }
 }
 
@@ -645,9 +702,9 @@
 }
 
 #pragma mark - KVO
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)vc change:(NSDictionary *)change context:(void *)context{
-    if ([vc isKindOfClass:[YAVideoPlayerView class]]) {
-        [self showLoading:!((YAVideoPlayerView*)vc).readyToPlay];
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
+    if ([object isKindOfClass:[YAVideoPlayerView class]]) {
+        [self showLoading:!((YAVideoPlayerView*)object).readyToPlay];
     }
 }
 
@@ -690,7 +747,9 @@
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
     [self updateControls];
     
-    [self.captionField resignFirstResponder];    self.keyBoardAccessoryButton.hidden = YES;
+    [self.captionField resignFirstResponder];
+    self.keyBoardAccessoryButton.hidden = YES;
 }
+
 @end
 

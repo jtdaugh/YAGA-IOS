@@ -17,7 +17,11 @@
 #include <netinet/in.h>
 #import "YAServer+HostManagment.h"
 
+#ifdef DEBUG
+#define HOST @"https://yaga-dev.herokuapp.com"
+#else
 #define HOST @"https://api.yagaprivate.com"
+#endif
 
 #define PORT @"443"
 #define PORTNUM 443
@@ -35,8 +39,7 @@
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/members/mute/"
 
-#define API_ADD_GROUP_MEMBERS_TEMPLATE      @"%@/groups/%@/members/add/"
-#define API_REMOVE_GROUP_MEMBER_TEMPLATE    @"%@/groups/%@/members/remove/"
+#define API_GROUP_MEMBERS_TEMPLATE          @"%@/groups/%@/members/"
 
 #define API_GROUP_POSTS_TEMPLATE            @"%@/groups/%@/posts/"
 #define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/%@/"
@@ -206,14 +209,16 @@
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"group not synchronized with server yet");
     
-    NSDictionary *parameters = @{
-                                 @"phones": phones,
-                                 @"names": usernames
-                                 };
+    NSMutableDictionary *parameters = @{
+                                        @"phones": phones,
+                                        @"names": usernames
+                                        }.mutableCopy;
+    
+    if (![usernames count]) { [parameters removeObjectForKey:@"names"]; };
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
-    NSString *api = [NSString stringWithFormat:API_ADD_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
     
     NSURL *url = [NSURL URLWithString:api];
     
@@ -248,12 +253,12 @@
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
-    NSString *api = [NSString stringWithFormat:API_REMOVE_GROUP_MEMBER_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api = [NSString stringWithFormat:API_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
     
     NSURL *url = [NSURL URLWithString:api];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [request setHTTPMethod:@"PUT"];
+    [request setHTTPMethod:@"DELETE"];
     
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
@@ -362,10 +367,28 @@
                        [video.realm commitWriteTransaction];
                        
                        NSDictionary *meta = dict[@"meta"];
-                       NSString *endpoint = meta[@"endpoint"];
-
+                       NSString *videoEndpoint = meta[@"attachment"][@"endpoint"];
+                       NSDictionary *videoFields =  meta[@"attachment"][@"fields"];
+                       
+                       //save gif upload credentials for later use
+                       NSMutableDictionary *gifsUploadCredentials = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kGIFUploadCredentials]];
+                       [gifsUploadCredentials setObject:meta[@"attachment_preview"] forKey:video.serverId];
+                       [[NSUserDefaults standardUserDefaults] setObject:gifsUploadCredentials forKey:kGIFUploadCredentials];
+                       
                        NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.mp4Filename].path];
-                       [self multipartUpload:endpoint withParameters:meta[@"fields"] withFile:videoData videoServerId:video.serverId completion:completion];
+                       
+                       //gif might not be there yet, it's in progress, so uploading video at once and saving credentials for uploading gif, it will be uploaded when gif operation is done
+                       [self multipartUpload:videoEndpoint withParameters:videoFields withFile:videoData videoServerId:video.serverId completion:^(id response, NSError *error) {
+                           
+                           //call completion block when video is posted
+                           completion(response, error);
+                           
+                           if(video.gifFilename.length)
+                               [self uploadGIFForVideoWithServerId:video.serverId];
+                           else {
+                               DLog(@"Can't post GIF! It's not ready yet.");
+                           }
+                       }];
                    });
                    
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -373,7 +396,47 @@
                }];
 }
 
+- (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId {
+    NSMutableDictionary *gifsUploadCredentials = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kGIFUploadCredentials]];
+    NSDictionary *credentials = [gifsUploadCredentials objectForKey:videoServerId];
+    
+    if(credentials.allKeys.count) {
+        RLMResults *results = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoServerId]];
+        if(results.count != 1)
+            return;
+        
+        YAVideo *video = results[0];
+        if(video.isInvalidated) {
+            return;
+        }
+        
+        NSData *gifData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.gifFilename].path];
+        
+        NSString *gifEndpoint = credentials[@"endpoint"];
+        NSDictionary *gifFields = credentials[@"fields"];
+        
+        [self multipartUpload:gifEndpoint withParameters:gifFields withFile:gifData videoServerId:video.serverId completion:^(id response, NSError *error) {
+            if(error) {
+                DLog(@"an error occured during gif upload: %@", error.localizedDescription);
+            }
+            else {
+                [AnalyticsKit logEvent:@"GIF posted"];
+                DLog(@"for video: %@", video.serverId);
+            }
+        }];
+        
+        [gifsUploadCredentials removeObjectForKey:videoServerId];
+        [[NSUserDefaults standardUserDefaults] setObject:gifsUploadCredentials forKey:kGIFUploadCredentials];
+    }
+}
+
 - (void)multipartUpload:(NSString*)endpoint withParameters:(NSDictionary*)dict withFile:(NSData*)file videoServerId:(NSString*)serverId completion:(responseBlock)completion {
+    
+    if(!file.length) {
+        DLog(@"File is 0 bytes, can't upload");
+        return;
+    }
+    
     AFHTTPRequestOperationManager *newManager = [AFHTTPRequestOperationManager manager];
     AFXMLParserResponseSerializer *responseSerializer = [AFXMLParserResponseSerializer serializer];
     newManager.responseSerializer = responseSerializer;

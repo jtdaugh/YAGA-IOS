@@ -11,6 +11,7 @@
 
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_NAME                @"name"
+#define YA_RESPONSE_NAMER               @"namer"
 #define YA_RESPONSE_FONT                @"font"
 #define YA_RESPONSE_LIKES               @"likes"
 #define YA_RESPONSE_LIKERS              @"likers"
@@ -21,12 +22,13 @@
 #define YA_RESPONSE_USER                @"user"
 #define YA_RESPONSE_TOKEN               @"token"
 
-#define YA_VIDEO_POST           @"post"
-#define YA_VIDEO_POSTS          @"posts"
-#define YA_VIDEO_ATTACHMENT     @"attachment"
-#define YA_VIDEO_READY_AT       @"ready_at"
-#define YA_VIDEO_DELETED        @"deleted"
-#define YA_GROUP_UPDATED_AT     @"updated_at"
+#define YA_VIDEO_POST                   @"post"
+#define YA_VIDEO_POSTS                  @"posts"
+#define YA_VIDEO_ATTACHMENT             @"attachment"
+#define YA_VIDEO_ATTACHMENT_PREVIEW     @"attachment_preview"
+#define YA_VIDEO_READY_AT               @"ready_at"
+#define YA_VIDEO_DELETED                @"deleted"
+#define YA_GROUP_UPDATED_AT             @"updated_at"
 
 #define YA_LAST_DEVICE_TOKEN_SYNC_DATE @"lastTokenSyncDate"
 
@@ -68,4 +70,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 @property (readonly) BOOL serverUp;
 - (void)sync;
 @property (nonatomic, strong) NSDate *lastUpdateTime;
+
+//execute when after recording, when gif is generated
+- (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId;
 @end

@@ -19,7 +19,7 @@
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
 
-#import <ClusterPrePermissions.h>
+#import "YAUserPermissions.h"
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -104,23 +104,31 @@ static NSString *CellIdentifier = @"GroupsCell";
         [createGroupButton setBackgroundColor:PRIMARY_COLOR];
         createGroupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
         [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
-        [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
+        UIColor *bkgColor = self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor];
+        [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[bkgColor colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
         [self.view addSubview:createGroupButton];
     }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    [self updateState];
+    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+        [self updateState];
+    }];
+}
+
+- (void)updateState {
     
     self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
     self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
     
     [self.navigationController setNavigationBarHidden:YES];
-    
     //size to fit table view
     if(!self.embeddedMode) {
         [self.tableView reloadData];
+
         CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
         CGFloat rowsCount = [self tableView:self.tableView numberOfRowsInSection:0];
         CGFloat contentHeight = rowHeight * rowsCount;
@@ -131,18 +139,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
-    
-//    ClusterPrePermissions *permissions = [ClusterPrePermissions sharedPermissions];
-//    [permissions
-//     showPushNotificationPermissionsWithType:ClusterPushNotificationTypeAlert | ClusterPushNotificationTypeSound | ClusterPushNotificationTypeBadge
-//     title:NSLocalizedString(@"Enable push notifications?", nil)
-//     message:NSLocalizedString(@"Yaga wants to send you push notifications", nil)
-//     denyButtonTitle:@"Not Now"
-//     grantButtonTitle:@"Enable"
-//     completionHandler:^(BOOL hasPermission, ClusterDialogResult userDialogResult, ClusterDialogResult systemDialogResult) {
-//         
-//     }];
+    if(![YAUserPermissions pushPermissionsRequestedBefore])
+        [YAUserPermissions registerUserNotificationSettings];
     
     //load phonebook if it wasn't done before
     if(![YAUser currentUser].phonebook.count) {
@@ -284,7 +282,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)createGroup {
-        [self close];
+    [self close];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self performSegueWithIdentifier:@"NameGroup" sender:self];
     });

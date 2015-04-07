@@ -22,10 +22,15 @@
 @property (nonatomic, assign) NSUInteger previousPageIndex;
 
 @property (nonatomic, assign) NSUInteger initialIndex;
+
+@property (nonatomic, strong) UIImageView *jpgImageView;
+
+@property (nonatomic, assign) BOOL dismissed;
+
 @end
 
 #define kSeparator 10
-#define DOWN_MOVEMENT_TRESHHOLD 800.0f
+#define kDismissalTreshold 400.0f
 
 @implementation YASwipingViewController
 
@@ -50,6 +55,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.view.clipsToBounds = YES;
+    
     CGRect rect = self.view.bounds;
     rect.size.width += kSeparator;
     
@@ -63,41 +70,108 @@
     self.scrollView.pagingEnabled = YES;
     
     //gesture recognizers
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
-    [self.view addGestureRecognizer:tap];
+    //UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
+    //[self.view addGestureRecognizer:tap];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
-    
     [self.view addGestureRecognizer:self.panGesture];
+    
+    //show selected video fullscreen jpg preview
+    [self showJpgPreview:YES];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    //hide selected video fullscreen jpg preview
+    [self showJpgPreview:NO];
+    
     [self initPages];
 }
 
-- (void)panGesture:(UIPanGestureRecognizer *)rec
-{
-    static BOOL insideAnimation = NO;
-    CGPoint vel = [rec velocityInView:self.view];
-    if (vel.y > DOWN_MOVEMENT_TRESHHOLD) {
-        if (!insideAnimation) {
-            insideAnimation = YES;
-            CATransition* transition = [CATransition animation];
-            transition.duration = 0.5;
-            transition.type = kCATransitionReveal;
-            transition.subtype = kCATransitionFromBottom;
-            [self.view.layer addAnimation:transition forKey:kCATransition];
-            [self dismissViewControllerAnimated:NO completion:^{
-                insideAnimation = NO;
-            }];
+- (void)showJpgPreview:(BOOL)show {
+    if(show) {
+        YAVideo *video  = [[YAUser currentUser].currentGroup.videos objectAtIndex:self.initialIndex];
+        NSString *jpgPath = [YAUtils urlFromFileName:video.jpgFullscreenFilename].path;
+        UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
+        if(!self.jpgImageView) {
+            self.jpgImageView = [[UIImageView alloc] initWithImage:jpgImage];
+            self.jpgImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         }
-   
+        else
+            self.jpgImageView.image = jpgImage;
+        
+
+        [self.view addSubview:self.jpgImageView];
+    }
+    else {
+        [self.jpgImageView removeFromSuperview];
+        self.jpgImageView = nil;
     }
 }
+
+#pragma mark - Animated dismissal
+- (void)panGesture:(UIPanGestureRecognizer *)rec
+{
+    if(self.dismissed)
+        return;
+    
+    CGPoint vel = [rec velocityInView:self.view];
+    CGPoint tr = [rec translationInView:self.view];
+
+    
+    if(tr.y > 0) {
+        CGFloat f = tr.y / [UIScreen mainScreen].bounds.size.height;
+        if(f < 1) {
+            CGRect r = self.view.frame;
+            r.origin.y = tr.y;
+            r.origin.x = tr.x;
+            self.view.frame = r;
+        }
+        else {
+            [self dismissAnimated];
+            return;
+        }
+    }
+    else {
+        [self restoreAnimated];
+    }
+    
+    if(rec.state == UIGestureRecognizerStateEnded) {
+        if(vel.y > kDismissalTreshold) {
+            [self dismissAnimated];
+            return;
+        }
+        
+        //put back
+        [self restoreAnimated];
+    }
+    
+}
+
+- (void)dismissAnimated {
+    self.dismissed = YES;
+    
+    //dismiss
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+        self.view.frame = CGRectMake(0, [UIScreen mainScreen].bounds.size.height * .5, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+        self.view.alpha = 0.0;
+        self.view.transform = CGAffineTransformMakeScale(0.5,0.5);
+    } completion:^(BOOL finished) {
+        if(finished)
+            [self dismissViewControllerAnimated:NO completion:nil];
+    }];
+}
+
+- (void)restoreAnimated {
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+        self.view.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
+        self.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+    } completion:nil];
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
 }
@@ -137,7 +211,7 @@
         
         YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:pageFrame];
         page.presentingVC = self;
-        page.backgroundColor = [UIColor blackColor];
+        page.backgroundColor = PRIMARY_COLOR;
         
         [self.scrollView addSubview:page];
         [self.pages addObject:page];
@@ -167,20 +241,20 @@
     self.previousPageIndex = self.currentPageIndex;
 }
 
-- (void)updatePages:(BOOL)playVideo {
+- (void)updatePages:(BOOL)preload {
     [self adjustPageFrames];
     
     NSUInteger tilePageIndex = 0;
     
     //first page, current on the left
     if(self.currentPageIndex == 0) {
-        [self updatePageAtIndex:0 withVideoAtIndex:0 shouldPlay:playVideo];
+        [self updatePageAtIndex:0 withVideoAtIndex:0 shouldPreload:preload];
         
         if([YAUser currentUser].currentGroup.videos.count > 1)
-            [self updatePageAtIndex:1 withVideoAtIndex:1 shouldPlay:playVideo];
+            [self updatePageAtIndex:1 withVideoAtIndex:1 shouldPreload:preload];
         
         if([YAUser currentUser].currentGroup.videos.count > 2)
-            [self updatePageAtIndex:2 withVideoAtIndex:2 shouldPlay:playVideo];
+            [self updatePageAtIndex:2 withVideoAtIndex:2 shouldPreload:preload];
         
         tilePageIndex = 0;
     }
@@ -189,19 +263,19 @@
         //special case when there is less than 3 videos
         if([YAUser currentUser].currentGroup.videos.count < 3) {
             //index is always greater than 0 here, as previous condition index == 0 has already passed
-            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPlay:playVideo];
-            [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPlay:playVideo];
+            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
+            [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
             
             tilePageIndex = 1;
         }
         else {
             if(self.currentPageIndex > 1)
-                [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 2 shouldPlay:playVideo];
+                [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 2 shouldPreload:preload];
             
             if(self.currentPageIndex > 0)
-                [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex - 1 shouldPlay:playVideo];
+                [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
             
-            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex shouldPlay:playVideo];
+            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
             
             tilePageIndex = 2;
         }
@@ -210,19 +284,19 @@
     else if(self.currentPageIndex > 0) {
         
         if([YAUser currentUser].currentGroup.videos.count > 0)
-            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPlay:playVideo];
+            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
         
-        [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPlay:playVideo];
+        [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
         
         if(self.currentPageIndex + 1 <= [YAUser currentUser].currentGroup.videos.count - 1)
-            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPlay:playVideo];
+            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPreload:preload];
         
         tilePageIndex = 1;
     }
     
     for(NSUInteger i = 0; i < 3; i++) {
         YAVideoPage *page = self.pages[i];
-        if(i == tilePageIndex && playVideo) {
+        if(i == tilePageIndex && preload) {
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
         }
@@ -276,10 +350,10 @@
     }
 }
 
-- (void)updatePageAtIndex:(NSUInteger)pageIndex withVideoAtIndex:(NSUInteger)videoIndex shouldPlay:(BOOL)shouldPlay {
+- (void)updatePageAtIndex:(NSUInteger)pageIndex withVideoAtIndex:(NSUInteger)videoIndex shouldPreload:(BOOL)shouldPlay {
     YAVideo *video = [YAUser currentUser].currentGroup.videos[videoIndex];
     YAVideoPage *page = self.pages[pageIndex];
-    [page setVideo:video shouldPlay:shouldPlay];
+    [page setVideo:video shouldPreload:shouldPlay];
 }
 
 #pragma mark - YAVideoPageDelegate 

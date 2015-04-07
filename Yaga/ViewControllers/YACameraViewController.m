@@ -12,8 +12,6 @@
 #import "YAUtils.h"
 #import "YAAssetsCreator.h"
 
-#import <ClusterPrePermissions/ClusterPrePermissions.h>
-
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
@@ -42,6 +40,10 @@
 @property (nonatomic) BOOL audioInputAdded;
 
 @property (nonatomic, strong) UILabel *recordTooltipLabel;
+
+@property (nonatomic, strong) UIButton *openSettingsButton;
+
+@property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
 @end
 
 @implementation YACameraViewController
@@ -51,7 +53,7 @@
     if(self) {
         self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
         self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2);
-        [self.cameraView setBackgroundColor:[UIColor whiteColor]];
+        [self.cameraView setBackgroundColor:[UIColor blackColor]];
         [self.view addSubview:self.cameraView];
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
@@ -263,10 +265,13 @@
             [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
             [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
             
-            [self setupVideoInput];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [self setupVideoInput];
+            });
             
-        } else if (videoStatus == AVAuthorizationStatusNotDetermined) {
+            [self removeOpenSettingsButton];
             
+        } else {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                                      completionHandler:^(BOOL granted) {
                                          self.session = [[AVCaptureSession alloc] init];
@@ -276,13 +281,13 @@
                                          [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
                                          if (granted) {
                                              [self setupVideoInput];
+                                         } else {
+                                             dispatch_async(dispatch_get_main_queue(), ^{
+                                                 [self addOpenSettingsButton];
+                                             });
+                                             
                                          }
                                      }];
-            
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeCamera];
-            });
         }
     }
 }
@@ -335,19 +340,14 @@
     AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
     if (audioStatus == AVAuthorizationStatusAuthorized) {
         [self setupAudioInput];
-    } else if (audioStatus == AVAuthorizationStatusNotDetermined) {
+    } else {
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
                                  completionHandler:^(BOOL granted) {
                                      if (granted) {
                                          [self setupAudioInput];
                                      }
                                  }];
-    }else{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self presentAlertForClusterAVType:ClusterAVAuthorizationTypeMicrophone];
-        });
     }
-    
     
    [self.session startRunning];
 }
@@ -456,13 +456,14 @@
         
         [self.indicatorText setText:NSLocalizedString(@"RECORD_TIP", @"")];
         [self.indicator removeFromSuperview];
-        [self stopRecordingVideo];
         // Do Whatever You want on End of Gesture
         self.recording = [NSNumber numberWithBool:NO];
         
         if(self.flash){
             [self switchFlashMode:nil];
         }
+
+        [self stopRecordingVideo];
     }
 }
 
@@ -485,19 +486,33 @@
         }
     }
     //Start recording
-    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
     
+    self.recordingSemaphore = dispatch_semaphore_create(0);
+    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
 }
 
 - (void) stopRecordingVideo {
-    [self.movieFileOutput stopRecording];
-    DLog(@"stop recording video");
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        if(self.recordingSemaphore)
+            dispatch_semaphore_wait(self.recordingSemaphore, DISPATCH_TIME_FOREVER);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.movieFileOutput stopRecording];
+            DLog(@"stop recording video");
+        });
+    });
 }
+
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
 {
+    dispatch_semaphore_signal(self.recordingSemaphore);
+    
+    DLog(@"didStartRecordingToOutputFileAtURL");
 }
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
+    
+    DLog(@"didFinishRecordingToOutputFileAtURL");
     
     BOOL RecordedSuccessfully = YES;
     if ([error code] != noErr) {
@@ -530,6 +545,8 @@
 }
 
 - (void)switchCamera:(id)sender { //switch cameras front and rear camerashiiegor@gmail.com
+    if(self.openSettingsButton)
+        return;
     
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
     AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
@@ -718,29 +735,6 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)presentAlertForClusterAVType:(ClusterAVAuthorizationType)type {
-    NSString *title;
-    NSString *message;
-    NSString *buttonTitle = NSLocalizedString(@"OK", nil);
-    if (type == ClusterAVAuthorizationTypeMicrophone) {
-        title = NSLocalizedString(@"Audio permissions not granted", nil);
-        message = NSLocalizedString(@"To be able to record audio, allow this in app settings", nil);
-        
-    } else if (type == ClusterAVAuthorizationTypeCamera) {
-        title = NSLocalizedString(@"Video permissions not granted", nil);
-        message = NSLocalizedString(@"To be able to shoot video, allow this in app settings", nil);
-    }
-    
-    [YAUtils showAlertViewWithTitle:title
-                            message:message
-                  forViewController:self
-                      accepthButton:buttonTitle
-                       cancelButton:nil
-                       acceptAction:nil
-                       cancelAction:nil];
-
-}
-
 #pragma mark -
 
 - (void)updateCurrentGroupName {
@@ -759,4 +753,38 @@
 - (void)groupDidChange:(NSNotification*)notification {
     [self updateCurrentGroupName];
 }
+
+#pragma mark Settings
+- (void)addOpenSettingsButton {
+    if(!self.openSettingsButton) {
+        CGRect r = self.cameraView.bounds;
+        r.size.height /= 2;
+        r.size.width *= .6;
+        r.origin.x = (self.view.frame.size.width - r.size.width)/2;
+//        r.origin.y = 0;
+        
+        self.openSettingsButton = [[UIButton alloc] initWithFrame:r];
+        [self.openSettingsButton setTitle:NSLocalizedString(@"Enable Camera", @"") forState:UIControlStateNormal];
+        [self.openSettingsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        self.openSettingsButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:24];
+        [self.openSettingsButton addTarget:self action:@selector(openSettings:) forControlEvents:UIControlEventTouchUpInside];
+        [self.openSettingsButton.titleLabel setTextAlignment:NSTextAlignmentCenter];
+        [self.openSettingsButton.titleLabel setNumberOfLines:0];
+        self.openSettingsButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        [self.cameraView addSubview:self.openSettingsButton];
+    }
+}
+
+- (void)removeOpenSettingsButton {
+    if(self.openSettingsButton) {
+        [self.openSettingsButton removeFromSuperview];
+        self.openSettingsButton = nil;
+    }
+}
+
+- (void)openSettings:(id)sender {
+    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    [[UIApplication sharedApplication] openURL:url];
+}
+
 @end

@@ -12,6 +12,7 @@
 #import <ImageIO/ImageIO.h>
 #import "YAGifCreationOperation.h"
 #import "YAAssetsCreator.h"
+#import "YAServer.h"
 
 @interface YAGifCreationOperation ()
 @property (strong) NSString *filename;
@@ -64,9 +65,9 @@
                 return;
             }
             
-            NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.movFilename];
+            NSString *movPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:self.video.mp4Filename];
             NSURL *movURL = [NSURL fileURLWithPath:movPath];
-            self.filename = [self.video.movFilename stringByDeletingPathExtension];
+            self.filename = [self.video.mp4Filename stringByDeletingPathExtension];
             
             [self setExecuting:YES];
             
@@ -108,6 +109,8 @@
                                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
                                                                                     object:self.video];
                                 
+                                //check whether we need to upload gif
+                                [[YAServer sharedServer] uploadGIFForVideoWithServerId:self.video.serverId];
                             }
                             else
                             {
@@ -132,7 +135,9 @@
     imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
     imageGenerator.appliesPreferredTrackTransform = YES;
     
-    imageGenerator.maximumSize = CGSizeMake([[UIScreen mainScreen] applicationFrame].size.height/2, [[UIScreen mainScreen] applicationFrame].size.height/2);
+    CGFloat maxWidth = 240;
+    CGFloat aspectRatio = [[UIScreen mainScreen] applicationFrame].size.height / [[UIScreen mainScreen] applicationFrame].size.width;
+    imageGenerator.maximumSize = CGSizeMake(maxWidth, maxWidth * aspectRatio);
     
     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
     NSUInteger frames = self.quality == YAGifCreationHighQuality ? 10 : 2;
@@ -167,15 +172,6 @@
             DLog(@"gif creation cancelled");
             break;
         }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            CGFloat currentFrame = i + 1;
-            if (![self.video isInvalidated]) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_GENERATE_PART_NOTIFICATION
-                                                                    object:self.video.url
-                                                                  userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:currentFrame * 0.3 / framesCount + 0.7]}];
-            }
-        });
     }
     return imagesArray;
 }

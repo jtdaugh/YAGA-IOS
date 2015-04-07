@@ -18,8 +18,6 @@
 - (void)cancelAllJobs;
 - (void)waitUntilAllJobsAreFinished;
 
-- (void)addJobForVideo:(YAVideo*)video;
-- (void)prioritizeJobForVideo:(YAVideo*)video;
-
-- (BOOL)executingOperationForVideo:(YAVideo*)video;
+- (void)addDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob;
+- (void)prioritizeDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob;
 @end

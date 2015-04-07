@@ -22,11 +22,11 @@ typedef void (^gifCreatedCompletionHandler)(NSError *error);
 typedef void (^uploadCompletionHandler)(NSError *error);
 
 @interface YAVideo : RLMObject
-@property NSString *movFilename;
 @property NSString *mp4Filename;
 @property NSString *gifFilename;
 @property NSString *highQualityGifFilename;
 @property NSString *jpgFilename;
+@property NSString *jpgFullscreenFilename;
 
 @property NSInteger name_x;
 @property NSInteger name_y;
@@ -35,6 +35,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 
 @property NSString *creator;
 @property NSString *caption;
+@property NSString *namer;
 @property NSDate *createdAt;
 @property NSDate *localCreatedAt;
 
@@ -46,6 +47,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *localId;
 @property NSString *serverId;
 @property NSString *url;
+@property NSString *gifUrl;
 @property YAGroup *group;
 
 + (YAVideo*)video;

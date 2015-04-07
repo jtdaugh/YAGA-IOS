@@ -11,20 +11,22 @@
 
 #define APP_NAME @"Yaga"
 
+#define IS_IPHONE4 ([UIScreen mainScreen].bounds.size.height == 480)
+
 #define VIEW_HEIGHT ([[UIScreen mainScreen] applicationFrame].size.height + (([UIApplication sharedApplication].statusBarHidden)?0:20))
 #define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width
 
 #define NUM_TILES 96
 #define TILE_WIDTH (VIEW_WIDTH/2)
-#define TILE_HEIGHT (VIEW_HEIGHT/4)
+#define TILE_HEIGHT (IS_IPHONE4 ? TILE_WIDTH / 1.13 : (VIEW_HEIGHT/4))
 
 #define ENLARGED_MULTIPLIER 1.85
 
 #define ENLARGED_WIDTH TILE_WIDTH*ENLARGED_MULTIPLIER
 #define ENLARGED_HEIGHT TILE_HEIGHT*ENLARGED_MULTIPLIER
 
-#define LOADER_WIDTH 4
-#define LOADER_HEIGHT 4
+#define LOADER_WIDTH 8
+#define LOADER_HEIGHT 8
 
 #define MAX_VIDEO_DURATION 8.0 
 
@@ -40,7 +42,7 @@
 #define BOLD_FONT @"Avenir-Black"
 #define THIN_FONT @"HelveticaNeue-UltraLight"
 
-#define CAPTION_FONTS @[ @"AvenirNext-HeavyItalic", @"ChalkboardSE-Bold", @"AmericanTypewriter-Bold", @"Chalkduster", @"ArialRoundedMTBold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide", @"Futura-CondensedExtraBold", @"SnellRoundhand-Black"]
+#define CAPTION_FONTS @[ @"AvenirNext-Heavy", @"ChalkboardSE-Bold", @"AmericanTypewriter-Bold", @"Chalkduster", @"ArialRoundedMTBold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide", @"Futura-CondensedExtraBold", @"SnellRoundhand-Black"]
 
 //notifications
 #define GROUP_DID_REFRESH_NOTIFICATION          @"GROUP_DID_REFRESH_NOTIFICATION"
@@ -56,7 +58,6 @@
 #define kVideoDownloadNotificationUserInfoKey   @"kVideoDownloadingNotificationName"
 
 #define VIDEO_DID_DOWNLOAD_PART_NOTIFICATION    @"VIDEO_DID_DOWNLOAD_PART_NOTIFICATION"
-#define VIDEO_DID_GENERATE_PART_NOTIFICATION    @"VIDEO_DID_GENERATE_PART_NOTIFICATION"
 
 #define kDefaultUsername                        @"Unknown user"
 
@@ -69,4 +70,7 @@
 //first start tooltips
 #define kFirstVideoRecorded                     @"kFirstVideoRecorded"
 #define kCellWasAlreadyTapped                   @"kCellWasAlreadyTapped"
+
+//upload gif
+#define kGIFUploadCredentials                   @"kGIFUploadCredentials"
 #endif

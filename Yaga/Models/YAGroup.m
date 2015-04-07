@@ -103,7 +103,6 @@
     
     NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
-    
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     
     for(NSDictionary *memberDic in members){
@@ -158,6 +157,7 @@
             
         }
         else {
+            DLog(@"updated.");
             NSAssert([response isKindOfClass:[NSArray class]], @"unexpected server result");
             
             [[RLMRealm defaultRealm] beginWriteTransaction];
@@ -219,6 +219,8 @@
             
             if(block)
                 block(nil);
+            
+            [[YAUser currentUser].currentGroup refresh];
         }
     }];
 }
@@ -318,7 +320,8 @@
             return;
         }
         else {
-            [groupsUpdatedAt setObject:[NSDate date] forKey:[YAUser currentUser].currentGroup.localId];
+            NSDate *updatedAt = [NSDate dateWithTimeIntervalSince1970:[response[@"updated_at"] intValue]];
+            [groupsUpdatedAt setObject:updatedAt forKey:[YAUser currentUser].currentGroup.localId];
             [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
             
             [self.realm beginWriteTransaction];
@@ -375,6 +378,7 @@
                     if (![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
                         video.caption = videoDic[YA_RESPONSE_NAME];
                         video.font = [videoDic[YA_RESPONSE_FONT] integerValue];
+                        video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
                     }
                     NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
                     if (likers.count) {
@@ -404,7 +408,17 @@
             NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
             video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
             video.url = videoDic[YA_VIDEO_ATTACHMENT];
+            
+            id gifUrl = videoDic[YA_VIDEO_ATTACHMENT_PREVIEW];
+            if(gifUrl) {
+                video.gifUrl = ![gifUrl isKindOfClass:[NSNull class]] ? gifUrl : @"";
+            }
             video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
+            if(![videoDic[YA_RESPONSE_NAMER] isKindOfClass:[NSNull class]]){
+                video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
+            } else {
+                video.namer = @"";
+            }
             video.font = ![videoDic[YA_RESPONSE_FONT] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_FONT] integerValue] : 0;
             video.group = self;
             [self.videos insertObject:video atIndex:0];

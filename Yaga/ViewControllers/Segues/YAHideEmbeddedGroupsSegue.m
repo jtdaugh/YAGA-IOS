@@ -18,7 +18,7 @@
     
     [groupsController.view setTransform:CGAffineTransformIdentity];
     
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
+    [UIView animateWithDuration:0.25 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
         
         
 //        CGFloat origin = gridController.cameraViewController.view.frame.origin.y + gridController.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
@@ -29,7 +29,7 @@
 
         [gridController.cameraViewController showCameraAccessories:YES];
         
-        [groupsController.view setTransform:CGAffineTransformMakeScale(0.75, 0.75)];
+        [groupsController.view setTransform:CGAffineTransformMakeScale(0.0, 0.0)];
         groupsController.view.alpha = 0;
     } completion:^(BOOL finished) {
         [groupsController removeFromParentViewController];
@@ -40,6 +40,7 @@
         [gridController.collectionViewController.view removeGestureRecognizer:groupsController.collectionTapToClose];
         
         gridController.cameraViewController.cameraView.tapToFocusRecognizer.enabled = YES;
+        [gridController.cameraViewController updateCurrentGroupName];
     }];
 
 }

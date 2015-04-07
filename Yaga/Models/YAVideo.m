@@ -29,13 +29,15 @@
 + (NSDictionary *)defaultPropertyValues{
     return @{@"highQualityGifFilename":@"",
              @"jpgFilename":@"",
+             @"jpgFullscreenFilename":@"",
              @"gifFilename":@"",
-             @"movFilename":@"",
              @"mp4Filename":@"",
              @"caption":@"",
+             @"namer":@"",
              @"font": @0,
              @"createdAt":[NSDate date],
              @"url":@"",
+             @"gifUrl":@"",
              @"serverId":@"",
              @"localCreatedAt":[NSDate date]};
 }
@@ -76,7 +78,12 @@
     [[RLMRealm defaultRealm] beginWriteTransaction];
     self.caption = newName;
     self.font = font;
+    self.namer = [YAUser currentUser].username;
+    
+    DLog(@"renaming... %@", [YAUser currentUser].username);
+    
     [[RLMRealm defaultRealm] commitWriteTransaction];
+    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:self];
     
     [[YAServerTransactionQueue sharedQueue] addUpdateVideoCaptionTransaction:self];
 }
@@ -97,8 +104,8 @@
 
 - (void)purgeLocalAssets {
     NSMutableArray *urlsToDelete = [NSMutableArray new];
-    if(self.movFilename.length)
-        [urlsToDelete addObject:[YAUtils urlFromFileName:self.movFilename]];
+    if(self.mp4Filename.length)
+        [urlsToDelete addObject:[YAUtils urlFromFileName:self.mp4Filename]];
     if(self.gifFilename.length)
         [urlsToDelete addObject:[YAUtils urlFromFileName:self.gifFilename]];
     if(self.jpgFilename.length)
@@ -113,8 +120,18 @@
         }
     });
 
-    self.movFilename = @"";
+    self.mp4Filename = @"";
     self.gifFilename = @"";
     self.jpgFilename = @"";
+}
+#pragma mark - UIActivity 
+- (id)activityViewController:(UIActivityViewController*) activityViewController itemForActivityType:(NSString *)activityType
+{
+    return self;
+}
+
+- (id)activityViewControllerPlaceholderItem:(UIActivityViewController *)activityViewController
+{
+    return @"";
 }
 @end

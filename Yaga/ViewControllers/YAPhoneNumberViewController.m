@@ -220,7 +220,7 @@
     [[YAServer sharedServer] authentificatePhoneNumberBySMS:formattedNumber withCompletion:^(NSString *responseDictionary, NSError *error) {
         if (error)
         {
-            NSLog(@"response dictionary: %@", responseDictionary);
+            NSLog(@"error response dictionary: %@", responseDictionary);
             dispatch_async(dispatch_get_main_queue(),  ^{
                 NSString *errorBody = [[NSString alloc] initWithData:error.userInfo [AFNetworkingOperationFailingURLResponseDataErrorKey] encoding:NSUTF8StringEncoding];
                 
@@ -235,6 +235,7 @@
                 }
             });
         } else {
+            NSLog(@"success response ditionary: %@", responseDictionary);
             [weakSelf performSegueWithIdentifier:@"AuthentificationViewController" sender:self];
         }
         
