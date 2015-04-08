@@ -335,8 +335,6 @@ static NSString *cellID = @"Cell";
         [self showActivityIndicator:NO];
     }
     
-    [self playVisible:YES];
-    
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
 
     double hidePullToRefreshAfter = 1 - seconds;
@@ -345,30 +343,33 @@ static NSString *cellID = @"Cell";
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self.collectionView.pullToRefreshView stopAnimating];
+        [self playVisible:YES];
     });
-    
 }
 
 - (void)showActivityIndicator:(BOOL)show {
-    if(show) {
-        //don't show spinning monkey if pull down to refresh is shown
-        if(self.collectionView.pullToRefreshView.state != SVPullToRefreshStateStopped)
-            return;
-        
-        const CGFloat monkeyWidth  = 50;
-        [self.activityView removeFromSuperview];
-        if(![YAUser currentUser].currentGroup.videos.count) {
-            self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
-            [self.collectionView addSubview:self.activityView];
-            [self.activityView startAnimating];
-        }
-    }
-    else {
-        if(self.activityView) {
-            [self.activityView removeFromSuperview];
-            self.activityView = nil;
-        }
-    }
+    // do not show spinning monkey, pull down to refresh is always shown
+    // do not delete the following code!
+    
+//    if(show) {
+//        //don't show spinning monkey if pull down to refresh is shown
+//        if(self.collectionView.pullToRefreshView.state != SVPullToRefreshStateStopped)
+//            return;
+//        
+//        const CGFloat monkeyWidth  = 50;
+//        [self.activityView removeFromSuperview];
+//        if(![YAUser currentUser].currentGroup.videos.count) {
+//            self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
+//            [self.collectionView addSubview:self.activityView];
+//            [self.activityView startAnimating];
+//        }
+//    }
+//    else {
+//        if(self.activityView) {
+//            [self.activityView removeFromSuperview];
+//            self.activityView = nil;
+//        }
+//    }
 }
 
 #pragma mark - UICollectionView
