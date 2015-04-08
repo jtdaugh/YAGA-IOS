@@ -35,6 +35,7 @@
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
+@property (nonatomic, strong) UILabel *toolTipLabel;
 
 @property (nonatomic, strong) YAProgressView *progressView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
@@ -78,6 +79,8 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
         
         [self initOverlayControls];
+        [self initTooltip];
+        
         
         [self setBackgroundColor:PRIMARY_COLOR];
     }
@@ -183,6 +186,61 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextInputCurrentInputModeDidChangeNotification object:nil];
+}
+
+- (void) initTooltip {
+    if(1 || ![[NSUserDefaults standardUserDefaults] boolForKey:kTappedToEnlarge]) {
+        [[NSUserDefaults standardUserDefaults] setBool:1 forKey:kTappedToEnlarge];
+        //first start tooltips
+        self.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+        
+        self.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:48];
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Swipe Down\n To Dismiss"
+                                                                     attributes:@{
+                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+                                                                                  }];
+        
+        self.toolTipLabel.textAlignment = NSTextAlignmentCenter;
+        self.toolTipLabel.attributedText = string;
+        self.toolTipLabel.numberOfLines = 0;
+        self.toolTipLabel.textColor = PRIMARY_COLOR;
+        self.toolTipLabel.alpha = 0.0;
+        [self addSubview:self.toolTipLabel];
+        //warning create varible for all screen sizes
+        
+        [UIView animateKeyframesWithDuration:0.6 delay:0.3 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+            //
+            [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
+                //
+                self.toolTipLabel.alpha = 1.0;
+            }];
+            
+            for(float i = 0; i < 4; i++){
+                [UIView addKeyframeWithRelativeStartTime:i/5.0 relativeDuration:i/(5.0) animations:^{
+                    //
+                    self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI/18 + M_PI/36 + (int)i%2 * -1* M_PI/18);
+                }];
+                
+            }
+            
+            [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
+                self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI/18);
+            }];
+            
+            
+        } completion:^(BOOL finished) {
+            self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI/18);
+        }];
+        
+        [UIView animateWithDuration:0.3 delay:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+            //
+            self.toolTipLabel.alpha = 1.0;
+        } completion:^(BOOL finished) {
+            //
+        }];
+    }
+
 }
 
 #pragma mark - Overlay controls

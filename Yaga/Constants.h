@@ -71,6 +71,7 @@
 //first start tooltips
 #define kFirstVideoRecorded                     @"kFirstVideoRecorded"
 #define kCellWasAlreadyTapped                   @"kCellWasAlreadyTapped"
+#define kTappedToEnlarge                        @"kTappedToEnlarge"
 
 //upload gif
 #define kGIFUploadCredentials                   @"kGIFUploadCredentials"
