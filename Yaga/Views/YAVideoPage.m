@@ -635,7 +635,7 @@
     YASaveToCameraRollActivity  *activitySave   = [YASaveToCameraRollActivity new];
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]
-                                      applicationActivities:@[activitySave, activityGif]];
+                                      applicationActivities:@[activityGif]];
     NSArray *excludeActivities = @[UIActivityTypeSaveToCameraRoll,UIActivityTypeCopyToPasteboard];
     activityViewController.excludedActivityTypes = excludeActivities;
     
