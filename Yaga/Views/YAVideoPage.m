@@ -189,7 +189,7 @@
 }
 
 - (void) initTooltip {
-    if(1 || ![[NSUserDefaults standardUserDefaults] boolForKey:kTappedToEnlarge]) {
+    if(![[NSUserDefaults standardUserDefaults] boolForKey:kTappedToEnlarge]) {
         [[NSUserDefaults standardUserDefaults] setBool:1 forKey:kTappedToEnlarge];
         //first start tooltips
         self.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
