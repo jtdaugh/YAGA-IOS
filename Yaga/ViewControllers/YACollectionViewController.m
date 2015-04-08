@@ -247,7 +247,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)groupWillRefresh:(NSNotification*)notification {
-    [self manualTriggerPullToRefresh];
+//    [self manualTriggerPullToRefresh];
     self.willRefreshDate = [NSDate date];
 }
 
