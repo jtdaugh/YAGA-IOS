@@ -18,7 +18,7 @@
 #import "YAServer+HostManagment.h"
 
 #ifdef DEBUG
-#define HOST @"https://yaga-dev.herokuapp.com"
+#define HOST @"https://api-dev.yagaprivate.com"
 #else
 #define HOST @"https://api.yagaprivate.com"
 #endif
