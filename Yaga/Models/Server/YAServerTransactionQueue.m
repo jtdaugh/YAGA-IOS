@@ -176,6 +176,9 @@
     [transaction performWithCompletion:^(id response, NSError *error) {
         
         self.transactionInProgress = NO;
+        
+        BOOL errorOccured = NO;
+        
         if(![[YAServer sharedServer] serverUp]) {
             DLog(@"Server is down or there is no internet connection.. Pausing transaction queue till it's up again.");
             return;
@@ -185,13 +188,19 @@
             DLog(@"Transaction impossible, video invalidated");
         }
         else if(error) {
-            //DLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
+            DLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
+            errorOccured = YES;
         }
         else {
             DLog(@"Transaction successfull!");
         }
         
         [weakSelf.transactionsData removeObject:transactionData];
+        
+        //in case of en error put transaction to the end of the queue and try later
+        if(error)
+            [weakSelf.transactionsData addObject:transactionData];
+        
         [weakSelf saveTransactionsData];
         [weakSelf processNextTransaction];
     }];
