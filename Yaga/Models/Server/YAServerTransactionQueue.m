@@ -16,6 +16,7 @@
 @end
 
 #define YA_TRANSACTIONS_FILENAME    @"pending_transactions.plist"
+#define kTransactionErrored         @"kTransactionErrored"
 
 @implementation YAServerTransactionQueue
 
@@ -163,7 +164,16 @@
     }
     
     
-    NSDictionary *transactionData = self.transactionsData[0];
+    NSMutableDictionary *transactionData = [NSMutableDictionary dictionaryWithDictionary:self.transactionsData[0]];
+    
+    //check if transaction errored last time, if so execute it in a minute not to spam the server(server can block user for spam)
+    if([[transactionData objectForKey:kTransactionErrored] boolValue]) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self processNextTransaction];
+            return;
+        });
+        return;
+    }
     
     YAServerTransaction *transaction = [[YAServerTransaction alloc] initWithDictionary:transactionData];
     
@@ -197,9 +207,11 @@
         
         [weakSelf.transactionsData removeObject:transactionData];
         
-        //in case of en error put transaction to the end of the queue and try later
-        if(error)
+        //in case of en error put transaction to the end of the queue and mark with "errored" flag
+        if(error) {
+            [transactionData setObject:[NSNumber numberWithBool:YES] forKey:kTransactionErrored];
             [weakSelf.transactionsData addObject:transactionData];
+        }
         
         [weakSelf saveTransactionsData];
         [weakSelf processNextTransaction];
