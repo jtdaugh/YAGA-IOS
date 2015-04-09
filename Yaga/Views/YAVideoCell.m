@@ -241,16 +241,14 @@
 - (void)updateCaptionAndUsername {
     NSString *caption = self.video.caption;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if(caption.length && !self.caption.hidden) {
-            self.caption.attributedText = [self attributedStringFromString:caption font:[UIFont fontWithName:CAPTION_FONTS[self.video.font] size:30]];
-        } else {
-            self.caption.text = @"";
-        }
-        
-        if(!self.username.hidden)
-            self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
-    });
+    if(caption.length && !self.caption.hidden) {
+        self.caption.attributedText = [self attributedStringFromString:caption font:[UIFont fontWithName:CAPTION_FONTS[self.video.font] size:30]];
+    } else {
+        self.caption.text = @"";
+    }
+    
+    if(!self.username.hidden)
+        self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
 
 }
 

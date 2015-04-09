@@ -335,6 +335,8 @@ static NSString *cellID = @"Cell";
         [self showActivityIndicator:NO];
     }
     
+    [self.collectionView reloadData];
+    
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
 
     double hidePullToRefreshAfter = 1 - seconds;
