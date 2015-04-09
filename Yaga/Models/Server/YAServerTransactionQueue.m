@@ -16,7 +16,8 @@
 @end
 
 #define YA_TRANSACTIONS_FILENAME    @"pending_transactions.plist"
-#define kTransactionErrored         @"kTransactionErrored"
+#define kTransactionErrorDate       @"kTransactionErrorDate"
+#define kTransactionErroredTimes    @"kTransactionErroredTimes"
 
 @implementation YAServerTransactionQueue
 
@@ -163,18 +164,32 @@
         return;
     }
     
+    //sort transcationsData in the following order: not errored go first, then older, newest at the end
+    self.transactionsData = [NSMutableArray arrayWithArray:[self.transactionsData sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult(NSDictionary *transactionData1, NSDictionary *transactionData2) {
+        NSDate *date1 = [transactionData1 objectForKey:kTransactionErrorDate];
+        NSDate *date2 = [transactionData2 objectForKey:kTransactionErrorDate];
+        if(!date1 && !date2)
+            return NSOrderedSame;
+        else if(!date1)
+            return NSOrderedAscending;
+        else if(!date2)
+            return NSOrderedDescending;
+        else
+            return [date1 compare:date2];
+    }]];
     
     NSMutableDictionary *transactionData = [NSMutableDictionary dictionaryWithDictionary:self.transactionsData[0]];
     
-    //check if transaction errored last time, if so execute it in a minute not to spam the server(server can block user for spam)
-    if([[transactionData objectForKey:kTransactionErrored] boolValue]) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self processNextTransaction];
+    //check if transaction errored last time, make sure at least one minute passed not to spam the server(server can block user for spam)
+    NSDate *erroredDate = [transactionData objectForKey:kTransactionErrorDate];
+    if(erroredDate) {
+        NSTimeInterval secondsAfterError = [[NSDate date] timeIntervalSinceDate:erroredDate];
+
+        //less than minute passed since last error, get back to it later, otherwise process transaction normally
+        if(secondsAfterError < 60)
             return;
-        });
-        return;
     }
-    
+
     YAServerTransaction *transaction = [[YAServerTransaction alloc] initWithDictionary:transactionData];
     
     __weak typeof(self) weakSelf = self;
@@ -209,8 +224,16 @@
         
         //in case of en error put transaction to the end of the queue and mark with "errored" flag
         if(error) {
-            [transactionData setObject:[NSNumber numberWithBool:YES] forKey:kTransactionErrored];
-            [weakSelf.transactionsData addObject:transactionData];
+            NSNumber *numberOfErrors = [transactionData objectForKey:kTransactionErroredTimes];
+            if(!numberOfErrors)
+                numberOfErrors = [NSNumber numberWithInteger:1];
+
+            //try 10 times, not more(one minute delay between errored trancations should be fine)
+            if([numberOfErrors integerValue] < 10) {
+                [transactionData setObject:numberOfErrors forKey:kTransactionErroredTimes];
+                [transactionData setObject:[NSDate date] forKey:kTransactionErrorDate];
+                [weakSelf.transactionsData addObject:transactionData];
+            }
         }
         
         [weakSelf saveTransactionsData];
