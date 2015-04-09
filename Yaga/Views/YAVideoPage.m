@@ -693,10 +693,10 @@
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     NSURL *videoFile = [YAUtils urlFromFileName:self.video.mp4Filename];
     YAGifCopyActivity           *activityGif    = [YAGifCopyActivity new];
-//    YASaveToCameraRollActivity  *activitySave   = [YASaveToCameraRollActivity new];
+    YASaveToCameraRollActivity  *activitySave   = [YASaveToCameraRollActivity new];
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]
-                                      applicationActivities:@[activityGif]];
+                                      applicationActivities:@[activityGif, activitySave]];
     NSArray *excludeActivities = @[UIActivityTypeSaveToCameraRoll,UIActivityTypeCopyToPasteboard];
     activityViewController.excludedActivityTypes = excludeActivities;
     
