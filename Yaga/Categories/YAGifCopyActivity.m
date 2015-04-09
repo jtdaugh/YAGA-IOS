@@ -27,20 +27,19 @@
 }
 
 - (BOOL)canPerformWithActivityItems:(NSArray *)activityItems
-{
-    NSLog(@"%s", __FUNCTION__);
+{DLog    NSLog(@"%s", __FUNCTION__);
     return YES;
 }
 
 - (void)prepareWithActivityItems:(NSArray *)activityItems
 {
-    NSLog(@"%s",__FUNCTION__);
+    DLog(@"%s",__FUNCTION__);
     self.items = activityItems;
 }
 
 - (UIViewController *)activityViewController
 {
-    NSLog(@"%s",__FUNCTION__);
+    DLog(@"%s",__FUNCTION__);
     return nil;
 }
 

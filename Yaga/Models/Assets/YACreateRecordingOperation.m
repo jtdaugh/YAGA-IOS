@@ -79,7 +79,7 @@
         AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:movURL options:nil];
         
         NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
-        NSLog(@"%@", compatiblePresets);
+        DLog(@"%@", compatiblePresets);
         
         
         AVAssetExportSession *exportSession = [[AVAssetExportSession alloc]initWithAsset:avAsset

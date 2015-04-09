@@ -404,7 +404,7 @@
                                   options:option
                                attributes:attributes
                                   context:nil];
-        NSLog(@"resizing vert: new font size: %f, new height: %f", fontSize, rect.size.height);
+        DLog(@"resizing vert: new font size: %f, new height: %f", fontSize, rect.size.height);
     }
     
     for (NSString *word in [text componentsSeparatedByString:@" "]) {
@@ -414,7 +414,7 @@
             fontSize = fontSize - 1.0f;
             NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
             width = [word sizeWithAttributes:attributes].width;
-            NSLog(@"resizing horizontal: new font size: %f, new width: %f", fontSize, width);
+            DLog(@"resizing horizontal: new font size: %f, new width: %f", fontSize, width);
         }
     }
     
@@ -698,7 +698,7 @@
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.mp4Filename]
 completion:^(NSURL *filePath, NSError *error) {
     if (error) {
-        NSLog(@"ruh roh");
+        DLog(@"ruh roh");
     } else {
         
         NSURL *videoFile = filePath;

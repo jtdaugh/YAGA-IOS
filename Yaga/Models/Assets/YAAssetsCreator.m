@@ -73,7 +73,6 @@
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:combinedVideoComposition
                                                                      presetName:AVAssetExportPresetHighestQuality];
     
-    NSLog(@"%@", [session supportedFileTypes]);
     session.outputURL = outputUrl;
     session.outputFileType = AVFileTypeQuickTimeMovie;
     session.shouldOptimizeForNetworkUse = YES;
