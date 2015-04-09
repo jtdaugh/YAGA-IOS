@@ -688,29 +688,38 @@
 
 - (void)shareButtonPressed {
     [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
-    
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-    NSURL *videoFile = [YAUtils urlFromFileName:self.video.mp4Filename];
-    YAGifCopyActivity           *activityGif    = [YAGifCopyActivity new];
-    YASaveToCameraRollActivity  *activitySave   = [YASaveToCameraRollActivity new];
-    UIActivityViewController *activityViewController =
-    [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]
-                                      applicationActivities:@[activityGif, activitySave]];
     
-    [self.presentingVC presentViewController:activityViewController
-                                    animated:YES
-                                  completion:^{
-                                      // ...
-                                  }];
-    activityViewController.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-        if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
-            [YAUtils showNotification:NSLocalizedString(completed ? @"Video saved to camera roll" : @"Video failed to save to camera roll", @"") type:YANotificationTypeSuccess];
-        }
-        else if([activityType isEqualToString:@"com.apple.UIKit.activity.CopyToPasteboard"]) {
-            [YAUtils showNotification:NSLocalizedString(completed ? @"Video copied to clipboard" : @"Video failed to copy to clipboard", @"") type:YANotificationTypeSuccess];
-        }
-    };
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.mp4Filename]
+completion:^(NSURL *filePath, NSError *error) {
+    if (error) {
+        NSLog(@"ruh roh");
+    } else {
+        
+        NSURL *videoFile = filePath;
+        //        YAGifCopyActivity *activityGif = [YAGifCopyActivity new];
+        //    YASaveToCameraRollActivity  *activitySave   = [YASaveToCameraRollActivity new];
+        
+        UIActivityViewController *activityViewController =
+        [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
+                                          applicationActivities:@[]];
+        
+        [self.presentingVC presentViewController:activityViewController
+                                        animated:YES
+                                      completion:^{
+                                          // ...
+                                      }];
+        activityViewController.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+            if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
+                [YAUtils showNotification:NSLocalizedString(completed ? @"Video saved to camera roll" : @"Video failed to save to camera roll", @"") type:YANotificationTypeSuccess];
+            }
+            else if([activityType isEqualToString:@"com.apple.UIKit.activity.CopyToPasteboard"]) {
+                [YAUtils showNotification:NSLocalizedString(completed ? @"Video copied to clipboard" : @"Video failed to copy to clipboard", @"") type:YANotificationTypeSuccess];
+            }
+        };
+
+    }}];
 }
 
 #pragma mark - YAProgressView

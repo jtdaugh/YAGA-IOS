@@ -22,7 +22,7 @@
 #import "UIImage+Resize.h"
 
 @interface YAAssetsCreator ()
-@property (nonatomic, copy) cameraRollCompletion cameraRollCompletionBlock;
+@property (nonatomic, copy) bumperVideoCompletion bumperVideoCompletionBlock;
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
 @property (nonatomic, strong) NSOperationQueue *jpgQueue;
 @property (nonatomic, strong) NSOperationQueue *recordingQueue;
@@ -64,7 +64,7 @@
 }
 
 #pragma mark - Camera roll
-- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion {
+- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(bumperVideoCompletion)completion {
     NSURL *outputUrl = [YAUtils urlFromFileName:@"for_camera_roll.m4v"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
     
@@ -73,45 +73,27 @@
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:combinedVideoComposition
                                                                      presetName:AVAssetExportPresetHighestQuality];
     
-    
     NSLog(@"%@", [session supportedFileTypes]);
     session.outputURL = outputUrl;
     session.outputFileType = AVFileTypeQuickTimeMovie;
     session.shouldOptimizeForNetworkUse = YES;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputUrl.path;
-        self.cameraRollCompletionBlock = completion;
-        if (UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(path)){
-            UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
+        self.bumperVideoCompletionBlock = completion;
+        if (path){
+            self.bumperVideoCompletionBlock(session.outputURL, nil);
         }
         else
         {
-            self.cameraRollCompletionBlock([NSError new]);
+            self.bumperVideoCompletionBlock(nil, [NSError new]);
         }
     }];
 }
 
 -(void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
-    self.cameraRollCompletionBlock(error);
+    self.bumperVideoCompletionBlock(nil, error);
 }
 
-//- (void)concatenateVideos:(NSArray *)videoClipPaths {
-//    AVMutableComposition *mixComposition = [AVMutableComposition composition];
-//    AVMutableCompositionTrack *compositionTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-//    NSError * error = nil;
-//    NSMutableArray * timeRanges = [NSMutableArray arrayWithCapacity:videoClipPaths.count];
-//    NSMutableArray * tracks = [NSMutableArray arrayWithCapacity:videoClipPaths.count];
-//    for (int i=0; i<[videoClipPaths count]; i++) {
-//        AVURLAsset *assetClip = [videoClipPaths objectAtIndex:i];
-//        AVAssetTrack *clipVideoTrackB = [[assetClip tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-//        
-//        [timeRanges addObject:[NSValue valueWithCMTimeRange:CMTimeRangeMake(kCMTimeZero, assetClip.duration)]];
-//        [tracks addObject:clipVideoTrackB];
-//    }
-//    [compositionTrack insertTimeRanges:timeRanges ofTracks:tracks atTime:kCMTimeZero error:&error];
-//
-////    return mixComposition;
-//}
 
 - (AVMutableComposition*)buildVideoSequenceComposition:(NSURL*)realVideoUrl {
     AVAsset *firstAsset = [AVAsset assetWithURL:realVideoUrl];
@@ -119,7 +101,8 @@
     CGSize vidsize = ((AVAssetTrack *)[firstAsset tracksWithMediaType:AVMediaTypeVideo].firstObject).naturalSize;
     NSLog(@"vidsize x: %f, y: %f", vidsize.width, vidsize.height);
     
-    NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"bumper" ofType:@"mp4"];
+    // Sort of hacky but fuggit - we store the bumper vid rotated instead of transforming it in code
+    NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"bumper_rotated" ofType:@"mp4"];
     AVAsset *secondAsset = [AVAsset assetWithURL:[NSURL fileURLWithPath:filePath2]];
     
     
@@ -144,16 +127,6 @@
         
         [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, firstAsset.duration)
                             ofTrack:firstVideoTrack atTime:kCMTimeZero error:nil];
-        
-//        AVMutableVideoCompositionLayerInstruction *bumperRotateInstruction =
-//            [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:secondVideoTrack];
-//        
-//
-////        CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI/2);
-////        CGAffineTransform translateToCenter = CGAffineTransformMakeTranslation(640, 480);
-////        CGAffineTransform mixedTransform = CGAffineTransformConcat(rotation, translateToCenter);
-////        [bumperRotateInstruction setTransform:mixedTransform atTime:kCMTimeZero];
-//
         [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, secondAsset.duration)
                                        ofTrack:secondVideoTrack atTime:firstAsset.duration error:nil];
 
@@ -161,10 +134,10 @@
                                     ofTrack:firstAudioTrack atTime:kCMTimeZero error:nil];
         [compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeAdd(kCMTimeZero, secondAsset.duration))
                                        ofTrack:secondAudioTrack atTime:firstAsset.duration error:nil];
-
         
         return mixComposition;
     }
+    
     return nil;
 }
 

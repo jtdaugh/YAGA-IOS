@@ -175,7 +175,7 @@
     hud.labelText = NSLocalizedString(@"Saving", nil);
     [hud show:YES];
     
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:video.mp4Filename] completion:^(NSError *error) {
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:video.mp4Filename] completion:^(NSURL *url, NSError *error) {
         
         [hud hide:YES];
         

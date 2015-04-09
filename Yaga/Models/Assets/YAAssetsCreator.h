@@ -11,7 +11,7 @@
 #import "YAGroup.h"
 #import "AFHTTPRequestOperation.h"
 
-typedef void (^cameraRollCompletion)(NSError *error);
+typedef void (^bumperVideoCompletion)(NSURL *filePath, NSError *error);
 typedef void (^stopOperationsCompletion)(void);
 typedef void (^jpgCompletion)(void);
 
@@ -19,7 +19,7 @@ typedef void (^jpgCompletion)(void);
 
 + (instancetype)sharedCreator;
 
-- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(cameraRollCompletion)completion;
+- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(bumperVideoCompletion)completion;
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
 - (void)enqueueAssetsCreationJobForVideos:(NSArray*)videos prioritizeDownload:(BOOL)prioritize;
