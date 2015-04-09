@@ -697,8 +697,6 @@
     UIActivityViewController *activityViewController =
     [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile, self.video]
                                       applicationActivities:@[activityGif, activitySave]];
-    NSArray *excludeActivities = @[UIActivityTypeSaveToCameraRoll,UIActivityTypeCopyToPasteboard];
-    activityViewController.excludedActivityTypes = excludeActivities;
     
     [self.presentingVC presentViewController:activityViewController
                                     animated:YES

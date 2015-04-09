@@ -16,8 +16,9 @@
 
 #define kGifWidth (240)
 #define kGifFPS_HQ (30.f)
-#define kGifFPS_LQ (20.f)
+#define kGifFPS_LQ (2.f)
 #define kGifPixellationSize (15.f)
+#define kGifSpeed (2.f)
 
 @interface YAGifCreationOperation ()
 @property (strong) NSString *filename;
@@ -203,7 +204,7 @@
                                              (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
                                              }
                                      };
-    NSNumber *centiseconds = self.quality == YAGifCreationHighQuality ? @(kGifFPS_HQ) : @(1/kGifFPS_LQ);
+    NSNumber *centiseconds = self.quality == YAGifCreationHighQuality ? @(kGifFPS_HQ) : @(1/kGifFPS_LQ/kGifSpeed);
     NSDictionary *frameProperties = @{
                                       (__bridge id)kCGImagePropertyGIFDictionary: @{
                                               (__bridge id)kCGImagePropertyGIFDelayTime: centiseconds, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
