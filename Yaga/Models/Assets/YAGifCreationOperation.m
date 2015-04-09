@@ -14,6 +14,11 @@
 #import "YAAssetsCreator.h"
 #import "YAServer.h"
 
+#define kGifWidth (240)
+#define kGifFPS_HQ (30.f)
+#define kGifFPS_LQ (20.f)
+#define kGifPixellationSize (15.f)
+
 @interface YAGifCreationOperation ()
 @property (strong) NSString *filename;
 @property YAGifCreationQuality quality;
@@ -128,6 +133,18 @@
     }
 }
 
+//- (CGImageRef)pixellateImage:(CGImageRef)cgImg {
+//    CIContext *context = [CIContext contextWithOptions:nil];               // 1
+//    CIImage *image = [CIImage imageWithCGImage:cgImg];               // 2
+//    CIFilter *filter = [CIFilter filterWithName:@"CIPixellate"];           // 3
+//    [filter setDefaults];
+//    [filter setValue:image forKey:kCIInputImageKey];
+//    [filter setValue:[NSNumber numberWithFloat:kGifPixellationSize] forKey:@"inputScale"];
+//    CIImage *result = [filter valueForKey:kCIOutputImageKey];              // 4
+//    CGRect extent = [result extent];
+//    return [context createCGImage:result fromRect:extent];   // 5
+//}
+
 - (NSArray*)imagesArrayFromAsset:(AVURLAsset*)asset {
     AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
     
@@ -135,12 +152,12 @@
     imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
     imageGenerator.appliesPreferredTrackTransform = YES;
     
-    CGFloat maxWidth = 240;
+    CGFloat maxWidth = kGifWidth;
     CGFloat aspectRatio = [[UIScreen mainScreen] applicationFrame].size.height / [[UIScreen mainScreen] applicationFrame].size.width;
     imageGenerator.maximumSize = CGSizeMake(maxWidth, maxWidth * aspectRatio);
     
     Float64 movieDuration = CMTimeGetSeconds([asset duration]);
-    NSUInteger frames = self.quality == YAGifCreationHighQuality ? 10 : 2;
+    NSUInteger frames = self.quality == YAGifCreationHighQuality ? kGifFPS_HQ : kGifFPS_LQ;
     CGFloat framesCount = movieDuration * frames;
     if(framesCount < 1)
         framesCount = 1;
@@ -155,6 +172,9 @@
         CMTime actualTime;
         CGImageRef image = [imageGenerator copyCGImageAtTime:time actualTime:&actualTime error:&error];
         UIImage *newImage = [[UIImage alloc] initWithCGImage:image scale:1 orientation:UIImageOrientationUp];
+        
+        
+        
         if(newImage) {
             if (self.quality == YAGifCreationNormalQuality) {
                 newImage = [[YAAssetsCreator sharedCreator] deviceSpecificCroppedThumbnailFromImage:newImage];
@@ -183,7 +203,7 @@
                                              (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
                                              }
                                      };
-    NSNumber *centiseconds = self.quality == YAGifCreationHighQuality ? @0.05f : @0.2f;
+    NSNumber *centiseconds = self.quality == YAGifCreationHighQuality ? @(kGifFPS_HQ) : @(1/kGifFPS_LQ);
     NSDictionary *frameProperties = @{
                                       (__bridge id)kCGImagePropertyGIFDictionary: @{
                                               (__bridge id)kCGImagePropertyGIFDelayTime: centiseconds, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
