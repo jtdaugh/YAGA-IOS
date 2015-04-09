@@ -61,8 +61,6 @@
         CGFloat lwidth = self.loader.frame.size.width/((float)LOADER_WIDTH);
         CGFloat lheight = self.loader.frame.size.height/((float)LOADER_HEIGHT);
         
-        NSLog(@"lwidth: %f, lheight: %f", lwidth, lheight);
-        
         for(int i = 0; i < LOADER_WIDTH*LOADER_HEIGHT; i++){
             
             int xPos = i%LOADER_WIDTH;

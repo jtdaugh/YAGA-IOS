@@ -27,7 +27,8 @@
 }
 
 - (BOOL)canPerformWithActivityItems:(NSArray *)activityItems
-{DLog    NSLog(@"%s", __FUNCTION__);
+{
+    DLog(@"%s", __FUNCTION__);
     return YES;
 }
 

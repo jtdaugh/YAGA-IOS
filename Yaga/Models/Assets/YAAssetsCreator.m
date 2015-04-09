@@ -98,7 +98,7 @@
     AVAsset *firstAsset = [AVAsset assetWithURL:realVideoUrl];
     
     CGSize vidsize = ((AVAssetTrack *)[firstAsset tracksWithMediaType:AVMediaTypeVideo].firstObject).naturalSize;
-    NSLog(@"vidsize x: %f, y: %f", vidsize.width, vidsize.height);
+    DLog(@"vidsize x: %f, y: %f", vidsize.width, vidsize.height);
     
     // Sort of hacky but fuggit - we store the bumper vid rotated instead of transforming it in code
     NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"bumper_rotated" ofType:@"mp4"];
