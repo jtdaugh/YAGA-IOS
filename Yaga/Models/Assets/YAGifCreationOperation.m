@@ -204,7 +204,7 @@
                                              (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
                                              }
                                      };
-    NSNumber *centiseconds = self.quality == YAGifCreationHighQuality ? @(kGifFPS_HQ) : @(1/kGifFPS_LQ*kGifSpeed);
+    NSNumber *centiseconds = self.quality == YAGifCreationHighQuality ? @(kGifFPS_HQ) : @(1/kGifFPS_LQ/kGifSpeed);
     NSDictionary *frameProperties = @{
                                       (__bridge id)kCGImagePropertyGIFDictionary: @{
                                               (__bridge id)kCGImagePropertyGIFDelayTime: centiseconds, // a float (not double!) in seconds, rounded to centiseconds in the GIF data
