@@ -169,12 +169,14 @@
     }
     
     if(refresh) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION object:newGroup];
         [newGroup refresh];
     }
 }
 
 - (void)groupDidRefresh:(NSNotification*)notification {
+    if(!self.postIdToOpen.length)
+        return;
+    
     //group didn't change?
     if([notification.object isEqual:[YAUser currentUser].currentGroup]) {
         RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", self.postIdToOpen]];
@@ -184,6 +186,7 @@
         }
         
         [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_VIDEO_NOTIFICATION object:nil userInfo:@{@"video":videos[0]}];
+        self.postIdToOpen = nil;
     }
 }
 @end

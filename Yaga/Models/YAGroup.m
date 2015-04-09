@@ -148,7 +148,7 @@
     
     [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
         if(error) {
-            DLog(@"can't fetch remove groups, error: %@", error.localizedDescription);
+            DLog(@"can't fetch remote groups, error: %@", error.localizedDescription);
             
             if(block)
                 block(error);

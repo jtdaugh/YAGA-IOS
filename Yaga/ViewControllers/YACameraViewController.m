@@ -12,6 +12,9 @@
 #import "YAUtils.h"
 #import "YAAssetsCreator.h"
 
+#import <CoreTelephony/CTCall.h>
+#import <CoreTelephony/CTCallCenter.h>
+
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
@@ -44,6 +47,8 @@
 @property (nonatomic, strong) UIButton *openSettingsButton;
 
 @property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
+
+@property (nonatomic, strong) CTCallCenter *callCenter;
 @end
 
 @implementation YACameraViewController
@@ -229,10 +234,19 @@
         }
 
     }
+    
+    //stop recording on incoming call
+    void (^block)(CTCall*) = ^(CTCall* call) {
+        DLog(@"Phone call received, state:%@. Stopping recording..", call.callState);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self endHold];
+        });
+    };
+    self.callCenter = [[CTCallCenter alloc] init];
+    self.callCenter.callEventHandler = block;
+    
     return self;
 }
-
-
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -465,7 +479,7 @@
     
 }
 
-- (void) endHold {
+- (void)endHold {
     if([self.recording boolValue]){
         
         [self.view bringSubviewToFront:self.cameraView];
