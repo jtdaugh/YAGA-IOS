@@ -309,7 +309,7 @@
     
     //    [self.captionField addGestureRecognizer:panGesture];
     
-    CGFloat tSize = 60;
+    CGFloat tSize = MAX_CAPTION_SIZE;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
     [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -384,7 +384,7 @@
 
 - (void)resizeText {
     NSString *fontName = self.captionField.font.fontName;
-    CGFloat fontSize = 60;
+    CGFloat fontSize = MAX_CAPTION_SIZE;
     
     NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
     
@@ -398,19 +398,22 @@
     while(rect.size.height > self.captionField.bounds.size.height){
         
         fontSize = fontSize - 1.0f;
+        NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
         rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
                                   options:option
                                attributes:attributes
                                   context:nil];
+        NSLog(@"resizing vert: new font size: %f, new height: %f", fontSize, rect.size.height);
     }
     
     for (NSString *word in [text componentsSeparatedByString:@" "]) {
         float width = [word sizeWithAttributes:attributes].width;
         
-        while (width > self.captionField.bounds.size.width && width != 0) {
+        while (width > self.captionField.bounds.size.width && width > 0) {
             fontSize = fontSize - 1.0f;
             NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
             width = [word sizeWithAttributes:attributes].width;
+            NSLog(@"resizing horizontal: new font size: %f, new width: %f", fontSize, width);
         }
     }
     
@@ -456,7 +459,7 @@
             self.fontIndex = 0;
         }
         
-        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
+        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE]];
         [self resizeText];
     } else {
         [self.captionField becomeFirstResponder];
@@ -667,7 +670,7 @@
     self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
     self.captionField.text = self.video.caption;
     self.fontIndex = self.video.font;
-    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:60]];
+    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE]];
     if(![self.video.namer isEqual:@""]){
         [self.captionerLabel setText:[NSString stringWithFormat:@"- %@", self.video.namer]];
     } else {
