@@ -22,7 +22,6 @@
 #import "UIImage+Resize.h"
 
 @interface YAAssetsCreator ()
-@property (nonatomic, copy) bumperVideoCompletion bumperVideoCompletionBlock;
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
 @property (nonatomic, strong) NSOperationQueue *jpgQueue;
 @property (nonatomic, strong) NSOperationQueue *recordingQueue;
@@ -78,21 +77,15 @@
     session.shouldOptimizeForNetworkUse = YES;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputUrl.path;
-        self.bumperVideoCompletionBlock = completion;
         if (path){
-            self.bumperVideoCompletionBlock(session.outputURL, nil);
+            completion(session.outputURL, nil);
         }
         else
         {
-            self.bumperVideoCompletionBlock(nil, [NSError new]);
+            completion(nil, [NSError new]);
         }
     }];
 }
-
--(void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
-    self.bumperVideoCompletionBlock(nil, error);
-}
-
 
 - (AVMutableComposition*)buildVideoSequenceComposition:(NSURL*)realVideoUrl {
     AVAsset *firstAsset = [AVAsset assetWithURL:realVideoUrl];
