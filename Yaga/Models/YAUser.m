@@ -149,7 +149,7 @@
             NSMutableArray *phoneResults = [NSMutableArray new];
             _phonebook = [NSMutableDictionary new];
             
-            NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+            NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
             
             for(int i = 0; i<[contacts count]; i++){
                 APContact *contact = contacts[i];

@@ -170,7 +170,7 @@
 - (void)editingChanged {
     
     if([self.phoneTextField.text length] > 6){
-        NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+        NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
         
         DLog(@"text: %@", self.phoneTextField.text);
         
@@ -197,7 +197,7 @@
 }
 
 - (void)nextScreen {
-    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
     
     DLog(@"text: %@", self.phoneTextField.text);
     

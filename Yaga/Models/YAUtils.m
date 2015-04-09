@@ -38,7 +38,7 @@
 }
 
 + (NSString *)readableNumberFromString:(NSString*)input {
-    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
     NSError *aError = nil;
     NBPhoneNumber *myNumber = [phoneUtil parse:input defaultRegion:@"US" error:&aError];
     NSString *num = [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatNATIONAL error:&aError];
@@ -89,7 +89,7 @@
 }
 
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error {
-    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil sharedInstance];
+    NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
     
     NBPhoneNumber *myNumber = [phoneUtil parse:value
                                  defaultRegion:[YAUser currentUser].countryCode error:error];
