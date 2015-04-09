@@ -114,14 +114,15 @@ static NSString *CellID = @"CellID";
     if (contact.registered)
     {
         cell.textLabel.text = [contact displayName];
+        [cell.textLabel setTextColor:[UIColor blackColor]];
 
-        [cell.textLabel setTextColor:[UIColor whiteColor]];
         [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
     } else {
         NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
         cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
 
-        [cell.textLabel setTextColor:[UIColor blackColor]];
+        [cell.textLabel setTextColor:[UIColor whiteColor]];
+
         [cell.detailTextLabel setTextColor:[UIColor blackColor]];
     }
     
