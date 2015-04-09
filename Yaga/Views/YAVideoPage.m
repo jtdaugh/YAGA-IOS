@@ -17,6 +17,7 @@
 #import "YASwipingViewController.h"
 #import "YAGifCopyActivity.h"
 #import "YASaveToCameraRollActivity.h"
+#import "MBProgressHUD.h"
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -691,6 +692,9 @@
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self animated:YES];
+    hud.mode = MBProgressHUDModeIndeterminate;
+    
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.mp4Filename]
 completion:^(NSURL *filePath, NSError *error) {
     if (error) {
@@ -708,6 +712,7 @@ completion:^(NSURL *filePath, NSError *error) {
         [self.presentingVC presentViewController:activityViewController
                                         animated:YES
                                       completion:^{
+                                          [hud hide:YES];
                                           // ...
                                       }];
         activityViewController.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
