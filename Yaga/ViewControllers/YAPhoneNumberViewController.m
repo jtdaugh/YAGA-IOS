@@ -197,6 +197,11 @@
 }
 
 - (void)nextScreen {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showNotification:NSLocalizedString(@"No internet connection, try later.", @"") type:YANotificationTypeError];
+        return;
+    }
+    
     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
     
     DLog(@"text: %@", self.phoneTextField.text);

@@ -115,3 +115,6 @@
 "Push notifications are disabled" = "Push notifications are disabled";//pushes permissions alert message
 "Never show this again" = "Never show this again";//pushes permissions option 1
 "Remind me later" = "Remind me later";//pushes permissions option 2
+
+
+"No internet connection, try later." = "No internet connection, try later.";
