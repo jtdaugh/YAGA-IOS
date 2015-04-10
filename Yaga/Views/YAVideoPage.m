@@ -713,17 +713,7 @@ completion:^(NSURL *filePath, NSError *error) {
                                         animated:YES
                                       completion:^{
                                           [hud hide:YES];
-                                          // ...
                                       }];
-        activityViewController.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-            if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
-                [YAUtils showNotification:NSLocalizedString(completed ? @"Video saved to camera roll" : @"Video failed to save to camera roll", @"") type:YANotificationTypeSuccess];
-            }
-            else if([activityType isEqualToString:@"com.apple.UIKit.activity.CopyToPasteboard"]) {
-                [YAUtils showNotification:NSLocalizedString(completed ? @"Video copied to clipboard" : @"Video failed to copy to clipboard", @"") type:YANotificationTypeSuccess];
-            }
-        };
-
     }}];
 }
 

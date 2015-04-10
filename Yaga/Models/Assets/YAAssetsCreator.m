@@ -64,17 +64,18 @@
 
 #pragma mark - Camera roll
 - (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(bumperVideoCompletion)completion {
-    NSURL *outputUrl = [YAUtils urlFromFileName:@"for_camera_roll.m4v"];
+    NSURL *outputUrl = [YAUtils urlFromFileName:@"for_camera_roll.mp4"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
     
     AVMutableComposition *combinedVideoComposition = [self buildVideoSequenceComposition:videoURL];
     
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:combinedVideoComposition
-                                                                     presetName:AVAssetExportPresetHighestQuality];
+                                                                     presetName:AVAssetExportPreset1280x720];
     
     session.outputURL = outputUrl;
-    session.outputFileType = AVFileTypeQuickTimeMovie;
+    session.outputFileType = AVFileTypeMPEG4;
     session.shouldOptimizeForNetworkUse = YES;
+    session.canPerformMultiplePassesOverSourceMediaData = YES;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputUrl.path;
         if (path){
@@ -118,7 +119,8 @@
         }
         
         [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, firstAsset.duration)
-                            ofTrack:firstVideoTrack atTime:kCMTimeZero error:nil];
+                                       ofTrack:firstVideoTrack atTime:kCMTimeZero error:nil];
+
         [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, secondAsset.duration)
                                        ofTrack:secondVideoTrack atTime:firstAsset.duration error:nil];
 

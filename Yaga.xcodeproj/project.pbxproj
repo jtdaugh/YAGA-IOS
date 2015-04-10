@@ -103,7 +103,6 @@
 		86B864AC1A433343002256FF /* CountryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864AB1A433343002256FF /* CountryCell.m */; };
 		86D9B9251AD40CEC00994674 /* YASaveToCameraRollActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
-		8841B9B11AD648BE00A97E9E /* bumper_rotated.mov in Resources */ = {isa = PBXBuildFile; fileRef = 8841B9AF1AD648BE00A97E9E /* bumper_rotated.mov */; };
 		8841B9B21AD648BE00A97E9E /* bumper_rotated.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 8841B9B01AD648BE00A97E9E /* bumper_rotated.mp4 */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -281,7 +280,6 @@
 		86D9B9231AD40CEC00994674 /* YASaveToCameraRollActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASaveToCameraRollActivity.h; sourceTree = "<group>"; };
 		86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASaveToCameraRollActivity.m; sourceTree = "<group>"; };
 		86EF0B8E1A40592F00FF4E3C /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
-		8841B9AF1AD648BE00A97E9E /* bumper_rotated.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = bumper_rotated.mov; sourceTree = "<group>"; };
 		8841B9B01AD648BE00A97E9E /* bumper_rotated.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper_rotated.mp4; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -489,7 +487,6 @@
 		6E91888C1A3F3A5A0034AB63 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				8841B9AF1AD648BE00A97E9E /* bumper_rotated.mov */,
 				8841B9B01AD648BE00A97E9E /* bumper_rotated.mp4 */,
 				86A1C66B1AB1E35100817F89 /* bumper.mp4 */,
 				41D519B81AABAE07000246CF /* bumper480x640.m4v */,
@@ -717,7 +714,6 @@
 				8841B9B21AD648BE00A97E9E /* bumper_rotated.mp4 in Resources */,
 				86A1C66C1AB1E35100817F89 /* bumper.mp4 in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
-				8841B9B11AD648BE00A97E9E /* bumper_rotated.mov in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
 				6E1E20A61A6FAB500041DF54 /* name.csv in Resources */,
@@ -942,7 +938,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Daniel Gould (78JKJ32C2A)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -954,7 +950,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "f8204e8d-7bbb-438f-a0f9-a384f556ab9b";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -969,8 +965,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Yaga Mobile Inc";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -981,7 +977,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = Yaga;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "f8204e8d-7bbb-438f-a0f9-a384f556ab9b";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
