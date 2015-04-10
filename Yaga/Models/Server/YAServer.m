@@ -388,7 +388,7 @@
                            //call completion block when video is posted
                            completion(response, error);
                            
-                           if(video.gifFilename.length)
+                           if(!video.isInvalidated && video.gifFilename.length)
                                [self uploadGIFForVideoWithServerId:video.serverId];
                            else {
                                DLog(@"Can't post GIF! It's not ready yet.");
@@ -426,7 +426,9 @@
             }
             else {
                 [AnalyticsKit logEvent:@"GIF posted"];
-                DLog(@"for video: %@", video.serverId);
+                if (!video.isInvalidated) {
+                    DLog(@"for video: %@", video.serverId);
+                }
             }
         }];
         
