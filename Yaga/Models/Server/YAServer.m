@@ -645,10 +645,12 @@
             
             __weak typeof(self) weakSelf = self;
             [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+                
                 //kill all multipart uploads when reachability changes
-                DLog(@"setReachabilityStatusChangeBlock, killing all multipart uploads if they are in progress");
                 for (AFHTTPRequestOperation *postOperation in weakSelf.multipartUploadsInProgress.allValues) {
+                    DLog(@"connection type changed, cancelling multipart upload to prevent callback not being called");
                     [postOperation cancel];
+
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [weakSelf sync];
