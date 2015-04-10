@@ -218,7 +218,7 @@
                            toGroupWithId:[YAUser currentUser].currentGroup.serverId
                           withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
                               if(error) {
-                                  DLog(@"can't upload video, deleted already");
+                                  DLog(@"can't upload video, reason: %@", error.localizedDescription);
                                   completion(nil, error);
                               }
                               else {
@@ -235,10 +235,11 @@
                                   
                                   completion(nil, nil);
                                   
+#warning DEBUG message
+                                  [YAUtils showNotification:@"Video posted" type:YANotificationTypeSuccess];
                                   [AnalyticsKit logEvent:@"Video posted"];
                               }
                           }];
-    
 }
 
 
