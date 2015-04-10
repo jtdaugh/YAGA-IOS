@@ -439,7 +439,7 @@
             }
             else {
 #warning DEBUG message
-                [YAUtils showNotification:@"GIF posted" type:YANotificationTypeSuccess];
+//                [YAUtils showNotification:@"GIF posted" type:YANotificationTypeSuccess];
                 
                 [AnalyticsKit logEvent:@"GIF posted"];
                 if (!video.isInvalidated) {

@@ -236,7 +236,7 @@
                                   completion(nil, nil);
                                   
 #warning DEBUG message
-                                  [YAUtils showNotification:@"Video posted" type:YANotificationTypeSuccess];
+//                                  [YAUtils showNotification:@"Video posted" type:YANotificationTypeSuccess];
                                   [AnalyticsKit logEvent:@"Video posted"];
                               }
                           }];
