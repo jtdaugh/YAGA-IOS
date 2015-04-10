@@ -73,13 +73,29 @@
                                                                      presetName:AVAssetExportPreset1280x720];
     
     session.outputURL = outputUrl;
-    session.outputFileType = AVFileTypeMPEG4;
-    session.shouldOptimizeForNetworkUse = YES;
-    session.canPerformMultiplePassesOverSourceMediaData = YES;
+    session.outputFileType = AVFileTypeQuickTimeMovie;
+//    session.shouldOptimizeForNetworkUse = YES;
+//    session.canPerformMultiplePassesOverSourceMediaData = YES;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputUrl.path;
         if (path){
-            completion(session.outputURL, nil);
+            NSURL *outputUrl2 = [YAUtils urlFromFileName:@"for_camera_roll2.mp4"];
+            [[NSFileManager defaultManager] removeItemAtURL:outputUrl2 error:nil];
+
+            AVURLAsset *asset = [AVURLAsset URLAssetWithURL:outputUrl options:nil];
+            AVAssetExportSession *exportSession2 = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPreset1280x720];
+            exportSession2.outputURL = outputUrl2;
+            exportSession2.outputFileType = AVFileTypeQuickTimeMovie;
+            [exportSession2 exportAsynchronouslyWithCompletionHandler: ^(void) {
+                if (exportSession2.status == AVAssetExportSessionStatusCompleted)
+                {
+                    completion(exportSession2.outputURL, nil);
+                }
+                else
+                {
+                    completion(nil, [NSError new]);
+                }
+            }];
         }
         else
         {
