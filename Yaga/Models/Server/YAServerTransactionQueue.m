@@ -224,15 +224,22 @@
         
         //in case of en error put transaction to the end of the queue and mark with "errored" flag
         if(error) {
-            NSNumber *numberOfErrors = [transactionData objectForKey:kTransactionErroredTimes];
-            if(!numberOfErrors)
-                numberOfErrors = [NSNumber numberWithInteger:1];
-
-            //try 10 times, not more(one minute delay between errored trancations should be fine)
-            if([numberOfErrors integerValue] < 10) {
-                [transactionData setObject:numberOfErrors forKey:kTransactionErroredTimes];
-                [transactionData setObject:[NSDate date] forKey:kTransactionErrorDate];
+    
+            //-999 is for manually cancelled operations, execute them again immediately
+            if(error.code == -999) {
                 [weakSelf.transactionsData addObject:transactionData];
+            }
+            else {
+                NSNumber *numberOfErrors = [transactionData objectForKey:kTransactionErroredTimes];
+                if(!numberOfErrors)
+                    numberOfErrors = [NSNumber numberWithInteger:1];
+                
+                //try 10 times, not more(one minute delay between errored trancations should be fine)
+                if([numberOfErrors integerValue] < 10) {
+                    [transactionData setObject:numberOfErrors forKey:kTransactionErroredTimes];
+                    [transactionData setObject:[NSDate date] forKey:kTransactionErrorDate];
+                    [weakSelf.transactionsData addObject:transactionData];
+                }
             }
         }
         
