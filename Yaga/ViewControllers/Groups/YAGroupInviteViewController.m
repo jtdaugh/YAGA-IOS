@@ -103,22 +103,45 @@
     [self.sendTextButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     self.sendTextButton.layer.cornerRadius = 8.0;
     self.sendTextButton.layer.masksToBounds = YES;
-    
     [self.view addSubview:self.sendTextButton];
-
+    [self.sendTextButton addTarget:self action:@selector(sendTextOnlyInvites) forControlEvents:UIControlEventTouchUpInside];
+    
     [self.view bringSubviewToFront:self.camViewController.view];
 
     
 }
 
-- (void)sendiMessageToNumbers:(NSArray *)phoneNumbers withVidURL:(NSURL *)url completion:(completionBlock)completion {
+- (void)sendTextOnlyInvites {
     if(![MFMessageComposeViewController canSendText]) {
+        [YAUtils showNotification:@"Error: Couldn't send Message" type:YANotificationTypeError];
         [self.hud hide:NO];
-        if(completion) {
-            NSError *error = [NSError errorWithDomain:@"YAGA" code:0 userInfo:nil];
-            completion(error);
-        }
-        
+        return;
+    }
+    
+    //    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), group.name];
+    NSString *message = NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @"");
+    NSMutableArray *phoneNumbers = [NSMutableArray new];
+    
+    for(NSDictionary *contact in self.contactsThatNeedInvite) {
+        if([YAUtils validatePhoneNumber:contact[nPhone] error:nil])
+            [phoneNumbers addObject:contact[nPhone]];
+    }
+    
+    MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
+    messageController.messageComposeDelegate = self;
+    [messageController setRecipients:phoneNumbers];
+    [messageController setBody:message];
+    [messageController setSubject:@"Yaga"];
+    
+    // Present message view controller on screen
+    [self presentViewController:messageController animated:YES completion:nil];
+}
+
+
+- (void)sendiMessageToNumbers:(NSArray *)phoneNumbers withVidURL:(NSURL *)url {
+    if(![MFMessageComposeViewController canSendText]) {
+        [YAUtils showNotification:@"Error: Couldn't send Message" type:YANotificationTypeError];
+        [self.hud hide:NO];
         return;
     }
     
@@ -134,24 +157,22 @@
     
     // Present message view controller on screen
     [self presentViewController:messageController animated:YES completion:^{
-        if(completion)
-            completion(nil);
+        [self.hud hide:NO];
     }];
+
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
 {
-    [self.hud hide:NO];
-    [controller dismissViewControllerAnimated:YES completion:nil];
+    [self dismissViewControllerAnimated:YES completion:nil];
     switch (result) {
         case MessageComposeResultCancelled: {
-            [controller dismissViewControllerAnimated:YES completion:nil];
             [AnalyticsKit logEvent:@"iMessage cancelled"];
             break;
         }
         case MessageComposeResultFailed:
         {
-            [self dismissViewControllerAnimated:YES completion:nil];
+            [self.camViewController.cameraView setSession:nil];
             [AnalyticsKit logEvent:@"iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
             if (self.inOnboardingFlow) {
@@ -161,11 +182,11 @@
                 NSString *notificationMessage = NSLocalizedString(@"Success", @"");
                 [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
             }
-
             break;
         }
             
         case MessageComposeResultSent:
+            [self.camViewController.cameraView setSession:nil];
             [AnalyticsKit logEvent:@"iMessage sent"];
             [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
             if (self.inOnboardingFlow) {
@@ -176,11 +197,7 @@
                 [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
             }
             break;
-            
-        default:
-            break;
     }
-    
 }
 
 - (void)finishedRecordingVideoToURL:(NSURL *)videoURL {
@@ -197,17 +214,13 @@
 
     
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:videoURL
-                                                                    completion:^(NSURL *filePath, NSError *error) {
+                                                                   completion:^(NSURL *filePath, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            
             if (error) {
                 [self.hud hide:NO];
                 DLog(@"error");
             } else {
-                [self sendiMessageToNumbers:friendNumbers withVidURL:filePath completion:^(NSError *error) {
-                    if(error)
-                        [YAUtils showNotification:@"Error: Couldn't send Message" type:YANotificationTypeError];
-                }];
+                [self sendiMessageToNumbers:friendNumbers withVidURL:filePath];
             }
         });
         

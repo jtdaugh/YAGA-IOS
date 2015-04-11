@@ -159,8 +159,6 @@
         self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
         [self.cameraAccessories addObject:self.unviewedVideosBadge];
         [self.cameraView addSubview:self.unviewedVideosBadge];
-
-        [self initCamera];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -184,7 +182,6 @@
         
         
         
-        [self enableRecording:YES];
         
         [self updateUviewedViedeosBadge];
         
@@ -250,21 +247,16 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    [self initCamera];
+    [self enableRecording:YES];
 
     [self updateCurrentGroupName];
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"applicationWillResignActive" object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"applicationWillEnterForeground" object:nil];
-}
-
-- (void)applicationWillResignActive {
-    [self closeCamera];
-}
-
-- (void)applicationWillEnterForeground {
-    [self initCamera];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 }
 
 - (void)enableRecording:(BOOL)enable {
@@ -289,6 +281,9 @@
     } else {
         
         DLog(@"init camera");
+        
+        // Really a restart cam, incase switching the preview layer
+        [self closeCamera];
         
         //set still image output
         
@@ -407,12 +402,16 @@
 }
 
 - (void)closeCamera {
-    [self.session beginConfiguration];
-    for(AVCaptureDeviceInput *input in self.session.inputs){
-        [self.session removeInput:input];
+    if (self.session) {
+        [self.session beginConfiguration];
+        for(AVCaptureDeviceInput *input in self.session.inputs){
+            [self.session removeInput:input];
+        }
+        [self.session commitConfiguration];
+        
+        if ([self.session isRunning])
+            [self.session stopRunning];
     }
-    [self.session commitConfiguration];
-    [self.session stopRunning];
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
