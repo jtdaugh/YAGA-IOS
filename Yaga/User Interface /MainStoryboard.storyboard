@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
     </dependencies>
     <scenes>
         <!--Yaga Navigation Controller-->
@@ -321,11 +321,33 @@
                     <navigationItem key="navigationItem" id="uHU-Xp-n1O"/>
                     <connections>
                         <segue destination="54o-Be-McY" kind="show" identifier="CompleteOnboarding" id="6XQ-46-kxg"/>
+                        <segue destination="9t8-cl-6gd" kind="show" identifier="ShowInviteScreen" id="tzA-A0-4lt"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wON-sz-6d3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1732.5" y="-141"/>
+            <point key="canvasLocation" x="2420" y="-194"/>
+        </scene>
+        <!--Group Invite View Controller-->
+        <scene sceneID="Zh9-aG-BMB">
+            <objects>
+                <viewController id="9t8-cl-6gd" customClass="YAGroupInviteViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ouk-zQ-aDl"/>
+                        <viewControllerLayoutGuide type="bottom" id="dEB-M6-GNi"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Wkh-SU-fFg">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <segue destination="54o-Be-McY" kind="show" identifier="CompeteOnboardingAfterInvite" id="HBA-dq-y0G"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="r3S-VH-bN5" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3224" y="-155"/>
         </scene>
         <!--Name Group View Controller-->
         <scene sceneID="HVo-lx-c04">
@@ -346,13 +368,13 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xwl-Cb-13J" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2505" y="-140"/>
+            <point key="canvasLocation" x="1625" y="-194"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="6XQ-46-kxg"/>
-        <segue reference="7Ol-Ps-Crc"/>
         <segue reference="zAA-Ft-OZ6"/>
+        <segue reference="7Ol-Ps-Crc"/>
+        <segue reference="HBA-dq-y0G"/>
         <segue reference="VSt-eZ-jNn"/>
     </inferredMetricsTieBreakers>
 </document>

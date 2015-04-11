@@ -7,6 +7,7 @@
 //
 
 #import "YAGroupAddMembersViewController.h"
+#import "YAGroupInviteViewController.h"
 #import "GridViewController.h"
 #import "NameGroupViewController.h"
 #import "APPhoneWithLabel.h"
@@ -20,6 +21,9 @@
 @property (strong, nonatomic) UITableView *membersTableview;
 @property (strong, nonatomic) NSMutableArray *filteredContacts;
 @property (strong, nonatomic) NSArray *deviceContacts;
+
+@property (nonatomic) BOOL inOnboarding;
+@property (nonatomic, strong) NSArray *contactsThatNeedInvite;
 
 @property (nonatomic, readonly) BOOL existingGroupDirty;
 
@@ -329,58 +333,74 @@
     if(![self validateSelectedContacts])
         return;
 
-    if(self.existingGroup && self.existingGroupDirty) {
-        
-        NSMutableArray *friendNumbers = [NSMutableArray new];
-        
-        for(NSDictionary *selectedContact in self.selectedContacts) {
-            if([YAUtils validatePhoneNumber:selectedContact[nPhone] error:nil])
-                [friendNumbers addObject:selectedContact[nPhone]];
+    //If we come from NoGroupsViewController
+    __block BOOL found = NO;
+    [self.navigationController.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj isKindOfClass:[GridViewController class]]) {
+            found = YES;
+            *stop = YES;
         }
+    }];
+    self.inOnboarding = !found;
+    
+    if(self.existingGroup && self.existingGroupDirty) {
+        // Existing Group
+        [self.existingGroup addMembers:self.selectedContacts];
+        [AnalyticsKit logEvent:@"Group changed" withProperties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
 
-        [[YAUser currentUser] iMessageWithFriends:friendNumbers group:self.existingGroup withCompletion:^(NSError *error) {
-            if(error)
-                [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
-            
-            [self.existingGroup addMembers:self.selectedContacts];
-            [AnalyticsKit logEvent:@"Group changed" withProperties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
+        self.contactsThatNeedInvite = [self filterContactsToInvite];
+        if (![self.contactsThatNeedInvite count]) {
             
             [self.navigationController popToRootViewControllerAnimated:YES];
             
             NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
             
             [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-        }];
+        } else {
+            // Push the invite screen
+            YAGroupInviteViewController *nextVC = [YAGroupInviteViewController new];
+            nextVC.inOnboardingFlow = NO;
+            nextVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
+            [self.navigationController pushViewController:nextVC animated:YES];
+        }
     }
-    //new group
     else {
+        // New group
+        
         [[YAUser currentUser].currentGroup addMembers:self.selectedContacts];
         [AnalyticsKit logEvent:@"Group created" withProperties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
         
-        NSMutableArray *friendNumbers = [NSMutableArray arrayWithCapacity:[YAUser currentUser].currentGroup.members.count];
-        for(YAContact *member in [YAUser currentUser].currentGroup.members) {
-            if([YAUtils validatePhoneNumber:member.number error:nil])
-                [friendNumbers addObject:member.number];
-        }
         
-        [[YAUser currentUser] iMessageWithFriends:friendNumbers group:[YAUser currentUser].currentGroup withCompletion:^(NSError *error) {
-            if(error)
-                [YAUtils showNotification:@"Error: Can't send iMessage" type:YANotificationTypeError];
-            //If we come from NoGroupsViewController
-            __block BOOL found = NO;
-            [self.navigationController.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                if ([obj isKindOfClass:[GridViewController class]]) {
-                    found = YES;
-                    [self.navigationController popToRootViewControllerAnimated:YES];
-                    *stop = YES;
-                }
-            }];
-            
-            if (!found) {
+        self.contactsThatNeedInvite = [self filterContactsToInvite];
+        if (![self.contactsThatNeedInvite count]) {
+            if (self.inOnboarding) {
                 [self performSegueWithIdentifier:@"CompleteOnboarding" sender:self];
+            } else {
+                [self.navigationController popToRootViewControllerAnimated:YES];
             }
-        }];
+        } else {
+            if (self.inOnboarding) {
+                [self performSegueWithIdentifier:@"ShowInviteScreen" sender:self];
+            } else {
+                // Push the invite screen
+                YAGroupInviteViewController *nextVC = [YAGroupInviteViewController new];
+                nextVC.inOnboardingFlow = NO;
+                nextVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
+                [self.navigationController pushViewController:nextVC animated:YES];
+            }
+        }
     }
+}
+
+- (NSArray *)filterContactsToInvite {
+    NSMutableArray *contactsNotOnYaga = [NSMutableArray new];
+    for (NSDictionary *contact in self.selectedContacts) {
+        BOOL yagaUser = [((NSNumber*)contact[nYagaUser]) boolValue];
+        if (!yagaUser){
+            [contactsNotOnYaga addObject:contact];
+        }
+    }
+    return contactsNotOnYaga;
 }
 
 - (BOOL)validateSelectedContacts {
@@ -417,9 +437,15 @@
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([segue.destinationViewController isKindOfClass:[YAGroupInviteViewController class]]) {
+        YAGroupInviteViewController *destinationVC = (YAGroupInviteViewController*)segue.destinationViewController;
+        destinationVC.inOnboardingFlow = self.inOnboarding;
+        destinationVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
+    }
     if([segue.destinationViewController isKindOfClass:[NameGroupViewController class]]) {
-        ((NameGroupViewController*)segue.destinationViewController).membersDic = self.selectedContacts;
-        ((NameGroupViewController*)segue.destinationViewController).embeddedMode = self.embeddedMode;   
+        NameGroupViewController *destinationVC = (NameGroupViewController*)segue.destinationViewController;
+        destinationVC.membersDic = self.selectedContacts;
+        destinationVC.embeddedMode = self.embeddedMode;
     }
 }
 

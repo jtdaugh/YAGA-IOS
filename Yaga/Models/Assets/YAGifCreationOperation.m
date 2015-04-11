@@ -16,9 +16,9 @@
 
 #define kGifWidth (240)
 #define kGifFPS_HQ (30.f)
-#define kGifFPS_LQ (2.f)
+#define kGifFPS_LQ (8.f)
 #define kGifPixellationSize (15.f)
-#define kGifSpeed (2.f)
+#define kGifSpeed (1.15f)
 
 @interface YAGifCreationOperation ()
 @property (strong) NSString *filename;

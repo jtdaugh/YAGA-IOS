@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "YACameraViewController.h"
+#import "YAGroupInviteCameraViewController.h"
 
 #import "YAUser.h"
 #import "YAUtils.h"
@@ -15,7 +15,7 @@
 #import <CoreTelephony/CTCall.h>
 #import <CoreTelephony/CTCallCenter.h>
 
-@interface YACameraViewController ()
+@interface YAGroupInviteCameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
 @property (strong, nonatomic) UILabel *indicatorText;
@@ -32,9 +32,6 @@
 
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 @property (strong, nonatomic) UIButton *switchCameraButton;
-@property (strong, nonatomic) UIButton *switchGroupsButton;
-@property (strong, nonatomic) UIImageView *unviewedVideosBadge;
-@property (strong, nonatomic) UIButton *groupButton;
 
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
@@ -42,198 +39,83 @@
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizerCamera;
 @property (nonatomic) BOOL audioInputAdded;
 
-@property (nonatomic, strong) UILabel *recordTooltipLabel;
-
-@property (nonatomic, strong) UIButton *openSettingsButton;
-
 @property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
 
 @property (nonatomic, strong) CTCallCenter *callCenter;
 @end
 
-@implementation YACameraViewController
+@implementation YAGroupInviteCameraViewController
 
-- (id)init {
-    self = [super init];
-    if(self) {
-        self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
-        self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2);
-        [self.cameraView setBackgroundColor:[UIColor blackColor]];
-        [self.view addSubview:self.cameraView];
-        [self.cameraView setUserInteractionEnabled:YES];
-        self.cameraView.autoresizingMask = UIViewAutoresizingNone;
-        
-        self.cameraAccessories = [@[] mutableCopy];
-        
-        self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-        [self.white setBackgroundColor:[UIColor whiteColor]];
-        [self.white setAlpha:0.8];
-        
-        [self.white setUserInteractionEnabled:YES];
-        
-        UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchFlashMode:)];
-        tapGestureRecognizer.delegate = self;
-        [self.white addGestureRecognizer:tapGestureRecognizer];
-        
-        CGFloat size = 44;
-        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
-        //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
-        [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
-        [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
-        [self.switchCameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        
-        [self.cameraAccessories addObject:self.switchCameraButton];
-        [self.cameraView addSubview:self.switchCameraButton];
-        
-        UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size, size)];
-        //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
-        [flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
-        [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
-        [flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        self.flashButton = flashButton;
-        [self.cameraAccessories addObject:self.flashButton];
-        [self.cameraView addSubview:self.flashButton];
-        
-        //current group
-        CGFloat groupButtonXOrigin = flashButton.frame.origin.x + flashButton.frame.size.width + 5;
-        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(groupButtonXOrigin, 10, self.switchCameraButton.frame.origin.x - groupButtonXOrigin - 10 , size)];
-        [self.groupButton addTarget:self action:@selector(nameGroup:) forControlEvents:UIControlEventTouchUpInside];
-        [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
-        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
-        self.groupButton.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.groupButton.layer.shadowRadius = 1.0f;
-        self.groupButton.layer.shadowOpacity = 1.0;
-        self.groupButton.layer.shadowOffset = CGSizeZero;
-        [self.cameraAccessories addObject:self.groupButton];
-        [self.cameraView addSubview:self.groupButton];
-        
-        //record button
-        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - 1.0*recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
-        [self.recordButton setBackgroundColor:[UIColor redColor]];
-        [self.recordButton.layer setCornerRadius:recordButtonWidth/2.0];
-        [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
-        [self.recordButton.layer setBorderWidth:4.0f];
-        
-        [self.recordButton addTarget:self action:@selector(startHold) forControlEvents:UIControlEventTouchDown];
-        [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpInside];
-        [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpOutside];
-        
-//        UILongPressGestureRecognizer *longPressGestureRecognizerButton = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-//        [longPressGestureRecognizerButton setMinimumPressDuration:0.2f];
-//        [self.recordButton addGestureRecognizer:longPressGestureRecognizerButton];
 
-        [self.cameraAccessories addObject:self.recordButton];
-        [self.view addSubview:self.recordButton];
-        
-        //switch groups button
-        
-        
-        
-        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30-10, 40)];
-        //        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
-        [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
-        [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
-        [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
-        [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"%@", NSLocalizedString(@"Switch groups", @"")] forState:UIControlStateNormal];
-        
-        CGFloat requiredWidth = [self.switchGroupsButton.titleLabel.attributedText size].width;
-        CGRect tempFrame = self.switchGroupsButton.frame;
-        tempFrame.origin.x = VIEW_WIDTH - 10 - requiredWidth;
-        tempFrame.size.width = requiredWidth;
-        [self.switchGroupsButton setFrame:tempFrame];
-        
-        self.switchGroupsButton.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.switchGroupsButton.layer.shadowRadius = 1.0f;
-        self.switchGroupsButton.layer.shadowOpacity = 1.0;
-        self.switchGroupsButton.layer.shadowOffset = CGSizeZero;
-        
-        [self.cameraAccessories addObject:self.switchGroupsButton];
-        [self.cameraView addSubview:self.switchGroupsButton];
-        
-        //unviewed badge
-        const CGFloat badgeWidth = 10;
-        CGFloat badgeMargin = 8;
-        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchGroupsButton.frame.origin.x - badgeWidth - badgeMargin, self.switchGroupsButton.frame.origin.y + badgeWidth + 5, badgeWidth, badgeWidth)];
-        self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5]];
-        self.unviewedVideosBadge.clipsToBounds = YES;
-        self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
-        [self.cameraAccessories addObject:self.unviewedVideosBadge];
-        [self.cameraView addSubview:self.unviewedVideosBadge];
-
-        [self initCamera];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(willEnterForeground)
-                                                     name:UIApplicationWillEnterForegroundNotification
-                                                   object:nil];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didEnterBackground)
-                                                     name:UIApplicationDidEnterBackgroundNotification
-                                                   object:nil];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(groupDidRefresh:)
-                                                     name:GROUP_DID_REFRESH_NOTIFICATION
-                                                   object:nil];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(groupDidChange:)
-                                                     name:GROUP_DID_CHANGE_NOTIFICATION
-                                                   object:nil];
-        
-        
-        
-        [self enableRecording:YES];
-        
-        [self updateUviewedViedeosBadge];
-        
-        
-        if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
-            //first start tooltips
-            
-            CGFloat tooltipPadding = recordButtonWidth / 2 * 3 / 2;
-            
-            self.recordTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - 108, 0, 120, VIEW_HEIGHT/2 - tooltipPadding)];
-            NSString *fontName = @"AvenirNext-HeavyItalic";
-            CGFloat fontSize = 26;
-
-            self.recordTooltipLabel.font = [UIFont fontWithName:fontName size:fontSize];
-            NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap and hold to record\n \u2B07\U0000FE0E"
-                                                                         attributes:@{
-                                                                                      NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                      NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
-                                                                                      }];
-            
-            self.recordTooltipLabel.textAlignment = NSTextAlignmentRight;
-            self.recordTooltipLabel.attributedText = string;
-            self.recordTooltipLabel.numberOfLines = 4;
-            self.recordTooltipLabel.textColor = PRIMARY_COLOR;
-            [self.view addSubview:self.recordTooltipLabel];
-            
-            
-            NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
-            
-            NSString *text = self.recordTooltipLabel.text;
-            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-            
-            CGRect rect = [text boundingRectWithSize:CGSizeMake(self.recordTooltipLabel.frame.size.width, CGFLOAT_MAX)
-                                             options:option
-                                          attributes:attributes
-                                             context:nil];
-
-            CGRect frame = self.recordTooltipLabel.frame;
-            frame.origin.y = VIEW_HEIGHT/2 - rect.size.height - tooltipPadding;
-            frame.size.height = rect.size.height;
-            self.recordTooltipLabel.frame = frame;
-            //warning create varible for all screen sizes
-//            CGPoint center = self.view.center;
-//            center.x -= 47.f;
-//            center.y += 65.f;
-//            self.recordTooltipLabel.center = center;
-        }
-
-    }
+- (void)viewDidLoad {
+    self.cameraView = [[AVCamPreviewView alloc] initWithFrame:self.view.bounds];
+    [self.cameraView setBackgroundColor:[UIColor blackColor]];
+    [self.view addSubview:self.cameraView];
+    [self.cameraView setUserInteractionEnabled:YES];
+    self.cameraView.autoresizingMask = UIViewAutoresizingNone;
+    
+    self.cameraAccessories = [@[] mutableCopy];
+    
+    self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [self.white setBackgroundColor:[UIColor whiteColor]];
+    [self.white setAlpha:0.8];
+    
+    [self.white setUserInteractionEnabled:YES];
+    
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchFlashMode:)];
+    tapGestureRecognizer.delegate = self;
+    [self.white addGestureRecognizer:tapGestureRecognizer];
+    
+    CGFloat size = 44;
+    self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
+    //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
+    [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
+    [self.switchCameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    
+    [self.cameraAccessories addObject:self.switchCameraButton];
+    [self.cameraView addSubview:self.switchCameraButton];
+    
+    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size, size)];
+    //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
+    [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
+    [flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    self.flashButton = flashButton;
+    [self.cameraAccessories addObject:self.flashButton];
+    [self.cameraView addSubview:self.flashButton];
+    
+    //record button
+    self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2.0 - recordButtonWidth/2.0, self.view.frame.size.height - (recordButtonWidth+10), recordButtonWidth, recordButtonWidth)];
+    [self.recordButton setBackgroundColor:[UIColor redColor]];
+    [self.recordButton.layer setCornerRadius:recordButtonWidth/2.0];
+    [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
+    [self.recordButton.layer setBorderWidth:4.0f];
+    
+    [self.recordButton addTarget:self action:@selector(startHold) forControlEvents:UIControlEventTouchDown];
+    [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpInside];
+    [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpOutside];
+    
+    //        UILongPressGestureRecognizer *longPressGestureRecognizerButton = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+    //        [longPressGestureRecognizerButton setMinimumPressDuration:0.2f];
+    //        [self.recordButton addGestureRecognizer:longPressGestureRecognizerButton];
+    
+    [self.cameraAccessories addObject:self.recordButton];
+    [self.view addSubview:self.recordButton];
+    
+    [self initCamera];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    
+    [self enableRecording:YES];
     
     //stop recording on incoming call
     void (^block)(CTCall*) = ^(CTCall* call) {
@@ -245,13 +127,20 @@
     self.callCenter = [[CTCallCenter alloc] init];
     self.callCenter.callEventHandler = block;
     
-    return self;
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    CGFloat size = 44;
+    self.view.frame = self.smallCameraFrame;
+    self.cameraView.frame = self.view.bounds;
 
-    [self updateCurrentGroupName];
+    self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    self.switchCameraButton.frame = CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size);
+    self.flashButton.frame = CGRectMake(10, 10, size, size);
+    self.recordButton.frame = CGRectMake(self.view.frame.size.width/2.0 - recordButtonWidth/2.0, self.view.frame.size.height - (recordButtonWidth+10), recordButtonWidth, recordButtonWidth);
+
 }
 
 - (void)dealloc {
@@ -276,9 +165,9 @@
     else {
         [self.cameraView removeGestureRecognizer:self.longPressGestureRecognizerCamera];
     }
-//    [UIView animateWithDuration:0.2 animations:^{
-//        self.recordButton.transform = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
-//    }];
+    //    [UIView animateWithDuration:0.2 animations:^{
+    //        self.recordButton.transform = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
+    //    }];
 }
 
 - (void)initCamera {
@@ -305,8 +194,6 @@
                 [self setupVideoInput];
             });
             
-            [self removeOpenSettingsButton];
-            
         } else {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                                      completionHandler:^(BOOL granted) {
@@ -317,11 +204,6 @@
                                          [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
                                          if (granted) {
                                              [self setupVideoInput];
-                                         } else {
-                                             dispatch_async(dispatch_get_main_queue(), ^{
-                                                 [self addOpenSettingsButton];
-                                             });
-                                             
                                          }
                                      }];
         }
@@ -336,7 +218,7 @@
     
     for (AVCaptureDevice *device in devices)
     {
-        if ([device position] == AVCaptureDevicePositionBack)
+        if ([device position] == AVCaptureDevicePositionFront)
         {
             captureDevice = device;
             break;
@@ -385,7 +267,7 @@
                                  }];
     }
     
-   [self.session startRunning];
+    [self.session startRunning];
 }
 
 - (void)setupAudioInput {
@@ -427,15 +309,15 @@
 - (void)startHold {
     DLog(@"starting hold");
     
-//    //We're starting to shoot so add audio
-//    if (!self.audioInputAdded) {
-//        [self.session beginConfiguration];
-//        [self.session addInput:self.audioInput];
-//        self.audioInputAdded = YES;
-//        [self.session commitConfiguration];
-//    }
+    //    //We're starting to shoot so add audio
+    //    if (!self.audioInputAdded) {
+    //        [self.session beginConfiguration];
+    //        [self.session addInput:self.audioInput];
+    //        self.audioInputAdded = YES;
+    //        [self.session commitConfiguration];
+    //    }
     self.recording = [NSNumber numberWithBool:YES];
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT / 20)];
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
     [self.indicator setUserInteractionEnabled:NO];
     [self.indicatorText setText:@"Recording..."];
@@ -443,20 +325,6 @@
     
     [self.view bringSubviewToFront:self.white];
     [self.view bringSubviewToFront:self.indicator];
-
-    if(self.recordTooltipLabel) {
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
-        
-        [UIView animateWithDuration:0.2 animations:^{
-            self.recordTooltipLabel.alpha = 0.0;
-        } completion:^(BOOL finished) {
-            [self.recordTooltipLabel removeFromSuperview];
-            self.recordTooltipLabel = nil;
-        }];
-        
-        [AnalyticsKit logEvent:@"First video post"];
-    }
-
     
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
@@ -474,7 +342,7 @@
         }
         //
     }];
-
+    
     [self startRecordingVideo];
     
 }
@@ -483,11 +351,11 @@
     if([self.recording boolValue]){
         
         [self.view bringSubviewToFront:self.cameraView];
-//        [self.view bringSubviewToFront:self.recordButton];
+        //        [self.view bringSubviewToFront:self.recordButton];
         
         [UIView animateWithDuration:0.2 animations:^{
-            [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2)];
-            [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+            [self.view setFrame:self.smallCameraFrame];
+            [self.cameraView setFrame:self.view.bounds];
             [self showCameraAccessories:YES];
         }];
         
@@ -499,7 +367,7 @@
         if(self.flash){
             [self switchFlashMode:nil];
         }
-
+        
         [self stopRecordingVideo];
     }
 }
@@ -573,7 +441,7 @@
         
         DLog(@"file size: %lld", fileSize);
         
-        [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
+        [self.delegate finishedRecordingVideoToURL:outputFileURL];
         
     } else {
         [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:YANotificationTypeError];
@@ -582,8 +450,6 @@
 }
 
 - (void)switchCamera:(id)sender { //switch cameras front and rear camerashiiegor@gmail.com
-    if(self.openSettingsButton)
-        return;
     
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
     AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
@@ -721,10 +587,6 @@
     }
 }
 
-- (void)toggleGroups:(id)sender {
-    [self.delegate toggleGroups];
-}
-
 - (void)didEnterBackground {
     if(self.flash){
         [self switchFlashMode:nil];
@@ -743,85 +605,6 @@
             [self.view bringSubviewToFront:v];
     }
     
-}
-
-- (void)nameGroup:(id)sender {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"CHANGE_GROUP_TITLE", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
-    
-    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
-        textField.text = [YAUser currentUser].currentGroup.name;
-        [textField setKeyboardType:UIKeyboardTypeAlphabet];
-        [textField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
-        [textField setAutocorrectionType:UITextAutocorrectionTypeNo];
-    }];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        NSString *newname = [alert.textFields[0] text];
-        if(!newname.length)
-            return;
-        
-        [[YAUser currentUser].currentGroup rename:newname];
-        
-        [self.groupButton setTitle:newname forState:UIControlStateNormal];
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-    }]];
-    
-    [self presentViewController:alert animated:YES completion:nil];
-}
-
-#pragma mark -
-
-- (void)updateCurrentGroupName {
-    [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
-}
-
-- (void)updateUviewedViedeosBadge {
-    self.unviewedVideosBadge.hidden = ![[YAUser currentUser] hasUnviewedVideosInGroups];
-}
-
-#pragma mark Group Notifications
-- (void)groupDidRefresh:(NSNotification*)notification {
-    [self updateUviewedViedeosBadge];
-}
-
-- (void)groupDidChange:(NSNotification*)notification {
-    [self updateCurrentGroupName];
-}
-
-#pragma mark Settings
-- (void)addOpenSettingsButton {
-    if(!self.openSettingsButton) {
-        CGRect r = self.cameraView.bounds;
-        r.size.height /= 2;
-        r.size.width *= .6;
-        r.origin.x = (self.view.frame.size.width - r.size.width)/2;
-//        r.origin.y = 0;
-        
-        self.openSettingsButton = [[UIButton alloc] initWithFrame:r];
-        [self.openSettingsButton setTitle:NSLocalizedString(@"Enable Camera", @"") forState:UIControlStateNormal];
-        [self.openSettingsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        self.openSettingsButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:24];
-        [self.openSettingsButton addTarget:self action:@selector(openSettings:) forControlEvents:UIControlEventTouchUpInside];
-        [self.openSettingsButton.titleLabel setTextAlignment:NSTextAlignmentCenter];
-        [self.openSettingsButton.titleLabel setNumberOfLines:0];
-        self.openSettingsButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        [self.cameraView addSubview:self.openSettingsButton];
-    }
-}
-
-- (void)removeOpenSettingsButton {
-    if(self.openSettingsButton) {
-        [self.openSettingsButton removeFromSuperview];
-        self.openSettingsButton = nil;
-    }
-}
-
-- (void)openSettings:(id)sender {
-    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-    [[UIApplication sharedApplication] openURL:url];
 }
 
 @end
