@@ -14,11 +14,11 @@
 #import "YAAssetsCreator.h"
 #import "YAServer.h"
 
-#define kGifWidth (240)
+#define kGifWidth (200)
 #define kGifFPS_HQ (30.f)
-#define kGifFPS_LQ (8.f)
+#define kGifFPS_LQ (5.f)
 #define kGifPixellationSize (15.f)
-#define kGifSpeed (1.15f)
+#define kGifSpeed (1.5f)
 
 @interface YAGifCreationOperation ()
 @property (strong) NSString *filename;
@@ -75,6 +75,10 @@
             NSURL *movURL = [NSURL fileURLWithPath:movPath];
             self.filename = [self.video.mp4Filename stringByDeletingPathExtension];
             
+            unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:movPath error:nil] fileSize];
+            
+            NSLog(@"mov file size: %llu", fileSize);
+
             [self setExecuting:YES];
             
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -97,6 +101,10 @@
                 NSURL *gifURL = [NSURL fileURLWithPath:gifPath];
                 
                 [self makeAnimatedGifAtUrl:gifURL fromArray:images completionHandler:^(NSError *error) {
+                    unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:gifPath error:nil] fileSize];
+                    
+                    NSLog(@"gif file size: %llu", fileSize);
+                    
                     if(error) {
                         DLog(@"makeAnimatedGifAtUrl Error occured: %@", error);
                         [self setExecuting:NO];
@@ -227,6 +235,7 @@
         handler([NSError errorWithDomain:@"YA" code:0 userInfo:nil]);
         return;
     }
+    
     
     CFRelease(destination);
     
