@@ -180,11 +180,7 @@
                                                      name:GROUP_DID_CHANGE_NOTIFICATION
                                                    object:nil];
         
-        
-        
-        
         [self updateUviewedViedeosBadge];
-        
         
         if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
             //first start tooltips
@@ -291,6 +287,9 @@
         if (videoStatus == AVAuthorizationStatusAuthorized) {
             
             self.session = [[AVCaptureSession alloc] init];
+           
+            [self.session beginConfiguration];
+            
             self.session.sessionPreset = AVCaptureSessionPreset640x480;
             
             [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
@@ -300,12 +299,15 @@
                 [self setupVideoInput];
             });
             
+            [self.session commitConfiguration];
+            
             [self removeOpenSettingsButton];
             
         } else {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                                      completionHandler:^(BOOL granted) {
                                          self.session = [[AVCaptureSession alloc] init];
+                                         [self.session beginConfiguration];
                                          self.session.sessionPreset = AVCaptureSessionPreset640x480;
                                          
                                          [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
@@ -318,6 +320,7 @@
                                              });
                                              
                                          }
+                                         [self.session commitConfiguration];
                                      }];
         }
     }
@@ -412,6 +415,7 @@
         if ([self.session isRunning])
             [self.session stopRunning];
     }
+    self.session = nil;
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {

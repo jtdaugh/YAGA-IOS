@@ -6,27 +6,28 @@
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
-#import "YAGroupInviteViewController.h"
+#import "YAInviteViewController.h"
 
-#import "YAGroupInviteCameraViewController.h"
+#import "YAInviteCameraViewController.h"
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import "MBProgressHUD.h"
 
-@interface YAGroupInviteViewController ()
+@interface YAInviteViewController ()
 
+@property (nonatomic, strong) UIBarButtonItem *skipButton;
 @property (nonatomic, strong) UILabel* titleLable;
 @property (nonatomic, strong) UILabel* friendNamesLabel;
 @property (nonatomic, strong) UILabel* sendYagaLabel;
 @property (nonatomic, strong) UIButton* sendTextButton;
-@property (nonatomic, strong) YAGroupInviteCameraViewController *camViewController;
+@property (nonatomic, strong) YAInviteCameraViewController *camViewController;
 @property (nonatomic, strong) MBProgressHUD *hud;
 
 @property (nonatomic) CGRect smallCameraFrame;
 
 @end
 
-@implementation YAGroupInviteViewController
+@implementation YAInviteViewController
 
 - (void)viewDidLoad {
 
@@ -40,7 +41,7 @@
     
     DLog(@" view width: %f", VIEW_WIDTH);
     
-    CGFloat origin = VIEW_HEIGHT *.05;
+    CGFloat origin = VIEW_HEIGHT *.07;
     
 //    self.titleLable = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.08)];
 //    [self.titleLable setText:@"Invite"];
@@ -52,9 +53,14 @@
 //    
 //    origin = [self getNewOrigin:self.titleLable];
     
+    self.skipButton = [[UIBarButtonItem alloc] initWithTitle:@"Skip" style:UIBarButtonItemStyleDone target:self action:@selector(skipButtonPressed:)];
+    self.navigationItem.rightBarButtonItem = self.skipButton;
+    
     self.friendNamesLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.1f)];
     [self.friendNamesLabel setText:[self getFriendNamesTitle]];
-    [self.friendNamesLabel setNumberOfLines:0];
+    [self.friendNamesLabel setNumberOfLines:3];
+    self.friendNamesLabel.minimumScaleFactor = 0.5f;
+    self.friendNamesLabel.adjustsFontSizeToFitWidth = YES;
     [self.friendNamesLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
     [self.friendNamesLabel setTextAlignment:NSTextAlignmentCenter];
     [self.friendNamesLabel setTextColor:[UIColor whiteColor]];
@@ -64,7 +70,7 @@
     origin = [self getNewOrigin:self.friendNamesLabel];
     CGFloat camWidth = VIEW_WIDTH *.9;
 
-    self.sendYagaLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin, width, VIEW_HEIGHT*.06)];
+    self.sendYagaLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin, width, VIEW_HEIGHT*.07)];
     [self.sendYagaLabel setText:@"Invite em with a Yaga!"];
     [self.sendYagaLabel setNumberOfLines:0];
     [self.sendYagaLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
@@ -77,7 +83,7 @@
 
     self.smallCameraFrame = CGRectMake((VIEW_WIDTH-camWidth)/2, bottomOfLabel, camWidth, VIEW_HEIGHT*.5);
     
-    self.camViewController = [YAGroupInviteCameraViewController new];
+    self.camViewController = [YAInviteCameraViewController new];
     self.camViewController.delegate = self;
     self.camViewController.smallCameraFrame = self.smallCameraFrame;
     self.camViewController.view.frame = self.smallCameraFrame;
@@ -87,14 +93,14 @@
     
     origin = [self getNewOrigin:self.camViewController.view];
 
-    UILabel *orLable = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin, width, VIEW_HEIGHT*.06)];
+    UILabel *orLable = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin - 10, width, VIEW_HEIGHT*.06)];
     orLable.text = @"or";
     orLable.textAlignment = NSTextAlignmentCenter;
     orLable.textColor = [UIColor whiteColor];
     [orLable setFont:[UIFont fontWithName:BIG_FONT size:15]];
     [self.view addSubview:orLable];
     
-    origin += 38;
+    origin += 32;
 
     self.sendTextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin, width, VIEW_HEIGHT*.09)];
     [self.sendTextButton setBackgroundColor:[UIColor whiteColor]];
@@ -109,6 +115,16 @@
     [self.view bringSubviewToFront:self.camViewController.view];
 
     
+}
+
+- (void)skipButtonPressed:(id)sender {
+    if (self.inOnboardingFlow) {
+        [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
+    } else {
+        [self.navigationController popToRootViewControllerAnimated:YES];
+        NSString *notificationMessage = NSLocalizedString(@"Group updated successfully", @"");
+        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+    }
 }
 
 - (void)sendTextOnlyInvites {
@@ -179,8 +195,6 @@
                 [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
             } else {
                 [self.navigationController popToRootViewControllerAnimated:YES];
-                NSString *notificationMessage = NSLocalizedString(@"Success", @"");
-                [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
             }
             break;
         }
@@ -193,8 +207,6 @@
                 [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
             } else {
                 [self.navigationController popToRootViewControllerAnimated:YES];
-                NSString *notificationMessage = NSLocalizedString(@"Success", @"");
-                [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
             }
             break;
     }

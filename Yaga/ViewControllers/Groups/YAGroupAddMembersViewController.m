@@ -7,7 +7,7 @@
 //
 
 #import "YAGroupAddMembersViewController.h"
-#import "YAGroupInviteViewController.h"
+#import "YAInviteViewController.h"
 #import "GridViewController.h"
 #import "NameGroupViewController.h"
 #import "APPhoneWithLabel.h"
@@ -358,7 +358,7 @@
             [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
         } else {
             // Push the invite screen
-            YAGroupInviteViewController *nextVC = [YAGroupInviteViewController new];
+            YAInviteViewController *nextVC = [YAInviteViewController new];
             nextVC.inOnboardingFlow = NO;
             nextVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
             [self.navigationController pushViewController:nextVC animated:YES];
@@ -383,7 +383,7 @@
                 [self performSegueWithIdentifier:@"ShowInviteScreen" sender:self];
             } else {
                 // Push the invite screen
-                YAGroupInviteViewController *nextVC = [YAGroupInviteViewController new];
+                YAInviteViewController *nextVC = [YAInviteViewController new];
                 nextVC.inOnboardingFlow = NO;
                 nextVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
                 [self.navigationController pushViewController:nextVC animated:YES];
@@ -437,8 +437,8 @@
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([segue.destinationViewController isKindOfClass:[YAGroupInviteViewController class]]) {
-        YAGroupInviteViewController *destinationVC = (YAGroupInviteViewController*)segue.destinationViewController;
+    if ([segue.destinationViewController isKindOfClass:[YAInviteViewController class]]) {
+        YAInviteViewController *destinationVC = (YAInviteViewController*)segue.destinationViewController;
         destinationVC.inOnboardingFlow = self.inOnboarding;
         destinationVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
     }

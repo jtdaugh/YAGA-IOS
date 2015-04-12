@@ -104,8 +104,8 @@
 		86D9B9251AD40CEC00994674 /* YASaveToCameraRollActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
 		8841B9B21AD648BE00A97E9E /* bumper_rotated.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 8841B9B01AD648BE00A97E9E /* bumper_rotated.mp4 */; };
-		887AFD0C1AD8623500F00948 /* YAGroupInviteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0B1AD8623500F00948 /* YAGroupInviteViewController.m */; };
-		887AFD0F1AD8ADEA00F00948 /* YAGroupInviteCameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0E1AD8ADEA00F00948 /* YAGroupInviteCameraViewController.m */; };
+		887AFD0C1AD8623500F00948 /* YAInviteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0B1AD8623500F00948 /* YAInviteViewController.m */; };
+		887AFD0F1AD8ADEA00F00948 /* YAInviteCameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0E1AD8ADEA00F00948 /* YAInviteCameraViewController.m */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -283,10 +283,10 @@
 		86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASaveToCameraRollActivity.m; sourceTree = "<group>"; };
 		86EF0B8E1A40592F00FF4E3C /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		8841B9B01AD648BE00A97E9E /* bumper_rotated.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper_rotated.mp4; sourceTree = "<group>"; };
-		887AFD0A1AD8623500F00948 /* YAGroupInviteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupInviteViewController.h; sourceTree = "<group>"; };
-		887AFD0B1AD8623500F00948 /* YAGroupInviteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupInviteViewController.m; sourceTree = "<group>"; };
-		887AFD0D1AD8ADEA00F00948 /* YAGroupInviteCameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupInviteCameraViewController.h; sourceTree = "<group>"; };
-		887AFD0E1AD8ADEA00F00948 /* YAGroupInviteCameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupInviteCameraViewController.m; sourceTree = "<group>"; };
+		887AFD0A1AD8623500F00948 /* YAInviteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAInviteViewController.h; sourceTree = "<group>"; };
+		887AFD0B1AD8623500F00948 /* YAInviteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAInviteViewController.m; sourceTree = "<group>"; };
+		887AFD0D1AD8ADEA00F00948 /* YAInviteCameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAInviteCameraViewController.h; sourceTree = "<group>"; };
+		887AFD0E1AD8ADEA00F00948 /* YAInviteCameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAInviteCameraViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -407,10 +407,10 @@
 				6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */,
 				6E73F4201A432FAC000B3A14 /* NoGroupsViewController.h */,
 				6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */,
-				887AFD0A1AD8623500F00948 /* YAGroupInviteViewController.h */,
-				887AFD0B1AD8623500F00948 /* YAGroupInviteViewController.m */,
-				887AFD0D1AD8ADEA00F00948 /* YAGroupInviteCameraViewController.h */,
-				887AFD0E1AD8ADEA00F00948 /* YAGroupInviteCameraViewController.m */,
+				887AFD0A1AD8623500F00948 /* YAInviteViewController.h */,
+				887AFD0B1AD8623500F00948 /* YAInviteViewController.m */,
+				887AFD0D1AD8ADEA00F00948 /* YAInviteCameraViewController.h */,
+				887AFD0E1AD8ADEA00F00948 /* YAInviteCameraViewController.m */,
 			);
 			path = Groups;
 			sourceTree = "<group>";
@@ -792,7 +792,7 @@
 				6E583B781A65394800639BE5 /* YAAnimatedTransitioningController.m in Sources */,
 				6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */,
 				6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */,
-				887AFD0C1AD8623500F00948 /* YAGroupInviteViewController.m in Sources */,
+				887AFD0C1AD8623500F00948 /* YAInviteViewController.m in Sources */,
 				6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */,
 				6E1E20991A6EF2E90041DF54 /* YAAssetsCreator.m in Sources */,
 				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
@@ -836,7 +836,7 @@
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
 				6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */,
 				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,
-				887AFD0F1AD8ADEA00F00948 /* YAGroupInviteCameraViewController.m in Sources */,
+				887AFD0F1AD8ADEA00F00948 /* YAInviteCameraViewController.m in Sources */,
 				8695EF881AAF519900431E44 /* YAGifCopyActivity.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
 				6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */,

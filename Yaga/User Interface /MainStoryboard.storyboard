@@ -328,10 +328,10 @@
             </objects>
             <point key="canvasLocation" x="2420" y="-194"/>
         </scene>
-        <!--Group Invite View Controller-->
+        <!--Invite View Controller-->
         <scene sceneID="Zh9-aG-BMB">
             <objects>
-                <viewController id="9t8-cl-6gd" customClass="YAGroupInviteViewController" sceneMemberID="viewController">
+                <viewController id="9t8-cl-6gd" customClass="YAInviteViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="ouk-zQ-aDl"/>
                         <viewControllerLayoutGuide type="bottom" id="dEB-M6-GNi"/>

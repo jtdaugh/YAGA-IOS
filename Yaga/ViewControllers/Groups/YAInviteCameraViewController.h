@@ -14,7 +14,7 @@
 @end
 
 #define recordButtonWidth 60.0
-@interface YAGroupInviteCameraViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate>
+@interface YAInviteCameraViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate>
 
 - (void)switchFlashMode:(id)sender;
 - (void)closeCamera;

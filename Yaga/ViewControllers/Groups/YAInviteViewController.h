@@ -8,10 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
-#import "YAGroupInviteCameraViewController.h"
+#import "YAInviteCameraViewController.h"
 #import <MessageUI/MessageUI.h>
 
-@interface YAGroupInviteViewController : UIViewController <YAInviteCameraViewControllerDelegate,
+@interface YAInviteViewController : UIViewController <YAInviteCameraViewControllerDelegate,
 MFMessageComposeViewControllerDelegate>
 
 @property (nonatomic) BOOL inOnboardingFlow;

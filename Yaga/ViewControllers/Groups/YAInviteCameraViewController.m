@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "YAGroupInviteCameraViewController.h"
+#import "YAInviteCameraViewController.h"
 
 #import "YAUser.h"
 #import "YAUtils.h"
@@ -15,7 +15,7 @@
 #import <CoreTelephony/CTCall.h>
 #import <CoreTelephony/CTCallCenter.h>
 
-@interface YAGroupInviteCameraViewController ()
+@interface YAInviteCameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
 @property (strong, nonatomic) UILabel *indicatorText;
@@ -44,10 +44,12 @@
 @property (nonatomic, strong) CTCallCenter *callCenter;
 @end
 
-@implementation YAGroupInviteCameraViewController
+@implementation YAInviteCameraViewController
 
 
 - (void)viewDidLoad {
+    
+    
     self.cameraView = [[AVCamPreviewView alloc] initWithFrame:self.view.bounds];
     [self.cameraView setBackgroundColor:[UIColor blackColor]];
     [self.view addSubview:self.cameraView];
@@ -143,9 +145,13 @@
 
 }
 
-- (void)dealloc {
+- (void)viewWillDisappear:(BOOL)animated {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [self closeCamera];
+}
+
+- (void)dealloc {
     [self closeCamera];
 }
 
@@ -295,6 +301,8 @@
         if ([self.session isRunning])
             [self.session stopRunning];
     }
+    self.session = nil;
+    
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
