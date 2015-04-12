@@ -103,7 +103,7 @@
 		86B864AC1A433343002256FF /* CountryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864AB1A433343002256FF /* CountryCell.m */; };
 		86D9B9251AD40CEC00994674 /* YASaveToCameraRollActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
-		8841B9B21AD648BE00A97E9E /* bumper_rotated.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 8841B9B01AD648BE00A97E9E /* bumper_rotated.mp4 */; };
+		88461C051ADA23120099B523 /* bumper_rotated.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 88461C041ADA23090099B523 /* bumper_rotated.mp4 */; };
 		887AFD0C1AD8623500F00948 /* YAInviteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0B1AD8623500F00948 /* YAInviteViewController.m */; };
 		887AFD0F1AD8ADEA00F00948 /* YAInviteCameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0E1AD8ADEA00F00948 /* YAInviteCameraViewController.m */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
@@ -282,7 +282,7 @@
 		86D9B9231AD40CEC00994674 /* YASaveToCameraRollActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASaveToCameraRollActivity.h; sourceTree = "<group>"; };
 		86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASaveToCameraRollActivity.m; sourceTree = "<group>"; };
 		86EF0B8E1A40592F00FF4E3C /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
-		8841B9B01AD648BE00A97E9E /* bumper_rotated.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper_rotated.mp4; sourceTree = "<group>"; };
+		88461C041ADA23090099B523 /* bumper_rotated.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper_rotated.mp4; sourceTree = "<group>"; };
 		887AFD0A1AD8623500F00948 /* YAInviteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAInviteViewController.h; sourceTree = "<group>"; };
 		887AFD0B1AD8623500F00948 /* YAInviteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAInviteViewController.m; sourceTree = "<group>"; };
 		887AFD0D1AD8ADEA00F00948 /* YAInviteCameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAInviteCameraViewController.h; sourceTree = "<group>"; };
@@ -497,7 +497,7 @@
 		6E91888C1A3F3A5A0034AB63 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				8841B9B01AD648BE00A97E9E /* bumper_rotated.mp4 */,
+				88461C041ADA23090099B523 /* bumper_rotated.mp4 */,
 				86A1C66B1AB1E35100817F89 /* bumper.mp4 */,
 				41D519B81AABAE07000246CF /* bumper480x640.m4v */,
 				6EEDB8E11A8A10B7000BB909 /* push.m4a */,
@@ -721,10 +721,10 @@
 				6E9188D51A3F3A5A0034AB63 /* Images.xcassets in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
 				6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */,
-				8841B9B21AD648BE00A97E9E /* bumper_rotated.mp4 in Resources */,
 				86A1C66C1AB1E35100817F89 /* bumper.mp4 in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
+				88461C051ADA23120099B523 /* bumper_rotated.mp4 in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
 				6E1E20A61A6FAB500041DF54 /* name.csv in Resources */,
 				41D519B91AABAE07000246CF /* bumper480x640.m4v in Resources */,
