@@ -53,7 +53,7 @@
 //    
 //    origin = [self getNewOrigin:self.titleLable];
     
-    self.skipButton = [[UIBarButtonItem alloc] initWithTitle:@"Skip" style:UIBarButtonItemStyleDone target:self action:@selector(skipButtonPressed:)];
+    self.skipButton = [[UIBarButtonItem alloc] initWithTitle:@"Skip" style:UIBarButtonItemStylePlain target:self action:@selector(skipButtonPressed:)];
     self.navigationItem.rightBarButtonItem = self.skipButton;
     
     self.friendNamesLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.1f)];
@@ -105,7 +105,7 @@
     self.sendTextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin, width, VIEW_HEIGHT*.09)];
     [self.sendTextButton setBackgroundColor:[UIColor whiteColor]];
     [self.sendTextButton setTitle:NSLocalizedString(@"Invite with a text", @"") forState:UIControlStateNormal];
-    [self.sendTextButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
+    [self.sendTextButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
     [self.sendTextButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     self.sendTextButton.layer.cornerRadius = 8.0;
     self.sendTextButton.layer.masksToBounds = YES;
