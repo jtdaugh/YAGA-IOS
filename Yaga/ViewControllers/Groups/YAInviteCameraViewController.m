@@ -316,6 +316,7 @@
 }
 
 - (void)startHold {
+    [self.delegate beganHold];
     DLog(@"starting hold");
     
     //    //We're starting to shoot so add audio
@@ -357,6 +358,7 @@
 }
 
 - (void)endHold {
+    [self.delegate endedHold];
     if([self.recording boolValue]){
         
         [self.view bringSubviewToFront:self.cameraView];

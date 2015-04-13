@@ -11,6 +11,8 @@
 
 @protocol YAInviteCameraViewControllerDelegate <NSObject>
 - (void)finishedRecordingVideoToURL:(NSURL *)videoURL;
+- (void)beganHold;
+- (void)endedHold;
 @end
 
 #define recordButtonWidth 60.0

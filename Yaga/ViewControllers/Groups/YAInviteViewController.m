@@ -98,13 +98,14 @@
     
     CGFloat quoteWidth = camWidth - 20.f;
     
-    self.suggestQuoteLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-quoteWidth)/2, self.smallCameraFrame.origin.y + 100, quoteWidth, 80.f)];
+    self.suggestQuoteLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-quoteWidth)/2, self.smallCameraFrame.origin.y + 80, quoteWidth, self.smallCameraFrame.size.height - 160)];
     self.suggestQuoteLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
     self.suggestQuoteLabel.textAlignment = NSTextAlignmentCenter;
     self.suggestQuoteLabel.numberOfLines = 2;
     self.suggestQuoteLabel.adjustsFontSizeToFitWidth = YES;
     self.suggestQuoteLabel.minimumScaleFactor = 0.5f;
     self.suggestQuoteLabel.textColor = PRIMARY_COLOR;
+    self.suggestQuoteLabel.alpha = 0.8f;
     [self.view addSubview:self.suggestQuoteLabel];
     [self populateSuggestedQuotes];
 
@@ -147,26 +148,42 @@
         [self.suggestedQuoteAttributedStrings addObject:string];
     }
     self.quoteIndex = 0;
-//    self.suggestQuoteLabel.attributedText = self.suggestedQuoteAttributedStrings[0];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    self.quoteTimer = [NSTimer scheduledTimerWithTimeInterval:3.f target:self selector:@selector(switchToNextQuote) userInfo:nil repeats:YES];
+    self.quoteTimer = [NSTimer scheduledTimerWithTimeInterval:2.f target:self selector:@selector(switchToNextQuote) userInfo:nil repeats:YES];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [self.quoteTimer invalidate];
 }
 
+- (void)beganHold {
+    self.suggestQuoteLabel.hidden = YES;
+    self.navigationController.navigationBar.hidden = YES;
+}
+
+- (void)endedHold {
+    self.suggestQuoteLabel.hidden = NO;
+    self.navigationController.navigationBar.hidden = NO;
+}
+
 - (void)switchToNextQuote {
+    if (self.quoteIndex == 0) { // kinda hacky way to make the first quote show up after 2 secs, and then switch every 4 secs
+        [self.quoteTimer invalidate];
+        self.quoteTimer = [NSTimer scheduledTimerWithTimeInterval:4.f target:self selector:@selector(switchToNextQuote) userInfo:nil repeats:YES];
+    }
     self.quoteIndex += 1;
     self.quoteIndex %= [self.suggestedQuoteAttributedStrings count];
     
     CATransition *animation = [CATransition animation];
-    animation.duration = 0.7;
+    animation.duration = 1.f;
     animation.type = kCATransitionFade;
     animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
     [self.suggestQuoteLabel.layer addAnimation:animation forKey:@"changeTextTransition"];
+    [UIView animateWithDuration:0.3f animations:^{
+        self.suggestQuoteLabel.layer.transform = CATransform3DMakeRotation((self.quoteIndex % 2) ? .08f : -.08f, 0, 0, .08f);
+    } completion:nil];
     self.suggestQuoteLabel.attributedText = self.suggestedQuoteAttributedStrings[self.quoteIndex];
 }
 
