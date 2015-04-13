@@ -277,6 +277,10 @@ static NSString *CellIdentifier = @"GroupsCell";
     }
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return @"Leave";
+}
+
 - (void)close {
     [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
 }

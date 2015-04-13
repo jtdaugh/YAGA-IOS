@@ -105,18 +105,6 @@
     [self.cameraAccessories addObject:self.recordButton];
     [self.view addSubview:self.recordButton];
     
-    [self initCamera];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(willEnterForeground)
-                                                 name:UIApplicationWillEnterForegroundNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didEnterBackground)
-                                                 name:UIApplicationDidEnterBackgroundNotification
-                                               object:nil];
-    
     [self enableRecording:YES];
     
     //stop recording on incoming call
@@ -142,6 +130,19 @@
     self.switchCameraButton.frame = CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size);
     self.flashButton.frame = CGRectMake(10, 10, size, size);
     self.recordButton.frame = CGRectMake(self.view.frame.size.width/2.0 - recordButtonWidth/2.0, self.view.frame.size.height - (recordButtonWidth+10), recordButtonWidth, recordButtonWidth);
+    
+    [self initCamera];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+
 
 }
 
