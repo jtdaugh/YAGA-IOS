@@ -20,6 +20,11 @@
 @property (nonatomic, strong) UILabel* friendNamesLabel;
 @property (nonatomic, strong) UILabel* sendYagaLabel;
 @property (nonatomic, strong) UIButton* sendTextButton;
+@property (nonatomic, strong) UILabel* suggestQuoteLabel;
+@property (nonatomic) NSInteger quoteIndex;
+
+@property (nonatomic, strong) NSTimer* quoteTimer;
+@property (nonatomic, strong) NSMutableArray* suggestedQuoteAttributedStrings;
 @property (nonatomic, strong) YAInviteCameraViewController *camViewController;
 @property (nonatomic, strong) MBProgressHUD *hud;
 
@@ -91,6 +96,18 @@
     [self addChildViewController:self.camViewController];
     [self.view addSubview:self.camViewController.view];
     
+    CGFloat quoteWidth = camWidth - 20.f;
+    
+    self.suggestQuoteLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-quoteWidth)/2, self.smallCameraFrame.origin.y + 100, quoteWidth, 80.f)];
+    self.suggestQuoteLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+    self.suggestQuoteLabel.textAlignment = NSTextAlignmentCenter;
+    self.suggestQuoteLabel.numberOfLines = 2;
+    self.suggestQuoteLabel.adjustsFontSizeToFitWidth = YES;
+    self.suggestQuoteLabel.minimumScaleFactor = 0.5f;
+    self.suggestQuoteLabel.textColor = PRIMARY_COLOR;
+    [self.view addSubview:self.suggestQuoteLabel];
+    [self populateSuggestedQuotes];
+
     origin = [self getNewOrigin:self.camViewController.view];
 
     UILabel *orLable = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin - 10, width, VIEW_HEIGHT*.06)];
@@ -113,8 +130,44 @@
     [self.sendTextButton addTarget:self action:@selector(sendTextOnlyInvites) forControlEvents:UIControlEventTouchUpInside];
     
     [self.view bringSubviewToFront:self.camViewController.view];
+    [self.view bringSubviewToFront:self.suggestQuoteLabel];
 
     
+}
+
+- (void)populateSuggestedQuotes {
+    NSArray *quotes = @[@"You should get Yaga.", @"Yaga is dope. Get it!", @"You gotta get this app", @"Download this. It's worth it."];
+    self.suggestedQuoteAttributedStrings = [NSMutableArray array];
+    for (NSString *quote in quotes) {
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"\"%@\"", quote]
+                                                                     attributes:@{
+                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-3]
+                                                                                  }];
+        [self.suggestedQuoteAttributedStrings addObject:string];
+    }
+    self.quoteIndex = 0;
+//    self.suggestQuoteLabel.attributedText = self.suggestedQuoteAttributedStrings[0];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    self.quoteTimer = [NSTimer scheduledTimerWithTimeInterval:3.f target:self selector:@selector(switchToNextQuote) userInfo:nil repeats:YES];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [self.quoteTimer invalidate];
+}
+
+- (void)switchToNextQuote {
+    self.quoteIndex += 1;
+    self.quoteIndex %= [self.suggestedQuoteAttributedStrings count];
+    
+    CATransition *animation = [CATransition animation];
+    animation.duration = 0.7;
+    animation.type = kCATransitionFade;
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    [self.suggestQuoteLabel.layer addAnimation:animation forKey:@"changeTextTransition"];
+    self.suggestQuoteLabel.attributedText = self.suggestedQuoteAttributedStrings[self.quoteIndex];
 }
 
 - (void)skipButtonPressed:(id)sender {
