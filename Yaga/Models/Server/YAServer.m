@@ -54,7 +54,10 @@
 
 @property (nonatomic, strong) NSString *base_api;
 @property (nonatomic, strong) NSString *phoneNumber;
-@property (nonatomic, strong) AFHTTPRequestOperationManager *manager;
+
+@property (nonatomic, strong) AFHTTPRequestOperationManager *jsonOperationsManager;
+@property (nonatomic, strong) AFHTTPRequestOperationManager *xmlOperationsManager;
+
 @property (atomic, strong) AFNetworkReachabilityManager *reachability;
 @property (atomic, readonly) NSString *authToken;
 @property (atomic, strong) NSMutableDictionary *multipartUploadsInProgress;
@@ -74,8 +77,13 @@
 - (instancetype)init {
     if (self = [super init]) {
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
-        _manager = [AFHTTPRequestOperationManager manager];
-        _manager.requestSerializer = [AFJSONRequestSerializer serializer];
+        _jsonOperationsManager = [AFHTTPRequestOperationManager manager];
+        _jsonOperationsManager.requestSerializer = [AFJSONRequestSerializer serializer];
+
+        _xmlOperationsManager = [AFHTTPRequestOperationManager manager];
+        _xmlOperationsManager.responseSerializer = [AFXMLParserResponseSerializer serializer];
+        _xmlOperationsManager.operationQueue.maxConcurrentOperationCount = 1;
+        _xmlOperationsManager.requestSerializer.timeoutInterval = 60;
         
         self.multipartUploadsInProgress = [NSMutableDictionary new];
         
@@ -95,7 +103,7 @@
         NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.authToken];
         AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
         [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
-        self.manager.requestSerializer = requestSerializer;
+        self.jsonOperationsManager.requestSerializer = requestSerializer;
     }
 }
 
@@ -114,7 +122,7 @@
     
     NSString *api = [NSString stringWithFormat:API_USER_PROFILE_TEMPLATE, self.base_api];
     
-    [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil] ;
         id name = [dict objectForKey:YA_RESPONSE_NAME];
@@ -139,7 +147,7 @@
                                  @"name": name
                                  };
     
-    [self.manager PUT:api
+    [self.jsonOperationsManager PUT:api
            parameters:parameters
               success:^(AFHTTPRequestOperation *operation, id responseObject) {
                   completion(nil, nil);
@@ -157,7 +165,7 @@
                                  };
     
     NSString *api = [NSString stringWithFormat:API_AUTH_TOKEN_TEMPLATE, self.base_api];
-    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil] ;
         NSString *token = [dict objectForKey:YA_RESPONSE_TOKEN];
         
@@ -178,7 +186,7 @@
     NSDictionary *parameters = @{ @"phone" : self.phoneNumber };
     
     NSString *api = [NSString stringWithFormat:API_AUTH_BY_SMS_TEMPLATE, self.base_api];
-    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
@@ -196,7 +204,7 @@
                                  @"name": groupName
                                  };
     
-    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
         
         completion(dict, nil);
@@ -290,7 +298,7 @@
                                  @"name": newName
                                  };
     
-    [self.manager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
@@ -308,7 +316,7 @@
         api = [api stringByAppendingString:sinceString];
     }
     
-    [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
         completion(dict, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -326,7 +334,7 @@
                                  @"mute": [NSNumber numberWithBool:mute]
                                  };
     
-    [self.manager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
@@ -339,7 +347,7 @@
     
     NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
     
-    [self.manager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
@@ -353,7 +361,7 @@
 
     NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
     NSString *videoLocalId = [video.localId copy];
-    [self.manager POST:api
+    [self.jsonOperationsManager POST:api
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    if ([video isInvalidated]) {
@@ -388,7 +396,7 @@
                            //call completion block when video is posted
                            completion(response, error);
                            
-                           if(!video.isInvalidated && video.gifFilename.length)
+                           if(!error && !video.isInvalidated && video.gifFilename.length)
                                [self uploadGIFForVideoWithServerId:video.serverId];
                            else {
                                DLog(@"Can't post GIF! It's not ready yet.");
@@ -415,6 +423,11 @@
             return;
         }
         
+        if(video.gifUrl.length) {
+            DLog(@"Gif already uploaded for video : %@", videoServerId);
+            return;
+        }
+        
         NSData *gifData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.gifFilename].path];
         
         NSString *gifEndpoint = credentials[@"endpoint"];
@@ -425,6 +438,9 @@
                 DLog(@"an error occured during gif upload: %@", error.localizedDescription);
             }
             else {
+#warning DEBUG message
+//                [YAUtils showNotification:@"GIF posted" type:YANotificationTypeSuccess];
+                
                 [AnalyticsKit logEvent:@"GIF posted"];
                 if (!video.isInvalidated) {
                     DLog(@"for video: %@", video.serverId);
@@ -441,26 +457,22 @@
     
     if(!file.length) {
         DLog(@"File is 0 bytes, can't upload");
+        completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:@{@"response":@"File is 0 bytes, can't upload"}]);
         return;
     }
     
-    AFHTTPRequestOperationManager *newManager = [AFHTTPRequestOperationManager manager];
-    AFXMLParserResponseSerializer *responseSerializer = [AFXMLParserResponseSerializer serializer];
-    newManager.responseSerializer = responseSerializer;
-    
-    AFHTTPRequestOperation *postOperation = [newManager POST:endpoint
-          parameters:dict constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-              if (file == nil)
-                  DLog(@"Hello");
-              [formData appendPartWithFormData:file name:@"file"];
-              
-          } success:^(AFHTTPRequestOperation *operation, id responseObject) {
-              completion(operation.response, nil);
-              [self.multipartUploadsInProgress removeObjectForKey:serverId];
-          } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-              completion(nil, error);
-              [self.multipartUploadsInProgress removeObjectForKey:serverId];
-          }];
+    AFHTTPRequestOperation *postOperation = [self.xmlOperationsManager POST:endpoint
+                                                                 parameters:dict constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+                                                                     
+                                                                     [formData appendPartWithFormData:file name:@"file"];
+                                                                     
+                                                                 } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                                                     completion(operation.response, nil);
+                                                                     [self.multipartUploadsInProgress removeObjectForKey:serverId];
+                                                                 } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                                                     completion(nil, error);
+                                                                     [self.multipartUploadsInProgress removeObjectForKey:serverId];
+                                                                 }];
     
     [self.multipartUploadsInProgress setObject:postOperation forKey:serverId];
 }
@@ -476,7 +488,7 @@
     
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId, serverVideoId];
     
-    [self.manager DELETE:api
+    [self.jsonOperationsManager DELETE:api
               parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
                   completion(responseObject, nil);
               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -534,7 +546,7 @@
     NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
     NSString *serverVideoId = video.serverId;
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
-    [self.manager POST:api
+    [self.jsonOperationsManager POST:api
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
@@ -561,7 +573,7 @@
     NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
     NSString *serverVideoId = video.serverId;
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
-    [self.manager   DELETE:api
+    [self.jsonOperationsManager   DELETE:api
                 parameters:nil
                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
                        NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
@@ -593,7 +605,7 @@
                                  @"locale": [[NSLocale preferredLanguages] objectAtIndex:0]
                                  };
     
-    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:YA_LAST_DEVICE_TOKEN_SYNC_DATE];
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -633,6 +645,13 @@
             
             __weak typeof(self) weakSelf = self;
             [self.reachability setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+                
+                //kill all multipart uploads when reachability changes
+                for (AFHTTPRequestOperation *postOperation in weakSelf.multipartUploadsInProgress.allValues) {
+                    DLog(@"connection type changed, cancelling multipart upload to prevent callback not being called");
+                    [postOperation cancel];
+
+                }
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [weakSelf sync];
                 });
@@ -714,7 +733,7 @@
                                  @"phones": correctPhones
                                  };
     
-    [self.manager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);

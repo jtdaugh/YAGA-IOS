@@ -693,6 +693,7 @@
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self animated:YES];
+    hud.labelText = @"Exporting";
     hud.mode = MBProgressHUDModeIndeterminate;
     
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.mp4Filename]
@@ -708,6 +709,7 @@ completion:^(NSURL *filePath, NSError *error) {
         UIActivityViewController *activityViewController =
         [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
                                           applicationActivities:@[]];
+        activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
         
         [self.presentingVC presentViewController:activityViewController
                                         animated:YES

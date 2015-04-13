@@ -367,7 +367,7 @@
     
     [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
 }
-
+g
 #pragma mark -
 - (void)jpgCreatedForVideo:(YAVideo*)video {
     if([self.prioritizedVideos containsObject:video]) {
