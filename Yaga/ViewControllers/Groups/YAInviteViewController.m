@@ -13,6 +13,8 @@
 #import "YAAssetsCreator.h"
 #import "MBProgressHUD.h"
 
+#define kMaxUserNamesShown (6)
+
 @interface YAInviteViewController ()
 
 @property (nonatomic, strong) UIBarButtonItem *skipButton;
@@ -310,19 +312,58 @@
 }
 
 - (NSString *)getFriendNamesTitle {
-    NSString *title = self.contactsThatNeedInvite[0][nFirstname];
-    
-    for (int i = 1; i < [self.contactsThatNeedInvite count] - 1; i++) {
-        NSString *contactName = self.contactsThatNeedInvite[i][nFirstname];
-        title = [[title stringByAppendingString:@", "] stringByAppendingString:contactName];
-    }
-    if ([self.contactsThatNeedInvite count] >= 2) {
-        NSString *lastContactName = [self.contactsThatNeedInvite lastObject][nFirstname];
-        title = [[[title stringByAppendingString:@" and "]
-                  stringByAppendingString:lastContactName]
-                 stringByAppendingString:@" don't have Yaga yet."];
+    int andMore = 0;
+
+    YAContact *firstContact = self.contactsThatNeedInvite[0];
+    NSString *title = @"";
+    if(![firstContact[nFirstname] length]) {
+        andMore++;
     } else {
-        title = [title stringByAppendingString:@" doesn't have Yaga yet."];
+        title = firstContact[nFirstname];
+    }
+    for (int i = 1; i < MIN([self.contactsThatNeedInvite count] - 1, kMaxUserNamesShown - 1); i++) {
+        NSString *contactName = self.contactsThatNeedInvite[i][nFirstname];
+        if ([contactName length]) {
+            if ([title length]) {
+                title = [[title stringByAppendingString:@", "] stringByAppendingString:contactName];
+            } else {
+                title = contactName;
+            }
+        } else {
+            andMore++;
+        }
+    }
+    if ([self.contactsThatNeedInvite count] >= 1 && [self.contactsThatNeedInvite count] <= kMaxUserNamesShown) {
+        NSString *contactName = [self.contactsThatNeedInvite lastObject][nFirstname];
+        if ([contactName length]) {
+            if ([title length] && !andMore) {
+                title = [[title stringByAppendingString:@" and "] stringByAppendingString:contactName];
+            } else if ([title length] && andMore) {
+                title = [[title stringByAppendingString:@", "] stringByAppendingString:contactName];
+            } else {
+                title = contactName;
+            }
+        } else {
+            andMore++;
+        }
+    }
+    
+    if ([self.contactsThatNeedInvite count] > kMaxUserNamesShown) {
+        andMore += [self.contactsThatNeedInvite count] - kMaxUserNamesShown;
+    }
+    
+    if (andMore) {
+        if ([title length]) {
+            title = [NSString stringWithFormat:@"%@ and %d others don't have Yaga yet", title, andMore];
+        } else {
+            title = [NSString stringWithFormat:@"%d of those friends don't have Yaga yet", andMore];
+        }
+    } else {
+        if ([self.contactsThatNeedInvite count] == 1) {
+            title = [title stringByAppendingString:@" doesn't have Yaga yet."];
+        } else {
+            title = [title stringByAppendingString:@" don't have Yaga yet."];
+        }
     }
     return title;
 }

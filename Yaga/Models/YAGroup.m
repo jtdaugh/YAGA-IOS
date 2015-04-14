@@ -14,6 +14,8 @@
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 
+#define kMaxUsersShownInList (8)
+
 @interface YAGroup ()
 @property (atomic, assign) BOOL videosUpdateInProgress;
 @end
@@ -49,32 +51,36 @@
     
     NSString *results = @"";
     
-    NSUInteger countOfNonames = 0;
+    NSUInteger andMoreCount = 0;
     for(int i = 0; i < self.members.count; i++) {
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
         
         if([[contact displayName] isEqualToString:kDefaultUsername] || ! [contact displayName])
-            countOfNonames++;
+            andMoreCount++;
         else {
             if(!results.length)
                 results = [contact displayName];
             else
                 results = [results stringByAppendingFormat:@", %@", [contact displayName]];
         }
+        if (i >= kMaxUsersShownInList) {
+            andMoreCount += self.members.count - kMaxUsersShownInList;
+            break;
+        }
     }
-
-    if(countOfNonames == 1) {
+    
+    if(andMoreCount == 1) {
         if(results.length)
             results = [results stringByAppendingString:NSLocalizedString(@" and 1 more", @"")];
         else
             results = NSLocalizedString(@"ONE_UNKOWN_USER", @"");
     }
-    else if(countOfNonames > 1) {
+    else if(andMoreCount > 1) {
         if(!results.length) {
-            results = [results stringByAppendingFormat:NSLocalizedString(@"N_UNKOWN_USERS_TEMPLATE", @""), countOfNonames];
+            results = [results stringByAppendingFormat:NSLocalizedString(@"N_UNKOWN_USERS_TEMPLATE", @""), andMoreCount];
         }
         else {
-            results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), countOfNonames];
+            results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), andMoreCount];
         }
        
     }
