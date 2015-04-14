@@ -12,7 +12,6 @@
 #import "NameGroupViewController.h"
 #import "APPhoneWithLabel.h"
 #import "NSString+Hash.h"
-#import "YAServer.h"
 #import "YAUtils.h"
 
 @interface YAGroupAddMembersViewController ()
@@ -110,10 +109,9 @@
             weakSelf.deviceContacts = contacts;
             
             //do not show all device contacts if search results filtered already by user
-            if(self.searchBar.inputText.length)
-                return;
+            if(!self.searchBar.inputText.length)
+                weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
             
-            weakSelf.filteredContacts = [self.deviceContacts mutableCopy];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.membersTableview reloadData];
             });
@@ -191,7 +189,12 @@
         cell.detailTextLabel.text = [YAUtils readableNumberFromString:contact[nPhone]];
     }
     
-    BOOL yagaUser = [((NSNumber*)contact[nYagaUser]) boolValue];
+    BOOL yagaUser = NO;
+    if(contact[nPhone]) {
+        NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact[nPhone]];
+        yagaUser = [phonebookItem[nYagaUser] boolValue];
+    }
+    
     if (yagaUser){
         [cell.textLabel       setTextColor:[UIColor blackColor]];
         [cell.detailTextLabel setTextColor:[UIColor blackColor]];

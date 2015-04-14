@@ -141,6 +141,10 @@
     
     addressBook.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]];
     
+    //keep registered value in a backup so the value can be restored after phonebook is recreated
+    NSArray *registeredUsers = [[self.phonebook allValues] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(yagaUser == %@)", [NSNumber numberWithBool:YES]]];
+    NSSet *registeredPhonesSet = [NSSet setWithArray:[registeredUsers valueForKey:nPhone]];
+    
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
             [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kContactsAccessWasRequested];
@@ -169,13 +173,15 @@
                     if(!num.length && aError)
                         continue;
                     
+                    BOOL registeredUser = [registeredPhonesSet containsObject:num];
+                    
                     NSMutableDictionary *item = [NSMutableDictionary dictionaryWithDictionary:
                                             @{nCompositeName:[NSString stringWithFormat:@"%@", contact.compositeName],
                                            nPhone:num,
                                            nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
                                            nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
                                            nRegistered:[NSNumber numberWithBool:NO],
-                                           nYagaUser : [NSNumber numberWithBool:NO]}];
+                                           nYagaUser : [NSNumber numberWithBool:registeredUser]}];
                     
                     if(![excludePhonesSet containsObject:num])
                     {
@@ -189,16 +195,18 @@
             if(completion)
             {
                 completion(nil, result);
+                
+                //think of how we can have less requests to the server here
                 [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
-                    for (NSMutableDictionary *resultDict in result) {
-                        for (NSDictionary *responseDict in response) {
-                            if ([resultDict[nPhone] isEqualToString:responseDict[nPhone]]) {
-                                [resultDict setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];    
-                            }
-                        }
+                    NSArray *registeredPhones = [response valueForKey:nPhone];
+                    for(NSString *phone in registeredPhones) {
+                        NSMutableDictionary *phonebookItem = [self.phonebook objectForKey:phone];
+                        [phonebookItem setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];
+                        [self.phonebook setObject:phonebookItem forKey:phone];
                     }
                     completion(nil, result);
                 }];
+                
             }
         }
         else
