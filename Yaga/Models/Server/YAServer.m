@@ -438,9 +438,6 @@
                 DLog(@"an error occured during gif upload: %@", error.localizedDescription);
             }
             else {
-#warning DEBUG message
-//                [YAUtils showNotification:@"GIF posted" type:YANotificationTypeSuccess];
-                
                 [AnalyticsKit logEvent:@"GIF posted"];
                 if (!video.isInvalidated) {
                     DLog(@"for video: %@", video.serverId);
