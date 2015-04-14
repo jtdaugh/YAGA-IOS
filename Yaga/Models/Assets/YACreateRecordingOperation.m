@@ -111,7 +111,7 @@
                         [groupsUpdatedAt setObject:currentDate forKey:self.group.localId];
                         [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
                         
-                        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kVideos:@[self.video]}];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self.group userInfo:@{kVideos:@[self.video]}];
                         
                         //start uploading while generating gif
                         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video];
