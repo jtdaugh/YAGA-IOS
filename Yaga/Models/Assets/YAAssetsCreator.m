@@ -106,26 +106,36 @@
         AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio
                                                                             preferredTrackID:kCMPersistentTrackID_Invalid];
 
-        AVAssetTrack *firstVideoTrack = [[firstAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-        AVAssetTrack *secondVideoTrack = [[secondAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
         
-        AVAssetTrack *firstAudioTrack = [[firstAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
-        AVAssetTrack *secondAudioTrack = [[secondAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0];
+        AVAssetTrack *firstVideoTrack = [[firstAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+        AVAssetTrack *secondVideoTrack = [[secondAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+        
+        AVAssetTrack *firstAudioTrack = [[firstAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
+        AVAssetTrack *secondAudioTrack = [[secondAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
         
         if (firstVideoTrack && compositionVideoTrack) {
             [compositionVideoTrack setPreferredTransform:firstVideoTrack.preferredTransform];
         }
         
-        [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, firstAsset.duration)
+        if (firstVideoTrack) {
+            [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, firstAsset.duration)
                                        ofTrack:firstVideoTrack atTime:kCMTimeZero error:nil];
-
+        }
+        
+        if (secondVideoTrack) {
         [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, secondAsset.duration)
                                        ofTrack:secondVideoTrack atTime:firstAsset.duration error:nil];
-
+        }
+        
+        if (firstAudioTrack) {
         [compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeAdd(kCMTimeZero, firstAsset.duration))
                                     ofTrack:firstAudioTrack atTime:kCMTimeZero error:nil];
+        }
+        
+        if (secondAudioTrack) {
         [compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeAdd(kCMTimeZero, secondAsset.duration))
                                        ofTrack:secondAudioTrack atTime:firstAsset.duration error:nil];
+        }
         
         return mixComposition;
     }
