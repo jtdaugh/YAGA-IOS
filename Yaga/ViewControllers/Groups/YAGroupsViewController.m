@@ -19,6 +19,9 @@
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
 
+#import "UIScrollView+SVPullToRefresh.h"
+#import "YAPullToRefreshLoadingView.h"
+
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;
@@ -106,15 +109,40 @@ static NSString *CellIdentifier = @"GroupsCell";
         [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[bkgColor colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
         [self.view addSubview:createGroupButton];
     }
+    
+    if(self.embeddedMode)
+        [self setupPullToRefresh];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self updateState];
+    
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
         [self updateState];
     }];
 }
+
+- (void)setupPullToRefresh {
+    //pull to refresh
+    __weak typeof(self) weakSelf = self;
+    
+    [self.tableView addPullToRefreshWithActionHandler:^{
+        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+            [weakSelf updateState];
+            [weakSelf.tableView.pullToRefreshView stopAnimating];
+        }];
+    }];
+    
+    //    self.collectionView.pullToRefreshView.
+    
+    YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.tableView.pullToRefreshView.bounds.size.height)];
+    
+    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
+    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
+    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
+}
+
 
 - (void)updateState {
     
