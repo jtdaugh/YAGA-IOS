@@ -169,7 +169,7 @@
     }
     
     if(refresh) {
-        [newGroup refresh];
+        [newGroup refresh:YES];
     }
 }
 

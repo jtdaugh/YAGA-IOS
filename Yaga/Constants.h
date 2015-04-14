@@ -76,4 +76,6 @@
 
 //upload gif
 #define kGIFUploadCredentials                   @"kGIFUploadCredentials"
+
+#define kShowPullDownToRefreshWhileRefreshingGroup @"kShowPullDownToRefreshWhileRefreshingGroup"
 #endif
