@@ -63,8 +63,8 @@
     
     self.friendNamesLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.1f)];
     [self.friendNamesLabel setText:[self getFriendNamesTitle]];
-    [self.friendNamesLabel setNumberOfLines:3];
-    self.friendNamesLabel.minimumScaleFactor = 0.5f;
+    [self.friendNamesLabel setNumberOfLines:4];
+    self.friendNamesLabel.minimumScaleFactor = 0.33f;
     self.friendNamesLabel.adjustsFontSizeToFitWidth = YES;
     [self.friendNamesLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
     [self.friendNamesLabel setTextAlignment:NSTextAlignmentCenter];
