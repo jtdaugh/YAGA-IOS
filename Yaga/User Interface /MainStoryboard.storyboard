@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7531" systemVersion="14D131" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7520"/>
     </dependencies>
     <scenes>
         <!--Yaga Navigation Controller-->
@@ -259,6 +259,24 @@
             </objects>
             <point key="canvasLocation" x="-205" y="-948"/>
         </scene>
+        <!--Group options-->
+        <scene sceneID="wgN-vS-Lkw">
+            <objects>
+                <viewController title="Group options" id="c5b-YW-b3H" customClass="YAGroupOptionsViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="NGC-GR-dPw"/>
+                        <viewControllerLayoutGuide type="bottom" id="uPJ-Ua-mG3"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="HBY-uX-0p3">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ceE-jH-YAL" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2426" y="-1878"/>
+        </scene>
         <!--Groups View Controller-->
         <scene sceneID="PG1-gJ-s8x">
             <objects>
@@ -277,6 +295,7 @@
                         <segue destination="54o-Be-McY" kind="custom" identifier="SelectExistingGroupAndCompleteOnboarding" customClass="YAGroupSelectedSegue" id="fvS-6s-erS"/>
                         <segue destination="Df3-gO-NpP" kind="unwind" identifier="HideEmbeddedUserGroups" unwindAction="unwindToGrid:" id="aB8-gW-n0s"/>
                         <segue destination="HLA-dy-d1e" kind="show" identifier="NameGroup" id="u33-D9-9Ph"/>
+                        <segue destination="c5b-YW-b3H" kind="show" identifier="ShowGroupOptions" id="qrj-oK-YZO"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zUg-0n-BZp" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -373,8 +392,8 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="zAA-Ft-OZ6"/>
-        <segue reference="7Ol-Ps-Crc"/>
-        <segue reference="HBA-dq-y0G"/>
+        <segue reference="fvS-6s-erS"/>
         <segue reference="VSt-eZ-jNn"/>
+        <segue reference="u33-D9-9Ph"/>
     </inferredMetricsTieBreakers>
 </document>

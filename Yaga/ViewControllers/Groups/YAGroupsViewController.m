@@ -18,11 +18,13 @@
 
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
+#import "YAGroupOptionsViewController.h"
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
+@property (nonatomic, strong) YAGroup *editingGroup;
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -293,13 +295,17 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
     [self showGroupOptionsForGroupAtIndex:indexPath];
-    
+//    self.editingGroup = self.groups[indexPath.row];
+//    [self performSegueWithIdentifier:@"ShowGroupOptions" sender:self];
 }
 
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
         ((YAGroupAddMembersViewController*)segue.destinationViewController).embeddedMode = self.embeddedMode;
+    }
+    else if([segue.destinationViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
+        ((YAGroupOptionsViewController*)segue.destinationViewController).group = self.editingGroup;
     }
 }
 
