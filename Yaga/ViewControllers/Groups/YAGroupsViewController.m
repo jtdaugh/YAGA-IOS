@@ -151,9 +151,11 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
     
     [self.navigationController setNavigationBarHidden:YES];
+
+    [self.tableView reloadData];
+
     //size to fit table view
     if(!self.embeddedMode) {
-        [self.tableView reloadData];
 
         CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
         CGFloat rowsCount = [self tableView:self.tableView numberOfRowsInSection:0];
