@@ -311,6 +311,7 @@
                                                                     }];
 }
 
+// Unneccessarily long method :/
 - (NSString *)getFriendNamesTitle {
     int andMore = 0;
 
@@ -333,7 +334,7 @@
             andMore++;
         }
     }
-    if ([self.contactsThatNeedInvite count] >= 1 && [self.contactsThatNeedInvite count] <= kMaxUserNamesShown) {
+    if ([self.contactsThatNeedInvite count] > 1 && [self.contactsThatNeedInvite count] <= kMaxUserNamesShown) {
         NSString *contactName = [self.contactsThatNeedInvite lastObject][nFirstname];
         if ([contactName length]) {
             if ([title length] && !andMore) {
@@ -354,9 +355,17 @@
     
     if (andMore) {
         if ([title length]) {
-            title = [NSString stringWithFormat:@"%@ and %d others don't have Yaga yet", title, andMore];
+            if (andMore > 1) {
+                title = [NSString stringWithFormat:@"%@ and %d others don't have Yaga yet", title, andMore];
+            } else {
+                title = [NSString stringWithFormat:@"%@ and %d other don't have Yaga yet", title, andMore];
+            }
         } else {
-            title = [NSString stringWithFormat:@"%d of those friends don't have Yaga yet", andMore];
+            if (andMore > 1) {
+                title = [NSString stringWithFormat:@"%d of those friends don't have Yaga yet", andMore];
+            } else {
+                title = [NSString stringWithFormat:@"%d of those friends doesn't have Yaga yet", andMore];
+            }
         }
     } else {
         if ([self.contactsThatNeedInvite count] == 1) {
