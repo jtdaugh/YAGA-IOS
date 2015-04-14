@@ -117,9 +117,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self updateState];
-//    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-//        [self updateState];
-//    }];
+    
+    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+        [self updateState];
+    }];
 }
 
 - (void)setupPullToRefresh {
