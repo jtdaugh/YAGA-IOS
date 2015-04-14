@@ -19,8 +19,6 @@
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
 
-#import "YAUserPermissions.h"
-
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;
@@ -139,8 +137,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    if(![YAUserPermissions pushPermissionsRequestedBefore])
-        [YAUserPermissions registerUserNotificationSettings];
     
     //load phonebook if it wasn't done before
     if(![YAUser currentUser].phonebook.count) {

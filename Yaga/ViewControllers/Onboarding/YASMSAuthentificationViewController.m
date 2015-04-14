@@ -10,6 +10,7 @@
 #import "YAServer.h"
 #import "YAUser.h"
 #import "YAUtils.h"
+#import "YAUserPermissions.h"
 
 @interface YASMSAuthentificationViewController ()
 @property (strong, nonatomic) UIImageView *logo;
@@ -106,6 +107,10 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+   
+    if(![YAUserPermissions pushPermissionsRequestedBefore])
+        [YAUserPermissions registerUserNotificationSettings];
+    
     [self.codeTextField becomeFirstResponder];
 }
 
