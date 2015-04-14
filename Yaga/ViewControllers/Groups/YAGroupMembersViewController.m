@@ -90,7 +90,7 @@ static NSString *CellID = @"CellID";
 #pragma mark - Table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.group.members.count;
+    return self.filteredMembers.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -139,7 +139,7 @@ static NSString *CellID = @"CellID";
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        YAContact *contact = self.group.members[indexPath.row];
+        YAContact *contact = self.filteredMembers[indexPath.row];
         
         if([contact.number isEqualToString:[YAUser currentUser].phoneNumber]) {
             UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Can't remove self from the group, use 'Leave' option when selecting group options.", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
