@@ -279,9 +279,6 @@
         
         DLog(@"init camera");
         
-        // Really a restart cam, incase switching the preview layer
-        [self closeCamera];
-        
         //set still image output
         
         AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
@@ -375,16 +372,17 @@
     AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
     if (audioStatus == AVAuthorizationStatusAuthorized) {
         [self setupAudioInput];
+        [self.session startRunning];
     } else {
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
                                  completionHandler:^(BOOL granted) {
                                      if (granted) {
                                          [self setupAudioInput];
+                                         [self.session startRunning];
                                      }
                                  }];
     }
     
-   [self.session startRunning];
 }
 
 - (void)setupAudioInput {
@@ -406,17 +404,21 @@
 }
 
 - (void)closeCamera {
-    if (self.session) {
-        [self.session beginConfiguration];
-        for(AVCaptureDeviceInput *input in self.session.inputs){
-            [self.session removeInput:input];
+    AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    // Don't try to configure anything if no permissions are granted. This would be rare anyway.
+    if (videoStatus == AVAuthorizationStatusAuthorized) {
+        if (self.session) {
+            [self.session beginConfiguration];
+            for(AVCaptureDeviceInput *input in self.session.inputs){
+                [self.session removeInput:input];
+            }
+            [self.session commitConfiguration];
+            
+            if ([self.session isRunning])
+                [self.session stopRunning];
         }
-        [self.session commitConfiguration];
-        
-        if ([self.session isRunning])
-            [self.session stopRunning];
+        self.session = nil;
     }
-    self.session = nil;
 }
 
 - (void)handleHold:(UITapGestureRecognizer *)recognizer {
