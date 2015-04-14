@@ -21,6 +21,7 @@
 @property (strong, nonatomic) UILabel *indicatorText;
 @property (strong, nonatomic) UIView *white;
 @property (strong, nonatomic) NSNumber *recording;
+@property (strong, nonatomic) NSDate *recordingTime;
 @property (strong, nonatomic) NSNumber *FrontCamera;
 
 @property (strong, nonatomic) NSNumber *previousBrightness;
@@ -427,6 +428,7 @@
 - (void)startHold {
     DLog(@"starting hold");
     
+    self.recordingTime = [NSDate date];
 //    //We're starting to shoot so add audio
 //    if (!self.audioInputAdded) {
 //        [self.session beginConfiguration];
@@ -559,6 +561,10 @@
             RecordedSuccessfully = [value boolValue];
         }
     }
+    NSDate *recordingFinished = [NSDate date];
+    NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
+    
+    
     if (RecordedSuccessfully) {
         
         if(error) {
@@ -566,6 +572,10 @@
             return;
         }
         
+        if(executionTime < 0.5){
+            return;
+        }
+
         NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:outputFileURL.path error:nil];
         
         NSNumber *fileSizeNumber = [fileAttributes objectForKey:NSFileSize];
