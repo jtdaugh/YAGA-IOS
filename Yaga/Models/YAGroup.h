@@ -35,6 +35,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 - (void)leave;
 - (void)muteUnmute;
 - (void)refresh;
+- (void)refresh:(BOOL)showPullDownToRefresh;
 @end
 
 // This protocol enables typed collections. i.e.:

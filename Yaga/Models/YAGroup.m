@@ -302,12 +302,13 @@
 }
 
 #pragma mark - Videos
-- (void)refresh {
+
+- (void)refresh:(BOOL)showPullDownToRefresh {
     if(self.videosUpdateInProgress)
         return;
-
+    
     self.videosUpdateInProgress = YES;
-
+    
     //since
     NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
     NSDate *lastUpdateDate = nil;
@@ -315,7 +316,9 @@
         lastUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
     }
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:nil];
+    NSDictionary *userInfo = @{kShowPullDownToRefreshWhileRefreshingGroup:[NSNumber numberWithBool:showPullDownToRefresh]};
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:userInfo];
     
     [[YAServer sharedServer] groupInfoWithId:self.serverId since:lastUpdateDate withCompletion:^(id response, NSError *error) {
         if(self.isInvalidated)
@@ -344,6 +347,10 @@
             [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:@{kVideos:newVideos}];
         }
     }];
+}
+
+- (void)refresh {
+    [self refresh:NO];
 }
 
 - (NSSet*)videoIds {
