@@ -298,7 +298,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.editingGroup = self.groups[indexPath.row];
 
     [self performSegueWithIdentifier:@"ShowGroupOptions" sender:self];
-    [self close];    
+//    [self close];    
 }
 
 #pragma mark - Segues
