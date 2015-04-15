@@ -11,6 +11,12 @@
 #import "YAGroup.h"
 #import "AFHTTPRequestOperation.h"
 
+#define kGifWidth (200)
+#define kGifFPS_HQ (30.f)
+#define kGifFPS_LQ (5.f)
+#define kGifPixellationSize (15.f)
+#define kGifSpeed (1.5f)
+
 typedef void (^bumperVideoCompletion)(NSURL *filePath, NSError *error);
 typedef void (^stopOperationsCompletion)(void);
 typedef void (^jpgCompletion)(void);
