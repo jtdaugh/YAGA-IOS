@@ -98,7 +98,7 @@
         //current group
         CGFloat groupButtonXOrigin = flashButton.frame.origin.x + flashButton.frame.size.width + 5;
         self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(groupButtonXOrigin, 10, self.switchCameraButton.frame.origin.x - groupButtonXOrigin - 10 , size)];
-        [self.groupButton addTarget:self action:@selector(nameGroup:) forControlEvents:UIControlEventTouchUpInside];
+        [self.groupButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
         [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
         [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
         self.groupButton.layer.shadowColor = [[UIColor blackColor] CGColor];
@@ -760,31 +760,8 @@
     
 }
 
-- (void)nameGroup:(id)sender {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"CHANGE_GROUP_TITLE", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
-    
-    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
-        textField.text = [YAUser currentUser].currentGroup.name;
-        [textField setKeyboardType:UIKeyboardTypeAlphabet];
-        [textField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
-        [textField setAutocorrectionType:UITextAutocorrectionTypeNo];
-    }];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        NSString *newname = [alert.textFields[0] text];
-        if(!newname.length)
-            return;
-        
-        [[YAUser currentUser].currentGroup rename:newname];
-        
-        [self.groupButton setTitle:newname forState:UIControlStateNormal];
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-    }]];
-    
-    [self presentViewController:alert animated:YES completion:nil];
+- (void)openGroupOptions:(id)sender {
+    [self.delegate openGroupOptions];
 }
 
 #pragma mark -
