@@ -283,24 +283,24 @@
         
         AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
         if (videoStatus == AVAuthorizationStatusAuthorized) {
-            
-            self.session = [[AVCaptureSession alloc] init];
-           
-            [self.session beginConfiguration];
-            
-            self.session.sessionPreset = AVCaptureSessionPreset640x480;
-            
-            [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
-            [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                [self setupVideoInput];
-            });
-            
-            [self.session commitConfiguration];
-            
-            [self removeOpenSettingsButton];
-            
+            if (!self.session) {
+                self.session = [[AVCaptureSession alloc] init];
+               
+                [self.session beginConfiguration];
+                
+                self.session.sessionPreset = AVCaptureSessionPreset640x480;
+                
+                [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
+                [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    [self setupVideoInput];
+                });
+                
+                [self.session commitConfiguration];
+                
+                [self removeOpenSettingsButton];
+            }
         } else {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                                      completionHandler:^(BOOL granted) {
