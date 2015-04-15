@@ -46,7 +46,7 @@
         
         self.accessorryButton = [UIButton buttonWithType:UIButtonTypeCustom];
         self.accessorryButton.frame = CGRectMake(self.frame.size.width - xMargin - accessoryHeight, (self.frame.size.height - accessoryHeight)/2, accessoryHeight, accessoryHeight);
-        [self.accessorryButton setBackgroundImage:[UIImage imageNamed:@"Settings"] forState:UIControlStateNormal];
+        [self.accessorryButton setBackgroundImage:[UIImage imageNamed:@"Info"] forState:UIControlStateNormal];
         self.accessoryView = self.accessorryButton;
         
         [self.accessorryButton addTarget:self action:@selector(showGroupOptions:) forControlEvents:UIControlEventTouchUpInside];

@@ -141,7 +141,7 @@
     [self.searchBar resignFirstResponder];
     
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
-    self.navigationController.navigationBar.translucent = YES;;
+    self.navigationController.navigationBar.translucent = YES;
 
 
     self.title = @"";
