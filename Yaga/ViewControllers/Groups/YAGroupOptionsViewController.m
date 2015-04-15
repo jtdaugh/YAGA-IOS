@@ -123,13 +123,13 @@
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Confirm", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [self.navigationController popViewControllerAnimated:YES];
+//        [self.navigationController popViewControllerAnimated:YES];
         
         [self.group muteUnmute];
         
         //just for now
-        NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.group.name, self.group.muted ? NSLocalizedString(@"Muted", @"") : NSLocalizedString(@"Unmuted", @"")];
-        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+//        NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.group.name, self.group.muted ? NSLocalizedString(@"Muted", @"") : NSLocalizedString(@"Unmuted", @"")];
+//        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
         
         NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
         [self.muteButton setTitle:muteTitle forState:UIControlStateNormal];
@@ -223,6 +223,11 @@ static NSString *CellID = @"CellID";
         [cell.textLabel setTextColor:[UIColor blackColor]];
         
         [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+        
+        UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey"]];
+        [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
+        cell.accessoryView = accessoryView;
+
     } else {
         NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
         cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
@@ -230,6 +235,8 @@ static NSString *CellID = @"CellID";
         [cell.textLabel setTextColor:[UIColor whiteColor]];
         
         [cell.detailTextLabel setTextColor:[UIColor blackColor]];
+        
+        cell.accessoryView = nil;
     }
     
     [cell setBackgroundColor:[UIColor clearColor]];
