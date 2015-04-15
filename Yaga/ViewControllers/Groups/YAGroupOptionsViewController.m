@@ -27,7 +27,7 @@
     
     self.view.backgroundColor = PRIMARY_COLOR;
     
-    const CGFloat buttonWidth = VIEW_WIDTH * 0.7;
+    const CGFloat buttonWidth = VIEW_WIDTH * 0.95;
     
     self.addMembersButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, 80, buttonWidth, VIEW_HEIGHT*.08)];
     [self.addMembersButton setBackgroundColor:[UIColor whiteColor]];
