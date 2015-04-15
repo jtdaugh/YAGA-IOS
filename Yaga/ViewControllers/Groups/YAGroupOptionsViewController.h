@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "YAGroup.h"
 
-@interface YAGroupOptionsViewController : UIViewController
+@interface YAGroupOptionsViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, strong) YAGroup *group;
 

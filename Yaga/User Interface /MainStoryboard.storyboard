@@ -272,6 +272,9 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
+                    <connections>
+                        <segue destination="aCm-EC-oWm" kind="show" identifier="AddMembersFromGroupOptions" id="J7h-Hk-OOi"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ceE-jH-YAL" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -391,9 +394,10 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="zAA-Ft-OZ6"/>
-        <segue reference="fvS-6s-erS"/>
+        <segue reference="HBA-dq-y0G"/>
+        <segue reference="J7h-Hk-OOi"/>
         <segue reference="VSt-eZ-jNn"/>
         <segue reference="u33-D9-9Ph"/>
+        <segue reference="zAA-Ft-OZ6"/>
     </inferredMetricsTieBreakers>
 </document>
