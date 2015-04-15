@@ -11,6 +11,7 @@
 
 @protocol YACameraViewControllerDelegate <NSObject>
 - (void)toggleGroups;
+- (void)openGroupOptions;
 @end
 
 #define recordButtonWidth 60.0

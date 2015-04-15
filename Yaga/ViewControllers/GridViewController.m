@@ -15,6 +15,7 @@
 
 #import "YAUtils.h"
 #import "YAHideEmbeddedGroupsSegue.h"
+#import "YAGroupOptionsViewController.h"
 
 //Swift headers
 //#import "Yaga-Swift.h"
@@ -141,6 +142,9 @@
     [self.groupsViewController performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
 }
 
+- (void)openGroupOptions {
+    [self performSegueWithIdentifier:@"ShowGroupOptionsFromGrid" sender:self];
+}
 
 -(BOOL)prefersStatusBarHidden {
     return YES;
@@ -155,6 +159,12 @@
     // Instantiate a new CustomUnwindSegue
     YAHideEmbeddedGroupsSegue *segue = [[YAHideEmbeddedGroupsSegue alloc] initWithIdentifier:identifier source:fromViewController destination:toViewController];
     return segue;
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if([segue.destinationViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
+        ((YAGroupOptionsViewController*)segue.destinationViewController).group = [YAUser currentUser].currentGroup;
+    }
 }
 
 

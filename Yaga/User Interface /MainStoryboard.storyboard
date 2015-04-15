@@ -37,6 +37,7 @@
                     <connections>
                         <segue destination="DIa-5Z-moF" kind="presentation" identifier="CreateGroup" animates="NO" id="pQh-HD-Ggp"/>
                         <segue destination="owe-ug-5LR" kind="custom" identifier="ShowEmbeddedUserGroups" customClass="YAShowEmbeddedGroupsSegue" id="VSt-eZ-jNn"/>
+                        <segue destination="c5b-YW-b3H" kind="show" identifier="ShowGroupOptionsFromGrid" id="UBY-uB-r3J"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="i4m-F9-tFP" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -394,10 +395,11 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="HBA-dq-y0G"/>
-        <segue reference="J7h-Hk-OOi"/>
+        <segue reference="fvS-6s-erS"/>
         <segue reference="VSt-eZ-jNn"/>
         <segue reference="u33-D9-9Ph"/>
+        <segue reference="UBY-uB-r3J"/>
+        <segue reference="J7h-Hk-OOi"/>
         <segue reference="zAA-Ft-OZ6"/>
     </inferredMetricsTieBreakers>
 </document>
