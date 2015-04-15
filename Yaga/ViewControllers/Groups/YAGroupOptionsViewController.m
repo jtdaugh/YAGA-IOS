@@ -27,11 +27,12 @@
     
     self.view.backgroundColor = PRIMARY_COLOR;
     
-    const CGFloat buttonWidth = VIEW_WIDTH * 0.95;
+    const CGFloat buttonWidth = VIEW_WIDTH - 44;
+    CGFloat buttonHeight = 54;
     
-    self.addMembersButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, 80, buttonWidth, VIEW_HEIGHT*.08)];
+    self.addMembersButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, 60, buttonWidth, VIEW_HEIGHT*.08)];
     [self.addMembersButton setBackgroundColor:[UIColor whiteColor]];
-    [self.addMembersButton setTitle:NSLocalizedString(@"+ Add Members", @"") forState:UIControlStateNormal];
+    [self.addMembersButton setTitle:NSLocalizedString(@"Invite Members", @"") forState:UIControlStateNormal];
     [self.addMembersButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
     [self.addMembersButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     self.addMembersButton.layer.cornerRadius = 8.0;
@@ -39,20 +40,20 @@
     [self.addMembersButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.addMembersButton];
     
-    self.muteButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, VIEW_HEIGHT - VIEW_HEIGHT*.08 - 40, buttonWidth/2-5, VIEW_HEIGHT*.08)];
+    self.muteButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, VIEW_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
     [self.muteButton setBackgroundColor:[UIColor whiteColor]];
     [self.muteButton setTitle:NSLocalizedString(@"Mute", @"") forState:UIControlStateNormal];
-    [self.muteButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+    [self.muteButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
     [self.muteButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     self.muteButton.layer.cornerRadius = 8.0;
     self.muteButton.layer.masksToBounds = YES;
     [self.muteButton addTarget:self action:@selector(muteTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.muteButton];
     
-    self.leaveButton = [[UIButton alloc] initWithFrame:CGRectMake(self.muteButton.frame.origin.x + self.muteButton.frame.size.width + 10, VIEW_HEIGHT - VIEW_HEIGHT*.08 - 40, buttonWidth/2-5, VIEW_HEIGHT*.08)];
+    self.leaveButton = [[UIButton alloc] initWithFrame:CGRectMake(self.muteButton.frame.origin.x + self.muteButton.frame.size.width + 16, VIEW_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
     [self.leaveButton setBackgroundColor:PRIMARY_COLOR];
     [self.leaveButton setTitle:NSLocalizedString(@"Leave", @"") forState:UIControlStateNormal];
-    [self.leaveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+    [self.leaveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
     [self.leaveButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     self.leaveButton.layer.borderColor = [[UIColor whiteColor] CGColor];
     self.leaveButton.layer.borderWidth = 2;
@@ -61,13 +62,13 @@
     [self.leaveButton addTarget:self action:@selector(leaveTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.leaveButton];
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height + 10, buttonWidth, self.muteButton.frame.origin.y - (self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height) - 20) style:UITableViewStylePlain];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height + 10, VIEW_WIDTH, self.muteButton.frame.origin.y - (self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height) - 20) style:UITableViewStylePlain];
                                                                    
     self.tableView.backgroundColor = [UIColor yellowColor];
     [self.view addSubview:self.tableView];
     self.tableView.backgroundColor = PRIMARY_COLOR;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.contentInset = UIEdgeInsetsMake(30, 0, 0, 0);
+    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.dataSource = self;
     self.tableView.delegate = self;    
 }
