@@ -15,8 +15,7 @@
 #import <Social/Social.h>
 #import "YAProgressView.h"
 #import "YASwipingViewController.h"
-#import "YAGifCopyActivity.h"
-#import "YASaveToCameraRollActivity.h"
+#import "YACopyVideoToClipboardActivity.h"
 #import "MBProgressHUD.h"
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
@@ -705,12 +704,11 @@ completion:^(NSURL *filePath, NSError *error) {
         NSURL *videoFile = filePath;
         //        YAGifCopyActivity *activityGif = [YAGifCopyActivity new];
         //    YASaveToCameraRollActivity  *activitySave   = [YASaveToCameraRollActivity new];
-        
+        YACopyVideoToClipboardActivity *copyActivity = [YACopyVideoToClipboardActivity new];
         UIActivityViewController *activityViewController =
         [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
-                                          applicationActivities:@[]];
+                                          applicationActivities:@[copyActivity]];
         activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
-        
         [self.presentingVC presentViewController:activityViewController
                                         animated:YES
                                       completion:^{
