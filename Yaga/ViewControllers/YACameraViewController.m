@@ -284,20 +284,10 @@
         AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
         if (videoStatus == AVAuthorizationStatusAuthorized) {
             if (!self.session) {
-                self.session = [[AVCaptureSession alloc] init];
-               
-                [self.session beginConfiguration];
-                
-                self.session.sessionPreset = AVCaptureSessionPreset640x480;
-                
+                self.session = [YAUtils captureSession];
+
                 [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
                 [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-                
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    [self setupVideoInput];
-                });
-                
-                [self.session commitConfiguration];
                 
                 [self removeOpenSettingsButton];
             }
@@ -516,7 +506,7 @@
         return;
     
     //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-    
+    self.movieFileOutput = self.session.outputs.lastObject;
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];

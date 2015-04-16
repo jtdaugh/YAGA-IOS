@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 #import "YAVideo.h"
 #import "YANotificationView.h"
 
@@ -44,4 +45,6 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (void)copyGIFToClipboard:(YAVideo*)video;
 // Bumper
 + (void)saveVideoToCameraRoll:(YAVideo*)video;
+// CameraSession
++ (AVCaptureSession*)captureSession;
 @end
