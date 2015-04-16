@@ -393,6 +393,13 @@
                        //gif might not be there yet, it's in progress, so uploading video at once and saving credentials for uploading gif, it will be uploaded when gif operation is done
                        [self multipartUpload:videoEndpoint withParameters:videoFields withFile:videoData videoServerId:video.serverId completion:^(id response, NSError *error) {
                            
+                           //empty server id in case of an error, transaction will be executed again
+                           if(error) {
+                               [video.realm beginWriteTransaction];
+                               video.serverId = @"";
+                               [video.realm commitWriteTransaction];
+                           }
+                           
                            //call completion block when video is posted
                            completion(response, error);
                            
