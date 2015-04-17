@@ -18,6 +18,7 @@
 
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupMembersViewController.h"
+#import "YAGroupOptionsViewController.h"
 
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
@@ -26,6 +27,7 @@
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
+@property (nonatomic, strong) YAGroup *editingGroup;
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -154,9 +156,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 
     [self.tableView reloadData];
 
+    
     //size to fit table view
     if(!self.embeddedMode) {
-
         CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
         CGFloat rowsCount = [self tableView:self.tableView numberOfRowsInSection:0];
         CGFloat contentHeight = rowHeight * rowsCount;
@@ -322,8 +324,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (IBAction)unwindToGrid:(id)source {}
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
-    [self showGroupOptionsForGroupAtIndex:indexPath];
-    
+    self.editingGroup = self.groups[indexPath.row];
+
+    [self performSegueWithIdentifier:@"ShowGroupOptions" sender:self];
+//    [self close];    
 }
 
 #pragma mark - Segues
@@ -331,89 +335,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
         ((YAGroupAddMembersViewController*)segue.destinationViewController).embeddedMode = self.embeddedMode;
     }
-}
-
-#pragma  mark - Alerts
-- (void)showGroupOptionsForGroupAtIndex:(NSIndexPath*)indexPath {
-    __block YAGroup *group = self.groups[indexPath.row];
-    
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:group.name message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Edit Title", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        UIAlertController *changeTitleAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"CHANGE_GROUP_TITLE", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
-        
-        [changeTitleAlert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-            textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
-            textField.text = group.name;
-            [textField setKeyboardType:UIKeyboardTypeAlphabet];
-            [textField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
-            [textField setAutocorrectionType:UITextAutocorrectionTypeNo];
-        }];
-        [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            NSString *newname = [changeTitleAlert.textFields[0] text];
-            if(!newname.length)
-                return;
-            
-            [group rename:newname];
-            
-            [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-        }]];
-        
-        [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        }]];
-        
-        [self presentViewController:changeTitleAlert animated:YES completion:nil];
-        
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"View/Edit Members", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        
-        YAGroupMembersViewController *membersVC = [[YAGroupMembersViewController alloc] initWithGroup:group];
-        [self.navigationController pushViewController:membersVC animated:YES];
-        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-    }]];
-    
-    NSString *muteTitle = group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
-    muteTitle = [muteTitle stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:muteTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [self muteUnmuteGroupAtIndexPath:indexPath];
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:[NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")] style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [self leaveGroupAtIndexPath:indexPath];
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    
-    [self presentViewController:alert animated:YES completion:nil];
-    
-    
-}
-- (void)muteUnmuteGroupAtIndexPath:(NSIndexPath*)indexPath {
-    __block YAGroup *group = self.groups[indexPath.row];
-    
-    NSString *muteTitle = group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
-    muteTitle = [muteTitle stringByAppendingFormat:@" %@", group.name];
-    NSString *muteMessage = group.muted  ?  NSLocalizedString(@"Recieve notifications from this group", @"") : NSLocalizedString(@"Stop receiving notifications from this group", @"");
-    
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Confirm", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-        
-        [group muteUnmute];
-        
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-        
-        //just for now
-        NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), group.name, group.muted ? NSLocalizedString(@"Muted", @"") : NSLocalizedString(@"Unmuted", @"")];
-        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-        
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
-    
-    [self presentViewController:alert animated:YES completion:nil];
+    else if([segue.destinationViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
+        ((YAGroupOptionsViewController*)segue.destinationViewController).group = self.editingGroup;
+    }
 }
 
 - (void)leaveGroupAtIndexPath:(NSIndexPath*)indexPath {
@@ -470,5 +394,4 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [self presentViewController:alert animated:YES completion:nil];
 }
-
 @end

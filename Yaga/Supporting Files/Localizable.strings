@@ -36,6 +36,7 @@
 "Recieve notifications from this group" = "Recieve  notifications from this group";
 "Are you sure you would like to leave?" = "Are you sure you would like to leave?";
 "Add Members" = "Add Members";
+"+ Add Members" = "+ Add Members";//button caption
 "Are you sure you would like to remove %@ from %@?" = "Are you sure you would like to remove %@ from %@?";
 "Updated successfully" = "Updated successfully";
 "You have left" = "You have left";

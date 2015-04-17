@@ -14,12 +14,6 @@
 #import "YAAssetsCreator.h"
 #import "YAServer.h"
 
-#define kGifWidth (200)
-#define kGifFPS_HQ (30.f)
-#define kGifFPS_LQ (5.f)
-#define kGifPixellationSize (15.f)
-#define kGifSpeed (1.5f)
-
 @interface YAGifCreationOperation ()
 @property (strong) NSString *filename;
 @property YAGifCreationQuality quality;
