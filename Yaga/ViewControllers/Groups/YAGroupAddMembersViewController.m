@@ -7,6 +7,7 @@
 //
 
 #import "YAGroupAddMembersViewController.h"
+#import "YACaptureSession.h"
 #import "YAInviteViewController.h"
 #import "GridViewController.h"
 #import "NameGroupViewController.h"
@@ -361,6 +362,7 @@
             [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
         } else {
             // Push the invite screen
+            [[YACaptureSession captureSession] closeCamera];
             YAInviteViewController *nextVC = [YAInviteViewController new];
             nextVC.inOnboardingFlow = NO;
             nextVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
