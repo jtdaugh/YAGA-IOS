@@ -206,15 +206,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     return self.groups.count;
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    return [UIView new];
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    //center content with header view
-    return (self.tableView.frame.size.height - self.tableView.contentSize.height)/2;
-}
-
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
     // This will create a "invisible" footer
     return 0.01f;
