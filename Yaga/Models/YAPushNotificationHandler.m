@@ -79,6 +79,9 @@
     else if([eventName isEqualToString:@"caption"]) {
         [self handleCaption];
     }
+    else if([eventName isEqualToString:@"rename"]) {
+        [self handleGroupRename];
+    }
 }
 
 - (void)handlePostEvent {
@@ -127,6 +130,11 @@
 
 - (void)handleCaption {
     [self handleLike];
+}
+
+- (void)handleGroupRename {
+    NSString *groupId = self.meta[@"group_id"];
+    [self openGroupWithId:groupId refresh:YES];
 }
 
 #pragma mark - Utils
