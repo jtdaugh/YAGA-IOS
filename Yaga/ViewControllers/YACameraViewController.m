@@ -54,6 +54,11 @@
 
 @property (nonatomic, strong) NSMutableArray *currentRecordingURLs;
 
+@property (strong, nonatomic) UIView *loader;
+@property (strong, nonatomic) NSTimer *loaderTimer;
+@property (strong, nonatomic) NSMutableArray *loaderTiles;
+
+
 @end
 
 @implementation YACameraViewController
@@ -166,6 +171,24 @@
         self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
         [self.cameraAccessories addObject:self.unviewedVideosBadge];
         [self.cameraView addSubview:self.unviewedVideosBadge];
+        
+        self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+        
+        int rows = 32, cols = 16;
+        
+        CGFloat lwidth = VIEW_WIDTH/((float)cols);
+        CGFloat lheight = VIEW_HEIGHT/((float)rows);
+        
+        self.loaderTiles = [[NSMutableArray alloc] init];
+        for(int i = 0; i< (rows * 2 * cols); i++){
+            int xPos = i%cols;
+            int yPos = i/rows;
+            
+            UIView *loaderTile = [[UIView alloc] initWithFrame:CGRectMake(xPos * lwidth, yPos*lheight, lwidth, lheight)];
+            [self.loader addSubview:loaderTile];
+            [self.loaderTiles addObject:loaderTile];
+        }
+
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -621,7 +644,6 @@
                 [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
             }
         }
-        
     } else {
         [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:YANotificationTypeError];
     }
@@ -635,6 +657,16 @@
     if([self.recording boolValue]){
         [self stopRecordingVideo];
     }
+    
+    [self.cameraView addSubview:self.loader];
+
+    self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.025
+                                                        target: self
+                                                      selector:@selector(loaderTick:)
+                                                      userInfo: nil repeats:YES];
+    
+    [self loaderTick:nil];
+
     
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
     AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
@@ -687,25 +719,48 @@
     
     [[self session] commitConfiguration];
     
-    [UIView transitionWithView:self.cameraView
-                      duration:0.5
-                       options:UIViewAnimationOptionTransitionFlipFromRight|UIViewAnimationOptionCurveEaseInOut
-                    animations:^{
-                    }
-                    completion:^(BOOL finished) {
-                        if (finished) {
-                            //DO Stuff
-                        }
-                    }];
+//    [UIView transitionWithView:self.cameraView
+//                      duration:0.5
+//                       options:UIViewAnimationOptionTransitionFlipFromRight|UIViewAnimationOptionCurveEaseInOut
+//                    animations:^{
+//                    }
+//                    completion:^(BOOL finished) {
+//                        if (finished) {
+//                            //DO Stuff
+//                        }
+//                    }];
     
     if([self.recording boolValue]){
-        [self performSelector:@selector(startRecordingVideo) withObject:self afterDelay:0.5];
-//        [self startRecordingVideo];
+        [self performSelector:@selector(stopLoader) withObject:self afterDelay:.25];
+        [self performSelector:@selector(startRecordingVideo) withObject:self afterDelay:.25];
     }
     
     //    [self.session beginConfiguration];
     //    [self.session commitConfiguration];
     
+}
+
+- (void)loaderTick:(NSTimer *)timer {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //Your main thread code goes in here
+        for(UIView *v in self.loaderTiles){
+            UIColor *p = PRIMARY_COLOR;
+            p = [p colorWithAlphaComponent:(arc4random() % 128 / 256.0)];
+            //            CGFloat hue = ( arc4random() % 256 / 256.0 );  //  0.0 to 1.0
+            //            CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from white
+            //            CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
+            //            UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
+            //
+            [v setBackgroundColor:p];
+        }
+        
+    });
+    //    NSLog(@"loader tick!");
+}
+
+- (void)stopLoader {
+    [self.loader removeFromSuperview];
+    [self.loaderTimer invalidate];
 }
 
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
