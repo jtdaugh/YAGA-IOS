@@ -15,6 +15,11 @@
 #import <CoreTelephony/CTCall.h>
 #import <CoreTelephony/CTCallCenter.h>
 
+typedef enum {
+    YATouchDragStateInside,
+    YATouchDragStateOutside
+} YATouchDragState;
+
 @interface YACameraViewController ()
 @property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 @property (strong, nonatomic) UIView *indicator;
@@ -54,12 +59,10 @@
 
 @property (nonatomic, strong) NSMutableArray *currentRecordingURLs;
 
-@property (strong, nonatomic) UIView *loader;
-@property (strong, nonatomic) NSTimer *loaderTimer;
-@property (strong, nonatomic) NSMutableArray *loaderTiles;
-
 @property (nonatomic, strong) UIView *thumbView;
 @property (strong, nonatomic) UIView *recordingIndicator;
+
+@property (nonatomic) YATouchDragState lastTouchDragState;
 
 @end
 
@@ -131,9 +134,10 @@
         [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
         [self.recordButton.layer setBorderWidth:4.0f];
         
-        [self.recordButton addTarget:self action:@selector(startHold) forControlEvents:UIControlEventTouchDown];
+        [self.recordButton addTarget:self action:@selector(startHold:withEvent:) forControlEvents:UIControlEventTouchDown];
         [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpInside];
         [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpOutside];
+        [self.recordButton addTarget:self action:@selector(holdMoved:withEvent:) forControlEvents:UIControlEventTouchDragOutside];
         
 //        UILongPressGestureRecognizer *longPressGestureRecognizerButton = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
 //        [longPressGestureRecognizerButton setMinimumPressDuration:0.2f];
@@ -175,23 +179,6 @@
         [self.cameraAccessories addObject:self.unviewedVideosBadge];
         [self.cameraView addSubview:self.unviewedVideosBadge];
         
-        // initializing the loader
-        self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-        
-        int rows = 32, cols = 16;
-        
-        CGFloat lwidth = VIEW_WIDTH/((float)cols);
-        CGFloat lheight = VIEW_HEIGHT/((float)rows);
-        
-        self.loaderTiles = [[NSMutableArray alloc] init];
-        for(int i = 0; i< (rows * 2 * cols); i++){
-            int xPos = i%cols;
-            int yPos = i/rows;
-            
-            UIView *loaderTile = [[UIView alloc] initWithFrame:CGRectMake(xPos * lwidth, yPos*lheight, lwidth, lheight)];
-            [self.loader addSubview:loaderTile];
-            [self.loaderTiles addObject:loaderTile];
-        }
         
         CGFloat width = 48;
         self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2 - width/2, 20, width, width)];
@@ -480,23 +467,57 @@
     if (![recognizer isEqual:self.longPressGestureRecognizerCamera]) return;
     
     DLog(@"%ld", (unsigned long)recognizer.state);
+    CGPoint loc = [recognizer locationInView:self.view];
+    self.thumbView.center = loc;
+
     if (recognizer.state == UIGestureRecognizerStateEnded) {
-        [self.thumbView removeFromSuperview];
         [self endHold];
     } else if (recognizer.state == UIGestureRecognizerStateBegan){
-        CGPoint loc = [recognizer locationInView:self.view];
-        self.thumbView.center = loc;
-        [self.view addSubview:self.thumbView];
-
+        self.lastTouchDragState = [self touchDragStateForPoint:loc];
         [self startHold];
         
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
-        CGPoint loc = [recognizer locationInView:self.view];
-        self.thumbView.center = loc;
+        YATouchDragState prevState = self.lastTouchDragState;
+        self.lastTouchDragState = [self touchDragStateForPoint:loc];
+        if (prevState != self.lastTouchDragState) {
+            [self switchCamera:nil];
+        }
     }
 }
 
+- (void)holdMoved:(id)sender withEvent:(UIEvent *)event{
+    UIButton *selected = (UIButton *)sender;
+    CGPoint loc = [[[event allTouches] anyObject] locationInView:self.view];
+    self.thumbView.center = loc;
+    YATouchDragState prevState = self.lastTouchDragState;
+    self.lastTouchDragState = [self touchDragStateForPoint:loc];
+    if (prevState != self.lastTouchDragState) {
+        [self switchCamera:nil];
+    }
+}
+
+- (YATouchDragState)touchDragStateForPoint:(CGPoint)point {
+    CGPoint switchSpot = CGPointMake(VIEW_WIDTH / 2.f, VIEW_HEIGHT);
+    CGFloat xDif = point.x - switchSpot.x;
+    CGFloat yDif = point.y - switchSpot.y;
+    CGFloat maxDif = (VIEW_HEIGHT * 0.1f);
+    if (((xDif * xDif) + (yDif * yDif)) < (maxDif * maxDif)) {
+        return YATouchDragStateInside;
+    }
+    return YATouchDragStateOutside;
+}
+
+- (void)startHold:(id)sender withEvent:(UIEvent *)event {
+    UIButton *selected = (UIButton *)sender;
+    CGPoint loc = [[[event allTouches] anyObject] locationInView:self.view];
+    self.thumbView.center = loc;
+    self.lastTouchDragState = [self touchDragStateForPoint:loc];
+    [self startHold];
+}
+
 - (void)startHold {
+    [self.view addSubview:self.thumbView];
+
     DLog(@"starting hold");
     
     self.recordingTime = [NSDate date];
@@ -565,6 +586,8 @@
 }
 
 - (void)endHold {
+    [self.thumbView removeFromSuperview];
+
     if([self.recording boolValue]){
         self.recordingIndicator.alpha = 0.0;
         
@@ -691,14 +714,6 @@
     
 
     if([self.recording boolValue]){
-        [self.cameraView addSubview:self.loader];
-        
-        self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.025
-                                                            target: self
-                                                          selector:@selector(loaderTick:)
-                                                          userInfo: nil repeats:YES];
-        [[NSRunLoop mainRunLoop] addTimer:self.loaderTimer forMode:NSRunLoopCommonModes];
-        [self loaderTick:nil];
         [self stopRecordingVideo];
     }
     
@@ -765,7 +780,6 @@
 //                    }];
     
     if([self.recording boolValue]){
-        [self performSelector:@selector(stopLoader) withObject:self afterDelay:.25];
         [self performSelector:@selector(startRecordingVideo) withObject:self afterDelay:.25];
     }
     
@@ -774,28 +788,6 @@
     
 }
 
-- (void)loaderTick:(NSTimer *)timer {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //Your main thread code goes in here
-        for(UIView *v in self.loaderTiles){
-            UIColor *p = PRIMARY_COLOR;
-            p = [p colorWithAlphaComponent:(arc4random() % 128 / 256.0)];
-            //            CGFloat hue = ( arc4random() % 256 / 256.0 );  //  0.0 to 1.0
-            //            CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from white
-            //            CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
-            //            UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
-            //
-            [v setBackgroundColor:p];
-        }
-        
-    });
-    //    NSLog(@"loader tick!");
-}
-
-- (void)stopLoader {
-    [self.loader removeFromSuperview];
-    [self.loaderTimer invalidate];
-}
 
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
 {
