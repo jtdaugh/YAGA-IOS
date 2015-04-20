@@ -211,6 +211,9 @@ typedef enum {
         [switchZoneIcon setImage:[UIImage imageNamed:@"Switch"]];
         [self.switchZone addSubview:switchZoneIcon];
         
+        UITapGestureRecognizer *switchZoneTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
+        [self.switchZone addGestureRecognizer:switchZoneTap];
+        
         [self.cameraView addSubview:self.switchZone];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
