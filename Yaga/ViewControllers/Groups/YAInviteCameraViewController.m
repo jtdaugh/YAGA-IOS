@@ -184,11 +184,15 @@
         AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
         if (videoStatus == AVAuthorizationStatusAuthorized) {
             
-            self.session = [YAUtils captureSession];
+            self.session = [[AVCaptureSession alloc] init];
+            self.session.sessionPreset = AVCaptureSessionPreset640x480;
             
             [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
             [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [self setupVideoInput];
+            });
             
         } else {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
@@ -286,7 +290,6 @@
 }
 
 - (void)closeCamera {
-    return;
     AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     // Don't try to configure anything if no permissions are granted. This would be rare anyway.
     if (videoStatus == AVAuthorizationStatusAuthorized) {
@@ -386,8 +389,7 @@
         return;
     
     //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-    self.movieFileOutput = self.session.outputs.lastObject;
-
+    
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
