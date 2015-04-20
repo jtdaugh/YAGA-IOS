@@ -45,8 +45,8 @@ typedef enum {
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
 
-@property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizerCamera;
-@property (strong, nonatomic) UIPanGestureRecognizer *switchCameraGestureRecognizer;
+@property (strong, nonatomic) UILongPressGestureRecognizer *longPressFullScreenGestureRecognizer;
+@property (strong, nonatomic) UILongPressGestureRecognizer *longPressRedButtonGestureRecognizer;
 @property (nonatomic) BOOL audioInputAdded;
 
 @property (nonatomic, strong) UILabel *recordTooltipLabel;
@@ -129,15 +129,6 @@ typedef enum {
         [self.recordButton.layer setCornerRadius:recordButtonWidth/2.0];
         [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
         [self.recordButton.layer setBorderWidth:4.0f];
-        
-        [self.recordButton addTarget:self action:@selector(startHold:withEvent:) forControlEvents:UIControlEventTouchDown];
-        [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpInside];
-        [self.recordButton addTarget:self action:@selector(endHold) forControlEvents:UIControlEventTouchUpOutside];
-        [self.recordButton addTarget:self action:@selector(holdMoved:withEvent:) forControlEvents:UIControlEventTouchDragOutside];
-        
-//        UILongPressGestureRecognizer *longPressGestureRecognizerButton = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-//        [longPressGestureRecognizerButton setMinimumPressDuration:0.2f];
-//        [self.recordButton addGestureRecognizer:longPressGestureRecognizerButton];
 
         [self.cameraAccessories addObject:self.recordButton];
         [self.view addSubview:self.recordButton];
@@ -314,13 +305,16 @@ typedef enum {
 
 - (void)enableRecording:(BOOL)enable {
     if(enable) {
-        self.longPressGestureRecognizerCamera = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-        [self.longPressGestureRecognizerCamera setMinimumPressDuration:0.2f];
-        [self.cameraView addGestureRecognizer:self.longPressGestureRecognizerCamera];
+        self.longPressFullScreenGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+        [self.longPressFullScreenGestureRecognizer setMinimumPressDuration:0.2f];
+        [self.cameraView addGestureRecognizer:self.longPressFullScreenGestureRecognizer];
+        self.longPressRedButtonGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+        [self.longPressRedButtonGestureRecognizer setMinimumPressDuration:0.0f];
+        [self.recordButton addGestureRecognizer:self.longPressRedButtonGestureRecognizer];
     }
     else {
-        [self.cameraView removeGestureRecognizer:self.longPressGestureRecognizerCamera];
-        
+        [self.cameraView removeGestureRecognizer:self.longPressFullScreenGestureRecognizer];
+        [self.recordButton removeGestureRecognizer:self.longPressRedButtonGestureRecognizer];
     }
 //    [UIView animateWithDuration:0.2 animations:^{
 //        self.recordButton.transforgm = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
@@ -479,11 +473,8 @@ typedef enum {
 }
 
 - (void)handleHold:(UILongPressGestureRecognizer *)recognizer {
-    if (![recognizer isEqual:self.longPressGestureRecognizerCamera]) return;
-    
     DLog(@"%ld", (unsigned long)recognizer.state);
     CGPoint loc = [recognizer locationInView:self.view];
-
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         [self endHold];
     } else if (recognizer.state == UIGestureRecognizerStateBegan){
@@ -493,7 +484,7 @@ typedef enum {
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         YATouchDragState prevState = self.lastTouchDragState;
         self.lastTouchDragState = [self touchDragStateForPoint:loc];
-        if (prevState != self.lastTouchDragState) {
+        if (prevState == YATouchDragStateOutside && self.lastTouchDragState == YATouchDragStateInside) {
             [self switchCamera:nil];
         }
     }
@@ -503,7 +494,7 @@ typedef enum {
     CGPoint loc = [[[event allTouches] anyObject] locationInView:self.view];
     YATouchDragState prevState = self.lastTouchDragState;
     self.lastTouchDragState = [self touchDragStateForPoint:loc];
-    if (prevState != self.lastTouchDragState) {
+    if (prevState == YATouchDragStateOutside && self.lastTouchDragState == YATouchDragStateInside) {
         [self switchCamera:nil];
     }
 }
