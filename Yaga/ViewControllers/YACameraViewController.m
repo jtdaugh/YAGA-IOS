@@ -15,6 +15,8 @@
 #import <CoreTelephony/CTCall.h>
 #import <CoreTelephony/CTCallCenter.h>
 
+#import <QuartzCore/QuartzCore.h>
+
 typedef enum {
     YATouchDragStateInside,
     YATouchDragStateOutside
@@ -174,16 +176,7 @@ typedef enum {
         [self.recordingIndicator addSubview:monkeyIndicator];
         self.recordingIndicator.alpha = 0.0;
         [self.cameraView addSubview:self.recordingIndicator];
-        
-        CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
-        scaleAnimation.duration = 0.25;
-        scaleAnimation.repeatCount = HUGE_VAL;
-        scaleAnimation.autoreverses = YES;
-        scaleAnimation.fromValue = [NSNumber numberWithFloat:1.618];
-        scaleAnimation.toValue = [NSNumber numberWithFloat:1.0];
-        
-        [self.recordingIndicator.layer addAnimation:scaleAnimation forKey:@"scale"];
-        
+                
         CGFloat zoneRadius = 200;
         self.switchZone = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - zoneRadius/2, VIEW_HEIGHT - zoneRadius/2, zoneRadius, zoneRadius)];
         [self.switchZone setBackgroundColor:[UIColor clearColor]];
@@ -555,6 +548,16 @@ typedef enum {
         
     }];
     
+    
+    
+    self.recordingIndicator.transform = CGAffineTransformIdentity;
+    [UIView animateWithDuration:0.25 delay:0.0 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
+        //
+        self.recordingIndicator.transform = CGAffineTransformMakeScale(1.618, 1.618);
+    } completion:^(BOOL finished) {
+        //
+    }];
+    
 //    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
 //        //
 //        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
@@ -597,6 +600,8 @@ typedef enum {
         [self.indicator removeFromSuperview];
         // Do Whatever You want on End of Gesture
         self.recording = [NSNumber numberWithBool:NO];
+        
+        [self.recordingIndicator.layer removeAllAnimations];
         
         if(self.flash){
             [self switchFlashMode:nil];
