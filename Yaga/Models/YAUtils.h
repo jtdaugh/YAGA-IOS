@@ -44,4 +44,9 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (void)copyGIFToClipboard:(YAVideo*)video;
 // Bumper
 + (void)saveVideoToCameraRoll:(YAVideo*)video;
+
+// Camera State
+@property (nonatomic) BOOL cameraNeedsRefresh;
+
+
 @end

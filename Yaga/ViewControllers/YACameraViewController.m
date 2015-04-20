@@ -57,6 +57,8 @@
 - (id)init {
     self = [super init];
     if(self) {
+        [YAUtils instance].cameraNeedsRefresh = YES; // So we set up the vid session initially.
+        
         self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
         self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2);
         [self.cameraView setBackgroundColor:[UIColor blackColor]];
@@ -245,7 +247,11 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self initCamera];
+    if ([YAUtils instance].cameraNeedsRefresh) {
+        [self initCamera];
+        [YAUtils instance].cameraNeedsRefresh = NO;
+    }
+    
     [self enableRecording:YES];
 
     [self updateCurrentGroupName];
@@ -266,7 +272,7 @@
         [self.cameraView removeGestureRecognizer:self.longPressGestureRecognizerCamera];
     }
 //    [UIView animateWithDuration:0.2 animations:^{
-//        self.recordButton.transform = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
+//        self.recordButton.transforgm = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
 //    }];
 }
 
