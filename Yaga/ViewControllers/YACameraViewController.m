@@ -202,11 +202,11 @@ typedef enum {
         self.switchZone.layer.cornerRadius = 100;
         self.switchZone.layer.masksToBounds = YES;
         self.switchZone.layer.borderColor = [UIColor whiteColor].CGColor;
-        self.switchZone.layer.borderWidth = 4.0f;
+        self.switchZone.layer.borderWidth = 3.0f;
         
         self.switchZone.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.switchZone.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
-        self.switchZone.layer.shadowRadius = 2.0f;
+        self.switchZone.layer.shadowRadius = 1.0f;
         self.switchZone.layer.shadowOpacity = 1.0f;
         
         CGFloat zoneIconSize = 60;
@@ -574,7 +574,7 @@ typedef enum {
     
     
     self.recordingIndicator.transform = CGAffineTransformIdentity;
-    [UIView animateWithDuration:0.25 delay:0.0 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
+    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
         //
         self.recordingIndicator.transform = CGAffineTransformMakeScale(1.618, 1.618);
     } completion:^(BOOL finished) {
