@@ -41,6 +41,7 @@
 @property (strong, nonatomic) UIButton *recordButton;
 
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizerCamera;
+@property (strong, nonatomic) UITapGestureRecognizer *switchCameraGestureRecognizerCamera;
 @property (nonatomic) BOOL audioInputAdded;
 
 @property (nonatomic, strong) UILabel *recordTooltipLabel;
@@ -267,6 +268,9 @@
         self.longPressGestureRecognizerCamera = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         [self.longPressGestureRecognizerCamera setMinimumPressDuration:0.2f];
         [self.cameraView addGestureRecognizer:self.longPressGestureRecognizerCamera];
+
+        self.switchCameraGestureRecognizerCamera = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
+        [self.cameraView addGestureRecognizer:self.switchCameraGestureRecognizerCamera];
     }
     else {
         [self.cameraView removeGestureRecognizer:self.longPressGestureRecognizerCamera];
@@ -469,7 +473,6 @@
         
         [AnalyticsKit logEvent:@"First video post"];
     }
-
     
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
@@ -479,7 +482,17 @@
         
     }];
     
-    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+//    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
+//        //
+//        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
+//    } completion:^(BOOL finished) {
+//        //
+//        if(finished){
+//            [self endHold];
+//        }
+//    }];
+
+    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
         [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
     } completion:^(BOOL finished) {
         if(finished){
@@ -524,7 +537,8 @@
     //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
     
     //Create temporary URL to record to
-    NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
+    NSString *randomString = [[NSProcessInfo processInfo] globallyUniqueString];
+    NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), randomString];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:outputPath])
@@ -606,6 +620,10 @@
     if(self.openSettingsButton)
         return;
     
+    if(self.recording){
+        [self stopRecordingVideo];
+    }
+    
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
     AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
     AVCaptureDevicePosition currentPosition = [currentVideoDevice position];
@@ -646,8 +664,7 @@
     [[self session] beginConfiguration];
     
     [[self session] removeInput:[self videoInput]];
-    if ([[self session] canAddInput:videoDeviceInput])
-    {
+    if ([[self session] canAddInput:videoDeviceInput]) {
         [[self session] addInput:videoDeviceInput];
         [self setVideoInput:videoDeviceInput];
     }
@@ -658,7 +675,9 @@
     
     [[self session] commitConfiguration];
     
-    
+    if(self.recording){
+        [self startRecordingVideo];
+    }
     
     //    [self.session beginConfiguration];
     //    [self.session commitConfiguration];
