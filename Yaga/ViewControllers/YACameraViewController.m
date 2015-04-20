@@ -41,7 +41,7 @@
 @property (strong, nonatomic) UIButton *recordButton;
 
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizerCamera;
-@property (strong, nonatomic) UITapGestureRecognizer *switchCameraGestureRecognizerCamera;
+@property (strong, nonatomic) UIPanGestureRecognizer *switchCameraGestureRecognizer;
 @property (nonatomic) BOOL audioInputAdded;
 
 @property (nonatomic, strong) UILabel *recordTooltipLabel;
@@ -58,6 +58,7 @@
 @property (strong, nonatomic) NSTimer *loaderTimer;
 @property (strong, nonatomic) NSMutableArray *loaderTiles;
 
+@property (nonatomic, strong) UIView *thumbView;
 
 @end
 
@@ -75,6 +76,9 @@
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
         
+        self.thumbView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        self.thumbView.backgroundColor = PRIMARY_COLOR;
+
         self.cameraAccessories = [@[] mutableCopy];
         
         self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
@@ -294,12 +298,10 @@
         self.longPressGestureRecognizerCamera = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         [self.longPressGestureRecognizerCamera setMinimumPressDuration:0.2f];
         [self.cameraView addGestureRecognizer:self.longPressGestureRecognizerCamera];
-
-        self.switchCameraGestureRecognizerCamera = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
-        [self.cameraView addGestureRecognizer:self.switchCameraGestureRecognizerCamera];
     }
     else {
         [self.cameraView removeGestureRecognizer:self.longPressGestureRecognizerCamera];
+        
     }
 //    [UIView animateWithDuration:0.2 animations:^{
 //        self.recordButton.transforgm = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
@@ -457,12 +459,23 @@
     }
 }
 
-- (void)handleHold:(UITapGestureRecognizer *)recognizer {
+- (void)handleHold:(UILongPressGestureRecognizer *)recognizer {
+    if (![recognizer isEqual:self.longPressGestureRecognizerCamera]) return;
+    
     DLog(@"%ld", (unsigned long)recognizer.state);
     if (recognizer.state == UIGestureRecognizerStateEnded) {
+        [self.thumbView removeFromSuperview];
         [self endHold];
     } else if (recognizer.state == UIGestureRecognizerStateBegan){
+        CGPoint loc = [recognizer locationInView:self.view];
+        self.thumbView.center = loc;
+        [self.view addSubview:self.thumbView];
+
         [self startHold];
+        
+    } else if (recognizer.state == UIGestureRecognizerStateChanged) {
+        CGPoint loc = [recognizer locationInView:self.view];
+        self.thumbView.center = loc;
     }
 }
 
@@ -487,7 +500,7 @@
     
     [self.view bringSubviewToFront:self.white];
     [self.view bringSubviewToFront:self.indicator];
-
+    
     if(self.recordTooltipLabel) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
         
@@ -534,6 +547,8 @@
 
 - (void)endHold {
     if([self.recording boolValue]){
+        
+        [self.thumbView removeFromSuperview];
         
         [self.view bringSubviewToFront:self.cameraView];
 //        [self.view bringSubviewToFront:self.recordButton];
@@ -654,16 +669,16 @@
     if(self.openSettingsButton)
         return;
     
-    [self.cameraView addSubview:self.loader];
-    
-    self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.025
-                                                        target: self
-                                                      selector:@selector(loaderTick:)
-                                                      userInfo: nil repeats:YES];
-    [[NSRunLoop mainRunLoop] addTimer:self.loaderTimer forMode:NSRunLoopCommonModes];
-    [self loaderTick:nil];
 
     if([self.recording boolValue]){
+        [self.cameraView addSubview:self.loader];
+        
+        self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.025
+                                                            target: self
+                                                          selector:@selector(loaderTick:)
+                                                          userInfo: nil repeats:YES];
+        [[NSRunLoop mainRunLoop] addTimer:self.loaderTimer forMode:NSRunLoopCommonModes];
+        [self loaderTick:nil];
         [self stopRecordingVideo];
     }
     
