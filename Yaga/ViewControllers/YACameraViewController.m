@@ -621,6 +621,7 @@
         return;
     
     if(self.recording){
+        [self stopRecordingVideo];
     }
     
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
@@ -676,7 +677,7 @@
     
     
     [UIView transitionWithView:self.cameraView
-                      duration:0.25
+                      duration:0.5
                        options:UIViewAnimationOptionTransitionFlipFromRight|UIViewAnimationOptionCurveEaseInOut
                     animations:^{
                     }
@@ -687,8 +688,7 @@
                     }];
     
     if(self.recording){
-        [self stopRecordingVideo];
-        [self performSelector:@selector(startRecordingVideo) withObject:self afterDelay:0.25];
+        [self performSelector:@selector(startRecordingVideo) withObject:self afterDelay:0.5];
 //        [self startRecordingVideo];
     }
     
