@@ -675,7 +675,6 @@
     
     [[self session] commitConfiguration];
     
-    
     [UIView transitionWithView:self.cameraView
                       duration:0.5
                        options:UIViewAnimationOptionTransitionFlipFromRight|UIViewAnimationOptionCurveEaseInOut
