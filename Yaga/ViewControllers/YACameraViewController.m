@@ -168,7 +168,7 @@ typedef enum {
         self.countdownLabel.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
         [self.countdownLabel setTextAlignment:NSTextAlignmentCenter];
         [self.countdownLabel setFont:[UIFont fontWithName:@"AvenirNext-HeavyItalic" size:72]];
-        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@""
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"."
                                                                      attributes:@{
                                                                                   NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                   NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
@@ -612,18 +612,25 @@ typedef enum {
     if(remaining <= (max_countdown + 1) && remaining > 1){
         // flash remaining - 1
         self.countdownLabel.text = [NSString stringWithFormat:@"%i", remaining-1];
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%i", remaining-1]
+                                                                     attributes:@{
+                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+                                                                                  }];
+        self.countdownLabel.attributedText = string;
+
         self.countdownLabel.alpha = 0.0;
         self.countdownLabel.transform = CGAffineTransformIdentity;
         
         [UIView animateKeyframesWithDuration:0.8 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
             //
-            [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
+            [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.33 animations:^{
                 //
                 self.countdownLabel.transform = CGAffineTransformMakeScale(1.5, 1.5);
                 self.countdownLabel.alpha = 1.0;
             }];
             
-            [UIView addKeyframeWithRelativeStartTime:0.6 relativeDuration:0.4 animations:^{
+            [UIView addKeyframeWithRelativeStartTime:0.66 relativeDuration:0.33 animations:^{
                 //
                 self.countdownLabel.transform = CGAffineTransformIdentity;
                 self.countdownLabel.alpha = 0.0;
