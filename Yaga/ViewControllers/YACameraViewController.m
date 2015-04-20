@@ -454,6 +454,7 @@
 //        self.audioInputAdded = YES;
 //        [self.session commitConfiguration];
 //    }
+    self.currentRecordingURLs = [NSMutableArray new];
     self.recording = [NSNumber numberWithBool:YES];
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
@@ -611,7 +612,15 @@
         
         DLog(@"file size: %lld", fileSize);
         
-        [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
+        [self.currentRecordingURLs addObject:outputFileURL];
+        
+        if (![self.recording boolValue]) {
+            if ([self.currentRecordingURLs count] > 1) {
+                [[YAAssetsCreator sharedCreator] createVideoFromSequenceOfURLs:self.currentRecordingURLs addToGroup:[YAUser currentUser].currentGroup];
+            } else {
+                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
+            }
+        }
         
     } else {
         [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:YANotificationTypeError];
