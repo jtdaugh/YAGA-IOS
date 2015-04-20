@@ -61,6 +61,8 @@
 @property (nonatomic, strong) UIView *thumbView;
 @property (strong, nonatomic) UIView *recordingIndicator;
 
+@property (strong, nonatomic) UIView *switchZone;
+
 @end
 
 @implementation YACameraViewController
@@ -210,6 +212,25 @@
         
         [self.recordingIndicator.layer addAnimation:scaleAnimation forKey:@"scale"];
         
+        CGFloat zoneRadius = 200;
+        self.switchZone = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - zoneRadius/2, VIEW_HEIGHT - zoneRadius/2, zoneRadius, zoneRadius)];
+        [self.switchZone setBackgroundColor:[UIColor clearColor]];
+        self.switchZone.layer.cornerRadius = 100;
+        self.switchZone.layer.masksToBounds = YES;
+        self.switchZone.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.switchZone.layer.borderWidth = 4.0f;
+        
+        self.switchZone.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.switchZone.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
+        self.switchZone.layer.shadowRadius = 2.0f;
+        self.switchZone.layer.shadowOpacity = 1.0f;
+        
+        CGFloat zoneIconSize = 60;
+        UIImageView *switchZoneIcon = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchZone.frame.size.width/2 - zoneIconSize/2, self.switchZone.frame.size.height/3 - zoneIconSize/2, zoneIconSize, zoneIconSize)];
+        [switchZoneIcon setImage:[UIImage imageNamed:@"Switch"]];
+        [self.switchZone addSubview:switchZoneIcon];
+        
+        [self.cameraView addSubview:self.switchZone];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
