@@ -632,7 +632,7 @@
     if(self.openSettingsButton)
         return;
     
-    if(self.recording){
+    if([self.recording boolValue]){
         [self stopRecordingVideo];
     }
     
@@ -699,7 +699,7 @@
                         }
                     }];
     
-    if(self.recording){
+    if([self.recording boolValue]){
         [self performSelector:@selector(startRecordingVideo) withObject:self afterDelay:0.5];
 //        [self startRecordingVideo];
     }
