@@ -490,15 +490,6 @@ typedef enum {
     }
 }
 
-- (void)holdMoved:(id)sender withEvent:(UIEvent *)event{
-    CGPoint loc = [[[event allTouches] anyObject] locationInView:self.view];
-    YATouchDragState prevState = self.lastTouchDragState;
-    self.lastTouchDragState = [self touchDragStateForPoint:loc];
-    if (prevState == YATouchDragStateOutside && self.lastTouchDragState == YATouchDragStateInside) {
-        [self switchCamera:nil];
-    }
-}
-
 - (YATouchDragState)touchDragStateForPoint:(CGPoint)point {
     CGPoint switchSpot = CGPointMake(VIEW_WIDTH / 2.f, VIEW_HEIGHT);
     CGFloat xDif = point.x - switchSpot.x;
