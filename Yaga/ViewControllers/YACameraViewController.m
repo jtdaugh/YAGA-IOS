@@ -51,6 +51,9 @@
 @property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
 
 @property (nonatomic, strong) CTCallCenter *callCenter;
+
+@property (nonatomic, strong) NSMutableArray *currentRecordingURLs;
+
 @end
 
 @implementation YACameraViewController
