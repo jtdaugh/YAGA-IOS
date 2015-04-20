@@ -158,6 +158,25 @@
     //one operation can create gif earlier and start uploading, second operation will clean up the file for saving new gif date and and that moment zero bytes are read for uploading.
 }
 
+- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs
+                        addToGroup:(YAGroup*)group {
+    NSURL *outputUrl = [YAUtils urlFromFileName:@"concatenated.mp4"];
+    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
+
+    [self concatenateAssetsAtURLs:videoURLs withOutputURL:outputUrl completion:^(NSURL *filePath, NSError *error) {
+        if (!error) {
+            YAVideo *video = [YAVideo video];
+            YACreateRecordingOperation *recordingOperation = [[YACreateRecordingOperation alloc] initRecordingURL:filePath group:group video:video];
+            [self.recordingQueue addOperation:recordingOperation];
+            
+            [self.recordingQueue addOperationWithBlock:^{
+                [self createJpgForVideo:video];
+            }];
+        }
+    }];
+}
+
+
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [[YADownloadManager sharedManager] cancelAllJobs];
