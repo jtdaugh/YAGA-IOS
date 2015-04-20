@@ -58,6 +58,8 @@
 @property (strong, nonatomic) NSTimer *loaderTimer;
 @property (strong, nonatomic) NSMutableArray *loaderTiles;
 
+@property (strong, nonatomic) UIView *recordingIndicator;
+
 
 @end
 
@@ -139,8 +141,6 @@
         
         //switch groups button
         
-        
-        
         self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30-10, 40)];
         //        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
         [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
@@ -172,6 +172,7 @@
         [self.cameraAccessories addObject:self.unviewedVideosBadge];
         [self.cameraView addSubview:self.unviewedVideosBadge];
         
+        // initializing the loader
         self.loader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         
         int rows = 32, cols = 16;
@@ -188,7 +189,24 @@
             [self.loader addSubview:loaderTile];
             [self.loaderTiles addObject:loaderTile];
         }
-
+        
+        CGFloat width = 48;
+        self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2 - width/2, 20, width, width)];
+        UIImageView *monkeyIndicator = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, width, width)];
+        [monkeyIndicator setImage:[UIImage imageNamed:@"Monkey_Pink"]];
+        [self.recordingIndicator addSubview:monkeyIndicator];
+        self.recordingIndicator.alpha = 0.0;
+        [self.cameraView addSubview:self.recordingIndicator];
+        
+        CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+        scaleAnimation.duration = 0.25;
+        scaleAnimation.repeatCount = HUGE_VAL;
+        scaleAnimation.autoreverses = YES;
+        scaleAnimation.fromValue = [NSNumber numberWithFloat:1.618];
+        scaleAnimation.toValue = [NSNumber numberWithFloat:1.0];
+        
+        [self.recordingIndicator.layer addAnimation:scaleAnimation forKey:@"scale"];
+        
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -479,11 +497,12 @@
 //    }
     self.currentRecordingURLs = [NSMutableArray new];
     self.recording = [NSNumber numberWithBool:YES];
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
-    [self.indicator setBackgroundColor:PRIMARY_COLOR];
-    [self.indicator setUserInteractionEnabled:NO];
-    [self.indicatorText setText:@"Recording..."];
-    [self.view addSubview:self.indicator];
+    self.recordingIndicator.alpha = 1.0;
+//    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
+//    [self.indicator setBackgroundColor:PRIMARY_COLOR];
+//    [self.indicator setUserInteractionEnabled:NO];
+//    [self.indicatorText setText:@"Recording..."];
+//    [self.view addSubview:self.indicator];
     
     [self.view bringSubviewToFront:self.white];
     [self.view bringSubviewToFront:self.indicator];
@@ -519,14 +538,15 @@
 //        }
 //    }];
 
-    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
-    } completion:^(BOOL finished) {
-        if(finished){
-            [self endHold];
-        }
-        //
-    }];
+    [self performSelector:@selector(endHold) withObject:self afterDelay:MAX_VIDEO_DURATION];
+//    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+////        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
+//    } completion:^(BOOL finished) {
+//        if(finished){
+//            [self endHold];
+//        }
+//        //
+//    }];
 
     [self startRecordingVideo];
     
@@ -534,6 +554,7 @@
 
 - (void)endHold {
     if([self.recording boolValue]){
+        self.recordingIndicator.alpha = 0.0;
         
         [self.view bringSubviewToFront:self.cameraView];
 //        [self.view bringSubviewToFront:self.recordButton];
@@ -666,8 +687,6 @@
     if([self.recording boolValue]){
         [self stopRecordingVideo];
     }
-    
-
     
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
     AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
