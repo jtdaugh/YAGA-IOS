@@ -65,10 +65,16 @@
 
 #pragma mark - Video composition
 
-- (void)concatenateAssetsAtURLs:(NSArray *)assetURLs withOutputURL:(NSURL *)outputURL completion:(videoConcatenationCompletion)completion {
+- (void)concatenateAssetsAtURLs:(NSArray *)assetURLs
+                  withOutputURL:(NSURL *)outputURL
+                  exportQuality:(NSString *)exportQuality
+                     completion:(videoConcatenationCompletion)completion {
+   
     AVMutableComposition *combinedVideoComposition = [self buildVideoSequenceCompositionFromURLS:assetURLs];
+    if (!exportQuality) exportQuality = AVAssetExportPresetMediumQuality;
+    
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:combinedVideoComposition
-                                                                     presetName:AVAssetExportPresetMediumQuality];
+                                                                     presetName:exportQuality];
     
     session.outputURL = outputURL;
     session.outputFileType = AVFileTypeMPEG4;
@@ -93,7 +99,10 @@
     NSString *bumperPath = [[NSBundle mainBundle] pathForResource:@"bumper_rotated" ofType:@"mp4"];
     [assetURLsToConcatenate addObject:[NSURL fileURLWithPath:bumperPath]];
     
-    [self concatenateAssetsAtURLs:assetURLsToConcatenate withOutputURL:outputUrl completion:completion];
+    [self concatenateAssetsAtURLs:assetURLsToConcatenate
+                    withOutputURL:outputUrl
+                    exportQuality:AVAssetExportPresetMediumQuality
+                       completion:completion];
 }
 
 
@@ -125,6 +134,7 @@
         AVAssetTrack *audioTrack = [[currentAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
 
         CMTime assetDuration = currentAsset.duration;
+        assetDuration.value -= CMTimeMakeWithSeconds(0.05f, assetDuration.timescale).value; // shave off last .05 seconds to remove black blip
         
         if (videoTrack) {
             [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetDuration)
@@ -163,7 +173,10 @@
     NSURL *outputUrl = [YAUtils urlFromFileName:@"concatenated.mp4"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
 
-    [self concatenateAssetsAtURLs:videoURLs withOutputURL:outputUrl completion:^(NSURL *filePath, NSError *error) {
+    [self concatenateAssetsAtURLs:videoURLs
+                    withOutputURL:outputUrl
+                    exportQuality:AVAssetExportPreset640x480
+                       completion:^(NSURL *filePath, NSError *error) {
         if (!error) {
             YAVideo *video = [YAVideo video];
             YACreateRecordingOperation *recordingOperation = [[YACreateRecordingOperation alloc] initRecordingURL:filePath group:group video:video];
