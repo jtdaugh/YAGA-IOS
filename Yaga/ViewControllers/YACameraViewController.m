@@ -654,18 +654,19 @@
     if(self.openSettingsButton)
         return;
     
-    if([self.recording boolValue]){
-        [self stopRecordingVideo];
-    }
-    
     [self.cameraView addSubview:self.loader];
-
+    
     self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.025
                                                         target: self
                                                       selector:@selector(loaderTick:)
                                                       userInfo: nil repeats:YES];
-    
+    [[NSRunLoop mainRunLoop] addTimer:self.loaderTimer forMode:NSRunLoopCommonModes];
     [self loaderTick:nil];
+
+    if([self.recording boolValue]){
+        [self stopRecordingVideo];
+    }
+    
 
     
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
