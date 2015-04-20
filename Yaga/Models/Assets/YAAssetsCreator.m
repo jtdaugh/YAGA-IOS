@@ -160,10 +160,10 @@
 
 - (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs
                         addToGroup:(YAGroup*)group {
-    NSString *randomString = [[NSProcessInfo processInfo] globallyUniqueString];
-    NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), randomString];
+    NSURL *outputUrl = [YAUtils urlFromFileName:@"concatenated.mp4"];
+    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
 
-    [self concatenateAssetsAtURLs:videoURLs withOutputURL:[NSURL URLWithString:outputPath] completion:^(NSURL *filePath, NSError *error) {
+    [self concatenateAssetsAtURLs:videoURLs withOutputURL:outputUrl completion:^(NSURL *filePath, NSError *error) {
         if (!error) {
             YAVideo *video = [YAVideo video];
             YACreateRecordingOperation *recordingOperation = [[YACreateRecordingOperation alloc] initRecordingURL:filePath group:group video:video];
