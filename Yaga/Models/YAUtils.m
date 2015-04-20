@@ -347,4 +347,109 @@
     }
 }
 
+#pragma mark - Camera Session
++ (AVCaptureSession*)captureSession
+{
+    static dispatch_once_t _singletonPredicate;
+    static AVCaptureSession *_session = nil;
+    
+    dispatch_once(&_singletonPredicate, ^{
+        _session = [[AVCaptureSession alloc] init];
+        
+        [_session beginConfiguration];
+        
+        _session.sessionPreset = AVCaptureSessionPreset640x480;
+        
+        //  [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
+        //  [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self setupVideoInputForSession:_session];
+        });
+        
+        [_session commitConfiguration];
+    });
+    
+    return _session;
+}
+
++ (void)setupVideoInputForSession:(AVCaptureSession*)session {
+    NSError *error = nil;
+    
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    AVCaptureDevice *captureDevice = [devices firstObject];
+    
+    for (AVCaptureDevice *device in devices)
+    {
+        if ([device position] == AVCaptureDevicePositionBack)
+        {
+            captureDevice = device;
+            break;
+        }
+    }
+    
+    if([captureDevice lockForConfiguration:nil]){
+        if([captureDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+            [captureDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        }
+        
+        if([captureDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
+            [captureDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+        }
+        [captureDevice unlockForConfiguration];
+    }
+    
+    AVCaptureDeviceInput *videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
+    
+    if (error)
+    {
+        DLog(@"add video input error: %@", error);
+    }
+    
+    if ([session canAddInput:videoInput])
+    {
+        [session addInput:videoInput];
+    }
+    
+    AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+    
+    if ([session canAddOutput:movieFileOutput])
+    {
+        [session addOutput:movieFileOutput];
+    }
+    
+    AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+    if (audioStatus == AVAuthorizationStatusAuthorized) {
+        [self setupAudioInputForSession:session];
+        [session startRunning];
+    } else {
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
+                                 completionHandler:^(BOOL granted) {
+                                     if (granted) {
+                                         [self setupAudioInputForSession:session];
+                                         [session startRunning];
+                                     }
+                                 }];
+    }
+    
+}
+
++ (void)setupAudioInputForSession:(AVCaptureSession*)session {
+    NSError *error = nil;
+    AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
+    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+    
+    if (error)
+    {
+        DLog(@"add audio input error: %@", error);
+    }
+    //Don't add just now to allow bg audio to play
+    //self.audioInputAdded = NO;
+    if ([session canAddInput:audioInput])
+    {
+        [session addInput:audioInput];
+    }
+    
+}
+
 @end
