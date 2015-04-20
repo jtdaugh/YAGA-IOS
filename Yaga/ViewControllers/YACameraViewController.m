@@ -65,6 +65,10 @@ typedef enum {
 @property (nonatomic) YATouchDragState lastTouchDragState;
 @property (strong, nonatomic) UIView *switchZone;
 
+@property (strong, nonatomic) NSTimer *countdown;
+@property int count;
+@property (strong, nonatomic) UILabel *countdownLabel;
+
 @end
 
 @implementation YACameraViewController
@@ -157,6 +161,21 @@ typedef enum {
         
         [self.cameraAccessories addObject:self.switchGroupsButton];
         [self.cameraView addSubview:self.switchGroupsButton];
+        
+        CGFloat labelWidth = 96;
+        self.countdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, labelWidth)];
+        self.countdownLabel.alpha = 0.0;
+        self.countdownLabel.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
+        [self.countdownLabel setTextAlignment:NSTextAlignmentCenter];
+        [self.countdownLabel setFont:[UIFont fontWithName:@"AvenirNext-HeavyItalic" size:72]];
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@""
+                                                                     attributes:@{
+                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+                                                                                  }];
+        self.countdownLabel.attributedText = string;
+        [self.countdownLabel setTextColor:PRIMARY_COLOR];
+        [self.cameraView addSubview:self.countdownLabel];
         
         //unviewed badge
         const CGFloat badgeWidth = 10;
@@ -527,6 +546,10 @@ typedef enum {
     [self.view bringSubviewToFront:self.white];
     [self.view bringSubviewToFront:self.indicator];
     
+    [self.countdown invalidate];
+    self.countdown = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(countdownTick:) userInfo:nil repeats:YES];
+    self.count = 0;
+    
     if(self.recordTooltipLabel) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
         
@@ -568,7 +591,6 @@ typedef enum {
 //        }
 //    }];
 
-    [self performSelector:@selector(endHold) withObject:self afterDelay:MAX_VIDEO_DURATION];
 //    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
 ////        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
 //    } completion:^(BOOL finished) {
@@ -580,6 +602,41 @@ typedef enum {
 
     [self startRecordingVideo];
     
+}
+
+- (void)countdownTick:(NSTimer *) timer {
+    self.count++;
+    
+    int remaining = MAX_VIDEO_DURATION - self.count;
+    int max_countdown = 5;
+    if(remaining <= (max_countdown + 1) && remaining > 1){
+        // flash remaining - 1
+        self.countdownLabel.text = [NSString stringWithFormat:@"%i", remaining-1];
+        self.countdownLabel.alpha = 0.0;
+        self.countdownLabel.transform = CGAffineTransformIdentity;
+        
+        [UIView animateKeyframesWithDuration:0.8 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+            //
+            [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
+                //
+                self.countdownLabel.transform = CGAffineTransformMakeScale(1.5, 1.5);
+                self.countdownLabel.alpha = 1.0;
+            }];
+            
+            [UIView addKeyframeWithRelativeStartTime:0.6 relativeDuration:0.4 animations:^{
+                //
+                self.countdownLabel.transform = CGAffineTransformIdentity;
+                self.countdownLabel.alpha = 0.0;
+            }];
+        } completion:^(BOOL finished) {
+            //
+//            self.countdownLabel.transform = CGAffineTransformIdentity;
+//            self.countdownLabel.alpha = 0.0;
+        }];
+        
+    } else if(remaining == 0) {
+        [self endHold];
+    }
 }
 
 - (void)endHold {
@@ -607,6 +664,9 @@ typedef enum {
             [self switchFlashMode:nil];
         }
 
+        [self.countdown invalidate];
+        self.countdown = nil;
+        
         [self stopRecordingVideo];
     }
 }
