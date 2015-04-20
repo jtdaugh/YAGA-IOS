@@ -58,11 +58,10 @@ typedef enum {
 @property (nonatomic, strong) CTCallCenter *callCenter;
 
 @property (nonatomic, strong) NSMutableArray *currentRecordingURLs;
-
-@property (nonatomic, strong) UIView *thumbView;
 @property (strong, nonatomic) UIView *recordingIndicator;
 
 @property (nonatomic) YATouchDragState lastTouchDragState;
+@property (strong, nonatomic) UIView *switchZone;
 
 @end
 
@@ -80,9 +79,6 @@ typedef enum {
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
         
-        self.thumbView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-        self.thumbView.backgroundColor = PRIMARY_COLOR;
-
         self.cameraAccessories = [@[] mutableCopy];
         
         self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
@@ -95,7 +91,7 @@ typedef enum {
         tapGestureRecognizer.delegate = self;
         [self.white addGestureRecognizer:tapGestureRecognizer];
         
-        CGFloat size = 44;
+        CGFloat size = 60;
         self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
@@ -105,7 +101,7 @@ typedef enum {
         [self.cameraAccessories addObject:self.switchCameraButton];
         [self.cameraView addSubview:self.switchCameraButton];
         
-        UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size, size)];
+        UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size - 10, size - 10)];
         //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
         [flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
         [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
@@ -119,7 +115,7 @@ typedef enum {
         self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(groupButtonXOrigin, 10, self.switchCameraButton.frame.origin.x - groupButtonXOrigin - 10 , size)];
         [self.groupButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
         [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
-        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
+        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
         self.groupButton.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.groupButton.layer.shadowRadius = 1.0f;
         self.groupButton.layer.shadowOpacity = 1.0;
@@ -151,9 +147,9 @@ typedef enum {
         self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30-10, 40)];
         //        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
         [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
-        [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
+        [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
         [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
-        [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"%@", NSLocalizedString(@"Switch groups", @"")] forState:UIControlStateNormal];
+        [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"%@", NSLocalizedString(@"Groups", @"")] forState:UIControlStateNormal];
         
         CGFloat requiredWidth = [self.switchGroupsButton.titleLabel.attributedText size].width;
         CGRect tempFrame = self.switchGroupsButton.frame;
@@ -197,6 +193,25 @@ typedef enum {
         
         [self.recordingIndicator.layer addAnimation:scaleAnimation forKey:@"scale"];
         
+        CGFloat zoneRadius = 200;
+        self.switchZone = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - zoneRadius/2, VIEW_HEIGHT - zoneRadius/2, zoneRadius, zoneRadius)];
+        [self.switchZone setBackgroundColor:[UIColor clearColor]];
+        self.switchZone.layer.cornerRadius = 100;
+        self.switchZone.layer.masksToBounds = YES;
+        self.switchZone.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.switchZone.layer.borderWidth = 4.0f;
+        
+        self.switchZone.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.switchZone.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
+        self.switchZone.layer.shadowRadius = 2.0f;
+        self.switchZone.layer.shadowOpacity = 1.0f;
+        
+        CGFloat zoneIconSize = 60;
+        UIImageView *switchZoneIcon = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchZone.frame.size.width/2 - zoneIconSize/2, self.switchZone.frame.size.height/3 - zoneIconSize/2, zoneIconSize, zoneIconSize)];
+        [switchZoneIcon setImage:[UIImage imageNamed:@"Switch"]];
+        [self.switchZone addSubview:switchZoneIcon];
+        
+        [self.cameraView addSubview:self.switchZone];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -468,7 +483,6 @@ typedef enum {
     
     DLog(@"%ld", (unsigned long)recognizer.state);
     CGPoint loc = [recognizer locationInView:self.view];
-    self.thumbView.center = loc;
 
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         [self endHold];
@@ -486,9 +500,7 @@ typedef enum {
 }
 
 - (void)holdMoved:(id)sender withEvent:(UIEvent *)event{
-    UIButton *selected = (UIButton *)sender;
     CGPoint loc = [[[event allTouches] anyObject] locationInView:self.view];
-    self.thumbView.center = loc;
     YATouchDragState prevState = self.lastTouchDragState;
     self.lastTouchDragState = [self touchDragStateForPoint:loc];
     if (prevState != self.lastTouchDragState) {
@@ -500,7 +512,7 @@ typedef enum {
     CGPoint switchSpot = CGPointMake(VIEW_WIDTH / 2.f, VIEW_HEIGHT);
     CGFloat xDif = point.x - switchSpot.x;
     CGFloat yDif = point.y - switchSpot.y;
-    CGFloat maxDif = (VIEW_HEIGHT * 0.1f);
+    CGFloat maxDif = 200.f;
     if (((xDif * xDif) + (yDif * yDif)) < (maxDif * maxDif)) {
         return YATouchDragStateInside;
     }
@@ -508,15 +520,12 @@ typedef enum {
 }
 
 - (void)startHold:(id)sender withEvent:(UIEvent *)event {
-    UIButton *selected = (UIButton *)sender;
     CGPoint loc = [[[event allTouches] anyObject] locationInView:self.view];
-    self.thumbView.center = loc;
     self.lastTouchDragState = [self touchDragStateForPoint:loc];
     [self startHold];
 }
 
 - (void)startHold {
-    [self.view addSubview:self.thumbView];
 
     DLog(@"starting hold");
     
@@ -586,12 +595,9 @@ typedef enum {
 }
 
 - (void)endHold {
-    [self.thumbView removeFromSuperview];
 
     if([self.recording boolValue]){
         self.recordingIndicator.alpha = 0.0;
-        
-        [self.thumbView removeFromSuperview];
         
         [self.view bringSubviewToFront:self.cameraView];
 //        [self.view bringSubviewToFront:self.recordButton];
