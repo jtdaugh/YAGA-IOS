@@ -579,23 +579,6 @@ static NSString *cellID = @"Cell";
     return self.animationController;
 }
 
-#pragma mark - Gesture recognizers
--(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
-    if (gestureRecognizer.state != UIGestureRecognizerStateEnded)
-        return;
-    
-    CGPoint p = [gestureRecognizer locationInView:self.collectionView];
-    
-    NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:p];
-    if (indexPath) {
-        YAVideo *video = [[YAUser currentUser].currentGroup.videos objectAtIndex:indexPath.row];
-        BOOL myVideo = [video.creator isEqualToString:[[YAUser currentUser] username]];
-        
-        if(myVideo)
-            [YAUtils showVideoOptionsForVideo:video];
-    }
-}
-
 #pragma mark - Paging
 - (void)handlePaging {
     NSArray *visibleIndexes = [[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"];

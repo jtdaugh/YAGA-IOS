@@ -298,7 +298,7 @@
     [self.hud show:YES];
 
     
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:videoURL
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:videoURL
                                                                    completion:^(NSURL *filePath, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {

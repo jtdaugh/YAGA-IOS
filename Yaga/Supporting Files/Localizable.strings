@@ -28,6 +28,7 @@
 "Choose your Country" = "Choose your Country";
 "Switch groups" = "Switch groups";
 "Can't save photos" = "Couldn't save photos. Check your Settings -> Privacy -> Photos";
+"Please wait.." = "Please wait..";
 "Please wait, video is loading.." = "Please wait, video is loading..";
 
 "Looks like you're already a part of a group" = "Looks like you're already a part of a group. Pick which one you'd like to go to now.";
@@ -116,6 +117,5 @@
 "Push notifications are disabled" = "Push notifications are disabled";//pushes permissions alert message
 "Never show this again" = "Never show this again";//pushes permissions option 1
 "Remind me later" = "Remind me later";//pushes permissions option 2
-
 
 "No internet connection, try later." = "No internet connection, try later.";

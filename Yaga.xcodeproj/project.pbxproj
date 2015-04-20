@@ -103,7 +103,6 @@
 		86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A51A433185002256FF /* YACountriesTableViewController.m */; };
 		86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A81A43322F002256FF /* CountryListDataSource.m */; };
 		86B864AC1A433343002256FF /* CountryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864AB1A433343002256FF /* CountryCell.m */; };
-		86D9B9251AD40CEC00994674 /* YASaveToCameraRollActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
 		88461C051ADA23120099B523 /* bumper_rotated.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 88461C041ADA23090099B523 /* bumper_rotated.mp4 */; };
 		887AFD0C1AD8623500F00948 /* YAInviteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0B1AD8623500F00948 /* YAInviteViewController.m */; };
@@ -285,8 +284,6 @@
 		86B864A81A43322F002256FF /* CountryListDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CountryListDataSource.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		86B864AA1A433343002256FF /* CountryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CountryCell.h; sourceTree = "<group>"; };
 		86B864AB1A433343002256FF /* CountryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CountryCell.m; sourceTree = "<group>"; };
-		86D9B9231AD40CEC00994674 /* YASaveToCameraRollActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASaveToCameraRollActivity.h; sourceTree = "<group>"; };
-		86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASaveToCameraRollActivity.m; sourceTree = "<group>"; };
 		86EF0B8E1A40592F00FF4E3C /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		88461C041ADA23090099B523 /* bumper_rotated.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper_rotated.mp4; sourceTree = "<group>"; };
 		887AFD0A1AD8623500F00948 /* YAInviteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAInviteViewController.h; sourceTree = "<group>"; };
@@ -651,8 +648,6 @@
 			children = (
 				8695EF861AAF519900431E44 /* YAGifCopyActivity.h */,
 				8695EF871AAF519900431E44 /* YAGifCopyActivity.m */,
-				86D9B9231AD40CEC00994674 /* YASaveToCameraRollActivity.h */,
-				86D9B9241AD40CEC00994674 /* YASaveToCameraRollActivity.m */,
 				8668D3F01ADE646C002ADA45 /* YACopyVideoToClipboardActivity.h */,
 				8668D3F11ADE646C002ADA45 /* YACopyVideoToClipboardActivity.m */,
 			);
@@ -841,7 +836,6 @@
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
 				6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */,
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
-				86D9B9251AD40CEC00994674 /* YASaveToCameraRollActivity.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,

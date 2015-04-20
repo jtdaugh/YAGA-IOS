@@ -28,7 +28,6 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error;
 
 //video actions
-+ (void)showVideoOptionsForVideo:(YAVideo*)video;
 + (void)deleteVideo:(YAVideo*)video;
 //Alert view
 + (instancetype)instance;
@@ -42,8 +41,6 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 
 //GIF
 + (void)copyGIFToClipboard:(YAVideo*)video;
-// Bumper
-+ (void)saveVideoToCameraRoll:(YAVideo*)video;
 
 // Camera State
 @property (nonatomic) BOOL cameraNeedsRefresh;

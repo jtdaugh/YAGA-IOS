@@ -63,7 +63,7 @@
 }
 
 #pragma mark - Camera roll
-- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(bumperVideoCompletion)completion {
+- (void)addBumberToVideoAtURL:(NSURL*)videoURL completion:(bumperVideoCompletion)completion {
     NSURL *outputUrl = [YAUtils urlFromFileName:@"YAGA.mp4"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
     

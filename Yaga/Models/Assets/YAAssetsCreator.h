@@ -25,7 +25,7 @@ typedef void (^jpgCompletion)(void);
 
 + (instancetype)sharedCreator;
 
-- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(bumperVideoCompletion)completion;
+- (void)addBumberToVideoAtURL:(NSURL*)videoURL completion:(bumperVideoCompletion)completion;
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
 - (void)enqueueAssetsCreationJobForVideos:(NSArray*)videos prioritizeDownload:(BOOL)prioritize;

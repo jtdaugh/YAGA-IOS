@@ -130,64 +130,6 @@
     return image;
 }
 
-#pragma mark - Video actions
-+ (void)showVideoOptionsForVideo:(YAVideo*)video {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Choose action", @"") message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-    
-//    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook]) {
-//        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Share on Facebook", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-//            [YAUtils shareVideoOnFacebook:video];
-//        }]];
-//    }
-//    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
-//        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Share on Twitter", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-//            [YAUtils shareVideoOnTwitter:video];
-//        }]];
-//    }
-
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Save to Camera Roll", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        [YAUtils saveVideoToCameraRoll:video];
-    }]];
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Copy Gif", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        if (![video.highQualityGifFilename length]) {
-            YAGifCreationOperation *gifCreationOperation = [[YAGifCreationOperation alloc] initWithVideo:video quality:YAGifCreationHighQuality];
-            gifCreationOperation.completionBlock = ^{
-                [YAUtils copyGIFToClipboard:video];
-            };
-            [gifCreationOperation start];
-        } else {
-            [YAUtils copyGIFToClipboard:video];
-        }
-    }]];
-
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
-    
-    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
-    vc = [vc presentedViewController] ? [vc presentedViewController] : vc;
-    
-    [vc presentViewController:alert animated:YES completion:nil];
-}
-
-+ (void)saveVideoToCameraRoll:(YAVideo*)video {
-    
-    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
-    [[UIApplication sharedApplication].keyWindow addSubview:hud];
-    hud.labelText = NSLocalizedString(@"Saving", nil);
-    [hud show:YES];
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:video.mp4Filename] completion:^(NSURL *url, NSError *error) {
-        
-        [hud hide:YES];
-        
-        if (error) {
-            [YAUtils showNotification:NSLocalizedString(@"Can't save video", @"") type:YANotificationTypeError];
-        }
-        else {
-            [YAUtils showNotification:NSLocalizedString(@"Video saved to the camera roll", @"") type:YANotificationTypeMessage];
-        }
-    }];
-}
-
 + (void)copyGIFToClipboard:(YAVideo*)video {
     if (![video.highQualityGifFilename length]) {
         MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];

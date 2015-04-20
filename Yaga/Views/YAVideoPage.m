@@ -692,28 +692,40 @@
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self animated:YES];
-    hud.labelText = @"Exporting";
+    hud.labelText = NSLocalizedString(@"Please wait..", @"");
     hud.mode = MBProgressHUDModeIndeterminate;
     
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURLAndSaveToCameraRoll:[YAUtils urlFromFileName:self.video.mp4Filename]
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
 completion:^(NSURL *filePath, NSError *error) {
     if (error) {
-        DLog(@"ruh roh");
+        DLog(@"Error: can't add bumber");
     } else {
         
         NSURL *videoFile = filePath;
-        //        YAGifCopyActivity *activityGif = [YAGifCopyActivity new];
-        //    YASaveToCameraRollActivity  *activitySave   = [YASaveToCameraRollActivity new];
         YACopyVideoToClipboardActivity *copyActivity = [YACopyVideoToClipboardActivity new];
         UIActivityViewController *activityViewController =
         [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
                                           applicationActivities:@[copyActivity]];
+        
         activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
         [self.presentingVC presentViewController:activityViewController
                                         animated:YES
                                       completion:^{
                                           [hud hide:YES];
                                       }];
+        
+        [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+                if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
+                    NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
+                    [YAUtils showNotification:message type:completed ? YANotificationTypeSuccess : YANotificationTypeError];
+                }
+                else if ([activityType isEqualToString:@"yaga.copy.video"]) {
+                     NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
+                    [YAUtils showNotification:message type:completed ? YANotificationTypeSuccess : YANotificationTypeError];
+                }
+            
+        }];
+        
     }}];
 }
 
