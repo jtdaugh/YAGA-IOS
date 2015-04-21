@@ -89,6 +89,11 @@
     return operation;
 }
 
+- (BOOL)gifJobsInProgress {
+#warning TODO
+    return NO;
+}
+
 - (void)addDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
     NSString *url = gifJob ? video.gifUrl : video.url;
     
@@ -138,12 +143,24 @@
     else
         [job start];
     
+    if(gifJob) {
+#warning put all video jobs in progress to waiting queue
+    }
+    
     //can add without pausing another?
     if(self.executingJobs.allKeys.count < self.maxConcurentJobs) {
-        [self.executingJobs setObject:job forKey:url];
-        [self.waitingJobs removeObjectForKey:url];
-        [self logState:[NSString stringWithFormat:@"prioritizeJobForVideo, gifJob: %d", gifJob]];
-        return;
+        
+        //only gif job can be added immediately, or there are no gif jobs in progress
+        if(gifJob || ![self gifJobsInProgress]) {
+            [self.executingJobs setObject:job forKey:url];
+            [self.waitingJobs removeObjectForKey:url];
+            [self logState:[NSString stringWithFormat:@"prioritizeJobForVideo, gifJob: %d", gifJob]];
+            return;
+        }
+    }
+    
+    if(!gifJob) {
+#warning create job and put to waiting jobs
     }
     
     //at max capacity? pause first one
