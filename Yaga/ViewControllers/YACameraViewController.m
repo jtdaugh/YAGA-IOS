@@ -62,6 +62,8 @@ typedef enum {
 
 @property (nonatomic) YATouchDragState lastTouchDragState;
 @property (strong, nonatomic) UIView *switchZone;
+@property (nonatomic, strong) UITapGestureRecognizer *switchZoneTapRecognizer;
+@property (nonatomic, strong) NSTimer *accidentalDragOffscreenTimer;
 
 @end
 
@@ -202,8 +204,9 @@ typedef enum {
         [switchZoneIcon setImage:[UIImage imageNamed:@"Switch"]];
         [self.switchZone addSubview:switchZoneIcon];
         
-        UITapGestureRecognizer *switchZoneTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
-        [self.switchZone addGestureRecognizer:switchZoneTap];
+        self.switchZoneTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
+        self.switchZoneTapRecognizer.delegate = self;
+        [self.switchZone addGestureRecognizer:self.switchZoneTapRecognizer];
         
         [self.cameraView addSubview:self.switchZone];
         
@@ -309,10 +312,12 @@ typedef enum {
 - (void)enableRecording:(BOOL)enable {
     if(enable) {
         self.longPressFullScreenGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+        self.longPressFullScreenGestureRecognizer.delegate = self;
         [self.longPressFullScreenGestureRecognizer setMinimumPressDuration:0.2f];
         [self.cameraView addGestureRecognizer:self.longPressFullScreenGestureRecognizer];
         self.longPressRedButtonGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         [self.longPressRedButtonGestureRecognizer setMinimumPressDuration:0.0f];
+        self.longPressRedButtonGestureRecognizer.delegate = self;
         [self.recordButton addGestureRecognizer:self.longPressRedButtonGestureRecognizer];
     }
     else {
@@ -475,15 +480,35 @@ typedef enum {
     }
 }
 
+- (void)accidentalDragOffscreenTimedOut:(NSTimer *)timer {
+    DLog(@"accidental offscreen drag timed out. Video done.");
+    [self endHold];
+}
+
+
 - (void)handleHold:(UILongPressGestureRecognizer *)recognizer {
-    DLog(@"%ld", (unsigned long)recognizer.state);
+//    DLog(@"%ld", (unsigned long)recognizer.state);
+
     CGPoint loc = [recognizer locationInView:self.view];
     if (recognizer.state == UIGestureRecognizerStateEnded) {
-        [self endHold];
+        if ([self touchDragStateForPoint:loc] == YATouchDragStateInside) {
+            DLog(@"accidental offscreen drag began");
+            self.longPressFullScreenGestureRecognizer.minimumPressDuration = 0.0f;
+            self.accidentalDragOffscreenTimer = [NSTimer scheduledTimerWithTimeInterval:1.f target:self selector:@selector(accidentalDragOffscreenTimedOut:) userInfo:nil repeats:NO];
+        } else {
+            [self endHold];
+        }
     } else if (recognizer.state == UIGestureRecognizerStateBegan){
-        self.lastTouchDragState = [self touchDragStateForPoint:loc];
-        [self startHold];
-        
+        if (self.accidentalDragOffscreenTimer) {
+            // invalidate the timer to continue recording
+            DLog(@"accidental offscreen drag ended");
+            [self.accidentalDragOffscreenTimer invalidate];
+            self.accidentalDragOffscreenTimer = nil;
+            self.longPressFullScreenGestureRecognizer.minimumPressDuration = 0.2f;
+        } else {
+            self.lastTouchDragState = [self touchDragStateForPoint:loc];
+            [self startHold];
+        }
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         YATouchDragState prevState = self.lastTouchDragState;
         self.lastTouchDragState = [self touchDragStateForPoint:loc];
@@ -492,22 +517,30 @@ typedef enum {
         }
     }
 }
+g
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)a shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
+    // return yes only if it's the switch camera tap recognizer and one of the long hold recognizers
+    if ([a isEqual:self.switchZoneTapRecognizer] &&
+        ([b isEqual:self.longPressFullScreenGestureRecognizer]
+         || [b isEqual:self.longPressRedButtonGestureRecognizer])) {
+            return YES;
+        } else if ([a isEqual:self.longPressRedButtonGestureRecognizer] && [b isEqual:self.switchZoneTapRecognizer]) {
+            return YES;
+        } else if ([a isEqual:self.longPressFullScreenGestureRecognizer] && [b isEqual:self.switchZoneTapRecognizer]) {
+            return YES;
+        }
+    return NO;
+}
 
 - (YATouchDragState)touchDragStateForPoint:(CGPoint)point {
     CGPoint switchSpot = CGPointMake(VIEW_WIDTH / 2.f, VIEW_HEIGHT);
     CGFloat xDif = point.x - switchSpot.x;
     CGFloat yDif = point.y - switchSpot.y;
-    CGFloat maxDif = 200.f;
+    CGFloat maxDif = 100.f;
     if (((xDif * xDif) + (yDif * yDif)) < (maxDif * maxDif)) {
         return YATouchDragStateInside;
     }
     return YATouchDragStateOutside;
-}
-
-- (void)startHold:(id)sender withEvent:(UIEvent *)event {
-    CGPoint loc = [[[event allTouches] anyObject] locationInView:self.view];
-    self.lastTouchDragState = [self touchDragStateForPoint:loc];
-    [self startHold];
 }
 
 - (void)startHold {
@@ -565,7 +598,7 @@ typedef enum {
 //        }
 //    }];
 
-    [self performSelector:@selector(endHold) withObject:self afterDelay:MAX_VIDEO_DURATION];
+//    [self performSelector:@selector(endHold) withObject:self afterDelay:MAX_VIDEO_DURATION];
 //    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
 ////        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
 //    } completion:^(BOOL finished) {
@@ -580,6 +613,9 @@ typedef enum {
 }
 
 - (void)endHold {
+    [self.accidentalDragOffscreenTimer invalidate];
+    self.accidentalDragOffscreenTimer = nil;
+    self.longPressFullScreenGestureRecognizer.minimumPressDuration = 0.2f;
 
     if([self.recording boolValue]){
         self.recordingIndicator.alpha = 0.0;
