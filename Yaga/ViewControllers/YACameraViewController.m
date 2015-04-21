@@ -578,12 +578,12 @@ typedef enum {
 //    }
     self.currentRecordingURLs = [NSMutableArray new];
     self.recording = [NSNumber numberWithBool:YES];
-    self.recordingIndicator.alpha = 1.0;
-//    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
-//    [self.indicator setBackgroundColor:PRIMARY_COLOR];
-//    [self.indicator setUserInteractionEnabled:NO];
+//    self.recordingIndicator.alpha = 1.0;
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/8)];
+    [self.indicator setBackgroundColor:PRIMARY_COLOR];
+    [self.indicator setUserInteractionEnabled:NO];
 //    [self.indicatorText setText:@"Recording..."];
-//    [self.view addSubview:self.indicator];
+    [self.view addSubview:self.indicator];
     
     [self.view bringSubviewToFront:self.white];
     [self.view bringSubviewToFront:self.indicator];
@@ -613,15 +613,13 @@ typedef enum {
         
     }];
     
-    
-    
-    self.recordingIndicator.transform = CGAffineTransformIdentity;
-    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
-        //
-        self.recordingIndicator.transform = CGAffineTransformMakeScale(1.618, 1.618);
-    } completion:^(BOOL finished) {
-        //
-    }];
+//    self.recordingIndicator.transform = CGAffineTransformIdentity;
+//    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
+//        //
+//        self.recordingIndicator.transform = CGAffineTransformMakeScale(1.618, 1.618);
+//    } completion:^(BOOL finished) {
+//        //
+//    }];
     
 //    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
 //        //
@@ -633,14 +631,14 @@ typedef enum {
 //        }
 //    }];
 
-//    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-////        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
-//    } completion:^(BOOL finished) {
-//        if(finished){
-//            [self endHold];
-//        }
-//        //
-//    }];
+    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
+    } completion:^(BOOL finished) {
+        if(finished){
+            [self endHold];
+        }
+        //
+    }];
 
     [self startRecordingVideo];
     

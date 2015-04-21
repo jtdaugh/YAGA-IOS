@@ -29,6 +29,7 @@
 "Groups" = "Groups";
 "Can't save photos" = "Couldn't save photos. Check your Settings -> Privacy -> Photos";
 "Please wait.." = "Please wait..";
+"Exporting" = "Exporting";
 "Please wait, video is loading.." = "Please wait, video is loading..";
 
 "Looks like you're already a part of a group" = "Looks like you're already a part of a group. Pick which one you'd like to go to now.";
