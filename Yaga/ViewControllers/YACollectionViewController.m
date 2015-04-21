@@ -610,13 +610,17 @@ static NSString *cellID = @"Cell";
         return;
     
     if(index < [self collectionView:self.collectionView numberOfItemsInSection:0]) {
-        CGFloat collectionViewHeight = CGRectGetHeight(self.collectionView.bounds);
+        UIEdgeInsets tmp = self.collectionView.contentInset;
         
         [self.collectionView setContentInset:UIEdgeInsetsZero];//Make(collectionViewHeight/2, 0, collectionViewHeight/2, 0)];
         [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
         
         //even not animated scrollToItemAtIndexPath call takes some time, using hack
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            self.collectionView.contentInset = tmp;
+            
+            [self.delegate collectionViewDidScroll];
+            
             [self playVisible:YES];
             
             [self prioritiseDownloadsForVisibleCells];
