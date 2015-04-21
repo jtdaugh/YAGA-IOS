@@ -243,16 +243,21 @@
 
 
 - (void)deleteVideoWithCompletion:(responseBlock)completion {
-    NSString *videoId = self.data[YA_VIDEO_ID];
+    YAVideo *video = [self videoFromData];
     NSString *groupId = self.data[YA_GROUP_ID];
     
-    [[YAServer sharedServer] deleteVideoWithId:videoId fromGroup:groupId withCompletion:^(id response, NSError *error) {
+    if(!video || [video isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
+    
+    [[YAServer sharedServer] deleteVideoWithId:video.serverId fromGroup:groupId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"unable to delete video with id:%@, error %@", videoId, error.localizedDescription] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"unable to delete video with id:%@, error %@", video.serverId, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", videoId] type:YANotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", video.serverId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
         
@@ -260,16 +265,21 @@
 }
 
 - (void)uploadVideoCaptionWithCompletion:(responseBlock)completion {
-    NSString *videoId = self.data[YA_VIDEO_ID];
+    YAVideo *video = [self videoFromData];
     
-    [[YAServer sharedServer] uploadVideoCaptionWithId:videoId withCompletion:^(id response, NSError *error) {
+    if(!video || [video isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
+    
+    [[YAServer sharedServer] uploadVideoCaptionWithId:video.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"unable to update video caption with id:%@, error %@", videoId, error.localizedDescription] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"unable to update video caption with id:%@, error %@", video.serverId, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
             [AnalyticsKit logEvent:@"Video captioned"];
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", videoId] type:YANotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", video.serverId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];

@@ -103,8 +103,8 @@
     [self processPendingTransactions];
 }
 
-- (void)addDeleteVideoTransaction:(NSString*)videoId forGroupId:(NSString*)groupId{
-    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_DELETE_VIDEO, YA_VIDEO_ID:videoId, YA_GROUP_ID:groupId}];
+- (void)addDeleteVideoTransaction:(NSString*)videoLocalId forGroupId:(NSString*)groupId{
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_DELETE_VIDEO, YA_VIDEO_ID:videoLocalId, YA_GROUP_ID:groupId}];
     
     [self saveTransactionsData];
     [self processPendingTransactions];
@@ -113,14 +113,14 @@
 - (void)addUpdateVideoCaptionTransaction:(YAVideo*)video {
     //remove all transactions for that video
     for(NSDictionary *transactionData in [self.transactionsData copy]) {
-        if([transactionData[YA_VIDEO_ID] isEqualToString:video.serverId] &&
+        if([transactionData[YA_VIDEO_ID] isEqualToString:video.localId] &&
            [transactionData[YA_TRANSACTION_TYPE] isEqualToString:YA_TRANSACTION_TYPE_UPDATE_CAPTION]
            ) {
             [self.transactionsData removeObject:transactionData];
         }
     }
     
-    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_UPDATE_CAPTION, YA_VIDEO_ID:video.serverId}];
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_UPDATE_CAPTION, YA_VIDEO_ID:video.localId}];
     
     [self saveTransactionsData];
     [self processPendingTransactions];
@@ -223,7 +223,8 @@
         [weakSelf.transactionsData removeObject:transactionData];
         
         //in case of en error put transaction to the end of the queue and mark with "errored" flag
-        if(error) {
+        //avoid deleted objects by checking error class
+        if(error && ![error isKindOfClass:[YARealmObjectUnavailable class]]) {
     
             //-999 is for manually cancelled operations, execute them again immediately
             if(error.code == -999) {

@@ -58,7 +58,7 @@
     
     //notify server if it's deleted by me, others should just delete vidoe locally without notifying serve
     if([self.creator isEqualToString:[YAUser currentUser].username]) {
-        [[YAServerTransactionQueue sharedQueue] addDeleteVideoTransaction:self.serverId forGroupId:[YAUser currentUser].currentGroup.serverId];
+        [[YAServerTransactionQueue sharedQueue] addDeleteVideoTransaction:self.localId forGroupId:[YAUser currentUser].currentGroup.serverId];
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
