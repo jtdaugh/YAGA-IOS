@@ -90,7 +90,10 @@
 }
 
 - (BOOL)gifJobsInProgress {
-#warning TODO
+    for(AFDownloadRequestOperation *job in self.executingJobs.allValues) {
+        if([job.targetPath.lastPathComponent isEqualToString:@"gif"])
+            return YES;
+    }
     return NO;
 }
 
@@ -140,11 +143,15 @@
     //start or resume immediately
     if(job.isPaused)
         [job resume];
-    else
-        [job start];
+    else {
+        //should start immediately?
+        //only gif job can be started immediately, or there are no gif jobs in progress
+        if(gifJob || ![self gifJobsInProgress])
+            [job start];
+    }
     
-    if(gifJob) {
-#warning put all video jobs in progress to waiting queue
+    if(gifJob || [self gifJobsInProgress]) {
+        [self pauseVideoJobsInProgress];
     }
     
     //can add without pausing another?
@@ -159,8 +166,11 @@
         }
     }
     
-    if(!gifJob) {
-#warning create job and put to waiting jobs
+    //video job but other gif jobs in progress? add to waiting queue
+    if(!gifJob && [self gifJobsInProgress]) {
+        [self.waitingJobs insertObject:job forKey:url atIndex:0];
+        [self logState:@"prioritizeJobForVideo:video job added to the waiting queue"];
+        return;
     }
     
     //at max capacity? pause first one
@@ -177,6 +187,21 @@
     [self.waitingJobs removeObjectForKey:url];
     
     [self logState:[NSString stringWithFormat:@"prioritizeJobForVideo, gifJob: %d", gifJob]];
+}
+
+- (void)pauseVideoJobsInProgress {
+    //pause all executing video jobs and move them to waiting queue
+    for (NSString *url in self.executingJobs.allKeys) {
+        AFDownloadRequestOperation *job = [self.executingJobs objectForKey:url];
+                                           
+        if([job.targetPath.lastPathComponent isEqualToString:@"mp4"]) {
+            [self.executingJobs removeObjectForKey:url];
+            
+            [job pause];
+            
+            [self.waitingJobs insertObject:job forKey:url atIndex:0];
+        }
+    }
 }
 
 - (void)logState:(NSString*)method {
