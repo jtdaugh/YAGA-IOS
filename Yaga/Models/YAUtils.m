@@ -88,6 +88,17 @@
     [YANotificationView showMessage:message viewType:type];
 }
 
++ (void)showHudWithText:(NSString*)text{
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:hud];
+    hud.labelText = text;
+    hud.mode = MBProgressHUDModeText;
+    
+    [hud showAnimated:YES whileExecutingBlock:^{
+        [NSThread sleepForTimeInterval:0.5];
+    }];
+}
+
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error {
     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
     

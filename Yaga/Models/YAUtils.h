@@ -22,6 +22,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 
 //UI
 + (void)showNotification:(NSString*)message type:(YANotificationType)type;
++ (void)showHudWithText:(NSString*)text;
 
 + (UIView*)createBackgroundViewWithFrame:(CGRect)frame alpha:(CGFloat)alpha;
 + (UIImage *)imageWithColor:(UIColor *)color;

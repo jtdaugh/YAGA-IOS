@@ -717,11 +717,11 @@
         [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
                 if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
                     NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
-                    [YAUtils showNotification:message type:completed ? YANotificationTypeSuccess : YANotificationTypeError];
+                    [YAUtils showHudWithText:message];
                 }
                 else if ([activityType isEqualToString:@"yaga.copy.video"]) {
                      NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
-                    [YAUtils showNotification:message type:completed ? YANotificationTypeSuccess : YANotificationTypeError];
+                    [YAUtils showHudWithText:message];
                 }
             
         }];
