@@ -76,7 +76,7 @@
         });
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         if(error.code == NSURLErrorCancelled) {
-            DLog(@"video download cancelled");
+            DLog(@"download job cancelled");
         }
         else {
             DLog(@"Error downloading video %@", error);
@@ -202,7 +202,7 @@
 
 - (void)pauseVideoJobsInProgress {
     //pause all executing video jobs and move them to waiting queue
-    for (NSString *url in self.executingJobs.allKeys) {
+    for (NSString *url in [self.executingJobs.allKeys copy]) {
         AFDownloadRequestOperation *job = [self.executingJobs objectForKey:url];
                                            
         if([self isMp4DownloadJob:job]) {
