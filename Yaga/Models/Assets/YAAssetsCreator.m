@@ -90,7 +90,7 @@
     }];
 }
 
-- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(videoConcatenationCompletion)completion {
+- (void)addBumberToVideoAtURL:(NSURL *)videoURL completion:(videoConcatenationCompletion)completion {
     NSURL *outputUrl = [YAUtils urlFromFileName:@"YAGA.mp4"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
 
