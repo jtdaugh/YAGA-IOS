@@ -130,6 +130,7 @@ static NSString *cellID = @"Cell";
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
+    
 }
 
 - (void)manualTriggerPullToRefresh {

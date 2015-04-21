@@ -62,22 +62,26 @@
 {
 }
 
-#pragma mark - Camera roll
-- (void)addBumberToVideoAtURL:(NSURL*)videoURL completion:(bumperVideoCompletion)completion {
-    NSURL *outputUrl = [YAUtils urlFromFileName:@"YAGA.mp4"];
-    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
-    
-    AVMutableComposition *combinedVideoComposition = [self buildVideoSequenceComposition:videoURL];
+
+#pragma mark - Video composition
+
+- (void)concatenateAssetsAtURLs:(NSArray *)assetURLs
+                  withOutputURL:(NSURL *)outputURL
+                  exportQuality:(NSString *)exportQuality
+                     completion:(videoConcatenationCompletion)completion {
+   
+    AVMutableComposition *combinedVideoComposition = [self buildVideoSequenceCompositionFromURLS:assetURLs];
+    if (!exportQuality) exportQuality = AVAssetExportPresetMediumQuality;
     
     AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:combinedVideoComposition
-                                                                     presetName:AVAssetExportPresetMediumQuality];
+                                                                     presetName:exportQuality];
     
-    session.outputURL = outputUrl;
+    session.outputURL = outputURL;
     session.outputFileType = AVFileTypeMPEG4;
     session.shouldOptimizeForNetworkUse = YES;
     session.canPerformMultiplePassesOverSourceMediaData = YES;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
-        NSString *path = outputUrl.path;
+        NSString *path = outputURL.path;
         if (path){
             completion(session.outputURL, nil);
         } else {
@@ -86,61 +90,65 @@
     }];
 }
 
-- (AVMutableComposition*)buildVideoSequenceComposition:(NSURL*)realVideoUrl {
-    AVAsset *firstAsset = [AVAsset assetWithURL:realVideoUrl];
+- (void)addBumberToVideoAtURLAndSaveToCameraRoll:(NSURL*)videoURL completion:(videoConcatenationCompletion)completion {
+    NSURL *outputUrl = [YAUtils urlFromFileName:@"YAGA.mp4"];
+    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
+
+    NSMutableArray *assetURLsToConcatenate = [NSMutableArray arrayWithObject:videoURL];
+
+    NSString *bumperPath = [[NSBundle mainBundle] pathForResource:@"bumper_rotated" ofType:@"mp4"];
+    [assetURLsToConcatenate addObject:[NSURL fileURLWithPath:bumperPath]];
+    
+    [self concatenateAssetsAtURLs:assetURLsToConcatenate
+                    withOutputURL:outputUrl
+                    exportQuality:AVAssetExportPresetMediumQuality
+                       completion:completion];
+}
+
+
+- (AVMutableComposition*)buildVideoSequenceCompositionFromURLS:(NSArray *)assetURLs {
+    if (![assetURLs count]) return nil;
+    
+    AVAsset *firstAsset = [AVAsset assetWithURL:[assetURLs firstObject]];
     
     CGSize vidsize = ((AVAssetTrack *)[firstAsset tracksWithMediaType:AVMediaTypeVideo].firstObject).naturalSize;
     DLog(@"vidsize x: %f, y: %f", vidsize.width, vidsize.height);
     
-    // Sort of hacky but fuggit - we store the bumper vid rotated instead of transforming it in code
-    NSString *filePath2 = [[NSBundle mainBundle] pathForResource:@"bumper_rotated" ofType:@"mp4"];
-    AVAsset *secondAsset = [AVAsset assetWithURL:[NSURL fileURLWithPath:filePath2]];
+    AVMutableComposition *mixComposition = [[AVMutableComposition alloc] init];
+   
+    AVMutableCompositionTrack *compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo
+                                                                                   preferredTrackID:kCMPersistentTrackID_Invalid];
+    AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio
+                                                                                   preferredTrackID:kCMPersistentTrackID_Invalid];
     
-    
-    if (firstAsset !=nil && secondAsset!=nil) {
-        // 1 - Create AVMutableComposition object. This object will hold your AVMutableCompositionTrack instances.
-        AVMutableComposition *mixComposition = [[AVMutableComposition alloc] init];
-        // 2 - Video track
-        AVMutableCompositionTrack *compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo
-                                                                            preferredTrackID:kCMPersistentTrackID_Invalid];
-        AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio
-                                                                            preferredTrackID:kCMPersistentTrackID_Invalid];
-
-        
-        AVAssetTrack *firstVideoTrack = [[firstAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-        AVAssetTrack *secondVideoTrack = [[secondAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
-        
-        AVAssetTrack *firstAudioTrack = [[firstAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
-        AVAssetTrack *secondAudioTrack = [[secondAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
-        
-        if (firstVideoTrack && compositionVideoTrack) {
-            [compositionVideoTrack setPreferredTransform:firstVideoTrack.preferredTransform];
-        }
-        
-        if (firstVideoTrack) {
-            [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, firstAsset.duration)
-                                       ofTrack:firstVideoTrack atTime:kCMTimeZero error:nil];
-        }
-        
-        if (secondVideoTrack) {
-        [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, secondAsset.duration)
-                                       ofTrack:secondVideoTrack atTime:firstAsset.duration error:nil];
-        }
-        
-        if (firstAudioTrack) {
-        [compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeAdd(kCMTimeZero, firstAsset.duration))
-                                    ofTrack:firstAudioTrack atTime:kCMTimeZero error:nil];
-        }
-        
-        if (secondAudioTrack) {
-        [compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeAdd(kCMTimeZero, secondAsset.duration))
-                                       ofTrack:secondAudioTrack atTime:firstAsset.duration error:nil];
-        }
-        
-        return mixComposition;
+    AVAssetTrack *firstVideoTrack = [[firstAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+    if (firstVideoTrack && compositionVideoTrack) {
+        [compositionVideoTrack setPreferredTransform:firstVideoTrack.preferredTransform]; // Rotate the video
     }
+
+    CMTime vidLength = CMTimeMake(0, firstAsset.duration.timescale);
     
-    return nil;
+    for (int i = 0; i < [assetURLs count]; i++) {
+        AVAsset *currentAsset = [AVAsset assetWithURL:assetURLs[i]];
+        AVAssetTrack *videoTrack = [[currentAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+        AVAssetTrack *audioTrack = [[currentAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
+
+        CMTime assetDuration = currentAsset.duration;
+        assetDuration.value -= CMTimeMakeWithSeconds(0.05f, assetDuration.timescale).value; // shave off last .05 seconds to remove black blip
+        
+        if (videoTrack) {
+            [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetDuration)
+                                           ofTrack:videoTrack atTime:vidLength error:nil];
+        }
+        if (audioTrack) {
+            [compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeAdd(kCMTimeZero, assetDuration))
+                                           ofTrack:audioTrack atTime:vidLength error:nil];
+        }
+        
+        vidLength.value += assetDuration.value;
+    }
+
+    return mixComposition;
 }
 
 #pragma mark - Queue operations
@@ -159,6 +167,28 @@
     //in case of two gif operations for the same video there will be the following issue:
     //one operation can create gif earlier and start uploading, second operation will clean up the file for saving new gif date and and that moment zero bytes are read for uploading.
 }
+
+- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs
+                        addToGroup:(YAGroup*)group {
+    NSURL *outputUrl = [YAUtils urlFromFileName:@"concatenated.mp4"];
+    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
+
+    [self concatenateAssetsAtURLs:videoURLs
+                    withOutputURL:outputUrl
+                    exportQuality:AVAssetExportPreset640x480
+                       completion:^(NSURL *filePath, NSError *error) {
+        if (!error) {
+            YAVideo *video = [YAVideo video];
+            YACreateRecordingOperation *recordingOperation = [[YACreateRecordingOperation alloc] initRecordingURL:filePath group:group video:video];
+            [self.recordingQueue addOperation:recordingOperation];
+            
+            [self.recordingQueue addOperationWithBlock:^{
+                [self createJpgForVideo:video];
+            }];
+        }
+    }];
+}
+
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{

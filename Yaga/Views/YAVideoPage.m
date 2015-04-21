@@ -696,7 +696,7 @@
     hud.mode = MBProgressHUDModeIndeterminate;
     
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-completion:^(NSURL *filePath, NSError *error) {
+                                                completion:^(NSURL *filePath, NSError *error) {
     if (error) {
         DLog(@"Error: can't add bumber");
     } else {

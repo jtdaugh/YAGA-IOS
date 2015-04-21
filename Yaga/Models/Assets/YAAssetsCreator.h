@@ -17,7 +17,7 @@
 #define kGifPixellationSize (15.f)
 #define kGifSpeed (1.5f)
 
-typedef void (^bumperVideoCompletion)(NSURL *filePath, NSError *error);
+typedef void (^videoConcatenationCompletion)(NSURL *filePath, NSError *error);
 typedef void (^stopOperationsCompletion)(void);
 typedef void (^jpgCompletion)(void);
 
@@ -25,9 +25,9 @@ typedef void (^jpgCompletion)(void);
 
 + (instancetype)sharedCreator;
 
-- (void)addBumberToVideoAtURL:(NSURL*)videoURL completion:(bumperVideoCompletion)completion;
-
+- (void)addBumberToVideoAtURL:(NSURL*)videoURL completion:(videoConcatenationCompletion)completion;
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group;
+- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs addToGroup:(YAGroup*)group;
 - (void)enqueueAssetsCreationJobForVideos:(NSArray*)videos prioritizeDownload:(BOOL)prioritize;
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion;
