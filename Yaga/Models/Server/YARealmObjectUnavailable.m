@@ -10,4 +10,8 @@
 
 @implementation YARealmObjectUnavailable
 
+- (NSString*)localizedDescription {
+    return @"YAError: object already deleted";
+}
+
 @end
