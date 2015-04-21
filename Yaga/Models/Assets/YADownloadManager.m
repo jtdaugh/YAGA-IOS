@@ -119,6 +119,7 @@
     if(self.executingJobs.allKeys.count < self.maxConcurentJobs) {
         [self.executingJobs setObject:job forKey:url];
         [job start];
+        [self logState:[NSString stringWithFormat:@"%@ started", [job.targetPath.pathExtension isEqualToString:@"mp4"] ? @"mp4" : @"gif"]];
     }
     else {
         [self.waitingJobs setObject:job forKey:url];
@@ -142,13 +143,17 @@
         job = [self createJobForVideo:video gifJob:gifJob];
     
     //start or resume immediately
-    if(job.isPaused)
+    if(job.isPaused) {
         [job resume];
+        [self logState:[NSString stringWithFormat:@"%@ resumed", [job.targetPath.pathExtension isEqualToString:@"mp4"] ? @"mp4" : @"gif"]];
+    }
     else {
         //should start immediately?
         //only gif job can be started immediately, or there are no gif jobs in progress
-        if(gifJob || ![self gifJobsInProgress])
+        if(gifJob || ![self gifJobsInProgress]) {
             [job start];
+            [self logState:[NSString stringWithFormat:@"%@ started", [job.targetPath.pathExtension isEqualToString:@"mp4"] ? @"mp4" : @"gif"]];
+        }
     }
     
     if(gifJob || [self gifJobsInProgress]) {
@@ -257,7 +262,7 @@
     
     [self.executingJobs removeObjectForKey:url];
     
-    [self logState:[NSString stringWithFormat:@"jobFinishedForVideo %@ ", gifJob ? @"gif" : @"mp4"]];
+    [self logState:[NSString stringWithFormat:@"%@ finished", gifJob ? @"gif" : @"mp4"]];
     
     if(self.executingJobs.count == 0 && self.waitingJobs.count == 0) {
         DLog(@"YADownloadManager all done");
@@ -294,10 +299,14 @@
             while (self.executingJobs.allKeys.count < self.maxConcurentJobs && self.waitingJobs.count) {
                 NSString *waitingUrl = [self.waitingJobs keyAtIndex:0];
                 AFDownloadRequestOperation *waitingJob = [self.waitingJobs objectAtIndex:0];
-                if(waitingJob.isPaused)
+                if(waitingJob.isPaused) {
                     [waitingJob resume];
-                else
+                    [self logState:[NSString stringWithFormat:@"%@ resumed", [waitingJob.targetPath.pathExtension isEqualToString:@"mp4"] ? @"mp4" : @"gif"]];
+                }
+                else {
                     [waitingJob start];
+                    [self logState:[NSString stringWithFormat:@"%@ started", [waitingJob.targetPath.pathExtension isEqualToString:@"mp4"] ? @"mp4" : @"gif"]];
+                }
                 
                 [self.executingJobs setObject:waitingJob forKey:waitingUrl];
                 [self.waitingJobs removeObjectForKey:waitingUrl];
