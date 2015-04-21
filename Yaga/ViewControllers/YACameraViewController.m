@@ -544,6 +544,15 @@ typedef enum {
     return NO;
 }
 
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    if (![gestureRecognizer isEqual:self.longPressFullScreenGestureRecognizer])
+        return YES;
+    if (self.recording && !self.accidentalDragOffscreenTimer) {
+        return NO;
+    }
+    return YES;
+}
+
 - (YATouchDragState)touchDragStateForPoint:(CGPoint)point {
     CGPoint switchSpot = CGPointMake(VIEW_WIDTH / 2.f, VIEW_HEIGHT);
     CGFloat xDif = point.x - switchSpot.x;
