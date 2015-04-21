@@ -208,13 +208,9 @@
 }
 
 - (void)enqueueAssetsCreationJobForVideos:(NSArray*)videos prioritizeDownload:(BOOL)prioritize {
-    
+    __block NSString *log = [NSString string];
     
     void (^enqueueBlock)(void) = ^{
-        
-#warning refactor YADownloadManager in a way the following block can be executed not on main thread, that will fix the freeze on collection view when next 100 items are enqueued for download
-        
-
         //first loop prioritise videos, second loop prioritise gifs so they go first
         for(YAVideo *video in videos) {
   
@@ -222,10 +218,14 @@
             BOOL hasLocalMOVButNoGIF = video.mp4Filename.length && !video.gifFilename.length;
             
             if(hasRemoteMOVButNoLocal) {
-                if(prioritize)
+                if(prioritize) {
                     [[YADownloadManager sharedManager] prioritizeDownloadJobForVideo:video gifJob:NO];
-                else
+                    log = [log stringByAppendingFormat:@"%@\n", @"prioritise mp4"];
+                }
+                else {
                     [[YADownloadManager sharedManager] addDownloadJobForVideo:video gifJob:NO];
+                    log = [log stringByAppendingFormat:@"%@\n", @"add mp4"];
+                }
             }
             else if(hasLocalMOVButNoGIF) {
                 if(prioritize) {
@@ -238,13 +238,22 @@
         
         //second loop
         if(prioritize) {
+            NSMutableArray *videosToPrioritiseGifDownload = [NSMutableArray new];
             for(YAVideo *video in videos) {
                 BOOL hasRemoteGIFButNoLocal = video.gifUrl.length && !video.gifFilename.length;
-                if(hasRemoteGIFButNoLocal)
-                     [[YADownloadManager sharedManager] prioritizeDownloadJobForVideo:video gifJob:YES];
-                
+                if(hasRemoteGIFButNoLocal) {
+                    [videosToPrioritiseGifDownload addObject:video];
+                }
+            }
+            
+            [YADownloadManager sharedManager].maxConcurentJobs = videosToPrioritiseGifDownload.count;
+             
+            for (YAVideo *video in videosToPrioritiseGifDownload) {
+                [[YADownloadManager sharedManager] prioritizeDownloadJobForVideo:video gifJob:YES];
+                log = [log stringByAppendingFormat:@"%@\n", @"prioritise gif"];
             }
         }
+        NSLog(@"enqueueAssetsCreationJobForVideos:\n%@", log);
     };
     
     if(prioritize) {
