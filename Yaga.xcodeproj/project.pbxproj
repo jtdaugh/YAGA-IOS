@@ -44,7 +44,6 @@
 		6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */; };
 		6E73F4241A432FAC000B3A14 /* NoGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */; };
 		6E73F42B1A43357D000B3A14 /* YACollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4261A43337D000B3A14 /* YACollectionViewController.m */; };
-		6E7519DE1A51AC1B008E577D /* YAGroupMembersViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7519DD1A51AC1B008E577D /* YAGroupMembersViewController.m */; };
 		6E7C2EE41A4C4EE200522A34 /* UsernameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7C2EE31A4C4EE200522A34 /* UsernameViewController.m */; };
 		6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187651A3F2C270034AB63 /* AppDelegate.m */; };
 		6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E9187771A3F2C270034AB63 /* InfoPlist.strings */; };
@@ -178,8 +177,6 @@
 		6E73F4211A432FAC000B3A14 /* NoGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoGroupsViewController.m; sourceTree = "<group>"; };
 		6E73F4251A43337D000B3A14 /* YACollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACollectionViewController.h; sourceTree = "<group>"; };
 		6E73F4261A43337D000B3A14 /* YACollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACollectionViewController.m; sourceTree = "<group>"; };
-		6E7519DC1A51AC1B008E577D /* YAGroupMembersViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupMembersViewController.h; sourceTree = "<group>"; };
-		6E7519DD1A51AC1B008E577D /* YAGroupMembersViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupMembersViewController.m; sourceTree = "<group>"; };
 		6E7C2EE21A4C4EE200522A34 /* UsernameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UsernameViewController.h; sourceTree = "<group>"; };
 		6E7C2EE31A4C4EE200522A34 /* UsernameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UsernameViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		6E9187641A3F2C270034AB63 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -400,8 +397,6 @@
 		6E73F41B1A432FAC000B3A14 /* Groups */ = {
 			isa = PBXGroup;
 			children = (
-				6E7519DC1A51AC1B008E577D /* YAGroupMembersViewController.h */,
-				6E7519DD1A51AC1B008E577D /* YAGroupMembersViewController.m */,
 				6E62F71E1A51A8CB008F5116 /* YAGroupAddMembersViewController.h */,
 				6E62F71F1A51A8CB008F5116 /* YAGroupAddMembersViewController.m */,
 				6E73F41C1A432FAC000B3A14 /* YAGroupsViewController.h */,
@@ -813,7 +808,6 @@
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
 				6E73F4241A432FAC000B3A14 /* NoGroupsViewController.m in Sources */,
 				861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailable.m in Sources */,
-				6E7519DE1A51AC1B008E577D /* YAGroupMembersViewController.m in Sources */,
 				6E1E209C1A6EF2E90041DF54 /* YACreateRecordingOperation.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,

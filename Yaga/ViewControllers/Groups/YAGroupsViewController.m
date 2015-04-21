@@ -17,7 +17,6 @@
 #import "YAServer.h"
 
 #import "YAGroupAddMembersViewController.h"
-#import "YAGroupMembersViewController.h"
 #import "YAGroupOptionsViewController.h"
 
 #import "UIScrollView+SVPullToRefresh.h"
