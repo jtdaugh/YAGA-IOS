@@ -180,18 +180,20 @@
     }
     
     //at max capacity? pause first one(or cancel it if it's gif job)
-    AFDownloadRequestOperation *jobToPause = [self.executingJobs objectAtIndex:0];
-    BOOL mp4JobToPause = [self isMp4DownloadJob:jobToPause];
-    if(mp4JobToPause)
-        [jobToPause pause];
-    else
-        [jobToPause cancel];
-    
-    NSString *urlToPause = [self.executingJobs keyAtIndex:0];
-    [self.executingJobs removeObjectForKey:urlToPause];
-    
-    if(mp4JobToPause)
-        [self.waitingJobs insertObject:jobToPause forKey:urlToPause atIndex:0];
+    if(self.executingJobs.count) {
+        AFDownloadRequestOperation *jobToPause = [self.executingJobs objectAtIndex:0];
+        BOOL mp4JobToPause = [self isMp4DownloadJob:jobToPause];
+        if(mp4JobToPause)
+            [jobToPause pause];
+        else
+            [jobToPause cancel];
+        
+        NSString *urlToPause = [self.executingJobs keyAtIndex:0];
+        [self.executingJobs removeObjectForKey:urlToPause];
+        
+        if(mp4JobToPause)
+            [self.waitingJobs insertObject:jobToPause forKey:urlToPause atIndex:0];
+    }
     
     //then add new one
     [self.executingJobs setObject:job forKey:url];
