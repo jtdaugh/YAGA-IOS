@@ -244,7 +244,7 @@
         if(prioritize) {
             NSMutableArray *videosToPrioritiseGifDownload = [NSMutableArray new];
             for(YAVideo *video in videos) {
-                BOOL hasRemoteGIFButNoLocal = video.gifUrl.length && !video.gifFilename.length;
+                BOOL hasRemoteGIFButNoLocal = video.gifUrl.length && !video.gifFilename.length && !video.mp4Filename.length;
                 if(hasRemoteGIFButNoLocal) {
                     [videosToPrioritiseGifDownload addObject:video];
                 }
