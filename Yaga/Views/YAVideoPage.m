@@ -692,7 +692,7 @@
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self animated:YES];
-    hud.labelText = NSLocalizedString(@"Please wait..", @"");
+    hud.labelText = NSLocalizedString(@"Exporting", @"");
     hud.mode = MBProgressHUDModeIndeterminate;
     
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
