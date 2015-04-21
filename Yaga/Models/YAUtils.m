@@ -95,7 +95,7 @@
     hud.mode = MBProgressHUDModeText;
     
     [hud showAnimated:YES whileExecutingBlock:^{
-        [NSThread sleepForTimeInterval:0.5];
+        [NSThread sleepForTimeInterval:1.0];
     }];
 }
 
