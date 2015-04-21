@@ -134,7 +134,11 @@
         AVAssetTrack *audioTrack = [[currentAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
 
         CMTime assetDuration = currentAsset.duration;
-        assetDuration.value -= CMTimeMakeWithSeconds(0.05f, assetDuration.timescale).value; // shave off last .05 seconds to remove black blip
+        CMTime blipDuration = CMTimeMakeWithSeconds(0.066f, assetDuration.timescale);
+        if ((CMTimeCompare(assetDuration, blipDuration) > 0) && (i < [assetURLs count] - 1)) {
+            // shave off last .05 seconds to remove black blip. Only if the asset is long enough and not last clip.
+            assetDuration.value -= blipDuration.value;
+        }
         
         if (videoTrack) {
             [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetDuration)
