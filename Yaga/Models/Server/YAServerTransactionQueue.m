@@ -96,8 +96,8 @@
     [self processPendingTransactions];
 }
 
-- (void)addUploadVideoTransaction:(YAVideo*)video {
-    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_UPLOAD_VIDEO, YA_VIDEO_ID:video.localId}];
+- (void)addUploadVideoTransaction:(YAVideo*)video toGroup:(YAGroup*)group {
+    [self.transactionsData addObject:@{YA_TRANSACTION_TYPE:YA_TRANSACTION_TYPE_UPLOAD_VIDEO, YA_VIDEO_ID:video.localId, YA_GROUP_ID:group.localId}];
     
     [self saveTransactionsData];
     [self processPendingTransactions];

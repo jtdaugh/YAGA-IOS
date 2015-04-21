@@ -208,6 +208,7 @@
 
 - (void)uploadVideoWithCompletion:(responseBlock)completion {
     YAVideo *video = [self videoFromData];
+    YAGroup *group = [self groupFromData];
     
     if(!video || [video isInvalidated]) {
         completion(nil, [YARealmObjectUnavailable new]);
@@ -215,7 +216,7 @@
     }
     
     [[YAServer sharedServer] uploadVideo:video
-                           toGroupWithId:[YAUser currentUser].currentGroup.serverId
+                           toGroupWithId:group.serverId
                           withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
                               if(error) {
                                   DLog(@"can't upload video, reason: %@", error.localizedDescription);
@@ -231,7 +232,7 @@
                                   video.url = location;
                                   [video.realm commitWriteTransaction];
                                   
-                                  [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, [YAUser currentUser].currentGroup.name, video.url] type:YANotificationTypeSuccess];
+                                  [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, group.name, video.url] type:YANotificationTypeSuccess];
                                   
                                   completion(nil, nil);
                                   

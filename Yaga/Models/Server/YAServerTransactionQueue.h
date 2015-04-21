@@ -20,7 +20,7 @@
 - (void)addRemoveMemberTransactionForGroup:(YAGroup*)group memberPhoneToRemove:(NSString*)memberPhone;
 - (void)addLeaveGroupTransactionForGroupId:(NSString*)groupId;
 - (void)addMuteUnmuteTransactionForGroup:(YAGroup*)group;
-- (void)addUploadVideoTransaction:(YAVideo*)video;
+- (void)addUploadVideoTransaction:(YAVideo*)video toGroup:(YAGroup*)group;
 - (void)addDeleteVideoTransaction:(NSString*)videoId forGroupId:(NSString*)groupId;
 - (void)addUpdateVideoCaptionTransaction:(YAVideo*)video;
 
