@@ -75,7 +75,9 @@
 #define kTappedToEnlarge                        @"kTappedToEnlarge"
 
 //upload gif
-#define kGIFUploadCredentials                   @"kGIFUploadCredentials"
+#define kGIFUploadCredentials                       @"kGIFUploadCredentials"
 
-#define kShowPullDownToRefreshWhileRefreshingGroup @"kShowPullDownToRefreshWhileRefreshingGroup"
+#define kShowPullDownToRefreshWhileRefreshingGroup  @"kShowPullDownToRefreshWhileRefreshingGroup"
+
+#define kLastVisibleFullScreenItemIndex             @"kLastVisibleFullScreenItemIndex"
 #endif

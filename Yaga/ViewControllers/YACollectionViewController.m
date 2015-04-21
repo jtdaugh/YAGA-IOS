@@ -7,7 +7,6 @@
 //
 
 #import "YACollectionViewController.h"
-#import "YASwipingViewController.h"
 #import "YAAnimatedTransitioningController.h"
 
 #import "YAVideoCell.h"
@@ -420,8 +419,8 @@ static NSString *cellID = @"Cell";
 - (void)openVideoAtIndexPath:(NSIndexPath*)indexPath {
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.row];
+    swipingVC.delegate = self;
     
-    DLog(@"before transition");
     CGRect initialFrame = attributes.frame;
     initialFrame.origin.y -= self.collectionView.contentOffset.y;
     initialFrame.origin.y += self.view.frame.origin.y;
@@ -430,9 +429,8 @@ static NSString *cellID = @"Cell";
     
     swipingVC.transitioningDelegate = self;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
-    [self presentViewController:swipingVC animated:YES completion:^{
-        DLog(@"after transition");
-    }];
+    
+    [self presentViewController:swipingVC animated:YES completion:nil];
 }
 
 - (void)openVideo:(NSNotification*)notif {
@@ -601,5 +599,30 @@ static NSString *cellID = @"Cell";
         //enqueue new assets creation jobs
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
     }
+}
+
+#pragma mark - YASwipingControllerDelegate
+- (void)swipingController:(id)controller scrollToIndex:(NSUInteger)index {
+    NSSet *visibleIndexes = [NSSet setWithArray:[[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"]];
+    
+    //don't do anything if it's visible already
+    if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]])
+        return;
+    
+    if(index < [self collectionView:self.collectionView numberOfItemsInSection:0]) {
+        CGFloat collectionViewHeight = CGRectGetHeight(self.collectionView.bounds);
+        
+        [self.collectionView setContentInset:UIEdgeInsetsZero];//Make(collectionViewHeight/2, 0, collectionViewHeight/2, 0)];
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
+        
+        //even not animated scrollToItemAtIndexPath call takes some time, using hack
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self playVisible:YES];
+            
+            [self prioritiseDownloadsForVisibleCells];
+            self.assetsPrioritisationHandled = YES;
+        });
+    }
+
 }
 @end

@@ -69,10 +69,6 @@
     self.scrollView.contentSize = CGSizeMake([YAUser currentUser].currentGroup.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
     self.scrollView.pagingEnabled = YES;
     
-    //gesture recognizers
-    //UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pageTapped:)];
-    //[self.view addGestureRecognizer:tap];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
@@ -152,6 +148,8 @@
 }
 
 - (void)dismissAnimated {
+    [self.delegate swipingController:self scrollToIndex:self.currentPageIndex];
+    
     self.dismissed = YES;
     
     //dismiss
@@ -174,10 +172,6 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
-}
-
-- (void)pageTapped:(id)sender {
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (NSUInteger)tileIndexFromPageIndex:(NSUInteger)pageIndex {
@@ -359,7 +353,7 @@
 #pragma mark - YAVideoPageDelegate 
 - (void)didDeleteVideo:(id)sender {
     if(![YAUser currentUser].currentGroup.videos.count) {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [self dismissAnimated];
         return;
     }
     
