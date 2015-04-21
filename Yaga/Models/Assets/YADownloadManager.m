@@ -195,7 +195,7 @@
     for (NSString *url in self.executingJobs.allKeys) {
         AFDownloadRequestOperation *job = [self.executingJobs objectForKey:url];
                                            
-        if([job.targetPath.lastPathComponent isEqualToString:@"mp4"]) {
+        if([job.targetPath.pathExtension isEqualToString:@"mp4"]) {
             [self.executingJobs removeObjectForKey:url];
             
             [job pause];
