@@ -88,6 +88,14 @@
     [self.tableView reloadData];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    //crash fixed
+    //http://stackoverflow.com/questions/19230446/tableviewcaneditrowatindexpath-crash-when-popping-viewcontroller
+    self.tableView.editing = NO;
+}
+
 #pragma mark - Event handlers
 - (void)editTitleTapped:(id)sender {
     UIAlertController *changeTitleAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"CHANGE_GROUP_TITLE", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
