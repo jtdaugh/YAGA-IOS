@@ -118,18 +118,18 @@
     __weak typeof(self) weakSelf = self;
     [[YAServer sharedServer] registerUsername:self.usernameTextField.text
                                              withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
-                                                 
-                                                 [weakSelf.activityIndicator stopAnimating];
-                                                 self.nextButton.enabled = YES;
-                                                 
                                                  if(error) {
+                                                     
+                                                     [weakSelf.activityIndicator stopAnimating];
+                                                     self.nextButton.enabled = YES;
+                                                     
                                                      [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
                                                  }
                                                  else {
                                                      [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
                                                      
                                                      [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-                                                         [weakSelf.activityIndicator stopAnimating];
+                                                         
                                                          if(!error) {
                                                              if([YAGroup allObjects].count) {
                                                                  [AnalyticsKit logEvent:@"Onboarding user already a part of some groups"];
@@ -141,6 +141,9 @@
                                                              }
                                                          }
                                                          else {
+                                                             [weakSelf.activityIndicator stopAnimating];
+                                                             self.nextButton.enabled = YES;
+                                                             
                                                              [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
                                                          }
                                                      }];
