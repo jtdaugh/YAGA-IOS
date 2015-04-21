@@ -547,7 +547,7 @@ typedef enum {
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if (![gestureRecognizer isEqual:self.longPressFullScreenGestureRecognizer])
         return YES;
-    if (self.recording && !self.accidentalDragOffscreenTimer) {
+    if ([self.recording boolValue] && !self.accidentalDragOffscreenTimer) {
         return NO;
     }
     return YES;
