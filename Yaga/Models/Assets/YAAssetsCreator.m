@@ -257,7 +257,7 @@
                 log = [log stringByAppendingFormat:@"%@\n", @"prioritise gif"];
             }
         }
-        NSLog(@"enqueueAssetsCreationJobForVideos:\n%@", log);
+        NSLog(@"enqueueAssetsCreationJobForVideos:\n%@", log ? log : @"nothing to enqueue..");
     };
     
     if(prioritize) {

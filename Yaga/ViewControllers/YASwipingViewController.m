@@ -12,7 +12,7 @@
 #import "YAUtils.h"
 #import "YAVideo.h"
 #import "YAUser.h"
-#import "Yaga-Bridging-Header.h"
+#import "YADownloadManager.h"
 
 @interface YASwipingViewController ()
 
@@ -27,6 +27,7 @@
 
 @property (nonatomic, assign) BOOL dismissed;
 
+@property (nonatomic, strong) YADownloadManager *downloadManager;
 @end
 
 #define kSeparator 10
@@ -40,6 +41,7 @@
         self.initialIndex = initialIndex;
         self.currentPageIndex = self.initialIndex;
         self.previousPageIndex = self.initialIndex;
+        self.downloadManager = [[YADownloadManager alloc] init];
     }
     return self;
 }
@@ -238,59 +240,63 @@
 - (void)updatePages:(BOOL)preload {
     [self adjustPageFrames];
     
-    NSUInteger tilePageIndex = 0;
-    
+    NSUInteger visibleTileIndex = 0;
     //first page, current on the left
     if(self.currentPageIndex == 0) {
-        [self updatePageAtIndex:0 withVideoAtIndex:0 shouldPreload:preload];
+        visibleTileIndex = 0;
+        
+        [self updateTileAtIndex:0 withVideoAtIndex:0 shouldPreload:preload];
         
         if([YAUser currentUser].currentGroup.videos.count > 1)
-            [self updatePageAtIndex:1 withVideoAtIndex:1 shouldPreload:preload];
+            [self updateTileAtIndex:1 withVideoAtIndex:1 shouldPreload:preload];
         
         if([YAUser currentUser].currentGroup.videos.count > 2)
-            [self updatePageAtIndex:2 withVideoAtIndex:2 shouldPreload:preload];
-        
-        tilePageIndex = 0;
+            [self updateTileAtIndex:2 withVideoAtIndex:2 shouldPreload:preload];
     }
     //last page, current on the right
     else if(self.currentPageIndex == [YAUser currentUser].currentGroup.videos.count - 1) {
         //special case when there is less than 3 videos
         if([YAUser currentUser].currentGroup.videos.count < 3) {
-            //index is always greater than 0 here, as previous condition index == 0 has already passed
-            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
-            [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
+            visibleTileIndex = 1;
             
-            tilePageIndex = 1;
+            //index is always greater than 0 here, as previous condition index == 0 has already passed
+            [self updateTileAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
+            [self updateTileAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
         }
         else {
+            visibleTileIndex = 2;
+            
             if(self.currentPageIndex > 1)
-                [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 2 shouldPreload:preload];
+                [self updateTileAtIndex:0 withVideoAtIndex:self.currentPageIndex - 2 shouldPreload:preload];
             
             if(self.currentPageIndex > 0)
-                [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
+                [self updateTileAtIndex:1 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
             
-            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
-            
-            tilePageIndex = 2;
+            [self updateTileAtIndex:2 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
         }
     }
     //rest of pages, current in the middle
     else if(self.currentPageIndex > 0) {
+        visibleTileIndex = 1;
         
         if([YAUser currentUser].currentGroup.videos.count > 0)
-            [self updatePageAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
+            [self updateTileAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
         
-        [self updatePageAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
+        [self updateTileAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
         
         if(self.currentPageIndex + 1 <= [YAUser currentUser].currentGroup.videos.count - 1)
-            [self updatePageAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPreload:preload];
-        
-        tilePageIndex = 1;
+            [self updateTileAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPreload:preload];
     }
+    
+    NSMutableArray *videosToDownload = [NSMutableArray array];
     
     for(NSUInteger i = 0; i < 3; i++) {
         YAVideoPage *page = self.pages[i];
-        if(i == tilePageIndex && preload) {
+
+        if(!page.video.mp4Filename.length)
+            [videosToDownload addObject:page.video];
+        
+        if(i == visibleTileIndex && preload) {
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
         }
@@ -299,6 +305,25 @@
             [page.playerView pause];
         }
     }
+    
+    if(videosToDownload.count) {
+        [self exlusivelyDownloadMp4ForVideos:videosToDownload];
+    }
+}
+
+- (void)exlusivelyDownloadMp4ForVideos:(NSArray*)videos {
+    [[YADownloadManager sharedManager] cancelGifJobsInProgress];
+    NSArray *pausedUrls = [[YADownloadManager sharedManager] pauseVideoJobsInProgress];
+    
+    self.downloadManager.maxConcurentJobs = videos.count;
+    
+    for(YAVideo *video in videos)
+        [self.downloadManager prioritizeDownloadJobForVideo:video gifJob:NO];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        [self.downloadManager waitUntilAllJobsAreFinished];
+        [[YADownloadManager sharedManager] resumeDownloadJobs:pausedUrls];
+    });
 }
 
 - (void)adjustPageFrames {
@@ -344,13 +369,13 @@
     }
 }
 
-- (void)updatePageAtIndex:(NSUInteger)pageIndex withVideoAtIndex:(NSUInteger)videoIndex shouldPreload:(BOOL)shouldPlay {
+- (void)updateTileAtIndex:(NSUInteger)tileIndex withVideoAtIndex:(NSUInteger)videoIndex shouldPreload:(BOOL)shouldPlay {
     YAVideo *video = [YAUser currentUser].currentGroup.videos[videoIndex];
-    YAVideoPage *page = self.pages[pageIndex];
+    YAVideoPage *page = self.pages[tileIndex];
     [page setVideo:video shouldPreload:shouldPlay];
 }
 
-#pragma mark - YAVideoPageDelegate 
+#pragma mark - YAVideoPageDelegate
 - (void)didDeleteVideo:(id)sender {
     if(![YAUser currentUser].currentGroup.videos.count) {
         [self dismissAnimated];

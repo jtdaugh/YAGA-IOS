@@ -202,7 +202,22 @@
     [self logState:[NSString stringWithFormat:@"prioritizeJobForVideo, gifJob: %d", gifJob]];
 }
 
-- (void)pauseVideoJobsInProgress {
+- (void)cancelGifJobsInProgress {
+    //cancel all executing gif jobs
+    for (NSString *url in [self.executingJobs.allKeys copy]) {
+        AFDownloadRequestOperation *job = [self.executingJobs objectForKey:url];
+        
+        if(![self isMp4DownloadJob:job]) {
+            [self.executingJobs removeObjectForKey:url];
+            
+            [job cancel];
+        }
+    }
+
+}
+
+- (NSArray*)pauseVideoJobsInProgress {
+    NSMutableArray *result = [NSMutableArray array];
     //pause all executing video jobs and move them to waiting queue
     for (NSString *url in [self.executingJobs.allKeys copy]) {
         AFDownloadRequestOperation *job = [self.executingJobs objectForKey:url];
@@ -212,9 +227,26 @@
             
             [job pause];
             
+            [result addObject:url];
+            
             [self.waitingJobs insertObject:job forKey:url atIndex:0];
         }
     }
+    
+    DLog(@"pauseVideoJobsInProgress: %lu paused", result.count);
+    return result;
+}
+
+- (void)resumeDownloadJobs:(NSArray*)urls {
+    for (NSString *url in urls) {
+        AFDownloadRequestOperation *job = [self.waitingJobs objectForKey:url];
+        
+        [self.waitingJobs removeObjectForKey:url];
+        [self.executingJobs setObject:job forKey:url];
+        
+        [job resume];
+    }
+    DLog(@"resumeDownloadJobs: %lu resumed", urls.count);
 }
 
 - (void)logState:(NSString*)method {

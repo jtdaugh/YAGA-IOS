@@ -20,4 +20,9 @@
 
 - (void)addDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob;
 - (void)prioritizeDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob;
+
+//additional methods for exclusive downloads in enlarged mode
+- (void)cancelGifJobsInProgress;
+- (NSArray*)pauseVideoJobsInProgress;
+- (void)resumeDownloadJobs:(NSArray*)jobs;
 @end
