@@ -26,8 +26,6 @@
 @property (nonatomic, strong) UIImageView *jpgImageView;
 
 @property (nonatomic, assign) BOOL dismissed;
-
-@property (nonatomic, strong) YADownloadManager *downloadManager;
 @end
 
 #define kSeparator 10
@@ -41,7 +39,6 @@
         self.initialIndex = initialIndex;
         self.currentPageIndex = self.initialIndex;
         self.previousPageIndex = self.initialIndex;
-        self.downloadManager = [[YADownloadManager alloc] init];
     }
     return self;
 }
@@ -241,6 +238,7 @@
     [self adjustPageFrames];
     
     NSUInteger visibleTileIndex = 0;
+    
     //first page, current on the left
     if(self.currentPageIndex == 0) {
         visibleTileIndex = 0;
@@ -288,13 +286,11 @@
             [self updateTileAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPreload:preload];
     }
     
-    NSMutableArray *videosToDownload = [NSMutableArray array];
-    
     for(NSUInteger i = 0; i < 3; i++) {
         YAVideoPage *page = self.pages[i];
 
-        if(!page.video.mp4Filename.length)
-            [videosToDownload addObject:page.video];
+        if(preload && !page.video.mp4Filename.length && i == visibleTileIndex)
+            [[YADownloadManager sharedManager] exclusivelyPrioritizeDownloadJobForVideo:page.video gifJob:NO];
         
         if(i == visibleTileIndex && preload) {
             if(![page.playerView isPlaying])
@@ -305,25 +301,6 @@
             [page.playerView pause];
         }
     }
-    
-    if(videosToDownload.count) {
-        [self exlusivelyDownloadMp4ForVideos:videosToDownload];
-    }
-}
-
-- (void)exlusivelyDownloadMp4ForVideos:(NSArray*)videos {
-    [[YADownloadManager sharedManager] cancelGifJobsInProgress];
-    NSArray *pausedUrls = [[YADownloadManager sharedManager] pauseVideoJobsInProgress];
-    
-    self.downloadManager.maxConcurentJobs = videos.count;
-    
-    for(YAVideo *video in videos)
-        [self.downloadManager prioritizeDownloadJobForVideo:video gifJob:NO];
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [self.downloadManager waitUntilAllJobsAreFinished];
-        [[YADownloadManager sharedManager] resumeDownloadJobs:pausedUrls];
-    });
 }
 
 - (void)adjustPageFrames {

@@ -157,7 +157,7 @@
     }
     
     if(gifJob || [self gifJobsInProgress]) {
-        [self pauseVideoJobsInProgress];
+        [self pauseExecutingVideoJobs];
     }
     
     //can add without pausing another?
@@ -202,22 +202,32 @@
     [self logState:[NSString stringWithFormat:@"prioritizeJobForVideo, gifJob: %d", gifJob]];
 }
 
-- (void)cancelGifJobsInProgress {
-    //cancel all executing gif jobs
+- (void)exclusivelyPrioritizeDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
+    [self pauseAllExecutingJobs];
+    [self prioritizeDownloadJobForVideo:video gifJob:gifJob];
+}
+
+- (void)pauseAllExecutingJobs {
+    NSUInteger pausedCount = 0;
+    
+    //pause all executing video jobs and move them to waiting queue
     for (NSString *url in [self.executingJobs.allKeys copy]) {
         AFDownloadRequestOperation *job = [self.executingJobs objectForKey:url];
         
-        if(![self isMp4DownloadJob:job]) {
-            [self.executingJobs removeObjectForKey:url];
-            
-            [job cancel];
-        }
+        [self.executingJobs removeObjectForKey:url];
+        
+        [job pause];
+        pausedCount++;
+        
+        [self.waitingJobs insertObject:job forKey:url atIndex:0];
     }
-
+    
+    DLog(@"pauseAllExecutingJobs: %lu paused", pausedCount);
 }
 
-- (NSArray*)pauseVideoJobsInProgress {
-    NSMutableArray *result = [NSMutableArray array];
+- (void)pauseExecutingVideoJobs {
+    NSUInteger pausedCount = 0;
+    
     //pause all executing video jobs and move them to waiting queue
     for (NSString *url in [self.executingJobs.allKeys copy]) {
         AFDownloadRequestOperation *job = [self.executingJobs objectForKey:url];
@@ -226,27 +236,13 @@
             [self.executingJobs removeObjectForKey:url];
             
             [job pause];
-            
-            [result addObject:url];
+            pausedCount++;
             
             [self.waitingJobs insertObject:job forKey:url atIndex:0];
         }
     }
     
-    DLog(@"pauseVideoJobsInProgress: %lu paused", result.count);
-    return result;
-}
-
-- (void)resumeDownloadJobs:(NSArray*)urls {
-    for (NSString *url in urls) {
-        AFDownloadRequestOperation *job = [self.waitingJobs objectForKey:url];
-        
-        [self.waitingJobs removeObjectForKey:url];
-        [self.executingJobs setObject:job forKey:url];
-        
-        [job resume];
-    }
-    DLog(@"resumeDownloadJobs: %lu resumed", urls.count);
+    DLog(@"pauseExecutingVideoJobs: %lu paused", pausedCount);
 }
 
 - (void)logState:(NSString*)method {
