@@ -177,12 +177,12 @@ static NSString *cellID = @"Cell";
         needRefresh = YES;
     }
     
+    [self.collectionView reloadData];
+    
     if(needRefresh)
         [self refreshCurrentGroup];
     else
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-    
-    [self.collectionView reloadData];
 }
 
 -  (void)willDeleteVideo:(NSNotification*)notif {
@@ -220,6 +220,9 @@ static NSString *cellID = @"Cell";
         return;
     
     NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+    
+    //the following line will ensure indexPathsForVisibleItems will return correct results
+    [self.collectionView layoutIfNeeded];
     
     //invisible? we do not reload then
     if(![[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:index]]) {
@@ -259,6 +262,9 @@ static NSString *cellID = @"Cell";
         return;
     
     NSArray *newVideos = notification.userInfo[kVideos];
+    
+    //the following line will ensure visibleCells will return correct results
+    [self.collectionView layoutIfNeeded];
     
     if(newVideos.count) {
         if([self.collectionView visibleCells].count)
@@ -391,16 +397,6 @@ static NSString *cellID = @"Cell";
     return cell;
 }
 
-- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
-{
-//    for (YAVideoCell *cell in self.collectionView.visibleCells) {
-//        NSIndexPath *idx = [self.collectionView indexPathForCell:cell];
-//        if (idx.row != 0) {
-//            cell.toolTipLabel.hidden = YES;
-//        }
-//    }
-}
-
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     [cell animateGifView:NO];
 }
@@ -529,6 +525,9 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)playVisible:(BOOL)playValue {
+    //the following line will ensure visibleCells will return correct results
+    [self.collectionView layoutIfNeeded];
+
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
     }
@@ -548,6 +547,9 @@ static NSString *cellID = @"Cell";
     NSUInteger maxCount = self.paginationThreshold;
     if(maxCount > [YAUser currentUser].currentGroup.videos.count)
         maxCount = [YAUser currentUser].currentGroup.videos.count;
+    
+    //the following line will ensure indexPathsForVisibleItems will return correct results
+    [self.collectionView layoutIfNeeded];
     
     NSMutableArray *visibleVideos = [NSMutableArray new];
     NSMutableArray *invisibleVideos = [NSMutableArray new];
@@ -580,6 +582,9 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - Paging
 - (void)handlePaging {
+    //the following line will ensure indexPathsForVisibleItems will return correct results
+    [self.collectionView layoutIfNeeded];
+    
     NSArray *visibleIndexes = [[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"];
     if(!visibleIndexes.count)
         return;
