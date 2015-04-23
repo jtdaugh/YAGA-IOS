@@ -85,7 +85,19 @@
     }];
     
     [operation setProgressiveDownloadProgressBlock:^(AFDownloadRequestOperation *operation, NSInteger bytesRead, long long totalBytesRead, long long totalBytesExpected, long long totalBytesReadForFile, long long totalBytesExpectedToReadForFile) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:stringUrl userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:(float)totalBytesReadForFile / (float)totalBytesExpectedToReadForFile]}];
+        
+        float progress = (float)totalBytesReadForFile / (float)totalBytesExpectedToReadForFile;
+        
+        if(!gifJob) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [video.realm beginWriteTransaction];
+                video.mp4DownloadProgress = progress;
+                [video.realm commitWriteTransaction];
+            });
+        }
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:stringUrl userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:progress]}];
     }];
     return operation;
 }

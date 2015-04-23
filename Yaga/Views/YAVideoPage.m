@@ -115,7 +115,7 @@
         
         if(!shouldPreload) {
             self.playerView.frame = CGRectZero;
-            [self showLoading:YES];
+            [self showProgress:YES];
         }
     }
     
@@ -128,7 +128,7 @@
 
 - (void)prepareVideoForPlaying {
     NSURL *movUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
-    [self showLoading:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
+    [self showProgress:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
     
     if(self.video.mp4Filename.length)
     {
@@ -163,19 +163,6 @@
         NSString *jpgPath = [YAUtils urlFromFileName:self.video.jpgFullscreenFilename].path;
         UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
         jpgImageView.image = jpgImage;
-    }
-}
-
-- (void)showLoading:(BOOL)show {
-    if(show) {
-        self.progressView.hidden = NO;
-    }
-    else {
-        self.progressView.hidden = YES;
-        if(self.progressView.hidden) {
-            [self.progressView setProgress:0];
-            [self.progressView setCustomText:@""];
-        }
     }
 }
 
@@ -744,10 +731,8 @@
 
 - (void)showProgress:(BOOL)show {
     self.progressView.backgroundView.hidden = !show;
-    if(!show) {
-        [self.progressView setProgress:0];
-        [self.progressView setCustomText:@""];
-    }
+    self.progressView.progress = self.video.mp4DownloadProgress;
+    [self.progressView setCustomText:self.video.creator];
 }
 
 - (void)downloadProgressChanged:(NSNotification*)notif {
@@ -788,7 +773,7 @@
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
     if ([object isKindOfClass:[YAVideoPlayerView class]]) {
-        [self showLoading:!((YAVideoPlayerView*)object).readyToPlay];
+        [self showProgress:!((YAVideoPlayerView*)object).readyToPlay];
     }
 }
 

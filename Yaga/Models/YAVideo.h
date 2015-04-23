@@ -50,6 +50,8 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property NSString *gifUrl;
 @property YAGroup *group;
 
+@property float mp4DownloadProgress;
+
 + (YAVideo*)video;
 - (void)removeFromCurrentGroup;
 - (void)rename:(NSString*)newName withFont:(NSInteger)font;
