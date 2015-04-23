@@ -306,13 +306,6 @@
 
     [self addSubview:self.captionerLabel];
     
-    //    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
-    //    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
-    //    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
-    //    [panGesture requireGestureRecognizerToFail:((YASwipingViewController *) self.presentingVC).panGesture];
-    
-    //    [self.captionField addGestureRecognizer:panGesture];
-    
     CGFloat tSize = MAX_CAPTION_SIZE;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
@@ -658,14 +651,15 @@
 }
 
 - (void)updateControls {
+    BOOL mp4Downloaded = self.video.mp4Filename.length;
     
-    self.captionField.hidden = NO;
-    self.captionButton.hidden = NO;
-    self.shareButton.hidden = NO;
+    self.captionField.hidden = !mp4Downloaded;
+    self.captionerLabel.hidden = !mp4Downloaded;
+    self.captionButton.hidden = !mp4Downloaded;
+    self.shareButton.hidden = !mp4Downloaded;
     
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !myVideo;
-    //    self.shareButton.hidden = !myVideo;
     
     self.userLabel.text = self.video.creator;
     
@@ -774,6 +768,8 @@
         BOOL playWhenReady = self.playerView.playWhenReady;
         [self prepareVideoForPlaying];
         self.playerView.playWhenReady = playWhenReady;
+        
+        [self updateControls];
     }
 }
 
