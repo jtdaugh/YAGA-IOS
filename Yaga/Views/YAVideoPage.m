@@ -172,6 +172,10 @@
     }
     else {
         self.progressView.hidden = YES;
+        if(self.progressView.hidden) {
+            [self.progressView setProgress:0];
+            [self.progressView setCustomText:@""];
+        }
     }
 }
 
@@ -746,6 +750,10 @@
 
 - (void)showProgress:(BOOL)show {
     self.progressView.backgroundView.hidden = !show;
+    if(!show) {
+        [self.progressView setProgress:0];
+        [self.progressView setCustomText:@""];
+    }
 }
 
 - (void)downloadProgressChanged:(NSNotification*)notif {
@@ -754,7 +762,7 @@
         
         if(self.progressView) {
             NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            [self.progressView setProgress:value.floatValue animated:NO];
+            [self.progressView setProgress:value.floatValue animated:YES];
             [self.progressView setCustomText:self.video.creator];
         }
     }

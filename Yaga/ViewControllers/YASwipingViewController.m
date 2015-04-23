@@ -289,6 +289,7 @@
     for(NSUInteger i = 0; i < 3; i++) {
         YAVideoPage *page = self.pages[i];
 
+        //prioritise mp4 download for visible page if needed
         if(preload && !page.video.mp4Filename.length && i == visibleTileIndex)
             [[YADownloadManager sharedManager] exclusivelyPrioritizeDownloadJobForVideo:page.video gifJob:NO];
         
