@@ -113,6 +113,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     if(self.embeddedMode)
         [self setupPullToRefresh];
+    
+    //notifications
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -144,6 +147,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
 }
 
+- (void)groupDidRefresh:(NSNotification*)notif {
+    [self updateState];
+}
 
 - (void)updateState {
     
