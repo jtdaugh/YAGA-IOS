@@ -358,6 +358,7 @@ typedef enum {
             self.session = [[AVCaptureSession alloc] init];
            
             [self.session beginConfiguration];
+            self.session.automaticallyConfiguresApplicationAudioSession = NO;
             
             self.session.sessionPreset = AVCaptureSessionPreset640x480;
             
@@ -442,13 +443,13 @@ typedef enum {
     
     AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
     if (audioStatus == AVAuthorizationStatusAuthorized) {
-        [self setupAudioInput];
+        [self initAudioInput];
         [self.session startRunning];
     } else {
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
                                  completionHandler:^(BOOL granted) {
                                      if (granted) {
-                                         [self setupAudioInput];
+                                         [self initAudioInput];
                                          [self.session startRunning];
                                      }
                                  }];
@@ -456,7 +457,7 @@ typedef enum {
     
 }
 
-- (void)setupAudioInput {
+- (void)initAudioInput {
     NSError *error = nil;
     AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
     self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
@@ -465,8 +466,8 @@ typedef enum {
     {
         DLog(@"add audio input error: %@", error);
     }
+    
     //Don't add just now to allow bg audio to play
-    self.audioInputAdded = NO;
     if ([self.session canAddInput:self.audioInput])
     {
         [self.session addInput:self.audioInput];
@@ -569,6 +570,13 @@ typedef enum {
     DLog(@"starting hold");
     
     self.recordingTime = [NSDate date];
+    
+//    if ([self.session canAddInput:self.audioInput])
+//    {
+//        [self.session addInput:self.audioInput];
+//    }
+
+    
 //    //We're starting to shoot so add audio
 //    if (!self.audioInputAdded) {
 //        [self.session beginConfiguration];
@@ -576,6 +584,7 @@ typedef enum {
 //        self.audioInputAdded = YES;
 //        [self.session commitConfiguration];
 //    }
+
     self.currentRecordingURLs = [NSMutableArray new];
     self.recording = [NSNumber numberWithBool:YES];
 //    self.recordingIndicator.alpha = 1.0;
@@ -717,6 +726,13 @@ typedef enum {
         [self.countdown invalidate];
         self.countdown = nil;
         
+//        [self.session removeInput:self.audioInput];
+//        if ([self.session canAddInput:self.audioInput])
+//        {
+//            [self.session addInput:self.audioInput];
+//        }
+
+        
         [self stopRecordingVideo];
     }
 }
@@ -823,6 +839,10 @@ typedef enum {
         [self stopRecordingVideo];
     }
     
+    if(self.flash){
+        [self switchFlashMode:nil];
+    }
+    
     AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
     AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
     AVCaptureDevicePosition currentPosition = [currentVideoDevice position];
@@ -871,6 +891,7 @@ typedef enum {
     {
         [[self session] addInput:[self videoInput]];
     }
+    
     
     [[self session] commitConfiguration];
     
