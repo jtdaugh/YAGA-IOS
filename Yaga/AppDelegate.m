@@ -51,7 +51,18 @@
     
     // Continue music playback in our app
     NSError *error;
-    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
+//    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDuckOthers error:nil];
+    
+    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
+                                     withOptions:AVAudioSessionCategoryOptionMixWithOthers | AVAudioSessionCategoryOptionDefaultToSpeaker
+                                           error:&error];
+    
+//    UInt32 doSetProperty = 1;
+    
+//    AudioSessionSetProperty (kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof(doSetProperty), &doSetProperty);
+    
+//    [[AVAudioSession sharedInstance] setActive: YES error: nil];
+    
     if (!success) {
         //Handle error
         DLog(@"%@", [error localizedDescription]);
