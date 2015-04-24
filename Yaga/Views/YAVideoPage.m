@@ -730,7 +730,7 @@
 }
 
 - (void)showProgress:(BOOL)show {
-    self.progressView.backgroundView.hidden = !show;
+    self.progressView.hidden = !show;
     self.progressView.progress = self.video.mp4DownloadProgress;
     [self.progressView setCustomText:self.video.creator];
 }
