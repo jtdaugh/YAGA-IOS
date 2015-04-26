@@ -91,6 +91,11 @@
             completion(nil, error);
         }
         else {
+            if(!group || [group isInvalidated]) {
+                completion(nil, [YARealmObjectUnavailable new]);
+                return;
+            }
+
             dispatch_async(dispatch_get_main_queue(), ^{
                 [group.realm beginWriteTransaction];
                 group.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
@@ -113,6 +118,12 @@
     }
     
     [[YAServer sharedServer] renameGroupWithId:group.serverId newName:group.name withCompletion:^(id response, NSError *error) {
+        
+        if(!group || [group isInvalidated]) {
+            completion(nil, [YARealmObjectUnavailable new]);
+            return;
+        }
+        
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"can't rename remote group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
@@ -137,6 +148,11 @@
     }
     
     [[YAServer sharedServer] addGroupMembersByPhones:phones andUsernames:usernames toGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
+        if(!group || [group isInvalidated]) {
+            completion(nil, [YARealmObjectUnavailable new]);
+            return;
+        }
+        
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"can't add members to the group with name %@, error %@", group.name, response] type:YANotificationTypeError];
             completion(nil, error);
@@ -159,6 +175,12 @@
     }
     
     [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
+        
+        if(!group || [group isInvalidated]) {
+            completion(nil, [YARealmObjectUnavailable new]);
+            return;
+        }
+        
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"can't remove member from the group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
@@ -195,6 +217,11 @@
     }
     
     [[YAServer sharedServer] muteGroupWithId:group.serverId mute:group.muted withCompletion:^(id response, NSError *error) {
+        if(!group || [group isInvalidated]) {
+            completion(nil, [YARealmObjectUnavailable new]);
+            return;
+        }
+
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"mute/unmute group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
@@ -250,14 +277,14 @@
         completion(nil, [YARealmObjectUnavailable new]);
         return;
     }
-    
-    [[YAServer sharedServer] deleteVideoWithId:video.serverId fromGroup:groupId withCompletion:^(id response, NSError *error) {
+    NSString *videoServerId = video.serverId;
+    [[YAServer sharedServer] deleteVideoWithId:videoServerId fromGroup:groupId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"unable to delete video with id:%@, error %@", video.serverId, error.localizedDescription] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"unable to delete video with id:%@, error %@", videoServerId, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", video.serverId] type:YANotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", videoServerId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
         
@@ -272,14 +299,15 @@
         return;
     }
     
-    [[YAServer sharedServer] uploadVideoCaptionWithId:video.serverId withCompletion:^(id response, NSError *error) {
+    NSString *videoServerId = video.serverId;
+    [[YAServer sharedServer] uploadVideoCaptionWithId:videoServerId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"unable to update video caption with id:%@, error %@", video.serverId, error.localizedDescription] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"unable to update video caption with id:%@, error %@", videoServerId, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
             [[Mixpanel sharedInstance] track:@"Video captioned"];
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", video.serverId] type:YANotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", videoServerId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
