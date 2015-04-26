@@ -18,7 +18,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 typedef enum {
-    YATouchDragStateInside,
+    YATouchDragStateInsideTrash,
+    YATouchDragStateInsideFlip,
     YATouchDragStateOutside
 } YATouchDragState;
 
@@ -30,6 +31,7 @@ typedef enum {
 @property (strong, nonatomic) NSNumber *recording;
 @property (strong, nonatomic) NSDate *recordingTime;
 @property (strong, nonatomic) NSNumber *FrontCamera;
+@property BOOL cancelledRecording;
 
 @property (strong, nonatomic) NSNumber *previousBrightness;
 
@@ -531,7 +533,7 @@ typedef enum {
 
     CGPoint loc = [recognizer locationInView:self.view];
     if (recognizer.state == UIGestureRecognizerStateEnded) {
-        if ([self touchDragStateForPoint:loc] == YATouchDragStateInside && loc.y ) {
+        if ([self touchDragStateForPoint:loc] == YATouchDragStateInsideFlip && loc.y ) {
             DLog(@"accidental offscreen drag began");
             self.longPressFullScreenGestureRecognizer.minimumPressDuration = 0.0f;
             self.accidentalDragOffscreenTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(accidentalDragOffscreenTimedOut:) userInfo:nil repeats:NO];
@@ -552,8 +554,15 @@ typedef enum {
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         YATouchDragState prevState = self.lastTouchDragState;
         self.lastTouchDragState = [self touchDragStateForPoint:loc];
-        if (prevState == YATouchDragStateOutside && self.lastTouchDragState == YATouchDragStateInside) {
-            [self switchCamera:nil];
+        if (prevState == YATouchDragStateOutside){
+            if(self.lastTouchDragState == YATouchDragStateInsideFlip){
+                [self switchCamera:nil];
+            } else if(self.lastTouchDragState == YATouchDragStateInsideTrash){
+                // end hold?
+                NSLog(@"inside trash?");
+                self.cancelledRecording = YES;
+                [self endHold];
+            }
         }
     }
 }
@@ -582,13 +591,24 @@ typedef enum {
 }
 
 - (YATouchDragState)touchDragStateForPoint:(CGPoint)point {
-    CGPoint switchSpot = CGPointMake(VIEW_WIDTH / 2.f, VIEW_HEIGHT);
-    CGFloat xDif = point.x - switchSpot.x;
-    CGFloat yDif = point.y - switchSpot.y;
-    CGFloat maxDif = 100.f;
-    if (((xDif * xDif) + (yDif * yDif)) < (maxDif * maxDif)) {
-        return YATouchDragStateInside;
+    CGPoint switchSpot = CGPointMake(VIEW_WIDTH, VIEW_HEIGHT);
+    CGPoint trashSpot = CGPointMake(0, VIEW_HEIGHT);
+    CGFloat switchXDif = point.x - switchSpot.x;
+    CGFloat switchYDif = point.y - switchSpot.y;
+
+    CGFloat trashXDif = point.x - trashSpot.x;
+    CGFloat trashYDif = point.y - trashSpot.y;
+    
+    CGFloat maxDif = VIEW_WIDTH / 3;
+    
+    if (((switchXDif * switchXDif) + (switchYDif * switchYDif)) < (maxDif * maxDif)) {
+        return YATouchDragStateInsideFlip;
     }
+
+    if (((trashXDif * trashXDif) + (trashYDif * trashYDif)) < (maxDif * maxDif)) {
+        return YATouchDragStateInsideTrash;
+    }
+
     return YATouchDragStateOutside;
 }
 
@@ -613,6 +633,7 @@ typedef enum {
 //    }
 
     self.currentRecordingURLs = [NSMutableArray new];
+    self.cancelledRecording = NO;
     self.recording = [NSNumber numberWithBool:YES];
 //    self.recordingIndicator.alpha = 1.0;
     self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/16.f)];
@@ -726,12 +747,12 @@ typedef enum {
     [self.accidentalDragOffscreenTimer invalidate];
     self.accidentalDragOffscreenTimer = nil;
     self.longPressFullScreenGestureRecognizer.minimumPressDuration = 0.2f;
-
+    
     if([self.recording boolValue]){
         self.recordingIndicator.alpha = 0.0;
         
         [self.view bringSubviewToFront:self.cameraView];
-//        [self.view bringSubviewToFront:self.recordButton];
+        //        [self.view bringSubviewToFront:self.recordButton];
         
         [UIView animateWithDuration:0.2 animations:^{
             [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2)];
@@ -749,19 +770,20 @@ typedef enum {
         if(self.flash){
             [self switchFlashMode:nil];
         }
-
+        
         [self.countdown invalidate];
         self.countdown = nil;
         
-//        [self.session removeInput:self.audioInput];
-//        if ([self.session canAddInput:self.audioInput])
-//        {
-//            [self.session addInput:self.audioInput];
-//        }
-
+        //        [self.session removeInput:self.audioInput];
+        //        if ([self.session canAddInput:self.audioInput])
+        //        {
+        //            [self.session addInput:self.audioInput];
+        //        }
+        
         
         [self stopRecordingVideo];
     }
+
 }
 
 - (void) startRecordingVideo {
@@ -844,12 +866,16 @@ typedef enum {
         
         [self.currentRecordingURLs addObject:outputFileURL];
         
-        if (![self.recording boolValue]) {
-            if ([self.currentRecordingURLs count] > 1) {
-                [[YAAssetsCreator sharedCreator] createVideoFromSequenceOfURLs:self.currentRecordingURLs addToGroup:[YAUser currentUser].currentGroup];
-            } else {
-                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
+        if(!self.cancelledRecording){
+            if (![self.recording boolValue]) {
+                if ([self.currentRecordingURLs count] > 1) {
+                    [[YAAssetsCreator sharedCreator] createVideoFromSequenceOfURLs:self.currentRecordingURLs addToGroup:[YAUser currentUser].currentGroup];
+                } else {
+                    [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
+                }
             }
+        } else {
+            self.cancelledRecording = NO;
         }
     } else {
         [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:YANotificationTypeError];
