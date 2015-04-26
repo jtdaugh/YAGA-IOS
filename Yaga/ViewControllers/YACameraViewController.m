@@ -63,8 +63,10 @@ typedef enum {
 @property (strong, nonatomic) UIView *recordingIndicator;
 
 @property (nonatomic) YATouchDragState lastTouchDragState;
-@property (strong, nonatomic) UIView *switchZone;
-@property (nonatomic, strong) UITapGestureRecognizer *switchZoneTapRecognizer;
+@property (strong, nonatomic) UIView *switchCamZone;
+@property (strong, nonatomic) UIView *trashZone;
+@property (nonatomic, strong) UITapGestureRecognizer *switchCamZoneTapRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *trashZoneTapRecognizer;
 @property (nonatomic, strong) NSTimer *accidentalDragOffscreenTimer;
 
 @property (strong, nonatomic) NSTimer *countdown;
@@ -198,29 +200,53 @@ typedef enum {
         self.recordingIndicator.alpha = 0.0;
         [self.cameraView addSubview:self.recordingIndicator];
                 
-        CGFloat zoneRadius = 200;
-        self.switchZone = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - zoneRadius/2, VIEW_HEIGHT - zoneRadius/2, zoneRadius, zoneRadius)];
-        [self.switchZone setBackgroundColor:[UIColor clearColor]];
-        self.switchZone.layer.cornerRadius = 100;
-        self.switchZone.layer.masksToBounds = YES;
-        self.switchZone.layer.borderColor = [UIColor whiteColor].CGColor;
-        self.switchZone.layer.borderWidth = 3.0f;
+        CGFloat switchCamZoneRadius = VIEW_WIDTH / 3;
+        self.switchCamZone = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - switchCamZoneRadius, VIEW_HEIGHT - switchCamZoneRadius, switchCamZoneRadius*2, switchCamZoneRadius*2)];
+        [self.switchCamZone setBackgroundColor:[UIColor clearColor]];
+        self.switchCamZone.layer.cornerRadius = switchCamZoneRadius;
+        self.switchCamZone.layer.masksToBounds = YES;
+        self.switchCamZone.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.switchCamZone.layer.borderWidth = 3.0f;
         
-        self.switchZone.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.switchZone.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
-        self.switchZone.layer.shadowRadius = 1.0f;
-        self.switchZone.layer.shadowOpacity = 1.0f;
+        self.switchCamZone.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.switchCamZone.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
+        self.switchCamZone.layer.shadowRadius = 1.0f;
+        self.switchCamZone.layer.shadowOpacity = 1.0f;
         
         CGFloat zoneIconSize = 60;
-        UIImageView *switchZoneIcon = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchZone.frame.size.width/2 - zoneIconSize/2, self.switchZone.frame.size.height/3 - zoneIconSize/2, zoneIconSize, zoneIconSize)];
+        UIImageView *switchZoneIcon = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchCamZone.frame.size.width/3 - zoneIconSize/2, self.switchCamZone.frame.size.height/3 - zoneIconSize/2, zoneIconSize, zoneIconSize)];
         [switchZoneIcon setImage:[UIImage imageNamed:@"Switch"]];
-        [self.switchZone addSubview:switchZoneIcon];
+        [self.switchCamZone addSubview:switchZoneIcon];
         
-        self.switchZoneTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
-        self.switchZoneTapRecognizer.delegate = self;
-        [self.switchZone addGestureRecognizer:self.switchZoneTapRecognizer];
+        self.switchCamZoneTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
+        self.switchCamZoneTapRecognizer.delegate = self;
+        [self.switchCamZone addGestureRecognizer:self.switchCamZoneTapRecognizer];
         
-        [self.cameraView addSubview:self.switchZone];
+        [self.cameraView addSubview:self.switchCamZone];
+        
+        
+        CGFloat trashZoneRadius = VIEW_WIDTH / 3;
+        self.trashZone = [[UIView alloc] initWithFrame:CGRectMake(0 - trashZoneRadius, VIEW_HEIGHT - trashZoneRadius, trashZoneRadius*2, trashZoneRadius*2)];
+        [self.trashZone setBackgroundColor:[UIColor clearColor]];
+        self.trashZone.layer.cornerRadius = trashZoneRadius;
+        self.trashZone.layer.masksToBounds = YES;
+        self.trashZone.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.trashZone.layer.borderWidth = 3.0f;
+        
+        self.trashZone.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.trashZone.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
+        self.trashZone.layer.shadowRadius = 1.0f;
+        self.trashZone.layer.shadowOpacity = 1.0f;
+        
+        UIImageView *trashZoneIcon = [[UIImageView alloc] initWithFrame:CGRectMake(2*(self.trashZone.frame.size.width/3) - zoneIconSize/2, self.switchCamZone.frame.size.height/3 - zoneIconSize/2, zoneIconSize, zoneIconSize)];
+        [trashZoneIcon setImage:[UIImage imageNamed:@"Delete"]];
+        [self.trashZone addSubview:trashZoneIcon];
+        
+//        self.trashZoneTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
+//        self.switchCamZoneTapRecognizer.delegate = self;
+//        [self.switchCamZone addGestureRecognizer:self.switchCamZoneTapRecognizer];
+        
+        [self.cameraView addSubview:self.trashZone];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -302,6 +328,7 @@ typedef enum {
     
     return self;
 }
+
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -504,10 +531,10 @@ typedef enum {
 
     CGPoint loc = [recognizer locationInView:self.view];
     if (recognizer.state == UIGestureRecognizerStateEnded) {
-        if ([self touchDragStateForPoint:loc] == YATouchDragStateInside) {
+        if ([self touchDragStateForPoint:loc] == YATouchDragStateInside && loc.y ) {
             DLog(@"accidental offscreen drag began");
             self.longPressFullScreenGestureRecognizer.minimumPressDuration = 0.0f;
-            self.accidentalDragOffscreenTimer = [NSTimer scheduledTimerWithTimeInterval:1.f target:self selector:@selector(accidentalDragOffscreenTimedOut:) userInfo:nil repeats:NO];
+            self.accidentalDragOffscreenTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(accidentalDragOffscreenTimedOut:) userInfo:nil repeats:NO];
         } else {
             [self endHold];
         }
@@ -533,13 +560,13 @@ typedef enum {
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)a shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
     // return yes only if it's the switch camera tap recognizer and one of the long hold recognizers
-    if ([a isEqual:self.switchZoneTapRecognizer] &&
+    if ([a isEqual:self.switchCamZoneTapRecognizer] &&
         ([b isEqual:self.longPressFullScreenGestureRecognizer]
          || [b isEqual:self.longPressRedButtonGestureRecognizer])) {
             return YES;
-        } else if ([a isEqual:self.longPressRedButtonGestureRecognizer] && [b isEqual:self.switchZoneTapRecognizer]) {
+        } else if ([a isEqual:self.longPressRedButtonGestureRecognizer] && [b isEqual:self.switchCamZoneTapRecognizer]) {
             return YES;
-        } else if ([a isEqual:self.longPressFullScreenGestureRecognizer] && [b isEqual:self.switchZoneTapRecognizer]) {
+        } else if ([a isEqual:self.longPressFullScreenGestureRecognizer] && [b isEqual:self.switchCamZoneTapRecognizer]) {
             return YES;
         }
     return NO;
