@@ -244,9 +244,9 @@ typedef enum {
         [trashZoneIcon setImage:[UIImage imageNamed:@"Delete"]];
         [self.trashZone addSubview:trashZoneIcon];
         
-//        self.trashZoneTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
-//        self.switchCamZoneTapRecognizer.delegate = self;
-//        [self.switchCamZone addGestureRecognizer:self.switchCamZoneTapRecognizer];
+        self.trashZoneTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cancelRecording)];
+        self.trashZoneTapRecognizer.delegate = self;
+        [self.trashZone addGestureRecognizer:self.trashZoneTapRecognizer];
         
         [self.cameraView addSubview:self.trashZone];
         
@@ -560,11 +560,15 @@ typedef enum {
             } else if(self.lastTouchDragState == YATouchDragStateInsideTrash){
                 // end hold?
                 NSLog(@"inside trash?");
-                self.cancelledRecording = YES;
-                [self endHold];
+                [self cancelRecording];
             }
         }
     }
+}
+
+- (void)cancelRecording {
+    self.cancelledRecording = YES;
+    [self endHold];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)a shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
