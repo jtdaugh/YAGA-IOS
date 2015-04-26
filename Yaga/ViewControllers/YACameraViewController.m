@@ -611,7 +611,7 @@ typedef enum {
             self.recordTooltipLabel = nil;
         }];
         
-        [AnalyticsKit logEvent:@"First video post"];
+        [[Mixpanel sharedInstance] track:@"First video post"];
     }
     
     [UIView animateWithDuration:0.2 animations:^{

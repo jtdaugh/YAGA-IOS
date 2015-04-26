@@ -15,7 +15,7 @@
     #import <Foundation/Foundation.h>
     #import "Constants.h"
     #import "YAUtils.h"
-    #import "AnalyticsKit.h"
+    #import "Mixpanel.h"
 #endif
 
 #if DEBUG

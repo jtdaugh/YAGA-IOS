@@ -22,10 +22,6 @@ PODS:
   - AFNetworking/UIKit (2.5.2):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
-  - AnalyticsKit/Core (1.2.4)
-  - AnalyticsKit/Mixpanel (1.2.4):
-    - AnalyticsKit/Core
-    - Mixpanel
   - APAddressBook (0.0.10)
   - Bolts (1.1.5):
     - Bolts/AppLinks (= 1.1.5)
@@ -56,15 +52,14 @@ PODS:
 DEPENDENCIES:
   - AFDownloadRequestOperation
   - AFNetworking (~> 2.0)
-  - AnalyticsKit/Mixpanel
   - APAddressBook (~> 0.0.7)
   - FLAnimatedImage
   - FrameAccessor (~> 1.0)
   - libPhoneNumber-iOS (~> 0.7)
   - MBProgressHUD (~> 0.8)
+  - Mixpanel
   - NSDate-Time-Ago
   - OrderedDictionary
-  - Parse
   - ParseCrashReporting
   - Realm (~> 0.90.2)
   - SVPullToRefresh
@@ -74,7 +69,6 @@ DEPENDENCIES:
 SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
   AFNetworking: fefbce9660acb17f48ae0011292d4da0f457bf36
-  AnalyticsKit: df362a1727580586230c61e6383a60e13696d161
   APAddressBook: 11582a756dc59228effdbba0faf6d4675bac6b77
   Bolts: aac24961496d504aa56fc267cde95162a71bac39
   FLAnimatedImage: f9422f796135aff80d8c00b2afc48015bb746e24

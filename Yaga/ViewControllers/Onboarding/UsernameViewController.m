@@ -127,16 +127,17 @@
                                                  }
                                                  else {
                                                      [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
-                                                     
+                                                     [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
+
                                                      [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
                                                          
                                                          if(!error) {
                                                              if([YAGroup allObjects].count) {
-                                                                 [AnalyticsKit logEvent:@"Onboarding user already a part of some groups"];
+                                                                 [[Mixpanel sharedInstance] track:@"Onboarding user already a part of some groups"];
                                                                  [self performSegueWithIdentifier:@"MyGroups" sender:self];
                                                              }
                                                              else {
-                                                                 [AnalyticsKit logEvent:@"Onboarding user doesn't have any groups"];
+                                                                 [[Mixpanel sharedInstance] track:@"Onboarding user doesn't have any groups"];
                                                                  [self performSegueWithIdentifier:@"NoGroups" sender:self];
                                                              }
                                                          }

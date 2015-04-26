@@ -349,7 +349,7 @@
     if(self.existingGroup && self.existingGroupDirty) {
         // Existing Group
         [self.existingGroup addMembers:self.selectedContacts];
-        [AnalyticsKit logEvent:@"Group changed" withProperties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
+        [[Mixpanel sharedInstance] track:@"Group changed" properties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
 
         self.contactsThatNeedInvite = [self filterContactsToInvite];
         if (![self.contactsThatNeedInvite count]) {
@@ -371,8 +371,7 @@
         // New group
         
         [[YAUser currentUser].currentGroup addMembers:self.selectedContacts];
-        [AnalyticsKit logEvent:@"Group created" withProperties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
-        
+        [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
         
         self.contactsThatNeedInvite = [self filterContactsToInvite];
         if (![self.contactsThatNeedInvite count]) {
