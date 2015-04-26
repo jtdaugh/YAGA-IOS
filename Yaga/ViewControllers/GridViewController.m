@@ -9,7 +9,6 @@
 #import "GridViewController.h"
 
 #import "YagaNavigationController.h"
-#import <Crashlytics/Crashlytics.h>
 #import "YAPhoneNumberViewController.h"
 #import "YAGroupAddMembersViewController.h"
 
@@ -24,8 +23,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    [Crashlytics setUserIdentifier:(NSString *) [[YAUser currentUser] objectForKey:nUsername]];
     
     [self setupView];
 }

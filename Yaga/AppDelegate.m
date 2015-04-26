@@ -9,7 +9,6 @@
 #define ALREADY_LAUNCHED_KEY @"HasLaunchedOnce"
 
 #import "AppDelegate.h"
-#import <Crashlytics/Crashlytics.h>
 #import "YAUser.h"
 
 #import <AVFoundation/AVFoundation.h>
@@ -28,6 +27,9 @@
 #import "AnalyticsKitMixpanelProvider.h"
 
 #import "YAUserPermissions.h"
+
+#import <Parse/Parse.h>
+#import <ParseCrashReporting/ParseCrashReporting.h>
 
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
@@ -76,8 +78,6 @@
         [AnalyticsKit logEvent:@"Opened App for the first time"];
     }
     
-    [Crashlytics startWithAPIKey:@"539cb9ad26d770848f8d5bdd208ab6237a978448"];
-    
     self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
@@ -122,6 +122,13 @@
     
     if([YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
+    
+    [ParseCrashReporting enable];
+    [Parse setApplicationId:@"kJ6CSJ9AS0ynVDGniOssk0qtIpBCvy7v5JlUHLx4"
+                  clientKey:@"q34FRaKtYSh9VPSsLLM8JWHcSPRGn4X2i6gTJV1v"];
+    
+    [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
+
     
     return YES;
 }
