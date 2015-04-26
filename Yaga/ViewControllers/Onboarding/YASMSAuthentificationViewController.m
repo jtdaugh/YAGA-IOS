@@ -169,8 +169,10 @@
     [[YAServer sharedServer] requestAuthTokenWithAuthCode:self.codeTextField.text withCompletion:^(id response, NSError *error) {
         if (!error) {
             
-            [AnalyticsKit logEvent:@"Verification code entered correctly"];
-            
+            [[Mixpanel sharedInstance] track:@"Verification code entered correctly"];
+            [[Mixpanel sharedInstance] identify:[YAUser currentUser].phoneNumber];
+            [[Mixpanel sharedInstance].people set:@{@"$phone":[YAUser currentUser].phoneNumber}];
+
             //register device token
             if([YAUser currentUser].deviceToken.length) {
                 [[YAServer sharedServer] registerDeviceTokenWithCompletion:^(id response, NSError *error) {
@@ -186,7 +188,8 @@
                     if(response) {
                         NSString *username = (NSString*)response;
                         [[YAUser currentUser] saveObject:username forKey:nUsername];
-                        
+                        [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
+
                         //Get all groups for this user
                         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
                             if(!error) {
@@ -221,7 +224,7 @@
             self.nextButton.enabled = YES;
             
             [YAUtils showNotification:NSLocalizedString(@"Incorrect confirmation code entered, try again", @"") type:YANotificationTypeError];
-            [AnalyticsKit logEvent:@"Verification code entered incorrectly"];
+            [[Mixpanel sharedInstance] track:@"Verification code entered incorrectly"];
         }
     }];
 }

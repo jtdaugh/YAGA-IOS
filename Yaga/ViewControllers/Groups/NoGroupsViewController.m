@@ -70,7 +70,7 @@
 }
 
 - (void)nextScreen {
-    [AnalyticsKit logEvent:@"Onboarding create group"];
+    [[Mixpanel sharedInstance] track:@"Onboarding create group pressed"];
     [self performSegueWithIdentifier:@"NoGroupsNameGroup" sender:self];
 }
 

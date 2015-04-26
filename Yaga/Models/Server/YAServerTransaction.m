@@ -236,7 +236,7 @@
                                   
                                   completion(nil, nil);
                                   
-                                  [AnalyticsKit logEvent:@"Video posted"];
+                                  [[Mixpanel sharedInstance] track:@"Video posted"];
                               }
                           }];
 }
@@ -278,7 +278,7 @@
             completion(nil, error);
         }
         else {
-            [AnalyticsKit logEvent:@"Video captioned"];
+            [[Mixpanel sharedInstance] track:@"Video captioned"];
             [self logEvent:[NSString stringWithFormat:@"video with id:%@ caption updated successfully", video.serverId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }

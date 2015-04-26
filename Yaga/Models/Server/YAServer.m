@@ -390,9 +390,12 @@
                        
                        NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.mp4Filename].path];
                        
+                       [[Mixpanel sharedInstance] timeEvent:@"Upload Video"];
+                       
                        //gif might not be there yet, it's in progress, so uploading video at once and saving credentials for uploading gif, it will be uploaded when gif operation is done
                        [self multipartUpload:videoEndpoint withParameters:videoFields withFile:videoData videoServerId:video.serverId completion:^(id response, NSError *error) {
-                           
+                           [[Mixpanel sharedInstance] track:@"Upload Video"];
+
                            if ([video isInvalidated]) {
                                YARealmObjectUnavailable *yaError = [YARealmObjectUnavailable new];
                                completion(videoLocalId, yaError);
@@ -446,12 +449,14 @@
         NSString *gifEndpoint = credentials[@"endpoint"];
         NSDictionary *gifFields = credentials[@"fields"];
         
+        [[Mixpanel sharedInstance] timeEvent:@"GIF Posted"];
+        
         [self multipartUpload:gifEndpoint withParameters:gifFields withFile:gifData videoServerId:video.serverId completion:^(id response, NSError *error) {
             if(error) {
                 DLog(@"an error occured during gif upload: %@", error.localizedDescription);
             }
             else {
-                [AnalyticsKit logEvent:@"GIF posted"];
+                [[Mixpanel sharedInstance] track:@"GIF posted"];
                 if (!video.isInvalidated) {
                     DLog(@"for video: %@", video.serverId);
                 }

@@ -501,7 +501,7 @@
             [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
         }];
-        [AnalyticsKit logEvent:@"Video liked"];
+        [[Mixpanel sharedInstance] track:@"Video liked"];
     } else {
         if (likeCountNumber <= 1) {
             self.likeCount.hidden = YES;
@@ -515,7 +515,7 @@
             [self.likeCount setTitle:[response integerValue] == 0 ? @"" : [NSString stringWithFormat:@"%@", response]
                             forState:UIControlStateNormal];
         }];
-        [AnalyticsKit logEvent:@"Video unliked"];
+        [[Mixpanel sharedInstance] track:@"Video unliked"];
     }
     
     [[RLMRealm defaultRealm] beginWriteTransaction];

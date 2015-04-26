@@ -24,8 +24,6 @@
 
 #import <AddressBookUI/AddressBookUI.h>
 
-#import "AnalyticsKitMixpanelProvider.h"
-
 #import "YAUserPermissions.h"
 
 #import <Parse/Parse.h>
@@ -41,9 +39,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     //analytics
-    NSString *mixPanelAppId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"YAMixPanelAppId"];
-    AnalyticsKitMixpanelProvider *mixPanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:mixPanelAppId];
-    [AnalyticsKit initializeLoggers:@[mixPanel]];
+//    NSString *mixPanelAppId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"YAMixPanelAppId"];
+//    AnalyticsKitMixpanelProvider *mixPanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:MIXPANEL_TOKEN];
+//    [AnalyticsKit initializeLoggers:@[mixPanel]];
     
     // Continue music playback in our app
     NSError *error;
@@ -75,7 +73,8 @@
         [[NSUserDefaults standardUserDefaults] synchronize];
         
         // This is the first launch ever
-        [AnalyticsKit logEvent:@"Opened App for the first time"];
+        
+        [[Mixpanel sharedInstance] track:@"Opened App for the first time"];
     }
     
     self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
@@ -129,12 +128,29 @@
     
     [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
 
+    // Initialize the library with your
+    // Mixpanel project token, MIXPANEL_TOKEN
+#ifdef DEBUG
+    [Mixpanel sharedInstanceWithToken:MIXPANEL_DEBUG_TOKEN];
+#else
+    [Mixpanel sharedInstanceWithToken:MIXPANEL_TOKEN];
+#endif
+    
+    if([[YAUser currentUser] loggedIn]){
+        [[Mixpanel sharedInstance] identify:[YAUser currentUser].phoneNumber];
+        [[Mixpanel sharedInstance].people set:@{@"$phone":[YAUser currentUser].phoneNumber}];
+        [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
+        NSLog(@"setting people... %@", [YAUser currentUser].username);
+    }
+    // Later, you can get your instance with
+    // Mixpanel *mixpanel = [Mixpanel sharedInstance];
     
     return YES;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    [AnalyticsKit logEvent:@"Opened app"];
+    [[Mixpanel sharedInstance] track:@"Opened app"];
+//    [AnalyticsKit logEvent:@"Opened app"];
     
     [[YAServer sharedServer] startMonitoringInternetConnection:YES];
     
@@ -165,15 +181,15 @@
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    [AnalyticsKit applicationWillEnterForeground];
+//    [AnalyticsKit applicationWillEnterForeground];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    [AnalyticsKit applicationDidEnterBackground];
+//    [AnalyticsKit applicationDidEnterBackground];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-    [AnalyticsKit applicationWillTerminate];
+//    [AnalyticsKit applicationWillTerminate];
 }
 
 - (void)beginBackgroundTask {

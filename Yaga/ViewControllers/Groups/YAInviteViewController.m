@@ -259,13 +259,13 @@
     [self dismissViewControllerAnimated:YES completion:nil];
     switch (result) {
         case MessageComposeResultCancelled: {
-            [AnalyticsKit logEvent:@"iMessage cancelled"];
+            [[Mixpanel sharedInstance] track:@"iMessage cancelled"];
             break;
         }
         case MessageComposeResultFailed:
         {
             [self.camViewController.cameraView setSession:nil];
-            [AnalyticsKit logEvent:@"iMessage failed"];
+            [[Mixpanel sharedInstance] track:@"iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
             if (self.inOnboardingFlow) {
                 [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
@@ -277,7 +277,7 @@
             
         case MessageComposeResultSent:
             [self.camViewController.cameraView setSession:nil];
-            [AnalyticsKit logEvent:@"iMessage sent"];
+            [[Mixpanel sharedInstance] track:@"iMessage sent"];
             [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
             if (self.inOnboardingFlow) {
                 [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
