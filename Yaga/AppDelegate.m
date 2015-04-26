@@ -48,7 +48,7 @@
 //    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDuckOthers error:nil];
     
     BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
-                                     withOptions:AVAudioSessionCategoryOptionMixWithOthers | AVAudioSessionCategoryOptionDefaultToSpeaker
+                                     withOptions:AVAudioSessionCategoryOptionMixWithOthers
                                            error:&error];
     
 //    UInt32 doSetProperty = 1;
