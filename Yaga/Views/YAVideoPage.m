@@ -446,7 +446,7 @@
     likeHeart.alpha = 0.0;
 //#define ARC4RANDOM_MAX      0x100000000
 //    double val = ((double)arc4random() / ARC4RANDOM_MAX)/5.0f;
-    float delay = count/total * 1.0;
+    float delay = (float)count/(float)total * 1.0;
     
     [UIView animateWithDuration:0.1 delay:delay options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
