@@ -178,6 +178,9 @@
         [self showCachedImage:cachedImage animatedImage:animatedImage];
     }
     else {
+        if(!self.gifView.image && !self.gifView.animatedImage)
+            [self showLoader:YES];
+        
         dispatch_async(self.imageLoadingQueue, ^{
             
             NSURL *dataURL = [YAUtils urlFromFileName:fileName];
@@ -192,6 +195,7 @@
                 [[YAImageCache sharedCache] setObject:image forKey:fileName];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self showCachedImage:image animatedImage:animatedImage];
+                    [self showLoader:NO];
                 });
             }
         });
