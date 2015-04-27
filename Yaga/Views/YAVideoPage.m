@@ -149,7 +149,8 @@
 - (void)addFullscreenJpgPreview {
     if([self.playerView isPlaying])
        return;
-       
+    
+    //add preview if there is one
     if(self.video.jpgFullscreenFilename.length) {
         UIImageView *jpgImageView;
         
@@ -164,6 +165,11 @@
         NSString *jpgPath = [YAUtils urlFromFileName:self.video.jpgFullscreenFilename].path;
         UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
         jpgImageView.image = jpgImage;
+    }
+    //remove if no preview for current video
+    else if(self.playerView.subviews.count) {
+        UIImageView *jpgImageView = self.playerView.subviews[0];
+        [jpgImageView removeFromSuperview];
     }
 }
 
@@ -733,10 +739,10 @@
 - (void)showProgress:(BOOL)show {
     self.progressView.hidden = !show;
     if(self.video.url.length) {
-        self.progressView.progress = [[[YADownloadManager sharedManager].mp4DownloadProgress objectForKey:self.video.url] floatValue];
+        [self.progressView setProgress:[[[YADownloadManager sharedManager].mp4DownloadProgress objectForKey:self.video.url] floatValue] animated:NO];
     }
     else {
-        self.progressView.progress = 0;
+        [self.progressView setProgress:0 animated:NO];
     }
     
     [self.progressView setCustomText:self.video.creator];
