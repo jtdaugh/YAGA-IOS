@@ -27,8 +27,6 @@
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
 
 @property (strong, nonatomic) UIImageView *loader;
-//@property (strong, nonatomic) NSTimer *loaderTimer;
-//@property (strong, nonatomic) NSMutableArray *loaderTiles;
 
 @property (strong, nonatomic) UILabel *username;
 @property (strong, nonatomic) UILabel *caption;
@@ -54,31 +52,16 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
         self.loader = [[UIImageView alloc] initWithFrame:self.bounds];
-//        [self.loader setBackgroundColor:PRIMARY_COLOR];
-//        self.loaderTiles = [[NSMutableArray alloc] init];
-//        CGFloat lwidth = self.loader.frame.size.width/((float)LOADER_WIDTH);
-//        CGFloat lheight = self.loader.frame.size.height/((float)LOADER_HEIGHT);
-//        
-//        for(int i = 0; i < LOADER_WIDTH*LOADER_HEIGHT; i++){
-//            
-//            int xPos = i%LOADER_WIDTH;
-//            int yPos = i/LOADER_HEIGHT;
-//            
-//            UIView *loaderTile = [[UIView alloc] initWithFrame:CGRectMake(xPos * lwidth, yPos*lheight, lwidth, lheight)];
-//            [self.loader addSubview:loaderTile];
-//            [self.loaderTiles addObject:loaderTile];
-//        }
-        
         NSMutableArray *loaderImages = [NSMutableArray new];
         for(NSUInteger loaderImageIndex = 1; loaderImageIndex < 11; loaderImageIndex++) {
             UIImage *loaderImage = [UIImage imageNamed:[NSString stringWithFormat:@"loader%lu.png", (unsigned long)loaderImageIndex]];
             [loaderImages addObject:loaderImage];
         }
-        
+
         self.loader.animationImages = loaderImages;
         self.loader.animationDuration = 1.5;
         [self addSubview:self.loader];
-        [self.loader startAnimating];
+        //[self.loader startAnimating];
         
         self.username = [[UILabel alloc] initWithFrame:self.bounds];
         
@@ -226,7 +209,7 @@
 
 - (void)showLoader:(BOOL)show {
     self.loader.hidden = !show;
-    if(!self.loader.hidden)
+    if(!self.loader.hidden && !self.loader.isAnimating)
         [self.loader startAnimating];
     
     self.username.hidden = !show;
@@ -248,40 +231,6 @@
         self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
 
 }
-
-//static NSUInteger n = 0;
-//- (void)loaderTick:(NSTimer *)timer {
-//
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        //Your main thread code goes in here
-//        for(UIView *v in self.loaderTiles){
-//            UIColor *p = PRIMARY_COLOR;
-//            p = [p colorWithAlphaComponent:(arc4random() % 128 / 256.0)];
-////            CGFloat hue = ( arc4random() % 256 / 256.0 );  //  0.0 to 1.0
-////            CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from white
-////            CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
-////            UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
-////            
-//            [v setBackgroundColor:p];
-//        }
-//
-//    });
-////    UIGraphicsBeginImageContext(self.loader.bounds.size);
-////    [self.loader.layer renderInContext:UIGraphicsGetCurrentContext()];
-////    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
-////    UIGraphicsEndImageContext();
-////    
-////    NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-////    
-////    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%lu.png", n]];
-////    
-////    // Convert UIImage object into NSData (a wrapper for a stream of bytes) formatted according to PNG spec
-////    NSData *imageData = UIImagePNGRepresentation(viewImage);
-////    [imageData writeToFile:filePath atomically:YES];
-////    n++;
-//    
-//    NSLog(@"loader tick!");
-//}
 
 #pragma mark - UITapGestureRecognizer actions
 

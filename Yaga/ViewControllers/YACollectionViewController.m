@@ -69,7 +69,7 @@ static NSString *cellID = @"Cell";
     [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
     
     self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
-    
+    self.collectionView.allowsMultipleSelection = NO;
     self.collectionView.alwaysBounceVertical = YES;
     
     self.collectionView.delegate = self;
@@ -412,11 +412,6 @@ static NSString *cellID = @"Cell";
     }
     
     [self openVideoAtIndexPath:indexPath];
-}
-
-//static loader stops animating when highlighted, preventing that
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldHighlightItemAtIndexPath:(NSIndexPath *)indexPath {
-    return NO;
 }
 
 - (void)openVideoAtIndexPath:(NSIndexPath*)indexPath {
