@@ -129,6 +129,8 @@
             self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
+        
+        [self initRain];
     }
     
     self.shouldPreload = shouldPreload;
@@ -391,8 +393,31 @@
 //        [rainOption setImage:[UIImage imageNamed:option]];
 //        [self.overlay addSubview:rainOption];
 //    }
+//    [self initRain];
+}
+
+- (void) initRain {
+    NSLog(@"firebase wat");
     
-    
+    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+        NSLog(@"heart found");
+        
+        UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
+        [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
+        likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        likeHeart.tintColor = [UIColor redColor];
+        
+        [likeHeart setAlpha:0.6];
+        int lowerBound = -30;
+        int upperBound = 30;
+        int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
+        
+        CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
+        likeHeart.center = CGPointMake([snapshot.value[@"x"] doubleValue] * VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
+        likeHeart.transform = rotation; //CGAffineTransformScale(rotation, 0.75, 0.75);
+        [self.overlay addSubview:likeHeart];
+
+    }];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -580,21 +605,16 @@
 
 - (void)likeTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"double tapped");
+    
     CGPoint tapLocation = [recognizer locationInView:self];
-    UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
-    [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
-    likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    likeHeart.tintColor = [UIColor redColor];
     
-    [likeHeart setAlpha:0.6];
-    int lowerBound = -30;
-    int upperBound = 30;
-    int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
+    NSDictionary *heartData = @{
+                                @"type": @"heart",
+                                @"x":[NSNumber numberWithDouble: tapLocation.x/VIEW_WIDTH],
+                                @"y":[NSNumber numberWithDouble: tapLocation.y/VIEW_HEIGHT],
+                                };
     
-    CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
-    likeHeart.center = tapLocation;
-    likeHeart.transform = rotation; //CGAffineTransformScale(rotation, 0.75, 0.75);
-    [self.overlay addSubview:likeHeart];
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAutoId] setValue:heartData];
     
 //    likeHeart.alpha = 0.0;
 //    [UIView animateWithDuration:0.2 animations:^{
