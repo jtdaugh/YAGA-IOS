@@ -396,6 +396,8 @@
     
     NSLog(@"serverid: %@", self.video.serverId);
     
+    __weak YAVideoPage *weakSelf = self;
+    
     [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"heart found");
         
@@ -412,7 +414,7 @@
         CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
         likeHeart.center = CGPointMake([snapshot.value[@"x"] doubleValue] * VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
         likeHeart.transform = rotation; //CGAffineTransformScale(rotation, 0.75, 0.75);
-        [self.overlay addSubview:likeHeart];
+        [weakSelf.overlay addSubview:likeHeart];
 
     }];
 }
