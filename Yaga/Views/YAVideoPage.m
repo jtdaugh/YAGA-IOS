@@ -18,6 +18,7 @@
 #import "YACopyVideoToClipboardActivity.h"
 #import "MBProgressHUD.h"
 
+#define CAPTION_GUTTER 5.f
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 @interface YAVideoPage ();
@@ -26,8 +27,6 @@
 //overlay controls
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
-@property (nonatomic, strong) UITextView *captionField;
-@property (nonatomic, strong) UILabel *captionerLabel;
 @property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *likeCount;
 @property BOOL likesShown;
@@ -52,6 +51,17 @@
 
 
 @property (strong, nonatomic) UIView *overlay;
+@property (strong, nonatomic) UITextView *currentTextField;
+@property (nonatomic) CGFloat textFieldHeight;
+@property (nonatomic) CGAffineTransform textFieldTransform;
+@property (nonatomic) CGPoint textFieldCenter;
+
+@property (strong, nonatomic) UIPanGestureRecognizer *panGestureRecognizer;
+@property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
+@property (strong, nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
+
+@property (nonatomic, strong) UIButton *captionCheckButton;
+@property (nonatomic, strong) UIButton *captionCancelButton;
 
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
@@ -108,6 +118,9 @@
 {
     NSNumber *info = n.userInfo[ UIKeyboardFrameEndUserInfoKey ];
     self.keyboardRect = info.CGRectValue;
+    if (self.currentTextField) {
+        [self positionTextViewAboveKeyboard];
+    }
 }
 
 
@@ -283,38 +296,6 @@
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
     [self.overlay addSubview:self.timestampLabel];
     
-    CGFloat captionHeight = 300;
-    CGFloat captionGutter = 10;
-    self.captionField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH - captionGutter*2, captionHeight)];
-    self.captionField.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
-    self.captionField.alpha = 0.75;
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]                                                                                              }];
-    [self.captionField setAttributedText:string];
-    [self.captionField setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
-    [self.captionField setTextAlignment:NSTextAlignmentCenter];
-    [self.captionField setTextColor:PRIMARY_COLOR];
-    [self.captionField setAutocorrectionType:UITextAutocorrectionTypeNo];
-    [self.captionField setReturnKeyType:UIReturnKeyDone];
-    [self.captionField setScrollEnabled:NO];
-    self.captionField.textContainer.lineFragmentPadding = 0;
-    self.captionField.textContainerInset = UIEdgeInsetsZero;
-    self.captionField.delegate = self;
-    
-//    [self addSubview:self.captionField];
-    
-    self.captionerLabel = [[UILabel alloc] initWithFrame:CGRectMake(captionGutter, self.captionField.frame.size.height + self.captionField.frame.origin.y, VIEW_WIDTH - captionGutter*2, 24)];
-    [self.captionerLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
-    [self.captionerLabel setTextColor:[UIColor whiteColor]];
-    [self.captionerLabel setBackgroundColor:[UIColor clearColor]];
-    [self.captionerLabel setTextAlignment:NSTextAlignmentCenter];
-    self.captionerLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
-    self.captionerLabel.layer.shadowRadius = 1.0f;
-    self.captionerLabel.layer.shadowOpacity = 1.0;
-    self.captionerLabel.layer.shadowOffset = CGSizeZero;
-
-//    [self addSubview:self.captionerLabel];
     
     //    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
     //    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
@@ -358,6 +339,18 @@
     //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
 //    [self addSubview:self.likeCount];
     
+    self.captionCancelButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*0.2, VIEW_HEIGHT*0.8, 70, 30)];
+    [self.captionCancelButton setTitle:@"CANCEL" forState:UIControlStateNormal];
+    [self.captionCancelButton addTarget:self action:@selector(captionCancelPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:self.captionCancelButton];
+    self.captionCancelButton.hidden = YES;
+    
+    self.captionCheckButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*0.8 - 50, VIEW_HEIGHT*0.8, 70, 30)];
+    [self.captionCheckButton setTitle:@"DONE!" forState:UIControlStateNormal];
+    [self.captionCheckButton addTarget:self action:@selector(captionCheckPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:self.captionCheckButton];
+    self.captionCheckButton.hidden = YES;
+    
     const CGFloat radius = 40;
     self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
     self.progressView.radius = radius;
@@ -377,13 +370,15 @@
     self.progressView.showsText = NO;
     self.progressView.tintColor = [UIColor whiteColor];
     
-    self.likeGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(likeTap:)];
+    self.likeGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     [self.likeGestureRecognizer setNumberOfTapsRequired:1];
     [self addGestureRecognizer:self.likeGestureRecognizer];
 
     self.hideGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(hideHold:)];
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
     [self addGestureRecognizer:self.hideGestureRecognizer];
+
+    [self setupCaptionGestureRecognizers];
 
 //    self.rainOptions = [[NSMutableArray alloc] init];
 //    self.options = @[@"rainHeart", @"rainBoo", @"rainText"];
@@ -460,79 +455,221 @@
 
 }
 
+#pragma mark - caption gestures
+
+- (void) setupCaptionGestureRecognizers {
+    self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+    self.panGestureRecognizer.delegate = self;
+    
+    self.rotateGestureRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handleRotate:)];
+    self.rotateGestureRecognizer.delegate = self;
+    
+    self.pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
+    self.pinchGestureRecognizer.delegate = self;
+}
+
+// These 3 recognizers should work simultaneously only with eachother
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)a
+    shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
+    if ([a isEqual:self.panGestureRecognizer]) {
+        if ([b isEqual:self.rotateGestureRecognizer] || [b isEqual:self.pinchGestureRecognizer]) {
+            return YES;
+        }
+    }
+    if ([a isEqual:self.rotateGestureRecognizer]) {
+        if ([b isEqual:self.panGestureRecognizer] || [b isEqual:self.pinchGestureRecognizer]) {
+            return YES;
+        }
+    }
+    if ([a isEqual:self.pinchGestureRecognizer]) {
+        if ([b isEqual:self.panGestureRecognizer] || [b isEqual:self.rotateGestureRecognizer]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+
+- (void)handlePan:(UIPanGestureRecognizer *)recognizer {
+    CGPoint translation = [recognizer translationInView:self];
+    recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
+                                         recognizer.view.center.y + translation.y);
+    [recognizer setTranslation:CGPointMake(0, 0) inView:self];
+    
+//    if (recognizer.state == UIGestureRecognizerStateBegan && self.captionTextView.isFirstResponder)
+//        [self doneEditingCaption];
+    
+    if (recognizer.state == UIGestureRecognizerStateEnded) {
+        
+        CGPoint finalPoint = recognizer.view.center;
+        finalPoint.x = MIN(MAX(finalPoint.x, self.currentTextField.frame.size.width/4), self.bounds.size.width - self.currentTextField.frame.size.width/4);
+        finalPoint.y = MIN(MAX(finalPoint.y, self.currentTextField.frame.size.height/2), self.bounds.size.height - self.currentTextField.frame.size.height/4);
+        
+        recognizer.view.center = finalPoint;
+    }
+}
+
+- (void)handleRotate:(UIRotationGestureRecognizer *)recognizer {
+    
+    recognizer.view.transform = CGAffineTransformRotate(recognizer.view.transform, recognizer.rotation);
+    recognizer.rotation = 0;
+}
+
+- (void)handlePinch:(UIPinchGestureRecognizer *)recognizer {
+    
+    recognizer.view.transform = CGAffineTransformScale(recognizer.view.transform, recognizer.scale, recognizer.scale);
+    recognizer.scale = 1;
+}
+
+- (void)captionCancelPressed:(id)sender {
+    self.captionCheckButton.hidden = YES;
+    self.captionCancelButton.hidden = YES;
+    [self.currentTextField removeFromSuperview];
+    self.currentTextField = nil;
+}
+
+- (void)captionCheckPressed:(id)sender {
+    self.captionCheckButton.hidden = YES;
+    self.captionCancelButton.hidden = YES;
+
+    [self.currentTextField setEditable:NO];
+    self.currentTextField = nil;
+}
+
+- (void)positionTextViewAboveKeyboard{
+    self.currentTextField.transform = CGAffineTransformIdentity;
+    
+    CGSize size = self.currentTextField.frame.size;
+    self.currentTextField.frame = CGRectMake(CAPTION_GUTTER,
+                                              self.keyboardRect.origin.y - (self.currentTextField.frame.size.height + CAPTION_GUTTER),
+                                              size.width,
+                                              size.height);
+    
+}
+
+- (void)moveTextViewBackToSpot {
+    self.currentTextField.transform = self.textFieldTransform;
+    self.currentTextField.center = self.textFieldCenter;
+}
+
+- (void)addCaptionAtPoint:(CGPoint)point {
+    // Should also blur first
+    self.captionCheckButton.hidden = NO;
+    self.captionCheckButton.hidden = NO;
+    
+    self.textFieldCenter = point;
+    self.textFieldTransform = CGAffineTransformMakeScale(0.666, 0.666);
+    
+    CGFloat captionWidth = VIEW_WIDTH - 2 * CAPTION_GUTTER;
+    
+    CGRect frame = [@"A" boundingRectWithSize:CGSizeMake(captionWidth, CGFLOAT_MAX)
+                                      options:NSStringDrawingUsesLineFragmentOrigin
+                                   attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE],
+                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0] } context:nil];
+    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(VIEW_WIDTH, VIEW_HEIGHT, captionWidth, frame.size.height)];
+
+    self.currentTextField.alpha = 0.75;
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-3.0]                                                                                              }];
+    [self.currentTextField setAttributedText:string];
+    [self.currentTextField replaceRange:[self.currentTextField textRangeFromPosition:[self.currentTextField beginningOfDocument] toPosition:[self.currentTextField endOfDocument]] withText:@""];
+    
+    [self.currentTextField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE]];
+
+    [self.currentTextField setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
+    [self.currentTextField setTextAlignment:NSTextAlignmentCenter];
+    [self.currentTextField setTextColor:PRIMARY_COLOR];
+    [self.currentTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
+    [self.currentTextField setReturnKeyType:UIReturnKeyDone];
+    [self.currentTextField setScrollEnabled:NO];
+    self.currentTextField.textContainer.lineFragmentPadding = 0;
+    self.currentTextField.textContainerInset = UIEdgeInsetsZero;
+    self.currentTextField.delegate = self;
+    
+    [self.overlay addSubview:self.currentTextField];
+    
+    [self.currentTextField addGestureRecognizer:self.panGestureRecognizer];
+    [self.currentTextField addGestureRecognizer:self.rotateGestureRecognizer];
+    [self.currentTextField addGestureRecognizer:self.pinchGestureRecognizer];
+    
+    [self.currentTextField becomeFirstResponder];
+    
+}
+
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
     if([text isEqualToString:@"\n"]) {
-        [self.video rename:textView.text withFont:self.fontIndex];
-        [self updateControls];
-        
-        [textView resignFirstResponder];
-        return NO;
+//        [self.video rename:textView.text withFont:self.fontIndex];
+//        [self updateControls];
+//        
+        [self doneEditing];
     }
     
-    // limit to 100 characters
-    return textView.text.length + (text.length - range.length) <= 100;
+    // limit to 30 characters
+    return textView.text.length + (text.length - range.length) <= 30;
 }
 
 - (void)textViewDidChange:(UITextView *)textView {
-    [self resizeText];
+//    [self resizeText];
 }
 
-- (void)resizeText {
-    NSString *fontName = self.captionField.font.fontName;
-    CGFloat fontSize = MAX_CAPTION_SIZE;
-    
-    NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
-    
-    NSString *text = self.captionField.text;
-    NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-    CGRect rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
-                                     options:option
-                                  attributes:attributes
-                                     context:nil];
-    
-    while(rect.size.height > self.captionField.bounds.size.height){
-        
-        fontSize = fontSize - 1.0f;
-        NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-        rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
-                                  options:option
-                               attributes:attributes
-                                  context:nil];
-        DLog(@"resizing vert: new font size: %f, new height: %f", fontSize, rect.size.height);
-    }
-    
-    for (NSString *word in [text componentsSeparatedByString:@" "]) {
-        float width = [word sizeWithAttributes:attributes].width;
-        
-        while (width > self.captionField.bounds.size.width && width > 0) {
-            fontSize = fontSize - 1.0f;
-            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-            width = [word sizeWithAttributes:attributes].width;
-            DLog(@"resizing horizontal: new font size: %f, new width: %f", fontSize, width);
-        }
-    }
-    
-    CGFloat finalHeight = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX) options:option attributes:attributes context:nil].size.height;
-    
-    [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
-    CGRect captionerFrame = self.captionerLabel.frame;
-    captionerFrame.origin.y = self.captionField.frame.origin.y + finalHeight;
-    [self.captionerLabel setFrame:captionerFrame];
-}
+//- (void)resizeText {
+//    NSString *fontName = self.currentTextField.font.fontName;
+//    CGFloat fontSize = MAX_CAPTION_SIZE;
+//    
+//    NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
+//    
+//    NSString *text = self.captionField.text;
+//    NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+//    CGRect rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
+//                                     options:option
+//                                  attributes:attributes
+//                                     context:nil];
+//    
+//    while(rect.size.height > self.captionField.bounds.size.height){
+//        
+//        fontSize = fontSize - 1.0f;
+//        NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+//        rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
+//                                  options:option
+//                               attributes:attributes
+//                                  context:nil];
+//        DLog(@"resizing vert: new font size: %f, new height: %f", fontSize, rect.size.height);
+//    }
+//    
+//    for (NSString *word in [text componentsSeparatedByString:@" "]) {
+//        float width = [word sizeWithAttributes:attributes].width;
+//        
+//        while (width > self.captionField.bounds.size.width && width > 0) {
+//            fontSize = fontSize - 1.0f;
+//            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+//            width = [word sizeWithAttributes:attributes].width;
+//            DLog(@"resizing horizontal: new font size: %f, new width: %f", fontSize, width);
+//        }
+//    }
+//    
+//    CGFloat finalHeight = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX) options:option attributes:attributes context:nil].size.height;
+//    
+//    [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
+//    CGRect captionerFrame = self.captionerLabel.frame;
+//    captionerFrame.origin.y = self.captionField.frame.origin.y + finalHeight;
+//    [self.captionerLabel setFrame:captionerFrame];
+//}
 
 -(void)panned:(UIPanGestureRecognizer*)recognizer {
     CGPoint translatedPoint = [recognizer translationInView:[[recognizer view] superview]];
     DLog(@"panned? %f", translatedPoint.y);
     
     if([recognizer state] == UIGestureRecognizerStateBegan) {
-        _firstX = [self.captionField center].x;
-        _firstY = [self.captionField center].y;
+        _firstX = [recognizer.view center].x;
+        _firstY = [recognizer.view center].y;
     }
     
     translatedPoint = CGPointMake(_firstX+translatedPoint.x, _firstY+translatedPoint.y);
     
-    [self.captionField setCenter:translatedPoint];
+    [recognizer.view setCenter:translatedPoint];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -540,27 +677,27 @@
     return YES;
 }
 
-- (void)textButtonPressed {
-    //    [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
-    
-    
-    if([self.captionField isFirstResponder]){
-        if(!self.fontIndex){
-            self.fontIndex = self.video.font;
-        }
-        
-        self.fontIndex++;
-        
-        if(self.fontIndex >= [CAPTION_FONTS count]){
-            self.fontIndex = 0;
-        }
-        
-        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE]];
-        [self resizeText];
-    } else {
-        [self.captionField becomeFirstResponder];
-    }
-}
+//- (void)textButtonPressed {
+//    //    [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
+//    
+//    
+//    if([self.captionField isFirstResponder]){
+//        if(!self.fontIndex){
+//            self.fontIndex = self.video.font;
+//        }
+//        
+//        self.fontIndex++;
+//        
+//        if(self.fontIndex >= [CAPTION_FONTS count]){
+//            self.fontIndex = 0;
+//        }
+//        
+//        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE]];
+//        [self resizeText];
+//    } else {
+//        [self.captionField becomeFirstResponder];
+//    }
+//}
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
     self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
@@ -572,11 +709,11 @@
 }
 
 - (void)doneEditing {
-    [self.video rename:self.captionField.text withFont:self.fontIndex];
+//    [self.video rename:self.captionField.text withFont:self.fontIndex];
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
-    [self updateControls];
-    
-    [self.captionField resignFirstResponder];
+//    [self updateControls];
+    [self.currentTextField resignFirstResponder];
+    [self moveTextViewBackToSpot];
 }
 
 - (void)likeButtonPressed {
@@ -643,10 +780,18 @@
     self.likesShown = NO;
 }
 
-- (void)likeTap:(UITapGestureRecognizer *) recognizer {
-    NSLog(@"double tapped");
+- (void)handleTap:(UITapGestureRecognizer *) recognizer {
+    NSLog(@"tapped");
+    if (NO) { // some like vs caption state
+        [self likeTappedAtPoint:[recognizer locationInView:self]];
+    } else {
+        [self addCaptionAtPoint:[recognizer locationInView:self]];
+    }
+}
+
+- (void)likeTappedAtPoint:(CGPoint)point {
     
-    CGPoint tapLocation = [recognizer locationInView:self];
+    CGPoint tapLocation = point;
     
     NSDictionary *heartData = @{
                                 @"type": @"heart",
@@ -656,13 +801,12 @@
     
     [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAutoId] setValue:heartData];
     
-//    likeHeart.alpha = 0.0;
-//    [UIView animateWithDuration:0.2 animations:^{
-//        //
-//        likeHeart.alpha = 1.0;
-//        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
-//    }];
-    
+    //    likeHeart.alpha = 0.0;
+    //    [UIView animateWithDuration:0.2 animations:^{
+    //        //
+    //        likeHeart.alpha = 1.0;
+    //        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
+    //    }];
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
@@ -787,7 +931,7 @@
 
 - (void)updateControls {
     
-    self.captionField.hidden = NO;
+//    self.captionField.hidden = NO;
     self.captionButton.hidden = NO;
     self.shareButton.hidden = NO;
     
@@ -800,16 +944,15 @@
     self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
-    self.captionField.text = self.video.caption;
+//    self.captionField.text = self.video.caption;
     self.fontIndex = self.video.font;
-    [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE]];
-    if(![self.video.namer isEqual:@""]){
-        [self.captionerLabel setText:[NSString stringWithFormat:@"- %@", self.video.namer]];
-    } else {
-        [self.captionerLabel setText:@""];
-    }
+//    if(![self.video.namer isEqual:@""]){
+//        [self.captionerLabel setText:[NSString stringWithFormat:@"- %@", self.video.namer]];
+//    } else {
+//        [self.captionerLabel setText:@""];
+//    }
     
-    [self resizeText];
+//    [self resizeText];
     
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
@@ -906,9 +1049,6 @@
     return YES;
 }
 
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
-    return YES;
-}
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
     return YES;
 }
@@ -922,7 +1062,7 @@
 
 #pragma mark - Observing input mode
 - (void)inputModeChanged:(NSNotification*)sender {
-    NSString *mode = self.captionField.textInputMode.primaryLanguage;
+    NSString *mode = self.currentTextField.textInputMode.primaryLanguage;
     //Adding additional "Done" button for emoji keyboard
     if (mode == nil) { //Appears to corespond to emoji
         if (!self.keyBoardAccessoryButton) {
@@ -955,11 +1095,11 @@
 }
 
 - (void)accessoryButtonTaped:(id)sender {
-    [self.video rename:self.captionField.text withFont:self.fontIndex];
+//    [self.video rename:self.captionField.text withFont:self.fontIndex];
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
     [self updateControls];
     
-    [self.captionField resignFirstResponder];
+    [self.currentTextField resignFirstResponder];
     self.keyBoardAccessoryButton.hidden = YES;
 }
 
