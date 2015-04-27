@@ -44,6 +44,11 @@
 @property (nonatomic, strong) UIButton *keyBoardAccessoryButton;
 @property NSUInteger fontIndex;
 
+@property (strong, nonatomic) UITapGestureRecognizer *likeGestureRecognizer;
+@property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
+
+@property (strong, nonatomic) UIView *overlay;
+
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
 @property CGFloat firstX;
@@ -61,6 +66,9 @@
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
         [self addSubview:self.playerView];
+        
+        self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+        [self addSubview:self.overlay];
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
@@ -256,7 +264,7 @@
     self.userLabel.layer.shadowRadius = 1.0f;
     self.userLabel.layer.shadowOpacity = 1.0;
     self.userLabel.layer.shadowOffset = CGSizeZero;
-    [self addSubview:self.userLabel];
+    [self.overlay addSubview:self.userLabel];
     
     CGFloat timeHeight = 24;
     self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, height + 12, VIEW_WIDTH - gutter*2, timeHeight)];
@@ -267,7 +275,7 @@
     self.timestampLabel.layer.shadowRadius = 1.0f;
     self.timestampLabel.layer.shadowOpacity = 1.0;
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
-    [self addSubview:self.timestampLabel];
+    [self.overlay addSubview:self.timestampLabel];
     
     CGFloat captionHeight = 300;
     CGFloat captionGutter = 10;
@@ -314,23 +322,23 @@
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
     [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
-    [self addSubview:self.captionButton];
+//    [self addSubview:self.captionButton];
     
     CGFloat saveSize = 36;
-    self.shareButton = [[UIButton alloc] initWithFrame:CGRectMake(/* VIEW_WIDTH - saveSize - */ 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
+    self.shareButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - saveSize - 15, 15, saveSize, saveSize)];
     [self.shareButton setBackgroundImage:[UIImage imageNamed:@"Share"] forState:UIControlStateNormal];
     [self.shareButton addTarget:self action:@selector(shareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.shareButton];
+    [self.overlay addSubview:self.shareButton];
     
-    self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake( VIEW_WIDTH - saveSize - 15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
+    self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, saveSize, saveSize)];
     [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Delete"] forState:UIControlStateNormal];
     [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.deleteButton];
+    [self.overlay addSubview:self.deleteButton];
     
     CGFloat likeSize = 42;
     self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.likeButton];
+//    [self addSubview:self.likeButton];
     
     CGFloat likeCountWidth = 24, likeCountHeight = 42;
     self.likeCount = [[UIButton alloc] initWithFrame:CGRectMake(self.likeButton.frame.origin.x + self.likeButton.frame.size.width + 8, VIEW_HEIGHT - likeCountHeight - 12, likeCountWidth, likeCountHeight)];
@@ -342,7 +350,7 @@
     self.likeCount.layer.shadowOpacity = 1.0;
     self.likeCount.layer.shadowOffset = CGSizeZero;
     //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
-    [self addSubview:self.likeCount];
+//    [self addSubview:self.likeCount];
     
     const CGFloat radius = 40;
     self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
@@ -362,6 +370,15 @@
     self.progressView.lineWidth = 4;
     self.progressView.showsText = NO;
     self.progressView.tintColor = [UIColor whiteColor];
+    
+    self.likeGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(likeDoubleTap:)];
+    [self.likeGestureRecognizer setNumberOfTapsRequired:2];
+    [self addGestureRecognizer:self.likeGestureRecognizer];
+
+    self.hideGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(hideHold:)];
+    [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
+    [self addGestureRecognizer:self.hideGestureRecognizer];
+
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -545,6 +562,35 @@
     [self removeGestureRecognizer:recognizer];
     [self hideLikes];
     self.likesShown = NO;
+}
+
+- (void)likeDoubleTap:(UITapGestureRecognizer *) recognizer {
+    NSLog(@"double tapped");
+    CGPoint tapLocation = [recognizer locationInView:self];
+    UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
+    [likeHeart setImage:[UIImage imageNamed:@"LikeHeart"]];
+    [likeHeart setAlpha:0.5];
+    int lowerBound = -30;
+    int upperBound = 30;
+    int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
+    
+    [likeHeart setTransform:CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0)];
+    likeHeart.center = tapLocation;
+    [self.overlay addSubview:likeHeart];
+}
+
+- (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
+    if (recognizer.state == UIGestureRecognizerStateBegan){
+        [UIView animateWithDuration:0.2 animations:^{
+            [self.overlay setAlpha:0.0];
+        }];
+        
+    } else if(recognizer.state == UIGestureRecognizerStateEnded){
+        [UIView animateWithDuration:0.2 animations:^{
+            //
+            [self.overlay setAlpha:1.0];
+        }];
+    }
 }
 
 - (void)showLikes {
