@@ -37,6 +37,7 @@
         self.waitingJobs = [MutableOrderedDictionary new];
         self.executingJobs = [MutableOrderedDictionary new];
         self.maxConcurentJobs = kDefaultCountOfConcurentJobs;
+        _mp4DownloadProgress = [NSMutableDictionary new];
     }
     return self;
 }
@@ -87,16 +88,10 @@
     [operation setProgressiveDownloadProgressBlock:^(AFDownloadRequestOperation *operation, NSInteger bytesRead, long long totalBytesRead, long long totalBytesExpected, long long totalBytesReadForFile, long long totalBytesExpectedToReadForFile) {
         
         float progress = (float)totalBytesReadForFile / (float)totalBytesExpectedToReadForFile;
-        
-        if(!gifJob) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                [video.realm beginWriteTransaction];
-                video.mp4DownloadProgress = progress;
-                [video.realm commitWriteTransaction];
-            });
-        }
-        
+
+        if(!gifJob)
+            [self.mp4DownloadProgress setObject:[NSNumber numberWithFloat:progress] forKey:stringUrl];
+             
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:stringUrl userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:progress]}];
     }];
     return operation;

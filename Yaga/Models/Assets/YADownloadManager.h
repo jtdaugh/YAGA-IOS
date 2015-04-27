@@ -13,6 +13,8 @@
 
 @property (nonatomic, assign) NSUInteger maxConcurentJobs;
 
+@property (nonatomic, readonly) NSMutableDictionary *mp4DownloadProgress;
+
 + (instancetype)sharedManager;
 
 - (void)cancelAllJobs;

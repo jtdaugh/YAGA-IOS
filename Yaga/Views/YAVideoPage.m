@@ -17,6 +17,7 @@
 #import "YASwipingViewController.h"
 #import "YACopyVideoToClipboardActivity.h"
 #import "MBProgressHUD.h"
+#import "YADownloadManager.h"
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -731,7 +732,13 @@
 
 - (void)showProgress:(BOOL)show {
     self.progressView.hidden = !show;
-    self.progressView.progress = self.video.mp4DownloadProgress;
+    if(self.video.url.length) {
+        self.progressView.progress = [[[YADownloadManager sharedManager].mp4DownloadProgress objectForKey:self.video.url] floatValue];
+    }
+    else {
+        self.progressView.progress = 0;
+    }
+    
     [self.progressView setCustomText:self.video.creator];
 }
 
