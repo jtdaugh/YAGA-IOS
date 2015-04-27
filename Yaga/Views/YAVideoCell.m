@@ -85,7 +85,7 @@
         [self.caption setNumberOfLines:3];
         [self.caption setTextAlignment:NSTextAlignmentCenter];
         [self.caption setTextColor:PRIMARY_COLOR];
-        [self addSubview:self.caption];
+//        [self addSubview:self.caption];
     }
     return self;
 }

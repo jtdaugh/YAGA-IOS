@@ -288,7 +288,7 @@
     self.captionField.textContainerInset = UIEdgeInsetsZero;
     self.captionField.delegate = self;
     
-    [self addSubview:self.captionField];
+//    [self addSubview:self.captionField];
     
     self.captionerLabel = [[UILabel alloc] initWithFrame:CGRectMake(captionGutter, self.captionField.frame.size.height + self.captionField.frame.origin.y, VIEW_WIDTH - captionGutter*2, 24)];
     [self.captionerLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
@@ -300,7 +300,7 @@
     self.captionerLabel.layer.shadowOpacity = 1.0;
     self.captionerLabel.layer.shadowOffset = CGSizeZero;
 
-    [self addSubview:self.captionerLabel];
+//    [self addSubview:self.captionerLabel];
     
     //    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
     //    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
