@@ -19,6 +19,7 @@
 #import "MBProgressHUD.h"
 
 #define CAPTION_GUTTER 5.f
+#define MAX_CAPTION_WIDTH (VIEW_WIDTH - 2 * CAPTION_GUTTER)
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 @interface YAVideoPage ();
@@ -522,8 +523,7 @@
 }
 
 - (CGSize)sizeForTextFieldWithString:(NSString *)string {
-    CGFloat captionWidth = VIEW_WIDTH - 2 * CAPTION_GUTTER;
-    CGRect frame = [string boundingRectWithSize:CGSizeMake(captionWidth, CGFLOAT_MAX)
+    CGRect frame = [string boundingRectWithSize:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)
                                       options:NSStringDrawingUsesLineFragmentOrigin
                                    attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE],
                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
@@ -539,11 +539,10 @@
     self.textFieldCenter = point;
     self.textFieldTransform = CGAffineTransformMakeScale(0.666, 0.666);
     
-    CGFloat captionWidth = VIEW_WIDTH - 2 * CAPTION_GUTTER;
     CGFloat captionHeight = [self sizeForTextFieldWithString:@"A"].height;
     
     
-    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, captionWidth, captionHeight)];
+    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, MAX_CAPTION_WIDTH, captionHeight)];
     self.currentTextField.center = point;
 
     self.currentTextField.alpha = 0.75;
@@ -582,11 +581,38 @@
 //        [self updateControls];
 //        
         [self doneEditing];
+        return NO;
     }
     
-    // limit to 30 characters
-    return textView.text.length + (text.length - range.length) <= 30;
+    return [self doesFit:textView string:text range:range];
+    
 }
+
+
+- (float)doesFit:(UITextView*)textView string:(NSString *)myString range:(NSRange) range;
+{
+    CGSize maxFrame = [self sizeForTextFieldWithString:@"A\nA\nA"];
+    maxFrame.width = MAX_CAPTION_WIDTH;
+    
+    NSMutableAttributedString *atrs = [[NSMutableAttributedString alloc] initWithAttributedString: textView.textStorage];
+    [atrs replaceCharactersInRange:range withString:myString];
+    
+    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:atrs];
+    NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize: CGSizeMake(maxFrame.width, FLT_MAX)];
+    NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
+    
+    [layoutManager addTextContainer:textContainer];
+    [textStorage addLayoutManager:layoutManager];
+    float textHeight = [layoutManager
+                        usedRectForTextContainer:textContainer].size.height;
+    
+    if (textHeight >= maxFrame.height - 1) {
+        DLog(@" textHeight >= maxViewHeight - 1");
+        return NO;
+    } else
+        return YES;
+}
+
 
 - (void)textViewDidChange:(UITextView *)textView {
     // Should only be called while keyboard is up
