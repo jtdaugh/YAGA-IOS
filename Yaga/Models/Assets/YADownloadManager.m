@@ -62,18 +62,23 @@
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         dispatch_async(dispatch_get_main_queue(), ^{
             
-            [video.realm beginWriteTransaction];
-            if(gifJob)
-                video.gifFilename = filename;
-            else
-                video.mp4Filename = filename;
-            
-            video.localCreatedAt = [NSDate date];
-            [video.realm commitWriteTransaction];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
-                                                                object:video];
-            [self jobFinishedForVideo:video gifJob:gifJob];
+            if (![video isInvalidated]) {
+                [video.realm beginWriteTransaction];
+                if(gifJob)
+                    video.gifFilename = filename;
+                else
+                    video.mp4Filename = filename;
+                
+                video.localCreatedAt = [NSDate date];
+                [video.realm commitWriteTransaction];
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
+                                                                    object:video];
+                [self jobFinishedForUrl:stringUrl video:video gifJob:gifJob];
+            }
+            else {
+                [self jobFinishedForUrl:stringUrl video:nil gifJob:gifJob];
+            }
         });
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         if(error.code == NSURLErrorCancelled) {
@@ -82,7 +87,7 @@
         else {
             DLog(@"Error downloading video %@", error);
         }
-        [self jobFinishedForVideo:video gifJob:gifJob];
+        [self jobFinishedForUrl:stringUrl video:nil gifJob:gifJob];
     }];
     
     [operation setProgressiveDownloadProgressBlock:^(AFDownloadRequestOperation *operation, NSInteger bytesRead, long long totalBytesRead, long long totalBytesExpected, long long totalBytesReadForFile, long long totalBytesExpectedToReadForFile) {
@@ -296,11 +301,9 @@
     dispatch_semaphore_wait(self.waiting_semaphore, DISPATCH_TIME_FOREVER);
 }
 
-- (void)jobFinishedForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
-    if(!gifJob)
+- (void)jobFinishedForUrl:(NSString*)url video:(YAVideo*)video gifJob:(BOOL)gifJob {
+    if(video && !gifJob)
         [[YAAssetsCreator sharedCreator] enqueueJpgCreationForVideo:video];
-    
-    NSString *url = gifJob ? video.gifUrl : video.url;
     
     [self.executingJobs removeObjectForKey:url];
     
