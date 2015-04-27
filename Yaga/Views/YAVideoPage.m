@@ -676,6 +676,10 @@
     
     //get likers for video
     
+    if(self.video.mp4Filename.length) {
+        [self showProgress:NO];
+    }
+    
 }
 
 - (void)shareButtonPressed {
