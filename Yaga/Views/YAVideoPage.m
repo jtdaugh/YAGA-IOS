@@ -47,6 +47,10 @@
 @property (strong, nonatomic) UITapGestureRecognizer *likeGestureRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
+@property (strong, nonatomic) NSMutableArray *rainOptions;
+@property (strong, nonatomic) NSArray *options;
+
+
 @property (strong, nonatomic) UIView *overlay;
 
 //@property CGFloat lastScale;
@@ -379,6 +383,16 @@
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
     [self addGestureRecognizer:self.hideGestureRecognizer];
 
+//    self.rainOptions = [[NSMutableArray alloc] init];
+//    self.options = @[@"rainHeart", @"rainBoo", @"rainText"];
+////    int tag = 0;
+//    for(NSString *option in self.options){
+//        UIImageView *rainOption = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
+//        [rainOption setImage:[UIImage imageNamed:option]];
+//        [self.overlay addSubview:rainOption];
+//    }
+    
+    
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -568,23 +582,26 @@
     NSLog(@"double tapped");
     CGPoint tapLocation = [recognizer locationInView:self];
     UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
-    [likeHeart setImage:[UIImage imageNamed:@"LikeHeart"]];
-    [likeHeart setAlpha:0.5];
+    [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
+    likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    likeHeart.tintColor = [UIColor redColor];
+    
+    [likeHeart setAlpha:0.6];
     int lowerBound = -30;
     int upperBound = 30;
     int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
     
     CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
     likeHeart.center = tapLocation;
-    likeHeart.alpha = 0.0;
-    likeHeart.transform = CGAffineTransformScale(rotation, 0.75, 0.75);
+    likeHeart.transform = rotation; //CGAffineTransformScale(rotation, 0.75, 0.75);
     [self.overlay addSubview:likeHeart];
     
-    [UIView animateWithDuration:0.2 animations:^{
-        //
-        likeHeart.alpha = 1.0;
-        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
-    }];
+//    likeHeart.alpha = 0.0;
+//    [UIView animateWithDuration:0.2 animations:^{
+//        //
+//        likeHeart.alpha = 1.0;
+//        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
+//    }];
     
 }
 
