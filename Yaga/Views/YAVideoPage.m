@@ -399,6 +399,8 @@
 - (void) initRain {
     NSLog(@"firebase wat");
     
+    NSLog(@"serverid: %@", self.video.serverId);
+    
     [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         NSLog(@"heart found");
         
