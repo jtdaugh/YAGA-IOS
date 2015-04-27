@@ -215,28 +215,30 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
-    YAVideo *video = notif.object;
-    if(![video.group isEqual:[YAUser currentUser].currentGroup])
-        return;
-    
-    NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-    
-    //the following line will ensure indexPathsForVisibleItems will return correct results
-    [self.collectionView layoutIfNeeded];
-    
-    //invisible? we do not reload then
-    if(![[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:index]]) {
-        return;
-    }
-    
-    NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:0];
-    
-    if(index != NSNotFound && index <= countOfItems) {
-        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
-    }
-    else {
-        [NSException raise:@"something is really wrong" format:nil];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        YAVideo *video = notif.object;
+        if(![video.group isEqual:[YAUser currentUser].currentGroup])
+            return;
+        
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+        
+        //the following line will ensure indexPathsForVisibleItems will return correct results
+        [self.collectionView layoutIfNeeded];
+        
+        //invisible? we do not reload then
+        if(![[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:index]]) {
+            return;
+        }
+        
+        NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:0];
+        
+        if(index != NSNotFound && index <= countOfItems) {
+            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+        }
+        else {
+            [NSException raise:@"something is really wrong" format:nil];
+        }
+    });
 }
 
 - (void)groupDidChange:(NSNotification*)notif {

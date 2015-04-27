@@ -257,7 +257,7 @@
                 log = [log stringByAppendingFormat:@"%@\n", @"prioritise gif"];
             }
         }
-        DLog(@"enqueueAssetsCreationJobForVideos:\n%@", log ? log : @"nothing to enqueue..");
+       // DLog(@"enqueueAssetsCreationJobForVideos:\n%@", log ? log : @"nothing to enqueue..");
     };
     
     if(prioritize) {

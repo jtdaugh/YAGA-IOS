@@ -229,7 +229,7 @@
         [self.waitingJobs insertObject:job forKey:url atIndex:0];
     }
     
-    DLog(@"pauseAllExecutingJobs: %lu paused", pausedCount);
+    DLog(@"pauseAllExecutingJobs: %lu paused", (unsigned long)pausedCount);
 }
 
 - (void)pauseExecutingVideoJobs {
@@ -249,7 +249,7 @@
         }
     }
     
-    DLog(@"pauseExecutingVideoJobs: %lu paused", pausedCount);
+    DLog(@"pauseExecutingVideoJobs: %lu paused", (unsigned long)pausedCount);
 }
 
 - (void)logState:(NSString*)method {
@@ -270,7 +270,7 @@
         return [obj isEqualToString:@"mp4"];
     }].count;
     
-    DLog(@"%@: executing GIF:%lu MP4:%lu , waiting: GIF:%lu MP4:%lu", method, countOfExecutingGif, countOfExecutingMp4, countOfWaitingGif, countOfWaitingMp4);
+    DLog(@"%@: executing GIF:%lu MP4:%lu , waiting: GIF:%lu MP4:%lu", method, (unsigned long)countOfExecutingGif, (unsigned long)countOfExecutingMp4, (unsigned long)countOfWaitingGif, (unsigned long)countOfWaitingMp4);
 }
 
 - (void)cancelAllJobs {
