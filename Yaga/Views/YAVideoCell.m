@@ -57,25 +57,24 @@
             UIImage *loaderImage = [UIImage imageNamed:[NSString stringWithFormat:@"loader%lu.png", (unsigned long)loaderImageIndex]];
             [loaderImages addObject:loaderImage];
         }
-
+        
         self.loader.animationImages = loaderImages;
         self.loader.animationDuration = 1.5;
-        [self addSubview:self.loader];
-        //[self.loader startAnimating];
+        [self.loader startAnimating];
+        self.backgroundView = self.loader;
         
         self.username = [[UILabel alloc] initWithFrame:self.bounds];
-        
         [self.username setTextAlignment:NSTextAlignmentCenter];
         [self.username setTextColor:PRIMARY_COLOR];
         [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
-        [self addSubview:self.username];
+        [self.contentView addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
         [self.caption setNumberOfLines:3];
         [self.caption setTextAlignment:NSTextAlignmentCenter];
         [self.caption setTextColor:PRIMARY_COLOR];
-        [self addSubview:self.caption];
+        [self.contentView addSubview:self.caption];
     }
     return self;
 }
@@ -209,6 +208,7 @@
 
 - (void)showLoader:(BOOL)show {
     self.loader.hidden = !show;
+
     if(!self.loader.hidden && !self.loader.isAnimating)
         [self.loader startAnimating];
     
