@@ -297,14 +297,6 @@
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
     [self.overlay addSubview:self.timestampLabel];
     
-    
-    //    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
-    //    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
-    //    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
-    //    [panGesture requireGestureRecognizerToFail:((YASwipingViewController *) self.presentingVC).panGesture];
-    
-    //    [self.captionField addGestureRecognizer:panGesture];
-    
     CGFloat tSize = MAX_CAPTION_SIZE;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
@@ -503,7 +495,10 @@
 
 - (void)positionTextViewAboveKeyboard{
     self.currentTextField.transform = CGAffineTransformIdentity;
-    
+    [self.currentTextField removeGestureRecognizer:self.panGestureRecognizer];
+    [self.currentTextField removeGestureRecognizer:self.rotateGestureRecognizer];
+    [self.currentTextField removeGestureRecognizer:self.pinchGestureRecognizer];
+
     [self resizeTextAboveKeyboardWithAnimation:YES];
 }
 
@@ -512,13 +507,19 @@
 - (void)moveTextViewBackToSpot {
     CGSize frameSize = [self sizeForTextFieldWithString:self.currentTextField.text];
     
-    [UIView animateWithDuration:0.5f animations:^{
+    __weak YAVideoPage *weakSelf = self;
+
+    [UIView animateWithDuration:0.2f animations:^{
         self.currentTextField.frame = CGRectMake(self.textFieldCenter.x - frameSize.width/2.f,
                                                  self.textFieldCenter.y - frameSize.height/2.f,
                                                  frameSize.width,
                                                  frameSize.height);
         
         self.currentTextField.transform = self.textFieldTransform;
+    } completion:^(BOOL finished) {
+        [weakSelf.currentTextField addGestureRecognizer:self.panGestureRecognizer];
+        [weakSelf.currentTextField addGestureRecognizer:self.rotateGestureRecognizer];
+        [weakSelf.currentTextField addGestureRecognizer:self.pinchGestureRecognizer];
     }];
 }
 
@@ -537,14 +538,12 @@
     self.captionCheckButton.hidden = NO;
     
     self.textFieldCenter = point;
-    self.textFieldTransform = CGAffineTransformMakeScale(0.666, 0.666);
+    self.textFieldTransform = CGAffineTransformMakeScale(0.8, 0.8);
     
-    CGFloat captionHeight = [self sizeForTextFieldWithString:@"A"].height;
+    CGSize captionSize = [self sizeForTextFieldWithString:@"A"];
     
+    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(VIEW_WIDTH / 2, VIEW_HEIGHT / 2, captionSize.width, captionSize.height)];
     
-    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, MAX_CAPTION_WIDTH, captionHeight)];
-    self.currentTextField.center = point;
-
     self.currentTextField.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
@@ -565,10 +564,6 @@
     self.currentTextField.delegate = self;
     
     [self.overlay addSubview:self.currentTextField];
-    
-    [self.currentTextField addGestureRecognizer:self.panGestureRecognizer];
-    [self.currentTextField addGestureRecognizer:self.rotateGestureRecognizer];
-    [self.currentTextField addGestureRecognizer:self.pinchGestureRecognizer];
     
     [self.currentTextField becomeFirstResponder];
     
@@ -628,27 +623,13 @@
                                            size.height);
     
     if (animated) {
-        [UIView animateWithDuration:0.5f animations:^{
+        [UIView animateWithDuration:0.2f animations:^{
             self.currentTextField.frame = frameAboveKeyboard;
         }];
     } else {
         self.currentTextField.frame = frameAboveKeyboard;
     }
 
-}
-
--(void)panned:(UIPanGestureRecognizer*)recognizer {
-    CGPoint translatedPoint = [recognizer translationInView:[[recognizer view] superview]];
-    DLog(@"panned? %f", translatedPoint.y);
-    
-    if([recognizer state] == UIGestureRecognizerStateBegan) {
-        _firstX = [recognizer.view center].x;
-        _firstY = [recognizer.view center].y;
-    }
-    
-    translatedPoint = CGPointMake(_firstX+translatedPoint.x, _firstY+translatedPoint.y);
-    
-    [recognizer.view setCenter:translatedPoint];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
