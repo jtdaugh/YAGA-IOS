@@ -503,17 +503,32 @@
 - (void)positionTextViewAboveKeyboard{
     self.currentTextField.transform = CGAffineTransformIdentity;
     
-    CGSize size = self.currentTextField.frame.size;
-    self.currentTextField.frame = CGRectMake(CAPTION_GUTTER,
-                                              self.keyboardRect.origin.y - (self.currentTextField.frame.size.height + CAPTION_GUTTER),
-                                              size.width,
-                                              size.height);
-    
+    [self resizeTextAboveKeyboardWithAnimation:YES];
 }
 
+
+
 - (void)moveTextViewBackToSpot {
-    self.currentTextField.transform = self.textFieldTransform;
-    self.currentTextField.center = self.textFieldCenter;
+    CGSize frameSize = [self sizeForTextFieldWithString:self.currentTextField.text];
+    
+    [UIView animateWithDuration:0.5f animations:^{
+        self.currentTextField.frame = CGRectMake(self.textFieldCenter.x - frameSize.width/2.f,
+                                                 self.textFieldCenter.y - frameSize.height/2.f,
+                                                 frameSize.width,
+                                                 frameSize.height);
+        
+        self.currentTextField.transform = self.textFieldTransform;
+    }];
+}
+
+- (CGSize)sizeForTextFieldWithString:(NSString *)string {
+    CGFloat captionWidth = VIEW_WIDTH - 2 * CAPTION_GUTTER;
+    CGRect frame = [string boundingRectWithSize:CGSizeMake(captionWidth, CGFLOAT_MAX)
+                                      options:NSStringDrawingUsesLineFragmentOrigin
+                                   attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE],
+                                                 NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                 NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0] } context:nil];
+    return frame.size;
 }
 
 - (void)addCaptionAtPoint:(CGPoint)point {
@@ -525,13 +540,11 @@
     self.textFieldTransform = CGAffineTransformMakeScale(0.666, 0.666);
     
     CGFloat captionWidth = VIEW_WIDTH - 2 * CAPTION_GUTTER;
+    CGFloat captionHeight = [self sizeForTextFieldWithString:@"A"].height;
     
-    CGRect frame = [@"A" boundingRectWithSize:CGSizeMake(captionWidth, CGFLOAT_MAX)
-                                      options:NSStringDrawingUsesLineFragmentOrigin
-                                   attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE],
-                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0] } context:nil];
-    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(VIEW_WIDTH, VIEW_HEIGHT, captionWidth, frame.size.height)];
+    
+    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, captionWidth, captionHeight)];
+    self.currentTextField.center = point;
 
     self.currentTextField.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
@@ -576,51 +589,27 @@
 }
 
 - (void)textViewDidChange:(UITextView *)textView {
-//    [self resizeText];
+    // Should only be called while keyboard is up
+    [self resizeTextAboveKeyboardWithAnimation:NO];
 }
 
-//- (void)resizeText {
-//    NSString *fontName = self.currentTextField.font.fontName;
-//    CGFloat fontSize = MAX_CAPTION_SIZE;
-//    
-//    NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
-//    
-//    NSString *text = self.captionField.text;
-//    NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-//    CGRect rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
-//                                     options:option
-//                                  attributes:attributes
-//                                     context:nil];
-//    
-//    while(rect.size.height > self.captionField.bounds.size.height){
-//        
-//        fontSize = fontSize - 1.0f;
-//        NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-//        rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
-//                                  options:option
-//                               attributes:attributes
-//                                  context:nil];
-//        DLog(@"resizing vert: new font size: %f, new height: %f", fontSize, rect.size.height);
-//    }
-//    
-//    for (NSString *word in [text componentsSeparatedByString:@" "]) {
-//        float width = [word sizeWithAttributes:attributes].width;
-//        
-//        while (width > self.captionField.bounds.size.width && width > 0) {
-//            fontSize = fontSize - 1.0f;
-//            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-//            width = [word sizeWithAttributes:attributes].width;
-//            DLog(@"resizing horizontal: new font size: %f, new width: %f", fontSize, width);
-//        }
-//    }
-//    
-//    CGFloat finalHeight = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX) options:option attributes:attributes context:nil].size.height;
-//    
-//    [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
-//    CGRect captionerFrame = self.captionerLabel.frame;
-//    captionerFrame.origin.y = self.captionField.frame.origin.y + finalHeight;
-//    [self.captionerLabel setFrame:captionerFrame];
-//}
+- (void)resizeTextAboveKeyboardWithAnimation:(BOOL)animated {
+    NSString *captionText = [self.currentTextField.text length] ? self.currentTextField.text : @"A";
+    CGSize size = [self sizeForTextFieldWithString:captionText];
+    CGRect frameAboveKeyboard = CGRectMake((VIEW_WIDTH / 2.f) - (size.width/ 2.f),
+                                           self.keyboardRect.origin.y - size.height,
+                                           size.width,
+                                           size.height);
+    
+    if (animated) {
+        [UIView animateWithDuration:0.5f animations:^{
+            self.currentTextField.frame = frameAboveKeyboard;
+        }];
+    } else {
+        self.currentTextField.frame = frameAboveKeyboard;
+    }
+
+}
 
 -(void)panned:(UIPanGestureRecognizer*)recognizer {
     CGPoint translatedPoint = [recognizer translationInView:[[recognizer view] superview]];
