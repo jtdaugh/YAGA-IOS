@@ -115,7 +115,7 @@
         
         if(!shouldPreload) {
             self.playerView.frame = CGRectZero;
-            [self showProgress:YES];
+            [self showLoading:YES];
         }
     }
     
@@ -128,7 +128,7 @@
 
 - (void)prepareVideoForPlaying {
     NSURL *movUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
-    [self showProgress:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
+    [self showLoading:![movUrl.absoluteString isEqualToString:self.playerView.URL.absoluteString]];
     
     if(self.video.mp4Filename.length)
     {
@@ -730,10 +730,15 @@
 }
 
 - (void)showProgress:(BOOL)show {
-    self.progressView.backgroundView.hidden = !show;
+    self.progressView.hidden = !show;
     self.progressView.progress = self.video.mp4DownloadProgress;
     [self.progressView setCustomText:self.video.creator];
 }
+
+- (void)showLoading:(BOOL)show {
+    //used to show spinning monkey while video asset is loading, currently does nothing
+}
+
 
 - (void)downloadProgressChanged:(NSNotification*)notif {
     NSString *url = notif.object;
@@ -773,7 +778,7 @@
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
     if ([object isKindOfClass:[YAVideoPlayerView class]]) {
-        [self showProgress:!((YAVideoPlayerView*)object).readyToPlay];
+        [self showLoading:!((YAVideoPlayerView*)object).readyToPlay];
     }
 }
 
