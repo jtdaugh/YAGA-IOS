@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <Firebase/Firebase.h>
 #import "YAVideo.h"
 
 #define YA_RESPONSE_ID                  @"id"
@@ -70,7 +71,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 @property (readonly) BOOL serverUp;
 - (void)sync;
 @property (nonatomic, strong) NSDate *lastUpdateTime;
-
+@property (strong, nonatomic) Firebase *firebase;
 //execute when after recording, when gif is generated
 - (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId;
 @end

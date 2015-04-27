@@ -46,6 +46,10 @@
 @property (strong, nonatomic) UITapGestureRecognizer *likeGestureRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
+@property (strong, nonatomic) NSMutableArray *rainOptions;
+@property (strong, nonatomic) NSArray *options;
+
+
 @property (strong, nonatomic) UIView *overlay;
 @property (strong, nonatomic) UITextView *currentTextField;
 @property (nonatomic) CGFloat textFieldHeight;
@@ -138,6 +142,8 @@
             self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
+        
+        [self initRain];
     }
     
     self.shouldPreload = shouldPreload;
@@ -373,6 +379,42 @@
     [self addGestureRecognizer:self.hideGestureRecognizer];
 
     [self setupCaptionGestureRecognizers];
+
+//    self.rainOptions = [[NSMutableArray alloc] init];
+//    self.options = @[@"rainHeart", @"rainBoo", @"rainText"];
+////    int tag = 0;
+//    for(NSString *option in self.options){
+//        UIImageView *rainOption = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
+//        [rainOption setImage:[UIImage imageNamed:option]];
+//        [self.overlay addSubview:rainOption];
+//    }
+//    [self initRain];
+}
+
+- (void) initRain {
+    NSLog(@"firebase wat");
+    
+    NSLog(@"serverid: %@", self.video.serverId);
+    
+    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+        NSLog(@"heart found");
+        
+        UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
+        [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
+        likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        likeHeart.tintColor = [UIColor redColor];
+        
+        [likeHeart setAlpha:0.6];
+        int lowerBound = -30;
+        int upperBound = 30;
+        int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
+        
+        CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
+        likeHeart.center = CGPointMake([snapshot.value[@"x"] doubleValue] * VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
+        likeHeart.transform = rotation; //CGAffineTransformScale(rotation, 0.75, 0.75);
+        [self.overlay addSubview:likeHeart];
+
+    }];
 }
 
 #pragma mark - caption gestures
@@ -710,25 +752,23 @@
 }
 
 - (void)likeTappedAtPoint:(CGPoint)point {
-    UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
-    [likeHeart setImage:[UIImage imageNamed:@"LikeHeart"]];
-    [likeHeart setAlpha:0.5];
-    int lowerBound = -30;
-    int upperBound = 30;
-    int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
     
-    CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
-    likeHeart.center = point;
-    likeHeart.alpha = 0.0;
-    likeHeart.transform = CGAffineTransformScale(rotation, 0.75, 0.75);
-    [self.overlay addSubview:likeHeart];
+    CGPoint tapLocation = [recognizer locationInView:self];
     
-    [UIView animateWithDuration:0.2 animations:^{
-        //
-        likeHeart.alpha = 1.0;
-        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
-    }];
+    NSDictionary *heartData = @{
+                                @"type": @"heart",
+                                @"x":[NSNumber numberWithDouble: tapLocation.x/VIEW_WIDTH],
+                                @"y":[NSNumber numberWithDouble: tapLocation.y/VIEW_HEIGHT],
+                                };
     
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAutoId] setValue:heartData];
+    
+    //    likeHeart.alpha = 0.0;
+    //    [UIView animateWithDuration:0.2 animations:^{
+    //        //
+    //        likeHeart.alpha = 1.0;
+    //        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
+    //    }];
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
