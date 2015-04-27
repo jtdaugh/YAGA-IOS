@@ -391,25 +391,61 @@
     
     __weak YAVideoPage *weakSelf = self;
     
+    NSUInteger count = 0;
+    __block BOOL initial = NO;
+    
     [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        NSLog(@"heart found");
+        if(initial){
+            [weakSelf newRain:snapshot count:0 total:0];
+        }
+    }];
+
+    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        initial = YES;
+        int count = 0;
+        int childrenCount = snapshot.childrenCount;
+        for(FDataSnapshot *s in snapshot.children){
+            [weakSelf newRain:s count:count total:childrenCount];
+            count++;
+        }
         
-        UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
-        [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
-        likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        likeHeart.tintColor = [UIColor redColor];
-        
-        [likeHeart setAlpha:0.6];
-        int lowerBound = -30;
-        int upperBound = 30;
-        int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
-        
-        CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
-        likeHeart.center = CGPointMake([snapshot.value[@"x"] doubleValue] * VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
-        likeHeart.transform = rotation; //CGAffineTransformScale(rotation, 0.75, 0.75);
-        [weakSelf.overlay addSubview:likeHeart];
 
     }];
+    
+}
+
+- (void)newRain:(FDataSnapshot *)snapshot count:(int)count total:(int)total {
+    NSLog(@"heart found");
+    
+    UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
+    [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
+    likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    likeHeart.tintColor = [UIColor redColor];
+    
+    [likeHeart setAlpha:0.6];
+    int lowerBound = -30;
+    int upperBound = 30;
+    int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
+    
+    CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
+    likeHeart.center = CGPointMake([snapshot.value[@"x"] doubleValue] * VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
+    likeHeart.transform = CGAffineTransformScale(rotation, 0.75, 0.75);
+    
+    likeHeart.alpha = 0.0;
+//#define ARC4RANDOM_MAX      0x100000000
+//    double val = ((double)arc4random() / ARC4RANDOM_MAX)/5.0f;
+    float delay = (float)count/(float)total * 1.0;
+    
+    [UIView animateWithDuration:0.1 delay:delay options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        likeHeart.alpha = 0.6;
+        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
+    } completion:^(BOOL finished) {
+        //
+    }];
+    
+    [self.overlay addSubview:likeHeart];
+
 }
 
 #pragma mark - caption gestures
