@@ -30,7 +30,7 @@
 @end
 
 #define kSeparator 10
-#define kDismissalTreshold 400.0f
+#define kDismissalTreshold 800.0f
 
 @implementation YASwipingViewController
 

@@ -371,8 +371,8 @@
     self.progressView.showsText = NO;
     self.progressView.tintColor = [UIColor whiteColor];
     
-    self.likeGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(likeDoubleTap:)];
-    [self.likeGestureRecognizer setNumberOfTapsRequired:2];
+    self.likeGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(likeTap:)];
+    [self.likeGestureRecognizer setNumberOfTapsRequired:1];
     [self addGestureRecognizer:self.likeGestureRecognizer];
 
     self.hideGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(hideHold:)];
@@ -564,7 +564,7 @@
     self.likesShown = NO;
 }
 
-- (void)likeDoubleTap:(UITapGestureRecognizer *) recognizer {
+- (void)likeTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"double tapped");
     CGPoint tapLocation = [recognizer locationInView:self];
     UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
@@ -574,9 +574,18 @@
     int upperBound = 30;
     int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
     
-    [likeHeart setTransform:CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0)];
+    CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
     likeHeart.center = tapLocation;
+    likeHeart.alpha = 0.0;
+    likeHeart.transform = CGAffineTransformScale(rotation, 0.75, 0.75);
     [self.overlay addSubview:likeHeart];
+    
+    [UIView animateWithDuration:0.2 animations:^{
+        //
+        likeHeart.alpha = 1.0;
+        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
+    }];
+    
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
