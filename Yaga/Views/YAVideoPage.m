@@ -520,7 +520,7 @@
     self.captionCheckButton.hidden = NO;
     
     self.textFieldCenter = point;
-    self.textFieldTransform = CGAffineTransformMakeScale(0.5f, 0.5f);
+    self.textFieldTransform = CGAffineTransformMakeScale(0.666, 0.666);
     
     CGFloat captionWidth = VIEW_WIDTH - 2 * CAPTION_GUTTER;
     
@@ -529,7 +529,7 @@
                                    attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE],
                                                                NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0] } context:nil];
-    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, captionWidth, frame.size.height)];
+    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(VIEW_WIDTH, VIEW_HEIGHT, captionWidth, frame.size.height)];
 
     self.currentTextField.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
@@ -753,7 +753,7 @@
 
 - (void)likeTappedAtPoint:(CGPoint)point {
     
-    CGPoint tapLocation = [recognizer locationInView:self];
+    CGPoint tapLocation = point;
     
     NSDictionary *heartData = @{
                                 @"type": @"heart",
