@@ -72,8 +72,12 @@
 
 @property (nonatomic, strong) UIButton *captionXButton;
 
+@property (strong, nonatomic) UIView *pieContainer;
+@property (strong, nonatomic) UIView *rainContainer;
 @property (nonatomic, strong) XYPieChart *pieChart;
+@property BOOL pieChartExpanded;
 @property (nonatomic, strong) MutableOrderedDictionary *rainData;
+@property (strong, nonatomic) NSMutableArray *rainMen;
 
 @property (nonatomic, strong) UISwitch *likeCaptionToggle;
 
@@ -156,6 +160,8 @@
             self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
+        
+//        [[YAServer sharedServer].firebase removeAllObservers];
         
         [self initRain];
     }
@@ -382,16 +388,28 @@
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
     [self addGestureRecognizer:self.hideGestureRecognizer];
 
+    self.rainContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
+    [self.overlay addSubview:self.rainContainer];
+    
+    self.pieContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
+    [self.overlay addSubview:self.pieContainer];
+    
     CGFloat pieRadius = 20.0f;
     CGFloat margin = 10.0f;
     self.pieChart = [[XYPieChart alloc] initWithFrame:CGRectMake(margin, VIEW_HEIGHT - margin - pieRadius*2, pieRadius*2, pieRadius*2) Center:CGPointMake(pieRadius,pieRadius) Radius:pieRadius];
     self.pieChart.delegate = self;
     self.pieChart.dataSource = self;
-//    [self.pieChart setBackgroundColor:[UIColor redColor]];
-    [self.pieChart reloadData];
+    [self reloadPieChart];
     [self.pieChart setLabelColor:[UIColor clearColor]];
     
-    [self.overlay addSubview:self.pieChart];
+    self.pieChart.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.pieChart.layer.cornerRadius = pieRadius;
+    self.pieChart.layer.masksToBounds = YES;
+
+    UITapGestureRecognizer *pieTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pieTapped:)];
+    [self.pieChart addGestureRecognizer:pieTap];
+    
+    [self.pieContainer addSubview:self.pieChart];
     
     [self setupCaptionGestureRecognizers];
 
@@ -404,6 +422,93 @@
 //        [self.overlay addSubview:rainOption];
 //    }
 //    [self initRain];
+}
+
+- (void)pieTapped:(UITapGestureRecognizer *)recognizer {
+    
+    if(self.pieChartExpanded){
+        [self hideRainers:nil];
+        return;
+    } else {
+        self.pieChartExpanded = YES;
+    }
+    
+    CGFloat rainerHeight = 48;
+    CGFloat rainerWidth = 200;
+    
+    self.rainMen = [[NSMutableArray alloc] init];
+    
+    for(NSString *key in self.rainData){
+        
+        UILabel *rainer = [[UILabel alloc] initWithFrame:CGRectMake(15, VIEW_HEIGHT - rainerHeight - 15, rainerWidth, rainerHeight)];
+        int count = [[self.rainData objectForKey:key] intValue];
+        NSString *text = [NSString stringWithFormat:@"%@ (%i)", key, count];
+        
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:text attributes:@{
+                                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-3.0]                                                                                              }];
+        rainer.attributedText = string;
+        
+//        [rainer setText:];
+        [rainer setTextColor:[YAUtils UIColorFromUsernameString:key]];
+        [rainer setFont:[UIFont boldSystemFontOfSize:24]];
+        [rainer setAlpha:0.0];
+        [self.rainMen addObject:rainer];
+        [self.pieContainer addSubview:rainer];
+    }
+    
+    
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        int i = 0;
+        
+        for(UILabel *label in self.rainMen){
+            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
+            //
+            [label setAlpha:1.0];
+            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
+            //CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
+            //            CGAffineTransformMake
+            CGFloat translateY = (rainerHeight + 15) + ((float) i) * (rainerHeight + 10);
+            [label setTransform:CGAffineTransformMakeTranslation(0, -translateY)];
+            
+            i++;
+            
+        }
+        
+        [self.pieContainer setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.5]];
+        
+    } completion:^(BOOL finished) {
+        //
+    }];
+    
+    self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideRainers:)];
+    [self addGestureRecognizer:self.tapOutGestureRecognizer];
+
+    NSLog(@"pie tapped");
+}
+
+- (void)hideRainers:(id)sender {
+    [self removeGestureRecognizer:self.tapOutGestureRecognizer];
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        for(UILabel *label in self.rainMen){
+            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
+            //
+            [label setAlpha:0.0];
+            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
+            //CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
+            //            CGAffineTransformMake
+            [label setTransform:CGAffineTransformIdentity];
+            
+        }
+        [self.pieContainer setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.0]];
+    } completion:^(BOOL finished) {
+        //
+    }];
+    
+    self.pieChartExpanded = NO;
+
 }
 
 - (NSUInteger)numberOfSlicesInPieChart:(XYPieChart *)pieChart {
@@ -434,14 +539,14 @@
     
     __block BOOL initial = NO;
     
-    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] queryLimitedToLast:80] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         if(initial){
             [weakSelf newRain:snapshot count:0 total:0];
-            [weakSelf.pieChart reloadData];
+            [weakSelf reloadPieChart];
         }
     }];
 
-    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] queryLimitedToLast:80] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         initial = YES;
         int count = 0;
         int childrenCount = (int) snapshot.childrenCount;
@@ -450,7 +555,7 @@
             count++;
         }
         
-        [weakSelf.pieChart reloadData];
+        [weakSelf reloadPieChart];
 
     }];
     
@@ -494,7 +599,7 @@
         
     }];
     
-    [self.overlay addSubview:likeHeart];
+    [self.rainContainer addSubview:likeHeart];
     
     if([self.rainData objectForKey:username]){
         NSNumber *inc = [NSNumber numberWithInt:[[self.rainData objectForKey:username] intValue] + 1];
@@ -503,6 +608,15 @@
         [self.rainData setObject:[NSNumber numberWithInt:1] forKey:username];
     }
 
+}
+
+- (void)reloadPieChart {
+    if([self.rainData count] > 0){
+        self.pieChart.layer.borderWidth = 1.0f;
+    } else {
+        self.pieChart.layer.borderWidth = 0.0f;
+    }
+    [self.pieChart reloadData];
 }
 
 #pragma mark - caption gestures
@@ -666,13 +780,6 @@
     [self.overlay addSubview:self.captionWrapperView];
     
     [self.currentTextField becomeFirstResponder];
-    
-    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
-    
-    self.captionBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-    
-    self.captionBlurOverlay.frame = self.bounds;
-    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.captionWrapperView];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -688,6 +795,15 @@
     return [self doesFit:textView string:text range:range];
 }
 
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
+    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    
+    self.captionBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    
+    self.captionBlurOverlay.frame = self.bounds;
+    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.currentTextField];
+    return YES;
+}
 
 - (float)doesFit:(UITextView*)textView string:(NSString *)myString range:(NSRange) range;
 {
