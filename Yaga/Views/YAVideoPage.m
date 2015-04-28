@@ -53,6 +53,7 @@
 
 
 @property (strong, nonatomic) UIView *overlay;
+@property (strong, nonatomic) UIVisualEffectView *captionBlurOverlay;
 @property (strong, nonatomic) UITextView *currentTextField;
 @property (nonatomic) CGFloat textFieldHeight;
 @property (nonatomic) CGAffineTransform textFieldTransform;
@@ -602,7 +603,6 @@
 }
 
 - (void)addCaptionAtPoint:(CGPoint)point {
-    // Should also blur first
     self.captionCheckButton.hidden = NO;
     self.captionCheckButton.hidden = NO;
     
@@ -645,6 +645,12 @@
     
     [self.currentTextField becomeFirstResponder];
     
+    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    
+    self.captionBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    
+    self.captionBlurOverlay.frame = self.bounds;
+    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.currentTextField];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -763,6 +769,7 @@
 //    [self updateControls];
     [self.currentTextField resignFirstResponder];
     [self moveTextViewBackToSpot];
+    [self.captionBlurOverlay removeFromSuperview];
 }
 
 - (void)likeButtonPressed {
