@@ -390,7 +390,9 @@
     self.pieChart.dataSource = self;
 //    [self.pieChart setBackgroundColor:[UIColor redColor]];
     [self.pieChart reloadData];
-    [self addSubview:self.pieChart];
+    [self.pieChart setLabelColor:[UIColor clearColor]];
+    
+    [self.overlay addSubview:self.pieChart];
     
     [self setupCaptionGestureRecognizers];
 
@@ -436,7 +438,7 @@
     [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         if(initial){
             [weakSelf newRain:snapshot count:0 total:0];
-            [self.pieChart reloadData];
+            [weakSelf.pieChart reloadData];
         }
     }];
 
@@ -449,7 +451,7 @@
             count++;
         }
         
-        [self.pieChart reloadData];
+        [weakSelf.pieChart reloadData];
 
     }];
     
@@ -490,7 +492,7 @@
         likeHeart.alpha = 0.6;
         likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
     } completion:^(BOOL finished) {
-        //
+        
     }];
     
     [self.overlay addSubview:likeHeart];
