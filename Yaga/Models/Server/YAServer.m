@@ -87,6 +87,8 @@
         
         self.multipartUploadsInProgress = [NSMutableDictionary new];
         
+        [Firebase setOption:@"persistence" to:@YES];
+        
         self.firebase = [[Firebase alloc] initWithUrl:@"https://yaga.firebaseio.com/rain"];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:)  name:VIDEO_WILL_DELETE_NOTIFICATION  object:nil];
