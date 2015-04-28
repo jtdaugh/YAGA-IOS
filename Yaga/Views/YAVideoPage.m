@@ -537,14 +537,14 @@
     
     __block BOOL initial = NO;
     
-    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] queryLimitedToLast:80] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         if(initial){
             [weakSelf newRain:snapshot count:0 total:0];
             [weakSelf reloadPieChart];
         }
     }];
 
-    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] queryLimitedToLast:80] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         initial = YES;
         int count = 0;
         int childrenCount = (int) snapshot.childrenCount;
