@@ -20,7 +20,11 @@
 #import "XYPieChart.h"
 #import "OrderedDictionary.h"
 
+#define CAPTION_FONT_SIZE 60.0
+#define CAPTION_STROKE_WIDTH 5.f
+#define CAPTION_DEFAULT_SCALE 0.5f
 #define CAPTION_GUTTER 5.f
+
 #define MAX_CAPTION_WIDTH (VIEW_WIDTH - 2 * CAPTION_GUTTER)
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -233,7 +237,7 @@
         NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Swipe Down\n To Dismiss"
                                                                      attributes:@{
                                                                                   NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
                                                                                   }];
         
         self.toolTipLabel.textAlignment = NSTextAlignmentCenter;
@@ -304,7 +308,7 @@
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
     [self.overlay addSubview:self.timestampLabel];
     
-    CGFloat tSize = MAX_CAPTION_SIZE;
+    CGFloat tSize = CAPTION_FONT_SIZE;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
     [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -606,9 +610,9 @@
 - (CGSize)sizeForTextFieldWithString:(NSString *)string {
     CGRect frame = [string boundingRectWithSize:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)
                                       options:NSStringDrawingUsesLineFragmentOrigin
-                                   attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE],
+                                   attributes:@{ NSFontAttributeName:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE],
                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                 NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0] } context:nil];
+                                                 NSStrokeWidthAttributeName:[NSNumber numberWithFloat:CAPTION_STROKE_WIDTH] } context:nil];
     return frame.size;
 }
 
@@ -619,7 +623,7 @@
     }
     
     self.textFieldCenter = point;
-    self.textFieldTransform = CGAffineTransformMakeScale(0.8, 0.8);
+    self.textFieldTransform = CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE);
     
     CGSize captionSize = [self sizeForTextFieldWithString:@"A"];
     
@@ -632,7 +636,7 @@
     [self.currentTextField setAttributedText:string];
     [self.currentTextField replaceRange:[self.currentTextField textRangeFromPosition:[self.currentTextField beginningOfDocument] toPosition:[self.currentTextField endOfDocument]] withText:@""];
     
-    [self.currentTextField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE]];
+    [self.currentTextField setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
 
     [self.currentTextField setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
     [self.currentTextField setTextAlignment:NSTextAlignmentCenter];
@@ -674,7 +678,7 @@
 
 - (float)doesFit:(UITextView*)textView string:(NSString *)myString range:(NSRange) range;
 {
-    CGSize maxFrame = [self sizeForTextFieldWithString:@"A\nA\nA"];
+    CGSize maxFrame = [self sizeForTextFieldWithString:@"AA\nAA\nAA"];
     maxFrame.width = MAX_CAPTION_WIDTH;
     
     NSMutableAttributedString *atrs = [[NSMutableAttributedString alloc] initWithAttributedString: textView.textStorage];
