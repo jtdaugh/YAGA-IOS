@@ -563,6 +563,7 @@
 }
 
 - (void)captionCancelPressed:(id)sender {
+    [self.currentTextField resignFirstResponder];
     self.captionXButton.hidden = YES;
     [self.currentTextField removeFromSuperview];
     self.currentTextField = nil;
@@ -610,7 +611,11 @@
 
 - (void)addCaptionAtPoint:(CGPoint)point {
     // Should also blur first
-    self.captionXButton.hidden = NO;
+    
+    if (self.currentTextField) {
+        self.currentTextField.editable = NO;
+        self.currentTextField = nil;
+    }
     
     self.textFieldCenter = point;
     self.textFieldTransform = CGAffineTransformMakeScale(0.8, 0.8);
@@ -655,7 +660,6 @@
     }
     
     return [self doesFit:textView string:text range:range];
-    
 }
 
 
@@ -735,6 +739,7 @@
 //}
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
+    self.captionXButton.hidden = NO;
     self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
     [self addGestureRecognizer:self.tapOutGestureRecognizer];
 }
@@ -747,6 +752,7 @@
 //    [self.video rename:self.captionField.text withFont:self.fontIndex];
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
 //    [self updateControls];
+    self.captionXButton.hidden = YES;
     [self.currentTextField resignFirstResponder];
     [self moveTextViewBackToSpot];
 }
