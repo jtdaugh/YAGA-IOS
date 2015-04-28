@@ -21,6 +21,7 @@
 #import "OrderedDictionary.h"
 
 #define CAPTION_GUTTER 5.f
+#define MAX_CAPTION_WIDTH (VIEW_WIDTH - 2 * CAPTION_GUTTER)
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 @interface YAVideoPage () <XYPieChartDelegate, XYPieChartDataSource>;
@@ -62,11 +63,12 @@
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (strong, nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
 
-@property (nonatomic, strong) UIButton *captionCheckButton;
-@property (nonatomic, strong) UIButton *captionCancelButton;
+@property (nonatomic, strong) UIButton *captionXButton;
 
 @property (nonatomic, strong) XYPieChart *pieChart;
 @property (nonatomic, strong) MutableOrderedDictionary *rainData;
+
+@property (nonatomic, strong) UISwitch *likeCaptionToggle;
 
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
@@ -301,14 +303,6 @@
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
     [self.overlay addSubview:self.timestampLabel];
     
-    
-    //    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
-    //    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
-    //    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
-    //    [panGesture requireGestureRecognizerToFail:((YASwipingViewController *) self.presentingVC).panGesture];
-    
-    //    [self.captionField addGestureRecognizer:panGesture];
-    
     CGFloat tSize = MAX_CAPTION_SIZE;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
@@ -344,17 +338,15 @@
     //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
 //    [self addSubview:self.likeCount];
     
-    self.captionCancelButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*0.2, VIEW_HEIGHT*0.8, 70, 30)];
-    [self.captionCancelButton setTitle:@"CANCEL" forState:UIControlStateNormal];
-    [self.captionCancelButton addTarget:self action:@selector(captionCancelPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.captionCancelButton];
-    self.captionCancelButton.hidden = YES;
+    self.captionXButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*0.05, VIEW_HEIGHT*0.05, 40, 40)];
+    [self.captionXButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
+    [self.captionXButton addTarget:self action:@selector(captionCancelPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.captionXButton];
+    self.captionXButton.hidden = YES;
     
-    self.captionCheckButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*0.8 - 50, VIEW_HEIGHT*0.8, 70, 30)];
-    [self.captionCheckButton setTitle:@"DONE!" forState:UIControlStateNormal];
-    [self.captionCheckButton addTarget:self action:@selector(captionCheckPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.captionCheckButton];
-    self.captionCheckButton.hidden = YES;
+    
+    self.likeCaptionToggle = [[UISwitch alloc] initWithFrame:CGRectMake(VIEW_WIDTH-100, VIEW_HEIGHT * 0.9, 10, 10)];
+    [self.overlay addSubview:self.likeCaptionToggle];
     
     const CGFloat radius = 40;
     self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
@@ -573,53 +565,62 @@
 }
 
 - (void)captionCancelPressed:(id)sender {
-    self.captionCheckButton.hidden = YES;
-    self.captionCancelButton.hidden = YES;
+    self.captionXButton.hidden = YES;
     [self.currentTextField removeFromSuperview];
     self.currentTextField = nil;
 }
 
-- (void)captionCheckPressed:(id)sender {
-    self.captionCheckButton.hidden = YES;
-    self.captionCancelButton.hidden = YES;
-
-    [self.currentTextField setEditable:NO];
-    self.currentTextField = nil;
-}
 
 - (void)positionTextViewAboveKeyboard{
     self.currentTextField.transform = CGAffineTransformIdentity;
-    
-    CGSize size = self.currentTextField.frame.size;
-    self.currentTextField.frame = CGRectMake(CAPTION_GUTTER,
-                                              self.keyboardRect.origin.y - (self.currentTextField.frame.size.height + CAPTION_GUTTER),
-                                              size.width,
-                                              size.height);
-    
+    [self.currentTextField removeGestureRecognizer:self.panGestureRecognizer];
+    [self.currentTextField removeGestureRecognizer:self.rotateGestureRecognizer];
+    [self.currentTextField removeGestureRecognizer:self.pinchGestureRecognizer];
+
+    [self resizeTextAboveKeyboardWithAnimation:YES];
 }
 
+
+
 - (void)moveTextViewBackToSpot {
-    self.currentTextField.transform = self.textFieldTransform;
-    self.currentTextField.center = self.textFieldCenter;
+    CGSize frameSize = [self sizeForTextFieldWithString:self.currentTextField.text];
+    
+    __weak YAVideoPage *weakSelf = self;
+
+    [UIView animateWithDuration:0.2f animations:^{
+        self.currentTextField.frame = CGRectMake(self.textFieldCenter.x - frameSize.width/2.f,
+                                                 self.textFieldCenter.y - frameSize.height/2.f,
+                                                 frameSize.width,
+                                                 frameSize.height);
+        
+        self.currentTextField.transform = self.textFieldTransform;
+    } completion:^(BOOL finished) {
+        [weakSelf.currentTextField addGestureRecognizer:self.panGestureRecognizer];
+        [weakSelf.currentTextField addGestureRecognizer:self.rotateGestureRecognizer];
+        [weakSelf.currentTextField addGestureRecognizer:self.pinchGestureRecognizer];
+    }];
+}
+
+- (CGSize)sizeForTextFieldWithString:(NSString *)string {
+    CGRect frame = [string boundingRectWithSize:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)
+                                      options:NSStringDrawingUsesLineFragmentOrigin
+                                   attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE],
+                                                 NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                 NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0] } context:nil];
+    return frame.size;
 }
 
 - (void)addCaptionAtPoint:(CGPoint)point {
     // Should also blur first
-    self.captionCheckButton.hidden = NO;
-    self.captionCheckButton.hidden = NO;
+    self.captionXButton.hidden = NO;
     
     self.textFieldCenter = point;
-    self.textFieldTransform = CGAffineTransformMakeScale(0.666, 0.666);
+    self.textFieldTransform = CGAffineTransformMakeScale(0.8, 0.8);
     
-    CGFloat captionWidth = VIEW_WIDTH - 2 * CAPTION_GUTTER;
+    CGSize captionSize = [self sizeForTextFieldWithString:@"A"];
     
-    CGRect frame = [@"A" boundingRectWithSize:CGSizeMake(captionWidth, CGFLOAT_MAX)
-                                      options:NSStringDrawingUsesLineFragmentOrigin
-                                   attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE],
-                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0] } context:nil];
-    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(VIEW_WIDTH, VIEW_HEIGHT, captionWidth, frame.size.height)];
-
+    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectMake(VIEW_WIDTH / 2, VIEW_HEIGHT / 2, captionSize.width, captionSize.height)];
+    
     self.currentTextField.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
@@ -641,10 +642,6 @@
     
     [self.overlay addSubview:self.currentTextField];
     
-    [self.currentTextField addGestureRecognizer:self.panGestureRecognizer];
-    [self.currentTextField addGestureRecognizer:self.rotateGestureRecognizer];
-    [self.currentTextField addGestureRecognizer:self.pinchGestureRecognizer];
-    
     [self.currentTextField becomeFirstResponder];
     
 }
@@ -656,71 +653,60 @@
 //        [self updateControls];
 //        
         [self doneEditing];
+        return NO;
     }
     
-    // limit to 30 characters
-    return textView.text.length + (text.length - range.length) <= 30;
+    return [self doesFit:textView string:text range:range];
+    
 }
+
+
+- (float)doesFit:(UITextView*)textView string:(NSString *)myString range:(NSRange) range;
+{
+    CGSize maxFrame = [self sizeForTextFieldWithString:@"A\nA\nA"];
+    maxFrame.width = MAX_CAPTION_WIDTH;
+    
+    NSMutableAttributedString *atrs = [[NSMutableAttributedString alloc] initWithAttributedString: textView.textStorage];
+    [atrs replaceCharactersInRange:range withString:myString];
+    
+    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:atrs];
+    NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize: CGSizeMake(maxFrame.width, FLT_MAX)];
+    NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
+    
+    [layoutManager addTextContainer:textContainer];
+    [textStorage addLayoutManager:layoutManager];
+    float textHeight = [layoutManager
+                        usedRectForTextContainer:textContainer].size.height;
+    
+    if (textHeight >= maxFrame.height - 1) {
+        DLog(@" textHeight >= maxViewHeight - 1");
+        return NO;
+    } else
+        return YES;
+}
+
 
 - (void)textViewDidChange:(UITextView *)textView {
-//    [self resizeText];
+    // Should only be called while keyboard is up
+    [self resizeTextAboveKeyboardWithAnimation:NO];
 }
 
-//- (void)resizeText {
-//    NSString *fontName = self.currentTextField.font.fontName;
-//    CGFloat fontSize = MAX_CAPTION_SIZE;
-//    
-//    NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
-//    
-//    NSString *text = self.captionField.text;
-//    NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-//    CGRect rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
-//                                     options:option
-//                                  attributes:attributes
-//                                     context:nil];
-//    
-//    while(rect.size.height > self.captionField.bounds.size.height){
-//        
-//        fontSize = fontSize - 1.0f;
-//        NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-//        rect = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX)
-//                                  options:option
-//                               attributes:attributes
-//                                  context:nil];
-//        DLog(@"resizing vert: new font size: %f, new height: %f", fontSize, rect.size.height);
-//    }
-//    
-//    for (NSString *word in [text componentsSeparatedByString:@" "]) {
-//        float width = [word sizeWithAttributes:attributes].width;
-//        
-//        while (width > self.captionField.bounds.size.width && width > 0) {
-//            fontSize = fontSize - 1.0f;
-//            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-//            width = [word sizeWithAttributes:attributes].width;
-//            DLog(@"resizing horizontal: new font size: %f, new width: %f", fontSize, width);
-//        }
-//    }
-//    
-//    CGFloat finalHeight = [text boundingRectWithSize:CGSizeMake(self.captionField.frame.size.width, CGFLOAT_MAX) options:option attributes:attributes context:nil].size.height;
-//    
-//    [self.captionField setFont: [UIFont fontWithName:fontName size:fontSize]];
-//    CGRect captionerFrame = self.captionerLabel.frame;
-//    captionerFrame.origin.y = self.captionField.frame.origin.y + finalHeight;
-//    [self.captionerLabel setFrame:captionerFrame];
-//}
-
--(void)panned:(UIPanGestureRecognizer*)recognizer {
-    CGPoint translatedPoint = [recognizer translationInView:[[recognizer view] superview]];
-    DLog(@"panned? %f", translatedPoint.y);
+- (void)resizeTextAboveKeyboardWithAnimation:(BOOL)animated {
+    NSString *captionText = [self.currentTextField.text length] ? self.currentTextField.text : @"A";
+    CGSize size = [self sizeForTextFieldWithString:captionText];
+    CGRect frameAboveKeyboard = CGRectMake((VIEW_WIDTH / 2.f) - (size.width/ 2.f),
+                                           self.keyboardRect.origin.y - size.height,
+                                           size.width,
+                                           size.height);
     
-    if([recognizer state] == UIGestureRecognizerStateBegan) {
-        _firstX = [recognizer.view center].x;
-        _firstY = [recognizer.view center].y;
+    if (animated) {
+        [UIView animateWithDuration:0.2f animations:^{
+            self.currentTextField.frame = frameAboveKeyboard;
+        }];
+    } else {
+        self.currentTextField.frame = frameAboveKeyboard;
     }
-    
-    translatedPoint = CGPointMake(_firstX+translatedPoint.x, _firstY+translatedPoint.y);
-    
-    [recognizer.view setCenter:translatedPoint];
+
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -833,7 +819,7 @@
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
-    if (YES) { // some like vs caption state
+    if (self.likeCaptionToggle.on) { // some like vs caption state
         [self likeTappedAtPoint:[recognizer locationInView:self]];
     } else {
         [self addCaptionAtPoint:[recognizer locationInView:self]];
