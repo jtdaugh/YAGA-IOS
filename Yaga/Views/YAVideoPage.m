@@ -136,9 +136,6 @@
 {
     NSNumber *info = n.userInfo[ UIKeyboardFrameEndUserInfoKey ];
     self.keyboardRect = info.CGRectValue;
-    if (self.currentTextField) {
-        [self positionTextViewAboveKeyboard];
-    }
 }
 
 
@@ -801,7 +798,11 @@
     self.captionBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
     
     self.captionBlurOverlay.frame = self.bounds;
-    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.currentTextField];
+    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.captionWrapperView];
+    if (self.currentTextField) {
+        [self positionTextViewAboveKeyboard];
+    }
+
     return YES;
 }
 
