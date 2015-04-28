@@ -384,6 +384,9 @@
     [self.pieChart reloadData];
     [self.pieChart setLabelColor:[UIColor clearColor]];
     
+    UITapGestureRecognizer *pieTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pieTapped:)];
+    [self.pieChart addGestureRecognizer:pieTap];
+    
     [self.overlay addSubview:self.pieChart];
     
     [self setupCaptionGestureRecognizers];
@@ -397,6 +400,10 @@
 //        [self.overlay addSubview:rainOption];
 //    }
 //    [self initRain];
+}
+
+- (void)pieTapped:(UITapGestureRecognizer *)recognizer {
+    NSLog(@"pie tapped");
 }
 
 - (NSUInteger)numberOfSlicesInPieChart:(XYPieChart *)pieChart {
