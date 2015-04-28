@@ -63,11 +63,12 @@
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (strong, nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
 
-@property (nonatomic, strong) UIButton *captionCheckButton;
-@property (nonatomic, strong) UIButton *captionCancelButton;
+@property (nonatomic, strong) UIButton *captionXButton;
 
 @property (nonatomic, strong) XYPieChart *pieChart;
 @property (nonatomic, strong) MutableOrderedDictionary *rainData;
+
+@property (nonatomic, strong) UISwitch *likeCaptionToggle;
 
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
@@ -337,17 +338,15 @@
     //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
 //    [self addSubview:self.likeCount];
     
-    self.captionCancelButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*0.2, VIEW_HEIGHT*0.8, 70, 30)];
-    [self.captionCancelButton setTitle:@"CANCEL" forState:UIControlStateNormal];
-    [self.captionCancelButton addTarget:self action:@selector(captionCancelPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.captionCancelButton];
-    self.captionCancelButton.hidden = YES;
+    self.captionXButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*0.05, VIEW_HEIGHT*0.05, 40, 40)];
+    [self.captionXButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
+    [self.captionXButton addTarget:self action:@selector(captionCancelPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.captionXButton];
+    self.captionXButton.hidden = YES;
     
-    self.captionCheckButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*0.8 - 50, VIEW_HEIGHT*0.8, 70, 30)];
-    [self.captionCheckButton setTitle:@"DONE!" forState:UIControlStateNormal];
-    [self.captionCheckButton addTarget:self action:@selector(captionCheckPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.captionCheckButton];
-    self.captionCheckButton.hidden = YES;
+    
+    self.likeCaptionToggle = [[UISwitch alloc] initWithFrame:CGRectMake(VIEW_WIDTH-100, VIEW_HEIGHT * 0.9, 10, 10)];
+    [self.overlay addSubview:self.likeCaptionToggle];
     
     const CGFloat radius = 40;
     self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
@@ -564,19 +563,11 @@
 }
 
 - (void)captionCancelPressed:(id)sender {
-    self.captionCheckButton.hidden = YES;
-    self.captionCancelButton.hidden = YES;
+    self.captionXButton.hidden = YES;
     [self.currentTextField removeFromSuperview];
     self.currentTextField = nil;
 }
 
-- (void)captionCheckPressed:(id)sender {
-    self.captionCheckButton.hidden = YES;
-    self.captionCancelButton.hidden = YES;
-
-    [self.currentTextField setEditable:NO];
-    self.currentTextField = nil;
-}
 
 - (void)positionTextViewAboveKeyboard{
     self.currentTextField.transform = CGAffineTransformIdentity;
@@ -619,8 +610,7 @@
 
 - (void)addCaptionAtPoint:(CGPoint)point {
     // Should also blur first
-    self.captionCheckButton.hidden = NO;
-    self.captionCheckButton.hidden = NO;
+    self.captionXButton.hidden = NO;
     
     self.textFieldCenter = point;
     self.textFieldTransform = CGAffineTransformMakeScale(0.8, 0.8);
@@ -827,7 +817,7 @@
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
-    if (YES) { // some like vs caption state
+    if (self.likeCaptionToggle.on) { // some like vs caption state
         [self likeTappedAtPoint:[recognizer locationInView:self]];
     } else {
         [self addCaptionAtPoint:[recognizer locationInView:self]];
