@@ -19,6 +19,7 @@
 #import "MBProgressHUD.h"
 #import "XYPieChart.h"
 #import "OrderedDictionary.h"
+#import "YAPanGestureRecognizer.h"
 
 #define CAPTION_FONT_SIZE 60.0
 #define CAPTION_STROKE_WIDTH 5.f
@@ -66,7 +67,7 @@
 @property (nonatomic) CGPoint textFieldCenter;
 
 @property (strong, nonatomic) UITapGestureRecognizer *tapOutGestureRecognizer;
-@property (strong, nonatomic) UIPanGestureRecognizer *panGestureRecognizer;
+@property (strong, nonatomic) YAPanGestureRecognizer *panGestureRecognizer;
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (strong, nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
 
@@ -619,7 +620,7 @@
 #pragma mark - caption gestures
 
 - (void) setupCaptionGestureRecognizers {
-    self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+    self.panGestureRecognizer = [[YAPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
     self.panGestureRecognizer.delegate = self;
     
     self.rotateGestureRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handleRotate:)];
