@@ -67,6 +67,7 @@
 
 @property (nonatomic, strong) XYPieChart *pieChart;
 @property (nonatomic, strong) MutableOrderedDictionary *rainData;
+@property (strong, nonatomic) NSMutableArray *rainMen;
 
 @property (nonatomic, strong) UISwitch *likeCaptionToggle;
 
@@ -149,6 +150,8 @@
             self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
+        
+//        [[YAServer sharedServer].firebase removeAllObservers];
         
         [self initRain];
     }
@@ -403,7 +406,70 @@
 }
 
 - (void)pieTapped:(UITapGestureRecognizer *)recognizer {
+    
+    CGFloat rainerHeight = 48;
+    CGFloat rainerWidth = 200;
+    
+    self.rainMen = [[NSMutableArray alloc] init];
+    
+    for(NSString *key in self.rainData){
+        
+        UILabel *rainer = [[UILabel alloc] initWithFrame:CGRectMake(15, VIEW_HEIGHT - rainerHeight - 15, rainerWidth, rainerHeight)];
+        int count = [[self.rainData objectForKey:key] intValue];
+        [rainer setText:[NSString stringWithFormat:@"%@ (%i)", key, count]];
+        [rainer setTextColor:[YAUtils UIColorFromUsernameString:key]];
+        [rainer setFont:[UIFont boldSystemFontOfSize:24]];
+        [rainer setAlpha:0.0];
+        [self.rainMen addObject:rainer];
+        [self addSubview:rainer];
+    }
+    
+    
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        int i = 0;
+        
+        for(UILabel *label in self.rainMen){
+            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
+            //
+            [label setAlpha:1.0];
+            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
+            //CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
+            //            CGAffineTransformMake
+            CGFloat translateY = (rainerHeight + 15) + ((float) i) * (rainerHeight + 10);
+            [label setTransform:CGAffineTransformMakeTranslation(0, -translateY)];
+            
+            i++;
+            
+        }
+    } completion:^(BOOL finished) {
+        //
+    }];
+    
+    self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideRainers:)];
+    [self addGestureRecognizer:self.tapOutGestureRecognizer];
+
     NSLog(@"pie tapped");
+}
+
+- (void)hideRainers:(id)sender {
+    [self removeGestureRecognizer:self.tapOutGestureRecognizer];
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        for(UILabel *label in self.rainMen){
+            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
+            //
+            [label setAlpha:0.0];
+            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
+            //CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
+            //            CGAffineTransformMake
+            [label setTransform:CGAffineTransformIdentity];
+            
+        }
+    } completion:^(BOOL finished) {
+        //
+    }];
+
 }
 
 - (NSUInteger)numberOfSlicesInPieChart:(XYPieChart *)pieChart {
