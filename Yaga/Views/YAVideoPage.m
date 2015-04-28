@@ -70,7 +70,10 @@
 
 @property (nonatomic, strong) UIButton *captionXButton;
 
+@property (strong, nonatomic) UIView *pieContainer;
+@property (strong, nonatomic) UIView *rainContainer;
 @property (nonatomic, strong) XYPieChart *pieChart;
+@property BOOL pieChartExpanded;
 @property (nonatomic, strong) MutableOrderedDictionary *rainData;
 @property (strong, nonatomic) NSMutableArray *rainMen;
 
@@ -383,19 +386,28 @@
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
     [self addGestureRecognizer:self.hideGestureRecognizer];
 
+    self.rainContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
+    [self.overlay addSubview:self.rainContainer];
+    
+    self.pieContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
+    [self.overlay addSubview:self.pieContainer];
+    
     CGFloat pieRadius = 20.0f;
     CGFloat margin = 10.0f;
     self.pieChart = [[XYPieChart alloc] initWithFrame:CGRectMake(margin, VIEW_HEIGHT - margin - pieRadius*2, pieRadius*2, pieRadius*2) Center:CGPointMake(pieRadius,pieRadius) Radius:pieRadius];
     self.pieChart.delegate = self;
     self.pieChart.dataSource = self;
-//    [self.pieChart setBackgroundColor:[UIColor redColor]];
-    [self.pieChart reloadData];
+    [self reloadPieChart];
     [self.pieChart setLabelColor:[UIColor clearColor]];
     
+    self.pieChart.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.pieChart.layer.cornerRadius = pieRadius;
+    self.pieChart.layer.masksToBounds = YES;
+
     UITapGestureRecognizer *pieTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pieTapped:)];
     [self.pieChart addGestureRecognizer:pieTap];
     
-    [self.overlay addSubview:self.pieChart];
+    [self.pieContainer addSubview:self.pieChart];
     
     [self setupCaptionGestureRecognizers];
 
@@ -412,6 +424,13 @@
 
 - (void)pieTapped:(UITapGestureRecognizer *)recognizer {
     
+    if(self.pieChartExpanded){
+        [self hideRainers:nil];
+        return;
+    } else {
+        self.pieChartExpanded = YES;
+    }
+    
     CGFloat rainerHeight = 48;
     CGFloat rainerWidth = 200;
     
@@ -421,12 +440,19 @@
         
         UILabel *rainer = [[UILabel alloc] initWithFrame:CGRectMake(15, VIEW_HEIGHT - rainerHeight - 15, rainerWidth, rainerHeight)];
         int count = [[self.rainData objectForKey:key] intValue];
-        [rainer setText:[NSString stringWithFormat:@"%@ (%i)", key, count]];
+        NSString *text = [NSString stringWithFormat:@"%@ (%i)", key, count];
+        
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:text attributes:@{
+                                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-3.0]                                                                                              }];
+        rainer.attributedText = string;
+        
+//        [rainer setText:];
         [rainer setTextColor:[YAUtils UIColorFromUsernameString:key]];
         [rainer setFont:[UIFont boldSystemFontOfSize:24]];
         [rainer setAlpha:0.0];
         [self.rainMen addObject:rainer];
-        [self addSubview:rainer];
+        [self.pieContainer addSubview:rainer];
     }
     
     
@@ -447,6 +473,9 @@
             i++;
             
         }
+        
+        [self.pieContainer setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.5]];
+        
     } completion:^(BOOL finished) {
         //
     }];
@@ -471,9 +500,12 @@
             [label setTransform:CGAffineTransformIdentity];
             
         }
+        [self.pieContainer setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.0]];
     } completion:^(BOOL finished) {
         //
     }];
+    
+    self.pieChartExpanded = NO;
 
 }
 
@@ -508,7 +540,7 @@
     [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         if(initial){
             [weakSelf newRain:snapshot count:0 total:0];
-            [weakSelf.pieChart reloadData];
+            [weakSelf reloadPieChart];
         }
     }];
 
@@ -521,7 +553,7 @@
             count++;
         }
         
-        [weakSelf.pieChart reloadData];
+        [weakSelf reloadPieChart];
 
     }];
     
@@ -565,7 +597,7 @@
         
     }];
     
-    [self.overlay addSubview:likeHeart];
+    [self.rainContainer addSubview:likeHeart];
     
     if([self.rainData objectForKey:username]){
         NSNumber *inc = [NSNumber numberWithInt:[[self.rainData objectForKey:username] intValue] + 1];
@@ -574,6 +606,15 @@
         [self.rainData setObject:[NSNumber numberWithInt:1] forKey:username];
     }
 
+}
+
+- (void)reloadPieChart {
+    if([self.rainData count] > 0){
+        self.pieChart.layer.borderWidth = 1.0f;
+    } else {
+        self.pieChart.layer.borderWidth = 0.0f;
+    }
+    [self.pieChart reloadData];
 }
 
 #pragma mark - caption gestures
