@@ -14,6 +14,7 @@
 #import <Social/Social.h>
 #import "MBProgressHUD.h"
 #import "YAGifCreationOperation.h"
+#import "NSString+Hash.h"
 
 @interface YAUtils ()
 @property (copy) void (^acceptAction)();
@@ -278,6 +279,21 @@
         [alertView show];
     }
 
+}
+
++ (UIColor *)UIColorFromUsernameString:(NSString *)username {
+    
+    NSString *rgb = [[username md5] substringToIndex:6];
+    
+    return [self colorFromHexString:rgb];
+}
+
++ (UIColor *)colorFromHexString:(NSString *)hexString {
+    unsigned rgbValue = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:hexString];
+    [scanner setScanLocation:1]; // bypass '#' character
+    [scanner scanHexInt:&rgbValue];
+    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
 }
 
 #pragma mark - UIAlertViewDelegate

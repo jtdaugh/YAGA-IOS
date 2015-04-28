@@ -17,11 +17,13 @@
 #import "YASwipingViewController.h"
 #import "YACopyVideoToClipboardActivity.h"
 #import "MBProgressHUD.h"
+#import "XYPieChart.h"
+#import "OrderedDictionary.h"
 
 #define CAPTION_GUTTER 5.f
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
-@interface YAVideoPage ();
+@interface YAVideoPage () <XYPieChartDelegate, XYPieChartDataSource>;
 @property (nonatomic, strong) YAActivityView *activityView;
 
 //overlay controls
@@ -62,6 +64,9 @@
 
 @property (nonatomic, strong) UIButton *captionCheckButton;
 @property (nonatomic, strong) UIButton *captionCancelButton;
+
+@property (nonatomic, strong) XYPieChart *pieChart;
+@property (nonatomic, strong) MutableOrderedDictionary *rainData;
 
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
@@ -378,6 +383,15 @@
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
     [self addGestureRecognizer:self.hideGestureRecognizer];
 
+    CGFloat pieRadius = 20.0f;
+    CGFloat margin = 10.0f;
+    self.pieChart = [[XYPieChart alloc] initWithFrame:CGRectMake(margin, VIEW_HEIGHT - margin - pieRadius*2, pieRadius*2, pieRadius*2) Center:CGPointMake(pieRadius,pieRadius) Radius:pieRadius];
+    self.pieChart.delegate = self;
+    self.pieChart.dataSource = self;
+//    [self.pieChart setBackgroundColor:[UIColor redColor]];
+    [self.pieChart reloadData];
+    [self addSubview:self.pieChart];
+    
     [self setupCaptionGestureRecognizers];
 
 //    self.rainOptions = [[NSMutableArray alloc] init];
@@ -391,31 +405,51 @@
 //    [self initRain];
 }
 
+- (NSUInteger)numberOfSlicesInPieChart:(XYPieChart *)pieChart {
+    return [self.rainData count];
+}
+
+- (CGFloat)pieChart:(XYPieChart *)pieChart valueForSliceAtIndex:(NSUInteger)index {
+    return [[self.rainData objectAtIndex:index] floatValue];
+}
+
+- (UIColor *)pieChart:(XYPieChart *)pieChart colorForSliceAtIndex:(NSUInteger)index {
+    return [YAUtils UIColorFromUsernameString:[self.rainData keyAtIndex:index]];
+}
+
+- (NSString *)pieChart:(XYPieChart *)pieChart textForSliceAtIndex:(NSUInteger)index {
+    return @"";
+}
+
 - (void) initRain {
+    
+    self.rainData = [[MutableOrderedDictionary alloc] init];
+    
     NSLog(@"firebase wat");
     
     NSLog(@"serverid: %@", self.video.serverId);
     
     __weak YAVideoPage *weakSelf = self;
     
-    NSUInteger count = 0;
     __block BOOL initial = NO;
     
     [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         if(initial){
             [weakSelf newRain:snapshot count:0 total:0];
+            [self.pieChart reloadData];
         }
     }];
 
     [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         initial = YES;
         int count = 0;
-        int childrenCount = snapshot.childrenCount;
+        int childrenCount = (int) snapshot.childrenCount;
         for(FDataSnapshot *s in snapshot.children){
             [weakSelf newRain:s count:count total:childrenCount];
             count++;
         }
         
+        [self.pieChart reloadData];
 
     }];
     
@@ -424,10 +458,18 @@
 - (void)newRain:(FDataSnapshot *)snapshot count:(int)count total:(int)total {
     NSLog(@"heart found");
     
+    NSString *username;
+    if(snapshot.value[@"username"]){
+        username = snapshot.value[@"username"];
+    } else {
+        username = @"yaga";
+    }
+    
+    UIColor *color = [YAUtils UIColorFromUsernameString:username];
     UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
     [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
     likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    likeHeart.tintColor = [UIColor redColor];
+    likeHeart.tintColor = color;
     
     [likeHeart setAlpha:0.6];
     int lowerBound = -30;
@@ -452,6 +494,13 @@
     }];
     
     [self.overlay addSubview:likeHeart];
+    
+    if([self.rainData objectForKey:username]){
+        NSNumber *inc = [NSNumber numberWithInt:[[self.rainData objectForKey:username] intValue] + 1];
+        [self.rainData setObject:inc forKey:username];
+    } else {
+        [self.rainData setObject:[NSNumber numberWithInt:1] forKey:username];
+    }
 
 }
 
@@ -782,7 +831,7 @@
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
-    if (NO) { // some like vs caption state
+    if (YES) { // some like vs caption state
         [self likeTappedAtPoint:[recognizer locationInView:self]];
     } else {
         [self addCaptionAtPoint:[recognizer locationInView:self]];
@@ -797,16 +846,17 @@
                                 @"type": @"heart",
                                 @"x":[NSNumber numberWithDouble: tapLocation.x/VIEW_WIDTH],
                                 @"y":[NSNumber numberWithDouble: tapLocation.y/VIEW_HEIGHT],
+                                @"username":[YAUser currentUser].username
                                 };
     
     [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAutoId] setValue:heartData];
     
-    //    likeHeart.alpha = 0.0;
-    //    [UIView animateWithDuration:0.2 animations:^{
-    //        //
-    //        likeHeart.alpha = 1.0;
-    //        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
-    //    }];
+//        likeHeart.alpha = 0.0;
+//        [UIView animateWithDuration:0.2 animations:^{
+//            //
+//            likeHeart.alpha = 1.0;
+//            likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
+//        }];
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
