@@ -21,7 +21,7 @@
 #import "OrderedDictionary.h"
 
 #define CAPTION_FONT_SIZE 60.0
-#define CAPTION_STROKE_WIDTH 5.f
+#define CAPTION_STROKE_WIDTH 2.f
 #define CAPTION_DEFAULT_SCALE 0.6f
 #define CAPTION_GUTTER 5.f
 #define CAPTION_WRAPPER_INSET 50.f
@@ -241,7 +241,7 @@
         self.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:48];
         NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Swipe Down\n To Dismiss"
                                                                      attributes:@{
-                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                  NSStrokeColorAttributeName:[UIColor colorWithWhite:1.0 alpha:0.6],
                                                                                   NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
                                                                                   }];
         
@@ -758,13 +758,18 @@
     [self resizeTextAboveKeyboardWithAnimation:NO];
     
     self.currentTextField.alpha = 0.75;
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:CAPTION_FONT_SIZE],
-                                                                                              NSStrokeColorAttributeName:[YAUtils UIColorFromUsernameString:[YAUser currentUser].username],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:CAPTION_STROKE_WIDTH]                                                                                              }];
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
+                                                                                              }];
     [self.currentTextField setAttributedText:string];
+    [self.currentTextField setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
+    [self.currentTextField setTextColor:[YAUtils UIColorFromUsernameString:[YAUser currentUser].username]];
+    [self.currentTextField setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
+
+//    [self.currentTextField setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
     [self.currentTextField replaceRange:[self.currentTextField textRangeFromPosition:[self.currentTextField beginningOfDocument] toPosition:[self.currentTextField endOfDocument]] withText:@""];
     
-    [self.currentTextField setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
     [self.currentTextField setTextAlignment:NSTextAlignmentCenter];
     [self.currentTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.currentTextField setReturnKeyType:UIReturnKeyDone];
