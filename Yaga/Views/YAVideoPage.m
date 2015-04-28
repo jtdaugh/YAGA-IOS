@@ -647,13 +647,6 @@
     [self.overlay addSubview:self.currentTextField];
     
     [self.currentTextField becomeFirstResponder];
-    
-    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
-    
-    self.captionBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-    
-    self.captionBlurOverlay.frame = self.bounds;
-    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.currentTextField];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -669,6 +662,15 @@
     return [self doesFit:textView string:text range:range];
 }
 
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
+    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    
+    self.captionBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    
+    self.captionBlurOverlay.frame = self.bounds;
+    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.currentTextField];
+    return YES;
+}
 
 - (float)doesFit:(UITextView*)textView string:(NSString *)myString range:(NSRange) range;
 {
