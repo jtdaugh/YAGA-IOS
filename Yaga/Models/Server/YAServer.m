@@ -107,6 +107,10 @@
     }
 }
 
+- (BOOL)applySavedAuthToken {
+    return self.authToken.length;
+}
+
 - (void)setPhoneNumber:(NSString *)phoneNumber
 {
     [[NSUserDefaults standardUserDefaults] setObject:phoneNumber forKey:USER_PHONE];

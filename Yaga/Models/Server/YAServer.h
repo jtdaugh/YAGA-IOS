@@ -73,4 +73,6 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 //execute when after recording, when gif is generated
 - (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId;
+
+- (BOOL)hasAuthToken;
 @end
