@@ -42,6 +42,10 @@
              @"localCreatedAt":[NSDate date]};
 }
 
++ (NSArray *)indexedProperties {
+    return @[@"gifUrl", @"url"];
+}
+
 + (NSString *)primaryKey {
     return @"localId";
 }

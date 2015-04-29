@@ -542,7 +542,7 @@ static NSString *cellID = @"Cell";
     for(YAVideoCell *cell in self.collectionView.visibleCells)
         [videos addObject:cell.video];
     
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:YES];
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:videos invisibleVideos:nil];
 }
 
 - (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
@@ -565,8 +565,7 @@ static NSString *cellID = @"Cell";
         
     }
     
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:visibleVideos prioritizeDownload:YES];
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:invisibleVideos prioritizeDownload:NO];
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:visibleVideos invisibleVideos:invisibleVideos];
 }
 
 #pragma mark - Custom transitions
