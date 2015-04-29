@@ -296,7 +296,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 #pragma mark - Editing
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return !(self.embeddedMode && indexPath.row == self.groups.count);
+    return self.embeddedMode;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
