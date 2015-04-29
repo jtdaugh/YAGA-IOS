@@ -78,6 +78,7 @@
 @property (nonatomic, strong) XYPieChart *pieChart;
 @property BOOL pieChartExpanded;
 @property (nonatomic, strong) MutableOrderedDictionary *rainData;
+@property (strong, nonatomic) NSMutableArray *rain;
 @property (strong, nonatomic) NSMutableArray *rainMen;
 
 @property (nonatomic, strong) UISwitch *likeCaptionToggle;
@@ -158,9 +159,6 @@
             self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
-        
-//        [[YAServer sharedServer].firebase removeAllObservers];
-        
     }
     
     self.shouldPreload = shouldPreload;
@@ -530,8 +528,18 @@
     return @"";
 }
 
+- (void) clearRain {
+    
+    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] removeAllObservers];
+    
+    for(UIView *view in self.rain){
+        [view removeFromSuperview];
+    }
+}
+
 - (void) initRain {
     
+    self.rain = [[NSMutableArray alloc] init];
     self.rainData = [[MutableOrderedDictionary alloc] init];
     
     NSLog(@"firebase wat");
@@ -603,6 +611,7 @@
     }];
     
     [self.rainContainer addSubview:likeHeart];
+    [self.rain addObject:likeHeart];
     
     if([self.rainData objectForKey:username]){
         NSNumber *inc = [NSNumber numberWithInt:[[self.rainData objectForKey:username] intValue] + 1];
@@ -988,7 +997,7 @@
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
-    if (self.likeCaptionToggle.on) { // some like vs caption state
+    if (self.likeCaptionToggle.on || 1) { // some like vs caption state
         [self likeTappedAtPoint:[recognizer locationInView:self]];
     } else {
         [self addCaptionAtPoint:[recognizer locationInView:self]];
@@ -1171,7 +1180,9 @@
     
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
-//    [self initRain];
+    
+    [self clearRain];
+    [self initRain];
     
     //get likers for video
     
