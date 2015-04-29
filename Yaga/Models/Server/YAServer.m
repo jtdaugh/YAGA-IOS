@@ -37,7 +37,7 @@
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
-#define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/members/mute/"
+#define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
 
 #define API_GROUP_MEMBERS_TEMPLATE          @"%@/groups/%@/members/"
 
@@ -331,7 +331,7 @@
     NSString *api = [NSString stringWithFormat:API_MUTE_GROUP_TEMPLATE, self.base_api, serverGroupId];
     
     NSDictionary *parameters = @{
-                                 @"mute": [NSNumber numberWithBool:mute]
+                                 @"mute": mute ? @"true" : @"false"
                                  };
     
     [self.jsonOperationsManager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
