@@ -21,7 +21,7 @@
 #import "OrderedDictionary.h"
 
 #define CAPTION_FONT_SIZE 60.0
-#define CAPTION_STROKE_WIDTH 2.f
+#define CAPTION_STROKE_WIDTH 1.f
 #define CAPTION_DEFAULT_SCALE 0.6f
 #define CAPTION_GUTTER 5.f
 #define CAPTION_WRAPPER_INSET 50.f
@@ -160,7 +160,6 @@
         
 //        [[YAServer sharedServer].firebase removeAllObservers];
         
-        [self initRain];
     }
     
     self.shouldPreload = shouldPreload;
@@ -294,12 +293,18 @@
     CGFloat gutter = 48;
     self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, 12, VIEW_WIDTH - gutter*2, height)];
     [self.userLabel setTextAlignment:NSTextAlignmentCenter];
+    
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
+    [self.userLabel setAttributedText: string];
     [self.userLabel setTextColor:[UIColor whiteColor]];
     [self.userLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    self.userLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
-    self.userLabel.layer.shadowRadius = 1.0f;
-    self.userLabel.layer.shadowOpacity = 1.0;
-    self.userLabel.layer.shadowOffset = CGSizeZero;
+
+//    self.userLabel.layer.shadowColor = [[UIColor whiteColor] CGColor];
+//    self.userLabel.layer.shadowRadius = 1.0f;
+//    self.userLabel.layer.shadowOpacity = 1.0;
+//    self.userLabel.layer.shadowOffset = CGSizeZero;
     [self.overlay addSubview:self.userLabel];
     
     CGFloat timeHeight = 24;
@@ -1142,7 +1147,13 @@
     self.deleteButton.hidden = !myVideo;
     //    self.shareButton.hidden = !myVideo;
     
-    self.userLabel.text = self.video.creator;
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:self.video.creator attributes:@{
+                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
+    [self.userLabel setAttributedText: string];
+
+//    [self.userLabel setText:self.video.creator];
+    self.userLabel.textColor = [YAUtils UIColorFromUsernameString:self.video.creator];
     
     self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
     [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
@@ -1159,6 +1170,7 @@
     
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
+//    [self initRain];
     
     //get likers for video
     
