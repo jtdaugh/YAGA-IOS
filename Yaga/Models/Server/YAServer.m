@@ -107,7 +107,7 @@
     }
 }
 
-- (BOOL)applySavedAuthToken {
+- (BOOL)hasAuthToken {
     return self.authToken.length;
 }
 
