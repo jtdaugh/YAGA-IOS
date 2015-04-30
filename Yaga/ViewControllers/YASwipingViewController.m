@@ -291,7 +291,7 @@
 
         //prioritise mp4 download for visible page if needed
         if(preload && !page.video.mp4Filename.length && i == visibleTileIndex)
-            [[YADownloadManager sharedManager] exclusivelyPrioritizeDownloadJobForVideo:page.video gifJob:NO];
+            [[YADownloadManager sharedManager] exclusivelyDownloadMp4ForVideo:page.video];
         
         if(i == visibleTileIndex && preload) {
             if(![page.playerView isPlaying])

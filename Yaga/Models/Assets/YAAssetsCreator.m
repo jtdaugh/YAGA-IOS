@@ -18,7 +18,7 @@
 
 #import "YAGifCreationOperation.h"
 #import "YACreateRecordingOperation.h"
-#import "YADownloadManager2.h"
+#import "YADownloadManager.h"
 #import "UIImage+Resize.h"
 
 @interface YAAssetsCreator ()
@@ -199,11 +199,11 @@
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [[YADownloadManager2 sharedManager] cancelAllJobs];
+        [[YADownloadManager sharedManager] cancelAllJobs];
         [self.gifQueue cancelAllOperations];
     
         
-        [[YADownloadManager2 sharedManager] waitUntilAllJobsAreFinished];
+        [[YADownloadManager sharedManager] waitUntilAllJobsAreFinished];
         [self.gifQueue waitUntilAllOperationsAreFinished];
         
         if(completion)
@@ -217,13 +217,13 @@
 //GIF jobs should always go first
 - (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos {
 
-    [[YADownloadManager2 sharedManager] pauseExecutingJobs];
+    [[YADownloadManager sharedManager] pauseExecutingJobs];
     
     NSArray *orderedUrlsToDownload = [self orderedDownloadUrlsFromVideos:visibleVideos invisibleVideos:invisibleVideos];
     
-    [[YADownloadManager2 sharedManager] reorderJobs:orderedUrlsToDownload];
+    [[YADownloadManager sharedManager] reorderJobs:orderedUrlsToDownload];
     
-    [[YADownloadManager2 sharedManager] resumeJobs];
+    [[YADownloadManager sharedManager] resumeJobs];
 }
 
 - (NSArray*)orderedDownloadUrlsFromVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos {
@@ -273,13 +273,15 @@
         }
     }
     
-    DLog(@"orderedDownloadUrlsFromVideos: %lu, %lu, %lu, %lu", gifUrlsForVisible.count, gifUrlsForInvisible.count, mp4UrlsForVisible.count, mp4UrlsForInvisible.count);
+    DLog(@"orderedDownloadUrlsFromVideos: %lu, %lu, %lu, %lu", (unsigned long)gifUrlsForVisible.count, gifUrlsForInvisible.count, mp4UrlsForVisible.count, mp4UrlsForInvisible.count);
     
-    NSMutableArray *result = [NSMutableArray arrayWithArray:gifUrlsForVisible];
-    [result addObjectsFromArray:gifUrlsForInvisible];
-    [result addObjectsFromArray:mp4UrlsForVisible];
-    [result addObjectsFromArray:mp4UrlsForInvisible];
+    NSMutableArray *gifUrls = [NSMutableArray arrayWithArray:gifUrlsForVisible];
+    [gifUrls addObjectsFromArray:gifUrlsForInvisible];
+
+    NSMutableArray *mp4Urls = [NSMutableArray arrayWithArray:mp4UrlsForVisible];
+    [mp4Urls addObjectsFromArray:mp4UrlsForInvisible];
     
+    NSArray *result = @[gifUrls, mp4Urls];
     return result;
 }
 
@@ -310,7 +312,7 @@
 - (void)waitForAllOperationsToFinish
 {
     [self.recordingQueue waitUntilAllOperationsAreFinished];
-    [[YADownloadManager2 sharedManager] waitUntilAllJobsAreFinished];
+    [[YADownloadManager sharedManager] waitUntilAllJobsAreFinished];
     [self.gifQueue waitUntilAllOperationsAreFinished];
 }
 

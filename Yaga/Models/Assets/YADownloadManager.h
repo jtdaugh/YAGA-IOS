@@ -1,26 +1,29 @@
 //
-//  YADownloadManager.h
+//  YADownloadManager2.h
 //  Yaga
 //
-//  Created by valentinkovalski on 2/6/15.
+//  Created by valentinkovalski on 4/29/15.
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
-#import "YAVideo.h"
+#import "AFDownloadRequestOperation.h"
 
 @interface YADownloadManager : NSObject
 
-@property (nonatomic, assign) NSUInteger maxConcurentJobs;
-
-@property (nonatomic, readonly) NSMutableDictionary *mp4DownloadProgress;
-
 + (instancetype)sharedManager;
 
-- (void)cancelAllJobs;
-- (void)waitUntilAllJobsAreFinished;
+@property (nonatomic, assign) NSUInteger maxConcurentJobs;
 
-- (void)addDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob;
-- (void)prioritizeDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob;
-- (void)exclusivelyPrioritizeDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob;
+//to keep download progress in memory
+@property (nonatomic, readonly) NSMutableDictionary *mp4DownloadProgress;
+
+- (AFDownloadRequestOperation*)createJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob;
+- (void)reorderJobs:(NSArray*)orderedUrls;
+- (void)pauseExecutingJobs;
+- (void)resumeJobs;
+- (void)waitUntilAllJobsAreFinished;
+- (void)cancelAllJobs;
+
+- (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video;
 @end

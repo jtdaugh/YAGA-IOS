@@ -1,25 +1,29 @@
 //
-//  YADownloadManager.m
+//  YADownloadManager2.m
 //  Yaga
 //
-//  Created by valentinkovalski on 2/6/15.
+//  Created by valentinkovalski on 4/29/15.
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
 #import "YADownloadManager.h"
-#import "OrderedDictionary.h"
-#import "YAUtils.h"
 #import "YAAssetsCreator.h"
-#import "AFDownloadRequestOperation.h"
 #import "YAUser.h"
 
 @interface YADownloadManager ()
-@property (strong) MutableOrderedDictionary *waitingJobs;
-@property (strong) MutableOrderedDictionary *executingJobs;
+//keeps executing and paused AFDownloadRequestOperations in memory so they can be resumed
+@property (nonatomic, strong) NSMutableDictionary *downloadJobs;
+
+@property (nonatomic, strong) NSMutableArray *waitingGifUrls;
+@property (nonatomic, strong) NSMutableArray *waitingMp4Urls;
+
+@property (nonatomic, strong) NSMutableSet *executingUrls;
+
 @property (strong) dispatch_semaphore_t waiting_semaphore;
 @end
 
 #define kDefaultCountOfConcurentJobs 4
+
 @implementation YADownloadManager
 
 + (instancetype)sharedManager {
@@ -34,17 +38,25 @@
 - (id)init {
     self = [super init];
     if(self) {
-        self.waitingJobs = [MutableOrderedDictionary new];
-        self.executingJobs = [MutableOrderedDictionary new];
+        self.downloadJobs = [NSMutableDictionary new];
+        self.waitingGifUrls = [NSMutableArray new];
+        self.waitingMp4Urls = [NSMutableArray new];
+        self.executingUrls = [NSMutableSet new];
         self.maxConcurentJobs = kDefaultCountOfConcurentJobs;
         _mp4DownloadProgress = [NSMutableDictionary new];
     }
     return self;
 }
 
+#pragma mark - Public
+
 - (AFDownloadRequestOperation*)createJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
     
     NSString *stringUrl = gifJob ? video.gifUrl : video.url;
+    
+    //do nothing if job is enqueued already
+    if([self.downloadJobs.allKeys containsObject:stringUrl])
+        return self.downloadJobs[stringUrl];
     
     NSURL *url = [NSURL URLWithString:stringUrl];
     
@@ -54,6 +66,7 @@
     NSURL    *fileUrl   = [NSURL fileURLWithPath:filePath];
     
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
+#warning test shouldResume:YES
     AFDownloadRequestOperation *operation = [[AFDownloadRequestOperation alloc] initWithRequest:request targetPath:fileUrl.path shouldResume:NO];
     operation.shouldOverwrite = YES;
     
@@ -93,207 +106,109 @@
     [operation setProgressiveDownloadProgressBlock:^(AFDownloadRequestOperation *operation, NSInteger bytesRead, long long totalBytesRead, long long totalBytesExpected, long long totalBytesReadForFile, long long totalBytesExpectedToReadForFile) {
         
         float progress = (float)totalBytesReadForFile / (float)totalBytesExpectedToReadForFile;
-
+        
         if(!gifJob)
             [self.mp4DownloadProgress setObject:[NSNumber numberWithFloat:progress] forKey:stringUrl];
-             
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION object:stringUrl userInfo:@{kVideoDownloadNotificationUserInfoKey: [NSNumber numberWithFloat:progress]}];
     }];
+    
+    [self.downloadJobs setObject:operation forKey:stringUrl];
+    
     return operation;
 }
 
-- (BOOL)gifJobsInProgress {
-    for(AFDownloadRequestOperation *job in self.executingJobs.allValues) {
-        if(![self isMp4DownloadJob:job])
-            return YES;
-    }
-    return NO;
+- (void)reorderJobs:(NSArray*)orderedUrls {
+    NSArray *gifUrls = orderedUrls[0];
+    NSArray *mp4Urls = orderedUrls[1];
+    
+    //move new gif urls to the top
+    NSMutableArray *allUrls = [NSMutableArray arrayWithArray:self.waitingGifUrls];
+    [allUrls removeObjectsInArray:gifUrls];
+    
+    NSMutableArray *waitingUrlsMutable = [NSMutableArray arrayWithArray:gifUrls];
+    [waitingUrlsMutable addObjectsFromArray:self.waitingGifUrls];
+    
+    self.waitingGifUrls = waitingUrlsMutable;
+    
+    //move new mp4 urls to the top
+    allUrls = [NSMutableArray arrayWithArray:self.waitingMp4Urls];
+    [allUrls removeObjectsInArray:mp4Urls];
+    
+    waitingUrlsMutable = [NSMutableArray arrayWithArray:mp4Urls];
+    [waitingUrlsMutable addObjectsFromArray:self.waitingMp4Urls];
+    
+    self.waitingMp4Urls = waitingUrlsMutable;
+    
 }
 
-- (void)addDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
-    NSString *url = gifJob ? video.gifUrl : video.url;
-    
-    //already executing?
-    if([self.executingJobs objectForKey:url]) {
-        DLog(@"addJobForVideo: %@ is already executing, skipping.", url);
-        return;
-    }
-    
-    //waiting already?
-    if([self.waitingJobs objectForKey:url]) {
-        DLog(@"addJobForVideo: %@ is already waiting, skipping.", url);
-        return;
-    }
-    
-    AFDownloadRequestOperation *job = [self createJobForVideo:video gifJob:gifJob];
-    
-    //can start immediately?
-    if(self.executingJobs.allKeys.count < self.maxConcurentJobs) {
-        [self.executingJobs setObject:job forKey:url];
-        [job start];
-        [self logState:[NSString stringWithFormat:@"%@ started", [self jobName:job]]];
-    }
-    else {
-        [self.waitingJobs setObject:job forKey:url];
-    }
-    
-    [self logState:@"addJobForVideo"];
-}
-
-- (void)prioritizeDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
-    NSString *url = gifJob ? video.gifUrl : video.url;
-    
-    //already executing?
-    if([self.executingJobs objectForKey:url]) {
-        DLog(@"prioritizeJobForVideo: %@ is already executing, skipping.", url);
-        return;
-    }
+- (void)pauseExecutingJobs {
+    //using reverse enumerator in order to keep the same order in waiting jobs
+    for (NSString *executingUrl in self.executingUrls) {
+        AFDownloadRequestOperation *executingJob = self.downloadJobs[executingUrl];
+        [executingJob pause];
         
-    //get paused or create new one
-    AFDownloadRequestOperation *job = [self.waitingJobs objectForKey:url];
-    if(!job)
-        job = [self createJobForVideo:video gifJob:gifJob];
-    
-    //start or resume immediately
-    if(job.isPaused) {
-        [job resume];
-        [self logState:[NSString stringWithFormat:@"%@ resumed", [self jobName:job]]];
-    }
-    else {
-        //should start immediately?
-        //only gif job can be started immediately, or there are no gif jobs in progress
-        if(gifJob || ![self gifJobsInProgress]) {
-            [job start];
-            [self logState:[NSString stringWithFormat:@"%@ started", [self jobName:job]]];
-        }
-    }
-    
-    if(gifJob || [self gifJobsInProgress]) {
-        [self pauseExecutingVideoJobs];
-    }
-    
-    //can add without pausing another?
-    if(self.executingJobs.allKeys.count < self.maxConcurentJobs) {
-        
-        //only gif job can be added immediately, or there are no gif jobs in progress
-        if(gifJob || ![self gifJobsInProgress]) {
-            [self.executingJobs setObject:job forKey:url];
-            [self.waitingJobs removeObjectForKey:url];
-            [self logState:[NSString stringWithFormat:@"prioritizeJobForVideo, gifJob: %d", gifJob]];
-            return;
-        }
-    }
-    
-    //video job but other gif jobs in progress? add to waiting queue
-    if(!gifJob && [self gifJobsInProgress]) {
-        [self.waitingJobs insertObject:job forKey:url atIndex:0];
-        [self logState:@"prioritizeJobForVideo:video job added to the waiting queue"];
-        return;
-    }
-    
-    //at max capacity? pause first one(or cancel it if it's gif job)
-    if(self.executingJobs.count) {
-        AFDownloadRequestOperation *jobToPause = [self.executingJobs objectAtIndex:0];
-        BOOL mp4JobToPause = [self isMp4DownloadJob:jobToPause];
-        if(mp4JobToPause)
-            [jobToPause pause];
+        if([self isMp4DownloadJob:executingJob])
+            [self.waitingMp4Urls insertObject:executingUrl atIndex:0];
         else
-            [jobToPause cancel];
-        
-        NSString *urlToPause = [self.executingJobs keyAtIndex:0];
-        [self.executingJobs removeObjectForKey:urlToPause];
-        
-        if(mp4JobToPause)
-            [self.waitingJobs insertObject:jobToPause forKey:urlToPause atIndex:0];
+            [self.waitingGifUrls insertObject:executingUrl atIndex:0];
     }
-    
-    //then add new one
-    [self.executingJobs setObject:job forKey:url];
-    [self.waitingJobs removeObjectForKey:url];
-    
-    [self logState:[NSString stringWithFormat:@"prioritizeJobForVideo, gifJob: %d", gifJob]];
+    [self.executingUrls removeAllObjects];
 }
 
-- (void)exclusivelyPrioritizeDownloadJobForVideo:(YAVideo*)video gifJob:(BOOL)gifJob {
-    [self pauseAllExecutingJobs];
-    [self prioritizeDownloadJobForVideo:video gifJob:gifJob];
+- (NSString*)nextUrl {
+    if(self.waitingGifUrls.count)
+        return self.waitingGifUrls[0];
+    else if(self.waitingMp4Urls.count)
+        return self.waitingMp4Urls[0];
+    
+    return nil;
 }
 
-- (void)pauseAllExecutingJobs {
-    NSUInteger pausedCount = 0;
-    
-    //pause all executing video jobs and move them to waiting queue
-    for (NSString *url in [self.executingJobs.allKeys copy]) {
-        AFDownloadRequestOperation *job = [self.executingJobs objectForKey:url];
-        
-        [self.executingJobs removeObjectForKey:url];
-        
-        [job pause];
-        pausedCount++;
-        
-        [self.waitingJobs insertObject:job forKey:url atIndex:0];
-    }
-    
-    DLog(@"pauseAllExecutingJobs: %lu paused", (unsigned long)pausedCount);
-}
-
-- (void)pauseExecutingVideoJobs {
-    NSUInteger pausedCount = 0;
-    
-    //pause all executing video jobs and move them to waiting queue
-    for (NSString *url in [self.executingJobs.allKeys copy]) {
-        AFDownloadRequestOperation *job = [self.executingJobs objectForKey:url];
-                                           
-        if([self isMp4DownloadJob:job]) {
-            [self.executingJobs removeObjectForKey:url];
+- (void)resumeJobs {
+    if([self nextUrl]) {
+        //fill in the executing queue to the max capacity
+        while (self.executingUrls.count < self.maxConcurentJobs && [self nextUrl]) {
+            NSString *waitingUrl = [self nextUrl];
+            __block AFDownloadRequestOperation *nextJob = [self.downloadJobs objectForKey:waitingUrl];
             
-            [job pause];
-            pausedCount++;
+            if(!nextJob) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSString *predicate = [NSString stringWithFormat:@"gifUrl = '%@'", waitingUrl];
+                    RLMResults *results = [YAVideo objectsWhere:predicate];
+                    
+                    BOOL gifJob = results.count;
+
+                    if(!gifJob) {
+                        predicate = [NSString stringWithFormat:@"url = '%@'", waitingUrl];
+                        results = [YAVideo objectsWhere:predicate];
+                    }
+                    
+                    YAVideo *video = results[0];
+                    
+                    nextJob = [self createJobForVideo:video gifJob:gifJob];
+                    [self.downloadJobs setObject:nextJob forKey:waitingUrl];
+                    
+                    [nextJob start];
+                });
+            }
+            else {
+                [nextJob resume];
+            }
+                        
+            [self.executingUrls addObject:waitingUrl];
             
-            [self.waitingJobs insertObject:job forKey:url atIndex:0];
+            [self.waitingGifUrls removeObject:waitingUrl];
+            [self.waitingMp4Urls removeObject:waitingUrl];
         }
     }
-    
-    DLog(@"pauseExecutingVideoJobs: %lu paused", (unsigned long)pausedCount);
-}
-
-- (void)logState:(NSString*)method {
-    NSArray *executingTypes = [[[self.executingJobs allValues] valueForKey:@"targetPath"] valueForKey:@"pathExtension"];
-    NSUInteger countOfExecutingGif = [executingTypes indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return [obj isEqualToString:@"gif"];
-    }].count;
-    NSUInteger countOfExecutingMp4 = [executingTypes indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return [obj isEqualToString:@"mp4"];
-    }].count;
-
-    
-    NSArray *waitingTypes = [[[self.waitingJobs allValues] valueForKey:@"targetPath"] valueForKey:@"pathExtension"];
-    NSUInteger countOfWaitingGif = [waitingTypes indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return [obj isEqualToString:@"gif"];
-    }].count;
-    NSUInteger countOfWaitingMp4 = [waitingTypes indexesOfObjectsPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return [obj isEqualToString:@"mp4"];
-    }].count;
-    
-    DLog(@"%@: executing GIF:%lu MP4:%lu , waiting: GIF:%lu MP4:%lu", method, (unsigned long)countOfExecutingGif, (unsigned long)countOfExecutingMp4, (unsigned long)countOfWaitingGif, (unsigned long)countOfWaitingMp4);
-}
-
-- (void)cancelAllJobs {
-    for (AFDownloadRequestOperation *executingJob in self.executingJobs.allValues) {
-        [executingJob cancel];
+    else {
+        DLog(@"resumeJobs: nothing to resume");
     }
-    [self.executingJobs removeAllObjects];
-    
-    for (AFDownloadRequestOperation *waitingJob in self.waitingJobs.allValues) {
-        if(waitingJob.isPaused)
-            [waitingJob cancel];
-    }
-    
-    [self.waitingJobs removeAllObjects];
 }
 
 - (void)waitUntilAllJobsAreFinished {
-    if(self.executingJobs.count == 0 && self.waitingJobs.count == 0)
+    if(self.executingUrls.count == 0 && self.waitingGifUrls.count == 0 && self.waitingMp4Urls.count == 0)
         return;
     
     self.waiting_semaphore = dispatch_semaphore_create(0);
@@ -301,22 +216,41 @@
     dispatch_semaphore_wait(self.waiting_semaphore, DISPATCH_TIME_FOREVER);
 }
 
+- (void)cancelAllJobs {
+    for (NSString *executingUrl in self.executingUrls) {
+        [self.downloadJobs[executingUrl] cancel];
+    }
+    [self.executingUrls removeAllObjects];
+    
+    for (NSString *waitingUrl in self.waitingGifUrls) {
+        [self.downloadJobs[waitingUrl] cancel];
+    }
+    [self.waitingGifUrls removeAllObjects];
+    
+    for (NSString *waitingUrl in self.waitingMp4Urls) {
+        [self.downloadJobs[waitingUrl] cancel];
+    }
+    [self.waitingMp4Urls removeAllObjects];
+}
+
+#pragma mark - Private
 - (void)jobFinishedForUrl:(NSString*)url video:(YAVideo*)video gifJob:(BOOL)gifJob {
     if(video && !gifJob)
         [[YAAssetsCreator sharedCreator] enqueueJpgCreationForVideo:video];
     
-    [self.executingJobs removeObjectForKey:url];
+    [self.executingUrls removeObject:url];
+    [self.downloadJobs removeObjectForKey:url];
     
-    [self logState:[NSString stringWithFormat:@"%@ finished", gifJob ? @"gif" : @"mp4"]];
+    DLog(@"%@ finished", gifJob ? @"gif" : @"mp4");
     
-    if(self.executingJobs.count == 0 && self.waitingJobs.count == 0) {
+    if(self.executingUrls.count == 0 && self.waitingGifUrls.count == 0 && self.waitingMp4Urls.count == 0) {
         DLog(@"YADownloadManager all done");
         if(self.waiting_semaphore)
             dispatch_semaphore_signal(self.waiting_semaphore);
         return;
     }
     
-    if(self.waitingJobs.count == 0)
+    if(self.waitingGifUrls.count == 0)
         return;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -331,37 +265,26 @@
             }
         }
         
-        //do not start new jobs until gif jobs are in progress
-        if([self gifJobsInProgress])
-            return;
-        
-        //restore max capacity for videos
-        self.maxConcurentJobs = kDefaultCountOfConcurentJobs;
-        
-        //start/resume waiting job
-        if(self.waitingJobs.allKeys.count) {
-            //fill in the executing queue to the max capacity
-            while (self.executingJobs.allKeys.count < self.maxConcurentJobs && self.waitingJobs.count) {
-                NSString *waitingUrl = [self.waitingJobs keyAtIndex:0];
-                AFDownloadRequestOperation *waitingJob = [self.waitingJobs objectAtIndex:0];
-                if(waitingJob.isPaused) {
-                    [waitingJob resume];
-                    [self logState:[NSString stringWithFormat:@"%@ resumed", [self jobName:waitingJob]]];
-                }
-                else {
-                    [waitingJob start];
-                    [self logState:[NSString stringWithFormat:@"%@ started", [self jobName:waitingJob]]];
-                }
-                
-                [self.executingJobs setObject:waitingJob forKey:waitingUrl];
-                [self.waitingJobs removeObjectForKey:waitingUrl];
-            }
-            
-        }
+        [self resumeJobs];
     });
 }
 
+- (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video {
+    [self pauseExecutingJobs];
+    
+    AFDownloadRequestOperation *nextJob = [self createJobForVideo:video gifJob:NO];
+    [self.downloadJobs setObject:nextJob forKey:video.url];
+    if(nextJob.isPaused)
+        [nextJob resume];
+    else
+        [nextJob start];
+    
+    [self.waitingMp4Urls removeObject:video.url];
+    [self.executingUrls addObject:video.url];
+}
+
 #pragma mark - Helper methods
+
 - (BOOL)isMp4DownloadJob:(AFDownloadRequestOperation*)job {
     return [job.targetPath.pathExtension isEqualToString:@"mp4"];
 }
@@ -369,4 +292,5 @@
 - (NSString*)jobName:(AFDownloadRequestOperation*)job {
     return [self isMp4DownloadJob:job] ? @"mp4" : @"gif";
 }
+
 @end
