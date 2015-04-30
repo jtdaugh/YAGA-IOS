@@ -136,7 +136,9 @@
         }
         case YAVideoCellStateJPEGPreview: {
             [self showLoader:YES];
-            [self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
+            
+            //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
+            //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
             break;
         }
         case YAVideoCellStateGIFPreview: {
