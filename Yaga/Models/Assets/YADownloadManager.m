@@ -252,9 +252,6 @@
         return;
     }
     
-    if(self.waitingGifUrls.count == 0)
-        return;
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         //caches folder too big?
         if([[YAUser currentUser] assetsFolderSizeExceeded]) {
