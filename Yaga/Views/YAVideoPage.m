@@ -742,14 +742,16 @@
 
 - (void)showProgress:(BOOL)show {
     self.progressView.hidden = !show;
-    if(self.video.url.length) {
-        [self.progressView setProgress:[[[YADownloadManager sharedManager].mp4DownloadProgress objectForKey:self.video.url] floatValue] animated:NO];
+    if(!self.progressView.hidden) {
+        if(self.video.url.length) {
+            [self.progressView setProgress:[[[YADownloadManager sharedManager].mp4DownloadProgress objectForKey:self.video.url] floatValue] animated:NO];
+        }
+        else {
+            [self.progressView setProgress:0 animated:NO];
+        }
+        
+        [self.progressView setCustomText:self.video.creator];
     }
-    else {
-        [self.progressView setProgress:0 animated:NO];
-    }
-    
-    [self.progressView setCustomText:self.video.creator];
 }
 
 - (void)showLoading:(BOOL)show {
