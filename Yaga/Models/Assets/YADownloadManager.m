@@ -266,9 +266,9 @@
                 [[YAUser currentUser] purgeOldVideos];
             }
         }
-        
-        [self resumeJobs];
     });
+    
+    [self resumeJobs];
 }
 
 - (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video {
