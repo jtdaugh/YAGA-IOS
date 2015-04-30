@@ -154,6 +154,8 @@
             [self.waitingGifUrls insertObject:executingUrl atIndex:0];
     }
     [self.executingUrls removeAllObjects];
+    
+    DLog(@"download jobs are paused...");
 }
 
 - (NSString*)nextUrl {

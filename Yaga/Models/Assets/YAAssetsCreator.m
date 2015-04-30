@@ -273,7 +273,7 @@
         }
     }
     
-    DLog(@"orderedDownloadUrlsFromVideos: %lu, %lu, %lu, %lu", (unsigned long)gifUrlsForVisible.count, gifUrlsForInvisible.count, mp4UrlsForVisible.count, mp4UrlsForInvisible.count);
+    DLog(@"orderedDownloadUrlsFromVideos: gif_visible:%lu, gif_invisible:%lu, mp4_visible:%lu, mp4_invisible:%lu", (unsigned long)gifUrlsForVisible.count, gifUrlsForInvisible.count, mp4UrlsForVisible.count, mp4UrlsForInvisible.count);
     
     NSMutableArray *gifUrls = [NSMutableArray arrayWithArray:gifUrlsForVisible];
     [gifUrls addObjectsFromArray:gifUrlsForInvisible];
