@@ -367,4 +367,17 @@
     
     [self updatePages:YES];
 }
+
+#pragma mark - YASuspendableGestureDelegate
+
+- (void)suspendAllGestures {
+    self.panGesture.enabled = NO;
+    self.scrollView.scrollEnabled = NO;
+}
+
+- (void)restoreAllGestures {
+    self.panGesture.enabled = YES;
+    self.scrollView.scrollEnabled = YES;
+}
+
 @end

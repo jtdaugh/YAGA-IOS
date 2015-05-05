@@ -423,12 +423,23 @@
     [self.textButton addTarget:self action:@selector(textButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
     self.rajsBelovedDoneButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
-    [self.rajsBelovedDoneButton setImage:[UIImage imageNamed:@"Add"] forState:UIControlStateNormal];
+    self.rajsBelovedDoneButton.backgroundColor = [UIColor colorWithRed:(39.f/255.f) green:(174.f/255.f) blue:(96.f/255.f) alpha:1];
+    self.rajsBelovedDoneButton.layer.cornerRadius = BOTTOM_ACTION_SIZE/2.f;
+    self.rajsBelovedDoneButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+    self.rajsBelovedDoneButton.layer.borderWidth = 1.f;
+    self.rajsBelovedDoneButton.layer.masksToBounds = YES;
+    [self.rajsBelovedDoneButton setImage:[UIImage imageNamed:@"Check"] forState:UIControlStateNormal];
     [self.rajsBelovedDoneButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 
     
     self.cancelCaptionButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
-    [self.cancelCaptionButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
+    [self.cancelCaptionButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
+    self.cancelCaptionButton.backgroundColor = [UIColor colorWithRed:(231.f/255.f) green:(76.f/255.f) blue:(60.f/255.f) alpha:1];
+    self.cancelCaptionButton.layer.cornerRadius = BOTTOM_ACTION_SIZE/2.f;
+    self.cancelCaptionButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+    self.cancelCaptionButton.layer.borderWidth = 1.f;
+    self.cancelCaptionButton.layer.masksToBounds = YES;
+    
     [self.cancelCaptionButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 
     [self.captionButtonContainer addSubview:self.textButton];
@@ -697,15 +708,29 @@
 - (void)toggleEditingCaption:(BOOL)editing {
     self.editingCaption = editing;
     if (editing) {
+        self.hideGestureRecognizer.enabled = NO;
+        [self.presentingVC suspendAllGestures];
+        
         self.cancelCaptionButton.hidden = NO;
         self.rajsBelovedDoneButton.hidden = NO;
         self.textButton.hidden = YES;
+        self.deleteButton.hidden = YES;
+        self.shareButton.hidden = YES;
+        self.pieContainer.hidden = YES;
     } else {
+        self.hideGestureRecognizer.enabled = YES;
+        [self.presentingVC restoreAllGestures];
+        
+        // could be prettier if i fade all of this
         self.cancelCaptionButton.hidden = YES;
         self.rajsBelovedDoneButton.hidden = YES;
         self.textButton.hidden = NO;
+        self.deleteButton.hidden = NO;
+        self.shareButton.hidden = NO;
+        self.pieContainer.hidden = NO;
     }
 }
+
 
 - (void)commitCurrentCaption {
     if (self.currentTextField) {
@@ -979,8 +1004,6 @@
 //}
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-    self.cancelWhileTypingButton.hidden = NO;
-    self.deleteButton.hidden = YES;
     self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
     [self addGestureRecognizer:self.tapOutGestureRecognizer];
 }
@@ -1283,7 +1306,7 @@
                                           applicationActivities:@[copyActivity]];
         
         activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
-        [self.presentingVC presentViewController:activityViewController
+        [(YASwipingViewController *)self.presentingVC presentViewController:activityViewController
                                         animated:YES
                                       completion:^{
                                           [hud hide:YES];
