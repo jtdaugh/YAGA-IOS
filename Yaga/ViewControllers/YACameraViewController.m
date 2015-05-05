@@ -387,7 +387,7 @@ typedef enum {
             self.session = [[AVCaptureSession alloc] init];
            
             [self.session beginConfiguration];
-            self.session.automaticallyConfiguresApplicationAudioSession = NO;
+//            self.session.automaticallyConfiguresApplicationAudioSession = NO;
             
             self.session.sessionPreset = AVCaptureSessionPreset640x480;
             
