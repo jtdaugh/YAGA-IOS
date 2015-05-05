@@ -152,6 +152,11 @@
     // Later, you can get your instance with
     // Mixpanel *mixpanel = [Mixpanel sharedInstance];
     
+    //handle push for case when app wasn't in background
+    NSDictionary *pushInfo = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
+    if(pushInfo) {
+        [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:@{@"meta":pushInfo[@"meta"]}];
+    }
     return YES;
 }
 
