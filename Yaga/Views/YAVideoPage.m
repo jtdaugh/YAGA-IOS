@@ -752,7 +752,7 @@
             [self.progressView setProgress:0 animated:NO];
         }
         
-        [self.progressView setCustomText:self.video.creator];
+        [self.progressView setCustomText:@""];
     }
 }
 
@@ -768,7 +768,7 @@
         if(self.progressView) {
             NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
             [self.progressView setProgress:value.floatValue animated:YES];
-            [self.progressView setCustomText:self.video.creator];
+            [self.progressView setCustomText:@""];
         }
     }
 }
