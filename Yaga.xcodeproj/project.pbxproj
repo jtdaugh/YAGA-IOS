@@ -794,7 +794,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "";
+			shellScript = "export PATH=/usr/local/bin:$PATH\ncd parse\n\nif type parse; then\n    echo \"uploading dSYM to Parse\"\n    parse symbols -p \"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}\"\nelse\n    echo \"Please install Parse CLI to upload dSYM\";\nfi\n";
 		};
 		472AD31EEDE6499FB84BB130 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

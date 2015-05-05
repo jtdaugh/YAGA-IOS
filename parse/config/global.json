@@ -1,0 +1,12 @@
+{
+  "global": {},
+  "applications": {
+    "Yaga": {
+      "applicationId": "kJ6CSJ9AS0ynVDGniOssk0qtIpBCvy7v5JlUHLx4",
+      "masterKey": "mKGGqZFHWpg698DiPzsfcLdcgY1pdNVKgAJPgrfh"
+    },
+    "_default": {
+      "link": "Yaga"
+    }
+  }
+}
