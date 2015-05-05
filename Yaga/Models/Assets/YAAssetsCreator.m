@@ -25,10 +25,6 @@
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
 @property (nonatomic, strong) NSOperationQueue *jpgQueue;
 @property (nonatomic, strong) NSOperationQueue *recordingQueue;
-
-//keeps an array of latest prioritised videos
-//when mp4 download job is finished and video still has no GIF the gifCreationOperation is created
-@property (strong) NSMutableArray *prioritizedVideos;
 @end
 
 
@@ -53,8 +49,6 @@
         
         self.recordingQueue = [[NSOperationQueue alloc] init];
         self.recordingQueue.maxConcurrentOperationCount = 1;
-        
-        self.prioritizedVideos = [NSMutableArray new];
     }
     return self;
 }
@@ -244,7 +238,6 @@
         }
         
         if(hasLocalMOVButNoGIF) {
-            [self.prioritizedVideos removeObject:video];
             [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
         }
         
@@ -264,7 +257,6 @@
         }
         
         if(hasLocalMOVButNoGIF) {
-            [self.prioritizedVideos removeObject:video];
             [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
         }
         
@@ -431,11 +423,7 @@
 
 #pragma mark -
 - (void)jpgCreatedForVideo:(YAVideo*)video {
-    if([self.prioritizedVideos containsObject:video]) {
-        [self.prioritizedVideos removeObject:video];
-        
-        if(!video.gifFilename.length)
-            [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
-    }
+    if(!video.gifFilename.length)
+        [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
 }
 @end
