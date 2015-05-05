@@ -27,6 +27,9 @@
 #define CAPTION_GUTTER 5.f
 #define CAPTION_WRAPPER_INSET 50.f
 
+#define BOTTOM_ACTION_SIZE 40.f
+#define BOTTOM_ACTION_MARGIN 10.f
+
 #define MAX_CAPTION_WIDTH (VIEW_WIDTH - 2 * CAPTION_GUTTER)
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -36,7 +39,6 @@
 //overlay controls
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
-@property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *likeCount;
 @property BOOL likesShown;
 @property (nonatomic, strong) NSMutableArray *likeLabels;
@@ -71,7 +73,7 @@
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (strong, nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
 
-@property (nonatomic, strong) UIButton *captionXButton;
+@property (nonatomic, strong) UIButton *cancelWhileTypingButton;
 
 @property (strong, nonatomic) UIView *pieContainer;
 @property (strong, nonatomic) UIView *rainContainer;
@@ -81,7 +83,13 @@
 @property (strong, nonatomic) NSMutableArray *rain;
 @property (strong, nonatomic) NSMutableArray *rainMen;
 
-@property (nonatomic, strong) UISwitch *likeCaptionToggle;
+@property (nonatomic, strong) UIButton *textButton;
+@property (nonatomic, strong) UIButton *rajsBelovedDoneButton;
+@property (nonatomic, strong) UIButton *cancelCaptionButton;
+@property (nonatomic) BOOL editingCaption;
+
+@property (nonatomic, strong) UIView *captionButtonContainer;
+
 
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
@@ -317,12 +325,12 @@
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
     [self.overlay addSubview:self.timestampLabel];
     
-    CGFloat tSize = CAPTION_FONT_SIZE;
-    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
-    [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
-    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
-//    [self addSubview:self.captionButton];
+//    CGFloat tSize = CAPTION_FONT_SIZE;
+//    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
+//    [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
+//    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+//    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
+////    [self addSubview:self.captionButton];
     
     CGFloat saveSize = 36;
     self.shareButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - saveSize - 15, 15, saveSize, saveSize)];
@@ -335,32 +343,26 @@
     [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.deleteButton];
     
-    CGFloat likeSize = 42;
-    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
-    [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self addSubview:self.likeButton];
+//    CGFloat likeSize = 42;
+//    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
+//    [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+////    [self addSubview:self.likeButton];
+//    
+//    CGFloat likeCountWidth = 24, likeCountHeight = 42;
+//    self.likeCount = [[UIButton alloc] initWithFrame:CGRectMake(self.likeButton.frame.origin.x + self.likeButton.frame.size.width + 8, VIEW_HEIGHT - likeCountHeight - 12, likeCountWidth, likeCountHeight)];
+//    [self.likeCount addTarget:self action:@selector(likeCountPressed) forControlEvents:UIControlEventTouchUpInside];
+//    //    [self.likeCount setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+//    [self.likeCount.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
+//    self.likeCount.layer.shadowColor = [[UIColor blackColor] CGColor];
+//    self.likeCount.layer.shadowRadius = 1.0f;
+//    self.likeCount.layer.shadowOpacity = 1.0;
+//    self.likeCount.layer.shadowOffset = CGSizeZero;
+//    //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
+////    [self addSubview:self.likeCount];
     
-    CGFloat likeCountWidth = 24, likeCountHeight = 42;
-    self.likeCount = [[UIButton alloc] initWithFrame:CGRectMake(self.likeButton.frame.origin.x + self.likeButton.frame.size.width + 8, VIEW_HEIGHT - likeCountHeight - 12, likeCountWidth, likeCountHeight)];
-    [self.likeCount addTarget:self action:@selector(likeCountPressed) forControlEvents:UIControlEventTouchUpInside];
-    //    [self.likeCount setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-    [self.likeCount.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
-    self.likeCount.layer.shadowColor = [[UIColor blackColor] CGColor];
-    self.likeCount.layer.shadowRadius = 1.0f;
-    self.likeCount.layer.shadowOpacity = 1.0;
-    self.likeCount.layer.shadowOffset = CGSizeZero;
-    //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
-//    [self addSubview:self.likeCount];
-    
-    self.captionXButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, saveSize, saveSize)];
-    [self.captionXButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
-    [self.captionXButton addTarget:self action:@selector(captionCancelPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.captionXButton];
-    self.captionXButton.hidden = YES;
-    
-    
-    self.likeCaptionToggle = [[UISwitch alloc] initWithFrame:CGRectMake(VIEW_WIDTH-100, VIEW_HEIGHT * 0.9, 10, 10)];
-    [self.overlay addSubview:self.likeCaptionToggle];
+    self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, saveSize, saveSize)];
+    [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
+    [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
     
     const CGFloat radius = 40;
     self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
@@ -383,6 +385,7 @@
     
     self.likeGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     [self.likeGestureRecognizer setNumberOfTapsRequired:1];
+    self.likeGestureRecognizer.delegate = self;
     [self addGestureRecognizer:self.likeGestureRecognizer];
 
     self.hideGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(hideHold:)];
@@ -392,26 +395,8 @@
     self.rainContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
     [self.overlay addSubview:self.rainContainer];
     
-    self.pieContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
-    [self.overlay addSubview:self.pieContainer];
-    
-    CGFloat pieRadius = 20.0f;
-    CGFloat margin = 10.0f;
-    self.pieChart = [[XYPieChart alloc] initWithFrame:CGRectMake(margin, VIEW_HEIGHT - margin - pieRadius*2, pieRadius*2, pieRadius*2) Center:CGPointMake(pieRadius,pieRadius) Radius:pieRadius];
-    self.pieChart.delegate = self;
-    self.pieChart.dataSource = self;
-    [self reloadPieChart];
-    [self.pieChart setLabelColor:[UIColor clearColor]];
-    
-    self.pieChart.layer.borderColor = [UIColor whiteColor].CGColor;
-    self.pieChart.layer.cornerRadius = pieRadius;
-    self.pieChart.layer.masksToBounds = YES;
-
-    UITapGestureRecognizer *pieTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pieTapped:)];
-    [self.pieChart addGestureRecognizer:pieTap];
-    
-    [self.pieContainer addSubview:self.pieChart];
-    
+    [self setupPieContainer];
+    [self setupCaptionButtonContainer];
     [self setupCaptionGestureRecognizers];
 
 //    self.rainOptions = [[NSMutableArray alloc] init];
@@ -424,6 +409,59 @@
 //    }
 //    [self initRain];
 }
+
+- (void)setupCaptionButtonContainer {
+    self.captionButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BOTTOM_ACTION_SIZE*2 - BOTTOM_ACTION_MARGIN*2,
+                                                                           VIEW_HEIGHT - BOTTOM_ACTION_MARGIN - BOTTOM_ACTION_SIZE,
+                                                                           BOTTOM_ACTION_SIZE*2 + BOTTOM_ACTION_MARGIN*2,
+                                                                           BOTTOM_ACTION_SIZE + BOTTOM_ACTION_MARGIN)];
+    [self.overlay addSubview:self.captionButtonContainer];
+    
+    self.textButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
+    [self.textButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
+    self.textButton.tintColor = [YAUtils UIColorFromUsernameString:[YAUser currentUser].username];
+    [self.textButton addTarget:self action:@selector(textButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
+    self.rajsBelovedDoneButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
+    [self.rajsBelovedDoneButton setImage:[UIImage imageNamed:@"Add"] forState:UIControlStateNormal];
+    [self.rajsBelovedDoneButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+
+    
+    self.cancelCaptionButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
+    [self.cancelCaptionButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
+    [self.cancelCaptionButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+
+    [self.captionButtonContainer addSubview:self.textButton];
+    [self.captionButtonContainer addSubview:self.rajsBelovedDoneButton];
+    [self.captionButtonContainer addSubview:self.cancelCaptionButton];
+    
+    [self toggleEditingCaption:NO];
+}
+
+- (void)setupPieContainer {
+    
+    self.pieContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
+    [self.overlay addSubview:self.pieContainer];
+    
+    CGFloat pieRadius = BOTTOM_ACTION_SIZE/2.f;
+    CGFloat margin = BOTTOM_ACTION_MARGIN;
+    self.pieChart = [[XYPieChart alloc] initWithFrame:CGRectMake(margin, VIEW_HEIGHT - margin - pieRadius*2, pieRadius*2, pieRadius*2) Center:CGPointMake(pieRadius,pieRadius) Radius:pieRadius];
+    self.pieChart.delegate = self;
+    self.pieChart.dataSource = self;
+    [self reloadPieChart];
+    [self.pieChart setLabelColor:[UIColor clearColor]];
+    
+    self.pieChart.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.pieChart.layer.cornerRadius = pieRadius;
+    self.pieChart.layer.masksToBounds = YES;
+    
+    UITapGestureRecognizer *pieTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pieTapped:)];
+    [self.pieChart addGestureRecognizer:pieTap];
+    
+    [self.pieContainer addSubview:self.pieChart];
+    
+}
+
 
 - (void)pieTapped:(UITapGestureRecognizer *)recognizer {
     
@@ -633,6 +671,55 @@
 
 #pragma mark - caption gestures
 
+- (void)captionCancelPressedWhileTyping {
+    self.currentTextField.text = @"";
+    [self doneTyping];
+}
+
+- (void)cancelButtonPressed:(id)sender {
+    [self.captionWrapperView removeFromSuperview];
+    self.currentTextField = nil;
+    [self toggleEditingCaption:NO];
+    // remove caption and replace done/cancel buttons with text button
+}
+
+- (void)doneButtonPressed:(id)sender {
+    // Send caption data to firebase
+    [self toggleEditingCaption:NO];
+    [self commitCurrentCaption];
+}
+
+- (void)textButtonPressed:(id)sender {
+    [self addCaptionAtPoint:CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2)];
+    [self toggleEditingCaption:YES];
+}
+
+- (void)toggleEditingCaption:(BOOL)editing {
+    self.editingCaption = editing;
+    if (editing) {
+        self.cancelCaptionButton.hidden = NO;
+        self.rajsBelovedDoneButton.hidden = NO;
+        self.textButton.hidden = YES;
+    } else {
+        self.cancelCaptionButton.hidden = YES;
+        self.rajsBelovedDoneButton.hidden = YES;
+        self.textButton.hidden = NO;
+    }
+}
+
+- (void)commitCurrentCaption {
+    if (self.currentTextField) {
+        // Send deets to parse!!!g
+
+        self.currentTextField.editable = NO;
+        [self.captionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
+        [self.captionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
+        [self.captionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
+        self.currentTextField = nil;
+        self.captionWrapperView = nil;
+    }
+}
+
 - (void) setupCaptionGestureRecognizers {
     self.panGestureRecognizer = [[YAPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
     self.panGestureRecognizer.delegate = self;
@@ -698,20 +785,6 @@
     self.textFieldTransform = newTransform;
 }
 
-- (void)hideCaptionXButton {
-    self.captionXButton.hidden = YES;
-    BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
-    self.deleteButton.hidden = !myVideo;
-}
-
-- (void)captionCancelPressed:(id)sender {
-    [self.currentTextField resignFirstResponder];
-
-    [self hideCaptionXButton];
-
-    [self.captionWrapperView removeFromSuperview];
-    self.currentTextField = nil;
-}
 
 #pragma mark - Caption Positioning
 
@@ -759,10 +832,7 @@
 }
 
 - (void)addCaptionAtPoint:(CGPoint)point {
-    if (self.currentTextField) {
-        self.currentTextField.editable = NO;
-        self.currentTextField = nil;
-    }
+    [self commitCurrentCaption];
     
     self.textFieldCenter = point;
     self.textFieldTransform = CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE);
@@ -805,7 +875,7 @@
 //        [self.video rename:textView.text withFont:self.fontIndex];
 //        [self updateControls];
 //        
-        [self doneEditing];
+        [self doneTyping];
         return NO;
     }
     
@@ -819,6 +889,8 @@
     
     self.captionBlurOverlay.frame = self.bounds;
     [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.captionWrapperView];
+    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
+    
     if (self.currentTextField) {
         [self positionTextViewAboveKeyboard];
     }
@@ -880,7 +952,7 @@
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [self doneEditing];
+    [self doneTyping];
     return YES;
 }
 
@@ -907,87 +979,90 @@
 //}
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-    self.captionXButton.hidden = NO;
+    self.cancelWhileTypingButton.hidden = NO;
     self.deleteButton.hidden = YES;
     self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
     [self addGestureRecognizer:self.tapOutGestureRecognizer];
 }
 
 - (void)doneEditingTapOut:(id)sender {
-    [self doneEditing];
+    [self doneTyping];
 }
 
-- (void)doneEditing {
+- (void)doneTyping {
 //    [self.video rename:self.captionField.text withFont:self.fontIndex];
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
 //    [self updateControls];
     
-    [self hideCaptionXButton];
-
     [self.currentTextField resignFirstResponder];
-    [self moveTextViewBackToSpot];
     [self.captionBlurOverlay removeFromSuperview];
+    
+    if (![self.currentTextField.text length]) {
+        [self cancelButtonPressed:nil];
+    } else {
+        [self moveTextViewBackToSpot];
+    }
 }
 
 #pragma mark - Liking
 
-- (void)likeButtonPressed {
-    NSString *likeCountSelf = self.likeCount.titleLabel.text;
-    NSNumberFormatter *f = [NSNumberFormatter new];
-    f.numberStyle = NSNumberFormatterDecimalStyle;
-    NSUInteger likeCountNumber = [[f numberFromString:likeCountSelf] integerValue];
-    if (!self.video.like) {
-        if (likeCountNumber == 0) {
-            self.likeCount.hidden = YES;
-            [self.likeCount setTitle:@"0"
-                            forState:UIControlStateNormal];
-        } else {
-            [self.likeCount setTitle:[NSString stringWithFormat:@"%lu", (unsigned long)++likeCountNumber]
-                            forState:UIControlStateNormal];
-        }
-        [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-            [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
-                            forState:UIControlStateNormal];
-        }];
-        [[Mixpanel sharedInstance] track:@"Video liked"];
-    } else {
-        if (likeCountNumber <= 1) {
-            self.likeCount.hidden = YES;
-            [self.likeCount setTitle:@"0"
-                            forState:UIControlStateNormal];
-        } else {
-            [self.likeCount setTitle:[NSString stringWithFormat:@"%lu", (unsigned long)--likeCountNumber]
-                            forState:UIControlStateNormal];
-        }
-        [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-            [self.likeCount setTitle:[response integerValue] == 0 ? @"" : [NSString stringWithFormat:@"%@", response]
-                            forState:UIControlStateNormal];
-        }];
-        [[Mixpanel sharedInstance] track:@"Video unliked"];
-    }
-    
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    self.video.like = !self.video.like;
-    [[RLMRealm defaultRealm] commitWriteTransaction];
-    
-    [self animateButton:self.likeButton withImageName:self.video.like ? @"Liked" : @"Like" completion:nil];
-}
-
-- (void)likeCountPressed {
-    
-    if(self.likesShown){
-        [self hideLikes];
-        self.likesShown = NO;
-        
-        [self removeGestureRecognizer:[self.gestureRecognizers lastObject]];
-    } else {
-        [self showLikes];
-        self.likesShown = YES;
-        
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideLikesTapOut:)];
-        [self addGestureRecognizer:tap];
-    }
-}
+//- (void)likeButtonPressed {
+//    NSString *likeCountSelf = self.likeCount.titleLabel.text;
+//    NSNumberFormatter *f = [NSNumberFormatter new];
+//    f.numberStyle = NSNumberFormatterDecimalStyle;
+//    NSUInteger likeCountNumber = [[f numberFromString:likeCountSelf] integerValue];
+//    if (!self.video.like) {
+//        if (likeCountNumber == 0) {
+//            self.likeCount.hidden = YES;
+//            [self.likeCount setTitle:@"0"
+//                            forState:UIControlStateNormal];
+//        } else {
+//            [self.likeCount setTitle:[NSString stringWithFormat:@"%lu", (unsigned long)++likeCountNumber]
+//                            forState:UIControlStateNormal];
+//        }
+//        [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
+//            [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
+//                            forState:UIControlStateNormal];
+//        }];
+//        [[Mixpanel sharedInstance] track:@"Video liked"];
+//    } else {
+//        if (likeCountNumber <= 1) {
+//            self.likeCount.hidden = YES;
+//            [self.likeCount setTitle:@"0"
+//                            forState:UIControlStateNormal];
+//        } else {
+//            [self.likeCount setTitle:[NSString stringWithFormat:@"%lu", (unsigned long)--likeCountNumber]
+//                            forState:UIControlStateNormal];
+//        }
+//        [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
+//            [self.likeCount setTitle:[response integerValue] == 0 ? @"" : [NSString stringWithFormat:@"%@", response]
+//                            forState:UIControlStateNormal];
+//        }];
+//        [[Mixpanel sharedInstance] track:@"Video unliked"];
+//    }
+//    
+//    [[RLMRealm defaultRealm] beginWriteTransaction];
+//    self.video.like = !self.video.like;
+//    [[RLMRealm defaultRealm] commitWriteTransaction];
+//    
+//    [self animateButton:self.likeButton withImageName:self.video.like ? @"Liked" : @"Like" completion:nil];
+//}
+//
+//- (void)likeCountPressed {
+//    
+//    if(self.likesShown){
+//        [self hideLikes];
+//        self.likesShown = NO;
+//        
+//        [self removeGestureRecognizer:[self.gestureRecognizers lastObject]];
+//    } else {
+//        [self showLikes];
+//        self.likesShown = YES;
+//        
+//        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideLikesTapOut:)];
+//        [self addGestureRecognizer:tap];
+//    }
+//}
 
 - (void)hideLikesTapOut:(UIGestureRecognizer *) recognizer {
     [self removeGestureRecognizer:recognizer];
@@ -997,10 +1072,8 @@
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
-    if (self.likeCaptionToggle.on || 1) { // some like vs caption state
+    if (!self.editingCaption) {
         [self likeTappedAtPoint:[recognizer locationInView:self]];
-    } else {
-        [self addCaptionAtPoint:[recognizer locationInView:self]];
     }
 }
 
@@ -1166,7 +1239,7 @@
     self.userLabel.textColor = [YAUtils UIColorFromUsernameString:self.video.creator];
     
     self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
-    [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
+//    [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     self.likeCount.hidden = (self.video.like && self.video.likers.count == 1);
 //    self.captionField.text = self.video.caption;
     self.fontIndex = self.video.font;
@@ -1276,10 +1349,16 @@
     return YES;
 }
 
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
-    return YES;
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    // test if our control subview is on-screen
+    if (self.captionButtonContainer.superview != nil) {
+        if ([touch.view isDescendantOfView:self.captionButtonContainer]) {
+            // we touched our control surface
+            return NO; // ignore the touch
+        }
+    }
+    return YES; // handle the touch
 }
-
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
     if ([object isKindOfClass:[YAVideoPlayerView class]]) {
