@@ -125,6 +125,9 @@
     if(shouldPreload) {
         [self prepareVideoForPlaying];
     }
+    else {
+        [self addFullscreenJpgPreview];
+    }
 }
 
 - (void)prepareVideoForPlaying {
@@ -142,7 +145,6 @@
     
     self.playerView.frame = self.bounds;
     
-    //add fullscreen jpg preview
     [self addFullscreenJpgPreview];
 }
 
