@@ -313,26 +313,27 @@
 }
 
 - (void)purgeOldVideos {
-    RLMResults *videos = [YAVideo objectsWhere:@"mp4Filename != '' OR gifFilename != '' OR jpgFilename != ''"];
-    RLMResults *videosByDate = [videos sortedResultsUsingProperty:@"localCreatedAt" ascending:YES];
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        while([self assetsFolderSizeExceeded]) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-
-                if(!videosByDate.count) {
-                    [self purgeUnusedAssets];
-                    return;
-                }
-                
-                //RLMResults are updated live so no need to read them again
-                YAVideo *videoToPurge = [videosByDate objectAtIndex:0];
-                [videoToPurge purgeLocalAssets];
-            });
-        }
-        [[RLMRealm defaultRealm] commitWriteTransaction];
-    });
+#warning TODO: purgeOldVideos commented for now
+    //    RLMResults *videos = [YAVideo objectsWhere:@"mp4Filename != '' OR gifFilename != '' OR jpgFilename != ''"];
+//    RLMResults *videosByDate = [videos sortedResultsUsingProperty:@"localCreatedAt" ascending:YES];
+//    
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+//        [[RLMRealm defaultRealm] beginWriteTransaction];
+//        while([self assetsFolderSizeExceeded]) {
+//            dispatch_sync(dispatch_get_main_queue(), ^{
+//
+//                if(!videosByDate.count) {
+//                    [self purgeUnusedAssets];
+//                    return;
+//                }
+//                
+//                //RLMResults are updated live so no need to read them again
+//                YAVideo *videoToPurge = [videosByDate objectAtIndex:0];
+//                [videoToPurge purgeLocalAssets];
+//            });
+//        }
+//        [[RLMRealm defaultRealm] commitWriteTransaction];
+//    });
 }
 
 - (unsigned long long)sizeOfCachesFolder {
