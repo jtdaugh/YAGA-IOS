@@ -7,7 +7,6 @@
 //
 
 #import "YACollectionViewController.h"
-#import "YASwipingViewController.h"
 #import "YAAnimatedTransitioningController.h"
 
 #import "YAVideoCell.h"
@@ -70,7 +69,7 @@ static NSString *cellID = @"Cell";
     [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT)];
     
     self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
-    
+    self.collectionView.allowsMultipleSelection = NO;
     self.collectionView.alwaysBounceVertical = YES;
     
     self.collectionView.delegate = self;
@@ -216,28 +215,30 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
-    YAVideo *video = notif.object;
-    if(![video.group isEqual:[YAUser currentUser].currentGroup])
-        return;
-    
-    NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-    
-    //the following line will ensure indexPathsForVisibleItems will return correct results
-    [self.collectionView layoutIfNeeded];
-    
-    //invisible? we do not reload then
-    if(![[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:index]]) {
-        return;
-    }
-    
-    NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:0];
-    
-    if(index != NSNotFound && index <= countOfItems) {
-        [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
-    }
-    else {
-        [NSException raise:@"something is really wrong" format:nil];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        YAVideo *video = notif.object;
+        if(![video.group isEqual:[YAUser currentUser].currentGroup])
+            return;
+        
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+        
+        //the following line will ensure indexPathsForVisibleItems will return correct results
+        [self.collectionView layoutIfNeeded];
+        
+        //invisible? we do not reload then
+        if(![[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:index]]) {
+            return;
+        }
+        
+        NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:0];
+        
+        if(index != NSNotFound && index <= countOfItems) {
+            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+        }
+        else {
+            [NSException raise:@"something is really wrong" format:nil];
+        }
+    });
 }
 
 - (void)groupDidChange:(NSNotification*)notif {
@@ -416,8 +417,8 @@ static NSString *cellID = @"Cell";
 - (void)openVideoAtIndexPath:(NSIndexPath*)indexPath {
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.row];
+    swipingVC.delegate = self;
     
-    DLog(@"before transition");
     CGRect initialFrame = attributes.frame;
     initialFrame.origin.y -= self.collectionView.contentOffset.y;
     initialFrame.origin.y += self.view.frame.origin.y;
@@ -426,9 +427,8 @@ static NSString *cellID = @"Cell";
     
     swipingVC.transitioningDelegate = self;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
-    [self presentViewController:swipingVC animated:YES completion:^{
-        DLog(@"after transition");
-    }];
+    
+    [self presentViewController:swipingVC animated:YES completion:nil];
 }
 
 - (void)openVideo:(NSNotification*)notif {
@@ -542,7 +542,7 @@ static NSString *cellID = @"Cell";
     for(YAVideoCell *cell in self.collectionView.visibleCells)
         [videos addObject:cell.video];
     
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:videos prioritizeDownload:YES];
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:videos invisibleVideos:nil];
 }
 
 - (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
@@ -565,8 +565,7 @@ static NSString *cellID = @"Cell";
         
     }
     
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:visibleVideos prioritizeDownload:YES];
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVideos:invisibleVideos prioritizeDownload:NO];
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:visibleVideos invisibleVideos:invisibleVideos];
 }
 
 #pragma mark - Custom transitions
@@ -606,5 +605,34 @@ static NSString *cellID = @"Cell";
         //enqueue new assets creation jobs
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
     }
+}
+
+#pragma mark - YASwipingControllerDelegate
+- (void)swipingController:(id)controller scrollToIndex:(NSUInteger)index {
+    NSSet *visibleIndexes = [NSSet setWithArray:[[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"]];
+    
+    //don't do anything if it's visible already
+    if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]])
+        return;
+    
+    if(index < [self collectionView:self.collectionView numberOfItemsInSection:0]) {
+        UIEdgeInsets tmp = self.collectionView.contentInset;
+        
+        [self.collectionView setContentInset:UIEdgeInsetsZero];//Make(collectionViewHeight/2, 0, collectionViewHeight/2, 0)];
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
+        
+        //even not animated scrollToItemAtIndexPath call takes some time, using hack
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            self.collectionView.contentInset = tmp;
+            
+            [self.delegate collectionViewDidScroll];
+            
+            [self playVisible:YES];
+            
+            [self prioritiseDownloadsForVisibleCells];
+            self.assetsPrioritisationHandled = YES;
+        });
+    }
+
 }
 @end

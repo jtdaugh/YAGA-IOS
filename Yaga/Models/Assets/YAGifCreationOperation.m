@@ -71,7 +71,7 @@
             
             unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:movPath error:nil] fileSize];
             
-            NSLog(@"mov file size: %llu", fileSize);
+            DLog(@"mov file size: %llu", fileSize);
 
             [self setExecuting:YES];
             
@@ -97,7 +97,7 @@
                 [self makeAnimatedGifAtUrl:gifURL fromArray:images completionHandler:^(NSError *error) {
                     unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:gifPath error:nil] fileSize];
                     
-                    NSLog(@"gif file size: %llu", fileSize);
+                    DLog(@"gif file size: %llu", fileSize);
                     
                     if(error) {
                         DLog(@"makeAnimatedGifAtUrl Error occured: %@", error);

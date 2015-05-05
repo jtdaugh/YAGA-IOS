@@ -25,7 +25,6 @@
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
 @property (nonatomic, strong) NSOperationQueue *jpgQueue;
 @property (nonatomic, strong) NSOperationQueue *recordingQueue;
-@property (strong) NSMutableArray *prioritizedVideos;
 @end
 
 
@@ -50,8 +49,6 @@
         
         self.recordingQueue = [[NSOperationQueue alloc] init];
         self.recordingQueue.maxConcurrentOperationCount = 1;
-        
-        self.prioritizedVideos = [NSMutableArray new];
     }
     return self;
 }
@@ -211,69 +208,73 @@
     });
 }
 
-- (void)enqueueAssetsCreationJobForVideos:(NSArray*)videos prioritizeDownload:(BOOL)prioritize {
-    __block NSString *log = [NSString string];
+//GIF jobs should always go first
+- (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos {
+
+    [[YADownloadManager sharedManager] pauseExecutingJobs];
     
-    void (^enqueueBlock)(void) = ^{
-        //first loop prioritise videos, second loop prioritise gifs so they go first
-        for(YAVideo *video in videos) {
-  
-            BOOL hasRemoteMOVButNoLocal = video.url.length && !video.mp4Filename.length;
-            BOOL hasLocalMOVButNoGIF = video.mp4Filename.length && !video.gifFilename.length;
-            
-            if(hasRemoteMOVButNoLocal) {
-                if(prioritize) {
-                    [[YADownloadManager sharedManager] prioritizeDownloadJobForVideo:video gifJob:NO];
-                    log = [log stringByAppendingFormat:@"%@\n", @"prioritise mp4"];
-                }
-                else {
-                    [[YADownloadManager sharedManager] addDownloadJobForVideo:video gifJob:NO];
-                    log = [log stringByAppendingFormat:@"%@\n", @"add mp4"];
-                }
-            }
-            else if(hasLocalMOVButNoGIF) {
-                if(prioritize) {
-                    [self.prioritizedVideos removeObject:video];
-                    [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
-                }
-                
-            }
+    NSArray *orderedUrlsToDownload = [self orderedDownloadUrlsFromVideos:visibleVideos invisibleVideos:invisibleVideos];
+    
+    [[YADownloadManager sharedManager] reorderJobs:orderedUrlsToDownload];
+    
+    [[YADownloadManager sharedManager] resumeJobs];
+}
+
+- (NSArray*)orderedDownloadUrlsFromVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos {
+    
+    NSMutableArray *gifUrlsForVisible = [NSMutableArray new];
+    NSMutableArray *mp4UrlsForVisible = [NSMutableArray new];
+    NSMutableArray *gifUrlsForInvisible = [NSMutableArray new];
+    NSMutableArray *mp4UrlsForInvisible = [NSMutableArray new];
+    
+    for(YAVideo *video in visibleVideos) {
+        
+        BOOL hasRemoteMOVButNoLocal = video.url.length && !video.mp4Filename.length;
+        BOOL hasLocalMOVButNoGIF = video.mp4Filename.length && !video.gifFilename.length;
+        BOOL hasRemoteGIFButNoLocal = video.gifUrl.length && !video.gifFilename.length && !video.mp4Filename.length;
+        
+        if(hasRemoteMOVButNoLocal) {
+            [mp4UrlsForVisible addObject:video.url];
         }
         
-        //second loop
-        if(prioritize) {
-            NSMutableArray *videosToPrioritiseGifDownload = [NSMutableArray new];
-            for(YAVideo *video in videos) {
-                BOOL hasRemoteGIFButNoLocal = video.gifUrl.length && !video.gifFilename.length && !video.mp4Filename.length;
-                if(hasRemoteGIFButNoLocal) {
-                    [videosToPrioritiseGifDownload addObject:video];
-                }
-            }
-            
-            [YADownloadManager sharedManager].maxConcurentJobs = videosToPrioritiseGifDownload.count;
-             
-            for (YAVideo *video in videosToPrioritiseGifDownload) {
-                [[YADownloadManager sharedManager] prioritizeDownloadJobForVideo:video gifJob:YES];
-                log = [log stringByAppendingFormat:@"%@\n", @"prioritise gif"];
-            }
+        if(hasLocalMOVButNoGIF) {
+            [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
         }
-        NSLog(@"enqueueAssetsCreationJobForVideos:\n%@", log);
-    };
+        
+        if(hasRemoteGIFButNoLocal) {
+            [gifUrlsForVisible addObject:video.gifUrl];
+        }
+    }
     
-    if(prioritize) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self.gifQueue cancelAllOperations];
-            
-            self.prioritizedVideos = [NSMutableArray arrayWithArray:videos];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                enqueueBlock();
-            });
-        });
+    for(YAVideo *video in invisibleVideos) {
+        
+        BOOL hasRemoteMOVButNoLocal = video.url.length && !video.mp4Filename.length;
+        BOOL hasLocalMOVButNoGIF = video.mp4Filename.length && !video.gifFilename.length;
+        BOOL hasRemoteGIFButNoLocal = video.gifUrl.length && !video.gifFilename.length && !video.mp4Filename.length;
+        
+        if(hasRemoteMOVButNoLocal) {
+            [mp4UrlsForInvisible addObject:video.url];
+        }
+        
+        if(hasLocalMOVButNoGIF) {
+            [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
+        }
+        
+        if(hasRemoteGIFButNoLocal) {
+            [gifUrlsForInvisible addObject:video.gifUrl];
+        }
     }
-    else {
-        enqueueBlock();
-    }
+    
+    DLog(@"orderedDownloadUrlsFromVideos: gif_visible:%lu, gif_invisible:%lu, mp4_visible:%lu, mp4_invisible:%lu", (unsigned long)gifUrlsForVisible.count, gifUrlsForInvisible.count, mp4UrlsForVisible.count, mp4UrlsForInvisible.count);
+    
+    NSMutableArray *gifUrls = [NSMutableArray arrayWithArray:gifUrlsForVisible];
+    [gifUrls addObjectsFromArray:gifUrlsForInvisible];
+
+    NSMutableArray *mp4Urls = [NSMutableArray arrayWithArray:mp4UrlsForVisible];
+    [mp4Urls addObjectsFromArray:mp4UrlsForInvisible];
+    
+    NSArray *result = @[gifUrls, mp4Urls];
+    return result;
 }
 
 - (void)addGifCreationOperationForVideo:(YAVideo*)video quality:(YAGifCreationQuality)quality {
@@ -358,7 +359,6 @@
     });
 }
 
-
 - (void)enqueueJpgCreationForVideo:(YAVideo*)video {
     [self.jpgQueue addOperationWithBlock:^{
         [self createJpgForVideo:video];
@@ -423,9 +423,7 @@
 
 #pragma mark -
 - (void)jpgCreatedForVideo:(YAVideo*)video {
-    if([self.prioritizedVideos containsObject:video]) {
-        [self.prioritizedVideos removeObject:video];
+    if(!video.gifFilename.length)
         [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
-    }
 }
 @end

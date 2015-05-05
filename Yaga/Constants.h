@@ -75,10 +75,12 @@
 #define kTappedToEnlarge                        @"kTappedToEnlarge"
 
 //upload gif
-#define kGIFUploadCredentials                   @"kGIFUploadCredentials"
+#define kGIFUploadCredentials                       @"kGIFUploadCredentials"
+
 
 #define kShowPullDownToRefreshWhileRefreshingGroup @"kShowPullDownToRefreshWhileRefreshingGroup"
 
 #define MIXPANEL_TOKEN @"154e8ff6623bbd104cbccc881adfd0b0"
 #define MIXPANEL_DEBUG_TOKEN @"30b5e350abfdd51dad650da6c8213af6"
+
 #endif

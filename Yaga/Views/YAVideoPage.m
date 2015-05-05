@@ -17,6 +17,7 @@
 #import "YASwipingViewController.h"
 #import "YACopyVideoToClipboardActivity.h"
 #import "MBProgressHUD.h"
+#import "YADownloadManager.h"
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -148,7 +149,8 @@
 - (void)addFullscreenJpgPreview {
     if([self.playerView isPlaying])
        return;
-       
+    
+    //add preview if there is one
     if(self.video.jpgFullscreenFilename.length) {
         UIImageView *jpgImageView;
         
@@ -164,14 +166,10 @@
         UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
         jpgImageView.image = jpgImage;
     }
-}
-
-- (void)showLoading:(BOOL)show {
-    if(show) {
-        self.progressView.hidden = NO;
-    }
-    else {
-        self.progressView.hidden = YES;
+    //remove if no preview for current video
+    else if(self.playerView.subviews.count) {
+        UIImageView *jpgImageView = self.playerView.subviews[0];
+        [jpgImageView removeFromSuperview];
     }
 }
 
@@ -301,13 +299,6 @@
     self.captionerLabel.layer.shadowOffset = CGSizeZero;
 
     [self addSubview:self.captionerLabel];
-    
-    //    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)];
-    //    YASwipingViewController *swipingParent = (YASwipingViewController *) self.presentingVC;
-    //    [panGesture requireGestureRecognizerToFail:swipingParent.panGesture];
-    //    [panGesture requireGestureRecognizerToFail:((YASwipingViewController *) self.presentingVC).panGesture];
-    
-    //    [self.captionField addGestureRecognizer:panGesture];
     
     CGFloat tSize = MAX_CAPTION_SIZE;
     self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
@@ -654,14 +645,15 @@
 }
 
 - (void)updateControls {
+    BOOL mp4Downloaded = self.video.mp4Filename.length;
     
-    self.captionField.hidden = NO;
-    self.captionButton.hidden = NO;
-    self.shareButton.hidden = NO;
+    self.captionField.hidden = !mp4Downloaded;
+    self.captionerLabel.hidden = !mp4Downloaded;
+    self.captionButton.hidden = !mp4Downloaded;
+    self.shareButton.hidden = !mp4Downloaded;
     
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !myVideo;
-    //    self.shareButton.hidden = !myVideo;
     
     self.userLabel.text = self.video.creator;
     
@@ -683,6 +675,10 @@
                     forState:UIControlStateNormal];
     
     //get likers for video
+    
+    if(self.video.mp4Filename.length) {
+        [self showProgress:NO];
+    }
     
 }
 
@@ -745,8 +741,23 @@
 }
 
 - (void)showProgress:(BOOL)show {
-    self.progressView.backgroundView.hidden = !show;
+    self.progressView.hidden = !show;
+    if(!self.progressView.hidden) {
+        if(self.video.url.length) {
+            [self.progressView setProgress:[[[YADownloadManager sharedManager].mp4DownloadProgress objectForKey:self.video.url] floatValue] animated:NO];
+        }
+        else {
+            [self.progressView setProgress:0 animated:NO];
+        }
+        
+        [self.progressView setCustomText:self.video.creator];
+    }
 }
+
+- (void)showLoading:(BOOL)show {
+    //used to show spinning monkey while video asset is loading, currently does nothing
+}
+
 
 - (void)downloadProgressChanged:(NSNotification*)notif {
     NSString *url = notif.object;
@@ -754,7 +765,7 @@
         
         if(self.progressView) {
             NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            [self.progressView setProgress:value.floatValue animated:NO];
+            [self.progressView setProgress:value.floatValue animated:YES];
             [self.progressView setCustomText:self.video.creator];
         }
     }
@@ -766,6 +777,8 @@
         BOOL playWhenReady = self.playerView.playWhenReady;
         [self prepareVideoForPlaying];
         self.playerView.playWhenReady = playWhenReady;
+        
+        [self updateControls];
     }
 }
 

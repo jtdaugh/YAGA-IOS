@@ -26,9 +26,7 @@
 @property (nonatomic, assign) YAVideoCellState state;
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
 
-@property (strong, nonatomic) UIView *loader;
-@property (strong, nonatomic) NSTimer *loaderTimer;
-@property (strong, nonatomic) NSMutableArray *loaderTiles;
+@property (strong, nonatomic) UIImageView *loader;
 
 @property (strong, nonatomic) UILabel *username;
 @property (strong, nonatomic) UILabel *caption;
@@ -40,8 +38,6 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        
-        
         _gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
         _gifView.contentMode = UIViewContentModeScaleAspectFill;
         _gifView.clipsToBounds = YES;
@@ -55,37 +51,30 @@
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
-        self.loader = [[UIView alloc] initWithFrame:self.bounds];
-//        [self.loader setBackgroundColor:PRIMARY_COLOR];
-        self.loaderTiles = [[NSMutableArray alloc] init];
-        CGFloat lwidth = self.loader.frame.size.width/((float)LOADER_WIDTH);
-        CGFloat lheight = self.loader.frame.size.height/((float)LOADER_HEIGHT);
-        
-        for(int i = 0; i < LOADER_WIDTH*LOADER_HEIGHT; i++){
-            
-            int xPos = i%LOADER_WIDTH;
-            int yPos = i/LOADER_HEIGHT;
-            
-            UIView *loaderTile = [[UIView alloc] initWithFrame:CGRectMake(xPos * lwidth, yPos*lheight, lwidth, lheight)];
-            [self.loader addSubview:loaderTile];
-            [self.loaderTiles addObject:loaderTile];
+        self.loader = [[UIImageView alloc] initWithFrame:self.bounds];
+        NSMutableArray *loaderImages = [NSMutableArray new];
+        for(NSUInteger loaderImageIndex = 1; loaderImageIndex < 11; loaderImageIndex++) {
+            UIImage *loaderImage = [UIImage imageNamed:[NSString stringWithFormat:@"loader%lu.png", (unsigned long)loaderImageIndex]];
+            [loaderImages addObject:loaderImage];
         }
         
-        [self addSubview:self.loader];
+        self.loader.animationImages = loaderImages;
+        self.loader.animationDuration = 1.5;
+        [self.loader startAnimating];
+        self.backgroundView = self.loader;
         
         self.username = [[UILabel alloc] initWithFrame:self.bounds];
-        
         [self.username setTextAlignment:NSTextAlignmentCenter];
         [self.username setTextColor:PRIMARY_COLOR];
         [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
-        [self addSubview:self.username];
+        [self.contentView addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
         [self.caption setNumberOfLines:3];
         [self.caption setTextAlignment:NSTextAlignmentCenter];
         [self.caption setTextColor:PRIMARY_COLOR];
-        [self addSubview:self.caption];
+        [self.contentView addSubview:self.caption];
     }
     return self;
 }
@@ -147,7 +136,9 @@
         }
         case YAVideoCellStateJPEGPreview: {
             [self showLoader:YES];
-            [self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
+            
+            //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
+            //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
             break;
         }
         case YAVideoCellStateGIFPreview: {
@@ -171,6 +162,9 @@
         [self showCachedImage:cachedImage animatedImage:animatedImage];
     }
     else {
+        if(!self.gifView.image && !self.gifView.animatedImage)
+            [self showLoader:YES];
+        
         dispatch_async(self.imageLoadingQueue, ^{
             
             NSURL *dataURL = [YAUtils urlFromFileName:fileName];
@@ -185,6 +179,7 @@
                 [[YAImageCache sharedCache] setObject:image forKey:fileName];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self showCachedImage:image animatedImage:animatedImage];
+                    [self showLoader:NO];
                 });
             }
         });
@@ -215,25 +210,14 @@
 
 - (void)showLoader:(BOOL)show {
     self.loader.hidden = !show;
+
+    if(!self.loader.hidden && !self.loader.isAnimating)
+        [self.loader startAnimating];
+    
     self.username.hidden = !show;
     self.caption.hidden = show;
     
     [self updateCaptionAndUsername];
-    
-    if(show){
-        if(!self.loaderTimer){
-            self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1
-                                                                target: self
-                                                              selector:@selector(loaderTick:)
-                                                              userInfo: nil repeats:YES];
-            [[NSRunLoop mainRunLoop] addTimer:self.loaderTimer forMode:NSRunLoopCommonModes];
-        }
-    } else {
-        if([self.loaderTimer isValid]){
-            [self.loaderTimer invalidate];
-        }
-        self.loaderTimer = nil;
-    }
 }
 
 - (void)updateCaptionAndUsername {
@@ -248,24 +232,6 @@
     if(!self.username.hidden)
         self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
 
-}
-
-- (void)loaderTick:(NSTimer *)timer {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //Your main thread code goes in here
-        for(UIView *v in self.loaderTiles){
-            UIColor *p = PRIMARY_COLOR;
-            p = [p colorWithAlphaComponent:(arc4random() % 128 / 256.0)];
-//            CGFloat hue = ( arc4random() % 256 / 256.0 );  //  0.0 to 1.0
-//            CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from white
-//            CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
-//            UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
-//            
-            [v setBackgroundColor:p];
-        }
-
-    });
-//    NSLog(@"loader tick!");
 }
 
 #pragma mark - UITapGestureRecognizer actions
