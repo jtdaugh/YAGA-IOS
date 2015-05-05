@@ -740,7 +740,7 @@
                                       options:NSStringDrawingUsesLineFragmentOrigin
                                    attributes:@{ NSFontAttributeName:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE],
                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                 NSStrokeWidthAttributeName:[NSNumber numberWithFloat:CAPTION_STROKE_WIDTH] } context:nil];
+                                                 NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH] } context:nil];
     return frame.size;
 }
 
