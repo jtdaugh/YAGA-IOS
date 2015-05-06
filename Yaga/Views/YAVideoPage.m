@@ -659,19 +659,15 @@
         NSLog(@"x: %@", snapshot.value[@"x"]);
         NSLog(@"y: %@", snapshot.value[@"y"]);
         
-        UITextView *text = [[UITextView alloc] initWithFrame:CGRectZero];
         CGSize size = [self sizeThatFitsString:snapshot.value[@"text"]];
-        CGRect wrapperFrame = CGRectMake((VIEW_WIDTH / 2.f) - (size.width/2.f) - CAPTION_WRAPPER_INSET,
-                                         (VIEW_HEIGHT / 2.f) - (size.height/2.f) - CAPTION_WRAPPER_INSET,
-                                         size.width + (2*CAPTION_WRAPPER_INSET),
-                                         size.height + (2*CAPTION_WRAPPER_INSET));
-        text.frame = wrapperFrame;
+        CGRect wrapperFrame = CGRectMake(0,0, size.width, size.height);
+        UIView *textWrapper = [[UIView alloc]initWithFrame:wrapperFrame];
+        textWrapper.center = CGPointMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
+        UITextView *text = [[UITextView alloc] initWithFrame:textWrapper.bounds];
+        [textWrapper addSubview:text];
 
-        text.center = CGPointMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
-        
-        [text setTransform:CGAffineTransformFromString(snapshot.value[@"transform"])];
-        
-        text.alpha = 0.75;
+        [textWrapper setTransform:CGAffineTransformFromString(snapshot.value[@"transform"])];
+        textWrapper.alpha = 0.75;
         NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                                   NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                                   NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
@@ -685,17 +681,18 @@
         
         [text setTextAlignment:NSTextAlignmentCenter];
         [text setScrollEnabled:NO];
+        text.editable = NO;
         text.textContainer.lineFragmentPadding = 0;
         text.textContainerInset = UIEdgeInsetsZero;
 
         [text setText:snapshot.value[@"text"]];
-        
-        rain = text;
+        rain = textWrapper;
     }
     
     
     
     rain.alpha = 0.0;
+    CGAffineTransform original = rain.transform;
     rain.transform = CGAffineTransformScale(rain.transform, 0.75, 0.75);
 //#define ARC4RANDOM_MAX      0x100000000
 //    double val = ((double)arc4random() / ARC4RANDOM_MAX)/5.0f;
@@ -704,7 +701,7 @@
     [UIView animateWithDuration:0.1 delay:delay options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
         rain.alpha = 0.6;
-        rain.transform = CGAffineTransformScale(rain.transform, 1.0, 1.0);
+        rain.transform = CGAffineTransformScale(original, 1.0, 1.0);
     } completion:^(BOOL finished) {
         
     }];
