@@ -59,7 +59,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             //skip if gif is generated already
             bool highQualityMode = self.quality == YAGifCreationHighQuality;
-            if(self.video.gifFilename.length && !highQualityMode) {
+            if((self.video.gifFilename.length && !highQualityMode) || !self.video.mp4Filename.length) {
                 [self setExecuting:NO];
                 [self setFinished:YES];
                 return;

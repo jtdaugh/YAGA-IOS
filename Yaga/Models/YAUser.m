@@ -317,9 +317,9 @@
         RLMResults *videos = [YAVideo objectsWhere:@"mp4Filename != '' OR gifFilename != '' OR jpgFilename != ''"];
         RLMResults *videosByDate = [videos sortedResultsUsingProperty:@"localCreatedAt" ascending:YES];
         
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        
         while([self assetsFolderSizeExceeded]) {
+
+            [[RLMRealm defaultRealm] beginWriteTransaction];
             
             if(!videosByDate.count) {
                 [self purgeUnusedAssets];
@@ -331,9 +331,9 @@
             [videoToPurge purgeLocalAssets];
             
             DLog(@"assets deleted for old video from: %@", videoToPurge.localCreatedAt);
+            
+            [[RLMRealm defaultRealm] commitWriteTransaction];
         }
-        
-        [[RLMRealm defaultRealm] commitWriteTransaction];
     });
 }
 

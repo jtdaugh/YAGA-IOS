@@ -252,19 +252,6 @@
         return;
     }
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //caches folder too big?
-        if([[YAUser currentUser] assetsFolderSizeExceeded]) {
-            //stop downloads in background mode
-            if([UIApplication sharedApplication].applicationState != UIApplicationStateActive)
-                return;
-            else {
-                //delete oldest to keep folder size static
-                [[YAUser currentUser] purgeOldVideos];
-            }
-        }
-    });
-    
     [self resumeJobs];
 }
 
