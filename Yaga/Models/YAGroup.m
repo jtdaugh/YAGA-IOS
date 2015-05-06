@@ -262,7 +262,12 @@
     NSMutableArray *usernames = [NSMutableArray new];
     
     for(NSDictionary *contactDic in contacts) {
-        [self.members addObject:[YAContact contactFromDictionary:contactDic]];
+        YAContact *contactToAdd = [YAContact contactFromDictionary:contactDic];
+        NSInteger oldIndex = [self.members indexOfObject:contactToAdd];
+        if(oldIndex >= 0)
+            [self.members removeObjectAtIndex:oldIndex];
+        [self.members addObject:contactToAdd];
+        
         if([[contactDic objectForKey:nPhone] length])
             [phones addObject:contactDic[nPhone]];
         else

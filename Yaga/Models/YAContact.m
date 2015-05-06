@@ -30,7 +30,8 @@
 
 + (YAContact*)contactFromDictionary:(NSDictionary*)dictionary {
     NSString *phoneNumber = dictionary[nPhone];
-    NSString *predicate = [NSString stringWithFormat:@"number = '%@'", phoneNumber];
+    NSString *username = dictionary[nUsername];
+    NSString *predicate = [NSString stringWithFormat:@"number = '%@' OR username = '%@'", phoneNumber, username];
     RLMResults *existingContacts = [YAContact objectsWhere:predicate];
     
     YAContact *contact;
