@@ -64,6 +64,7 @@
     self.scrollView.delegate = self;
     self.scrollView.backgroundColor = [UIColor blackColor];
     self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.scrollView.showsHorizontalScrollIndicator = NO;
     [self.view addSubview:self.scrollView];
     
     self.scrollView.contentSize = CGSizeMake([YAUser currentUser].currentGroup.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
@@ -367,4 +368,17 @@
     
     [self updatePages:YES];
 }
+
+#pragma mark - YASuspendableGestureDelegate
+
+- (void)suspendAllGestures {
+    self.panGesture.enabled = NO;
+    self.scrollView.scrollEnabled = NO;
+}
+
+- (void)restoreAllGestures {
+    self.panGesture.enabled = YES;
+    self.scrollView.scrollEnabled = YES;
+}
+
 @end

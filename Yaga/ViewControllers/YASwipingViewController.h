@@ -8,7 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YASwipingViewController : UIViewController<UIScrollViewDelegate>
+@protocol YASuspendableGesturesDelegate <NSObject>
+
+- (void)suspendAllGestures;
+- (void)restoreAllGestures;
+
+@end
+
+@interface YASwipingViewController : UIViewController<UIScrollViewDelegate, YASuspendableGesturesDelegate>
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 - (id)initWithInitialIndex:(NSUInteger)initialIndex;

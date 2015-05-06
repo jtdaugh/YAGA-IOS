@@ -691,7 +691,7 @@
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = QWZRQYKU9P;
+						DevelopmentTeam = 2D424PLK4C;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;

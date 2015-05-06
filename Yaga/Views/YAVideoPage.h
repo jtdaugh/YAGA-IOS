@@ -10,11 +10,13 @@
 #import "YAVideoPlayerView.h"
 #import "YAVideo.h"
 
+@protocol YASuspendableGesturesDelegate;
+
 @interface YAVideoPage : UIView<UITextViewDelegate, UIActionSheetDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
 @property (nonatomic, readonly) YAVideoPlayerView *playerView;
-@property (nonatomic, weak) id presentingVC;
+@property (nonatomic, weak) id<YASuspendableGesturesDelegate> presentingVC;
 
 - (void)setVideo:(YAVideo *)video shouldPreload:(BOOL)shouldPreload;
 @end
