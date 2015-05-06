@@ -892,7 +892,10 @@
                                  newSize.height + (2*CAPTION_WRAPPER_INSET));
 
     __weak YAVideoPage *weakSelf = self;
-
+    
+    // sort of hacky way to enable confirming/cancelling caption when near buttons
+    [self.overlay bringSubviewToFront:self.captionButtonContainer];
+    
     [UIView animateWithDuration:0.2f animations:^{
         self.captionWrapperView.frame = wrapperFrame;
         self.currentTextField.frame = captionFrame;
@@ -1431,9 +1434,8 @@
     return YES;
 }
 
-// Ignore like tap if it is in the trash button, share button, or caption button.
+// Ignore like tap if in trash button, share button, or caption button, or a tap in the caption field.
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    // test if our control subview is on-screen
     if (self.captionButtonContainer.superview != nil) {
         if ([touch.view isDescendantOfView:self.captionButtonContainer]) {
             // we touched our control surface
