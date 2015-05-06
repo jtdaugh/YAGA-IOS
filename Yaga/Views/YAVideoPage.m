@@ -786,8 +786,8 @@
         
         NSDictionary *textData = @{
                                    @"type": @"text",
-                                   @"x":[NSNumber numberWithDouble: self.currentTextField.center.x/VIEW_WIDTH],
-                                   @"y":[NSNumber numberWithDouble: self.currentTextField.center.y/VIEW_HEIGHT],
+                                   @"x":[NSNumber numberWithDouble: self.textFieldCenter.x/VIEW_WIDTH],
+                                   @"y":[NSNumber numberWithDouble: self.textFieldCenter.y/VIEW_HEIGHT],
                                    @"username":[YAUser currentUser].username,
                                    @"transform":NSStringFromCGAffineTransform(self.currentTextField.transform),
                                    @"text":self.currentTextField.text
