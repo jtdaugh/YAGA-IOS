@@ -25,7 +25,7 @@
 #define CAPTION_STROKE_WIDTH 1.f
 #define CAPTION_DEFAULT_SCALE 0.6f
 #define CAPTION_GUTTER 5.f
-#define CAPTION_WRAPPER_INSET 50.f
+#define CAPTION_WRAPPER_INSET 100.f
 
 #define BOTTOM_ACTION_SIZE 40.f
 #define BOTTOM_ACTION_MARGIN 10.f
@@ -337,11 +337,13 @@
     [self.shareButton setBackgroundImage:[UIImage imageNamed:@"Share"] forState:UIControlStateNormal];
     [self.shareButton addTarget:self action:@selector(shareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.shareButton];
+    self.shareButton.layer.zPosition = 100;
     
     self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, saveSize, saveSize)];
     [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Delete"] forState:UIControlStateNormal];
     [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.deleteButton];
+    self.deleteButton.layer.zPosition = 100;
     
 //    CGFloat likeSize = 42;
 //    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
@@ -394,11 +396,13 @@
 
     self.rainContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
     [self.overlay addSubview:self.rainContainer];
-    
+
     [self setupPieContainer];
     [self setupCaptionButtonContainer];
     [self setupCaptionGestureRecognizers];
-
+    [self.overlay bringSubviewToFront:self.shareButton];
+    [self.overlay bringSubviewToFront:self.deleteButton];
+    
 //    self.rainOptions = [[NSMutableArray alloc] init];
 //    self.options = @[@"rainHeart", @"rainBoo", @"rainText"];
 ////    int tag = 0;
@@ -406,7 +410,7 @@
 //        UIImageView *rainOption = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
 //        [rainOption setImage:[UIImage imageNamed:option]];
 //        [self.overlay addSubview:rainOption];
-//    }
+//    }g
 //    [self initRain];
 }
 
@@ -1372,10 +1376,23 @@
     return YES;
 }
 
+// Ignore like tap if it is in the trash button, share button, or caption button.
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     // test if our control subview is on-screen
     if (self.captionButtonContainer.superview != nil) {
         if ([touch.view isDescendantOfView:self.captionButtonContainer]) {
+            // we touched our control surface
+            return NO; // ignore the touch
+        }
+    }
+    if (self.deleteButton.superview != nil) {
+        if ([touch.view isDescendantOfView:self.deleteButton]) {
+            // we touched our control surface
+            return NO; // ignore the touch
+        }
+    }
+    if (self.shareButton.superview != nil) {
+        if ([touch.view isDescendantOfView:self.shareButton]) {
             // we touched our control surface
             return NO; // ignore the touch
         }
