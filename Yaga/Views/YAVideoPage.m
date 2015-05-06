@@ -52,7 +52,8 @@
 @property (nonatomic, strong) UIButton *keyBoardAccessoryButton;
 @property NSUInteger fontIndex;
 
-@property (strong, nonatomic) UITapGestureRecognizer *likeGestureRecognizer;
+@property (strong, nonatomic) UITapGestureRecognizer *likeDoubleTapRecognizer;
+@property (strong, nonatomic) UITapGestureRecognizer *captionTapRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
 @property (strong, nonatomic) NSMutableArray *rainOptions;
@@ -385,10 +386,17 @@
     self.progressView.showsText = NO;
     self.progressView.tintColor = [UIColor whiteColor];
     
-    self.likeGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-    [self.likeGestureRecognizer setNumberOfTapsRequired:1];
-    self.likeGestureRecognizer.delegate = self;
-    [self addGestureRecognizer:self.likeGestureRecognizer];
+    self.likeDoubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    [self.likeDoubleTapRecognizer setNumberOfTapsRequired:2];
+    self.likeDoubleTapRecognizer.delegate = self;
+    [self addGestureRecognizer:self.likeDoubleTapRecognizer];
+
+    self.captionTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    [self.captionTapRecognizer setNumberOfTapsRequired:1];
+    self.captionTapRecognizer.delegate = self;
+    [self addGestureRecognizer:self.captionTapRecognizer];
+
+    [self.captionTapRecognizer requireGestureRecognizerToFail:self.likeDoubleTapRecognizer];
 
     self.hideGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(hideHold:)];
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
@@ -421,11 +429,11 @@
                                                                            BOTTOM_ACTION_SIZE + BOTTOM_ACTION_MARGIN)];
     [self.overlay addSubview:self.captionButtonContainer];
     
-    self.textButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
-    [self.textButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
-    self.textButton.tintColor = [YAUtils UIColorFromUsernameString:[YAUser currentUser].username];
-    [self.textButton addTarget:self action:@selector(textButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    
+//    self.textButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
+//    [self.textButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
+//    self.textButton.tintColor = [YAUtils UIColorFromUsernameString:[YAUser currentUser].username];
+//    [self.textButton addTarget:self action:@selector(textButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+//    
     self.rajsBelovedDoneButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
     self.rajsBelovedDoneButton.backgroundColor = [UIColor colorWithRed:(39.f/255.f) green:(174.f/255.f) blue:(96.f/255.f) alpha:1];
     self.rajsBelovedDoneButton.layer.cornerRadius = BOTTOM_ACTION_SIZE/2.f;
@@ -747,31 +755,35 @@
     [self commitCurrentCaption];
 }
 
-- (void)textButtonPressed:(id)sender {
-    [self addCaptionAtPoint:CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2)];
-    [self toggleEditingCaption:YES];
-}
+//- (void)textButtonPressed:(id)sender {
+//    [self addCaptionAtPoint:CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2)];
+//    [self toggleEditingCaption:YES];
+//}
 
 - (void)toggleEditingCaption:(BOOL)editing {
     self.editingCaption = editing;
     if (editing) {
         self.hideGestureRecognizer.enabled = NO;
+        self.likeDoubleTapRecognizer.enabled = NO;
+        self.captionTapRecognizer.enabled = NO;
         [self.presentingVC suspendAllGestures];
         
         self.cancelCaptionButton.hidden = NO;
         self.rajsBelovedDoneButton.hidden = NO;
-        self.textButton.hidden = YES;
+//        self.textButton.hidden = YES;
         self.deleteButton.hidden = YES;
         self.shareButton.hidden = YES;
         self.pieContainer.hidden = YES;
     } else {
         self.hideGestureRecognizer.enabled = YES;
+        self.likeDoubleTapRecognizer.enabled = YES;
+        self.captionTapRecognizer.enabled = YES;
         [self.presentingVC restoreAllGestures];
         
         // could be prettier if i fade all of this
         self.cancelCaptionButton.hidden = YES;
         self.rajsBelovedDoneButton.hidden = YES;
-        self.textButton.hidden = NO;
+//        self.textButton.hidden = NO;
         self.deleteButton.hidden = NO;
         self.shareButton.hidden = NO;
         self.pieContainer.hidden = NO;
@@ -1161,8 +1173,12 @@
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
-    if (!self.editingCaption) {
+    if (self.editingCaption) return;
+    if ([recognizer isEqual:self.likeDoubleTapRecognizer]) {
         [self likeTappedAtPoint:[recognizer locationInView:self]];
+    } else if ([recognizer isEqual:self.captionTapRecognizer]){
+        [self addCaptionAtPoint:[recognizer locationInView:self]];
+        [self toggleEditingCaption:YES];
     }
 }
 
