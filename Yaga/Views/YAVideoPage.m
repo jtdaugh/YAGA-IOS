@@ -689,7 +689,7 @@
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self animated:YES];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
     hud.labelText = NSLocalizedString(@"Exporting", @"");
     hud.mode = MBProgressHUDModeIndeterminate;
     
