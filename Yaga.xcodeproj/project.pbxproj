@@ -33,7 +33,6 @@
 		6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E667E1A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m */; };
 		6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */; };
 		6E62F7201A51A8CB008F5116 /* YAGroupAddMembersViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62F71F1A51A8CB008F5116 /* YAGroupAddMembersViewController.m */; };
-		6E6A09091A562F91002F4A8B /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09021A562F91002F4A8B /* NetworkManager.swift */; };
 		6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09041A562F91002F4A8B /* YAServer.m */; };
 		6E6A090B1A562F91002F4A8B /* YAServerTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09061A562F91002F4A8B /* YAServerTransaction.m */; };
 		6E6A090C1A562F91002F4A8B /* YAServerTransactionQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09081A562F91002F4A8B /* YAServerTransactionQueue.m */; };
@@ -167,7 +166,6 @@
 		6E5E66821A4254EB00B58E49 /* YAGroupSelectedSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupSelectedSegue.m; sourceTree = "<group>"; };
 		6E62F71E1A51A8CB008F5116 /* YAGroupAddMembersViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupAddMembersViewController.h; sourceTree = "<group>"; };
 		6E62F71F1A51A8CB008F5116 /* YAGroupAddMembersViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupAddMembersViewController.m; sourceTree = "<group>"; };
-		6E6A09021A562F91002F4A8B /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		6E6A09031A562F91002F4A8B /* YAServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAServer.h; sourceTree = "<group>"; };
 		6E6A09041A562F91002F4A8B /* YAServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAServer.m; sourceTree = "<group>"; };
 		6E6A09051A562F91002F4A8B /* YAServerTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAServerTransaction.h; sourceTree = "<group>"; };
@@ -401,7 +399,6 @@
 		6E6A09011A562F91002F4A8B /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				6E6A09021A562F91002F4A8B /* NetworkManager.swift */,
 				6E6A09031A562F91002F4A8B /* YAServer.h */,
 				6E6A09041A562F91002F4A8B /* YAServer.m */,
 				6E6A09051A562F91002F4A8B /* YAServerTransaction.h */,
@@ -870,7 +867,6 @@
 				6ED379E41AB1C6F40099BDC1 /* YAUserPermissions.m in Sources */,
 				861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */,
 				6E73F4221A432FAC000B3A14 /* YAGroupsViewController.m in Sources */,
-				6E6A09091A562F91002F4A8B /* NetworkManager.swift in Sources */,
 				6ECCCDF81A804EF000B1E1BC /* YAProgressView.m in Sources */,
 				6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */,
 				6E6A090C1A562F91002F4A8B /* YAServerTransactionQueue.m in Sources */,
