@@ -276,10 +276,12 @@ static NSString *CellID = @"CellID";
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", @"") style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
             [[RLMRealm defaultRealm] beginWriteTransaction];
-            [self.group removeMember:contact];
+            [self.group removeMember:contact withCompletion:^(NSError *error) {
+                if(!error) {
+                    [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+                }
+            }];
             [[RLMRealm defaultRealm] commitWriteTransaction];
-            [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
-            
         }]];
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
         [self presentViewController:alert animated:YES completion:nil];

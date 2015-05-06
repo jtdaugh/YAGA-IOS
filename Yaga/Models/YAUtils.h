@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "YAVideo.h"
 #import "YANotificationView.h"
-
+#import "MBProgressHUD.h"
 
 typedef void (^uploadDataCompletionBlock)(NSError *error);
 
@@ -23,6 +23,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 //UI
 + (void)showNotification:(NSString*)message type:(YANotificationType)type;
 + (void)showHudWithText:(NSString*)text;
++ (MBProgressHUD*)showIndeterminateHudWithText:(NSString*)text;
 
 + (UIView*)createBackgroundViewWithFrame:(CGRect)frame alpha:(CGFloat)alpha;
 + (UIImage *)imageWithColor:(UIColor *)color;

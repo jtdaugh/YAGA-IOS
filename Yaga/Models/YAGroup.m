@@ -145,8 +145,12 @@
         
     }
     
-    for(YAContact *contactToRemove in contactsTorRemove)
-        [self removeMember:contactToRemove];
+    for(YAContact *contactToRemove in contactsTorRemove) {
+        NSInteger indexToRemove = [self.members indexOfObject:contactToRemove];
+        if(indexToRemove >= 0)
+            [self.members removeObjectAtIndex:indexToRemove];
+    }
+    
 }
 
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {
@@ -255,31 +259,52 @@
     [[YAServerTransactionQueue sharedQueue] addRenameTransactionForGroup:self];
 }
 
-- (void)addMembers:(NSArray*)contacts {
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    
+- (void)addMembers:(NSArray*)contacts withCompletion:(completionBlock)completion {
     NSMutableArray *phones = [NSMutableArray new];
     NSMutableArray *usernames = [NSMutableArray new];
     
     for(NSDictionary *contactDic in contacts) {
-        [self.members addObject:[YAContact contactFromDictionary:contactDic]];
         if([[contactDic objectForKey:nPhone] length])
             [phones addObject:contactDic[nPhone]];
         else
             [usernames addObject:contactDic[nUsername]];
     }
     
-    [[RLMRealm defaultRealm] commitWriteTransaction];
-    
-    [[YAServerTransactionQueue sharedQueue] addAddMembersTransactionForGroup:self phones:phones usernames:usernames];
+    [[YAServer sharedServer] addGroupMembersByPhones:phones andUsernames:usernames toGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            DLog(@"can't add members to the group with name %@, error %@", self.name, response);
+            completion(error);
+        }
+        else {
+            [[RLMRealm defaultRealm] beginWriteTransaction];
+            for(NSDictionary *contactDic in contacts) {
+                [self.members addObject:[YAContact contactFromDictionary:contactDic]];
+            }
+            [[RLMRealm defaultRealm] commitWriteTransaction];
+            
+            DLog(@"members %@ added to the group: %@", phones, self.name);
+            completion(nil);
+        }
+    }];
 }
 
-- (void)removeMember:(YAContact *)contact {
+- (void)removeMember:(YAContact *)contact withCompletion:(completionBlock)completion {
     NSString *memberPhone = contact.number;
     
-    [self.members removeObjectAtIndex:[self.members indexOfObject:contact]];
-    
-    [[YAServerTransactionQueue sharedQueue] addRemoveMemberTransactionForGroup:self memberPhoneToRemove:memberPhone];
+    [[YAServer sharedServer] removeGroupMemberByPhone:memberPhone fromGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            DLog(@"can't remove member from the group with name %@, error %@", self.name, error.localizedDescription);
+            completion(error);
+        }
+        else {
+            [[RLMRealm defaultRealm] beginWriteTransaction];
+            [self.members removeObjectAtIndex:[self.members indexOfObject:contact]];
+            [[RLMRealm defaultRealm] commitWriteTransaction];
+            DLog(@"member %@ removed from the group: %@", memberPhone, self.name);
+            completion(nil);
+        }
+    }];
+
 }
 
 

@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #import "YAServer+HostManagment.h"
+#import "MBProgressHUD.h"
 
 #ifdef DEBUG
 #define HOST @"https://api-dev.yagaprivate.com"
@@ -218,6 +219,12 @@
 }
 
 - (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"group not synchronized with server yet");
     
@@ -242,13 +249,19 @@
     [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Adding members", @"")];
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
                                
-                               if([(NSHTTPURLResponse*)response statusCode] == 200)
+                               [hud hide:NO];
+                               
+                               if([(NSHTTPURLResponse*)response statusCode] == 200) {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Members added", @"")];
                                    completion(nil, nil);
+                               }
                                else {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Can not add members", @"")];
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
                                    completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
                                }
@@ -256,6 +269,12 @@
 }
 
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
@@ -277,13 +296,20 @@
     [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Removing members", @"")];
+    
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
                                
-                               if([(NSHTTPURLResponse*)response statusCode] == 200)
+                               [hud hide:NO];
+                               
+                               if([(NSHTTPURLResponse*)response statusCode] == 200) {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Member removed", @"")];
                                    completion(nil, nil);
+                               }
                                else {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Can not remove member", @"")];
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
                                    completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
                                }

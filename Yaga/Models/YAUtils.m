@@ -12,7 +12,6 @@
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import <Social/Social.h>
-#import "MBProgressHUD.h"
 #import "YAGifCreationOperation.h"
 
 @interface YAUtils ()
@@ -97,6 +96,15 @@
     [hud showAnimated:YES whileExecutingBlock:^{
         [NSThread sleepForTimeInterval:1.0];
     }];
+}
+
++ (MBProgressHUD*)showIndeterminateHudWithText:(NSString*)text {
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:hud];
+    hud.labelText = text;
+    hud.mode = MBProgressHUDModeIndeterminate;
+    [hud show:YES];
+    return hud;
 }
 
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error {

@@ -121,3 +121,12 @@
 "Remind me later" = "Remind me later";//pushes permissions option 2
 
 "No internet connection, try later." = "No internet connection, try later.";
+
+
+//Progress hud instead of transaction queue
+"Adding members" = "Adding members";
+"Members added" = "Members added";
+"Can not add members" = "Can not add members";
+"Removing member" = "Removing member";
+"Member removed" = "Member removed";
+"Can not remove member" = "Can not remove member";
