@@ -621,35 +621,74 @@
     }
     
     UIColor *color = [YAUtils UIColorFromUsernameString:username];
-    UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
-    [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
-    likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    likeHeart.tintColor = color;
     
-    [likeHeart setAlpha:0.6];
-    int lowerBound = -30;
-    int upperBound = 30;
-    int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
+    UIView *rain;
     
-    CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
-    likeHeart.center = CGPointMake([snapshot.value[@"x"] doubleValue] * VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
-    likeHeart.transform = CGAffineTransformScale(rotation, 0.75, 0.75);
+    if([snapshot.value[@"type"] isEqualToString:@"heart"]){
+        UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
+        [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
+        likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        likeHeart.tintColor = color;
+        
+        int lowerBound = -30;
+        int upperBound = 30;
+        int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
+        
+        CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
+        likeHeart.center = CGPointMake([snapshot.value[@"x"] doubleValue] * VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
+        likeHeart.transform = rotation;
+        
+        rain  = likeHeart;
+    } else if([snapshot.value[@"type"] isEqualToString:@"text"]){
+        NSLog(@"text found");
+        NSLog(@"x: %@", snapshot.value[@"x"]);
+        NSLog(@"y: %@", snapshot.value[@"y"]);
+        
+        UITextView *text = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+        text.center = CGPointMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
+        
+        [text setTransform:CGAffineTransformFromString(snapshot.value[@"transform"])];
+        
+        text.alpha = 0.75;
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
+                                                                                                  }];
+        [text setAttributedText:string];
+        [text setBackgroundColor: [UIColor redColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
+        [text setTextColor:[YAUtils UIColorFromUsernameString:[YAUser currentUser].username]];
+        [text setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
+        
+        //    [self.currentTextField setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
+        
+        [text setTextAlignment:NSTextAlignmentCenter];
+        [text setScrollEnabled:NO];
+        text.textContainer.lineFragmentPadding = 0;
+        text.textContainerInset = UIEdgeInsetsZero;
+
+        [text setText:snapshot.value[@"text"]];
+        
+        rain = text;
+    }
     
-    likeHeart.alpha = 0.0;
+    
+    
+    rain.alpha = 0.0;
+    rain.transform = CGAffineTransformScale(rain.transform, 0.75, 0.75);
 //#define ARC4RANDOM_MAX      0x100000000
 //    double val = ((double)arc4random() / ARC4RANDOM_MAX)/5.0f;
     float delay = (float)count/(float)total * 1.0;
     
     [UIView animateWithDuration:0.1 delay:delay options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
-        likeHeart.alpha = 0.6;
-        likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
+        rain.alpha = 0.6;
+        rain.transform = CGAffineTransformScale(rain.transform, 1.0, 1.0);
     } completion:^(BOOL finished) {
         
     }];
     
-    [self.rainContainer addSubview:likeHeart];
-    [self.rain addObject:likeHeart];
+    [self.rainContainer addSubview:rain];
+    [self.rain addObject:rain];
     
     if([self.rainData objectForKey:username]){
         NSNumber *inc = [NSNumber numberWithInt:[[self.rainData objectForKey:username] intValue] + 1];
@@ -709,14 +748,28 @@
 
 - (void)commitCurrentCaption {
     if (self.currentTextField) {
-        // Send deets to parse!!!g
+        // Send deets to firebase!!!g
 
         self.currentTextField.editable = NO;
         [self.captionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
         [self.captionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
         [self.captionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
+        
+        NSDictionary *textData = @{
+                                   @"type": @"text",
+                                   @"x":[NSNumber numberWithDouble: self.currentTextField.center.x/VIEW_WIDTH],
+                                   @"y":[NSNumber numberWithDouble: self.currentTextField.center.y/VIEW_HEIGHT],
+                                   @"username":[YAUser currentUser].username,
+                                   @"transform":NSStringFromCGAffineTransform(self.currentTextField.transform),
+                                   @"text":self.currentTextField.text
+                                   };
+
+        [self.currentTextField removeFromSuperview];
         self.currentTextField = nil;
         self.captionWrapperView = nil;
+        
+        [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAutoId] setValue:textData];
+
     }
 }
 
@@ -832,11 +885,9 @@
 }
 
 - (void)addCaptionAtPoint:(CGPoint)point {
-    [self commitCurrentCaption];
-    
+
     self.textFieldCenter = point;
     self.textFieldTransform = CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE);
-    
     
     self.captionWrapperView = [[UIView alloc] initWithFrame:CGRectInfinite];
     self.currentTextField = [[UITextView alloc] initWithFrame:CGRectZero];
@@ -867,6 +918,10 @@
     [self.overlay addSubview:self.captionWrapperView];
     
     [self.currentTextField becomeFirstResponder];
+}
+
+- (UITextView *)captionAtPoint:(CGPoint) point {
+    return [UITextView new];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
