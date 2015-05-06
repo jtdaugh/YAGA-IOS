@@ -789,7 +789,7 @@
                                    @"x":[NSNumber numberWithDouble: self.textFieldCenter.x/VIEW_WIDTH],
                                    @"y":[NSNumber numberWithDouble: self.textFieldCenter.y/VIEW_HEIGHT],
                                    @"username":[YAUser currentUser].username,
-                                   @"transform":NSStringFromCGAffineTransform(self.currentTextField.transform),
+                                   @"transform":NSStringFromCGAffineTransform(self.captionWrapperView.transform),
                                    @"text":self.currentTextField.text
                                    };
 
