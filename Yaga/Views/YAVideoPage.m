@@ -659,7 +659,14 @@
         NSLog(@"x: %@", snapshot.value[@"x"]);
         NSLog(@"y: %@", snapshot.value[@"y"]);
         
-        UITextView *text = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+        UITextView *text = [[UITextView alloc] initWithFrame:CGRectZero];
+        CGSize size = [self sizeThatFitsString:snapshot.value[@"text"]];
+        CGRect wrapperFrame = CGRectMake((VIEW_WIDTH / 2.f) - (size.width/2.f) - CAPTION_WRAPPER_INSET,
+                                         (VIEW_HEIGHT / 2.f) - (size.height/2.f) - CAPTION_WRAPPER_INSET,
+                                         size.width + (2*CAPTION_WRAPPER_INSET),
+                                         size.height + (2*CAPTION_WRAPPER_INSET));
+        text.frame = wrapperFrame;
+
         text.center = CGPointMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
         
         [text setTransform:CGAffineTransformFromString(snapshot.value[@"transform"])];
@@ -670,7 +677,7 @@
                                                                                                   NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
                                                                                                   }];
         [text setAttributedText:string];
-        [text setBackgroundColor: [UIColor redColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
+        [text setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
         [text setTextColor:[YAUtils UIColorFromUsernameString:[YAUser currentUser].username]];
         [text setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
         
