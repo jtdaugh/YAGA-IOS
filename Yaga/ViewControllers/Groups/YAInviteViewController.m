@@ -156,7 +156,6 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [YAUtils instance].cameraNeedsRefresh = YES;
     self.quoteTimer = [NSTimer scheduledTimerWithTimeInterval:2.f target:self selector:@selector(switchToNextQuote) userInfo:nil repeats:YES];
 }
 

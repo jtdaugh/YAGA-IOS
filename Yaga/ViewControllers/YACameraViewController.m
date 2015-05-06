@@ -82,8 +82,6 @@ typedef enum {
 - (id)init {
     self = [super init];
     if(self) {
-        [YAUtils instance].cameraNeedsRefresh = YES; // So we set up the vid session initially.
-        
         self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
         self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2);
         [self.cameraView setBackgroundColor:[UIColor blackColor]];
@@ -335,14 +333,23 @@ typedef enum {
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    if ([YAUtils instance].cameraNeedsRefresh) {
+    dispatch_async(dispatch_get_main_queue(), ^{
         [self initCamera];
-        [YAUtils instance].cameraNeedsRefresh = NO;
-    }
-    
-    [self enableRecording:YES];
+        
+        [self enableRecording:YES];
+        
+        [self updateCurrentGroupName];
+    });
+}
 
-    [self updateCurrentGroupName];
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self enableRecording:NO];
+        
+        [self closeCamera];
+    });
 }
 
 - (void)dealloc {

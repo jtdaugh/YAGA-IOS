@@ -43,8 +43,4 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 //GIF
 + (void)copyGIFToClipboard:(YAVideo*)video;
 
-// Camera State
-@property (nonatomic) BOOL cameraNeedsRefresh;
-
-
 @end
