@@ -264,7 +264,7 @@
     for(NSDictionary *contactDic in contacts) {
         YAContact *contactToAdd = [YAContact contactFromDictionary:contactDic];
         NSInteger oldIndex = [self.members indexOfObject:contactToAdd];
-        if(oldIndex >= 0)
+        if(oldIndex != NSNotFound)
             [self.members removeObjectAtIndex:oldIndex];
         [self.members addObject:contactToAdd];
         
