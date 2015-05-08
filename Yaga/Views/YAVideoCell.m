@@ -69,6 +69,7 @@
         [self.username setTextAlignment:NSTextAlignmentCenter];
         [self.username setTextColor:PRIMARY_COLOR];
         [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
+#warning LAG number 2 to fix!
         //[self.loader addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
