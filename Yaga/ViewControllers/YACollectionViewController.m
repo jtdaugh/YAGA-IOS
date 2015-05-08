@@ -54,7 +54,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 static NSString *cellID = @"Cell";
 
 #define kPaginationItemsCountToStartLoadingNextPage 10
-#define kPaginationDefaultThreshold 100
 
 @implementation YACollectionViewController
 

@@ -15,8 +15,13 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         shared = [[self alloc] init];
+        shared.countLimit = kPaginationDefaultThreshold;
+        shared.delegate = shared;
     });
     return shared;
 }
 
+- (void)cache:(NSCache *)cache willEvictObject:(id)obj {
+    DLog(@"Gif data deleted from cache..");
+}
 @end

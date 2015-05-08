@@ -31,6 +31,8 @@
 @property (strong, nonatomic) UILabel *username;
 @property (strong, nonatomic) UILabel *caption;
 
+@property (strong, atomic) NSString *gifFilename;
+
 @end
 
 @implementation YAVideoCell
@@ -67,7 +69,7 @@
         [self.username setTextAlignment:NSTextAlignmentCenter];
         [self.username setTextColor:PRIMARY_COLOR];
         [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
-        [self.contentView addSubview:self.username];
+        //[self.loader addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
@@ -113,6 +115,8 @@
 
     _video = video;
     
+    self.gifFilename = self.video.gifFilename;
+    
     [self updateState];
 }
 
@@ -129,13 +133,15 @@
 }
 
 - (void)updateCell {
+    [self updateCaptionAndUsername];
+    
     switch (self.state) {
         case YAVideoCellStateLoading: {
-            [self showLoader:YES];
+            //[self showLoader:YES];
             break;
         }
         case YAVideoCellStateJPEGPreview: {
-            [self showLoader:YES];
+            //[self showLoader:YES];
             
             //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
             //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
@@ -143,7 +149,6 @@
         }
         case YAVideoCellStateGIFPreview: {
             //loading is removed when gif is shown in showImageAsyncFromFilename
-            [self showLoader:NO];
             [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
             break;
         }
@@ -162,9 +167,8 @@
         [self showCachedImage:cachedImage animatedImage:animatedImage];
     }
     else {
-        if(!self.gifView.image && !self.gifView.animatedImage)
-            [self showLoader:YES];
-        
+#warning wtf next line?
+//        if(!self.gifView.image && !self.gifView.animatedImage)
         dispatch_async(self.imageLoadingQueue, ^{
             
             NSURL *dataURL = [YAUtils urlFromFileName:fileName];
@@ -176,11 +180,14 @@
                 image = [UIImage imageWithData:fileData];
             
             if(image) {
-                [[YAImageCache sharedCache] setObject:image forKey:fileName];
-                dispatch_async(dispatch_get_main_queue(), ^{
+                if([self.gifFilename isEqualToString:fileName]) {
+                    [[YAImageCache sharedCache] setObject:image forKey:fileName];
+
                     [self showCachedImage:image animatedImage:animatedImage];
-                    [self showLoader:NO];
-                });
+                }
+                else {
+                    //invalidated.. no need to redraw and cache.
+                }
             }
         });
     }
