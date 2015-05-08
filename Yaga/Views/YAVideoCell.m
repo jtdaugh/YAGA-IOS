@@ -167,8 +167,6 @@
         [self showCachedImage:cachedImage animatedImage:animatedImage];
     }
     else {
-#warning wtf next line?
-//        if(!self.gifView.image && !self.gifView.animatedImage)
         dispatch_async(self.imageLoadingQueue, ^{
             
             NSURL *dataURL = [YAUtils urlFromFileName:fileName];

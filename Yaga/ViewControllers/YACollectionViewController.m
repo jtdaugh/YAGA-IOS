@@ -23,6 +23,8 @@
 
 #import "YANotificationView.h"
 
+#import "YAImageCache.h"
+
 @protocol GridViewControllerDelegate;
 
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
@@ -537,12 +539,47 @@ static NSString *cellID = @"Cell";
 #pragma mark - Assets creation
 
 - (void)prioritiseDownloadsForVisibleCells {
+
+    //sort them fist
+    NSArray *visibleVideoIndexes = [[[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"] sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        return [obj1 compare:obj2];
+    }];
     NSMutableArray *videos = [NSMutableArray new];
-    for(YAVideoCell *cell in self.collectionView.visibleCells)
-        [videos addObject:cell.video];
+    for(NSNumber *visibleVideoIndex in visibleVideoIndexes) {
+        [videos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:[visibleVideoIndex integerValue]]];
+    }
     
     [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:videos invisibleVideos:nil];
+    
+    [self precacheGifsStartingFromIndex:[visibleVideoIndexes.lastObject integerValue]];
 }
+
+- (void)precacheGifsStartingFromIndex:(NSUInteger)startingIndex {
+    
+    NSUInteger currentIndex = startingIndex + 1;
+    
+    const NSUInteger defaultPrecacheCount = 30;
+    while (currentIndex < [YAUser currentUser].currentGroup.videos.count && (currentIndex - startingIndex <= defaultPrecacheCount)) {
+        YAVideo *video = [YAUser currentUser].currentGroup.videos[currentIndex];
+        
+        NSString *fileName = video.gifFilename;
+        if(fileName.length && ![[YAImageCache sharedCache] objectForKey:fileName]) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                
+                NSURL *dataURL = [YAUtils urlFromFileName:fileName];
+                NSData *fileData = [NSData dataWithContentsOfURL:dataURL];
+                FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:fileData];
+                
+                if(image) {
+                    [[YAImageCache sharedCache] setObject:image forKey:fileName];
+                    DLog(@"gif precached");
+                }
+            });
+        }
+        currentIndex++;
+    }
+}
+
 
 - (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
     NSUInteger maxCount = self.paginationThreshold;
