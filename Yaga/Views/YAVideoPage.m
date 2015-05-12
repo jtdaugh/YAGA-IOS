@@ -858,7 +858,7 @@
                                    @"text":self.currentTextField.text
                                    };
 
-        [self.currentTextField removeFromSuperview];
+        [self.captionWrapperView removeFromSuperview];
         self.currentTextField = nil;
         self.captionWrapperView = nil;
         
