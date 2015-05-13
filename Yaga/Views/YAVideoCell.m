@@ -111,6 +111,7 @@
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
 }
 
 #pragma mark -
@@ -163,9 +164,10 @@
         }
     }
     
-    if([[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video]) {
-        [self showUploadingProgress:YES];
-    }
+    //uploading progress
+    BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
+    [self showUploadingProgress:uploadInProgress];
+ 
 }
 
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
@@ -244,13 +246,8 @@
         [self.uploadingView startAnimating];
     }
     else {
-        __weak typeof(self) weakSelf = self;
-        [UIView animateWithDuration:0.3 animations:^{
-            weakSelf.uploadingView.alpha = 0;
-        } completion:^(BOOL finished) {
-            [weakSelf.uploadingView removeFromSuperview];
-            weakSelf.uploadingView = nil;
-        }];
+        [self.uploadingView removeFromSuperview];
+        self.uploadingView = nil;
     }
 }
 

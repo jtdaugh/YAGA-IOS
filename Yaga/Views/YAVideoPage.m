@@ -133,9 +133,10 @@
         [self addFullscreenJpgPreview];
     }
     
-    if([[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video]) {
-        [self showUploadingProgress:YES];
-    }
+    //uploading progress
+    BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
+    [self showUploadingProgress:uploadInProgress];
+
 }
 
 - (void)prepareVideoForPlaying {
@@ -194,6 +195,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextInputCurrentInputModeDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
 }
 
 - (void) initTooltip {
@@ -790,13 +792,8 @@
         [self.uploadingView startAnimating];
     }
     else {
-        __weak typeof(self) weakSelf = self;
-        [UIView animateWithDuration:0.3 animations:^{
-            weakSelf.uploadingView.alpha = 0;
-        } completion:^(BOOL finished) {
-            [weakSelf.uploadingView removeFromSuperview];
-            weakSelf.uploadingView = nil;
-        }];
+        [self.uploadingView removeFromSuperview];
+        self.uploadingView = nil;
     }
 }
 
