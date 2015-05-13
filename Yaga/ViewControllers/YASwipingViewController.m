@@ -61,7 +61,7 @@
     
     self.scrollView = [[UIScrollView alloc] initWithFrame:rect];
     self.scrollView.delegate = self;
-    self.scrollView.backgroundColor = [UIColor blackColor];
+    self.scrollView.backgroundColor = PRIMARY_COLOR;
     self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.scrollView];
     
@@ -204,7 +204,7 @@
         
         YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:pageFrame];
         page.presentingVC = self;
-        page.backgroundColor = PRIMARY_COLOR;
+//        page.backgroundColor = PRIMARY_COLOR;
         
         [self.scrollView addSubview:page];
         [self.pages addObject:page];

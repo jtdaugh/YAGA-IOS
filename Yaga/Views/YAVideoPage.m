@@ -40,6 +40,8 @@
 @property (nonatomic, strong) YAActivityView *uploadingView;
 @property (nonatomic, strong) UILabel *toolTipLabel;
 
+@property BOOL loading;
+@property (strong, nonatomic) UIView *loader;
 @property (nonatomic, strong) YAProgressView *progressView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 @property (strong, nonatomic) UITapGestureRecognizer *tapOutGestureRecognizer;
@@ -61,9 +63,13 @@
     self = [super initWithFrame:frame];
     if(self) {
         //self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
+        self.loader = [[UIView alloc] initWithFrame:self.bounds];
+        [self addSubview:self.loader];
+
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
         [self addSubview:self.playerView];
+        
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
@@ -347,24 +353,24 @@
     //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
     [self addSubview:self.likeCount];
     
-    const CGFloat radius = 40;
-    self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
-    self.progressView.radius = radius;
-    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
-    progressBkgView.backgroundColor = [UIColor clearColor];
-    self.progressView.backgroundView = progressBkgView;
-    
-    self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self addSubview:self.progressView];
-    
-    NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-    
-    self.progressView.indeterminate = NO;
-    self.progressView.lineWidth = 4;
-    self.progressView.showsText = NO;
-    self.progressView.tintColor = [UIColor whiteColor];
+//    const CGFloat radius = 40;
+//    self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
+//    self.progressView.radius = radius;
+//    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
+//    progressBkgView.backgroundColor = [UIColor clearColor];
+//    self.progressView.backgroundView = progressBkgView;
+//    
+//    self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
+//    [self addSubview:self.progressView];
+//    
+//    NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
+//    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+//    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+//    
+//    self.progressView.indeterminate = NO;
+//    self.progressView.lineWidth = 4;
+//    self.progressView.showsText = NO;
+//    self.progressView.tintColor = [UIColor whiteColor];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -688,9 +694,9 @@
     
     //get likers for video
     
-    if(self.video.mp4Filename.length) {
-        [self showProgress:NO];
-    }
+//    if(self.video.mp4Filename.length) {
+//        [self showProgress:NO];
+//    }
     
 }
 
@@ -739,35 +745,55 @@
 
 #pragma mark - YAProgressView
 - (void)downloadDidStart:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
-        [self showProgress:YES];
-    }
+//    NSOperation *op = notif.object;
+//    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+//        [self showProgress:YES];
+//    }
 }
 
 - (void)downloadDidFinish:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
-        [self showProgress:NO];
-    }
+//    NSOperation *op = notif.object;
+//    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+//        [self showProgress:NO];
+//    }
 }
 
 - (void)showProgress:(BOOL)show {
-    self.progressView.hidden = !show;
-    if(!self.progressView.hidden) {
-        if(self.video.url.length) {
-            [self.progressView setProgress:[[[YADownloadManager sharedManager].mp4DownloadProgress objectForKey:self.video.url] floatValue] animated:NO];
-        }
-        else {
-            [self.progressView setProgress:0 animated:NO];
-        }
-        
-        [self.progressView setCustomText:@""];
-    }
+//    self.progressView.hidden = !show;
+//    if(!self.progressView.hidden) {
+//        if(self.video.url.length) {
+//            [self.progressView setProgress:[[[YADownloadManager sharedManager].mp4DownloadProgress objectForKey:self.video.url] floatValue] animated:NO];
+//        }
+//        else {
+//            [self.progressView setProgress:0 animated:NO];
+//        }
+//        
+//        [self.progressView setCustomText:@""];
+//    }
 }
 
 - (void)showLoading:(BOOL)show {
+    
     //used to show spinning monkey while video asset is loading, currently does nothing
+    if(self.loading){
+        if(!show){
+            [self.loader.layer removeAllAnimations];
+            self.loading = NO;
+        }
+    } else {
+        if(show){
+            [self.loader setBackgroundColor:[UIColor blackColor]];
+            [self.loader setAlpha:0.0];
+            [UIView animateWithDuration:0.2 delay:0.0 options:(UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat | UIViewAnimationOptionBeginFromCurrentState) animations:^{
+                //
+                [self.loader setAlpha:0.2];
+            } completion:^(BOOL finished) {
+                //
+            }];
+            
+            self.loading = YES;
+        }
+    }
 }
 
 
@@ -775,11 +801,11 @@
     NSString *url = notif.object;
     if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
         
-        if(self.progressView) {
-            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            [self.progressView setProgress:value.floatValue animated:YES];
-            [self.progressView setCustomText:@""];
-        }
+//        if(self.progressView) {
+//            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
+//            [self.progressView setProgress:value.floatValue animated:YES];
+//            [self.progressView setCustomText:@""];
+//        }
     }
 }
 
