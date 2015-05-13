@@ -29,11 +29,11 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 
 //
 + (YAGroup*)groupWithName:(NSString*)name;
-- (void)rename:(NSString*)newName;
+- (void)rename:(NSString*)newName withCompletion:(completionBlock)completion;
 - (void)addMembers:(NSArray*)contacts withCompletion:(completionBlock)completion;
 - (void)removeMember:(YAContact*)contact withCompletion:(completionBlock)completion;
-- (void)leave;
-- (void)muteUnmute;
+- (void)leaveWithCompletion:(completionBlock)completion;
+- (void)muteUnmuteWithCompletion:(completionBlock)completion;
 - (void)refresh;
 - (void)refresh:(BOOL)showPullDownToRefresh;
 @end

@@ -328,9 +328,14 @@
                                  @"name": newName
                                  };
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Renaming group", @"")];
     [self.jsonOperationsManager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:NSLocalizedString(@"Group renamed", @"")];
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:NSLocalizedString(@"Can not rename group", @"")];
         completion(nil, error);
     }];
 }
@@ -364,9 +369,14 @@
                                  @"mute": mute ? @"true" : @"false"
                                  };
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:mute ? NSLocalizedString(@"Muting group", @"") : NSLocalizedString(@"Unmuting group", @"")];
     [self.jsonOperationsManager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:mute ? NSLocalizedString(@"Group muted", @"") : NSLocalizedString(@"Group unmuted", @"")];
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:mute ? NSLocalizedString(@"Can not mute group", @"") : NSLocalizedString(@"Can not unmute group", @"")];
         completion(nil, error);
     }];
 }

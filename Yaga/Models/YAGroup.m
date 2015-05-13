@@ -251,12 +251,21 @@
     return group;
 }
 
-- (void)rename:(NSString*)newName {
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    self.name = newName;
-    [[RLMRealm defaultRealm] commitWriteTransaction];
-    
-    [[YAServerTransactionQueue sharedQueue] addRenameTransactionForGroup:self];
+- (void)rename:(NSString*)newName withCompletion:(completionBlock)completion {
+    [[YAServer sharedServer] renameGroupWithId:self.serverId newName:(NSString*)newName withCompletion:^(id response, NSError *error) {
+        if(error) {
+            DLog(@"can't rename group with name %@, error %@", self.name, response);
+            completion(error);
+        }
+        else {
+            [[RLMRealm defaultRealm] beginWriteTransaction];
+            self.name = newName;
+            [[RLMRealm defaultRealm] commitWriteTransaction];
+            
+            DLog(@"group renamed");
+            completion(nil);
+        }
+    }];
 }
 
 - (void)addMembers:(NSArray*)contacts withCompletion:(completionBlock)completion {
@@ -308,22 +317,41 @@
 }
 
 
-- (void)leave {
-    NSAssert(self.serverId, @"Can't leave group which doesn't exist");
+- (void)leaveWithCompletion:(completionBlock)completion {
+    NSString *phone = [YAUser currentUser].phoneNumber;
     
-    [[YAServerTransactionQueue sharedQueue] addLeaveGroupTransactionForGroupId:self.serverId];
-    
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    [[RLMRealm defaultRealm] deleteObject:self];
-    [[RLMRealm defaultRealm] commitWriteTransaction];
+    [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            DLog(@"can't leave group with name: %@, error %@", self.name, error.localizedDescription);
+            completion(error);
+        }
+        else {
+            [[RLMRealm defaultRealm] beginWriteTransaction];
+            [[RLMRealm defaultRealm] deleteObject:self];
+            [[RLMRealm defaultRealm] commitWriteTransaction];
+            
+            DLog(@"successfully left group with name: %@", self.name);
+            completion(nil);
+        }
+    }];
 }
 
-- (void)muteUnmute {
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    self.muted = !self.muted;
-    [[RLMRealm defaultRealm] commitWriteTransaction];
-    
-    [[YAServerTransactionQueue sharedQueue] addMuteUnmuteTransactionForGroup:self];
+- (void)muteUnmuteWithCompletion:(completionBlock)completion {
+    [[YAServer sharedServer] muteGroupWithId:self.serverId mute:!self.muted withCompletion:^(id response, NSError *error) {
+        if(error) {
+            DLog(@"mute/unmute group with name %@, error %@", self.name, error.localizedDescription);
+            completion(error);
+        }
+        else {
+            [[RLMRealm defaultRealm] beginWriteTransaction];
+            self.muted = !self.muted;
+            [[RLMRealm defaultRealm] commitWriteTransaction];
+            
+            DLog(@"%@ group %@", self.name, self.muted ? @"muted" : @"unmuted");
+            completion(nil);
+        }
+    }];
+
 }
 
 #pragma mark - Videos

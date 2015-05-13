@@ -130,3 +130,12 @@
 "Removing member" = "Removing member";
 "Member removed" = "Member removed";
 "Can not remove member" = "Can not remove member";
+"Renaming group" = "Renaming group";
+"Group renamed" = "Group renamed";
+"Can not rename group" = "Can not rename group";
+"Muting group" = "Muting group";
+"Group muted" = "Group muted";
+"Can not mute group" = "Can not mute group";
+"Unmuting group" = "Unmuting group";
+"Group unmuted" = "Group unmuted";
+"Can not unmute group" = "Can not unmute group";
