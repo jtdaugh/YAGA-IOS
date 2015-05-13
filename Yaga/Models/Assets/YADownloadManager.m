@@ -66,7 +66,7 @@
     NSURL    *fileUrl   = [NSURL fileURLWithPath:filePath];
     
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-#warning test shouldResume:YES
+#warning TODO: test shouldResume:YES
     AFDownloadRequestOperation *operation = [[AFDownloadRequestOperation alloc] initWithRequest:request targetPath:fileUrl.path shouldResume:NO];
     operation.shouldOverwrite = YES;
     

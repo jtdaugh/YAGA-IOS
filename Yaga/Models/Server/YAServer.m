@@ -412,6 +412,9 @@
                                video.serverId = @"";
                                [video.realm commitWriteTransaction];
                            }
+                           else {
+                               [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_UPLOAD object:video];
+                           }
                            
                            //call completion block when video is posted
                            completion(response, error);

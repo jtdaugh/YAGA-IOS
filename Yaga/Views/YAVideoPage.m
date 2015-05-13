@@ -18,6 +18,7 @@
 #import "YACopyVideoToClipboardActivity.h"
 #import "MBProgressHUD.h"
 #import "YADownloadManager.h"
+#import "YAServerTransactionQueue.h"
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
@@ -36,6 +37,7 @@
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
+@property (nonatomic, strong) YAActivityView *uploadingView;
 @property (nonatomic, strong) UILabel *toolTipLabel;
 
 @property (nonatomic, strong) YAProgressView *progressView;
@@ -78,6 +80,8 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShown:) name:UIKeyboardDidShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
         
         [self initOverlayControls];
         [self initTooltip];
@@ -127,6 +131,10 @@
     }
     else {
         [self addFullscreenJpgPreview];
+    }
+    
+    if([[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video]) {
+        [self showUploadingProgress:YES];
     }
 }
 
@@ -773,6 +781,32 @@
     }
 }
 
+- (void)showUploadingProgress:(BOOL)show {
+    if(show && !self.uploadingView) {
+        CGRect frame = self.deleteButton.frame;
+        frame.origin.x -= self.deleteButton.frame.size.width;
+        self.uploadingView = [[YAActivityView alloc] initWithFrame:frame];
+        [self addSubview:self.uploadingView];
+        [self.uploadingView startAnimating];
+    }
+    else {
+        __weak typeof(self) weakSelf = self;
+        [UIView animateWithDuration:0.3 animations:^{
+            weakSelf.uploadingView.alpha = 0;
+        } completion:^(BOOL finished) {
+            [weakSelf.uploadingView removeFromSuperview];
+            weakSelf.uploadingView = nil;
+        }];
+    }
+}
+
+- (void)didUploadVideo:(NSNotification*)notif {
+    if([self.video isEqual:notif.object]) {
+        [self showUploadingProgress:NO];
+    }
+}
+
+
 - (void)videoChanged:(NSNotification*)notif {
     if([notif.object isEqual:self.video] && !self.playerView.URL && self.shouldPreload && self.video.mp4Filename.length) {
         //setURL will remove playWhenReady flag, so saving it and using later
@@ -845,6 +879,7 @@
     [self.captionField resignFirstResponder];
     self.keyBoardAccessoryButton.hidden = YES;
 }
+
 
 @end
 

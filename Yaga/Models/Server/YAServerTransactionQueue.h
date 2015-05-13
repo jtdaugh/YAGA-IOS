@@ -30,8 +30,10 @@
 //Debug
 - (void)clearTransactionQueue;
 
+//pending transactions
 - (BOOL)hasPendingAddTransactionForContact:(YAContact*)contact;
 - (BOOL)hasPendingAddTransactionForGroup:(YAGroup*)group;
+- (BOOL)hasPendingUploadTransactionForVideo:(YAVideo *)video;
 
 - (void)waitForAllTransactionsToFinish;
 @end

@@ -14,6 +14,7 @@
 #import "YAActivityView.h"
 #import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
+#import "YAServerTransactionQueue.h"
 
 #define LIKE_HEART_SIDE 40.f
 
@@ -32,6 +33,8 @@
 @property (strong, nonatomic) UILabel *caption;
 
 @property (strong, atomic) NSString *gifFilename;
+
+@property (strong, nonatomic) YAActivityView *uploadingView;
 
 @end
 
@@ -69,7 +72,7 @@
         [self.username setTextAlignment:NSTextAlignmentCenter];
         [self.username setTextColor:PRIMARY_COLOR];
         [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
-#warning LAG number 2 to fix!
+#warning TODO: username isn't shown for now
         //[self.loader addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
@@ -78,6 +81,8 @@
         [self.caption setTextAlignment:NSTextAlignmentCenter];
         [self.caption setTextColor:PRIMARY_COLOR];
         [self.contentView addSubview:self.caption];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
     }
     return self;
 }
@@ -157,6 +162,10 @@
             break;
         }
     }
+    
+    if([[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video]) {
+        [self showUploadingProgress:YES];
+    }
 }
 
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
@@ -224,6 +233,31 @@
     self.caption.hidden = show;
     
     [self updateCaptionAndUsername];
+}
+
+- (void)showUploadingProgress:(BOOL)show {
+    if(show && !self.uploadingView) {
+        const CGFloat monkeyWidth = 50;
+        self.uploadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, monkeyWidth, monkeyWidth)];
+        self.uploadingView.center = self.center;
+        [self addSubview:self.uploadingView];
+        [self.uploadingView startAnimating];
+    }
+    else {
+        __weak typeof(self) weakSelf = self;
+        [UIView animateWithDuration:0.3 animations:^{
+            weakSelf.uploadingView.alpha = 0;
+        } completion:^(BOOL finished) {
+            [weakSelf.uploadingView removeFromSuperview];
+            weakSelf.uploadingView = nil;
+        }];
+    }
+}
+
+- (void)didUploadVideo:(NSNotification*)notif {
+    if([self.video isEqual:notif.object]) {
+        [self showUploadingProgress:NO];
+    }
 }
 
 - (void)updateCaptionAndUsername {

@@ -54,6 +54,7 @@
 #define VIDEO_WILL_DELETE_NOTIFICATION          @"VIDEO_WILL_DELETE_NOTIFICATION"
 #define VIDEO_DID_DELETE_NOTIFICATION           @"VIDEO_DID_DELETE_NOTIFICATION"
 #define OPEN_VIDEO_NOTIFICATION                 @"OPEN_VIDEO_NOTIFICATION"
+#define VIDEO_DID_UPLOAD                        @"VIDEO_DID_UPLOAD"
 
 #define SCROLL_TO_CELL_INDEXPATH_NOTIFICATION   @"SCROLL_TO_CELL_INDEXPATH_NOTIFICATION"
 
@@ -75,8 +76,7 @@
 #define kTappedToEnlarge                        @"kTappedToEnlarge"
 
 //upload gif
-#define kGIFUploadCredentials                       @"kGIFUploadCredentials"
-
+#define kGIFUploadCredentials                   @"kGIFUploadCredentials"
 
 #define kShowPullDownToRefreshWhileRefreshingGroup @"kShowPullDownToRefreshWhileRefreshingGroup"
 
