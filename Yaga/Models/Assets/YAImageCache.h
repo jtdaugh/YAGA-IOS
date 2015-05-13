@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface YAImageCache : NSCache
+@interface YAImageCache : NSCache<NSCacheDelegate>
 
 + (YAImageCache*)sharedCache;
 
