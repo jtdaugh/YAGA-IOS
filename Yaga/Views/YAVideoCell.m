@@ -64,7 +64,7 @@
         }
         
         self.loader.animationImages = loaderImages;
-        self.loader.animationDuration = 1.5;
+        self.loader.animationDuration = 1.0;
         [self.loader startAnimating];
         self.backgroundView = self.loader;
         
@@ -73,7 +73,7 @@
         [self.username setTextColor:PRIMARY_COLOR];
         [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
 #warning TODO: username isn't shown for now
-        //[self.loader addSubview:self.username];
+//        [self.loader addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
