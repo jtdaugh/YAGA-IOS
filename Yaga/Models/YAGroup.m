@@ -329,6 +329,9 @@
             [[RLMRealm defaultRealm] deleteObject:self];
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
+            //will force groups list to update
+            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:nil userInfo:nil];
+            
             DLog(@"successfully left group with name: %@", name);
             completion(nil);
         }
