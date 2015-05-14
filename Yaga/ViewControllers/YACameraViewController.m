@@ -804,6 +804,13 @@ typedef enum {
         //        }
         
         
+        NSDate *recordingFinished = [NSDate date];
+        NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
+        
+        if(executionTime < 0.5){
+            self.cancelledRecording = YES;
+        }
+        
         [self stopRecordingVideo];
     }
 
@@ -865,18 +872,12 @@ typedef enum {
             RecordedSuccessfully = [value boolValue];
         }
     }
-    NSDate *recordingFinished = [NSDate date];
-    NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
     
     
     if (RecordedSuccessfully) {
         
         if(error) {
             [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:YANotificationTypeError];
-            return;
-        }
-        
-        if(executionTime < 0.5){
             return;
         }
 
