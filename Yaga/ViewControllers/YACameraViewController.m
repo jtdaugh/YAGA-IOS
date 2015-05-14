@@ -172,7 +172,7 @@ typedef enum {
         self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(4, self.cameraView.frame.size.height - infoSize - 4, infoSize, infoSize)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.infoButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
-        [self.infoButton setImage:[UIImage imageNamed:@"Info"] forState:UIControlStateNormal];
+        [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
         
         [self.cameraAccessories addObject:self.infoButton];
