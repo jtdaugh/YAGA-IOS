@@ -237,18 +237,29 @@
 
 #pragma mark - Server synchronisation: send updates to server
 
-+ (YAGroup*)groupWithName:(NSString*)name {
-    [[RLMRealm defaultRealm] beginWriteTransaction];
-    
-    YAGroup *group = [YAGroup group];
-    group.name = name;
-    [[RLMRealm defaultRealm] addObject:group];
-    
-    [[RLMRealm defaultRealm] commitWriteTransaction];
-    
-    [[YAServerTransactionQueue sharedQueue] addCreateTransactionForGroup:group];
-    
-    return group;
++ (void)groupWithName:(NSString*)name withCompletion:(completionBlockWithResult)completion {
+    [[YAServer sharedServer] createGroupWithName:name withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
+        if(error) {
+            DLog(@"can't create remote group with name %@, error %@", name, error.localizedDescription);
+            completion(error, nil);
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[RLMRealm defaultRealm] beginWriteTransaction];
+                
+                YAGroup *group = [YAGroup group];
+                group.name = name;
+                group.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
+                [[RLMRealm defaultRealm] addObject:group];
+                
+                [[RLMRealm defaultRealm] commitWriteTransaction];
+                
+                DLog(@"remote group: %@ created on server with id: %@", group.name, group.serverId);
+                
+                completion(nil, group);
+            });
+        }
+    }];
 }
 
 - (void)rename:(NSString*)newName withCompletion:(completionBlock)completion {
@@ -315,7 +326,6 @@
     }];
 
 }
-
 
 - (void)leaveWithCompletion:(completionBlock)completion {
     [[YAServer sharedServer] leaveGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {

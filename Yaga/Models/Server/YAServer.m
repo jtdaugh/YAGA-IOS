@@ -199,8 +199,13 @@
 }
 
 #pragma mark - Groups
-- (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion
-{
+- (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
@@ -208,12 +213,14 @@
     NSDictionary *parameters = @{
                                  @"name": groupName
                                  };
-    
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Creating group", @"")];
     [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-        
+        [hud hide:NO];
         completion(dict, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:NSLocalizedString(@"Can not create group", @"")];
         completion(nil, error);
     }];
 }
@@ -368,6 +375,12 @@
 }
 
 - (void)renameGroupWithId:(NSString*)serverGroupId newName:(NSString*)newName withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
@@ -409,6 +422,12 @@
 }
 
 - (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion  {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     

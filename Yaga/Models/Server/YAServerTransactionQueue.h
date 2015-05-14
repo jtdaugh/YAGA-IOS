@@ -14,7 +14,7 @@
 
 + (instancetype)sharedQueue;
 
-- (void)addCreateTransactionForGroup:(YAGroup*)group;
+//- (void)addCreateTransactionForGroup:(YAGroup*)group;
 //- (void)addRenameTransactionForGroup:(YAGroup*)group;
 
 //- (void)addAddMembersTransactionForGroup:(YAGroup*)group phones:(NSArray*)phones usernames:(NSArray*)usernames;
