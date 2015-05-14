@@ -18,7 +18,7 @@
 #import "YAServer+HostManagment.h"
 
 //uncomment for debug server
-//#define DEBUG_SERVER 1
+#define DEBUG_SERVER 1
 
 #ifdef DEBUG_SERVER
 #define HOST @"https://api-dev.yagaprivate.com"
