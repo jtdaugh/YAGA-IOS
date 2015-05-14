@@ -49,6 +49,8 @@ typedef enum {
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
 
+@property (strong, nonatomic) UIButton *infoButton;
+
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressFullScreenGestureRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressRedButtonGestureRecognizer;
 @property (nonatomic) BOOL audioInputAdded;
@@ -165,6 +167,16 @@ typedef enum {
         
         [self.cameraAccessories addObject:self.switchGroupsButton];
         [self.cameraView addSubview:self.switchGroupsButton];
+        
+        CGFloat infoSize = 36;
+        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(4, self.cameraView.frame.size.height - infoSize - 4, infoSize, infoSize)];
+        //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.infoButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
+        [self.infoButton setImage:[UIImage imageNamed:@"Info"] forState:UIControlStateNormal];
+        [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        
+        [self.cameraAccessories addObject:self.infoButton];
+        [self.cameraView addSubview:self.infoButton];
         
         CGFloat labelWidth = 96;
         self.countdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, labelWidth)];

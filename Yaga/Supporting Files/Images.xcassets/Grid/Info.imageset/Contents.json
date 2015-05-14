@@ -6,17 +6,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "plus.png"
+      "filename" : "info-shaded.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "plus-1.png"
+      "filename" : "info-shaded-1.png"
     },
     {
       "idiom" : "universal",
       "scale" : "3x",
-      "filename" : "plus-2.png"
+      "filename" : "info-shaded-2.png"
     }
   ],
   "info" : {

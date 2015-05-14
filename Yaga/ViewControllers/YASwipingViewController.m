@@ -28,7 +28,7 @@
 @property (nonatomic, assign) BOOL dismissed;
 @end
 
-#define kSeparator 10
+#define kSeparator 2
 #define kDismissalTreshold 400.0f
 
 @implementation YASwipingViewController
