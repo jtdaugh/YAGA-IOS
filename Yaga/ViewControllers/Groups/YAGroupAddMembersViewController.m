@@ -346,7 +346,7 @@
     }];
     self.inOnboarding = !found;
     
-    typeof(self) weakSelf = self;
+    __weak typeof(self) weakSelf = self;
     
     if(self.existingGroup && self.existingGroupDirty) {
         // Existing Group
@@ -375,7 +375,7 @@
     }
     else {
         // New group
-        [self.existingGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
+        [[YAUser currentUser].currentGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
             if(!error) {
                 [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
                 
