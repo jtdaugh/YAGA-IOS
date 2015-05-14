@@ -318,19 +318,18 @@
 
 
 - (void)leaveWithCompletion:(completionBlock)completion {
-    NSString *phone = [YAUser currentUser].phoneNumber;
-    
-    [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] leaveGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
             DLog(@"can't leave group with name: %@, error %@", self.name, error.localizedDescription);
             completion(error);
         }
         else {
+            NSString *name = self.name;
             [[RLMRealm defaultRealm] beginWriteTransaction];
             [[RLMRealm defaultRealm] deleteObject:self];
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
-            DLog(@"successfully left group with name: %@", self.name);
+            DLog(@"successfully left group with name: %@", name);
             completion(nil);
         }
     }];

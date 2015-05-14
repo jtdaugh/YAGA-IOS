@@ -318,6 +318,55 @@
 }
 
 
+- (void)leaveGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
+    NSAssert(self.authToken.length, @"auth token not set");
+    NSAssert(serverGroupId, @"serverGroup is a required parameter");
+    
+    NSDictionary *parameters = @{
+                                 @"phone": [YAUser currentUser].phoneNumber
+                                 };
+    
+    id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
+    
+    NSString *api = [NSString stringWithFormat:API_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
+    
+    NSURL *url = [NSURL URLWithString:api];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"DELETE"];
+    
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
+    [request setHTTPBody:json];
+    
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Leaving group", @"")];
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               
+                               [hud hide:NO];
+                               
+                               if([(NSHTTPURLResponse*)response statusCode] == 200) {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Group left", @"")];
+                                   completion(nil, nil);
+                               }
+                               else {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Can not leave group", @"")];
+                                   NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                                   completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                               }
+                               
+                           }];
+}
+
 - (void)renameGroupWithId:(NSString*)serverGroupId newName:(NSString*)newName withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
