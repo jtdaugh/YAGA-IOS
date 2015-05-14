@@ -17,7 +17,8 @@
 #include <netinet/in.h>
 #import "YAServer+HostManagment.h"
 
-#define DEBUG_SERVER NO
+//uncomment for debug server
+//#define DEBUG_SERVER 1
 
 #ifdef DEBUG_SERVER
 #define HOST @"https://api-dev.yagaprivate.com"
