@@ -67,12 +67,12 @@
         self.loader.animationDuration = 1.0;
         [self.loader startAnimating];
         self.backgroundView = self.loader;
-        
-        self.username = [[UILabel alloc] initWithFrame:self.bounds];
-        [self.username setTextAlignment:NSTextAlignmentCenter];
-        [self.username setTextColor:PRIMARY_COLOR];
-        [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
-#warning TODO: username isn't shown for now
+
+        #warning TODO: username isn't shown for now
+//        self.username = [[UILabel alloc] initWithFrame:self.bounds];
+//        [self.username setTextAlignment:NSTextAlignmentCenter];
+//        [self.username setTextColor:PRIMARY_COLOR];
+//        [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
 //        [self.loader addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
@@ -231,7 +231,7 @@
     if(!self.loader.hidden && !self.loader.isAnimating)
         [self.loader startAnimating];
     
-    self.username.hidden = !show;
+    // self.username.hidden = !show;
     self.caption.hidden = show;
     
     [self updateCaptionAndUsername];
@@ -266,9 +266,9 @@
         self.caption.text = @"";
     }
     
-    if(!self.username.hidden)
-        self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
-
+//    if(!self.username.hidden)
+//        self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
+//
 }
 
 #pragma mark - UITapGestureRecognizer actions
