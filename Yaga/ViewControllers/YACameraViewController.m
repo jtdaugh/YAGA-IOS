@@ -71,6 +71,7 @@ typedef enum {
 @property (strong, nonatomic) UIView *trashZone;
 @property (nonatomic, strong) UITapGestureRecognizer *switchCamZoneTapRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *trashZoneTapRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *scrollToTopTapRecognizer;
 @property (nonatomic, strong) NSTimer *accidentalDragOffscreenTimer;
 
 @property (strong, nonatomic) NSTimer *countdown;
@@ -260,6 +261,9 @@ typedef enum {
         
         [self.cameraView addSubview:self.trashZone];
         
+        self.scrollToTopTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cameraViewTapped:)];
+        [self.cameraView addGestureRecognizer:self.scrollToTopTapRecognizer];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
                                                      name:UIApplicationWillEnterForegroundNotification
@@ -341,6 +345,9 @@ typedef enum {
     return self;
 }
 
+- (void)cameraViewTapped:(id)sender {
+    [self.delegate scrollToTop];
+}
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
