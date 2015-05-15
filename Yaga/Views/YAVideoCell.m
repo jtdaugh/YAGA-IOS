@@ -193,7 +193,12 @@
                 if([self.gifFilename isEqualToString:fileName]) {
                     [[YAImageCache sharedCache] setObject:image forKey:fileName];
 
-                    [self showCachedImage:image animatedImage:animatedImage];
+                    dispatch_async(dispatch_get_main_queue(), ^(){
+                        //Add method, task you want perform on mainQueue
+                        //Control UIView, IBOutlet all here
+                        
+                        [self showCachedImage:image animatedImage:animatedImage];
+                    });
                 }
                 else {
                     //invalidated.. no need to redraw and cache.
