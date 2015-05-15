@@ -43,4 +43,5 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 //GIF
 + (void)copyGIFToClipboard:(YAVideo*)video;
 
++ (NSString*)phoneNumberFromText:(NSString *)text;
 @end

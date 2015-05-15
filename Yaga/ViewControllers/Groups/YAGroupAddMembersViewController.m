@@ -284,8 +284,13 @@
         [self.filteredContacts removeAllObjects];
         [self.membersTableview reloadData];
         
-        //search by username
-        if([text rangeOfString:@" "].location == NSNotFound) {
+        //add by phone
+        NSString *phone = [YAUtils phoneNumberFromText:text];
+        if(phone) {
+            [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nRegistered:[NSNumber numberWithBool:NO], nUsername:phone,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+        }
+        //add by username
+        else if([text rangeOfString:@" "].location == NSNotFound) {
             if(text.length > 2) {
                 
                 NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];

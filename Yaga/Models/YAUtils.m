@@ -300,4 +300,27 @@
     }
 }
 
++ (NSString*)phoneNumberFromText:(NSString *)text {
+    if([text length] > 6){
+        NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
+    
+        
+        NSError *error = nil;
+        NBPhoneNumber *myNumber = [phoneUtil parse:text
+                                     defaultRegion:[YAUser currentUser].countryCode error:&error];
+        
+        if(error)
+            return nil;
+        
+        error = nil;
+        NSString *text = [phoneUtil format:myNumber
+                              numberFormat:NBEPhoneNumberFormatE164
+                                     error:&error];
+        if(!error && text.length)
+            return text;
+        
+    }
+    return nil;
+}
+
 @end
