@@ -161,7 +161,7 @@
     [self.recordingQueue addOperation:recordingOperation];
     
     [self.recordingQueue addOperationWithBlock:^{
-        [self createJpgForVideo:video];
+//        [self createJpgForVideo:video];
     }];
     
     //no need to create gif here, recording operation will post GROUP_DID_REFRESH_NOTIFICATION and AssetsCreator will make sure gif is created for the new item
@@ -184,7 +184,7 @@
             [self.recordingQueue addOperation:recordingOperation];
             
             [self.recordingQueue addOperationWithBlock:^{
-                [self createJpgForVideo:video];
+//                [self createJpgForVideo:video];
             }];
         }
     }];
@@ -361,7 +361,7 @@
 
 - (void)enqueueJpgCreationForVideo:(YAVideo*)video {
     [self.jpgQueue addOperationWithBlock:^{
-        [self createJpgForVideo:video];
+//        [self createJpgForVideo:video];
     }];
 }
 
