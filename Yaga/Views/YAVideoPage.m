@@ -687,6 +687,8 @@
         [self.captionerLabel setText:@""];
     }
     
+    self.captionerLabel.hidden = !self.captionField.text.length;
+    
     [self resizeText];
     
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
