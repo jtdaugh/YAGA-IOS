@@ -273,7 +273,11 @@
                                else {
                                    [YAUtils showHudWithText:NSLocalizedString(@"Can not add members", @"")];
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                                   completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   
+                                   if(response)
+                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   else
+                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
                                }
                            }];
 }
@@ -321,7 +325,10 @@
                                else {
                                    [YAUtils showHudWithText:NSLocalizedString(@"Can not remove member", @"")];
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                                   completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   if(response)
+                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   else
+                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
                                }
 
                            }];
@@ -371,7 +378,10 @@
                                else {
                                    [YAUtils showHudWithText:NSLocalizedString(@"Can not leave group", @"")];
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                                   completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   if(response)
+                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   else
+                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
                                }
                                
                            }];
@@ -663,7 +673,10 @@
                                    completion(nil, nil);
                                else {
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                                   completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   if(response)
+                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   else
+                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
                                }
 
                            }];

@@ -163,14 +163,15 @@
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
     
     [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
-        [self.navigationController popViewControllerAnimated:YES];
-        
         NSString *groupToLeave = self.group.name;
         
         BOOL groupWasActive = [[YAUser currentUser].currentGroup isEqual:self.group];
         
         [self.group leaveWithCompletion:^(NSError *error) {
             if(!error) {
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                
                 if(groupWasActive) {
                     if([YAGroup allObjects].count) {
                         [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
