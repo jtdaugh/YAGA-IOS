@@ -19,9 +19,9 @@
 #import "MBProgressHUD.h"
 
 //uncomment for debug server
-#define DEBUG_SERVER 1
+#define DEBUG_SERVER 0
 
-#ifdef DEBUG_SERVER
+#if (DEBUG && DEBUG_SERVER)
 #define HOST @"https://api-dev.yagaprivate.com"
 #else
 #define HOST @"https://api.yagaprivate.com"
