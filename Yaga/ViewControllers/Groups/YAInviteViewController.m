@@ -197,8 +197,8 @@
         [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
     } else {
         [self.navigationController popToRootViewControllerAnimated:YES];
-        NSString *notificationMessage = NSLocalizedString(@"Group updated successfully", @"");
-        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+//        NSString *notificationMessage = NSLocalizedString(@"Group updated successfully", @"");
+//        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
     }
 }
 
@@ -277,7 +277,7 @@
         case MessageComposeResultSent:
             [self.camViewController.cameraView setSession:nil];
             [[Mixpanel sharedInstance] track:@"iMessage sent"];
-            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
+//            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
             if (self.inOnboardingFlow) {
                 [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
             } else {

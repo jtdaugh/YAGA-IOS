@@ -121,3 +121,26 @@
 "Remind me later" = "Remind me later";//pushes permissions option 2
 
 "No internet connection, try later." = "No internet connection, try later.";
+
+
+//Progress hud instead of transaction queue
+"Adding members" = "Adding members";
+"Members added" = "Members added";
+"Can not add members" = "Can not add members";
+"Removing member" = "Removing member";
+"Member removed" = "Member removed";
+"Can not remove member" = "Can not remove member";
+"Renaming group" = "Renaming group";
+"Group renamed" = "Group renamed";
+"Can not rename group" = "Can not rename group";
+"Muting group" = "Muting group";
+"Group muted" = "Group muted";
+"Can not mute group" = "Can not mute group";
+"Unmuting group" = "Unmuting group";
+"Group unmuted" = "Group unmuted";
+"Can not unmute group" = "Can not unmute group";
+"Leaving group" = "Leaving group";
+"Group left" = "Group left";
+"Can not leave group" = "Can not leave group";
+"Creating group" = "Creating group";
+"Can not create group" = "Can not create group";
