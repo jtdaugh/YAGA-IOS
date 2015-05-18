@@ -7,12 +7,12 @@
 //
 
 #import "YAUtils.h"
-#import "NBPhoneNumberUtil.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import <Social/Social.h>
 #import "YAGifCreationOperation.h"
+#import "NBNumberFormat.h"
 
 @interface YAUtils ()
 @property (copy) void (^acceptAction)();
@@ -308,7 +308,7 @@
     }
 }
 
-+ (NSString*)phoneNumberFromText:(NSString *)text {
++ (NSString*)phoneNumberFromText:(NSString *)text numberFormat:(NBEPhoneNumberFormat)format {
     if([text length] > 6){
         NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
     
@@ -321,9 +321,20 @@
             return nil;
         
         error = nil;
-        NSString *text = [phoneUtil format:myNumber
-                              numberFormat:NBEPhoneNumberFormatE164
-                                     error:&error];
+        
+        NSString *text;
+        
+        if(format == NBEPhoneNumberFormatNATIONAL) {
+            NBNumberFormat *newNumFormat = [[NBNumberFormat alloc] init];
+            [newNumFormat setPattern:@"(\\d{2})(\\d{3})(\\d{4})"];
+            [newNumFormat setFormat:@"($1) $2-$3"];
+            
+            text = [phoneUtil formatByPattern:myNumber numberFormat:NBEPhoneNumberFormatNATIONAL userDefinedFormats:@[newNumFormat] error:&error];
+        }
+        else {
+            text = [phoneUtil format:myNumber numberFormat:format error:&error];
+        }
+        
         if(!error && text.length)
             return text;
         

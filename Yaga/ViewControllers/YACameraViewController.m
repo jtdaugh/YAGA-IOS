@@ -261,8 +261,7 @@ typedef enum {
         
         [self.cameraView addSubview:self.trashZone];
         
-        self.scrollToTopTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cameraViewTapped:)];
-        [self.cameraView addGestureRecognizer:self.scrollToTopTapRecognizer];
+        [self enableScrollToTop:YES];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -369,6 +368,17 @@ typedef enum {
         
         [self closeCamera];
     });
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //2 px view in the bottom
+    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height/2, self.view.bounds.size.width, 2)];
+    v.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    v.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:v];
+
 }
 
 - (void)dealloc {
@@ -1155,6 +1165,17 @@ typedef enum {
 - (void)openSettings:(id)sender {
     NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
     [[UIApplication sharedApplication] openURL:url];
+}
+
+- (void)enableScrollToTop:(BOOL)enable {
+    if(enable && ! self.scrollToTopTapRecognizer) {
+        self.scrollToTopTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cameraViewTapped:)];
+        [self.cameraView addGestureRecognizer:self.scrollToTopTapRecognizer];
+    }
+    else {
+        [self.cameraView removeGestureRecognizer:self.scrollToTopTapRecognizer];
+        self.scrollToTopTapRecognizer = nil;
+    }
 }
 
 @end
