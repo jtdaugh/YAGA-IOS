@@ -261,8 +261,7 @@ typedef enum {
         
         [self.cameraView addSubview:self.trashZone];
         
-        self.scrollToTopTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cameraViewTapped:)];
-        [self.cameraView addGestureRecognizer:self.scrollToTopTapRecognizer];
+        [self enableScrollToTop:YES];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -1155,6 +1154,17 @@ typedef enum {
 - (void)openSettings:(id)sender {
     NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
     [[UIApplication sharedApplication] openURL:url];
+}
+
+- (void)enableScrollToTop:(BOOL)enable {
+    if(enable && ! self.scrollToTopTapRecognizer) {
+        self.scrollToTopTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cameraViewTapped:)];
+        [self.cameraView addGestureRecognizer:self.scrollToTopTapRecognizer];
+    }
+    else {
+        [self.cameraView removeGestureRecognizer:self.scrollToTopTapRecognizer];
+        self.scrollToTopTapRecognizer = nil;
+    }
 }
 
 @end

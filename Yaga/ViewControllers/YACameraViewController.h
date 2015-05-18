@@ -34,5 +34,5 @@
 
 - (void)enableRecording:(BOOL)enable;
 - (void)updateCurrentGroupName;
-
+- (void)enableScrollToTop:(BOOL)enable;
 @end
