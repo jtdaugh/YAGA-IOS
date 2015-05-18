@@ -29,6 +29,7 @@
 @end
 
 #define kSearchedByUsername @"SearchedByUsername"
+#define kSearchedByPhone    @"SearchedByPhone"
 
 @implementation YAGroupAddMembersViewController
 
@@ -183,6 +184,10 @@
         cell.textLabel.text = [NSString stringWithFormat:@"Add @%@", contact[nUsername]];
         cell.detailTextLabel.text = @"";
     }
+    else if([contact[kSearchedByPhone] boolValue]) {
+        cell.textLabel.text = [NSString stringWithFormat:@"Add %@", contact[nUsername]];
+        cell.detailTextLabel.text = @"";
+    }
     //existing phone book contacts
     else {
         cell.textLabel.text = contact[nCompositeName];
@@ -285,9 +290,9 @@
         [self.membersTableview reloadData];
         
         //add by phone
-        NSString *phone = [YAUtils phoneNumberFromText:text];
+        NSString *phone = [YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatE164];
         if(phone) {
-            [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nRegistered:[NSNumber numberWithBool:NO], nUsername:phone,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+            [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nRegistered:[NSNumber numberWithBool:NO], nUsername:[YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatNATIONAL],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
         }
         //add by username
         else if([text rangeOfString:@" "].location == NSNotFound) {

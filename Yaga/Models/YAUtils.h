@@ -10,6 +10,7 @@
 #import "YAVideo.h"
 #import "YANotificationView.h"
 #import "MBProgressHUD.h"
+#import "NBPhoneNumberUtil.h"
 
 typedef void (^uploadDataCompletionBlock)(NSError *error);
 
@@ -44,5 +45,5 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 //GIF
 + (void)copyGIFToClipboard:(YAVideo*)video;
 
-+ (NSString*)phoneNumberFromText:(NSString *)text;
++ (NSString*)phoneNumberFromText:(NSString *)text numberFormat:(NBEPhoneNumberFormat)format;
 @end
