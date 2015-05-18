@@ -370,6 +370,17 @@ typedef enum {
     });
 }
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //2 px view in the bottom
+    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height/2, self.view.bounds.size.width, 2)];
+    v.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    v.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:v];
+
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
