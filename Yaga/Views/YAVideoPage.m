@@ -665,11 +665,6 @@
 - (void)updateControls {
     BOOL mp4Downloaded = self.video.mp4Filename.length;
     
-    self.captionField.hidden = !mp4Downloaded;
-    self.captionerLabel.hidden = !mp4Downloaded;
-    self.captionButton.hidden = !mp4Downloaded;
-    self.shareButton.hidden = !mp4Downloaded;
-    
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !myVideo;
     
@@ -687,7 +682,10 @@
         [self.captionerLabel setText:@""];
     }
     
-    self.captionerLabel.hidden = !self.captionField.text.length;
+    self.captionField.hidden = !mp4Downloaded;
+    self.captionerLabel.hidden = !mp4Downloaded || !self.captionField.text.length;
+    self.captionButton.hidden = !mp4Downloaded;
+    self.shareButton.hidden = !mp4Downloaded;
     
     [self resizeText];
     
