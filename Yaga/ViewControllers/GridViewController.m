@@ -126,10 +126,8 @@
 - (void)toggleGroups {
     if(self.elevatorOpen){
         [self closeGroups];
-        [self.cameraViewController enableScrollToTop:YES];
     } else {
         [self openGroups];
-        [self.cameraViewController enableScrollToTop:NO];
     }
 }
 
@@ -139,7 +137,6 @@
 
 - (void)closeGroups {
     [self.groupsViewController performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-    [self.cameraViewController enableScrollToTop:YES];
 }
 
 - (void)openGroupOptions {

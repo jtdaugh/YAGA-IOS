@@ -68,7 +68,6 @@
         [self.loader startAnimating];
         self.backgroundView = self.loader;
 
-        #warning TODO: username isn't shown for now
 //        self.username = [[UILabel alloc] initWithFrame:self.bounds];
 //        [self.username setTextAlignment:NSTextAlignmentCenter];
 //        [self.username setTextColor:PRIMARY_COLOR];
