@@ -238,8 +238,8 @@
 #pragma mark - Private
 - (void)jobFinishedForUrl:(NSString*)url video:(YAVideo*)video gifJob:(BOOL)gifJob {
     
-//    if(video && !gifJob)
-//        [[YAAssetsCreator sharedCreator] enqueueJpgCreationForVideo:video];
+    if(video && !gifJob)
+        [[YAAssetsCreator sharedCreator] enqueueJpgCreationForVideo:video];
     
     [self.executingUrls removeObject:url];
     [self.downloadJobs removeObjectForKey:url];
