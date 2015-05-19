@@ -237,7 +237,7 @@
         [self.loader startAnimating];
     
     // self.username.hidden = !show;
-    self.caption.hidden = show;
+    self.caption.hidden = NO;
     
     [self updateCaptionAndUsername];
 }
