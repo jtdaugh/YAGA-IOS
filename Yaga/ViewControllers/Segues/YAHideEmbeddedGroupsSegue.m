@@ -19,14 +19,7 @@
     [groupsController.view setTransform:CGAffineTransformIdentity];
     
     [UIView animateWithDuration:0.25 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
-        
-        
-//        CGFloat origin = gridController.cameraViewController.view.frame.origin.y + gridController.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
-        
         gridController.collectionViewController.view.frame = CGRectMake(0, CAMERA_MARGIN, gridController.collectionViewController.view.frame.size.width, VIEW_HEIGHT - CAMERA_MARGIN);
-        
-        gridController.cameraViewController.view.frame = CGRectMake(0, 0, gridController.cameraViewController.view.frame.size.width, gridController.cameraViewController.view.frame.size.height);
-
         [gridController.cameraViewController showCameraAccessories:YES];
         
         [groupsController.view setTransform:CGAffineTransformMakeScale(0.0, 0.0)];
