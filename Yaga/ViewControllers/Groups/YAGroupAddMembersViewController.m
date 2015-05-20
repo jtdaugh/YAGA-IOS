@@ -262,6 +262,8 @@
     id contact = self.selectedContacts[index];
     if([contact[kSearchedByUsername] boolValue])
         return contact[nUsername];
+    else if([contact[kSearchedByPhone] boolValue])
+        return contact[nUsername];
     else
         return contact[nCompositeName];
 }
