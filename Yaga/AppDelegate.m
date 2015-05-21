@@ -29,6 +29,9 @@
 #import <Parse/Parse.h>
 #import <ParseCrashReporting/ParseCrashReporting.h>
 
+#import "YARealmMigrationManager.h"
+
+
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
 @property (nonatomic, strong) YANotificationView *notificationView;
@@ -38,6 +41,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    //Relam migration
+    YARealmMigrationManager *migrationsMaganaer = [YARealmMigrationManager new];
+    [migrationsMaganaer executeMigrations];
+    
     //analytics
 //    NSString *mixPanelAppId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"YAMixPanelAppId"];
 //    AnalyticsKitMixpanelProvider *mixPanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:MIXPANEL_TOKEN];
@@ -47,15 +54,16 @@
     NSError *error;
 //    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDuckOthers error:nil];
     
-    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
-                                     withOptions:AVAudioSessionCategoryOptionMixWithOthers
-                                           error:&error];
-    
+//    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
+//                                     withOptions:AVAudioSessionCategoryOptionMixWithOthers | AVAudioSess
+//                                           error:&error];
+//    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+    BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
 //    UInt32 doSetProperty = 1;
     
 //    AudioSessionSetProperty (kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof(doSetProperty), &doSetProperty);
     
-//    [[AVAudioSession sharedInstance] setActive: YES error: nil];
+    [[AVAudioSession sharedInstance] setActive: YES error: nil];
     
     if (!success) {
         //Handle error
@@ -145,6 +153,11 @@
     // Later, you can get your instance with
     // Mixpanel *mixpanel = [Mixpanel sharedInstance];
     
+    //handle push for case when app wasn't in background
+    NSDictionary *pushInfo = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
+    if(pushInfo) {
+        [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:@{@"meta":pushInfo[@"meta"]}];
+    }
     return YES;
 }
 

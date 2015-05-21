@@ -11,6 +11,7 @@
 
 @interface YANotificationView ()
 @property (nonatomic, copy) actionHandlerBlock actionHandler;
+@property (nonatomic, strong) UIView *messageView;
 @end
 
 #define kHeight 80
@@ -71,16 +72,25 @@
         if(finished) {
             CGFloat secondsToStayOnScreen = self.actionHandler ? 3 : 1;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(secondsToStayOnScreen * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
-                    messageView.center = CGPointMake(messageView.center.x, -messageView.frame.size.height/2);
-                } completion:nil];
-                
+                [self removeViewAnimated:messageView];
             });
         }
     }];
 }
 
-- (void)tapped:(id)sender {
+- (void)removeViewAnimated:(UIView*)messageView {
+    if(messageView) {
+        [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+            messageView.center = CGPointMake(messageView.center.x, -messageView.frame.size.height/2);
+        } completion:^(BOOL finished) {
+            [messageView removeFromSuperview];
+        }];
+    }
+}
+
+- (void)tapped:(UITapGestureRecognizer*)sender {
+    [self removeViewAnimated:sender.view];
+    
     self.actionHandler();
 }
 

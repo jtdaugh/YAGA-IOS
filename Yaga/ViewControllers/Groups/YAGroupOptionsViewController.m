@@ -112,8 +112,11 @@
         if(!newname.length)
             return;
         
-        [self.group rename:newname];
-        self.title = newname;
+        [self.group rename:newname withCompletion:^(NSError *error) {
+            if(!error)
+                self.title = newname;
+        }];
+
     }]];
     [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
     }]];
@@ -134,14 +137,17 @@
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Confirm", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 //        [self.navigationController popViewControllerAnimated:YES];
         
-        [self.group muteUnmute];
         
-        //just for now
-//        NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.group.name, self.group.muted ? NSLocalizedString(@"Muted", @"") : NSLocalizedString(@"Unmuted", @"")];
-//        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-        
-        NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
-        [self.muteButton setTitle:muteTitle forState:UIControlStateNormal];
+        [self.group muteUnmuteWithCompletion:^(NSError *error) {
+            if(!error) {
+                //just for now
+                //        NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.group.name, self.group.muted ? NSLocalizedString(@"Muted", @"") : NSLocalizedString(@"Unmuted", @"")];
+                //        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+                
+                NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
+                [self.muteButton setTitle:muteTitle forState:UIControlStateNormal];
+            }
+        }];
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
@@ -157,40 +163,44 @@
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
     
     [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
-        [self.navigationController popViewControllerAnimated:YES];
-        
         NSString *groupToLeave = self.group.name;
         
         BOOL groupWasActive = [[YAUser currentUser].currentGroup isEqual:self.group];
         
-        [self.group leave];
-        
-        if(groupWasActive) {
-            if([YAGroup allObjects].count) {
-                [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
-            }
-            else
-                [YAUser currentUser].currentGroup = nil;
-            
-            if([YAUser currentUser].currentGroup) {
-                NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@. Current group is %@.", groupToLeave, [YAUser currentUser].currentGroup.name];
-                [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-            }
-            else {
-                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-                UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"OnboardingNoGroupsNavigationController"];
+        [self.group leaveWithCompletion:^(NSError *error) {
+            if(!error) {
                 
-                [UIView transitionWithView:[UIApplication sharedApplication].keyWindow
-                                  duration:0.4
-                                   options:UIViewAnimationOptionTransitionFlipFromLeft
-                                animations:^{ [UIApplication sharedApplication].keyWindow.rootViewController = viewController; }
-                                completion:nil];
+                [self.navigationController popViewControllerAnimated:YES];
+                
+                if(groupWasActive) {
+                    if([YAGroup allObjects].count) {
+                        [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
+                    }
+                    else
+                        [YAUser currentUser].currentGroup = nil;
+                    
+                    if([YAUser currentUser].currentGroup) {
+                        NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@. Current group is %@.", groupToLeave, [YAUser currentUser].currentGroup.name];
+                        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+                    }
+                    else {
+                        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+                        UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"OnboardingNoGroupsNavigationController"];
+                        
+                        [UIView transitionWithView:[UIApplication sharedApplication].keyWindow
+                                          duration:0.4
+                                           options:UIViewAnimationOptionTransitionFlipFromLeft
+                                        animations:^{ [UIApplication sharedApplication].keyWindow.rootViewController = viewController; }
+                                        completion:nil];
+                    }
+                }
+                else {
+                    NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@", groupToLeave];
+                    [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+                }
+                
             }
-        }
-        else {
-            NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@", groupToLeave];
-            [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-        }
+        }];
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
@@ -276,16 +286,21 @@ static NSString *CellID = @"CellID";
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", @"") style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
             [[RLMRealm defaultRealm] beginWriteTransaction];
-            [self.group removeMember:contact];
+            [self.group removeMember:contact withCompletion:^(NSError *error) {
+                if(!error) {
+                    [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+                }
+            }];
             [[RLMRealm defaultRealm] commitWriteTransaction];
-            [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
-            
         }]];
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
         [self presentViewController:alert animated:YES completion:nil];
     }
 }
 
+-(NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return @"Remove";
+}
 
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

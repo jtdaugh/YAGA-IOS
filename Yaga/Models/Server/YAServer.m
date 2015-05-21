@@ -16,8 +16,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #import "YAServer+HostManagment.h"
+#import "MBProgressHUD.h"
 
-#ifdef DEBUG
+//uncomment for debug server
+#define DEBUG_SERVER 1
+
+#if (DEBUG && DEBUG_SERVER)
 #define HOST @"https://api-dev.yagaprivate.com"
 #else
 #define HOST @"https://api.yagaprivate.com"
@@ -37,7 +41,7 @@
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
-#define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/members/mute/"
+#define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
 
 #define API_GROUP_MEMBERS_TEMPLATE          @"%@/groups/%@/members/"
 
@@ -109,6 +113,10 @@
         [requestSerializer setValue:tokenString forHTTPHeaderField:@"Authorization"];
         self.jsonOperationsManager.requestSerializer = requestSerializer;
     }
+}
+
+- (BOOL)hasAuthToken {
+    return self.authToken.length;
 }
 
 - (void)setPhoneNumber:(NSString *)phoneNumber
@@ -198,8 +206,13 @@
 }
 
 #pragma mark - Groups
-- (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion
-{
+- (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
@@ -207,17 +220,25 @@
     NSDictionary *parameters = @{
                                  @"name": groupName
                                  };
-    
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Creating group", @"")];
     [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-        
+        [hud hide:NO];
         completion(dict, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:NSLocalizedString(@"Can not create group", @"")];
         completion(nil, error);
     }];
 }
 
 - (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"group not synchronized with server yet");
     
@@ -242,20 +263,36 @@
     [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Adding members", @"")];
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
                                
-                               if([(NSHTTPURLResponse*)response statusCode] == 200)
+                               [hud hide:NO];
+                               
+                               if([(NSHTTPURLResponse*)response statusCode] == 200) {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Members added", @"")];
                                    completion(nil, nil);
+                               }
                                else {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Can not add members", @"")];
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                                   completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   
+                                   if(response)
+                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   else
+                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
                                }
                            }];
 }
 
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
@@ -277,22 +314,90 @@
     [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Removing members", @"")];
+    
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
                                
-                               if([(NSHTTPURLResponse*)response statusCode] == 200)
+                               [hud hide:NO];
+                               
+                               if([(NSHTTPURLResponse*)response statusCode] == 200) {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Member removed", @"")];
                                    completion(nil, nil);
+                               }
                                else {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Can not remove member", @"")];
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                                   completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   if(response)
+                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   else
+                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
                                }
 
                            }];
 }
 
 
+- (void)leaveGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
+    NSAssert(self.authToken.length, @"auth token not set");
+    NSAssert(serverGroupId, @"serverGroup is a required parameter");
+    
+    NSDictionary *parameters = @{
+                                 @"phone": [YAUser currentUser].phoneNumber
+                                 };
+    
+    id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
+    
+    NSString *api = [NSString stringWithFormat:API_GROUP_MEMBERS_TEMPLATE, self.base_api, serverGroupId];
+    
+    NSURL *url = [NSURL URLWithString:api];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"DELETE"];
+    
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
+    [request setHTTPBody:json];
+    
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Leaving group", @"")];
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               
+                               [hud hide:NO];
+                               
+                               if([(NSHTTPURLResponse*)response statusCode] == 200) {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Group left", @"")];
+                                   completion(nil, nil);
+                               }
+                               else {
+                                   [YAUtils showHudWithText:NSLocalizedString(@"Can not leave group", @"")];
+                                   NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                                   if(response)
+                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   else
+                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
+                               }
+                               
+                           }];
+}
+
 - (void)renameGroupWithId:(NSString*)serverGroupId newName:(NSString*)newName withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
@@ -302,9 +407,14 @@
                                  @"name": newName
                                  };
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Renaming group", @"")];
     [self.jsonOperationsManager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:NSLocalizedString(@"Group renamed", @"")];
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:NSLocalizedString(@"Can not rename group", @"")];
         completion(nil, error);
     }];
 }
@@ -329,18 +439,29 @@
 }
 
 - (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion  {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
     NSString *api = [NSString stringWithFormat:API_MUTE_GROUP_TEMPLATE, self.base_api, serverGroupId];
     
     NSDictionary *parameters = @{
-                                 @"mute": [NSNumber numberWithBool:mute]
+                                 @"mute": mute ? @"true" : @"false"
                                  };
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:mute ? NSLocalizedString(@"Muting group", @"") : NSLocalizedString(@"Unmuting group", @"")];
     [self.jsonOperationsManager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:mute ? NSLocalizedString(@"Group muted", @"") : NSLocalizedString(@"Group unmuted", @"")];
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:mute ? NSLocalizedString(@"Can not mute group", @"") : NSLocalizedString(@"Can not unmute group", @"")];
         completion(nil, error);
     }];
 }
@@ -411,6 +532,9 @@
                                [video.realm beginWriteTransaction];
                                video.serverId = @"";
                                [video.realm commitWriteTransaction];
+                           }
+                           else {
+                               [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_UPLOAD object:video];
                            }
                            
                            //call completion block when video is posted
@@ -553,7 +677,10 @@
                                    completion(nil, nil);
                                else {
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                                   completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   if(response)
+                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   else
+                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
                                }
 
                            }];

@@ -14,6 +14,7 @@
 #import "YAActivityView.h"
 #import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
+#import "YAServerTransactionQueue.h"
 
 #define LIKE_HEART_SIDE 40.f
 
@@ -26,13 +27,15 @@
 @property (nonatomic, assign) YAVideoCellState state;
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
 
-@property (strong, nonatomic) UIView *loader;
-@property (strong, nonatomic) NSTimer *loaderTimer;
-@property (strong, nonatomic) NSMutableArray *loaderTiles;
+@property (strong, nonatomic) UIImageView *loader;
 
 @property (strong, nonatomic) UILabel *bigUsernameLabel;
 @property (strong, nonatomic) UILabel *smallUsernameLabel;
 @property (strong, nonatomic) UILabel *caption;
+
+@property (strong, atomic) NSString *gifFilename;
+
+@property (strong, nonatomic) YAActivityView *uploadingView;
 
 @end
 
@@ -41,8 +44,6 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        
-        
         _gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
         _gifView.contentMode = UIViewContentModeScaleAspectFill;
         _gifView.clipsToBounds = YES;
@@ -56,40 +57,37 @@
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
-        self.loader = [[UIView alloc] initWithFrame:self.bounds];
-//        [self.loader setBackgroundColor:PRIMARY_COLOR];
-        self.loaderTiles = [[NSMutableArray alloc] init];
-        CGFloat lwidth = self.loader.frame.size.width/((float)LOADER_WIDTH);
-        CGFloat lheight = self.loader.frame.size.height/((float)LOADER_HEIGHT);
-        
-        for(int i = 0; i < LOADER_WIDTH*LOADER_HEIGHT; i++){
-            
-            int xPos = i%LOADER_WIDTH;
-            int yPos = i/LOADER_HEIGHT;
-            
-            UIView *loaderTile = [[UIView alloc] initWithFrame:CGRectMake(xPos * lwidth, yPos*lheight, lwidth, lheight)];
-            [self.loader addSubview:loaderTile];
-            [self.loaderTiles addObject:loaderTile];
+        self.loader = [[UIImageView alloc] initWithFrame:self.bounds];
+        NSMutableArray *loaderImages = [NSMutableArray new];
+        for(NSUInteger loaderImageIndex = 1; loaderImageIndex < 11; loaderImageIndex++) {
+            UIImage *loaderImage = [UIImage imageNamed:[NSString stringWithFormat:@"loader%lu.png", (unsigned long)loaderImageIndex]];
+            [loaderImages addObject:loaderImage];
         }
-        
-        [self addSubview:self.loader];
-        
+                
         self.bigUsernameLabel = [[UILabel alloc] initWithFrame:self.bounds];
         [self.bigUsernameLabel setTextAlignment:NSTextAlignmentCenter];
         [self.bigUsernameLabel setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
-        [self addSubview:self.bigUsernameLabel];
+        [self.contentView addSubview:self.bigUsernameLabel];
         
         CGFloat usernameMargin = 8.f;
         self.smallUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(usernameMargin, 0 ,self.frame.size.width - (2*usernameMargin), 36.f)];
         [self.smallUsernameLabel setFont:[UIFont boldSystemFontOfSize:22.f]];
-        [self addSubview:self.smallUsernameLabel];
+        [self.contentView addSubview:self.smallUsernameLabel];
+
+        self.loader.animationImages = loaderImages;
+        self.loader.animationDuration = 1.0;
+        [self.loader startAnimating];
+        self.backgroundView = self.loader;
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
         [self.caption setNumberOfLines:3];
         [self.caption setTextAlignment:NSTextAlignmentCenter];
         [self.caption setTextColor:PRIMARY_COLOR];
-//        [self addSubview:self.caption];
+
+        [self.contentView addSubview:self.caption];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
     }
     return self;
 }
@@ -118,6 +116,7 @@
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
 }
 
 #pragma mark -
@@ -127,6 +126,8 @@
         return;
 
     _video = video;
+    
+    self.gifFilename = self.video.gifFilename;
     
     [self updateState];
 }
@@ -144,19 +145,22 @@
 }
 
 - (void)updateCell {
+    [self updateCaptionAndUsername];
+    
     switch (self.state) {
         case YAVideoCellStateLoading: {
-            [self showLoader:YES];
+            //[self showLoader:YES];
             break;
         }
         case YAVideoCellStateJPEGPreview: {
-            [self showLoader:YES];
+            //[self showLoader:YES];
+            
+            //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
             [self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
             break;
         }
         case YAVideoCellStateGIFPreview: {
             //loading is removed when gif is shown in showImageAsyncFromFilename
-            [self showLoader:NO];
             [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
             break;
         }
@@ -164,6 +168,11 @@
             break;
         }
     }
+    
+    //uploading progress
+    BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
+    [self showUploadingProgress:uploadInProgress];
+ 
 }
 
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
@@ -186,10 +195,19 @@
                 image = [UIImage imageWithData:fileData];
             
             if(image) {
-                [[YAImageCache sharedCache] setObject:image forKey:fileName];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self showCachedImage:image animatedImage:animatedImage];
-                });
+                if([self.gifFilename isEqualToString:fileName]) {
+                    [[YAImageCache sharedCache] setObject:image forKey:fileName];
+
+                    dispatch_async(dispatch_get_main_queue(), ^(){
+                        //Add method, task you want perform on mainQueue
+                        //Control UIView, IBOutlet all here
+                        
+                        [self showCachedImage:image animatedImage:animatedImage];
+                    });
+                }
+                else {
+                    //invalidated.. no need to redraw and cache.
+                }
             }
         });
     }
@@ -221,23 +239,34 @@
     self.loader.hidden = !show;
     self.bigUsernameLabel.hidden = !show;
     self.smallUsernameLabel.hidden = show;
-    self.caption.hidden = show;
 
-    [self updateCaptionAndUsername];
+
+    if(!self.loader.hidden && !self.loader.isAnimating)
+        [self.loader startAnimating];
     
-    if(show){
-        if(!self.loaderTimer){
-            self.loaderTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1
-                                                                target: self
-                                                              selector:@selector(loaderTick:)
-                                                              userInfo: nil repeats:YES];
-            [[NSRunLoop mainRunLoop] addTimer:self.loaderTimer forMode:NSRunLoopCommonModes];
-        }
-    } else {
-        if([self.loaderTimer isValid]){
-            [self.loaderTimer invalidate];
-        }
-        self.loaderTimer = nil;
+    // self.username.hidden = !show;
+    self.caption.hidden = NO;
+    
+    [self updateCaptionAndUsername];
+}
+
+- (void)showUploadingProgress:(BOOL)show {
+    if(show && !self.uploadingView) {
+        const CGFloat monkeyWidth = 50;
+        self.uploadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, monkeyWidth, monkeyWidth)];
+        self.uploadingView.center = self.center;
+        [self addSubview:self.uploadingView];
+        [self.uploadingView startAnimating];
+    }
+    else {
+        [self.uploadingView removeFromSuperview];
+        self.uploadingView = nil;
+    }
+}
+
+- (void)didUploadVideo:(NSNotification*)notif {
+    if([self.video isEqual:notif.object]) {
+        [self showUploadingProgress:NO];
     }
 }
 
@@ -259,26 +288,6 @@
         self.smallUsernameLabel.attributedText = text;
         [self.smallUsernameLabel setTextColor:self.bigUsernameLabel.textColor];
     }
-
-
-}
-
-- (void)loaderTick:(NSTimer *)timer {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //Your main thread code goes in here
-        for(UIView *v in self.loaderTiles){
-            UIColor *p = PRIMARY_COLOR;
-            p = [p colorWithAlphaComponent:(arc4random() % 128 / 256.0)];
-//            CGFloat hue = ( arc4random() % 256 / 256.0 );  //  0.0 to 1.0
-//            CGFloat saturation = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from white
-//            CGFloat brightness = ( arc4random() % 128 / 256.0 ) + 0.5;  //  0.5 to 1.0, away from black
-//            UIColor *color = [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:1];
-//            
-            [v setBackgroundColor:p];
-        }
-
-    });
-//    NSLog(@"loader tick!");
 }
 
 #pragma mark - UITapGestureRecognizer actions

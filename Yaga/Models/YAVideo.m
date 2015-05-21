@@ -42,6 +42,10 @@
              @"localCreatedAt":[NSDate date]};
 }
 
++ (NSArray *)indexedProperties {
+    return @[@"gifUrl", @"url"];
+}
+
 + (NSString *)primaryKey {
     return @"localId";
 }
@@ -103,6 +107,9 @@
 }
 
 - (void)purgeLocalAssets {
+    if(self.invalidated)
+        return;
+    
     NSMutableArray *urlsToDelete = [NSMutableArray new];
     if(self.mp4Filename.length)
         [urlsToDelete addObject:[YAUtils urlFromFileName:self.mp4Filename]];

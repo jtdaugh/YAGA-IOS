@@ -31,10 +31,11 @@
     CGFloat origin = VIEW_HEIGHT *.025;
     
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.3)];
-    [titleLabel setText:@"Looks like you're not in any groups 😔. Create a group to start using Yaga"];
+    [titleLabel setText:NSLocalizedString(@"Looks like you're not in any groups 😔. Create a group to start using Yaga", @"")];
     [titleLabel setNumberOfLines:3];
     [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-
+    titleLabel.adjustsFontSizeToFitWidth = YES;
+    
     [titleLabel setTextAlignment:NSTextAlignmentCenter];
     [titleLabel setTextColor:[UIColor whiteColor]];
     [self.view addSubview:titleLabel];

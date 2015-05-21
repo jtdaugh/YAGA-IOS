@@ -19,6 +19,8 @@
 #import "MBProgressHUD.h"
 #import "OrderedDictionary.h"
 #import "YAPanGestureRecognizer.h"
+#import "YADownloadManager.h"
+#import "YAServerTransactionQueue.h"
 
 #define CAPTION_FONT_SIZE 60.0
 #define CAPTION_STROKE_WIDTH 1.f
@@ -45,9 +47,14 @@
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
+
 @property (nonatomic, strong) UILabel *likeCaptionToolTipLabel;
 @property (nonatomic, strong) UILabel *swipeDownTooltipLabel;
 
+@property (nonatomic, strong) YAActivityView *uploadingView;
+
+@property BOOL loading;
+@property (strong, nonatomic) UIView *loader;
 @property (nonatomic, strong) YAProgressView *progressView;
 @property (nonatomic) CGRect keyboardRect;
 @property (nonatomic, strong) UIButton *keyBoardAccessoryButton;
@@ -106,6 +113,9 @@
     self = [super initWithFrame:frame];
     if(self) {
         //self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
+        self.loader = [[UIView alloc] initWithFrame:self.bounds];
+        [self addSubview:self.loader];
+
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
         [self addSubview:self.playerView];
@@ -128,6 +138,8 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShown:) name:UIKeyboardDidShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
         
         [self initOverlayControls];
         [self initLikeCaptionTooltip];
@@ -174,6 +186,14 @@
     if(shouldPreload) {
         [self prepareVideoForPlaying];
     }
+    else {
+        [self addFullscreenJpgPreview];
+    }
+    
+    //uploading progress
+    BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
+    [self showUploadingProgress:uploadInProgress];
+
 }
 
 - (void)prepareVideoForPlaying {
@@ -191,14 +211,14 @@
     
     self.playerView.frame = self.bounds;
     
-    //add fullscreen jpg preview
     [self addFullscreenJpgPreview];
 }
 
 - (void)addFullscreenJpgPreview {
     if([self.playerView isPlaying])
        return;
-       
+    
+    //add preview if there is one
     if(self.video.jpgFullscreenFilename.length) {
         UIImageView *jpgImageView;
         
@@ -214,14 +234,10 @@
         UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
         jpgImageView.image = jpgImage;
     }
-}
-
-- (void)showLoading:(BOOL)show {
-    if(show) {
-        self.progressView.hidden = NO;
-    }
-    else {
-        self.progressView.hidden = YES;
+    //remove if no preview for current video
+    else if(self.playerView.subviews.count) {
+        UIImageView *jpgImageView = self.playerView.subviews[0];
+        [jpgImageView removeFromSuperview];
     }
 }
 
@@ -236,6 +252,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextInputCurrentInputModeDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
 }
 
 - (void)initLikeCaptionTooltip {
@@ -368,12 +385,14 @@
     self.timestampLabel.layer.shadowOffset = CGSizeZero;
     [self.overlay addSubview:self.timestampLabel];
     
+
 //    CGFloat tSize = CAPTION_FONT_SIZE;
 //    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
 //    [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
 //    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
 //    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
 ////    [self addSubview:self.captionButton];
+
     
     CGFloat saveSize = 36;
     self.shareButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - saveSize - 15, 15, saveSize, saveSize)];
@@ -409,20 +428,25 @@
     [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
     [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
     
-    const CGFloat radius = 40;
-    self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
-    self.progressView.radius = radius;
-    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
-    progressBkgView.backgroundColor = [UIColor clearColor];
-    self.progressView.backgroundView = progressBkgView;
-    
-    self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self addSubview:self.progressView];
-    
-    NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
-    
+//    const CGFloat radius = 40;
+//    self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
+//    self.progressView.radius = radius;
+//    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.bounds];
+//    progressBkgView.backgroundColor = [UIColor clearColor];
+//    self.progressView.backgroundView = progressBkgView;
+//    
+//    self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
+//    [self addSubview:self.progressView];
+//    
+//    NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
+//    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+//    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
+//    
+//    self.progressView.indeterminate = NO;
+//    self.progressView.lineWidth = 4;
+//    self.progressView.showsText = NO;
+//    self.progressView.tintColor = [UIColor whiteColor];
+
     self.progressView.indeterminate = NO;
     self.progressView.lineWidth = 4;
     self.progressView.showsText = NO;
@@ -1320,14 +1344,12 @@
 
 - (void)updateControls {
     
-//    self.captionField.hidden = NO;
-    self.captionButton.hidden = NO;
-    self.shareButton.hidden = NO;
-    
+   
     BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !myVideo;
-    //    self.shareButton.hidden = !myVideo;
     
+    BOOL mp4Downloaded = self.video.mp4Filename.length;
+
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:self.video.creator attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
@@ -1347,8 +1369,13 @@
 //        [self.captionerLabel setText:@""];
 //    }
     
-//    [self resizeText];
-    
+    // self.captionField.hidden = !mp4Downloaded;
+    // self.captionerLabel.hidden = !mp4Downloaded || !self.captionField.text.length;
+    self.captionButton.hidden = !mp4Downloaded;
+    self.shareButton.hidden = !mp4Downloaded;
+    BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
+    self.deleteButton.hidden = !mp4Downloaded && !myVideo;
+
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
     
@@ -1357,6 +1384,10 @@
     
     //get likers for video
     
+//    if(self.video.mp4Filename.length) {
+//        [self showProgress:NO];
+//    }
+    
 }
 
 - (void)shareButtonPressed {
@@ -1364,7 +1395,7 @@
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self animated:YES];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
     hud.labelText = NSLocalizedString(@"Exporting", @"");
     hud.mode = MBProgressHUDModeIndeterminate;
     
@@ -1404,34 +1435,90 @@
 
 #pragma mark - YAProgressView
 - (void)downloadDidStart:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
-        [self showProgress:YES];
-    }
+//    NSOperation *op = notif.object;
+//    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+//        [self showProgress:YES];
+//    }
 }
 
 - (void)downloadDidFinish:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
-        [self showProgress:NO];
-    }
+//    NSOperation *op = notif.object;
+//    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+//        [self showProgress:NO];
+//    }
 }
 
 - (void)showProgress:(BOOL)show {
-    self.progressView.backgroundView.hidden = !show;
+//    self.progressView.hidden = !show;
+//    if(!self.progressView.hidden) {
+//        if(self.video.url.length) {
+//            [self.progressView setProgress:[[[YADownloadManager sharedManager].mp4DownloadProgress objectForKey:self.video.url] floatValue] animated:NO];
+//        }
+//        else {
+//            [self.progressView setProgress:0 animated:NO];
+//        }
+//        
+//        [self.progressView setCustomText:@""];
+//    }
 }
+
+- (void)showLoading:(BOOL)show {
+    
+    //used to show spinning monkey while video asset is loading, currently does nothing
+    if(self.loading){
+        if(!show){
+            [self.loader.layer removeAllAnimations];
+            self.loading = NO;
+        }
+    } else {
+        if(show){
+            [self.loader setBackgroundColor:[UIColor blackColor]];
+            [self.loader setAlpha:0.0];
+            [UIView animateWithDuration:0.2 delay:0.0 options:(UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat | UIViewAnimationOptionBeginFromCurrentState) animations:^{
+                //
+                [self.loader setAlpha:0.2];
+            } completion:^(BOOL finished) {
+                //
+            }];
+            
+            self.loading = YES;
+        }
+    }
+}
+
 
 - (void)downloadProgressChanged:(NSNotification*)notif {
     NSString *url = notif.object;
     if(![self.video isInvalidated] && [url isEqualToString:self.video.url]) {
         
-        if(self.progressView) {
-            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
-            [self.progressView setProgress:value.floatValue animated:NO];
-            [self.progressView setCustomText:self.video.creator];
-        }
+//        if(self.progressView) {
+//            NSNumber *value = notif.userInfo[kVideoDownloadNotificationUserInfoKey];
+//            [self.progressView setProgress:value.floatValue animated:YES];
+//            [self.progressView setCustomText:@""];
+//        }
     }
 }
+
+- (void)showUploadingProgress:(BOOL)show {
+    if(show && !self.uploadingView) {
+        CGRect frame = self.deleteButton.frame;
+        frame.origin.x -= self.deleteButton.frame.size.width;
+        self.uploadingView = [[YAActivityView alloc] initWithFrame:frame];
+        [self addSubview:self.uploadingView];
+        [self.uploadingView startAnimating];
+    }
+    else {
+        [self.uploadingView removeFromSuperview];
+        self.uploadingView = nil;
+    }
+}
+
+- (void)didUploadVideo:(NSNotification*)notif {
+    if([self.video isEqual:notif.object]) {
+        [self showUploadingProgress:NO];
+    }
+}
+
 
 - (void)videoChanged:(NSNotification*)notif {
     if([notif.object isEqual:self.video] && !self.playerView.URL && self.shouldPreload && self.video.mp4Filename.length) {
@@ -1439,6 +1526,8 @@
         BOOL playWhenReady = self.playerView.playWhenReady;
         [self prepareVideoForPlaying];
         self.playerView.playWhenReady = playWhenReady;
+        
+        [self updateControls];
     }
 }
 
@@ -1518,6 +1607,7 @@
     [self.editableCaptionTextView resignFirstResponder];
     self.keyBoardAccessoryButton.hidden = YES;
 }
+
 
 @end
 

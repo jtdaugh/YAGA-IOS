@@ -143,6 +143,10 @@
     [self performSegueWithIdentifier:@"ShowGroupOptionsFromGrid" sender:self];
 }
 
+- (void)scrollToTop {
+    [self.collectionViewController.collectionView setContentOffset:CGPointMake(0, -1 * (VIEW_HEIGHT/2 - CAMERA_MARGIN)) animated:YES];
+}
+
 -(BOOL)prefersStatusBarHidden {
     return YES;
 }

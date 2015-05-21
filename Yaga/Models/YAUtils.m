@@ -7,14 +7,13 @@
 //
 
 #import "YAUtils.h"
-#import "NBPhoneNumberUtil.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import <Social/Social.h>
-#import "MBProgressHUD.h"
 #import "YAGifCreationOperation.h"
 #import "NSString+Hash.h"
+#import "NBNumberFormat.h"
 
 @interface YAUtils ()
 @property (copy) void (^acceptAction)();
@@ -98,6 +97,15 @@
     [hud showAnimated:YES whileExecutingBlock:^{
         [NSThread sleepForTimeInterval:1.0];
     }];
+}
+
++ (MBProgressHUD*)showIndeterminateHudWithText:(NSString*)text {
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:hud];
+    hud.labelText = text;
+    hud.mode = MBProgressHUDModeIndeterminate;
+    [hud show:YES];
+    return hud;
 }
 
 + (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error {
@@ -314,6 +322,40 @@
         default:
             break;
     }
+}
+
++ (NSString*)phoneNumberFromText:(NSString *)text numberFormat:(NBEPhoneNumberFormat)format {
+    if([text length] > 6){
+        NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
+    
+        
+        NSError *error = nil;
+        NBPhoneNumber *myNumber = [phoneUtil parse:text
+                                     defaultRegion:[YAUser currentUser].countryCode error:&error];
+        
+        if(error)
+            return nil;
+        
+        error = nil;
+        
+        NSString *text;
+        
+        if(format == NBEPhoneNumberFormatNATIONAL) {
+            NBNumberFormat *newNumFormat = [[NBNumberFormat alloc] init];
+            [newNumFormat setPattern:@"(\\d{2})(\\d{3})(\\d{4})"];
+            [newNumFormat setFormat:@"($1) $2-$3"];
+            
+            text = [phoneUtil formatByPattern:myNumber numberFormat:NBEPhoneNumberFormatNATIONAL userDefinedFormats:@[newNumFormat] error:&error];
+        }
+        else {
+            text = [phoneUtil format:myNumber numberFormat:format error:&error];
+        }
+        
+        if(!error && text.length)
+            return text;
+        
+    }
+    return nil;
 }
 
 @end

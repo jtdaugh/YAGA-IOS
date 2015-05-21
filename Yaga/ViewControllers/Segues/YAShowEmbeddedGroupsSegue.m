@@ -36,11 +36,10 @@
     [gridController.collectionViewController.view addGestureRecognizer:tapToClose2];
     groupsViewController.collectionTapToClose = tapToClose2;
     
-    
     [UIView animateWithDuration:0.25 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
         
         CGFloat origin = -gridController.cameraViewController.view.frame.size.height + ELEVATOR_MARGIN + recordButtonWidth / 2;
-        gridController.cameraViewController.view.frame = CGRectMake(0, origin, VIEW_WIDTH, gridController.cameraViewController.view.frame.size.height);
+        //gridController.cameraViewController.view.frame = CGRectMake(0, origin, VIEW_WIDTH, gridController.cameraViewController.view.frame.size.height);
         
         [gridController.cameraViewController showCameraAccessories:NO];
         
@@ -58,6 +57,8 @@
     } completion:^(BOOL finished) {
         gridController.elevatorOpen = YES;
         gridController.cameraViewController.cameraView.tapToFocusRecognizer.enabled = NO;
+        [gridController.cameraViewController enableScrollToTop:YES];
+        
     }];
 }
 

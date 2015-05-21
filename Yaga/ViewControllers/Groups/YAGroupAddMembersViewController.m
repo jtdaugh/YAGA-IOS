@@ -29,6 +29,7 @@
 @end
 
 #define kSearchedByUsername @"SearchedByUsername"
+#define kSearchedByPhone    @"SearchedByPhone"
 
 @implementation YAGroupAddMembersViewController
 
@@ -183,6 +184,10 @@
         cell.textLabel.text = [NSString stringWithFormat:@"Add @%@", contact[nUsername]];
         cell.detailTextLabel.text = @"";
     }
+    else if([contact[kSearchedByPhone] boolValue]) {
+        cell.textLabel.text = [NSString stringWithFormat:@"Add %@", contact[nUsername]];
+        cell.detailTextLabel.text = @"";
+    }
     //existing phone book contacts
     else {
         cell.textLabel.text = contact[nCompositeName];
@@ -257,6 +262,8 @@
     id contact = self.selectedContacts[index];
     if([contact[kSearchedByUsername] boolValue])
         return contact[nUsername];
+    else if([contact[kSearchedByPhone] boolValue])
+        return contact[nUsername];
     else
         return contact[nCompositeName];
 }
@@ -284,8 +291,13 @@
         [self.filteredContacts removeAllObjects];
         [self.membersTableview reloadData];
         
-        //search by username
-        if([text rangeOfString:@" "].location == NSNotFound) {
+        //add by phone
+        NSString *phone = [YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatE164];
+        if(phone) {
+            [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nRegistered:[NSNumber numberWithBool:NO], nUsername:[YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatNATIONAL],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
+        }
+        //add by username
+        else if([text rangeOfString:@" "].location == NSNotFound) {
             if(text.length > 2) {
                 
                 NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
@@ -346,51 +358,59 @@
     }];
     self.inOnboarding = !found;
     
+    __weak typeof(self) weakSelf = self;
+    
     if(self.existingGroup && self.existingGroupDirty) {
         // Existing Group
-        [self.existingGroup addMembers:self.selectedContacts];
-        [[Mixpanel sharedInstance] track:@"Group changed" properties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
+        [self.existingGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
+            if(!error) {
+                [[Mixpanel sharedInstance] track:@"Group changed" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
+                
+                weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
+                if (![weakSelf.contactsThatNeedInvite count]) {
+                    
+                    [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+                    
+                    NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), weakSelf.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
+                    
+                    [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+                } else {
+                    // Push the invite screen
+                    YAInviteViewController *nextVC = [YAInviteViewController new];
+                    nextVC.inOnboardingFlow = NO;
+                    nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
+                    [weakSelf.navigationController pushViewController:nextVC animated:YES];
+                }
+            }
 
-        self.contactsThatNeedInvite = [self filterContactsToInvite];
-        if (![self.contactsThatNeedInvite count]) {
-            
-            [self.navigationController popToRootViewControllerAnimated:YES];
-            
-            NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), self.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
-            
-            [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-        } else {
-            // Push the invite screen
-            YAInviteViewController *nextVC = [YAInviteViewController new];
-            nextVC.inOnboardingFlow = NO;
-            nextVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
-            [self.navigationController pushViewController:nextVC animated:YES];
-        }
+        }];
     }
     else {
         // New group
-        
-        [[YAUser currentUser].currentGroup addMembers:self.selectedContacts];
-        [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:self.selectedContacts.count]}];
-        
-        self.contactsThatNeedInvite = [self filterContactsToInvite];
-        if (![self.contactsThatNeedInvite count]) {
-            if (self.inOnboarding) {
-                [self performSegueWithIdentifier:@"CompleteOnboarding" sender:self];
-            } else {
-                [self.navigationController popToRootViewControllerAnimated:YES];
+        [[YAUser currentUser].currentGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
+            if(!error) {
+                [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
+                
+                weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
+                if (![weakSelf.contactsThatNeedInvite count]) {
+                    if (weakSelf.inOnboarding) {
+                        [weakSelf performSegueWithIdentifier:@"CompleteOnboarding" sender:weakSelf];
+                    } else {
+                        [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+                    }
+                } else {
+                    if (weakSelf.inOnboarding) {
+                        [weakSelf performSegueWithIdentifier:@"ShowInviteScreen" sender:weakSelf];
+                    } else {
+                        // Push the invite screen
+                        YAInviteViewController *nextVC = [YAInviteViewController new];
+                        nextVC.inOnboardingFlow = NO;
+                        nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
+                        [weakSelf.navigationController pushViewController:nextVC animated:YES];
+                    }
+                }
             }
-        } else {
-            if (self.inOnboarding) {
-                [self performSegueWithIdentifier:@"ShowInviteScreen" sender:self];
-            } else {
-                // Push the invite screen
-                YAInviteViewController *nextVC = [YAInviteViewController new];
-                nextVC.inOnboardingFlow = NO;
-                nextVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
-                [self.navigationController pushViewController:nextVC animated:YES];
-            }
-        }
+        }];
     }
 }
 

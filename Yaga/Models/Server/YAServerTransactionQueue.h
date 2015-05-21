@@ -14,12 +14,14 @@
 
 + (instancetype)sharedQueue;
 
-- (void)addCreateTransactionForGroup:(YAGroup*)group;
-- (void)addRenameTransactionForGroup:(YAGroup*)group;
-- (void)addAddMembersTransactionForGroup:(YAGroup*)group phones:(NSArray*)phones usernames:(NSArray*)usernames;
-- (void)addRemoveMemberTransactionForGroup:(YAGroup*)group memberPhoneToRemove:(NSString*)memberPhone;
-- (void)addLeaveGroupTransactionForGroupId:(NSString*)groupId;
-- (void)addMuteUnmuteTransactionForGroup:(YAGroup*)group;
+//- (void)addCreateTransactionForGroup:(YAGroup*)group;
+//- (void)addRenameTransactionForGroup:(YAGroup*)group;
+
+//- (void)addAddMembersTransactionForGroup:(YAGroup*)group phones:(NSArray*)phones usernames:(NSArray*)usernames;
+//- (void)addRemoveMemberTransactionForGroup:(YAGroup*)group memberPhoneToRemove:(NSString*)memberPhone;
+
+//- (void)addLeaveGroupTransactionForGroupId:(NSString*)groupId;
+//- (void)addMuteUnmuteTransactionForGroup:(YAGroup*)group;
 - (void)addUploadVideoTransaction:(YAVideo*)video toGroup:(YAGroup*)group;
 - (void)addDeleteVideoTransaction:(NSString*)videoId forGroupId:(NSString*)groupId;
 - (void)addUpdateVideoCaptionTransaction:(YAVideo*)video;
@@ -30,8 +32,10 @@
 //Debug
 - (void)clearTransactionQueue;
 
+//pending transactions
 - (BOOL)hasPendingAddTransactionForContact:(YAContact*)contact;
 - (BOOL)hasPendingAddTransactionForGroup:(YAGroup*)group;
+- (BOOL)hasPendingUploadTransactionForVideo:(YAVideo *)video;
 
 - (void)waitForAllTransactionsToFinish;
 @end

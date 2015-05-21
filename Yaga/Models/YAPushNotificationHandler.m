@@ -11,6 +11,7 @@
 
 #import "YAGroup.h"
 #import "YAUser.h"
+#import "YAServer.h"
 
 @interface YAPushNotificationHandler ()
 @property (nonatomic, strong) NSDictionary *meta;
@@ -41,6 +42,9 @@
 }
 
 - (void)handlePushWithUserInfo:(NSDictionary*)userInfo {
+    if(![[YAServer sharedServer] hasAuthToken])
+        return;
+    
     NSDictionary *meta = userInfo[@"meta"];
     
     if(!meta.allKeys.count)

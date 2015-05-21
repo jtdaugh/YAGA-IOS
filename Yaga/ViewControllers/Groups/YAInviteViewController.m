@@ -156,7 +156,6 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [YAUtils instance].cameraNeedsRefresh = YES;
     self.quoteTimer = [NSTimer scheduledTimerWithTimeInterval:2.f target:self selector:@selector(switchToNextQuote) userInfo:nil repeats:YES];
 }
 
@@ -198,8 +197,8 @@
         [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
     } else {
         [self.navigationController popToRootViewControllerAnimated:YES];
-        NSString *notificationMessage = NSLocalizedString(@"Group updated successfully", @"");
-        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+//        NSString *notificationMessage = NSLocalizedString(@"Group updated successfully", @"");
+//        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
     }
 }
 
@@ -278,7 +277,7 @@
         case MessageComposeResultSent:
             [self.camViewController.cameraView setSession:nil];
             [[Mixpanel sharedInstance] track:@"iMessage sent"];
-            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
+//            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
             if (self.inOnboardingFlow) {
                 [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
             } else {

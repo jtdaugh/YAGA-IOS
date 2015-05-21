@@ -131,8 +131,6 @@
     self.flashButton.frame = CGRectMake(10, 10, size, size);
     self.recordButton.frame = CGRectMake(self.view.frame.size.width/2.0 - recordButtonWidth/2.0, self.view.frame.size.height - (recordButtonWidth+10), recordButtonWidth, recordButtonWidth);
     
-    [self initCamera];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(willEnterForeground)
                                                  name:UIApplicationWillEnterForegroundNotification
@@ -142,18 +140,18 @@
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
-
-
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self initCamera];
+    });
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-    [self closeCamera];
-}
-
-- (void)dealloc {
-    [self closeCamera];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self closeCamera];
+    });
 }
 
 - (void)enableRecording:(BOOL)enable {

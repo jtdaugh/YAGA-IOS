@@ -17,14 +17,10 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateVideoPreview,
 };
 
-@interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate>
+@interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate, FLAnimatedImageDebugDelegate>
 
 @property (nonatomic) NSInteger index;
 @property (nonatomic, strong) YAVideo *video;
-//@property (nonatomic, strong) UILabel *toolTipLabel;
 
 - (void)animateGifView:(BOOL)animate;
-
-//- (void)invalidateVideoPlayer;
-
 @end

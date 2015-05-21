@@ -49,6 +49,8 @@ typedef enum {
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
 
+@property (strong, nonatomic) UIButton *infoButton;
+
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressFullScreenGestureRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressRedButtonGestureRecognizer;
 @property (nonatomic) BOOL audioInputAdded;
@@ -69,6 +71,7 @@ typedef enum {
 @property (strong, nonatomic) UIView *trashZone;
 @property (nonatomic, strong) UITapGestureRecognizer *switchCamZoneTapRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *trashZoneTapRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *scrollToTopTapRecognizer;
 @property (nonatomic, strong) NSTimer *accidentalDragOffscreenTimer;
 
 @property (strong, nonatomic) NSTimer *countdown;
@@ -82,8 +85,6 @@ typedef enum {
 - (id)init {
     self = [super init];
     if(self) {
-        [YAUtils instance].cameraNeedsRefresh = YES; // So we set up the vid session initially.
-        
         self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
         self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2);
         [self.cameraView setBackgroundColor:[UIColor blackColor]];
@@ -168,6 +169,16 @@ typedef enum {
         [self.cameraAccessories addObject:self.switchGroupsButton];
         [self.cameraView addSubview:self.switchGroupsButton];
         
+        CGFloat infoSize = 36;
+        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(4, self.cameraView.frame.size.height - infoSize - 4, infoSize, infoSize)];
+        //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.infoButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
+        [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
+        [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        
+        [self.cameraAccessories addObject:self.infoButton];
+        [self.cameraView addSubview:self.infoButton];
+        
         CGFloat labelWidth = 96;
         self.countdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, labelWidth)];
         self.countdownLabel.alpha = 0.0;
@@ -250,6 +261,8 @@ typedef enum {
         
         [self.cameraView addSubview:self.trashZone];
         
+        [self enableScrollToTop:YES];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
                                                      name:UIApplicationWillEnterForegroundNotification
@@ -331,18 +344,41 @@ typedef enum {
     return self;
 }
 
+- (void)cameraViewTapped:(id)sender {
+    [self.delegate scrollToTop];
+}
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    if ([YAUtils instance].cameraNeedsRefresh) {
+    dispatch_async(dispatch_get_main_queue(), ^{
         [self initCamera];
-        [YAUtils instance].cameraNeedsRefresh = NO;
-    }
-    
-    [self enableRecording:YES];
+        
+        [self enableRecording:YES];
+        
+        [self updateCurrentGroupName];
+    });
+}
 
-    [self updateCurrentGroupName];
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self enableRecording:NO];
+        
+        [self closeCamera];
+    });
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //2 px view in the bottom
+    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height/2, self.view.bounds.size.width, 2)];
+    v.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    v.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:v];
+
 }
 
 - (void)dealloc {
@@ -387,7 +423,7 @@ typedef enum {
             self.session = [[AVCaptureSession alloc] init];
            
             [self.session beginConfiguration];
-            self.session.automaticallyConfiguresApplicationAudioSession = NO;
+//            self.session.automaticallyConfiguresApplicationAudioSession = NO;
             
             self.session.sessionPreset = AVCaptureSessionPreset640x480;
             
@@ -785,6 +821,13 @@ typedef enum {
         //        }
         
         
+        NSDate *recordingFinished = [NSDate date];
+        NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
+        
+        if(executionTime < 0.5){
+            self.cancelledRecording = YES;
+        }
+        
         [self stopRecordingVideo];
     }
 
@@ -846,18 +889,12 @@ typedef enum {
             RecordedSuccessfully = [value boolValue];
         }
     }
-    NSDate *recordingFinished = [NSDate date];
-    NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
     
     
     if (RecordedSuccessfully) {
         
         if(error) {
             [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:YANotificationTypeError];
-            return;
-        }
-        
-        if(executionTime < 0.5){
             return;
         }
 
@@ -1128,6 +1165,17 @@ typedef enum {
 - (void)openSettings:(id)sender {
     NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
     [[UIApplication sharedApplication] openURL:url];
+}
+
+- (void)enableScrollToTop:(BOOL)enable {
+    if(enable && ! self.scrollToTopTapRecognizer) {
+        self.scrollToTopTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cameraViewTapped:)];
+        [self.cameraView addGestureRecognizer:self.scrollToTopTapRecognizer];
+    }
+    else {
+        [self.cameraView removeGestureRecognizer:self.scrollToTopTapRecognizer];
+        self.scrollToTopTapRecognizer = nil;
+    }
 }
 
 @end

@@ -9,15 +9,20 @@
 #import <UIKit/UIKit.h>
 
 @protocol YASuspendableGesturesDelegate <NSObject>
-
 - (void)suspendAllGestures;
 - (void)restoreAllGestures;
+@end
 
+@protocol YASwipingViewControllerDelegate <NSObject>
+- (void)swipingController:(id)controller scrollToIndex:(NSUInteger)index;
 @end
 
 @interface YASwipingViewController : UIViewController<UIScrollViewDelegate, YASuspendableGesturesDelegate>
+
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 - (id)initWithInitialIndex:(NSUInteger)initialIndex;
+@property (nonatomic, weak) id<YASwipingViewControllerDelegate> delegate;
+
 @end
 

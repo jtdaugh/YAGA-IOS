@@ -22,6 +22,8 @@
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
 
+#import "YAUserPermissions.h"
+
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;
@@ -120,6 +122,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    [self.navigationController setNavigationBarHidden:YES];
+    
     [self updateState];
     
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
@@ -156,12 +161,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
     self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
-    
-    [self.navigationController setNavigationBarHidden:YES];
 
     [self.tableView reloadData];
 
-    
     //size to fit table view
     if(!self.embeddedMode) {
         CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
@@ -174,6 +176,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    if(![YAUserPermissions pushPermissionsRequestedBefore])
+        [YAUserPermissions registerUserNotificationSettings];
     
     //load phonebook if it wasn't done before
     if(![YAUser currentUser].phonebook.count) {
@@ -296,7 +300,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 #pragma mark - Editing
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return !(self.embeddedMode && indexPath.row == self.groups.count);
+    return self.embeddedMode;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -356,36 +360,39 @@ static NSString *CellIdentifier = @"GroupsCell";
         
         BOOL groupWasActive = [[YAUser currentUser].currentGroup isEqual:group];
         
-        [group leave];
-        
-        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-        
-        if(groupWasActive) {
-            if(self.groups.count) {
-                [YAUser currentUser].currentGroup = self.groups[0];
-            }
-            else
-                [YAUser currentUser].currentGroup = nil;
-            
-            if([YAUser currentUser].currentGroup) {
-                NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@. Current group is %@.", groupToLeave, [YAUser currentUser].currentGroup.name];
-                [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-            }
-            else {
-                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-                UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"OnboardingNoGroupsNavigationController"];
+        [group leaveWithCompletion:^(NSError *error) {
+            if(!error) {
+                [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                 
-                [UIView transitionWithView:[UIApplication sharedApplication].keyWindow
-                                  duration:0.4
-                                   options:UIViewAnimationOptionTransitionFlipFromLeft
-                                animations:^{ [UIApplication sharedApplication].keyWindow.rootViewController = viewController; }
-                                completion:nil];
+                if(groupWasActive) {
+                    if(self.groups.count) {
+                        [YAUser currentUser].currentGroup = self.groups[0];
+                    }
+                    else
+                        [YAUser currentUser].currentGroup = nil;
+                    
+                    if([YAUser currentUser].currentGroup) {
+                        NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@. Current group is %@.", groupToLeave, [YAUser currentUser].currentGroup.name];
+                        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+                    }
+                    else {
+                        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+                        UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"OnboardingNoGroupsNavigationController"];
+                        
+                        [UIView transitionWithView:[UIApplication sharedApplication].keyWindow
+                                          duration:0.4
+                                           options:UIViewAnimationOptionTransitionFlipFromLeft
+                                        animations:^{ [UIApplication sharedApplication].keyWindow.rootViewController = viewController; }
+                                        completion:nil];
+                    }
+                }
+                else {
+                    NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@", groupToLeave];
+                    [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+                }
             }
-        }
-        else {
-            NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@", groupToLeave];
-            [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-        }
+        }];
+        
     }]];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {

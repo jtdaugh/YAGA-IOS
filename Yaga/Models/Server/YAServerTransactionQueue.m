@@ -296,6 +296,25 @@
     return NO;
 }
 
+- (BOOL)hasPendingUploadTransactionForVideo:(YAVideo *)video {
+    NSArray *pendingTransactions = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]];
+    
+    for(NSDictionary *transactionData in pendingTransactions) {
+        YAServerTransaction *transaction = [[YAServerTransaction alloc] initWithDictionary:transactionData];
+        
+        NSString *type = transaction.data[YA_TRANSACTION_TYPE];
+        
+        if(![type isEqualToString:YA_TRANSACTION_TYPE_UPLOAD_VIDEO])
+            continue;
+        
+        NSString *localVideoId = transaction.data[YA_VIDEO_ID];
+        if([localVideoId isEqualToString:video.localId])
+            return YES;
+        
+    }
+    return NO;
+}
+
 - (void)waitForAllTransactionsToFinish {
     while (self.transactionsData.count) {
         [NSThread sleepForTimeInterval:1.0];
@@ -303,5 +322,6 @@
     DLog(@"waitForAllTransactionsToFinish: all done.");
     return;
 }
+
 
 @end
