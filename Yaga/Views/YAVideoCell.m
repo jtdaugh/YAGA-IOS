@@ -29,7 +29,6 @@
 
 @property (strong, nonatomic) UIImageView *loader;
 
-@property (strong, nonatomic) UILabel *bigUsernameLabel;
 @property (strong, nonatomic) UILabel *smallUsernameLabel;
 @property (strong, nonatomic) UILabel *caption;
 
@@ -63,11 +62,6 @@
             UIImage *loaderImage = [UIImage imageNamed:[NSString stringWithFormat:@"loader%lu.png", (unsigned long)loaderImageIndex]];
             [loaderImages addObject:loaderImage];
         }
-                
-        self.bigUsernameLabel = [[UILabel alloc] initWithFrame:self.bounds];
-        [self.bigUsernameLabel setTextAlignment:NSTextAlignmentCenter];
-        [self.bigUsernameLabel setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
-        [self.contentView addSubview:self.bigUsernameLabel];
         
         CGFloat usernameMargin = 8.f;
         self.smallUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(usernameMargin, 0 ,self.frame.size.width - (2*usernameMargin), 36.f)];
@@ -237,7 +231,6 @@
 
 - (void)showLoader:(BOOL)show {
     self.loader.hidden = !show;
-    self.bigUsernameLabel.hidden = !show;
     self.smallUsernameLabel.hidden = show;
 
 
@@ -280,13 +273,11 @@
     }
     
     if(self.video.creator.length) {
-        self.bigUsernameLabel.attributedText = [self attributedStringFromString:self.video.creator font:nil];
-        [self.bigUsernameLabel setTextColor:[YAUtils UIColorFromUsernameString:self.video.creator]];
-        NSMutableAttributedString *text = [self.bigUsernameLabel.attributedText mutableCopy];
-        [text addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-3.0] range:NSMakeRange(0, text.length)];
+        NSMutableAttributedString *text = [self attributedStringFromString:self.video.creator font:nil];
+        [text addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-2.0] range:NSMakeRange(0, text.length)];
         self.smallUsernameLabel.textAlignment = self.index % 2 ? NSTextAlignmentRight : NSTextAlignmentLeft;
         self.smallUsernameLabel.attributedText = text;
-        [self.smallUsernameLabel setTextColor:self.bigUsernameLabel.textColor];
+        [self.smallUsernameLabel setTextColor:PRIMARY_COLOR];
     }
 }
 

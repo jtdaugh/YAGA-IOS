@@ -1373,7 +1373,7 @@
     // self.captionerLabel.hidden = !mp4Downloaded || !self.captionField.text.length;
     self.captionButton.hidden = !mp4Downloaded;
     self.shareButton.hidden = !mp4Downloaded;
-    BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
+
     self.deleteButton.hidden = !mp4Downloaded && !myVideo;
 
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
