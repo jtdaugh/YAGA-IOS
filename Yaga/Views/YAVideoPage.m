@@ -641,45 +641,31 @@
     if (!username) username = @"yaga";
 
     UIView *textWrapper = [[UIView alloc] initWithFrame:CGRectInfinite];
-    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectInfinite];
-    [textWrapper addSubview:textView];
-    
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
-                                                                                              }];
-    [textView setAttributedText:string];
-    [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
-    [textView setTextColor:PRIMARY_COLOR];
-    [textView setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
-    
-    [textView setTextAlignment:NSTextAlignmentCenter];
-    [textView setScrollEnabled:NO];
-    textView.textContainer.lineFragmentPadding = 0;
-    textView.textContainerInset = UIEdgeInsetsZero;
-    
+    UITextView *textView = [self textViewWithCaptionAttributes];
     textView.text = snapshot.value[@"text"];
+    textView.editable = NO;
     
     CGSize newSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
     CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
+    textView.frame = captionFrame;
+
     CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
                                      [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
-                                     newSize.width + (2*CAPTION_WRAPPER_INSET),
-                                     newSize.height + (2*CAPTION_WRAPPER_INSET));
-    
+                                     newSize.width + (2.f*CAPTION_WRAPPER_INSET),
+                                     newSize.height + (2.f*CAPTION_WRAPPER_INSET));
     textWrapper.frame = wrapperFrame;
-    textView.frame = captionFrame;
+
+    [textWrapper addSubview:textView];
     textWrapper.transform =CGAffineTransformFromString(snapshot.value[@"transform"]);
-    
+
+    [self.overlay addSubview:textWrapper];
+
     self.serverCaptionWrapperView = textWrapper;
     self.serverCaptionTextView = textView;
-    self.serverCaptionTextView.editable = NO;
     
     if ([[self gestureRecognizers] containsObject:self.captionTapRecognizer]) {
         [self removeGestureRecognizer:self.captionTapRecognizer];
     }
-    [self.serverCaptionWrapperView addSubview:self.serverCaptionTextView];
-    [self.overlay addSubview:self.serverCaptionWrapperView];
     
     [self.serverCaptionWrapperView addGestureRecognizer:self.captionTapRecognizer];
 
@@ -695,17 +681,29 @@
 
 - (void)updateCaptionFromSnapshot:(FDataSnapshot *)snapshot {
     if (snapshot.exists) {
+        self.serverCaptionWrapperView.alpha = 0;
         self.serverCaptionTextView.text = snapshot.value[@"text"];
         CGSize newSize = [self.serverCaptionTextView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
         CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
+        self.serverCaptionTextView.frame = captionFrame;
+
         CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
                                          [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
-                                         newSize.width + (2*CAPTION_WRAPPER_INSET),
-                                         newSize.height + (2*CAPTION_WRAPPER_INSET));
+                                         newSize.width + (2.f*CAPTION_WRAPPER_INSET),
+                                         newSize.height + (2.f*CAPTION_WRAPPER_INSET));
         
+        // If we dont set the transform to identity before adjusting the frame if fuxxs everything up.
+        self.serverCaptionWrapperView.transform = CGAffineTransformIdentity;
         self.serverCaptionWrapperView.frame = wrapperFrame;
-        self.serverCaptionTextView.frame = captionFrame;
-        self.serverCaptionWrapperView.transform =CGAffineTransformFromString(snapshot.value[@"transform"]);
+        
+        CGAffineTransform finalTransform = CGAffineTransformFromString(snapshot.value[@"transform"]);
+        self.serverCaptionWrapperView.transform = CGAffineTransformScale(finalTransform, 0.75, 0.75);
+
+        [UIView animateWithDuration:0.1 animations:^{
+            self.serverCaptionWrapperView.transform = finalTransform;
+            self.serverCaptionWrapperView.alpha = 0.75;
+        }];
+        
     } else {
         [self.serverCaptionWrapperView removeFromSuperview];
         self.serverCaptionWrapperView = nil;
@@ -781,10 +779,12 @@
 - (void)commitCurrentCaption {
     if (self.editableCaptionTextView) {
 
+        CGFloat vw = VIEW_WIDTH, vh = VIEW_HEIGHT;
+        
         NSDictionary *textData = @{
                                    @"type": @"text",
-                                   @"x":[NSNumber numberWithDouble: self.textFieldCenter.x/VIEW_WIDTH],
-                                   @"y":[NSNumber numberWithDouble: self.textFieldCenter.y/VIEW_HEIGHT],
+                                   @"x":[NSNumber numberWithDouble: self.textFieldCenter.x/vw],
+                                   @"y":[NSNumber numberWithDouble: self.textFieldCenter.y/vh],
                                    @"username":[YAUser currentUser].username,
                                    @"transform":NSStringFromCGAffineTransform(self.textFieldTransform),
                                    @"text":self.editableCaptionTextView.text
@@ -897,8 +897,8 @@
     CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
     CGRect wrapperFrame = CGRectMake(self.textFieldCenter.x - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
                                  self.textFieldCenter.y - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
-                                 newSize.width + (2*CAPTION_WRAPPER_INSET),
-                                 newSize.height + (2*CAPTION_WRAPPER_INSET));
+                                 newSize.width + (2.f*CAPTION_WRAPPER_INSET),
+                                 newSize.height + (2.f*CAPTION_WRAPPER_INSET));
 
     __weak YAVideoPage *weakSelf = self;
     
@@ -925,8 +925,9 @@
     return frame.size;
 }
 
-- (UITextView *)captionTextViewWithText:(NSString *)text {
-    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectInfinite];
+// returns the same text view, modified. dont need to use return type if u dont wanna
+- (UITextView *)textViewWithCaptionAttributes {
+    UITextView *textView = [UITextView new];
     textView.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
@@ -936,9 +937,6 @@
     [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
     [textView setTextColor:PRIMARY_COLOR];
     [textView setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
-    
-    //    [self.currentTextField setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
-    textView.text = text;
     
     [textView setTextAlignment:NSTextAlignmentCenter];
     [textView setAutocorrectionType:UITextAutocorrectionTypeNo];
@@ -956,8 +954,11 @@
     self.textFieldCenter = point;
     self.textFieldTransform = transform;
     self.editableCaptionWrapperView = [[UIView alloc] initWithFrame:CGRectInfinite];
-    self.editableCaptionTextView = [self captionTextViewWithText:text];
-    [self resizeTextAboveKeyboardWithAnimation:[text length] ? YES : NO];
+    
+    self.editableCaptionTextView = [self textViewWithCaptionAttributes];
+    self.editableCaptionTextView.text = text;
+    
+    [self resizeTextAboveKeyboardWithAnimation:NO];
     
     [self.editableCaptionWrapperView addSubview:self.editableCaptionTextView];
     [self.overlay addSubview:self.editableCaptionWrapperView];
