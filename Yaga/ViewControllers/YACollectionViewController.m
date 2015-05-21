@@ -51,6 +51,8 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 //needed to have pull down to refresh shown for at least 1 second
 @property (nonatomic, strong) NSDate *willRefreshDate;
+
+@property (nonatomic, strong) UILabel *noVideosLabel;
 @end
 
 static NSString *cellID = @"Cell";
@@ -258,6 +260,9 @@ static NSString *cellID = @"Cell";
         [self manualTriggerPullToRefresh];
     
     self.willRefreshDate = [NSDate date];
+    
+    [self.noVideosLabel removeFromSuperview];
+    self.noVideosLabel = nil;
 }
 
 - (void)groupDidRefresh:(NSNotification*)notification {
@@ -358,7 +363,28 @@ static NSString *cellID = @"Cell";
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self.collectionView.pullToRefreshView stopAnimating];
         [self playVisible:YES];
+        [self showNoVideosMessageIfNeeded];
     });
+}
+
+- (void)showNoVideosMessageIfNeeded {
+    if(![YAUser currentUser].currentGroup.videos.count) {
+        if(!self.noVideosLabel) {
+            self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+            self.noVideosLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+            NSAttributedString *string = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Things are a bit quiet in here. Hold the big red button to record a video.", @"") attributes:@{NSStrokeColorAttributeName:[UIColor whiteColor],NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]}];
+            
+            self.noVideosLabel.textAlignment = NSTextAlignmentCenter;
+            self.noVideosLabel.attributedText = string;
+            self.noVideosLabel.numberOfLines = 3;
+            self.noVideosLabel.textColor = PRIMARY_COLOR;
+            [self.collectionView addSubview:self.noVideosLabel];
+        }
+    }
+    else {
+        [self.noVideosLabel removeFromSuperview];
+        self.noVideosLabel = nil;
+    }
 }
 
 - (void)showActivityIndicator:(BOOL)show {

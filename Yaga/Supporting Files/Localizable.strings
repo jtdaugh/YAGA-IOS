@@ -144,3 +144,7 @@
 "Can not leave group" = "Can not leave group";
 "Creating group" = "Creating group";
 "Can not create group" = "Can not create group";
+
+
+//no videos label
+"Things are a bit quiet in here. Hold the big red button to record a video." = "Things are a bit quiet in here. Hold the big red button to record a video.";
