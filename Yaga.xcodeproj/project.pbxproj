@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
+		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
 		41D519B91AABAE07000246CF /* bumper480x640.m4v in Resources */ = {isa = PBXBuildFile; fileRef = 41D519B81AABAE07000246CF /* bumper480x640.m4v */; };
 		6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */; };
@@ -122,6 +124,10 @@
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		0FDC3AF61B0E69C0003A688D /* UIImage+YABlur.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+YABlur.h"; sourceTree = "<group>"; };
+		0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+YABlur.m"; sourceTree = "<group>"; };
+		0FDC3AF81B0E69C0003A688D /* UIWindow+YASnapshot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWindow+YASnapshot.h"; sourceTree = "<group>"; };
+		0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+YASnapshot.m"; sourceTree = "<group>"; };
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		41D519B81AABAE07000246CF /* bumper480x640.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper480x640.m4v; sourceTree = "<group>"; };
@@ -484,6 +490,10 @@
 		6E9188741A3F3A5A0034AB63 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				0FDC3AF61B0E69C0003A688D /* UIImage+YABlur.h */,
+				0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */,
+				0FDC3AF81B0E69C0003A688D /* UIWindow+YASnapshot.h */,
+				0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */,
 				6E9188771A3F3A5A0034AB63 /* NSMutableArray+Shuffle.h */,
 				6E9188781A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m */,
 				6E9188791A3F3A5A0034AB63 /* NSString+File.h */,
@@ -836,6 +846,7 @@
 				6E5E66831A4254EB00B58E49 /* YAGroupSelectedSegue.m in Sources */,
 				6E1E209A1A6EF2E90041DF54 /* YAGifCreationOperation.m in Sources */,
 				6E583B781A65394800639BE5 /* YAAnimatedTransitioningController.m in Sources */,
+				0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */,
 				6E5E66801A424E3300B58E49 /* YAShowEmbeddedGroupsSegue.m in Sources */,
 				6E5E667F1A424E3300B58E49 /* YAHideEmbeddedGroupsSegue.m in Sources */,
 				887AFD0C1AD8623500F00948 /* YAInviteViewController.m in Sources */,
@@ -887,6 +898,7 @@
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
 				6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */,
 				6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */,
+				0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */,
 				6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */,
 				6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */,
 				6E9188D01A3F3A5A0034AB63 /* UIImage+Resize.m in Sources */,
