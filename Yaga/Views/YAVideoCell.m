@@ -30,7 +30,8 @@
 @property (strong, nonatomic) NSTimer *loaderTimer;
 @property (strong, nonatomic) NSMutableArray *loaderTiles;
 
-@property (strong, nonatomic) UILabel *username;
+@property (strong, nonatomic) UILabel *bigUsernameLabel;
+@property (strong, nonatomic) UILabel *smallUsernameLabel;
 @property (strong, nonatomic) UILabel *caption;
 
 @end
@@ -73,12 +74,15 @@
         
         [self addSubview:self.loader];
         
-        self.username = [[UILabel alloc] initWithFrame:self.bounds];
+        self.bigUsernameLabel = [[UILabel alloc] initWithFrame:self.bounds];
+        [self.bigUsernameLabel setTextAlignment:NSTextAlignmentCenter];
+        [self.bigUsernameLabel setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
+        [self addSubview:self.bigUsernameLabel];
         
-        [self.username setTextAlignment:NSTextAlignmentCenter];
-        [self.username setTextColor:PRIMARY_COLOR];
-        [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
-        [self addSubview:self.username];
+        CGFloat usernameMargin = 8.f;
+        self.smallUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(usernameMargin, 0 ,self.frame.size.width - (2*usernameMargin), 36.f)];
+        [self.smallUsernameLabel setFont:[UIFont boldSystemFontOfSize:22.f]];
+        [self addSubview:self.smallUsernameLabel];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
@@ -215,9 +219,10 @@
 
 - (void)showLoader:(BOOL)show {
     self.loader.hidden = !show;
-    self.username.hidden = !show;
+    self.bigUsernameLabel.hidden = !show;
+    self.smallUsernameLabel.hidden = show;
     self.caption.hidden = show;
-    
+
     [self updateCaptionAndUsername];
     
     if(show){
@@ -245,8 +250,16 @@
         self.caption.text = @"";
     }
     
-    if(!self.username.hidden)
-        self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
+    if(self.video.creator.length) {
+        self.bigUsernameLabel.attributedText = [self attributedStringFromString:self.video.creator font:nil];
+        [self.bigUsernameLabel setTextColor:[YAUtils UIColorFromUsernameString:self.video.creator]];
+        NSMutableAttributedString *text = [self.bigUsernameLabel.attributedText mutableCopy];
+        [text addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-3.0] range:NSMakeRange(0, text.length)];
+        self.smallUsernameLabel.textAlignment = self.index % 2 ? NSTextAlignmentRight : NSTextAlignmentLeft;
+        self.smallUsernameLabel.attributedText = text;
+        [self.smallUsernameLabel setTextColor:self.bigUsernameLabel.textColor];
+    }
+
 
 }
 

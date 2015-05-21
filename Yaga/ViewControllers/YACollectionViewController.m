@@ -392,7 +392,7 @@ static NSString *cellID = @"Cell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
-    
+    cell.index = indexPath.item;
     cell.video = video;
     
     return cell;

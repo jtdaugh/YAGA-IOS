@@ -17,7 +17,6 @@
 #import "YASwipingViewController.h"
 #import "YACopyVideoToClipboardActivity.h"
 #import "MBProgressHUD.h"
-#import "XYPieChart.h"
 #import "OrderedDictionary.h"
 #import "YAPanGestureRecognizer.h"
 
@@ -33,7 +32,8 @@
 #define MAX_CAPTION_WIDTH (VIEW_WIDTH - 2 * CAPTION_GUTTER)
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
-@interface YAVideoPage () <XYPieChartDelegate, XYPieChartDataSource>;
+@interface YAVideoPage ()
+
 @property (nonatomic, strong) YAActivityView *activityView;
 
 //overlay controls
@@ -57,14 +57,14 @@
 @property (strong, nonatomic) UITapGestureRecognizer *captionTapRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
-@property (strong, nonatomic) NSMutableArray *rainOptions;
-@property (strong, nonatomic) NSArray *options;
-
 @property (strong, nonatomic) UIView *overlay;
 @property (strong, nonatomic) UIVisualEffectView *captionBlurOverlay;
 
-@property (strong, nonatomic) UIView *captionWrapperView;
-@property (strong, nonatomic) UITextView *currentTextField;
+@property (strong, nonatomic) UIView *serverCaptionWrapperView;
+@property (strong, nonatomic) UITextView *serverCaptionTextView;
+
+@property (strong, nonatomic) UIView *editableCaptionWrapperView;
+@property (strong, nonatomic) UITextView *editableCaptionTextView;
 
 @property (nonatomic) CGFloat textFieldHeight;
 @property (nonatomic) CGAffineTransform textFieldTransform;
@@ -77,13 +77,12 @@
 
 @property (nonatomic, strong) UIButton *cancelWhileTypingButton;
 
-@property (strong, nonatomic) UIView *pieContainer;
-@property (strong, nonatomic) UIView *rainContainer;
-@property (nonatomic, strong) XYPieChart *pieChart;
-@property BOOL pieChartExpanded;
-@property (nonatomic, strong) MutableOrderedDictionary *rainData;
-@property (strong, nonatomic) NSMutableArray *rain;
-@property (strong, nonatomic) NSMutableArray *rainMen;
+@property (strong, nonatomic) UIView *heartContainer;
+
+@property (nonatomic, strong) MutableOrderedDictionary *heartData;
+@property (strong, nonatomic) NSMutableArray *heartViews;
+
+@property (nonatomic, strong) NSMutableArray *events;
 
 @property (nonatomic, strong) UIButton *textButton;
 @property (nonatomic, strong) UIButton *rajsBelovedDoneButton;
@@ -437,7 +436,6 @@
     self.captionTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     [self.captionTapRecognizer setNumberOfTapsRequired:1];
     self.captionTapRecognizer.delegate = self;
-    [self addGestureRecognizer:self.captionTapRecognizer];
 
     [self.captionTapRecognizer requireGestureRecognizerToFail:self.likeDoubleTapRecognizer];
 
@@ -445,24 +443,14 @@
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
     [self addGestureRecognizer:self.hideGestureRecognizer];
 
-    self.rainContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
-    [self.overlay addSubview:self.rainContainer];
+    self.heartContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
+    [self.overlay addSubview:self.heartContainer];
 
-    [self setupPieContainer];
     [self setupCaptionButtonContainer];
     [self setupCaptionGestureRecognizers];
     [self.overlay bringSubviewToFront:self.shareButton];
     [self.overlay bringSubviewToFront:self.deleteButton];
     
-//    self.rainOptions = [[NSMutableArray alloc] init];
-//    self.options = @[@"rainHeart", @"rainBoo", @"rainText"];
-////    int tag = 0;
-//    for(NSString *option in self.options){
-//        UIImageView *rainOption = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
-//        [rainOption setImage:[UIImage imageNamed:option]];
-//        [self.overlay addSubview:rainOption];
-//    }g
-//    [self initRain];
 }
 
 - (void)setupCaptionButtonContainer {
@@ -504,290 +492,214 @@
     [self toggleEditingCaption:NO];
 }
 
-- (void)setupPieContainer {
-    
-    self.pieContainer = [[UIView alloc] initWithFrame:self.overlay.frame];
-    [self.overlay addSubview:self.pieContainer];
-    
-    CGFloat pieRadius = BOTTOM_ACTION_SIZE/2.f;
-    CGFloat margin = BOTTOM_ACTION_MARGIN;
-    self.pieChart = [[XYPieChart alloc] initWithFrame:CGRectMake(margin, VIEW_HEIGHT - margin - pieRadius*2, pieRadius*2, pieRadius*2) Center:CGPointMake(pieRadius,pieRadius) Radius:pieRadius];
-    self.pieChart.delegate = self;
-    self.pieChart.dataSource = self;
-    [self reloadPieChart];
-    [self.pieChart setLabelColor:[UIColor clearColor]];
-    
-    self.pieChart.layer.borderColor = [UIColor whiteColor].CGColor;
-    self.pieChart.layer.cornerRadius = pieRadius;
-    self.pieChart.layer.masksToBounds = YES;
-    
-    UITapGestureRecognizer *pieTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pieTapped:)];
-    [self.pieChart addGestureRecognizer:pieTap];
-    
-    [self.pieContainer addSubview:self.pieChart];
-    
-}
-
-
-- (void)pieTapped:(UITapGestureRecognizer *)recognizer {
-    
-    if(self.pieChartExpanded){
-        [self hideRainers:nil];
-        return;
-    } else {
-        self.pieChartExpanded = YES;
-    }
-    
-    CGFloat rainerHeight = 48;
-    CGFloat rainerWidth = 200;
-    
-    self.rainMen = [[NSMutableArray alloc] init];
-    
-    for(NSString *key in self.rainData){
-        
-        UILabel *rainer = [[UILabel alloc] initWithFrame:CGRectMake(15, VIEW_HEIGHT - rainerHeight - 15, rainerWidth, rainerHeight)];
-        int count = [[self.rainData objectForKey:key] intValue];
-        NSString *text = [NSString stringWithFormat:@"%@ (%i)", key, count];
-        
-        NSAttributedString *string = [[NSAttributedString alloc] initWithString:text attributes:@{
-                                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-3.0]                                                                                              }];
-        rainer.attributedText = string;
-        
-//        [rainer setText:];
-        [rainer setTextColor:[YAUtils UIColorFromUsernameString:key]];
-        [rainer setFont:[UIFont boldSystemFontOfSize:24]];
-        [rainer setAlpha:0.0];
-        [self.rainMen addObject:rainer];
-        [self.pieContainer addSubview:rainer];
-    }
-    
-    
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        //
-        int i = 0;
-        
-        for(UILabel *label in self.rainMen){
-            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
-            //
-            [label setAlpha:1.0];
-            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
-            //CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
-            //            CGAffineTransformMake
-            CGFloat translateY = (rainerHeight + 15) + ((float) i) * (rainerHeight + 10);
-            [label setTransform:CGAffineTransformMakeTranslation(0, -translateY)];
-            
-            i++;
-            
-        }
-        
-        [self.pieContainer setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.5]];
-        
-    } completion:^(BOOL finished) {
-        //
-    }];
-    
-    self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideRainers:)];
-    [self addGestureRecognizer:self.tapOutGestureRecognizer];
-
-    NSLog(@"pie tapped");
-}
-
-- (void)hideRainers:(id)sender {
-    [self removeGestureRecognizer:self.tapOutGestureRecognizer];
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        //
-        for(UILabel *label in self.rainMen){
-            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
-            //
-            [label setAlpha:0.0];
-            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
-            //CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
-            //            CGAffineTransformMake
-            [label setTransform:CGAffineTransformIdentity];
-            
-        }
-        [self.pieContainer setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.0]];
-    } completion:^(BOOL finished) {
-        //
-    }];
-    
-    self.pieChartExpanded = NO;
-
-}
-
-- (NSUInteger)numberOfSlicesInPieChart:(XYPieChart *)pieChart {
-    return [self.rainData count];
-}
-
-- (CGFloat)pieChart:(XYPieChart *)pieChart valueForSliceAtIndex:(NSUInteger)index {
-    return [[self.rainData objectAtIndex:index] floatValue];
-}
-
-- (UIColor *)pieChart:(XYPieChart *)pieChart colorForSliceAtIndex:(NSUInteger)index {
-    return [YAUtils UIColorFromUsernameString:[self.rainData keyAtIndex:index]];
-}
-
-- (NSString *)pieChart:(XYPieChart *)pieChart textForSliceAtIndex:(NSUInteger)index {
-    return @"";
-}
-
-- (void) clearRain {
+- (void) clearFirebase {
     
     [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] removeAllObservers];
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] removeAllObservers];
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] removeAllObservers];
     
-    for(UIView *view in self.rain){
+    for(UIView *view in self.heartViews){
         [view removeFromSuperview];
     }
+    [self.serverCaptionWrapperView removeFromSuperview];
+    self.serverCaptionWrapperView = nil;
+    self.serverCaptionTextView = nil;
 }
 
-- (void) initRain {
+- (void) initFirebase {
     
-    self.rain = [[NSMutableArray alloc] init];
-    self.rainData = [[MutableOrderedDictionary alloc] init];
-    
-    NSLog(@"firebase wat");
+    self.heartViews = [[NSMutableArray alloc] init];
+    self.heartData = [[MutableOrderedDictionary alloc] init];
     
     NSLog(@"serverid: %@", self.video.serverId);
     
     __weak YAVideoPage *weakSelf = self;
     
-    __block BOOL initial = NO;
-    
-    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] queryLimitedToLast:80] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        if(initial){
-            [weakSelf newRain:snapshot count:0 total:0];
-            [weakSelf reloadPieChart];
-        }
-    }];
-
-    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] queryLimitedToLast:80] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        initial = YES;
-        int count = 0;
-        int childrenCount = (int) snapshot.childrenCount;
-        for(FDataSnapshot *s in snapshot.children){
-            [weakSelf newRain:s count:count total:childrenCount];
-            count++;
+    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        FDataSnapshot *caption = [snapshot childSnapshotForPath:@"caption"];
+        if (caption.exists) {
+            [weakSelf insertCaptionFromSnapshot:caption];
+        } else {
+            [weakSelf addGestureRecognizer:weakSelf.captionTapRecognizer];
         }
         
-        [weakSelf reloadPieChart];
-
+        weakSelf.events = [NSMutableArray array];
+        FDataSnapshot *eventsSnapshot = [snapshot childSnapshotForPath:@"events"];
+        
+        for (FDataSnapshot *child in eventsSnapshot.children) {
+            if ([child.value[@"type"] isEqualToString:@"heart"]) {
+                [weakSelf addHeartToViewFromSnapshot:child];
+            } else {
+                [weakSelf.events addObject:child];
+            }
+        }
+        [weakSelf beginMonitoringForNewEvents];
+        [weakSelf beginMonitoringForCaptionChanges];
+        
     }];
     
 }
 
-- (void)newRain:(FDataSnapshot *)snapshot count:(int)count total:(int)total {
-    NSLog(@"heart found");
-    
-    NSString *username;
-    if(snapshot.value[@"username"]){
-        username = snapshot.value[@"username"];
-    } else {
-        username = @"yaga";
-    }
-    
-    UIColor *color = [YAUtils UIColorFromUsernameString:username];
-    
-    UIView *rain;
-    
-    if([snapshot.value[@"type"] isEqualToString:@"heart"]){
-        UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
-        [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
-        likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        likeHeart.tintColor = color;
-        
-        int lowerBound = -30;
-        int upperBound = 30;
-        int rndValue = lowerBound + arc4random() % (upperBound - lowerBound);
-        
-        CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
-        likeHeart.center = CGPointMake([snapshot.value[@"x"] doubleValue] * VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
-        likeHeart.transform = rotation;
-        
-        rain  = likeHeart;
-    } else if([snapshot.value[@"type"] isEqualToString:@"text"]){
-        NSLog(@"text found");
-        NSLog(@"x: %@", snapshot.value[@"x"]);
-        NSLog(@"y: %@", snapshot.value[@"y"]);
-        
-        CGSize size = [self sizeThatFitsString:snapshot.value[@"text"]];
-        CGRect wrapperFrame = CGRectMake(0,0, size.width, size.height);
-        UIView *textWrapper = [[UIView alloc]initWithFrame:wrapperFrame];
-        textWrapper.center = CGPointMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
-        UITextView *text = [[UITextView alloc] initWithFrame:textWrapper.bounds];
-        [textWrapper addSubview:text];
+- (void)beginMonitoringForCaptionChanges {
+    __weak YAVideoPage *weakSelf = self;
+    Firebase *caption = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"];
+    [caption observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        if (snapshot.exists) {
+            if (weakSelf.serverCaptionTextView) {
+                [weakSelf updateCaptionFromSnapshot:snapshot];
+            } else {
+                [weakSelf insertCaptionFromSnapshot:snapshot];
+            }
+        }
+    }];
+}
 
-        [textWrapper setTransform:CGAffineTransformFromString(snapshot.value[@"transform"])];
-        textWrapper.alpha = 0.75;
-        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
-                                                                                                  }];
-        [text setAttributedText:string];
-        [text setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
-        [text setTextColor:[YAUtils UIColorFromUsernameString:[YAUser currentUser].username]];
-        [text setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
-        
-        //    [self.currentTextField setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
-        
-        [text setTextAlignment:NSTextAlignmentCenter];
-        [text setScrollEnabled:NO];
-        text.editable = NO;
-        text.textContainer.lineFragmentPadding = 0;
-        text.textContainerInset = UIEdgeInsetsZero;
+- (void)beginMonitoringForNewEvents {
+    Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"];
 
-        [text setText:snapshot.value[@"text"]];
-        rain = textWrapper;
-    }
+    __weak YAVideoPage *weakSelf = self;
+    [[events queryStartingAtValue:((FDataSnapshot*)[self.events lastObject]).key] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+        if ([snapshot.value[@"type"] isEqualToString:@"heart"]) {
+            [weakSelf addHeartToViewFromSnapshot:snapshot];
+        } else {
+            [weakSelf.events addObject:snapshot];
+            
+            // TODO: reload comments table
+        }
+    }];
+}
+
+- (void)addHeartToViewFromSnapshot:(FDataSnapshot *)snapshot {
     
+    NSString *username = snapshot.value[@"username"];
+    if (!username) username = @"yaga";
     
+    UIImageView *likeHeart = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];// initWith;
+    [likeHeart setImage:[UIImage imageNamed:@"rainHeart"]];
+    likeHeart.image = [likeHeart.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    likeHeart.tintColor = PRIMARY_COLOR;
     
-    rain.alpha = 0.0;
-    CGAffineTransform original = rain.transform;
-    rain.transform = CGAffineTransformScale(rain.transform, 0.75, 0.75);
-//#define ARC4RANDOM_MAX      0x100000000
-//    double val = ((double)arc4random() / ARC4RANDOM_MAX)/5.0f;
-    float delay = (float)count/(float)total * 1.0;
+    int lowerBoundDegrees = -30;
+    int upperBoundDegrees = 30;
+    int rndValue = lowerBoundDegrees + arc4random() % (upperBoundDegrees - lowerBoundDegrees);
     
-    [UIView animateWithDuration:0.1 delay:delay options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+    CGAffineTransform rotation = CGAffineTransformMakeRotation(M_PI * (rndValue) / 180.0);
+    likeHeart.center = CGPointMake([snapshot.value[@"x"] doubleValue] * VIEW_WIDTH, [snapshot.value[@"y"] doubleValue] * VIEW_HEIGHT);
+    likeHeart.transform = rotation;
+    
+    likeHeart.alpha = 0.0;
+    CGAffineTransform original = likeHeart.transform;
+    likeHeart.transform = CGAffineTransformScale(likeHeart.transform, 0.75, 0.75);
+    
+    [UIView animateWithDuration:0.1 delay:([self.heartViews count] * 0.1f) options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
-        rain.alpha = 0.6;
-        rain.transform = CGAffineTransformScale(original, 1.0, 1.0);
+        likeHeart.alpha = 0.6;
+        likeHeart.transform = CGAffineTransformScale(original, 1.0, 1.0);
     } completion:^(BOOL finished) {
         
     }];
     
-    [self.rainContainer addSubview:rain];
-    [self.rain addObject:rain];
+    [self.heartContainer addSubview:likeHeart];
+    [self.heartViews addObject:likeHeart];
     
-    if([self.rainData objectForKey:username]){
-        NSNumber *inc = [NSNumber numberWithInt:[[self.rainData objectForKey:username] intValue] + 1];
-        [self.rainData setObject:inc forKey:username];
+    if([self.heartData objectForKey:username]){
+        NSNumber *inc = [NSNumber numberWithInt:[[self.heartData objectForKey:username] intValue] + 1];
+        [self.heartData setObject:inc forKey:username];
     } else {
-        [self.rainData setObject:[NSNumber numberWithInt:1] forKey:username];
+        [self.heartData setObject:[NSNumber numberWithInt:1] forKey:username];
     }
-
 }
 
-- (void)reloadPieChart {
-    if([self.rainData count] > 0){
-        self.pieChart.layer.borderWidth = 1.0f;
-    } else {
-        self.pieChart.layer.borderWidth = 0.0f;
+// initial adding of caption. modifications will instead call -updateCaptionFromSnapshot
+- (void)insertCaptionFromSnapshot:(FDataSnapshot *)snapshot {
+
+    NSString *username = snapshot.value[@"username"];
+    if (!username) username = @"yaga";
+
+    UIView *textWrapper = [[UIView alloc] initWithFrame:CGRectInfinite];
+    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectInfinite];
+    [textWrapper addSubview:textView];
+    
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
+                                                                                              }];
+    [textView setAttributedText:string];
+    [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
+    [textView setTextColor:PRIMARY_COLOR];
+    [textView setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
+    
+    [textView setTextAlignment:NSTextAlignmentCenter];
+    [textView setScrollEnabled:NO];
+    textView.textContainer.lineFragmentPadding = 0;
+    textView.textContainerInset = UIEdgeInsetsZero;
+    
+    textView.text = snapshot.value[@"text"];
+    
+    CGSize newSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
+    CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
+    CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
+                                     [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
+                                     newSize.width + (2*CAPTION_WRAPPER_INSET),
+                                     newSize.height + (2*CAPTION_WRAPPER_INSET));
+    
+    textWrapper.frame = wrapperFrame;
+    textView.frame = captionFrame;
+    textWrapper.transform =CGAffineTransformFromString(snapshot.value[@"transform"]);
+    
+    self.serverCaptionWrapperView = textWrapper;
+    self.serverCaptionTextView = textView;
+    self.serverCaptionTextView.editable = NO;
+    
+    if ([[self gestureRecognizers] containsObject:self.captionTapRecognizer]) {
+        [self removeGestureRecognizer:self.captionTapRecognizer];
     }
-    [self.pieChart reloadData];
+    [self.serverCaptionWrapperView addSubview:self.serverCaptionTextView];
+    [self.overlay addSubview:self.serverCaptionWrapperView];
+    
+    [self.serverCaptionWrapperView addGestureRecognizer:self.captionTapRecognizer];
+
+    textWrapper.alpha = 0;
+    CGAffineTransform original = textWrapper.transform;
+    textWrapper.transform = CGAffineTransformScale(textWrapper.transform, 0.75, 0.75);
+    
+    [UIView animateWithDuration:0.1 delay:0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        textWrapper.alpha = 0.75;
+        textWrapper.transform = original;
+    } completion:nil];
+}
+
+- (void)updateCaptionFromSnapshot:(FDataSnapshot *)snapshot {
+    if (snapshot.exists) {
+        self.serverCaptionTextView.text = snapshot.value[@"text"];
+        CGSize newSize = [self.serverCaptionTextView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
+        CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
+        CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
+                                         [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
+                                         newSize.width + (2*CAPTION_WRAPPER_INSET),
+                                         newSize.height + (2*CAPTION_WRAPPER_INSET));
+        
+        self.serverCaptionWrapperView.frame = wrapperFrame;
+        self.serverCaptionTextView.frame = captionFrame;
+        self.serverCaptionWrapperView.transform =CGAffineTransformFromString(snapshot.value[@"transform"]);
+    } else {
+        [self.serverCaptionWrapperView removeFromSuperview];
+        self.serverCaptionWrapperView = nil;
+        self.serverCaptionTextView = nil;
+        [self addGestureRecognizer:self.captionTapRecognizer];
+    }
 }
 
 #pragma mark - caption gestures
 
 - (void)captionCancelPressedWhileTyping {
-    self.currentTextField.text = @"";
+    self.editableCaptionTextView.text = @"";
     [self doneTyping];
 }
 
 - (void)cancelButtonPressed:(id)sender {
-    [self.captionWrapperView removeFromSuperview];
-    self.currentTextField = nil;
+    [self.editableCaptionWrapperView removeFromSuperview];
+    self.editableCaptionTextView = nil;
     [self toggleEditingCaption:NO];
     // remove caption and replace done/cancel buttons with text button
 }
@@ -806,6 +718,8 @@
 - (void)toggleEditingCaption:(BOOL)editing {
     self.editingCaption = editing;
     if (editing) {
+        self.serverCaptionWrapperView.hidden = YES;
+        
         self.hideGestureRecognizer.enabled = NO;
         self.likeDoubleTapRecognizer.enabled = NO;
         self.captionTapRecognizer.enabled = NO;
@@ -816,8 +730,9 @@
 //        self.textButton.hidden = YES;
         self.deleteButton.hidden = YES;
         self.shareButton.hidden = YES;
-        self.pieContainer.hidden = YES;
     } else {
+        self.serverCaptionWrapperView.hidden = NO;
+
         self.hideGestureRecognizer.enabled = YES;
         self.likeDoubleTapRecognizer.enabled = YES;
         self.captionTapRecognizer.enabled = YES;
@@ -829,7 +744,6 @@
 //        self.textButton.hidden = NO;
         self.deleteButton.hidden = NO;
         self.shareButton.hidden = NO;
-        self.pieContainer.hidden = NO;
         
         
         // show the swipe down tooltip if it or the like/caption tooltip was there before
@@ -841,28 +755,34 @@
 
 
 - (void)commitCurrentCaption {
-    if (self.currentTextField) {
-        // Send deets to firebase!!!g
+    if (self.editableCaptionTextView) {
 
-        self.currentTextField.editable = NO;
-        [self.captionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
-        [self.captionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
-        [self.captionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
-        
         NSDictionary *textData = @{
                                    @"type": @"text",
                                    @"x":[NSNumber numberWithDouble: self.textFieldCenter.x/VIEW_WIDTH],
                                    @"y":[NSNumber numberWithDouble: self.textFieldCenter.y/VIEW_HEIGHT],
                                    @"username":[YAUser currentUser].username,
-                                   @"transform":NSStringFromCGAffineTransform(self.captionWrapperView.transform),
-                                   @"text":self.currentTextField.text
+                                   @"transform":NSStringFromCGAffineTransform(self.textFieldTransform),
+                                   @"text":self.editableCaptionTextView.text
+                                   };
+        
+        if (![self.editableCaptionTextView.text length]) {
+            // this will remove the caption node.
+            textData = nil;
+        }
+        
+        // TODO: (more event types - caption changed, caption moved, caption created, caption deleted)
+        NSDictionary *eventData = @{
+                                   @"type": @"caption_change",
+                                   @"username":[YAUser currentUser].username,
                                    };
 
-        [self.captionWrapperView removeFromSuperview];
-        self.currentTextField = nil;
-        self.captionWrapperView = nil;
+        [self.editableCaptionWrapperView removeFromSuperview];
+        self.editableCaptionWrapperView = nil;
+        self.editableCaptionTextView = nil;
         
-        [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAutoId] setValue:textData];
+        [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] setValue:textData];
+        [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
 
     }
 }
@@ -937,10 +857,10 @@
 
 
 - (void)positionTextViewAboveKeyboard{
-    self.captionWrapperView.transform = CGAffineTransformIdentity;
-    [self.captionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
-    [self.captionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
-    [self.captionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
+    self.editableCaptionWrapperView.transform = CGAffineTransformIdentity;
+    [self.editableCaptionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
+    [self.editableCaptionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
+    [self.editableCaptionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
 
     [self resizeTextAboveKeyboardWithAnimation:YES];
 }
@@ -949,7 +869,7 @@
 
 - (void)moveTextViewBackToSpot {
     CGFloat fixedWidth = MAX_CAPTION_WIDTH;
-    CGSize newSize = [self.currentTextField sizeThatFits:CGSizeMake(fixedWidth, MAXFLOAT)];
+    CGSize newSize = [self.editableCaptionTextView sizeThatFits:CGSizeMake(fixedWidth, MAXFLOAT)];
     CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
     CGRect wrapperFrame = CGRectMake(self.textFieldCenter.x - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
                                  self.textFieldCenter.y - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
@@ -962,13 +882,13 @@
     [self.overlay bringSubviewToFront:self.captionButtonContainer];
     
     [UIView animateWithDuration:0.2f animations:^{
-        self.captionWrapperView.frame = wrapperFrame;
-        self.currentTextField.frame = captionFrame;
-        self.captionWrapperView.transform = self.textFieldTransform;
+        weakSelf.editableCaptionWrapperView.frame = wrapperFrame;
+        weakSelf.editableCaptionTextView.frame = captionFrame;
+        weakSelf.editableCaptionWrapperView.transform = self.textFieldTransform;
     } completion:^(BOOL finished) {
-        [weakSelf.captionWrapperView addGestureRecognizer:self.panGestureRecognizer];
-        [weakSelf.captionWrapperView addGestureRecognizer:self.rotateGestureRecognizer];
-        [weakSelf.captionWrapperView addGestureRecognizer:self.pinchGestureRecognizer];
+        [weakSelf.editableCaptionWrapperView addGestureRecognizer:self.panGestureRecognizer];
+        [weakSelf.editableCaptionWrapperView addGestureRecognizer:self.rotateGestureRecognizer];
+        [weakSelf.editableCaptionWrapperView addGestureRecognizer:self.pinchGestureRecognizer];
     }];
 }
 
@@ -981,44 +901,44 @@
     return frame.size;
 }
 
-- (void)addCaptionAtPoint:(CGPoint)point {
-
-    self.textFieldCenter = point;
-    self.textFieldTransform = CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE);
-    
-    self.captionWrapperView = [[UIView alloc] initWithFrame:CGRectInfinite];
-    self.currentTextField = [[UITextView alloc] initWithFrame:CGRectZero];
-    [self resizeTextAboveKeyboardWithAnimation:NO];
-    
-    self.currentTextField.alpha = 0.75;
+- (UITextView *)captionTextViewWithText:(NSString *)text {
+    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectInfinite];
+    textView.alpha = 0.75;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
                                                                                               }];
-    [self.currentTextField setAttributedText:string];
-    [self.currentTextField setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
-    [self.currentTextField setTextColor:[YAUtils UIColorFromUsernameString:[YAUser currentUser].username]];
-    [self.currentTextField setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
-
-//    [self.currentTextField setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
-    [self.currentTextField replaceRange:[self.currentTextField textRangeFromPosition:[self.currentTextField beginningOfDocument] toPosition:[self.currentTextField endOfDocument]] withText:@""];
+    [textView setAttributedText:string];
+    [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
+    [textView setTextColor:PRIMARY_COLOR];
+    [textView setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
     
-    [self.currentTextField setTextAlignment:NSTextAlignmentCenter];
-    [self.currentTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
-    [self.currentTextField setReturnKeyType:UIReturnKeyDone];
-    [self.currentTextField setScrollEnabled:NO];
-    self.currentTextField.textContainer.lineFragmentPadding = 0;
-    self.currentTextField.textContainerInset = UIEdgeInsetsZero;
-    self.currentTextField.delegate = self;
+    //    [self.currentTextField setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
+    textView.text = text;
     
-    [self.captionWrapperView addSubview:self.currentTextField];
-    [self.overlay addSubview:self.captionWrapperView];
+    [textView setTextAlignment:NSTextAlignmentCenter];
+    [textView setAutocorrectionType:UITextAutocorrectionTypeNo];
+    [textView setReturnKeyType:UIReturnKeyDone];
+    [textView setScrollEnabled:NO];
+    textView.textContainer.lineFragmentPadding = 0;
+    textView.textContainerInset = UIEdgeInsetsZero;
+    textView.delegate = self;
     
-    [self.currentTextField becomeFirstResponder];
+    return textView;
 }
 
-- (UITextView *)captionAtPoint:(CGPoint) point {
-    return [UITextView new];
+- (void)beginEditableCaptionAtPoint:(CGPoint)point initalText:(NSString *)text initalTransform:(CGAffineTransform)transform {
+
+    self.textFieldCenter = point;
+    self.textFieldTransform = transform;
+    self.editableCaptionWrapperView = [[UIView alloc] initWithFrame:CGRectInfinite];
+    self.editableCaptionTextView = [self captionTextViewWithText:text];
+    [self resizeTextAboveKeyboardWithAnimation:[text length] ? YES : NO];
+    
+    [self.editableCaptionWrapperView addSubview:self.editableCaptionTextView];
+    [self.overlay addSubview:self.editableCaptionWrapperView];
+    
+    [self.editableCaptionTextView becomeFirstResponder];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -1040,10 +960,10 @@
     self.captionBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
     
     self.captionBlurOverlay.frame = self.bounds;
-    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.captionWrapperView];
+    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.editableCaptionWrapperView];
     [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
     
-    if (self.currentTextField) {
+    if (self.editableCaptionTextView) {
         [self positionTextViewAboveKeyboard];
     }
 
@@ -1081,7 +1001,7 @@
 }
 
 - (void)resizeTextAboveKeyboardWithAnimation:(BOOL)animated {
-    NSString *captionText = [self.currentTextField.text length] ? self.currentTextField.text : @"A";
+    NSString *captionText = [self.editableCaptionTextView.text length] ? self.editableCaptionTextView.text : @"A";
     CGSize size = [self sizeThatFitsString:captionText];
     CGRect wrapperFrame = CGRectMake((VIEW_WIDTH / 2.f) - (size.width/2.f) - CAPTION_WRAPPER_INSET,
                                     (VIEW_HEIGHT / 2.f) - (size.height/2.f) - CAPTION_WRAPPER_INSET,
@@ -1093,12 +1013,12 @@
 
     if (animated) {
         [UIView animateWithDuration:0.2f animations:^{
-            self.captionWrapperView.frame = wrapperFrame;
-            self.currentTextField.frame = captionFrame;
+            self.editableCaptionWrapperView.frame = wrapperFrame;
+            self.editableCaptionTextView.frame = captionFrame;
         }];
     } else {
-        self.captionWrapperView.frame = wrapperFrame;
-        self.currentTextField.frame = captionFrame;
+        self.editableCaptionWrapperView.frame = wrapperFrame;
+        self.editableCaptionTextView.frame = captionFrame;
     }
 
 }
@@ -1144,10 +1064,10 @@
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
 //    [self updateControls];
     
-    [self.currentTextField resignFirstResponder];
+    [self.editableCaptionTextView resignFirstResponder];
     [self.captionBlurOverlay removeFromSuperview];
     
-    if (![self.currentTextField.text length]) {
+    if (![self.editableCaptionTextView.text length]) {
         [self cancelButtonPressed:nil];
     } else {
         [self moveTextViewBackToSpot];
@@ -1235,7 +1155,16 @@
     if ([recognizer isEqual:self.likeDoubleTapRecognizer]) {
         [self likeTappedAtPoint:[recognizer locationInView:self]];
     } else if ([recognizer isEqual:self.captionTapRecognizer]){
-        [self addCaptionAtPoint:[recognizer locationInView:self]];
+        if (self.serverCaptionTextView) {
+            [self beginEditableCaptionAtPoint:self.serverCaptionWrapperView.center
+                                   initalText:self.serverCaptionTextView.text
+                              initalTransform:self.serverCaptionWrapperView.transform];
+        } else {
+            CGPoint loc = [recognizer locationInView:self];
+            [self beginEditableCaptionAtPoint:loc
+                                    initalText:@""
+                               initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE)];
+        }
         [self toggleEditingCaption:YES];
     }
 }
@@ -1251,7 +1180,7 @@
                                 @"username":[YAUser currentUser].username
                                 };
     
-    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAutoId] setValue:heartData];
+    [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];
     
 //        likeHeart.alpha = 0.0;
 //        [UIView animateWithDuration:0.2 animations:^{
@@ -1423,8 +1352,8 @@
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
     
-    [self clearRain];
-    [self initRain];
+    [self clearFirebase];
+    [self initFirebase];
     
     //get likers for video
     
@@ -1549,7 +1478,7 @@
 
 #pragma mark - Observing input mode
 - (void)inputModeChanged:(NSNotification*)sender {
-    NSString *mode = self.currentTextField.textInputMode.primaryLanguage;
+    NSString *mode = self.editableCaptionTextView.textInputMode.primaryLanguage;
     //Adding additional "Done" button for emoji keyboard
     if (mode == nil) { //Appears to corespond to emoji
         if (!self.keyBoardAccessoryButton) {
@@ -1586,7 +1515,7 @@
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
     [self updateControls];
     
-    [self.currentTextField resignFirstResponder];
+    [self.editableCaptionTextView resignFirstResponder];
     self.keyBoardAccessoryButton.hidden = YES;
 }
 
