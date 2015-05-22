@@ -39,7 +39,7 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
 @property (strong, nonatomic) NSMutableArray *items;
 @property (weak, nonatomic, readwrite) UIWindow *previousKeyWindow;
 @property (strong, nonatomic) UIWindow *window;
-@property (weak, nonatomic) UIImageView *blurredBackgroundView;
+@property (weak, nonatomic) UIVisualEffectView *blurredBackgroundView;
 @property (weak, nonatomic) UITableView *tableView;
 @property (weak, nonatomic) UIButton *cancelButton;
 @property (weak, nonatomic) UIView *cancelButtonShadowView;
@@ -238,10 +238,6 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     CGFloat slideDownMinOffset = (CGFloat)fmin(CGRectGetHeight(self.frame) + self.tableView.contentOffset.y, CGRectGetHeight(self.frame));
     self.tableView.transform = CGAffineTransformMakeTranslation(0, slideDownMinOffset);
     
-    void(^immediateAnimations)(void) = ^(void) {
-        self.blurredBackgroundView.alpha = 1.0f;
-    };
-    
     void(^delayedAnimations)(void) = ^(void) {
         self.cancelButton.frame = CGRectMake(0,
                                              CGRectGetMaxY(self.bounds) - self.cancelButtonHeight,
@@ -271,8 +267,6 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     if ([UIView respondsToSelector:@selector(animateKeyframesWithDuration:delay:options:animations:completion:)]){
         // Animate sliding in tableView and cancel button with keyframe animation for a nicer effect.
         [UIView animateKeyframesWithDuration:kDefaultAnimationDuration delay:0 options:0 animations:^{
-            immediateAnimations();
-            
             [UIView addKeyframeWithRelativeStartTime:0.3f relativeDuration:0.7f animations:^{
                 delayedAnimations();
             }];
@@ -281,7 +275,7 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     } else {
         
         [UIView animateWithDuration:kDefaultAnimationDuration animations:^{
-            immediateAnimations();
+//            immediateAnimations();
             delayedAnimations();
         }];
     }
@@ -320,9 +314,11 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     // keep the table from scrolling back up
     self.tableView.contentInset = UIEdgeInsetsMake(-self.tableView.contentOffset.y, 0, 0, 0);
     
+    [self.blurredBackgroundView removeFromSuperview];
+    
     void(^tearDownView)(void) = ^(void) {
         // remove the views because it's easiest to just recreate them if the action sheet is shown again
-        for (UIView *view in @[self.tableView, self.cancelButton, self.blurredBackgroundView, self.window]) {
+        for (UIView *view in @[self.tableView, self.cancelButton, self.window]) {
             [view removeFromSuperview];
         }
         
@@ -337,7 +333,6 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     if (animated) {
         // animate sliding down tableView and cancelButton.
         [UIView animateWithDuration:duration animations:^{
-            self.blurredBackgroundView.alpha = 0.0f;
             self.cancelButton.transform = CGAffineTransformTranslate(self.cancelButton.transform, 0, self.cancelButtonHeight);
             self.cancelButtonShadowView.alpha = 0.0f;
             
@@ -367,16 +362,24 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
 
 - (void)setUpBlurredBackgroundWithSnapshot:(UIImage *)previousKeyWindowSnapshot
 {
-    UIImage *blurredViewSnapshot = [previousKeyWindowSnapshot
-                                    ya_applyBlurWithRadius:self.blurRadius
-                                    tintColor:self.blurTintColor
-                                    saturationDeltaFactor:self.blurSaturationDeltaFactor
-                                    maskImage:nil];
-    UIImageView *backgroundView = [[UIImageView alloc] initWithImage:blurredViewSnapshot];
-    backgroundView.frame = self.bounds;
-    backgroundView.alpha = 0.0f;
-    [self addSubview:backgroundView];
-    self.blurredBackgroundView = backgroundView;
+//    UIImage *blurredViewSnapshot = [previousKeyWindowSnapshot
+//                                    ya_applyBlurWithRadius:self.blurRadius
+//                                    tintColor:self.blurTintColor
+//                                    saturationDeltaFactor:self.blurSaturationDeltaFactor
+//                                    maskImage:nil];
+//    UIImageView *backgroundView = [[UIImageView alloc] initWithImage:blurredViewSnapshot];
+//    backgroundView.frame = self.bounds;
+//    backgroundView.alpha = 0.0f;
+    
+    UIVisualEffect *blurEffect;
+    blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    
+    UIVisualEffectView *visualEffectView;
+    visualEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    
+    visualEffectView.frame = self.bounds;
+    [self addSubview:visualEffectView];
+    self.blurredBackgroundView = visualEffectView;
 }
 
 - (void)setUpCancelButton
@@ -454,7 +457,7 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
         CGFloat alphaWithoutBounds = 1.0f - ( -(self.tableView.contentInset.top + self.tableView.contentOffset.y) / kBlurFadeRangeSize);
         // limit alpha to the interval [0, 1]
         CGFloat alpha = (CGFloat)fmax(fmin(alphaWithoutBounds, 1.0f), 0.0f);
-        self.blurredBackgroundView.alpha = alpha;
+//        self.blurredBackgroundView.alpha = alpha;
         self.cancelButtonShadowView.alpha = alpha;
     }
 }
