@@ -245,6 +245,9 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)groupDidChange:(NSNotification*)notif {
+    [self.noVideosLabel removeFromSuperview];
+    self.noVideosLabel = nil;
+    
     [self reload];
 }
 
