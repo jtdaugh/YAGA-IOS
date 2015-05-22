@@ -47,9 +47,11 @@ typedef void(^YACommentsOverlayViewCancelHandler)();
 
 - (instancetype)initWithTitle:(NSString *)title;
 
-- (void)addCommentWithTitle:(NSString *)title;
-
-- (void)addRecaptionWithCaption:(NSString *)newCaption;
+- (void)addCommentWithUsername:(NSString *)username Title:(NSString *)title;
+- (void)addRecaptionWithUsername:(NSString *)username newCaption:(NSString *)newCaption;
+- (void)addCaptionCreationWithUsername:(NSString *)username caption:(NSString *)caption;
+- (void)addCaptionMoveWithUsername:(NSString *)username;
+- (void)addCaptionDeletionWithUsername:(NSString *)username;
 
 - (void)show;
 

@@ -563,6 +563,9 @@
                 [weakSelf addHeartToViewFromSnapshot:child];
             } else {
                 [weakSelf.events addObject:child];
+                if ([child.value[@"type"] isEqualToString:@"comment"]) {
+                    
+                }
             }
         }
         [weakSelf beginMonitoringForNewEvents];
@@ -575,6 +578,8 @@
 - (void)beginMonitoringForCaptionChanges {
     __weak YAVideoPage *weakSelf = self;
     Firebase *caption = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"];
+    
+    // TODO: Queue these up in case user changes text and position (common). As is, that will cause this to fire multiple times instantly.
     [caption observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         if (snapshot.exists) {
             if (weakSelf.serverCaptionTextView) {
@@ -783,12 +788,23 @@
     }
 }
 
+- (BOOL)view:(UIView *)view isPositionedEqualTo:(UIView *)view2 {
+    if (!(view && view2)) return NO; // Neither are nil
+    if (!CGPointEqualToPoint(view.center, view2.center)) return NO; // Have same center
+    if (!CGAffineTransformEqualToTransform(view.transform, view2.transform)) return NO; // Have same transform
+    return YES;
+}
 
 - (void)commitCurrentCaption {
     if (self.editableCaptionTextView) {
 
         CGFloat vw = VIEW_WIDTH, vh = VIEW_HEIGHT;
         
+        NSDictionary *eventData;
+        
+        NSString *oldText = self.serverCaptionTextView.text;
+        NSString *newText = self.editableCaptionTextView.text;
+
         NSDictionary *textData = @{
                                    @"type": @"text",
                                    @"x":[NSNumber numberWithDouble: self.textFieldCenter.x/vw],
@@ -797,25 +813,58 @@
                                    @"transform":NSStringFromCGAffineTransform(self.textFieldTransform),
                                    @"text":self.editableCaptionTextView.text
                                    };
-        
-        if (![self.editableCaptionTextView.text length]) {
-            // this will remove the caption node.
+       
+        if (![newText length]) {
+            // Caption Deleted
             textData = nil;
+            if ([oldText length]) {
+                eventData = @{
+                              @"type":@"caption_deleted",
+                              @"username":[YAUser currentUser].username
+                              };
+            }
         }
         
-        // TODO: (more event types - caption changed, caption moved, caption created, caption deleted)
-        NSDictionary *eventData = @{
-                                   @"type": @"caption_change",
-                                   @"username":[YAUser currentUser].username,
-                                   };
+        
+        if ([newText length] && ![oldText length]) {
+            // Caption Created
+            eventData = @{
+                          @"type":@"caption_created",
+                          @"username":[YAUser currentUser].username,
+                          @"text":newText
+                          };
+        }
+        
+        if ([oldText length] && [newText length]) {
+            if ([oldText isEqualToString:newText] && ([self view:self.editableCaptionWrapperView isPositionedEqualTo:self.serverCaptionWrapperView])) {
+                // Nothing changed.
+                eventData = nil;
+            } else if (![oldText isEqualToString:newText]) {
+                // Changed text. In this case, dont care if they moved the caption in terms of event creation.
+                eventData = @{
+                              @"type":@"caption_change",
+                              @"username":[YAUser currentUser].username,
+                              @"text":newText
+                              };
 
+            } else {
+                // Caption repositioned but text is the same
+                eventData = @{
+                              @"type":@"caption_move",
+                              @"username":[YAUser currentUser].username
+                              };
+            }
+        }
+        
         [self.editableCaptionWrapperView removeFromSuperview];
         self.editableCaptionWrapperView = nil;
         self.editableCaptionTextView = nil;
         
         [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] setValue:textData];
-        [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
-
+        
+        if (eventData) {
+            [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
+        }
     }
 }
 
@@ -1327,6 +1376,24 @@
     }];
 }
 
+- (void)addEvent:(FDataSnapshot *)event toCommentsSheet:(YACommentsOverlayView *)commentsSheet{
+    if ([event.value[@"type"] isEqualToString:@"comment"]) {
+        [commentsSheet addCommentWithUsername:event.value[@"username"] Title:event.value[@"text"]];
+
+    } else if ([event.value[@"type"] isEqualToString:@"caption_created"]) {
+        [commentsSheet addCaptionCreationWithUsername:event.value[@"username"] caption:event.value[@"text"]];
+    
+    } else if ([event.value[@"type"] isEqualToString:@"caption_change"]) {
+        [commentsSheet addRecaptionWithUsername:event.value[@"username"] newCaption:event.value[@"text"]];
+    
+    } else if ([event.value[@"type"] isEqualToString:@"caption_move"]) {
+        [commentsSheet addCaptionMoveWithUsername:event.value[@"username"]];
+    
+    } else if ([event.value[@"type"] isEqualToString:@"caption_deleted"]) {
+        [commentsSheet addCaptionDeletionWithUsername:event.value[@"username"]];
+    }
+}
+
 - (void)commentButtonPressed {
     YACommentsOverlayView *actionSheet = [[YACommentsOverlayView alloc] initWithTitle:nil];
     
@@ -1345,14 +1412,15 @@
     actionSheet.cancelButtonTextAttributes = @{ NSFontAttributeName : defaultFont,
                                                 NSForegroundColorAttributeName : [UIColor whiteColor] };
     
-    [actionSheet addCommentWithTitle:NSLocalizedString(@"This is a test of a long comment. hahahaha. this is a very funny video. very funny. i think it is very funny its just fucking hilarious. haha", nil)];
+    for (FDataSnapshot *event in self.events) {
+        [self addEvent:event toCommentsSheet:actionSheet];
+    }
     
-    [actionSheet addRecaptionWithCaption:@"literally wtf"];
     
-    [actionSheet addCommentWithTitle:@"hahahahahahaha nakul have you seen this"];
-    
-    [actionSheet addCommentWithTitle:@"i dont get it at all....."];
-    
+    [actionSheet addCommentWithUsername:@"JESSE:" Title:@"Jerry sucks!"];
+//
+//    [actionSheet addCommentWithTitle:@"i dont get it at all....."];
+//    
     [actionSheet show];
 }
 

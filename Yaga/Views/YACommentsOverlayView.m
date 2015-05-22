@@ -218,15 +218,36 @@ static const CGFloat kTopSpaceMarginFraction = 0.333f;
 
 #pragma mark - Public
 
-- (void)addCommentWithTitle:(NSString *)title {
-    [self addItemWithTitle:title image:[UIImage imageNamed:@"chris"] type:YACommentsOverlayViewRowTypeComment];
+- (void)addCommentWithUsername:(NSString *)username Title:(NSString *)title {
+    NSString *text = [NSString stringWithFormat:@"%@: %@", username, title];
+    [self addItemWithTitle:text image:[UIImage imageNamed:@"chris"] type:YACommentsOverlayViewRowTypeComment];
 }
 
-- (void)addRecaptionWithCaption:(NSString *)newCaption{
-    [self addItemWithTitle:[NSString stringWithFormat:@"%@ recaptioned the video to '%@'",[YAUser currentUser].username, newCaption]
+- (void)addRecaptionWithUsername:(NSString *)username newCaption:(NSString *)newCaption {
+    [self addItemWithTitle:[NSString stringWithFormat:@"%@ recaptioned the video to '%@'", username, newCaption]
+                     image:[UIImage imageNamed:@"chris"]
+                      type:YACommentsOverlayViewRowTypeRecaption];
+
+}
+
+- (void)addCaptionCreationWithUsername:(NSString *)username caption:(NSString *)caption {
+    [self addItemWithTitle:[NSString stringWithFormat:@"%@ captioned the video '%@'", username, caption]
                      image:[UIImage imageNamed:@"chris"]
                       type:YACommentsOverlayViewRowTypeRecaption];
 }
+
+- (void)addCaptionDeletionWithUsername:(NSString *)username {
+    [self addItemWithTitle:[NSString stringWithFormat:@"%@ deleted the caption", username]
+                     image:[UIImage imageNamed:@"chris"]
+                      type:YACommentsOverlayViewRowTypeRecaption];
+}
+
+- (void)addCaptionMoveWithUsername:(NSString *)username {
+    [self addItemWithTitle:[NSString stringWithFormat:@"%@ moved the caption", username]
+                     image:[UIImage imageNamed:@"chris"]
+                      type:YACommentsOverlayViewRowTypeRecaption];
+}
+
 
 - (void)show
 {
