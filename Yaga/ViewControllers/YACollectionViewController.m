@@ -261,8 +261,10 @@ static NSString *cellID = @"Cell";
     
     self.willRefreshDate = [NSDate date];
     
-    [self.noVideosLabel removeFromSuperview];
-    self.noVideosLabel = nil;
+    if(showPullDownToRefresh) {
+        [self.noVideosLabel removeFromSuperview];
+        self.noVideosLabel = nil;
+    }
 }
 
 - (void)groupDidRefresh:(NSNotification*)notification {
