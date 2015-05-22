@@ -21,7 +21,6 @@ static const CGFloat kAutoDismissOffset = 80.0f;
 static const CGFloat kFlickDownHandlingOffset = 20.0f;
 static const CGFloat kFlickDownMinVelocity = 2000.0f;
 static const CGFloat kTopSpaceMarginFraction = 0.333f;
-static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
 
 // Model representation of a comment or a recaption
 @interface YACommentsOverlayViewItem : NSObject
@@ -34,13 +33,14 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
 /* No-op */
 @end
 
-@interface YACommentsOverlayView() <UITableViewDataSource, UITableViewDelegate>
+@interface YACommentsOverlayView() <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>
 @property (strong, nonatomic) NSMutableArray *items;
 @property (weak, nonatomic, readwrite) UIWindow *previousKeyWindow;
 @property (strong, nonatomic) UIWindow *window;
 @property (weak, nonatomic) UIVisualEffectView *blurredBackgroundView;
 @property (weak, nonatomic) UITableView *tableView;
-@property (weak, nonatomic) UIButton *cancelButton;
+//@property (weak, nonatomic) UIButton *cancelButton;
+@property (weak, nonatomic) UITextField *commentTextField;
 @property (weak, nonatomic) UIView *cancelButtonShadowView;
 @end
 
@@ -77,6 +77,14 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     
     if (self) {
         _cancelButtonTitle = @"Cancel";
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(keyboardWillShow:)
+                                                     name:UIKeyboardWillShowNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(keyboardWillBeHidden:)
+                                                     name:UIKeyboardWillHideNotification object:nil];
     }
     
     return self;
@@ -91,6 +99,8 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
 {
     self.tableView.dataSource = nil;
     self.tableView.delegate = nil;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - UITableViewDataSource
@@ -231,36 +241,23 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     
     [self setUpNewWindow];
     [self setUpBlurredBackgroundWithSnapshot:previousKeyWindowSnapshot];
-    [self setUpCancelButton];
+    [self setUpCommentTextField];
     [self setUpTableView];
     
     CGFloat slideDownMinOffset = (CGFloat)fmin(CGRectGetHeight(self.frame) + self.tableView.contentOffset.y, CGRectGetHeight(self.frame));
     self.tableView.transform = CGAffineTransformMakeTranslation(0, slideDownMinOffset);
     
     void(^delayedAnimations)(void) = ^(void) {
-        self.cancelButton.frame = CGRectMake(0,
+        self.commentTextField.frame = CGRectMake(15,
                                              CGRectGetMaxY(self.bounds) - self.cancelButtonHeight,
-                                             CGRectGetWidth(self.bounds),
+                                             CGRectGetWidth(self.bounds) - 30,
                                              self.cancelButtonHeight);
         
         self.tableView.transform = CGAffineTransformMakeTranslation(0, 0);
         
+        self.tableView.contentInset = [self insetsForTableView];
         
-        // manual calculation of table's contentSize.height
-        CGFloat tableContentHeight = [self.items count] * self.buttonHeight + CGRectGetHeight(self.tableView.tableHeaderView.frame);
-        
-        CGFloat topInset;
-        BOOL buttonsFitInWithoutScrolling = tableContentHeight < CGRectGetHeight(self.tableView.frame) * (1.0 - kTopSpaceMarginFraction);
-        if (buttonsFitInWithoutScrolling) {
-            // show all buttons if there isn't many
-            topInset = CGRectGetHeight(self.tableView.frame) - tableContentHeight;
-        } else {
-            // leave an empty space on the top to make the control look similar to UIActionSheet
-            topInset = (CGFloat)round(CGRectGetHeight(self.tableView.frame) * kTopSpaceMarginFraction);
-        }
-        self.tableView.contentInset = UIEdgeInsetsMake(topInset, 0, 0, 0);
-        
-        self.tableView.bounces = [self.cancelOnPanGestureEnabled boolValue] || !buttonsFitInWithoutScrolling;
+        self.tableView.bounces = [self.cancelOnPanGestureEnabled boolValue] || ![self buttonsFitInWithoutScrolling];
     };
     
     if ([UIView respondsToSelector:@selector(animateKeyframesWithDuration:delay:options:animations:completion:)]){
@@ -274,7 +271,6 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     } else {
         
         [UIView animateWithDuration:kDefaultAnimationDuration animations:^{
-//            immediateAnimations();
             delayedAnimations();
         }];
     }
@@ -301,6 +297,31 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     return !!self.window;
 }
 
+- (UIEdgeInsets)insetsForTableView {
+    CGFloat topInset;
+    if ([self buttonsFitInWithoutScrolling]) {
+        // show all buttons if there isn't many
+        topInset = CGRectGetHeight(self.tableView.frame) - [self tableContentHeight];
+    } else {
+        // leave an empty space on the top to make the control look similar to UIActionSheet
+        topInset = (CGFloat)round(CGRectGetHeight(self.tableView.frame) * kTopSpaceMarginFraction);
+    }
+    
+    return UIEdgeInsetsMake(topInset, 0, 0, 0);
+}
+
+- (BOOL)buttonsFitInWithoutScrolling {
+    BOOL buttonsFitInWithoutScrolling = [self tableContentHeight] < CGRectGetHeight(self.tableView.frame) * (1.0 - kTopSpaceMarginFraction);
+    
+    return buttonsFitInWithoutScrolling;
+}
+
+- (CGFloat)tableContentHeight {
+    CGFloat tableContentHeight = [self.items count] * self.buttonHeight + CGRectGetHeight(self.tableView.tableHeaderView.frame);
+    
+    return tableContentHeight;
+}
+
 - (void)dismissAnimated:(BOOL)animated duration:(NSTimeInterval)duration completion:(void(^)())completionHandler
 {
     if (![self isVisible]) {
@@ -317,7 +338,7 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     
     void(^tearDownView)(void) = ^(void) {
         // remove the views because it's easiest to just recreate them if the action sheet is shown again
-        for (UIView *view in @[self.tableView, self.cancelButton, self.window]) {
+        for (UIView *view in @[self.tableView, self.commentTextField, self.window]) {
             [view removeFromSuperview];
         }
         
@@ -332,7 +353,7 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     if (animated) {
         // animate sliding down tableView and cancelButton.
         [UIView animateWithDuration:duration animations:^{
-            self.cancelButton.transform = CGAffineTransformTranslate(self.cancelButton.transform, 0, self.cancelButtonHeight);
+            self.commentTextField.transform = CGAffineTransformTranslate(self.commentTextField.transform, 0, self.cancelButtonHeight);
             self.cancelButtonShadowView.alpha = 0.0f;
             
             // Shortest shift of position sufficient to hide all tableView contents below the bottom margin.
@@ -361,15 +382,6 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
 
 - (void)setUpBlurredBackgroundWithSnapshot:(UIImage *)previousKeyWindowSnapshot
 {
-//    UIImage *blurredViewSnapshot = [previousKeyWindowSnapshot
-//                                    ya_applyBlurWithRadius:self.blurRadius
-//                                    tintColor:self.blurTintColor
-//                                    saturationDeltaFactor:self.blurSaturationDeltaFactor
-//                                    maskImage:nil];
-//    UIImageView *backgroundView = [[UIImageView alloc] initWithImage:blurredViewSnapshot];
-//    backgroundView.frame = self.bounds;
-//    backgroundView.alpha = 0.0f;
-    
     UIVisualEffect *blurEffect;
     blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
     
@@ -381,42 +393,28 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     self.blurredBackgroundView = visualEffectView;
 }
 
-- (void)setUpCancelButton
+- (void)setUpCommentTextField
 {
-    UIButton *cancelButton;
-    // It's hard to check if UIButtonTypeSystem enumeration exists, so we're checking existence of another method that was introduced in iOS 7.
-    if ([UIView instancesRespondToSelector:@selector(tintAdjustmentMode)]) {
-        cancelButton= [UIButton buttonWithType:UIButtonTypeSystem];
-    } else {
-        cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    }
+    UITextField *commentTextField = [[UITextField alloc] initWithFrame:CGRectMake(15,
+                                                                                  CGRectGetMaxY(self.bounds) - self.cancelButtonHeight,
+                                                                                  CGRectGetWidth(self.bounds) - 30,
+                                                                                  self.cancelButtonHeight)];
     
-    NSAttributedString *attrTitle = [[NSAttributedString alloc] initWithString:self.cancelButtonTitle
-                                                                    attributes:self.cancelButtonTextAttributes];
-    [cancelButton setAttributedTitle:attrTitle forState:UIControlStateNormal];
-    [cancelButton addTarget:self action:@selector(cancelButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    cancelButton.frame = CGRectMake(0,
-                                    CGRectGetMaxY(self.bounds) - self.cancelButtonHeight,
-                                    CGRectGetWidth(self.bounds),
-                                    self.cancelButtonHeight);
-    // move the button below the screen (ready to be animated -show)
-    cancelButton.transform = CGAffineTransformMakeTranslation(0, self.cancelButtonHeight);
-    [self addSubview:cancelButton];
+    commentTextField.font = [UIFont systemFontOfSize:15];
+    commentTextField.keyboardType = UIKeyboardTypeDefault;
+    commentTextField.returnKeyType = UIReturnKeyDone;
+    commentTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    commentTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    commentTextField.backgroundColor = [UIColor clearColor];
+    commentTextField.textColor = [UIColor whiteColor];
+    commentTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Write a comment...", nil) attributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]}];
+    commentTextField.delegate = self;
+    commentTextField.transform = CGAffineTransformMakeTranslation(0, self.cancelButtonHeight);
+    commentTextField.keyboardAppearance = UIKeyboardAppearanceDark;
     
-    self.cancelButton = cancelButton;
+    [self addSubview:commentTextField];
     
-    // add a small shadow/glow above the button
-    if (self.cancelButtonShadowColor) {
-        self.cancelButton.clipsToBounds = NO;
-        CGFloat gradientHeight = (CGFloat)round(self.cancelButtonHeight * kCancelButtonShadowHeightRatio);
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, -gradientHeight, CGRectGetWidth(self.bounds), gradientHeight)];
-        CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = view.bounds;
-        gradient.colors = @[ (id)[UIColor colorWithWhite:0.0 alpha:0.0].CGColor, (id)[self.blurTintColor colorWithAlphaComponent:0.1f].CGColor ];
-        [view.layer insertSublayer:gradient atIndex:0];
-        [self.cancelButton addSubview:view];
-        self.cancelButtonShadowView = view;
-    }
+    self.commentTextField = commentTextField;
 }
 
 - (void)setUpTableView
@@ -432,6 +430,7 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     tableView.backgroundColor = [UIColor clearColor];
     tableView.showsVerticalScrollIndicator = NO;
     tableView.allowsSelection = NO;
+    tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
     
     if ([UITableView instancesRespondToSelector:@selector(setSeparatorInset:)]) {
         tableView.separatorInset = UIEdgeInsetsZero;
@@ -457,9 +456,44 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
         CGFloat alphaWithoutBounds = 1.0f - ( -(self.tableView.contentInset.top + self.tableView.contentOffset.y) / kBlurFadeRangeSize);
         // limit alpha to the interval [0, 1]
         CGFloat alpha = (CGFloat)fmax(fmin(alphaWithoutBounds, 1.0f), 0.0f);
-//        self.blurredBackgroundView.alpha = alpha;
         self.cancelButtonShadowView.alpha = alpha;
     }
+}
+
+#pragma mark - Notification Handlers
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+    NSDictionary* info = [notification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    
+    [UIView animateWithDuration:0.3f animations:^{
+        UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
+        self.tableView.contentInset = contentInsets;
+        self.tableView.scrollIndicatorInsets = contentInsets;
+        
+        CGRect commentTextFieldFrame = self.commentTextField.frame;
+        commentTextFieldFrame.origin.y -= kbSize.height;
+        self.commentTextField.frame = commentTextFieldFrame;
+    }];
+}
+
+- (void)keyboardWillBeHidden:(NSNotification *)notification {
+    [UIView animateWithDuration:0.3f animations:^{
+        self.tableView.contentInset = [self insetsForTableView];
+        
+        CGRect commentTextFieldFrame = self.commentTextField.frame;
+        commentTextFieldFrame.origin.y = CGRectGetMaxY(self.bounds) - self.cancelButtonHeight;
+        self.commentTextField.frame = commentTextFieldFrame;
+    }];
+}
+
+#pragma mark - UITextFieldDelegate
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [self.commentTextField resignFirstResponder];
+    self.commentTextField.text = @"";
+    
+    return YES;
 }
 
 @end
