@@ -431,6 +431,7 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
     UITableView *tableView = [[UITableView alloc] initWithFrame:frame];
     tableView.backgroundColor = [UIColor clearColor];
     tableView.showsVerticalScrollIndicator = NO;
+    tableView.allowsSelection = NO;
     
     if ([UITableView instancesRespondToSelector:@selector(setSeparatorInset:)]) {
         tableView.separatorInset = UIEdgeInsetsZero;
