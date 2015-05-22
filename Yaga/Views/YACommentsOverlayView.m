@@ -402,7 +402,7 @@ static const CGFloat kTopSpaceMarginFraction = 0.333f;
     
     commentTextField.font = [UIFont systemFontOfSize:15];
     commentTextField.keyboardType = UIKeyboardTypeDefault;
-    commentTextField.returnKeyType = UIReturnKeyDone;
+    commentTextField.returnKeyType = UIReturnKeySend;
     commentTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
     commentTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     commentTextField.backgroundColor = [UIColor clearColor];
