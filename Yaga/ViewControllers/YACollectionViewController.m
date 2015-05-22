@@ -371,7 +371,7 @@ static NSString *cellID = @"Cell";
     if(![YAUser currentUser].currentGroup.videos.count) {
         if(!self.noVideosLabel) {
             self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
-            self.noVideosLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+            self.noVideosLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:24];
             NSAttributedString *string = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Things are a bit quiet in here. Hold the big red button to record a video.", @"") attributes:@{NSStrokeColorAttributeName:[UIColor whiteColor],NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]}];
             
             self.noVideosLabel.textAlignment = NSTextAlignmentCenter;
