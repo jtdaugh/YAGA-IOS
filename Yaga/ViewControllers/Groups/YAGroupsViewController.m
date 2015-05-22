@@ -362,8 +362,6 @@ static NSString *CellIdentifier = @"GroupsCell";
         
         [group leaveWithCompletion:^(NSError *error) {
             if(!error) {
-                [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                
                 if(groupWasActive) {
                     if(self.groups.count) {
                         [YAUser currentUser].currentGroup = self.groups[0];
