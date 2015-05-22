@@ -13,9 +13,8 @@
 #import "UIWindow+YASnapshot.h"
 #import "YAUser.h"
 
-
 // Constants
-static const NSTimeInterval kDefaultAnimationDuration = 0.4f;
+static const NSTimeInterval kDefaultAnimationDuration = 0.25f;
 static const CGFloat kBlurFadeRangeSize = 200.0f;
 static NSString * const kCellIdentifier = @"Cell";
 static const CGFloat kAutoDismissOffset = 80.0f;
