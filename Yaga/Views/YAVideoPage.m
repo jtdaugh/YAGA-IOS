@@ -21,6 +21,7 @@
 #import "YAPanGestureRecognizer.h"
 #import "YADownloadManager.h"
 #import "YAServerTransactionQueue.h"
+#import "YACommentsOverlayView.h"
 
 #define CAPTION_FONT_SIZE 60.0
 #define CAPTION_STROKE_WIDTH 1.f
@@ -47,6 +48,7 @@
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
+@property (nonatomic, strong) UIButton *commentButton;
 
 @property (nonatomic, strong) UILabel *likeCaptionToolTipLabel;
 @property (nonatomic, strong) UILabel *swipeDownTooltipLabel;
@@ -407,6 +409,12 @@
     [self.overlay addSubview:self.deleteButton];
     self.deleteButton.layer.zPosition = 100;
     
+    self.commentButton = [[UIButton alloc] initWithFrame:CGRectMake(15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
+    [self.commentButton setBackgroundImage:[UIImage imageNamed:@"comment"] forState:UIControlStateNormal];
+    [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.commentButton];
+    self.commentButton.layer.zPosition = 100;
+    
 //    CGFloat likeSize = 42;
 //    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
 //    [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -474,7 +482,7 @@
     [self setupCaptionGestureRecognizers];
     [self.overlay bringSubviewToFront:self.shareButton];
     [self.overlay bringSubviewToFront:self.deleteButton];
-    
+    [self.overlay bringSubviewToFront:self.commentButton];
 }
 
 - (void)setupCaptionButtonContainer {
@@ -1317,6 +1325,35 @@
     [self animateButton:self.deleteButton withImageName:nil completion:^{
         [YAUtils deleteVideo:self.video];
     }];
+}
+
+- (void)commentButtonPressed {
+    YACommentsOverlayView *actionSheet = [[YACommentsOverlayView alloc] initWithTitle:nil];
+    
+    actionSheet.blurTintColor = [UIColor colorWithWhite:0.0f alpha:0.75f];
+    actionSheet.blurRadius = 8.0f;
+    actionSheet.buttonHeight = 80.0f;
+    actionSheet.cancelButtonHeight = 50.0f;
+    actionSheet.cancelButtonShadowColor = [UIColor colorWithWhite:0.0f alpha:0.1f];
+    actionSheet.separatorColor = [UIColor colorWithWhite:1.0f alpha:0.3f];
+    actionSheet.selectedBackgroundColor = [UIColor colorWithWhite:0.0f alpha:0.5f];
+    UIFont *defaultFont = [UIFont fontWithName:@"Avenir" size:17.0f];
+    actionSheet.commentTextAttributes = @{ NSFontAttributeName : defaultFont,
+                                           NSForegroundColorAttributeName : [UIColor whiteColor] };
+    actionSheet.recaptionTextAttributes = @{ NSFontAttributeName : defaultFont,
+                                             NSForegroundColorAttributeName : [UIColor grayColor] };
+    actionSheet.cancelButtonTextAttributes = @{ NSFontAttributeName : defaultFont,
+                                                NSForegroundColorAttributeName : [UIColor whiteColor] };
+    
+    [actionSheet addCommentWithTitle:NSLocalizedString(@"This is a test of a long comment. hahahaha. this is a very funny video. very funny. i think it is very funny its just fucking hilarious. haha", nil)];
+    
+    [actionSheet addRecaptionWithCaption:@"literally wtf"];
+    
+    [actionSheet addCommentWithTitle:@"hahahahahahaha nakul have you seen this"];
+    
+    [actionSheet addCommentWithTitle:@"i dont get it at all....."];
+    
+    [actionSheet show];
 }
 
 - (void)animateButton:(UIButton*)button withImageName:(NSString*)imageName completion:(void (^)(void))completion {

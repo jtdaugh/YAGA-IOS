@@ -214,7 +214,7 @@ static const CGFloat kCancelButtonShadowHeightRatio = 0.333f;
 }
 
 - (void)addRecaptionWithCaption:(NSString *)newCaption{
-    [self addItemWithTitle:[NSString stringWithFormat:@"'%@' recaptioned the video to '%@'",[YAUser currentUser].username, newCaption]
+    [self addItemWithTitle:[NSString stringWithFormat:@"%@ recaptioned the video to '%@'",[YAUser currentUser].username, newCaption]
                      image:[UIImage imageNamed:@"chris"]
                       type:YACommentsOverlayViewRowTypeRecaption];
 }
