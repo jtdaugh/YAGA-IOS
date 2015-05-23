@@ -71,6 +71,7 @@
 
 @property (strong, nonatomic) UIView *serverCaptionWrapperView;
 @property (strong, nonatomic) UITextView *serverCaptionTextView;
+@property (strong, nonatomic) FDataSnapshot *currentCaptionSnapshot;
 
 @property (strong, nonatomic) UIView *editableCaptionWrapperView;
 @property (strong, nonatomic) UITextView *editableCaptionTextView;
@@ -244,6 +245,8 @@
 }
 
 - (void)dealloc {
+    [self clearFirebase];
+
     [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION      object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION      object:nil];
@@ -544,35 +547,10 @@
     self.heartData = [[MutableOrderedDictionary alloc] init];
     
     NSLog(@"serverid: %@", self.video.serverId);
-    
-    __weak YAVideoPage *weakSelf = self;
-    
-    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        FDataSnapshot *caption = [snapshot childSnapshotForPath:@"caption"];
-        if (caption.exists) {
-            [weakSelf insertCaptionFromSnapshot:caption];
-        } else {
-            [weakSelf addGestureRecognizer:weakSelf.captionTapRecognizer];
-        }
-        
-        weakSelf.events = [NSMutableArray array];
-        FDataSnapshot *eventsSnapshot = [snapshot childSnapshotForPath:@"events"];
-        
-        for (FDataSnapshot *child in eventsSnapshot.children) {
-            if ([child.value[@"type"] isEqualToString:@"heart"]) {
-                [weakSelf addHeartToViewFromSnapshot:child];
-            } else {
-                [weakSelf.events addObject:child];
-                if ([child.value[@"type"] isEqualToString:@"comment"]) {
-                    
-                }
-            }
-        }
-        [weakSelf beginMonitoringForNewEvents];
-        [weakSelf beginMonitoringForCaptionChanges];
-        
-    }];
-    
+
+    self.events = [NSMutableArray array];
+    [self beginMonitoringForEvents];
+    [self beginMonitoringForCaptionChanges];
 }
 
 - (void)beginMonitoringForCaptionChanges {
@@ -587,27 +565,38 @@
             } else {
                 [weakSelf insertCaptionFromSnapshot:snapshot];
             }
+        } else {
+            [weakSelf addGestureRecognizer:weakSelf.captionTapRecognizer];
         }
     }];
 }
 
-- (void)beginMonitoringForNewEvents {
+- (void)beginMonitoringForEvents {
     Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"];
-
+    
     __weak YAVideoPage *weakSelf = self;
-    [[events queryStartingAtValue:((FDataSnapshot*)[self.events lastObject]).key] observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
+    
+    __block BOOL initialLoaded = NO;
+    
+    [events observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         if ([snapshot.value[@"type"] isEqualToString:@"heart"]) {
-            [weakSelf addHeartToViewFromSnapshot:snapshot];
+            [weakSelf addHeartToViewFromSnapshot:snapshot delayNeeded:!initialLoaded];
         } else {
             [weakSelf.events addObject:snapshot];
-            
             // TODO: reload comments table
         }
     }];
+    
+    [events observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        initialLoaded = YES;
+    }];
+    
+
 }
 
-- (void)addHeartToViewFromSnapshot:(FDataSnapshot *)snapshot {
-    
+- (void)addHeartToViewFromSnapshot:(FDataSnapshot *)snapshot delayNeeded:(BOOL)delay {
+    NSLog(@"begin addHeartToViewFromSnapshot");
+
     NSString *username = snapshot.value[@"username"];
     if (!username) username = @"yaga";
     
@@ -628,7 +617,7 @@
     CGAffineTransform original = likeHeart.transform;
     likeHeart.transform = CGAffineTransformScale(likeHeart.transform, 0.75, 0.75);
     
-    [UIView animateWithDuration:0.1 delay:([self.heartViews count] * 0.1f) options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+    [UIView animateWithDuration:0.1 delay:(delay ? ([self.heartViews count] * 0.05f) : 0.0) options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
         likeHeart.alpha = 0.6;
         likeHeart.transform = CGAffineTransformScale(original, 1.0, 1.0);
@@ -649,6 +638,7 @@
 
 // initial adding of caption. modifications will instead call -updateCaptionFromSnapshot
 - (void)insertCaptionFromSnapshot:(FDataSnapshot *)snapshot {
+    self.currentCaptionSnapshot = snapshot;
 
     NSString *username = snapshot.value[@"username"];
     if (!username) username = @"yaga";
@@ -692,37 +682,58 @@
     } completion:nil];
 }
 
-- (void)updateCaptionFromSnapshot:(FDataSnapshot *)snapshot {
-    if (snapshot.exists) {
-        self.serverCaptionWrapperView.alpha = 0;
-        self.serverCaptionTextView.text = snapshot.value[@"text"];
-        CGSize newSize = [self.serverCaptionTextView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
-        CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
-        self.serverCaptionTextView.frame = captionFrame;
-
-        CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
-                                         [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
-                                         newSize.width + (2.f*CAPTION_WRAPPER_INSET),
-                                         newSize.height + (2.f*CAPTION_WRAPPER_INSET));
-        
-        // If we dont set the transform to identity before adjusting the frame if fuxxs everything up.
-        self.serverCaptionWrapperView.transform = CGAffineTransformIdentity;
-        self.serverCaptionWrapperView.frame = wrapperFrame;
-        
-        CGAffineTransform finalTransform = CGAffineTransformFromString(snapshot.value[@"transform"]);
-        self.serverCaptionWrapperView.transform = CGAffineTransformScale(finalTransform, 0.75, 0.75);
-
-        [UIView animateWithDuration:0.1 animations:^{
-            self.serverCaptionWrapperView.transform = finalTransform;
-            self.serverCaptionWrapperView.alpha = 0.75;
-        }];
-        
-    } else {
-        [self.serverCaptionWrapperView removeFromSuperview];
-        self.serverCaptionWrapperView = nil;
-        self.serverCaptionTextView = nil;
-        [self addGestureRecognizer:self.captionTapRecognizer];
+- (BOOL)captionSnapshot:(FDataSnapshot *)snapshot1 isEqualToSnapshot:(FDataSnapshot *)snapshot2 {
+    if (!snapshot1.exists && snapshot2.exists) {
+        return NO;
     }
+    
+    if (![snapshot1.value[@"text"] isEqualToString:snapshot2.value[@"text"]]) {
+        return NO;
+    }
+    if (!([snapshot1.value[@"x"] doubleValue] == [snapshot2.value[@"x"] doubleValue])) {
+        return NO;
+    }
+    if (!([snapshot1.value[@"y"] doubleValue] == [snapshot2.value[@"y"] doubleValue])) {
+        return NO;
+    }
+    if (![snapshot1.value[@"transform"] isEqualToString:snapshot2.value[@"transform"]]) {
+        return NO;
+    }
+    return YES;
+    
+}
+
+- (void)updateCaptionFromSnapshot:(FDataSnapshot *)snapshot {
+    
+    if ([self captionSnapshot:snapshot isEqualToSnapshot:self.currentCaptionSnapshot]) {
+        // Nothing changed.
+        return;
+    }
+    self.currentCaptionSnapshot = snapshot;
+
+    self.serverCaptionWrapperView.alpha = 0;
+    self.serverCaptionTextView.text = snapshot.value[@"text"];
+    CGSize newSize = [self.serverCaptionTextView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
+    CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
+    self.serverCaptionTextView.frame = captionFrame;
+
+    CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
+                                     [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
+                                     newSize.width + (2.f*CAPTION_WRAPPER_INSET),
+                                     newSize.height + (2.f*CAPTION_WRAPPER_INSET));
+    
+    // If we dont set the transform to identity before adjusting the frame if fuxxs everything up.
+    self.serverCaptionWrapperView.transform = CGAffineTransformIdentity;
+    self.serverCaptionWrapperView.frame = wrapperFrame;
+    
+    CGAffineTransform finalTransform = CGAffineTransformFromString(snapshot.value[@"transform"]);
+    self.serverCaptionWrapperView.transform = CGAffineTransformScale(finalTransform, 0.75, 0.75);
+
+    [UIView animateWithDuration:0.1 animations:^{
+        self.serverCaptionWrapperView.transform = finalTransform;
+        self.serverCaptionWrapperView.alpha = 0.75;
+    }];
+    
 }
 
 #pragma mark - caption gestures
@@ -863,6 +874,7 @@
         [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] setValue:textData];
         
         if (eventData) {
+            self.serverCaptionWrapperView.alpha = 0;
             [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
         }
     }
