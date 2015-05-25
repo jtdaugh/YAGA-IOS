@@ -117,8 +117,8 @@
                                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
                                                                                     object:self.video];
                                 
-                                //check whether we need to upload gif
-                                [[YAServer sharedServer] uploadGIFForVideoWithServerId:self.video.serverId];
+//                                //check whether we need to upload gif
+//                                [[YAServer sharedServer] uploadGIFForVideoWithServerId:self.video.serverId];
                             }
                             else
                             {

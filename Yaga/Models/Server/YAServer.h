@@ -71,8 +71,8 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)sync;
 @property (nonatomic, strong) NSDate *lastUpdateTime;
 
-//execute when after recording, when gif is generated
-- (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId;
+////execute when after recording, when gif is generated
+//- (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId;
 
 - (BOOL)hasAuthToken;
 @end

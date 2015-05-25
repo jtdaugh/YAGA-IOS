@@ -536,11 +536,11 @@
                            //call completion block when video is posted
                            completion(response, error);
                            
-                           if(!error && !video.isInvalidated && video.gifFilename.length)
-                               [self uploadGIFForVideoWithServerId:video.serverId];
-                           else {
-                               DLog(@"Can't post GIF! It's not ready yet.");
-                           }
+//                           if(!error && !video.isInvalidated && video.gifFilename.length)
+//                               [self uploadGIFForVideoWithServerId:video.serverId];
+//                           else {
+//                               DLog(@"Can't post GIF! It's not ready yet.");
+//                           }
                        }];
                    });
                    
