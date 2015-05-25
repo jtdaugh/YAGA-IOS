@@ -210,9 +210,7 @@
                              actionWithTitle:NSLocalizedString(@"Delete", nil)
                              style:UIAlertActionStyleDestructive
                              handler:^(UIAlertAction *action) {
-                                 [[RLMRealm defaultRealm] beginWriteTransaction];
-                                 [video removeFromCurrentGroup];
-                                 [[RLMRealm defaultRealm] commitWriteTransaction];
+                                 [video removeFromCurrentGroupWithCompletion:nil];
                              }]];
     
     UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;

@@ -77,6 +77,9 @@
 }
 
 - (void)createGroupWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
@@ -110,6 +113,9 @@
 }
 
 - (void)renameGroupWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
@@ -137,6 +143,9 @@
 }
 
 - (void)addGroupMembersWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     NSArray *phones = self.data[YA_GROUP_ADD_MEMBER_PHONES];
     NSArray *usernames = self.data[YA_GROUP_ADD_MEMBER_NAMES];
     
@@ -166,6 +175,9 @@
 }
 
 - (void)deleteGroupMemberWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     YAGroup *group = [self groupFromData];
     NSString *phone = self.data[YA_GROUP_DELETE_MEMBER];
     
@@ -193,6 +205,9 @@
 }
 
 - (void)leaveGroupWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     NSString *groupId = self.data[YA_GROUP_ID];
     NSString *phone = [YAUser currentUser].phoneNumber;
     
@@ -209,6 +224,9 @@
 }
 
 - (void)muteUnmuteGroupWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
@@ -230,6 +248,31 @@
             [self logEvent:[NSString stringWithFormat:@"%@ group %@", group.name, group.muted ? @"muted" : @"unmuted"] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
+    }];
+}
+
+- (void)deleteVideoWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
+    YAVideo *video = [self videoFromData];
+    NSString *groupId = self.data[YA_GROUP_ID];
+    
+    if(!video || [video isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
+    NSString *videoServerId = video.serverId;
+    [[YAServer sharedServer] deleteVideoWithId:videoServerId fromGroup:groupId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            [self logEvent:[NSString stringWithFormat:@"unable to delete video with id:%@, error %@", videoServerId, error.localizedDescription] type:YANotificationTypeError];
+            completion(nil, error);
+        }
+        else {
+            [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", videoServerId] type:YANotificationTypeSuccess];
+            completion(nil, nil);
+        }
+        
     }];
 }
 
@@ -266,29 +309,6 @@
                                   [[Mixpanel sharedInstance] track:@"Video posted"];
                               }
                           }];
-}
-
-
-- (void)deleteVideoWithCompletion:(responseBlock)completion {
-    YAVideo *video = [self videoFromData];
-    NSString *groupId = self.data[YA_GROUP_ID];
-    
-    if(!video || [video isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
-        return;
-    }
-    NSString *videoServerId = video.serverId;
-    [[YAServer sharedServer] deleteVideoWithId:videoServerId fromGroup:groupId withCompletion:^(id response, NSError *error) {
-        if(error) {
-            [self logEvent:[NSString stringWithFormat:@"unable to delete video with id:%@, error %@", videoServerId, error.localizedDescription] type:YANotificationTypeError];
-            completion(nil, error);
-        }
-        else {
-            [self logEvent:[NSString stringWithFormat:@"video with id:%@ deleted successfully", videoServerId] type:YANotificationTypeSuccess];
-            completion(nil, nil);
-        }
-        
-    }];
 }
 
 - (void)uploadVideoCaptionWithCompletion:(responseBlock)completion {

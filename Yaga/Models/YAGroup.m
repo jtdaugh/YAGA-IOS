@@ -450,6 +450,8 @@
     
     [[RLMRealm defaultRealm] beginWriteTransaction];
     
+    NSMutableSet *videosToDelete = [NSMutableSet set];
+    
     for(NSDictionary *videoDic in videoDictionaries) {
         
         //video exists? update name
@@ -460,7 +462,7 @@
                 BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue];
                 
                 if(deleted) {
-                    [video removeFromCurrentGroup];
+                    [videosToDelete addObject:video];
                 }
                 else {
                     
@@ -516,6 +518,10 @@
         }
     }
     [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    for(YAVideo *video in [videosToDelete copy]) {
+        [video removeFromCurrentGroupWithCompletion:nil];
+    }
     
     return newVideos;
 }

@@ -22,8 +22,10 @@
 
 //- (void)addLeaveGroupTransactionForGroupId:(NSString*)groupId;
 //- (void)addMuteUnmuteTransactionForGroup:(YAGroup*)group;
+//- (void)addDeleteVideoTransaction:(NSString*)videoId forGroupId:(NSString*)groupId;
+
 - (void)addUploadVideoTransaction:(YAVideo*)video toGroup:(YAGroup*)group;
-- (void)addDeleteVideoTransaction:(NSString*)videoId forGroupId:(NSString*)groupId;
+
 - (void)addUpdateVideoCaptionTransaction:(YAVideo*)video;
 
 //will pause automatically when no internet connection
