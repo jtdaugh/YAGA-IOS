@@ -1152,6 +1152,10 @@ typedef enum {
         [self.openSettingsButton.titleLabel setNumberOfLines:0];
         self.openSettingsButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
         [self.cameraView addSubview:self.openSettingsButton];
+        
+        [self.recordTooltipLabel removeFromSuperview];
+        self.recordTooltipLabel = nil;
+        [self showCameraAccessories:NO];
     }
 }
 
