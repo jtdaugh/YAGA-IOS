@@ -47,6 +47,8 @@
 @property (strong, nonatomic) UITapGestureRecognizer *tapOutGestureRecognizer;
 @property (nonatomic) CGRect keyboardRect;
 @property (nonatomic, strong) UIButton *keyBoardAccessoryButton;
+
+@property (nonatomic, strong) UILabel *debugLabel;
 @property NSUInteger fontIndex;
 
 //@property CGFloat lastScale;
@@ -92,6 +94,12 @@
         [self initOverlayControls];
         [self initTooltip];
         
+#ifdef DEBUG
+        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 30)];
+        self.debugLabel.textAlignment = NSTextAlignmentCenter;
+        self.debugLabel.textColor = [UIColor whiteColor];
+        [self addSubview:self.debugLabel];
+#endif
         
         [self setBackgroundColor:PRIMARY_COLOR];
     }
@@ -122,6 +130,8 @@
         
         _video = video;
 
+        self.debugLabel.text = video.serverId;
+        
         [self updateControls];
         
         if(!shouldPreload) {
