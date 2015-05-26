@@ -107,20 +107,21 @@
     return hud;
 }
 
-+ (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error {
++ (BOOL)validatePhoneNumber:(NSString*)value {
     NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
     
+    NSError *error;
     NBPhoneNumber *myNumber = [phoneUtil parse:value
-                                 defaultRegion:[YAUser currentUser].countryCode error:error];
+                                 defaultRegion:[YAUser currentUser].countryCode error:&error];
     
-    if(error && *error)
+    if(error)
         return NO;
-    //
-    //
-    //    [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:error];
-    //
-    //    if(*error)
-    //        return NO;
+    
+    
+    [phoneUtil format:myNumber numberFormat:NBEPhoneNumberFormatE164 error:&error];
+    
+    if(error)
+        return NO;
     
     
     return [phoneUtil isValidNumber:myNumber];

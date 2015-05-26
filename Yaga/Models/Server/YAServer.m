@@ -877,7 +877,7 @@
     
     NSMutableArray *correctPhones = [NSMutableArray arrayWithArray:[[NSSet setWithArray:phones] allObjects]];
     for(NSString *phone in [correctPhones copy]) {
-        if(![YAUtils validatePhoneNumber:phone error:nil]) {
+        if(![YAUtils validatePhoneNumber:phone]) {
             [correctPhones removeObject:phone];
         }
     }

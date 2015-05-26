@@ -214,7 +214,7 @@
     NSMutableArray *phoneNumbers = [NSMutableArray new];
     
     for(NSDictionary *contact in self.contactsThatNeedInvite) {
-        if([YAUtils validatePhoneNumber:contact[nPhone] error:nil])
+        if([YAUtils validatePhoneNumber:contact[nPhone]])
             [phoneNumbers addObject:contact[nPhone]];
     }
     
@@ -290,7 +290,7 @@
 - (void)finishedRecordingVideoToURL:(NSURL *)videoURL {
     NSMutableArray *friendNumbers = [NSMutableArray new];
     for(NSDictionary *contact in self.contactsThatNeedInvite) {
-        if([YAUtils validatePhoneNumber:contact[nPhone] error:nil])
+        if([YAUtils validatePhoneNumber:contact[nPhone]])
             [friendNumbers addObject:contact[nPhone]];
     }
     

@@ -292,9 +292,11 @@
         [self.membersTableview reloadData];
         
         //add by phone
-        NSString *phone = [YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatE164];
-        if(phone) {
-            [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nRegistered:[NSNumber numberWithBool:NO], nUsername:[YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatNATIONAL],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
+        if([YAUtils validatePhoneNumber:text]) {
+            NSString *phone = [YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatE164];
+            if(phone) {
+                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nRegistered:[NSNumber numberWithBool:NO], nUsername:[YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatNATIONAL],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
+            }
         }
         //add by username
         else if([text rangeOfString:@" "].location == NSNotFound) {
@@ -435,8 +437,11 @@
         NSString *phoneNumber = contact[nPhone];
         
         NSError *error;
-        if(![YAUtils validatePhoneNumber:phoneNumber error:&error]) {
-            errorsString = [errorsString stringByAppendingFormat:@"%@ : %@ \n", contact[nCompositeName], contact[nPhone]];
+        if(![YAUtils validatePhoneNumber:phoneNumber]) {
+            if(((NSString*)contact[nCompositeName]).length)
+                errorsString = [errorsString stringByAppendingFormat:@"%@ : %@ \n", contact[nCompositeName], contact[nPhone]];
+            else
+                errorsString = [errorsString stringByAppendingFormat:@"%@ \n", contact[nPhone]];
         }
     }
     
