@@ -68,11 +68,15 @@
         [self.loader startAnimating];
         self.backgroundView = self.loader;
 
-//        self.username = [[UILabel alloc] initWithFrame:self.bounds];
-//        [self.username setTextAlignment:NSTextAlignmentCenter];
-//        [self.username setTextColor:PRIMARY_COLOR];
-//        [self.username setFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:30]];
-//        [self.loader addSubview:self.username];
+        self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30)];
+        [self.username setTextAlignment:NSTextAlignmentRight];
+        [self.username setMinimumScaleFactor:0.5];
+        [self.username setAdjustsFontSizeToFitWidth:YES];
+        [self.username setTextColor:[UIColor whiteColor]];
+        [self.username setFont:[UIFont fontWithName:BIG_FONT size:20]];
+        self.username.shadowColor = [UIColor blackColor];
+        self.username.shadowOffset = CGSizeMake(1, 1);
+        [self.contentView addSubview:self.username];
         
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
@@ -270,9 +274,7 @@
         self.caption.text = @"";
     }
     
-//    if(!self.username.hidden)
-//        self.username.attributedText = [self attributedStringFromString:self.video.creator font:nil];
-//
+    self.username.text = self.video.creator;
 }
 
 #pragma mark - UITapGestureRecognizer actions
