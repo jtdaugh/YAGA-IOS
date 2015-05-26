@@ -104,8 +104,6 @@
 }
 
 - (void)handleKick {
-    NSString *groupId = self.meta[@"group_id"];
-    [self openGroupWithId:groupId refresh:YES];
 }
 
 - (void)handleLeave {
