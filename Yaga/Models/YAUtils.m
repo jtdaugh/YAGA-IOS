@@ -210,7 +210,7 @@
                              actionWithTitle:NSLocalizedString(@"Delete", nil)
                              style:UIAlertActionStyleDestructive
                              handler:^(UIAlertAction *action) {
-                                 [video removeFromCurrentGroupWithCompletion:nil];
+                                 [video removeFromCurrentGroupWithCompletion:nil removeFromServer:YES];
                              }]];
     
     UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;

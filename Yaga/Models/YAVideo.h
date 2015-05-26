@@ -52,7 +52,7 @@ typedef void(^completionBlock)(NSError *error);
 @property YAGroup *group;
 
 + (YAVideo*)video;
-- (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion;
+- (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer;
 - (void)rename:(NSString*)newName withFont:(NSInteger)font;
 
 - (void)updateLikersWithArray:(NSArray *)likers;

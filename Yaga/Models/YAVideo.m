@@ -57,10 +57,34 @@
     return result;
 }
 
-- (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion {
+- (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer {
+    void (^deleteBlock)(void) = ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
+        
+        NSString *videoId = self.localId;
+        [[RLMRealm defaultRealm] beginWriteTransaction];
+        
+        [self purgeLocalAssets];
+        [self.group.videos removeObjectAtIndex:[self.group.videos indexOfObject:self]];
+        [[RLMRealm defaultRealm] deleteObject:self];
+        
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId];
+        
+        DLog(@"video with id:%@ deleted successfully", videoId);
+    };
+    
+    if(removeFromServer) {
+        deleteBlock();
+        return;
+    }
+        
+    
     NSAssert(self.serverId, @"Can't delete remote video with non existing id");
 
     NSString *videoServerId = self.serverId;
+    
     [[YAServer sharedServer] deleteVideoWithId:videoServerId fromGroup:self.group.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
             DLog(@"unable to delete video with id:%@, error %@", videoServerId, error.localizedDescription);
@@ -68,20 +92,8 @@
                 completion(error);
         }
         else {
-            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
+            deleteBlock();
             
-            NSString *videoId = self.localId;
-            [[RLMRealm defaultRealm] beginWriteTransaction];
-            
-            [self purgeLocalAssets];
-            [self.group.videos removeObjectAtIndex:[self.group.videos indexOfObject:self]];
-            [[RLMRealm defaultRealm] deleteObject:self];
-            
-            [[RLMRealm defaultRealm] commitWriteTransaction];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId];
-            
-            DLog(@"video with id:%@ deleted successfully", videoServerId);
             if(completion)
                 completion(nil);
         }

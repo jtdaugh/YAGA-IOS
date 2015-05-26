@@ -520,7 +520,7 @@
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
     for(YAVideo *video in [videosToDelete copy]) {
-        [video removeFromCurrentGroupWithCompletion:nil];
+        [video removeFromCurrentGroupWithCompletion:nil removeFromServer:NO];
     }
     
     return newVideos;
