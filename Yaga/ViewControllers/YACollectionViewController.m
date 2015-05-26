@@ -355,6 +355,7 @@ static NSString *cellID = @"Cell";
         }];
     }
     else {
+        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         [self showActivityIndicator:NO];
     }
     
