@@ -104,6 +104,7 @@
 }
 
 - (void)handleKick {
+    [[YAServer sharedServer] sync];
 }
 
 - (void)handleLeave {
