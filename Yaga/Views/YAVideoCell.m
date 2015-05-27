@@ -27,7 +27,7 @@
 @property (nonatomic, assign) YAVideoCellState state;
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
 
-@property (strong, nonatomic) UIImageView *loader;
+@property (strong, nonatomic) FLAnimatedImageView *loaderView;
 
 @property (strong, nonatomic) UILabel *username;
 @property (strong, nonatomic) UILabel *caption;
@@ -56,17 +56,16 @@
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
-        self.loader = [[UIImageView alloc] initWithFrame:self.bounds];
-        NSMutableArray *loaderImages = [NSMutableArray new];
-        for(NSUInteger loaderImageIndex = 1; loaderImageIndex < 11; loaderImageIndex++) {
-            UIImage *loaderImage = [UIImage imageNamed:[NSString stringWithFormat:@"loader%lu.png", (unsigned long)loaderImageIndex]];
-            [loaderImages addObject:loaderImage];
-        }
-        
-        self.loader.animationImages = loaderImages;
-        self.loader.animationDuration = 1.0;
-        [self.loader startAnimating];
-        self.backgroundView = self.loader;
+        self.loaderView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSData *loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
+            self.loaderView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.loaderView startAnimating];
+            });
+        });
+
+        self.backgroundView = self.loaderView;
 
         self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30)];
         [self.username setTextAlignment:NSTextAlignmentRight];
@@ -234,10 +233,10 @@
 }
 
 - (void)showLoader:(BOOL)show {
-    self.loader.hidden = !show;
+    self.loaderView.hidden = !show;
 
-    if(!self.loader.hidden && !self.loader.isAnimating)
-        [self.loader startAnimating];
+    if(!self.loaderView.hidden && !self.loaderView.isAnimating)
+        [self.loaderView startAnimating];
     
     // self.username.hidden = !show;
     self.caption.hidden = NO;
