@@ -60,11 +60,13 @@
 //    
 //    origin = [self getNewOrigin:self.titleLable];
     
-    self.skipButton = [[UIBarButtonItem alloc] initWithTitle:@"Skip" style:UIBarButtonItemStylePlain target:self action:@selector(skipButtonPressed:)];
-
-    [self.navigationItem setHidesBackButton:YES animated:YES];
-
-    self.navigationItem.rightBarButtonItem = self.skipButton;
+    if(!self.canNavigateBack) {
+        self.skipButton = [[UIBarButtonItem alloc] initWithTitle:@"Skip" style:UIBarButtonItemStylePlain target:self action:@selector(skipButtonPressed:)];
+        
+        [self.navigationItem setHidesBackButton:YES animated:YES];
+        
+        self.navigationItem.rightBarButtonItem = self.skipButton;
+    }
     
     self.friendNamesLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.1f)];
     [self.friendNamesLabel setText:[self getFriendNamesTitle]];
