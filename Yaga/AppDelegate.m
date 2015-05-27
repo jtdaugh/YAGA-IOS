@@ -26,8 +26,11 @@
 
 #import "YAUserPermissions.h"
 
-#import <Parse/Parse.h>
-#import <ParseCrashReporting/ParseCrashReporting.h>
+//#import <Parse/Parse.h>
+//#import <ParseCrashReporting/ParseCrashReporting.h>
+
+#import <Fabric/Fabric.h>
+#import <Crashlytics/Crashlytics.h>
 
 #import "YARealmMigrationManager.h"
 
@@ -45,6 +48,8 @@
     YARealmMigrationManager *migrationsMaganaer = [YARealmMigrationManager new];
     [migrationsMaganaer executeMigrations];
     
+    [Fabric with:@[CrashlyticsKit]];
+
     //analytics
 //    NSString *mixPanelAppId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"YAMixPanelAppId"];
 //    AnalyticsKitMixpanelProvider *mixPanel = [[AnalyticsKitMixpanelProvider alloc] initWithAPIKey:MIXPANEL_TOKEN];
@@ -130,11 +135,11 @@
     if([YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
     
-    [ParseCrashReporting enable];
-    [Parse setApplicationId:@"kJ6CSJ9AS0ynVDGniOssk0qtIpBCvy7v5JlUHLx4"
-                  clientKey:@"q34FRaKtYSh9VPSsLLM8JWHcSPRGn4X2i6gTJV1v"];
-    
-    [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
+//    [ParseCrashReporting enable];
+//    [Parse setApplicationId:@"kJ6CSJ9AS0ynVDGniOssk0qtIpBCvy7v5JlUHLx4"
+//                  clientKey:@"q34FRaKtYSh9VPSsLLM8JWHcSPRGn4X2i6gTJV1v"];
+//    
+//    [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
 
     // Initialize the library with your
     // Mixpanel project token, MIXPANEL_TOKEN

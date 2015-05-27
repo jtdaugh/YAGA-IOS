@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C71B162E76008553A8 /* Fabric.framework */; };
+		41BD42CA1B162E76008553A8 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C81B162E76008553A8 /* Crashlytics.framework */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
 		41D519B91AABAE07000246CF /* bumper480x640.m4v in Resources */ = {isa = PBXBuildFile; fileRef = 41D519B81AABAE07000246CF /* bumper480x640.m4v */; };
 		6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */; };
@@ -113,6 +115,8 @@
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		41BD42C71B162E76008553A8 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		41BD42C81B162E76008553A8 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		41D519B81AABAE07000246CF /* bumper480x640.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper480x640.m4v; sourceTree = "<group>"; };
 		6E0A374F1A807E4F0034ABB4 /* YAPullToRefreshLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPullToRefreshLoadingView.h; sourceTree = "<group>"; };
@@ -296,12 +300,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E18EC491AD5731500D4FA3C /* CoreTelephony.framework in Frameworks */,
+				41BD42CA1B162E76008553A8 /* Crashlytics.framework in Frameworks */,
 				86AB83F61A83B29B00EB36EA /* Social.framework in Frameworks */,
 				6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */,
 				41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */,
 				71D0F5AC190DCE4B00C7DEE0 /* SystemConfiguration.framework in Frameworks */,
 				71D0F5AA190DCE4300C7DEE0 /* Security.framework in Frameworks */,
 				71D0F5A8190DCE3D00C7DEE0 /* CFNetwork.framework in Frameworks */,
+				41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */,
 				71D0F5A6190DCE3600C7DEE0 /* libc++.dylib in Frameworks */,
 				71D0F5A4190DCE2E00C7DEE0 /* libicucore.dylib in Frameworks */,
 				71D0F56E190D998000C7DEE0 /* CoreGraphics.framework in Frameworks */,
@@ -622,6 +628,8 @@
 		71D0F56A190D998000C7DEE0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				41BD42C71B162E76008553A8 /* Fabric.framework */,
+				41BD42C81B162E76008553A8 /* Crashlytics.framework */,
 				6E18EC481AD5731500D4FA3C /* CoreTelephony.framework */,
 				86AB83F51A83B29B00EB36EA /* Social.framework */,
 				6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */,
@@ -662,6 +670,7 @@
 				71D0F565190D998000C7DEE0 /* Frameworks */,
 				71D0F566190D998000C7DEE0 /* Resources */,
 				472AD31EEDE6499FB84BB130 /* Copy Pods Resources */,
+				41BD42C61B162E19008553A8 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -735,6 +744,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		41BD42C61B162E19008553A8 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run 539cb9ad26d770848f8d5bdd208ab6237a978448 701972b69c45514925dcc131d42e713e0ef334b5bb0d0b107b140fe16480847b";
+		};
 		472AD31EEDE6499FB84BB130 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
