@@ -50,14 +50,19 @@
     self.phoneTextField = [[UITextField alloc] initWithFrame:CGRectZero];
     [self.phoneTextField setBackgroundColor:[UIColor whiteColor]];
     [self.phoneTextField setKeyboardType:UIKeyboardTypePhonePad];
-    [self.phoneTextField setTextAlignment:NSTextAlignmentCenter];
-    [self.phoneTextField setFont:[UIFont fontWithName:BIG_FONT size:32]];
+    [self.phoneTextField setTextAlignment:NSTextAlignmentLeft];
+    [self.phoneTextField setFont:[UIFont fontWithName:BOLD_FONT size:28]];
     [self.phoneTextField setTextColor:[UIColor blackColor]];
     [self.phoneTextField setTintColor:[UIColor blackColor]];
     [self.phoneTextField setReturnKeyType:UIReturnKeyDone];
     [self.phoneTextField setPlaceholder:NSLocalizedString(@"Enter phone number", @"")];
     [self.phoneTextField addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
     [self.view addSubview:self.phoneTextField];
+    
+    UIView *leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 24, self.phoneTextField.frame.size.height)];
+    leftView.backgroundColor = self.phoneTextField.backgroundColor;
+    self.phoneTextField.leftView = leftView;
+    self.phoneTextField.leftViewMode = UITextFieldViewModeAlways;
     
     self.nextButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [self.nextButton setBackgroundColor:[UIColor whiteColor]];
@@ -96,7 +101,7 @@
     CGFloat separator = 20;
     
     self.countryButton.frame = CGRectMake(0, availableHeight/2+separator - VIEW_HEIGHT*.08, VIEW_WIDTH, VIEW_HEIGHT*.08);
-    self.countryButton.titleEdgeInsets = UIEdgeInsetsMake(0, 10, 0, 0);
+    self.countryButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     self.countryButton.imageEdgeInsets = UIEdgeInsetsMake(0, self.countryButton.frame.size.width - 30, 0, 0);
     self.phoneTextField.frame = CGRectMake(0, availableHeight/2+separator, VIEW_WIDTH, VIEW_HEIGHT*.08);
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
