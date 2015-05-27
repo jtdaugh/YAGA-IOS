@@ -18,6 +18,8 @@
 #import "YAServer.h"
 #import "AFNetworking.h"
 
+#import "CountryListDataSource.h"
+
 @interface YAPhoneNumberViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @end
@@ -128,8 +130,15 @@
 {
     [super viewWillAppear:animated];
     self.navigationController.navigationBarHidden = YES;
+
+//    CountryListDataSource *dataSource = [CountryListDataSource new];
+//    [dataSource countries]
+
 //    [self.countryButton setTitle:[NSString stringWithFormat:@"%@ ‣", [[YAUser currentUser] countryCode]] forState:UIControlStateNormal];
-    [self.countryButton setTitle:@"United States (+1)" forState:UIControlStateNormal];
+    NSString *countryName = [[NSLocale currentLocale] displayNameForKey:NSLocaleCountryCode value:[YAUser currentUser].countryCode];
+    NSString *countryNumber = [[NBPhoneNumberUtil new] getNddPrefixForRegion:[YAUser currentUser].countryCode stripNonDigits:NO];
+    NSString *countryString = [NSString stringWithFormat:@"%@ (+%@)", countryName, countryNumber];
+    [self.countryButton setTitle:countryString forState:UIControlStateNormal];
 
     self.nextButton.enabled = YES;
 }
