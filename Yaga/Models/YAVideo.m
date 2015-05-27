@@ -75,7 +75,7 @@
         DLog(@"video with id:%@ deleted successfully", videoId);
     };
     
-    if(removeFromServer) {
+    if(!removeFromServer) {
         deleteBlock();
         return;
     }
