@@ -70,7 +70,7 @@
         
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId];
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:self];
         
         DLog(@"video with id:%@ deleted successfully", videoId);
     };

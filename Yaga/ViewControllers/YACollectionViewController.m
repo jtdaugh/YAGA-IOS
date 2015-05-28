@@ -203,18 +203,22 @@ static NSString *cellID = @"Cell";
 
 - (void)didDeleteVideo:(NSNotification*)notif {
     
-    NSString *videoId = notif.object;
-    if(![self.deleteDictionary objectForKey:videoId])
+    YAVideo *video = notif.object;
+    
+    if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    NSUInteger videoIndex = [[self.deleteDictionary objectForKey:videoId] integerValue];
+    if(![self.deleteDictionary objectForKey:video.localId])
+        return;
+    
+    NSUInteger videoIndex = [[self.deleteDictionary objectForKey:video.localId] integerValue];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
     
     self.paginationThreshold--;
     
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     
-    [self.deleteDictionary removeObjectForKey:videoId];
+    [self.deleteDictionary removeObjectForKey:video.localId];
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
