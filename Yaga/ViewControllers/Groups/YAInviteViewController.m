@@ -32,6 +32,8 @@
 
 @property (nonatomic) CGRect smallCameraFrame;
 
+@property (nonatomic, strong) NSURL *recordingURL;
+
 @end
 
 @implementation YAInviteViewController
@@ -285,11 +287,16 @@
             } else {
                 [self.navigationController popToRootViewControllerAnimated:YES];
             }
+            if([YAUser currentUser].currentGroup) {
+                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:self.recordingURL addToGroup:[YAUser currentUser].currentGroup];
+            }
             break;
     }
 }
 
 - (void)finishedRecordingVideoToURL:(NSURL *)videoURL {
+    self.recordingURL = videoURL;
+    
     NSMutableArray *friendNumbers = [NSMutableArray new];
     for(NSDictionary *contact in self.contactsThatNeedInvite) {
         if([YAUtils validatePhoneNumber:contact[nPhone]])
