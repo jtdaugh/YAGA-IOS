@@ -57,12 +57,15 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
         self.loaderView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSData *loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
+        static NSData* loaderData = nil;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
+        });
+
+        dispatch_async(dispatch_get_main_queue(), ^{
             self.loaderView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.loaderView startAnimating];
-            });
+            [self.loaderView startAnimating];
         });
 
         self.backgroundView = self.loaderView;
