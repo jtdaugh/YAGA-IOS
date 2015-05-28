@@ -280,10 +280,13 @@
     YAVideo *video = [self videoFromData];
     YAGroup *group = [self groupFromData];
     
-    if(!video || [video isInvalidated]) {
+    if(!video || [video isInvalidated] || !group || [group isInvalidated]) {
         completion(nil, [YARealmObjectUnavailable new]);
         return;
     }
+    
+    NSString *videoLocalId = video.localId;
+    NSString *groupName = group.name;
     
     [[YAServer sharedServer] uploadVideo:video
                            toGroupWithId:group.serverId
@@ -302,7 +305,7 @@
                                   video.url = location;
                                   [video.realm commitWriteTransaction];
                                   
-                                  [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, group.name, video.url] type:YANotificationTypeSuccess];
+                                  [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@", videoLocalId, groupName] type:YANotificationTypeSuccess];
                                   
                                   completion(nil, nil);
                                   
