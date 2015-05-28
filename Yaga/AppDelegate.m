@@ -244,9 +244,18 @@
         NSString *alert = userInfo[@"aps"][@"alert"];
         
         self.notificationView = [YANotificationView new];
-        [self.notificationView showMessage:alert viewType:YANotificationTypeMessage actionHandler:^{
+        
+        //handle push immediately without waiting user taps on the push notification message
+        if([[YAPushNotificationHandler sharedHandler] shouldHandlePushEventWithoutUserIteraction:userInfo]) {
             [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:userInfo];
-        }];
+            [self.notificationView showMessage:alert viewType:YANotificationTypeMessage actionHandler:nil];
+        }
+        else {
+            //only handle push if notification message is tapped
+            [self.notificationView showMessage:alert viewType:YANotificationTypeMessage actionHandler:^{
+                [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:userInfo];
+            }];
+        }
     }
     else {
         [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:userInfo];

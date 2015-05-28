@@ -14,4 +14,6 @@
 
 - (void)handlePushWithUserInfo:(NSDictionary*)userInfo;
 
+- (BOOL)shouldHandlePushEventWithoutUserIteraction:(NSDictionary*)userInfo;
+
 @end

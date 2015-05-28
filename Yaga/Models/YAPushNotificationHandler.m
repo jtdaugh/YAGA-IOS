@@ -200,4 +200,20 @@
         self.postIdToOpen = nil;
     }
 }
+
+- (BOOL)shouldHandlePushEventWithoutUserIteraction:(NSDictionary*)userInfo {
+    NSDictionary *meta = userInfo[@"meta"];
+    
+    if(!meta.allKeys.count)
+        return NO;
+    
+    NSString *eventName = meta[@"event"];
+    
+    if([eventName isEqualToString:@"kick"]) {
+        return YES;
+    }
+    
+    return NO;
+}
+
 @end
