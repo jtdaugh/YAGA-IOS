@@ -11,7 +11,7 @@
 @implementation YARealmMigrationManager
 
 - (void)executeMigrations {
-     NSUInteger bundleVersion = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] integerValue];
+    NSUInteger bundleVersion = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"YARealmSchemaVersion"] integerValue];
     
     [RLMRealm setSchemaVersion:bundleVersion
                 forRealmAtPath:[RLMRealm defaultRealmPath]
