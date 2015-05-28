@@ -136,7 +136,8 @@
 
 //    [self.countryButton setTitle:[NSString stringWithFormat:@"%@ ‣", [[YAUser currentUser] countryCode]] forState:UIControlStateNormal];
     NSString *countryName = [[NSLocale currentLocale] displayNameForKey:NSLocaleCountryCode value:[YAUser currentUser].countryCode];
-    NSString *countryNumber = [[NBPhoneNumberUtil new] getNddPrefixForRegion:[YAUser currentUser].countryCode stripNonDigits:NO];
+    //NSString *countryNumber = [[NBPhoneNumberUtil new] getNddPrefixForRegion:[YAUser currentUser].countryCode stripNonDigits:NO];
+    NSNumber *countryNumber = [[NBPhoneNumberUtil new] getCountryCodeForRegion:[YAUser currentUser].countryCode];
     NSString *countryString = [NSString stringWithFormat:@"%@ (+%@)", countryName, countryNumber];
     [self.countryButton setTitle:countryString forState:UIControlStateNormal];
 
