@@ -23,16 +23,7 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - APAddressBook (0.0.10)
-<<<<<<< HEAD
-  - Bolts (1.1.5):
-    - Bolts/AppLinks (= 1.1.5)
-    - Bolts/Tasks (= 1.1.5)
-  - Bolts/AppLinks (1.1.5):
-    - Bolts/Tasks
-  - Bolts/Tasks (1.1.5)
   - Firebase (2.2.1)
-=======
->>>>>>> master
   - FLAnimatedImage (1.0.8)
   - FrameAccessor (1.3.2)
   - libPhoneNumber-iOS (0.8.4)
@@ -70,11 +61,7 @@ SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
   AFNetworking: fefbce9660acb17f48ae0011292d4da0f457bf36
   APAddressBook: 11582a756dc59228effdbba0faf6d4675bac6b77
-<<<<<<< HEAD
-  Bolts: aac24961496d504aa56fc267cde95162a71bac39
   Firebase: a3d54b42f090ca275b22dcdf103b8ab6ac6f353c
-=======
->>>>>>> master
   FLAnimatedImage: f9422f796135aff80d8c00b2afc48015bb746e24
   FrameAccessor: 0f7ba6ce37be9a5d0302a27c731dca70af8d438b
   libPhoneNumber-iOS: dbfc7b4128510a4955df3e5a6f125393fc9ebc2f
