@@ -149,12 +149,12 @@
         [self initOverlayControls];
         [self initLikeCaptionTooltip];
         
-#ifdef DEBUG
-        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 30)];
-        self.debugLabel.textAlignment = NSTextAlignmentCenter;
-        self.debugLabel.textColor = [UIColor whiteColor];
-        [self addSubview:self.debugLabel];
-#endif
+//#ifdef DEBUG
+//        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 30)];
+//        self.debugLabel.textAlignment = NSTextAlignmentCenter;
+//        self.debugLabel.textColor = [UIColor whiteColor];
+//        [self addSubview:self.debugLabel];
+//#endif
         
         [self setBackgroundColor:PRIMARY_COLOR];
     }
@@ -185,7 +185,7 @@
         
         _video = video;
 
-        self.debugLabel.text = video.serverId;
+//        self.debugLabel.text = video.serverId;
         
         [self updateControls];
         
@@ -415,18 +415,18 @@
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
     [self.shareButton addTarget:self action:@selector(shareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.shareButton];
-    self.shareButton.layer.zPosition = 100;
+//    self.shareButton.layer.zPosition = 100;
     
     self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - padding*2 - buttonRadius*3,
                                                                                                    VIEW_HEIGHT - buttonRadius - padding)];
     [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.deleteButton];
-    self.deleteButton.layer.zPosition = 100;
+//    self.deleteButton.layer.zPosition = 100;
     
     self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
-    self.commentButton.layer.zPosition = 100;
+//    self.commentButton.layer.zPosition = 100;
     
 //    CGFloat likeSize = 42;
 //    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - likeSize)/2, VIEW_HEIGHT - likeSize - 12, likeSize, likeSize)];
@@ -497,11 +497,11 @@
 - (UIButton *)circleButtonWithImage:(NSString *)imageName diameter:(CGFloat)diameter center:(CGPoint)center {
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
     button.center = center;
-    button.backgroundColor = [UIColor colorWithWhite:0.9f alpha:0.2f];
-    button.layer.borderColor = [[UIColor whiteColor] CGColor];
-    button.layer.borderWidth = 1.f;
-    button.layer.cornerRadius = diameter/2.f;
-    button.layer.masksToBounds = YES;
+//    button.backgroundColor = [UIColor colorWithWhite:0.9f alpha:0.2f];
+//    button.layer.borderColor = [[UIColor whiteColor] CGColor];
+//    button.layer.borderWidth = 1.f;
+//    button.layer.cornerRadius = diameter/2.f;
+//    button.layer.masksToBounds = YES;
     [button setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
     return button;
 }
