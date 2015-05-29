@@ -40,6 +40,7 @@
 @property (nonatomic, strong) YAActivityView *activityView;
 
 //overlay controls
+@property (strong, nonatomic) UIButton *XButton;
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) UIButton *likeCount;
@@ -409,7 +410,11 @@
 //    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
 ////    [self addSubview:self.captionButton];
     
-    CGFloat buttonRadius = 22.f, padding = 12.f;
+    CGFloat buttonRadius = 22.f, padding = 8.f;
+    
+    self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.XButton];
     
     self.shareButton = [self circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
@@ -1524,6 +1529,16 @@
         [self showProgress:NO];
     }
     
+}
+
+- (void)XButtonPressed {
+    NSLog(@"pressed?");
+    
+    // close video here
+    if([self.presentingVC isKindOfClass:[YASwipingViewController class]]){
+        NSLog(@"is class?");
+        [((YASwipingViewController *) self.presentingVC) dismissAnimated];
+    }
 }
 
 - (void)shareButtonPressed {
