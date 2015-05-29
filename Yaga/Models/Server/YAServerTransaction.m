@@ -327,6 +327,12 @@
     }
     
     NSString *videoServerId = video.serverId;
+    
+    if(!videoServerId.length) {
+        completion(nil, [YANoServerIdError new]);
+        return;
+    }
+    
     [[YAServer sharedServer] uploadVideoCaptionWithId:videoServerId withCompletion:^(id response, NSError *error) {
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"unable to update video caption with id:%@, error %@", videoServerId, error.localizedDescription] type:YANotificationTypeError];
