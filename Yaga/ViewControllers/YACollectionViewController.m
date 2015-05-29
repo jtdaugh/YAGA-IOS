@@ -190,6 +190,10 @@ static NSString *cellID = @"Cell";
 
 -  (void)willDeleteVideo:(NSNotification*)notif {
     YAVideo *video = notif.object;
+    
+    if(!video.group || [video.group isInvalidated])
+        return;
+    
     if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
@@ -204,6 +208,9 @@ static NSString *cellID = @"Cell";
 - (void)didDeleteVideo:(NSNotification*)notif {
     
     YAVideo *video = notif.object;
+    
+    if(!video.group || [video.group isInvalidated])
+        return;
     
     if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
@@ -224,6 +231,10 @@ static NSString *cellID = @"Cell";
 - (void)reloadVideo:(NSNotification*)notif {
     dispatch_async(dispatch_get_main_queue(), ^{
         YAVideo *video = notif.object;
+        
+        if(!video.group || [video.group isInvalidated])
+            return;
+        
         if(![video.group isEqual:[YAUser currentUser].currentGroup])
             return;
         
