@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7531" systemVersion="14D131" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7520"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
         <!--Yaga Navigation Controller-->
@@ -395,11 +395,11 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="fvS-6s-erS"/>
-        <segue reference="VSt-eZ-jNn"/>
-        <segue reference="u33-D9-9Ph"/>
-        <segue reference="UBY-uB-r3J"/>
-        <segue reference="J7h-Hk-OOi"/>
         <segue reference="zAA-Ft-OZ6"/>
+        <segue reference="u33-D9-9Ph"/>
+        <segue reference="VSt-eZ-jNn"/>
+        <segue reference="HBA-dq-y0G"/>
+        <segue reference="J7h-Hk-OOi"/>
+        <segue reference="UBY-uB-r3J"/>
     </inferredMetricsTieBreakers>
 </document>

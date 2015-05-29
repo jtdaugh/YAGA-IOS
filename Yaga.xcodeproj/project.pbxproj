@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
 		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
-		0FDC3B0D1B0EB79D003A688D /* YACommentsOverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3B0B1B0EB79D003A688D /* YACommentsOverlayViewController.m */; };
-		0FDC3B101B0EB7A9003A688D /* YACommentsOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3B0F1B0EB7A9003A688D /* YACommentsOverlayView.m */; };
 		41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C71B162E76008553A8 /* Fabric.framework */; };
 		41BD42CA1B162E76008553A8 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C81B162E76008553A8 /* Crashlytics.framework */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
@@ -113,6 +111,7 @@
 		88461C051ADA23120099B523 /* bumper_rotated.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 88461C041ADA23090099B523 /* bumper_rotated.mp4 */; };
 		887AFD0C1AD8623500F00948 /* YAInviteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0B1AD8623500F00948 /* YAInviteViewController.m */; };
 		887AFD0F1AD8ADEA00F00948 /* YAInviteCameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0E1AD8ADEA00F00948 /* YAInviteCameraViewController.m */; };
+		8890451D1B18FF8700B3C4D7 /* YACommentsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8890451C1B18FF8700B3C4D7 /* YACommentsCell.m */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -123,10 +122,6 @@
 		0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+YABlur.m"; sourceTree = "<group>"; };
 		0FDC3AF81B0E69C0003A688D /* UIWindow+YASnapshot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWindow+YASnapshot.h"; sourceTree = "<group>"; };
 		0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+YASnapshot.m"; sourceTree = "<group>"; };
-		0FDC3B0B1B0EB79D003A688D /* YACommentsOverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACommentsOverlayViewController.m; sourceTree = "<group>"; };
-		0FDC3B0C1B0EB79D003A688D /* YACommentsOverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACommentsOverlayViewController.h; sourceTree = "<group>"; };
-		0FDC3B0E1B0EB7A9003A688D /* YACommentsOverlayView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACommentsOverlayView.h; sourceTree = "<group>"; };
-		0FDC3B0F1B0EB7A9003A688D /* YACommentsOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACommentsOverlayView.m; sourceTree = "<group>"; };
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		41BD42C71B162E76008553A8 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		41BD42C81B162E76008553A8 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
@@ -307,6 +302,8 @@
 		887AFD0B1AD8623500F00948 /* YAInviteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAInviteViewController.m; sourceTree = "<group>"; };
 		887AFD0D1AD8ADEA00F00948 /* YAInviteCameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAInviteCameraViewController.h; sourceTree = "<group>"; };
 		887AFD0E1AD8ADEA00F00948 /* YAInviteCameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAInviteCameraViewController.m; sourceTree = "<group>"; };
+		8890451B1B18FF8700B3C4D7 /* YACommentsCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACommentsCell.h; sourceTree = "<group>"; };
+		8890451C1B18FF8700B3C4D7 /* YACommentsCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACommentsCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -556,8 +553,6 @@
 				6E583B6E1A6535BC00639BE5 /* YASwipingViewController.m */,
 				6E583B761A65394800639BE5 /* YAAnimatedTransitioningController.h */,
 				6E583B771A65394800639BE5 /* YAAnimatedTransitioningController.m */,
-				0FDC3B0B1B0EB79D003A688D /* YACommentsOverlayViewController.m */,
-				0FDC3B0C1B0EB79D003A688D /* YACommentsOverlayViewController.h */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -584,8 +579,6 @@
 		6E9188B11A3F3A5A0034AB63 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				0FDC3B0E1B0EB7A9003A688D /* YACommentsOverlayView.h */,
-				0FDC3B0F1B0EB7A9003A688D /* YACommentsOverlayView.m */,
 				6E583B701A6535C400639BE5 /* YAVideoPage.h */,
 				6E583B711A6535C400639BE5 /* YAVideoPage.m */,
 				6E583B721A6535C400639BE5 /* YAVideoPlayerView.h */,
@@ -613,6 +606,8 @@
 				6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */,
 				6EEDB8E31A8A555C000BB909 /* YANotificationView.h */,
 				6EEDB8E41A8A555C000BB909 /* YANotificationView.m */,
+				8890451B1B18FF8700B3C4D7 /* YACommentsCell.h */,
+				8890451C1B18FF8700B3C4D7 /* YACommentsCell.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -875,7 +870,6 @@
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
 				6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */,
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
-				0FDC3B101B0EB7A9003A688D /* YACommentsOverlayView.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
@@ -895,7 +889,7 @@
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
 				6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */,
-				0FDC3B0D1B0EB79D003A688D /* YACommentsOverlayViewController.m in Sources */,
+				8890451D1B18FF8700B3C4D7 /* YACommentsCell.m in Sources */,
 				6EEA835D1AE8CAA100E3EDCE /* YARealmMigrationManager.m in Sources */,
 				6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */,
 				6EEDB8E51A8A555C000BB909 /* YANotificationView.m in Sources */,
