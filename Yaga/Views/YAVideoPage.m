@@ -36,7 +36,7 @@
 #define MAX_CAPTION_WIDTH (VIEW_WIDTH - 2 * CAPTION_GUTTER)
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
-static NSString *cellID = @"CommentCell";
+static NSString *commentCellID = @"CommentCell";
 
 @interface YAVideoPage ()  <UITableViewDataSource, UITableViewDelegate>
 
@@ -373,38 +373,31 @@ static NSString *cellID = @"CommentCell";
 #pragma mark - Overlay controls
 
 - (void)addFakeEvents {
-    
-    NSDictionary *eventData1 = @{
+    self.events = [NSMutableArray arrayWithObjects:
+                                @{
                                  @"type":@"comment",
                                  @"username":[YAUser currentUser].username,
                                  @"comment" : @"LOLOLOLOLOL"
-                                 };
-    
-    NSDictionary *eventData2 = @{
+                                 },
+                                @{
                                  @"type":@"like",
                                  @"username":[YAUser currentUser].username
-                                 };
-    
-    NSDictionary *eventData3 = @{
+                                 },
+                                @{
                                  @"type":@"comment",
-                                 @"username":@"rjvir"
-                                 };
-    
-    NSDictionary *eventData4 = @{
+                                 @"username":@"rjvir",
+                                 @"comment" : @"LOL ur such a bitch"
+                                 },
+                                @{
                                  @"type":@"comment",
                                  @"username":@"jtdaugherty",
                                  @"comment" : @"hahahahhaahhaahha"
-                                 };
-    
-    [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData1];
-    [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData2];
-    [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData3];
-    [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData4];
-
+                                 }, nil
+                   ];
+    [self.commentsTableView reloadData];
 }
 
 - (void)initOverlayControls {
-    [self addFakeEvents];
     
     CGFloat height = 24;
     CGFloat gutter = 48;
@@ -488,7 +481,8 @@ static NSString *cellID = @"CommentCell";
     [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
     
     [self setupCommentsContainer];
-    
+    [self addFakeEvents];
+
     const CGFloat radius = 40;
     self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
     self.progressView.radius = radius;
@@ -544,8 +538,11 @@ static NSString *cellID = @"CommentCell";
     CGFloat width = VIEW_WIDTH - 2*sideMargin;
     self.commentsWrapperView = [[UIView alloc] initWithFrame:CGRectMake(sideMargin, VIEW_HEIGHT - bottomMargin - height, width, height)];
     self.commentsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
-    [self.commentsTableView registerClass:[YACommentsCell class] forCellReuseIdentifier:cellID];
+    self.commentsTableView.backgroundColor = [UIColor clearColor];
+    [self.commentsTableView registerClass:[YACommentsCell class] forCellReuseIdentifier:commentCellID];
+    self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.commentsTableView.delegate = self;
+    self.commentsTableView.dataSource = self;
     self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, width - sendButtonWidth, textFieldHeight)];
     self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
     UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, textFieldHeight)];
@@ -559,22 +556,36 @@ static NSString *cellID = @"CommentCell";
     [self.commentsWrapperView addSubview:self.commentsTableView];
     [self.commentsWrapperView addSubview:self.commentsSendButton];
     [self.commentsWrapperView addSubview:self.commentsTextField];
+    self.commentsWrapperView.layer.masksToBounds = YES;
     [self.overlay addSubview:self.commentsWrapperView];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    YACommentsCell *cell = [tableView dequeueReusableCellWithIdentifier:cellID forIndexPath:indexPath];
-    FDataSnapshot *event = self.events[indexPath.row];
-    if (event.value[@"username"]) {
-        [cell setUsername:event.value[@"username"]];
+    YACommentsCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
+    NSDictionary *event = self.events[indexPath.row];
+    if (event[@"username"]) {
+        [cell setUsername:event[@"username"]];
     }
-    NSString *type = event.value[@"type"];
+    NSString *type = event[@"type"];
     if ([type isEqualToString:@"like"]) {
         [cell setComment:@"liked the video"];
     } else if ([type isEqualToString:@"comment"]) {
-        [cell setComment:event.value[@"comment"]];
+        [cell setComment:event[@"comment"]];
     }
     return cell;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [self.events count];
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSDictionary *event = self.events[indexPath.row];
+    return [YACommentsCell heightForCellWithUsername:event[@"username"] comment:event[@"comment"] ? event[@"comment"] : @"liked the video"];
 }
 
 - (void)setupCaptionButtonContainer {
@@ -618,9 +629,9 @@ static NSString *cellID = @"CommentCell";
 
 - (void) clearFirebase {
     
-    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] removeAllObservers];
-    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] removeAllObservers];
-    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] removeAllObservers];
+    [[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] removeAllObservers];
+    [[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"events"] removeAllObservers];
+    [[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"caption"] removeAllObservers];
 
     [self.serverCaptionWrapperView removeFromSuperview];
     self.serverCaptionWrapperView = nil;
@@ -629,16 +640,18 @@ static NSString *cellID = @"CommentCell";
 
 - (void) initFirebase {
     
-    NSLog(@"serverid: %@", self.video.serverId);
+    NSLog(@"serverid: %@", @"A_SERVER_ID");
+    
+    [self addFakeEvents]; //    self.events = [NSMutableArray array];
 
-    self.events = [NSMutableArray array];
+    
     [self beginMonitoringForEvents];
     [self beginMonitoringForCaptionChanges];
 }
 
 - (void)beginMonitoringForCaptionChanges {
     __weak YAVideoPage *weakSelf = self;
-    Firebase *caption = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"];
+    Firebase *caption = [[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"caption"];
     
     // TODO: Queue these up in case user changes text and position (common). As is, that will cause this to fire multiple times instantly.
     [caption observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
@@ -655,14 +668,15 @@ static NSString *cellID = @"CommentCell";
 }
 
 - (void)beginMonitoringForEvents {
-    Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"];
+    Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"events"];
     
     __weak YAVideoPage *weakSelf = self;
     
     __block BOOL initialLoaded = NO;
     
     [events observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        [weakSelf.events addObject:snapshot];
+        [weakSelf.events addObject:snapshot.value];
+        [weakSelf.commentsTableView reloadData];
             // TODO: reload comments table
     }];
     
@@ -906,11 +920,11 @@ static NSString *cellID = @"CommentCell";
         self.editableCaptionWrapperView = nil;
         self.editableCaptionTextView = nil;
         
-        [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] setValue:textData];
+        [[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"caption"] setValue:textData];
         
         if (eventData) {
             self.serverCaptionWrapperView.alpha = 0;
-            [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
+            [[[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
         }
     }
 }
@@ -1308,7 +1322,7 @@ static NSString *cellID = @"CommentCell";
                                 @"username":[YAUser currentUser].username
                                 };
     
-    [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];
+    [[[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];
     
 //        likeHeart.alpha = 0.0;
 //        [UIView animateWithDuration:0.2 animations:^{
