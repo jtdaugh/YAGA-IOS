@@ -39,7 +39,6 @@ PODS:
   - Realm/Headers (0.90.6)
   - SVPullToRefresh (0.4.1)
   - UCZProgressView (1.0.1)
-  - XYPieChart (0.2)
 
 DEPENDENCIES:
   - AFDownloadRequestOperation
@@ -57,7 +56,6 @@ DEPENDENCIES:
   - Realm (~> 0.90.2)
   - SVPullToRefresh
   - UCZProgressView
-  - XYPieChart
 
 SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
@@ -75,6 +73,5 @@ SPEC CHECKSUMS:
   Realm: a4b2766a29006293693a0f26664ecb5a84a54455
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
   UCZProgressView: 32fa5c572ff1300bf22553c8286600d9ae42f50f
-  XYPieChart: 0efd8069d26c25d20ab74c01b5ad455f1fc48153
 
 COCOAPODS: 0.36.3

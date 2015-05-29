@@ -22,6 +22,8 @@
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 - (id)initWithInitialIndex:(NSUInteger)initialIndex;
+- (void)dismissAnimated;
+
 @property (nonatomic, weak) id<YASwipingViewControllerDelegate> delegate;
 
 @end

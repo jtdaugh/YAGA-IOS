@@ -43,6 +43,7 @@ static NSString *cellID = @"CommentCell";
 @property (nonatomic, strong) YAActivityView *activityView;
 
 //overlay controls
+@property (strong, nonatomic) UIButton *XButton;
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property BOOL likesShown;
@@ -149,12 +150,12 @@ static NSString *cellID = @"CommentCell";
         [self initOverlayControls];
         [self initLikeCaptionTooltip];
         
-#ifdef DEBUG
-        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 30)];
-        self.debugLabel.textAlignment = NSTextAlignmentCenter;
-        self.debugLabel.textColor = [UIColor whiteColor];
-        [self addSubview:self.debugLabel];
-#endif
+//#ifdef DEBUG
+//        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 30)];
+//        self.debugLabel.textAlignment = NSTextAlignmentCenter;
+//        self.debugLabel.textColor = [UIColor whiteColor];
+//        [self addSubview:self.debugLabel];
+//#endif
         
         [self setBackgroundColor:PRIMARY_COLOR];
     }
@@ -185,7 +186,7 @@ static NSString *cellID = @"CommentCell";
         
         _video = video;
 
-        self.debugLabel.text = video.serverId;
+//        self.debugLabel.text = video.serverId;
         
         [self updateControls];
         
@@ -405,33 +406,33 @@ static NSString *cellID = @"CommentCell";
 - (void)initOverlayControls {
     [self addFakeEvents];
     
-    CGFloat height = 30;
+    CGFloat height = 24;
     CGFloat gutter = 48;
-    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, 12, VIEW_WIDTH - gutter*2, height)];
-    [self.userLabel setTextAlignment:NSTextAlignmentCenter];
+    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 200, height)];
+    [self.userLabel setTextAlignment:NSTextAlignmentLeft];
     
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
-    [self.userLabel setAttributedText: string];
+//    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+//                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+//                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
+//    [self.userLabel setAttributedText: string];
     [self.userLabel setTextColor:[UIColor whiteColor]];
-    [self.userLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.userLabel setFont:[UIFont fontWithName:BIG_FONT size:21]];
 
-//    self.userLabel.layer.shadowColor = [[UIColor whiteColor] CGColor];
-//    self.userLabel.layer.shadowRadius = 1.0f;
-//    self.userLabel.layer.shadowOpacity = 1.0;
-//    self.userLabel.layer.shadowOffset = CGSizeZero;
+    self.userLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.userLabel.layer.shadowRadius = 0.0f;
+    self.userLabel.layer.shadowOpacity = 1.0;
+    self.userLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
     [self.overlay addSubview:self.userLabel];
     
     CGFloat timeHeight = 24;
-    self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, height + 12, VIEW_WIDTH - gutter*2, timeHeight)];
-    [self.timestampLabel setTextAlignment:NSTextAlignmentCenter];
+    self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, height + 12, 200, timeHeight)];
+    [self.timestampLabel setTextAlignment:NSTextAlignmentLeft];
     [self.timestampLabel setTextColor:[UIColor whiteColor]];
     [self.timestampLabel setFont:[UIFont fontWithName:BIG_FONT size:14]];
     self.timestampLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
-    self.timestampLabel.layer.shadowRadius = 1.0f;
+    self.timestampLabel.layer.shadowRadius = 0.0f;
     self.timestampLabel.layer.shadowOpacity = 1.0;
-    self.timestampLabel.layer.shadowOffset = CGSizeZero;
+    self.timestampLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
     [self.overlay addSubview:self.timestampLabel];
     
 
@@ -442,26 +443,31 @@ static NSString *cellID = @"CommentCell";
 //    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
 ////    [self addSubview:self.captionButton];
     
-    CGFloat buttonRadius = 22.f, padding = 12.f;
+    CGFloat buttonRadius = 22.f, padding = 8.f;
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
     self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, bottomButtonCenterY)];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:self.likeButton];
 
-    self.shareButton = [self circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius*3 - padding*2, bottomButtonCenterY)];
+    self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.XButton];
+    
+    self.shareButton = [self circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
+                                                                                                 VIEW_HEIGHT - buttonRadius - padding)];
     [self.shareButton addTarget:self action:@selector(shareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.shareButton];
-    self.shareButton.layer.zPosition = 100;
+//    self.shareButton.layer.zPosition = 100;
     
     self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - padding*3 - buttonRadius*5, bottomButtonCenterY)];
     [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.deleteButton];
-    self.deleteButton.layer.zPosition = 100;
+//    self.deleteButton.layer.zPosition = 100;
     
     self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
-    self.commentButton.layer.zPosition = 100;
+//    self.commentButton.layer.zPosition = 100;
     
 //    CGFloat likeSize = 42;
 //
@@ -522,11 +528,11 @@ static NSString *cellID = @"CommentCell";
 - (UIButton *)circleButtonWithImage:(NSString *)imageName diameter:(CGFloat)diameter center:(CGPoint)center {
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
     button.center = center;
-    button.backgroundColor = [UIColor colorWithWhite:0.9f alpha:0.2f];
-    button.layer.borderColor = [[UIColor whiteColor] CGColor];
-    button.layer.borderWidth = 1.f;
-    button.layer.cornerRadius = diameter/2.f;
-    button.layer.masksToBounds = YES;
+//    button.backgroundColor = [UIColor colorWithWhite:0.9f alpha:0.2f];
+//    button.layer.borderColor = [[UIColor whiteColor] CGColor];
+//    button.layer.borderWidth = 1.f;
+//    button.layer.cornerRadius = diameter/2.f;
+//    button.layer.masksToBounds = YES;
     [button setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
     return button;
 }
@@ -1470,13 +1476,13 @@ static NSString *cellID = @"CommentCell";
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
 
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:self.video.creator attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
-    [self.userLabel setAttributedText: string];
-
-//    [self.userLabel setText:self.video.creator];
-    self.userLabel.textColor = [YAUtils UIColorFromUsernameString:self.video.creator];
+//    NSAttributedString *string = [[NSAttributedString alloc] initWithString:self.video.creator attributes:@{
+//                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+//                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
+//    [self.userLabel setAttributedText: string];
+//
+    [self.userLabel setText:self.video.creator];
+//    self.userLabel.textColor = [YAUtils UIColorFromUsernameString:self.video.creator];
     
     self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
 //    [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
@@ -1508,6 +1514,16 @@ static NSString *cellID = @"CommentCell";
         [self showProgress:NO];
     }
     
+}
+
+- (void)XButtonPressed {
+    NSLog(@"pressed?");
+    
+    // close video here
+    if([self.presentingVC isKindOfClass:[YASwipingViewController class]]){
+        NSLog(@"is class?");
+        [((YASwipingViewController *) self.presentingVC) dismissAnimated];
+    }
 }
 
 - (void)shareButtonPressed {
