@@ -17,7 +17,6 @@
 		6E18EC491AD5731500D4FA3C /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E18EC481AD5731500D4FA3C /* CoreTelephony.framework */; };
 		6E1E20991A6EF2E90041DF54 /* YAAssetsCreator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20901A6EF2E90041DF54 /* YAAssetsCreator.m */; };
 		6E1E209A1A6EF2E90041DF54 /* YAGifCreationOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20921A6EF2E90041DF54 /* YAGifCreationOperation.m */; };
-		6E1E209B1A6EF2E90041DF54 /* YAImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20941A6EF2E90041DF54 /* YAImageCache.m */; };
 		6E1E209C1A6EF2E90041DF54 /* YACreateRecordingOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20961A6EF2E90041DF54 /* YACreateRecordingOperation.m */; };
 		6E1E20A61A6FAB500041DF54 /* name.csv in Resources */ = {isa = PBXBuildFile; fileRef = 6E1E20A01A6FAB500041DF54 /* name.csv */; };
 		6E1E20A71A6FAB500041DF54 /* NameGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E20A21A6FAB500041DF54 /* NameGenerator.m */; };
@@ -131,8 +130,6 @@
 		6E1E20901A6EF2E90041DF54 /* YAAssetsCreator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = YAAssetsCreator.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		6E1E20911A6EF2E90041DF54 /* YAGifCreationOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGifCreationOperation.h; sourceTree = "<group>"; };
 		6E1E20921A6EF2E90041DF54 /* YAGifCreationOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGifCreationOperation.m; sourceTree = "<group>"; };
-		6E1E20931A6EF2E90041DF54 /* YAImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAImageCache.h; sourceTree = "<group>"; };
-		6E1E20941A6EF2E90041DF54 /* YAImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAImageCache.m; sourceTree = "<group>"; };
 		6E1E20951A6EF2E90041DF54 /* YACreateRecordingOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACreateRecordingOperation.h; sourceTree = "<group>"; };
 		6E1E20961A6EF2E90041DF54 /* YACreateRecordingOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACreateRecordingOperation.m; sourceTree = "<group>"; };
 		6E1E20A01A6FAB500041DF54 /* name.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = name.csv; sourceTree = "<group>"; };
@@ -343,8 +340,6 @@
 				6E1E20921A6EF2E90041DF54 /* YAGifCreationOperation.m */,
 				6E1E20951A6EF2E90041DF54 /* YACreateRecordingOperation.h */,
 				6E1E20961A6EF2E90041DF54 /* YACreateRecordingOperation.m */,
-				6E1E20931A6EF2E90041DF54 /* YAImageCache.h */,
-				6E1E20941A6EF2E90041DF54 /* YAImageCache.m */,
 				6E7324E11AF109F7002CCFED /* YADownloadManager.h */,
 				6E7324E21AF109F7002CCFED /* YADownloadManager.m */,
 			);
@@ -814,7 +809,6 @@
 				6E5C991A1A5EAFAA00A9F586 /* YAActivityView.m in Sources */,
 				86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */,
 				6E7324E31AF109F7002CCFED /* YADownloadManager.m in Sources */,
-				6E1E209B1A6EF2E90041DF54 /* YAImageCache.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E1E20A71A6FAB500041DF54 /* NameGenerator.m in Sources */,
