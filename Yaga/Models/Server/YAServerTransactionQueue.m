@@ -208,7 +208,7 @@
             DLog(@"Server is down or there is no internet connection.. Pausing transaction queue till it's up again.");
             return;
         }
-        if ([error isKindOfClass:[YARealmObjectUnavailable class]])
+        if ([error isKindOfClass:[YARealmObjectUnavailableError class]])
         {
             DLog(@"Transaction impossible, video invalidated");
         }
@@ -224,7 +224,7 @@
         
         //in case of en error put transaction to the end of the queue and mark with "errored" flag
         //avoid deleted objects by checking error class
-        if(error && ![error isKindOfClass:[YARealmObjectUnavailable class]]) {
+        if(error && ![error isKindOfClass:[YARealmObjectUnavailableError class]]) {
     
             //-999 is for manually cancelled operations, execute them again immediately
             if(error.code == -999) {
@@ -236,7 +236,8 @@
                     numberOfErrors = [NSNumber numberWithInteger:1];
                 
                 //try 10 times, not more(one minute delay between errored trancations should be fine)
-                if([numberOfErrors integerValue] < 10) {
+                //transactions with NOServerIdError error type will be executed unlimited number of times
+                if([numberOfErrors integerValue] < 10 || [error isKindOfClass:[YANoServerIdError class]]) {
                     [transactionData setObject:numberOfErrors forKey:kTransactionErroredTimes];
                     [transactionData setObject:[NSDate date] forKey:kTransactionErrorDate];
                     [weakSelf.transactionsData addObject:transactionData];
