@@ -16,5 +16,6 @@ MFMessageComposeViewControllerDelegate>
 
 @property (nonatomic) BOOL inOnboardingFlow;
 @property (strong, nonatomic) NSArray *contactsThatNeedInvite;
+@property (assign, nonatomic) BOOL canNavigateBack;
 
 @end

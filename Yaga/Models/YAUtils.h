@@ -30,7 +30,7 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 
 + (UIView*)createBackgroundViewWithFrame:(CGRect)frame alpha:(CGFloat)alpha;
 + (UIImage *)imageWithColor:(UIColor *)color;
-+ (BOOL)validatePhoneNumber:(NSString*)value error:(NSError **)error;
++ (BOOL)validatePhoneNumber:(NSString*)value;
 
 //video actions
 + (void)deleteVideo:(YAVideo*)video;

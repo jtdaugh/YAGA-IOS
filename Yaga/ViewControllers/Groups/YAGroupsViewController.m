@@ -356,14 +356,10 @@ static NSString *CellIdentifier = @"GroupsCell";
     [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
         
-        NSString *groupToLeave = group.name;
-        
         BOOL groupWasActive = [[YAUser currentUser].currentGroup isEqual:group];
         
         [group leaveWithCompletion:^(NSError *error) {
             if(!error) {
-                [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                
                 if(groupWasActive) {
                     if(self.groups.count) {
                         [YAUser currentUser].currentGroup = self.groups[0];
@@ -371,11 +367,7 @@ static NSString *CellIdentifier = @"GroupsCell";
                     else
                         [YAUser currentUser].currentGroup = nil;
                     
-                    if([YAUser currentUser].currentGroup) {
-                        NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@. Current group is %@.", groupToLeave, [YAUser currentUser].currentGroup.name];
-                        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-                    }
-                    else {
+                    if(![YAUser currentUser].currentGroup) {
                         UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
                         UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"OnboardingNoGroupsNavigationController"];
                         
@@ -385,10 +377,6 @@ static NSString *CellIdentifier = @"GroupsCell";
                                         animations:^{ [UIApplication sharedApplication].keyWindow.rootViewController = viewController; }
                                         completion:nil];
                     }
-                }
-                else {
-                    NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@", groupToLeave];
-                    [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
                 }
             }
         }];

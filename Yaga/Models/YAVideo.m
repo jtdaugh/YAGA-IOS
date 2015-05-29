@@ -57,26 +57,50 @@
     return result;
 }
 
-- (void)removeFromCurrentGroup {
-    NSAssert(self.serverId, @"Can't delete remote video with non existing id");
+- (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer {
+    void (^deleteBlock)(void) = ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
+        
+        NSString *videoId = self.localId;
+        [[RLMRealm defaultRealm] beginWriteTransaction];
+        
+        [self purgeLocalAssets];
+        [self.group.videos removeObjectAtIndex:[self.group.videos indexOfObject:self]];
+        [[RLMRealm defaultRealm] deleteObject:self];
+        
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:self];
+        
+        DLog(@"video with id:%@ deleted successfully", videoId);
+    };
     
-    //notify server if it's deleted by me, others should just delete vidoe locally without notifying serve
-    if([self.creator isEqualToString:[YAUser currentUser].username]) {
-        [[YAServerTransactionQueue sharedQueue] addDeleteVideoTransaction:self.localId forGroupId:[YAUser currentUser].currentGroup.serverId];
+    if(!removeFromServer) {
+        deleteBlock();
+        return;
     }
+        
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
+    NSAssert(self.serverId, @"Can't delete remote video with non existing id");
+
+    NSString *videoServerId = self.serverId;
     
-    NSString *videoId = self.localId;
+    [[YAServer sharedServer] deleteVideoWithId:videoServerId fromGroup:self.group.serverId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            DLog(@"unable to delete video with id:%@, error %@", videoServerId, error.localizedDescription);
+            if(completion)
+                completion(error);
+        }
+        else {
+            deleteBlock();
+            
+            if(completion)
+                completion(nil);
+        }
+        
+    }];
     
-    [self purgeLocalAssets];
-    [self.group.videos removeObjectAtIndex:[self.group.videos indexOfObject:self]];
-    [[RLMRealm defaultRealm] deleteObject:self];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId];
-    
-    DLog(@"video deleted");
-}
+   }
 
 - (void)rename:(NSString*)newName withFont:(NSInteger) font{
     [[RLMRealm defaultRealm] beginWriteTransaction];

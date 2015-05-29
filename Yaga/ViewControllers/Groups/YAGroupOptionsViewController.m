@@ -8,6 +8,7 @@
 
 #import "YAGroupOptionsViewController.h"
 #import "YAGroupAddMembersViewController.h"
+#import "YAInviteViewController.h"
 
 @interface YAGroupOptionsViewController ()
 @property (nonatomic, strong) UIButton *addMembersButton;
@@ -242,7 +243,6 @@ static NSString *CellID = @"CellID";
         [cell.textLabel setTextColor:[UIColor blackColor]];
         
         [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
-        
         UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey"]];
         [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
         cell.accessoryView = accessoryView;
@@ -255,9 +255,15 @@ static NSString *CellID = @"CellID";
         
         [cell.detailTextLabel setTextColor:[UIColor blackColor]];
         
-        cell.accessoryView = nil;
+        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+        UIButton *inviteButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        inviteButton.tag = indexPath.row;
+        [inviteButton setImage:[UIImage imageNamed:@"Envelope"] forState:UIControlStateNormal];
+        [inviteButton setFrame:CGRectMake(0, 0, 36, 36)];
+        cell.accessoryView = inviteButton;
+        [inviteButton addTarget:self action:@selector(inviteTapped:) forControlEvents:UIControlEventTouchUpInside];
     }
-    
+
     [cell setBackgroundColor:[UIColor clearColor]];
     
     return cell;
@@ -301,6 +307,18 @@ static NSString *CellID = @"CellID";
 -(NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
     return @"Remove";
 }
+
+
+- (void)inviteTapped:(UIButton*)sender {
+    YAContact *contactToInvite = self.sortedMembers[sender.tag];
+    
+    YAInviteViewController *inviteVC = [YAInviteViewController new];
+    inviteVC.canNavigateBack = YES;
+    inviteVC.inOnboardingFlow = NO;
+    inviteVC.contactsThatNeedInvite = @[[contactToInvite dictionaryRepresentation]];
+    [self.navigationController pushViewController:inviteVC animated:YES];
+}
+
 
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {

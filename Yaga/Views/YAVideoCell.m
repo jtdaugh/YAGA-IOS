@@ -27,9 +27,9 @@
 @property (nonatomic, assign) YAVideoCellState state;
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
 
-@property (strong, nonatomic) UIImageView *loader;
+@property (strong, nonatomic) FLAnimatedImageView *loaderView;
 
-@property (strong, nonatomic) UILabel *smallUsernameLabel;
+@property (strong, nonatomic) UILabel *username;
 @property (strong, nonatomic) UILabel *caption;
 
 @property (strong, atomic) NSString *gifFilename;
@@ -56,23 +56,30 @@
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
-        self.loader = [[UIImageView alloc] initWithFrame:self.bounds];
-        NSMutableArray *loaderImages = [NSMutableArray new];
-        for(NSUInteger loaderImageIndex = 1; loaderImageIndex < 11; loaderImageIndex++) {
-            UIImage *loaderImage = [UIImage imageNamed:[NSString stringWithFormat:@"loader%lu.png", (unsigned long)loaderImageIndex]];
-            [loaderImages addObject:loaderImage];
-        }
-        
-        CGFloat usernameMargin = 8.f;
-        self.smallUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(usernameMargin, 0 ,self.frame.size.width - (2*usernameMargin), 36.f)];
-        [self.smallUsernameLabel setFont:[UIFont boldSystemFontOfSize:22.f]];
-        [self.contentView addSubview:self.smallUsernameLabel];
+        self.loaderView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
+        static NSData* loaderData = nil;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
+        });
 
-        self.loader.animationImages = loaderImages;
-        self.loader.animationDuration = 1.0;
-        [self.loader startAnimating];
-        self.backgroundView = self.loader;
-        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.loaderView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
+            [self.loaderView startAnimating];
+        });
+
+        self.backgroundView = self.loaderView;
+
+        self.username = [[UILabel alloc] initWithFrame:CGRectMake(5, self.bounds.size.height - 30, self.bounds.size.width - 5, 30)];
+        [self.username setTextAlignment:NSTextAlignmentRight];
+        [self.username setMinimumScaleFactor:0.5];
+        [self.username setAdjustsFontSizeToFitWidth:YES];
+        [self.username setTextColor:[UIColor whiteColor]];
+        [self.username setFont:[UIFont fontWithName:BIG_FONT size:20]];
+        self.username.shadowColor = [UIColor blackColor];
+        self.username.shadowOffset = CGSizeMake(1, 1);
+        [self.contentView addSubview:self.username];
+
         CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
         self.caption = [[UILabel alloc] initWithFrame:captionFrame];
         [self.caption setNumberOfLines:3];
@@ -230,12 +237,10 @@
 }
 
 - (void)showLoader:(BOOL)show {
-    self.loader.hidden = !show;
-    self.smallUsernameLabel.hidden = show;
+    self.loaderView.hidden = !show;
 
-
-    if(!self.loader.hidden && !self.loader.isAnimating)
-        [self.loader startAnimating];
+    if(!self.loaderView.hidden && !self.loaderView.isAnimating)
+        [self.loaderView startAnimating];
     
     // self.username.hidden = !show;
     self.caption.hidden = NO;
@@ -272,13 +277,8 @@
         self.caption.text = @"";
     }
     
-    if(self.video.creator.length) {
-        NSMutableAttributedString *text = [self attributedStringFromString:self.video.creator font:nil];
-        [text addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-2.0] range:NSMakeRange(0, text.length)];
-        self.smallUsernameLabel.textAlignment = self.index % 2 ? NSTextAlignmentRight : NSTextAlignmentLeft;
-        self.smallUsernameLabel.attributedText = text;
-        [self.smallUsernameLabel setTextColor:PRIMARY_COLOR];
-    }
+    self.username.textAlignment = self.index % 2 ? NSTextAlignmentRight : NSTextAlignmentLeft;
+    self.username.text = self.video.creator;
 }
 
 #pragma mark - UITapGestureRecognizer actions

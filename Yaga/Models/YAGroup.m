@@ -222,11 +222,20 @@
                 }
             }
 
-            for(YAGroup *group in [groupsToDelete copy])
+            BOOL deletedGroupWasActive = NO;
+            for(YAGroup *group in [groupsToDelete copy]) {
+                if([group isEqual:[YAUser currentUser].currentGroup])
+                    deletedGroupWasActive = YES;
                 [[RLMRealm defaultRealm] deleteObject:group];
+            }
             
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
+            if([YAGroup allObjects].count)
+                [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
+            else
+               [YAUser currentUser].currentGroup = nil;
+                
             if(block)
                 block(nil);
             
@@ -450,6 +459,8 @@
     
     [[RLMRealm defaultRealm] beginWriteTransaction];
     
+    NSMutableSet *videosToDelete = [NSMutableSet set];
+    
     for(NSDictionary *videoDic in videoDictionaries) {
         
         //video exists? update name
@@ -460,7 +471,7 @@
                 BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue];
                 
                 if(deleted) {
-                    [video removeFromCurrentGroup];
+                    [videosToDelete addObject:video];
                 }
                 else {
                     
@@ -516,6 +527,10 @@
         }
     }
     [[RLMRealm defaultRealm] commitWriteTransaction];
+    
+    for(YAVideo *video in [videosToDelete copy]) {
+        [video removeFromCurrentGroupWithCompletion:nil removeFromServer:NO];
+    }
     
     return newVideos;
 }

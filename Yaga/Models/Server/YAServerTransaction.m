@@ -77,6 +77,9 @@
 }
 
 - (void)createGroupWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
@@ -110,6 +113,9 @@
 }
 
 - (void)renameGroupWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
@@ -137,6 +143,9 @@
 }
 
 - (void)addGroupMembersWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     NSArray *phones = self.data[YA_GROUP_ADD_MEMBER_PHONES];
     NSArray *usernames = self.data[YA_GROUP_ADD_MEMBER_NAMES];
     
@@ -166,6 +175,9 @@
 }
 
 - (void)deleteGroupMemberWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     YAGroup *group = [self groupFromData];
     NSString *phone = self.data[YA_GROUP_DELETE_MEMBER];
     
@@ -193,6 +205,9 @@
 }
 
 - (void)leaveGroupWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     NSString *groupId = self.data[YA_GROUP_ID];
     NSString *phone = [YAUser currentUser].phoneNumber;
     
@@ -209,6 +224,9 @@
 }
 
 - (void)muteUnmuteGroupWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
@@ -233,43 +251,10 @@
     }];
 }
 
-- (void)uploadVideoWithCompletion:(responseBlock)completion {
-    YAVideo *video = [self videoFromData];
-    YAGroup *group = [self groupFromData];
-    
-    if(!video || [video isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
-        return;
-    }
-    
-    [[YAServer sharedServer] uploadVideo:video
-                           toGroupWithId:group.serverId
-                          withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
-                              if(error) {
-                                  DLog(@"can't upload video, reason: %@", error.localizedDescription);
-                                  completion(nil, error);
-                              }
-                              else {
-                                  if (!video || [video isInvalidated]) {
-                                      completion(nil, [YARealmObjectUnavailable new]);
-                                      return;
-                                  }
-                                  [video.realm beginWriteTransaction];
-                                  NSString *location = [response allHeaderFields][@"Location"];
-                                  video.url = location;
-                                  [video.realm commitWriteTransaction];
-                                  
-                                  [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@, serverUrl: %@", video.localId, group.name, video.url] type:YANotificationTypeSuccess];
-                                  
-                                  completion(nil, nil);
-                                  
-                                  [[Mixpanel sharedInstance] track:@"Video posted"];
-                              }
-                          }];
-}
-
-
 - (void)deleteVideoWithCompletion:(responseBlock)completion {
+    completion(nil, nil); //old transaction should return ok
+    return;
+    
     YAVideo *video = [self videoFromData];
     NSString *groupId = self.data[YA_GROUP_ID];
     
@@ -289,6 +274,44 @@
         }
         
     }];
+}
+
+- (void)uploadVideoWithCompletion:(responseBlock)completion {
+    YAVideo *video = [self videoFromData];
+    YAGroup *group = [self groupFromData];
+    
+    if(!video || [video isInvalidated] || !group || [group isInvalidated]) {
+        completion(nil, [YARealmObjectUnavailable new]);
+        return;
+    }
+    
+    NSString *videoLocalId = video.localId;
+    NSString *groupName = group.name;
+    
+    [[YAServer sharedServer] uploadVideo:video
+                           toGroupWithId:group.serverId
+                          withCompletion:^(NSHTTPURLResponse *response, NSError *error) {
+                              if(error) {
+                                  DLog(@"can't upload video, reason: %@", error.localizedDescription);
+                                  completion(nil, error);
+                              }
+                              else {
+                                  if (!video || [video isInvalidated]) {
+                                      completion(nil, [YARealmObjectUnavailable new]);
+                                      return;
+                                  }
+                                  [video.realm beginWriteTransaction];
+                                  NSString *location = [response allHeaderFields][@"Location"];
+                                  video.url = location;
+                                  [video.realm commitWriteTransaction];
+                                  
+                                  [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@", videoLocalId, groupName] type:YANotificationTypeSuccess];
+                                  
+                                  completion(nil, nil);
+                                  
+                                  [[Mixpanel sharedInstance] track:@"Video posted"];
+                              }
+                          }];
 }
 
 - (void)uploadVideoCaptionWithCompletion:(responseBlock)completion {

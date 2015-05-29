@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#define kPreviousCameraY @"kPreviousCameraY"
 
 @interface YAShowEmbeddedGroupsSegue : UIStoryboardSegue
 @end

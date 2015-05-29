@@ -20,6 +20,7 @@ typedef void (^videoCreatedCompletionHandler)(NSError *error,  YAVideo *video);
 typedef void (^jpgCreatedCompletionHandler)(NSError *error, YAVideo *video);
 typedef void (^gifCreatedCompletionHandler)(NSError *error);
 typedef void (^uploadCompletionHandler)(NSError *error);
+typedef void(^completionBlock)(NSError *error);
 
 @interface YAVideo : RLMObject
 @property NSString *mp4Filename;
@@ -51,7 +52,7 @@ typedef void (^uploadCompletionHandler)(NSError *error);
 @property YAGroup *group;
 
 + (YAVideo*)video;
-- (void)removeFromCurrentGroup;
+- (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer;
 - (void)rename:(NSString*)newName withFont:(NSInteger)font;
 
 - (void)updateLikersWithArray:(NSArray *)likers;

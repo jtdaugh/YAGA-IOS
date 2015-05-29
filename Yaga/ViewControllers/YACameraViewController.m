@@ -1141,7 +1141,7 @@ typedef enum {
         r.size.height /= 2;
         r.size.width *= .6;
         r.origin.x = (self.view.frame.size.width - r.size.width)/2;
-//        r.origin.y = 0;
+        r.origin.y = 100;
         
         self.openSettingsButton = [[UIButton alloc] initWithFrame:r];
         [self.openSettingsButton setTitle:NSLocalizedString(@"Enable Camera", @"") forState:UIControlStateNormal];
@@ -1152,6 +1152,9 @@ typedef enum {
         [self.openSettingsButton.titleLabel setNumberOfLines:0];
         self.openSettingsButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
         [self.cameraView addSubview:self.openSettingsButton];
+        
+        [self.recordTooltipLabel removeFromSuperview];
+        self.recordTooltipLabel = nil;
     }
 }
 

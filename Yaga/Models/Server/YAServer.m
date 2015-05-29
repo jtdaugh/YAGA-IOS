@@ -540,11 +540,11 @@
                            //call completion block when video is posted
                            completion(response, error);
                            
-                           if(!error && !video.isInvalidated && video.gifFilename.length)
-                               [self uploadGIFForVideoWithServerId:video.serverId];
-                           else {
-                               DLog(@"Can't post GIF! It's not ready yet.");
-                           }
+//                           if(!error && !video.isInvalidated && video.gifFilename.length)
+//                               [self uploadGIFForVideoWithServerId:video.serverId];
+//                           else {
+//                               DLog(@"Can't post GIF! It's not ready yet.");
+//                           }
                        }];
                    });
                    
@@ -621,20 +621,35 @@
 }
 
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
     NSAssert(self.authToken.length, @"auth token not set");
     
     NSAssert(serverVideoId, @"videoId is a required parameter");
     NSAssert(serverGroupId, @"groupId is a required parameter");
     
-    if (!serverVideoId || !serverVideoId)
-        return completion(nil, nil);
+    if (!serverVideoId.length) {
+        completion(nil, nil);
+        return;
+    }
     
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId, serverVideoId];
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Deleting video", @"")];
     [self.jsonOperationsManager DELETE:api
               parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                  [hud hide:NO];
+                  [YAUtils showHudWithText:NSLocalizedString(@"Video deleted", @"")];
+
                   completion(responseObject, nil);
               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                  [hud hide:NO];
+                  [YAUtils showHudWithText:NSLocalizedString(@"Can't delete video", @"")];
+                   
                   completion(nil, error);
               }];
 }
@@ -868,7 +883,7 @@
     
     NSMutableArray *correctPhones = [NSMutableArray arrayWithArray:[[NSSet setWithArray:phones] allObjects]];
     for(NSString *phone in [correctPhones copy]) {
-        if(![YAUtils validatePhoneNumber:phone error:nil]) {
+        if(![YAUtils validatePhoneNumber:phone]) {
             [correctPhones removeObject:phone];
         }
     }

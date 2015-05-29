@@ -32,6 +32,8 @@
 
 @property (nonatomic) CGRect smallCameraFrame;
 
+@property (nonatomic, strong) NSURL *recordingURL;
+
 @end
 
 @implementation YAInviteViewController
@@ -60,11 +62,13 @@
 //    
 //    origin = [self getNewOrigin:self.titleLable];
     
-    self.skipButton = [[UIBarButtonItem alloc] initWithTitle:@"Skip" style:UIBarButtonItemStylePlain target:self action:@selector(skipButtonPressed:)];
-
-    [self.navigationItem setHidesBackButton:YES animated:YES];
-
-    self.navigationItem.rightBarButtonItem = self.skipButton;
+    if(!self.canNavigateBack) {
+        self.skipButton = [[UIBarButtonItem alloc] initWithTitle:@"Skip" style:UIBarButtonItemStylePlain target:self action:@selector(skipButtonPressed:)];
+        
+        [self.navigationItem setHidesBackButton:YES animated:YES];
+        
+        self.navigationItem.rightBarButtonItem = self.skipButton;
+    }
     
     self.friendNamesLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.1f)];
     [self.friendNamesLabel setText:[self getFriendNamesTitle]];
@@ -214,7 +218,7 @@
     NSMutableArray *phoneNumbers = [NSMutableArray new];
     
     for(NSDictionary *contact in self.contactsThatNeedInvite) {
-        if([YAUtils validatePhoneNumber:contact[nPhone] error:nil])
+        if([YAUtils validatePhoneNumber:contact[nPhone]])
             [phoneNumbers addObject:contact[nPhone]];
     }
     
@@ -283,14 +287,19 @@
             } else {
                 [self.navigationController popToRootViewControllerAnimated:YES];
             }
+            if([YAUser currentUser].currentGroup) {
+                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:self.recordingURL addToGroup:[YAUser currentUser].currentGroup];
+            }
             break;
     }
 }
 
 - (void)finishedRecordingVideoToURL:(NSURL *)videoURL {
+    self.recordingURL = videoURL;
+    
     NSMutableArray *friendNumbers = [NSMutableArray new];
     for(NSDictionary *contact in self.contactsThatNeedInvite) {
-        if([YAUtils validatePhoneNumber:contact[nPhone] error:nil])
+        if([YAUtils validatePhoneNumber:contact[nPhone]])
             [friendNumbers addObject:contact[nPhone]];
     }
     

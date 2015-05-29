@@ -18,6 +18,8 @@
 #import "YAServer.h"
 #import "AFNetworking.h"
 
+#import "CountryListDataSource.h"
+
 @interface YAPhoneNumberViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @end
@@ -30,58 +32,41 @@
     self.title = @"";
     
     [self.view setBackgroundColor:PRIMARY_COLOR];
-    
-    CGFloat width = VIEW_WIDTH * .8;
-    
-    DLog(@" view width: %f", VIEW_WIDTH);
-    
-    CGFloat origin = VIEW_HEIGHT *.025;
-    self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, origin, VIEW_WIDTH, VIEW_HEIGHT*.1)];
+
+    self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT *.025, VIEW_WIDTH, VIEW_HEIGHT*.1)];
     [self.logo setImage:[UIImage imageNamed:@"Logo"]];
     [self.logo setContentMode:UIViewContentModeScaleAspectFit];
     [self.view addSubview:self.logo];
     
-    origin = [self getNewOrigin:self.logo];
+    self.countryButton = [[UIButton alloc] initWithFrame:CGRectZero];
+    [self.countryButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.countryButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:23]];
+    self.countryButton.titleLabel.textAlignment = NSTextAlignmentLeft;
+    [self.countryButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    [self.countryButton setImage:[UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
     
-    self.enterPhoneLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.12)];
-    [self.enterPhoneLabel setText:@"Enter your phone\n number to get started"];
-    [self.enterPhoneLabel setNumberOfLines:2];
-    [self.enterPhoneLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    [self.enterPhoneLabel setTextAlignment:NSTextAlignmentCenter];
-    [self.enterPhoneLabel setTextColor:[UIColor whiteColor]];
-    [self.view addSubview:self.enterPhoneLabel];
-    
-    origin = [self getNewOrigin:self.enterPhoneLabel];
+    [self.countryButton addTarget:self action:@selector(selectCountryTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [self.countryButton setBackgroundColor:[UIColor clearColor]];
+    [self.view addSubview:self.countryButton];
 
-    CGFloat formWidth = VIEW_WIDTH *.7;
-    CGFloat gutter = VIEW_WIDTH * .05;
-    self.phoneTextField = [[UITextField alloc] initWithFrame:CGRectMake(VIEW_WIDTH-formWidth-gutter, origin, formWidth, VIEW_HEIGHT*.08)];
-    [self.phoneTextField setBackgroundColor:[UIColor clearColor]];
+    self.phoneTextField = [[UITextField alloc] initWithFrame:CGRectZero];
+    [self.phoneTextField setBackgroundColor:[UIColor whiteColor]];
     [self.phoneTextField setKeyboardType:UIKeyboardTypePhonePad];
-    [self.phoneTextField setTextAlignment:NSTextAlignmentCenter];
-    [self.phoneTextField setFont:[UIFont fontWithName:BIG_FONT size:32]];
-    [self.phoneTextField setTextColor:[UIColor whiteColor]];
-    [self.phoneTextField setTintColor:[UIColor whiteColor]];
+    [self.phoneTextField setTextAlignment:NSTextAlignmentLeft];
+    [self.phoneTextField setFont:[UIFont fontWithName:BOLD_FONT size:28]];
+    [self.phoneTextField setTextColor:[UIColor blackColor]];
+    [self.phoneTextField setTintColor:[UIColor blackColor]];
     [self.phoneTextField setReturnKeyType:UIReturnKeyDone];
+    [self.phoneTextField setPlaceholder:NSLocalizedString(@"Enter phone number", @"")];
     [self.phoneTextField addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
     [self.view addSubview:self.phoneTextField];
     
-    self.countryButton = [[UIButton alloc] initWithFrame:CGRectMake(gutter, origin, VIEW_WIDTH - formWidth - gutter*3, VIEW_HEIGHT*.08)];
-    [self.countryButton setTitle:[NSString stringWithFormat:@"%@ 〉", [[YAUser currentUser] countryCode]] forState:UIControlStateNormal];
-    self.countryButton.layer.borderColor = [[UIColor blackColor] CGColor];
-    self.countryButton.layer.borderWidth = 3.0f;
-    self.countryButton.layer.cornerRadius = 8.0f;
-    self.countryButton.layer.masksToBounds = YES;
-    [self.countryButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [self.countryButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
-    [self.countryButton addTarget:self action:@selector(selectCountryTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.countryButton setBackgroundColor:[UIColor whiteColor]];
-    [self.view addSubview:self.countryButton];
+    UIView *leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 24, self.phoneTextField.frame.size.height)];
+    leftView.backgroundColor = self.phoneTextField.backgroundColor;
+    self.phoneTextField.leftView = leftView;
+    self.phoneTextField.leftViewMode = UITextFieldViewModeAlways;
     
-    origin = [self getNewOrigin:self.phoneTextField];
-    
-    CGFloat buttonWidth = VIEW_WIDTH * 0.7;
-    self.nextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
+    self.nextButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [self.nextButton setBackgroundColor:[UIColor whiteColor]];
     [self.nextButton setTitle:@"Next" forState:UIControlStateNormal];
     [self.nextButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
@@ -115,12 +100,12 @@
     self.logo.frame = CGRectMake(0, 0, VIEW_WIDTH, availableHeight/4);
     self.enterPhoneLabel.frame = CGRectMake(0, availableHeight/4, VIEW_WIDTH, availableHeight/4);
     
-    CGFloat gutter = VIEW_WIDTH * .05;
-    CGFloat formWidth = VIEW_WIDTH *.7;
     CGFloat separator = 20;
     
-    self.countryButton.frame = CGRectMake(gutter, availableHeight/2+separator, VIEW_WIDTH - formWidth - gutter*3, VIEW_HEIGHT*.08);
-    self.phoneTextField.frame = CGRectMake(VIEW_WIDTH-formWidth-gutter, availableHeight/2+separator, formWidth, VIEW_HEIGHT*.08);
+    self.countryButton.frame = CGRectMake(0, availableHeight/2+separator - VIEW_HEIGHT*.08, VIEW_WIDTH, VIEW_HEIGHT*.08);
+    self.countryButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    self.countryButton.imageEdgeInsets = UIEdgeInsetsMake(0, self.countryButton.frame.size.width - 30, 0, 0);
+    self.phoneTextField.frame = CGRectMake(0, availableHeight/2+separator, VIEW_WIDTH, VIEW_HEIGHT*.08);
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
     
     CGFloat heightForButton = availableHeight - self.phoneTextField.frame.origin.y - self.phoneTextField.frame.size.height;
@@ -145,9 +130,17 @@
 {
     [super viewWillAppear:animated];
     self.navigationController.navigationBarHidden = YES;
-    [self.countryButton setTitle:[NSString stringWithFormat:@"%@ ‣", [[YAUser currentUser] countryCode]] forState:UIControlStateNormal];
 
-//    [self.countryButton setTitle:[[YAUser currentUser] countryCode] forState:UIControlStateNormal];
+//    CountryListDataSource *dataSource = [CountryListDataSource new];
+//    [dataSource countries]
+
+//    [self.countryButton setTitle:[NSString stringWithFormat:@"%@ ‣", [[YAUser currentUser] countryCode]] forState:UIControlStateNormal];
+    NSString *countryName = [[NSLocale currentLocale] displayNameForKey:NSLocaleCountryCode value:[YAUser currentUser].countryCode];
+    //NSString *countryNumber = [[NBPhoneNumberUtil new] getNddPrefixForRegion:[YAUser currentUser].countryCode stripNonDigits:NO];
+    NSNumber *countryNumber = [[NBPhoneNumberUtil new] getCountryCodeForRegion:[YAUser currentUser].countryCode];
+    NSString *countryString = [NSString stringWithFormat:@"%@ (+%@)", countryName, countryNumber];
+    [self.countryButton setTitle:countryString forState:UIControlStateNormal];
+
     self.nextButton.enabled = YES;
 }
 
