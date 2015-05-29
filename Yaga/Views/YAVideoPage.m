@@ -372,33 +372,33 @@
 #pragma mark - Overlay controls
 
 - (void)initOverlayControls {
-    CGFloat height = 30;
+    CGFloat height = 24;
     CGFloat gutter = 48;
-    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, 12, VIEW_WIDTH - gutter*2, height)];
-    [self.userLabel setTextAlignment:NSTextAlignmentCenter];
+    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 200, height)];
+    [self.userLabel setTextAlignment:NSTextAlignmentLeft];
     
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
-    [self.userLabel setAttributedText: string];
+//    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+//                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+//                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
+//    [self.userLabel setAttributedText: string];
     [self.userLabel setTextColor:[UIColor whiteColor]];
-    [self.userLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.userLabel setFont:[UIFont fontWithName:BIG_FONT size:21]];
 
-//    self.userLabel.layer.shadowColor = [[UIColor whiteColor] CGColor];
-//    self.userLabel.layer.shadowRadius = 1.0f;
-//    self.userLabel.layer.shadowOpacity = 1.0;
-//    self.userLabel.layer.shadowOffset = CGSizeZero;
+    self.userLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.userLabel.layer.shadowRadius = 0.0f;
+    self.userLabel.layer.shadowOpacity = 1.0;
+    self.userLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
     [self.overlay addSubview:self.userLabel];
     
     CGFloat timeHeight = 24;
-    self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(gutter, height + 12, VIEW_WIDTH - gutter*2, timeHeight)];
-    [self.timestampLabel setTextAlignment:NSTextAlignmentCenter];
+    self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, height + 12, 200, timeHeight)];
+    [self.timestampLabel setTextAlignment:NSTextAlignmentLeft];
     [self.timestampLabel setTextColor:[UIColor whiteColor]];
     [self.timestampLabel setFont:[UIFont fontWithName:BIG_FONT size:14]];
     self.timestampLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
-    self.timestampLabel.layer.shadowRadius = 1.0f;
+    self.timestampLabel.layer.shadowRadius = 0.0f;
     self.timestampLabel.layer.shadowOpacity = 1.0;
-    self.timestampLabel.layer.shadowOffset = CGSizeZero;
+    self.timestampLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
     [self.overlay addSubview:self.timestampLabel];
     
 
@@ -1486,13 +1486,13 @@
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
 
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:self.video.creator attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
-    [self.userLabel setAttributedText: string];
-
-//    [self.userLabel setText:self.video.creator];
-    self.userLabel.textColor = [YAUtils UIColorFromUsernameString:self.video.creator];
+//    NSAttributedString *string = [[NSAttributedString alloc] initWithString:self.video.creator attributes:@{
+//                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+//                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
+//    [self.userLabel setAttributedText: string];
+//
+    [self.userLabel setText:self.video.creator];
+//    self.userLabel.textColor = [YAUtils UIColorFromUsernameString:self.video.creator];
     
     self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
 //    [self.likeButton setBackgroundImage:self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
