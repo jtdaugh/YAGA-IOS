@@ -6,9 +6,9 @@
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
-#import "YARealmObjectUnavailable.h"
+#import "YARealmObjectUnavailableError.h"
 
-@implementation YARealmObjectUnavailable
+@implementation YARealmObjectUnavailableError
 
 - (NSString*)localizedDescription {
     return @"YAError: object already deleted";

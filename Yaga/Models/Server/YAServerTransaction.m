@@ -12,7 +12,6 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 #import "AFNetworking.h"
-#import "YARealmObjectUnavailable.h"
 
 @interface YAServerTransaction ()
 
@@ -83,7 +82,7 @@
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
+        completion(nil, [YARealmObjectUnavailableError new]);
         return;
     }
     
@@ -95,7 +94,7 @@
         }
         else {
             if(!group || [group isInvalidated]) {
-                completion(nil, [YARealmObjectUnavailable new]);
+                completion(nil, [YARealmObjectUnavailableError new]);
                 return;
             }
 
@@ -119,14 +118,14 @@
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
+        completion(nil, [YARealmObjectUnavailableError new]);
         return;
     }
     
     [[YAServer sharedServer] renameGroupWithId:group.serverId newName:group.name withCompletion:^(id response, NSError *error) {
         
         if(!group || [group isInvalidated]) {
-            completion(nil, [YARealmObjectUnavailable new]);
+            completion(nil, [YARealmObjectUnavailableError new]);
             return;
         }
         
@@ -152,13 +151,13 @@
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
+        completion(nil, [YARealmObjectUnavailableError new]);
         return;
     }
     
     [[YAServer sharedServer] addGroupMembersByPhones:phones andUsernames:usernames toGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
         if(!group || [group isInvalidated]) {
-            completion(nil, [YARealmObjectUnavailable new]);
+            completion(nil, [YARealmObjectUnavailableError new]);
             return;
         }
         
@@ -182,14 +181,14 @@
     NSString *phone = self.data[YA_GROUP_DELETE_MEMBER];
     
     if(!group || [group isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
+        completion(nil, [YARealmObjectUnavailableError new]);
         return;
     }
     
     [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:group.serverId withCompletion:^(id response, NSError *error) {
         
         if(!group || [group isInvalidated]) {
-            completion(nil, [YARealmObjectUnavailable new]);
+            completion(nil, [YARealmObjectUnavailableError new]);
             return;
         }
         
@@ -230,13 +229,13 @@
     YAGroup *group = [self groupFromData];
     
     if(!group || [group isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
+        completion(nil, [YARealmObjectUnavailableError new]);
         return;
     }
     
     [[YAServer sharedServer] muteGroupWithId:group.serverId mute:group.muted withCompletion:^(id response, NSError *error) {
         if(!group || [group isInvalidated]) {
-            completion(nil, [YARealmObjectUnavailable new]);
+            completion(nil, [YARealmObjectUnavailableError new]);
             return;
         }
 
@@ -259,7 +258,7 @@
     NSString *groupId = self.data[YA_GROUP_ID];
     
     if(!video || [video isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
+        completion(nil, [YARealmObjectUnavailableError new]);
         return;
     }
     NSString *videoServerId = video.serverId;
@@ -281,12 +280,17 @@
     YAGroup *group = [self groupFromData];
     
     if(!video || [video isInvalidated] || !group || [group isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
+        completion(nil, [YARealmObjectUnavailableError new]);
         return;
     }
     
     NSString *videoLocalId = video.localId;
     NSString *groupName = group.name;
+    
+    if(!group.serverId.length) {
+        completion(nil, [YANoServerIdError new]);
+        return;
+    }
     
     [[YAServer sharedServer] uploadVideo:video
                            toGroupWithId:group.serverId
@@ -297,7 +301,7 @@
                               }
                               else {
                                   if (!video || [video isInvalidated]) {
-                                      completion(nil, [YARealmObjectUnavailable new]);
+                                      completion(nil, [YARealmObjectUnavailableError new]);
                                       return;
                                   }
                                   [video.realm beginWriteTransaction];
@@ -318,7 +322,7 @@
     YAVideo *video = [self videoFromData];
     
     if(!video || [video isInvalidated]) {
-        completion(nil, [YARealmObjectUnavailable new]);
+        completion(nil, [YARealmObjectUnavailableError new]);
         return;
     }
     
