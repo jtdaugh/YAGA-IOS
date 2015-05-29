@@ -231,11 +231,13 @@
             
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
-            if([YAGroup allObjects].count)
-                [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
-            else
-               [YAUser currentUser].currentGroup = nil;
-                
+            if(deletedGroupWasActive) {
+                if([YAGroup allObjects].count)
+                    [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
+                else
+                    [YAUser currentUser].currentGroup = nil;
+            }
+            
             if(block)
                 block(nil);
             

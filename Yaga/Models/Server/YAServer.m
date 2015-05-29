@@ -490,7 +490,7 @@
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    if ([video isInvalidated]) {
-                       YARealmObjectUnavailable *yaError = [YARealmObjectUnavailable new];
+                       YARealmObjectUnavailableError *yaError = [YARealmObjectUnavailableError new];
                        completion(videoLocalId, yaError);
                        return;
                    }
@@ -522,7 +522,7 @@
                            [[Mixpanel sharedInstance] track:@"Upload Video"];
 
                            if ([video isInvalidated]) {
-                               YARealmObjectUnavailable *yaError = [YARealmObjectUnavailable new];
+                               YARealmObjectUnavailableError *yaError = [YARealmObjectUnavailableError new];
                                completion(videoLocalId, yaError);
                                return;
                            }

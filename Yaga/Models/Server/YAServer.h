@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <Firebase/Firebase.h>
 #import "YAVideo.h"
+#import "YARealmObjectUnavailableError.h"
+#import "YANoServerIdError.h"
 
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_NAME                @"name"

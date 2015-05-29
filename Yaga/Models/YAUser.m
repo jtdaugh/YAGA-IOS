@@ -14,7 +14,6 @@
 #import "APContact.h"
 #import "NBPhoneNumberUtil.h"
 #import "YAAssetsCreator.h"
-#import "YAImageCache.h"
 #import "YAUtils.h"
 #import "YAServer.h"
 

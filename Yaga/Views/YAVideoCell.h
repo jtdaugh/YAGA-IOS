@@ -17,7 +17,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateVideoPreview,
 };
 
-@interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate, FLAnimatedImageDebugDelegate>
+@interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate>
 
 @property (nonatomic) NSInteger index;
 @property (nonatomic, strong) YAVideo *video;

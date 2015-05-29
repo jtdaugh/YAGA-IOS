@@ -23,8 +23,6 @@
 
 #import "YANotificationView.h"
 
-#import "YAImageCache.h"
-
 @protocol GridViewControllerDelegate;
 
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
@@ -190,6 +188,10 @@ static NSString *cellID = @"Cell";
 
 -  (void)willDeleteVideo:(NSNotification*)notif {
     YAVideo *video = notif.object;
+    
+    if(!video.group || [video.group isInvalidated])
+        return;
+    
     if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
     
@@ -204,6 +206,9 @@ static NSString *cellID = @"Cell";
 - (void)didDeleteVideo:(NSNotification*)notif {
     
     YAVideo *video = notif.object;
+    
+    if(!video.group || [video.group isInvalidated])
+        return;
     
     if(![video.group isEqual:[YAUser currentUser].currentGroup])
         return;
@@ -224,6 +229,10 @@ static NSString *cellID = @"Cell";
 - (void)reloadVideo:(NSNotification*)notif {
     dispatch_async(dispatch_get_main_queue(), ^{
         YAVideo *video = notif.object;
+        
+        if(!video.group || [video.group isInvalidated])
+            return;
+        
         if(![video.group isEqual:[YAUser currentUser].currentGroup])
             return;
         
@@ -587,36 +596,7 @@ static NSString *cellID = @"Cell";
     }
     
     [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:videos invisibleVideos:nil];
-    
-    [self precacheGifsStartingFromIndex:[visibleVideoIndexes.lastObject integerValue]];
 }
-
-- (void)precacheGifsStartingFromIndex:(NSUInteger)startingIndex {
-    
-    NSUInteger currentIndex = startingIndex + 1;
-    
-    const NSUInteger defaultPrecacheCount = 30;
-    while (currentIndex < [YAUser currentUser].currentGroup.videos.count && (currentIndex - startingIndex <= defaultPrecacheCount)) {
-        YAVideo *video = [YAUser currentUser].currentGroup.videos[currentIndex];
-        
-        NSString *fileName = video.gifFilename;
-        if(fileName.length && ![[YAImageCache sharedCache] objectForKey:fileName]) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                
-                NSURL *dataURL = [YAUtils urlFromFileName:fileName];
-                NSData *fileData = [NSData dataWithContentsOfURL:dataURL];
-                FLAnimatedImage *image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:fileData];
-                
-                if(image) {
-                    [[YAImageCache sharedCache] setObject:image forKey:fileName];
-                    DLog(@"gif precached");
-                }
-            });
-        }
-        currentIndex++;
-    }
-}
-
 
 - (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
     NSUInteger maxCount = self.paginationThreshold;

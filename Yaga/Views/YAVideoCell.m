@@ -12,7 +12,6 @@
 #import "NSDate+NVTimeAgo.h"
 #import "YAAssetsCreator.h"
 #import "YAActivityView.h"
-#import "YAImageCache.h"
 #import "AFURLConnectionOperation.h"
 #import "YAServerTransactionQueue.h"
 
@@ -180,38 +179,27 @@
     if(!fileName.length)
         return;
     
-    id cachedImage = [[YAImageCache sharedCache] objectForKey:fileName];
-    if(cachedImage) {
-        [self showCachedImage:cachedImage animatedImage:animatedImage];
-    }
-    else {
-        dispatch_async(self.imageLoadingQueue, ^{
-            
-            NSURL *dataURL = [YAUtils urlFromFileName:fileName];
-            NSData *fileData = [NSData dataWithContentsOfURL:dataURL];
-            id image;
-            if(animatedImage)
-                image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:fileData];
-            else
-                image = [UIImage imageWithData:fileData];
-            
-            if(image) {
-                if([self.gifFilename isEqualToString:fileName]) {
-                    [[YAImageCache sharedCache] setObject:image forKey:fileName];
-
-                    dispatch_async(dispatch_get_main_queue(), ^(){
-                        //Add method, task you want perform on mainQueue
-                        //Control UIView, IBOutlet all here
-                        
-                        [self showCachedImage:image animatedImage:animatedImage];
-                    });
-                }
-                else {
-                    //invalidated.. no need to redraw and cache.
-                }
+    dispatch_async(self.imageLoadingQueue, ^{
+        
+        NSURL *dataURL = [YAUtils urlFromFileName:fileName];
+        NSData *fileData = [NSData dataWithContentsOfURL:dataURL];
+        id image;
+        if(animatedImage)
+            image = [[FLAnimatedImage alloc] initWithAnimatedGIFData:fileData];
+        else
+            image = [UIImage imageWithData:fileData];
+        
+        if(image) {
+            if([self.gifFilename isEqualToString:fileName]) {
+                dispatch_async(dispatch_get_main_queue(), ^(){
+                    [self showCachedImage:image animatedImage:animatedImage];
+                });
             }
-        });
-    }
+            else {
+                //invalidated.. no need to redraw and cache.
+            }
+        }
+    });
 }
 
 - (void)showCachedImage:(id)image animatedImage:(BOOL)animatedImage {

@@ -287,9 +287,9 @@
             } else {
                 [self.navigationController popToRootViewControllerAnimated:YES];
             }
-            if([YAUser currentUser].currentGroup) {
-                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:self.recordingURL addToGroup:[YAUser currentUser].currentGroup];
-            }
+//            if([YAUser currentUser].currentGroup) {
+//                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:self.recordingURL addToGroup:[YAUser currentUser].currentGroup];
+//            }
             break;
     }
 }

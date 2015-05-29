@@ -17,7 +17,6 @@
 #import "YAUtils.h"
 #import "YAServerTransactionQueue.h"
 #import "YAAssetsCreator.h"
-#import "YAImageCache.h"
 
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
@@ -274,10 +273,7 @@
 }
 
 #pragma mark - Memory Warning
-- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
-{
-    [[YAImageCache sharedCache] removeAllObjects];
-    
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
     DLog(@"applicationDidReceiveMemoryWarning!");
 }
 

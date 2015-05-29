@@ -172,6 +172,10 @@
         //fill in the executing queue to the max capacity
         while (self.executingUrls.count < self.maxConcurentJobs && [self nextUrl]) {
             NSString *waitingUrl = [self nextUrl];
+            
+            if(!waitingUrl.length)
+                break;
+            
             __block AFDownloadRequestOperation *nextJob = [self.downloadJobs objectForKey:waitingUrl];
             
             if(!nextJob) {
