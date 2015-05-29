@@ -408,23 +408,22 @@
 //    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
 //    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
 ////    [self addSubview:self.captionButton];
-
     
-    CGFloat saveSize = 36;
-    self.shareButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - saveSize - 15, 15, saveSize, saveSize)];
-    [self.shareButton setBackgroundImage:[UIImage imageNamed:@"Share"] forState:UIControlStateNormal];
+    CGFloat buttonRadius = 22.f, padding = 12.f;
+    
+    self.shareButton = [self circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
+                                                                                                 VIEW_HEIGHT - buttonRadius - padding)];
     [self.shareButton addTarget:self action:@selector(shareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.shareButton];
     self.shareButton.layer.zPosition = 100;
     
-    self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, saveSize, saveSize)];
-    [self.deleteButton setBackgroundImage:[UIImage imageNamed:@"Delete"] forState:UIControlStateNormal];
+    self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - padding*2 - buttonRadius*3,
+                                                                                                   VIEW_HEIGHT - buttonRadius - padding)];
     [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.deleteButton];
     self.deleteButton.layer.zPosition = 100;
     
-    self.commentButton = [[UIButton alloc] initWithFrame:CGRectMake(15, VIEW_HEIGHT - saveSize - 15, saveSize, saveSize)];
-    [self.commentButton setBackgroundImage:[UIImage imageNamed:@"comment"] forState:UIControlStateNormal];
+    self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
     self.commentButton.layer.zPosition = 100;
@@ -446,7 +445,7 @@
 //    //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
 ////    [self addSubview:self.likeCount];
     
-    self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, saveSize, saveSize)];
+    self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
     [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
     [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
     
@@ -495,6 +494,18 @@
 
 }
 
+- (UIButton *)circleButtonWithImage:(NSString *)imageName diameter:(CGFloat)diameter center:(CGPoint)center {
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
+    button.center = center;
+    button.backgroundColor = [UIColor colorWithWhite:0.9f alpha:0.2f];
+    button.layer.borderColor = [[UIColor whiteColor] CGColor];
+    button.layer.borderWidth = 1.f;
+    button.layer.cornerRadius = diameter/2.f;
+    button.layer.masksToBounds = YES;
+    [button setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+    return button;
+}
+
 - (void)setupCaptionButtonContainer {
     self.captionButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BOTTOM_ACTION_SIZE*2 - BOTTOM_ACTION_MARGIN*2,
                                                                            VIEW_HEIGHT - BOTTOM_ACTION_MARGIN - BOTTOM_ACTION_SIZE,
@@ -539,7 +550,7 @@
     [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] removeAllObservers];
     [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] removeAllObservers];
     [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] removeAllObservers];
-    
+
     for(UIView *view in self.heartViews){
         [view removeFromSuperview];
     }
@@ -1503,7 +1514,7 @@
 
     [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
                     forState:UIControlStateNormal];
-    
+
     [self clearFirebase];
     [self initFirebase];
     
