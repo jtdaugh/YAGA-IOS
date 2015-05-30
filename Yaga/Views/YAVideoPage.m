@@ -22,13 +22,18 @@
 #import "YADownloadManager.h"
 #import "YAServerTransactionQueue.h"
 #import "YACommentsCell.h"
-#import "DAKeyboardControl.h"
 
 #define CAPTION_FONT_SIZE 60.0
 #define CAPTION_STROKE_WIDTH 1.f
 #define CAPTION_DEFAULT_SCALE 0.6f
 #define CAPTION_GUTTER 5.f
 #define CAPTION_WRAPPER_INSET 100.f
+
+#define COMMENTS_BOTTOM_MARGIN 50.f
+#define COMMENTS_SIDE_MARGIN 10.f
+#define COMMENTS_HEIGHT_PROPORTION 0.2f
+#define COMMENTS_TEXT_FIELD_HEIGHT 30.f
+#define COMMENTS_SEND_WIDTH 60.f
 
 #define BOTTOM_ACTION_SIZE 40.f
 #define BOTTOM_ACTION_MARGIN 10.f
@@ -97,10 +102,14 @@ static NSString *commentCellID = @"CommentCell";
 
 @property (nonatomic, strong) UIView *captionButtonContainer;
 
+@property (nonatomic) CGFloat keyboardHeight;
+@property (nonatomic) BOOL previousKeyboardLocation;
+
 @property (nonatomic, strong) UIView *commentsWrapperView;
 @property (nonatomic, strong) UITableView *commentsTableView;
 @property (nonatomic, strong) UITextField *commentsTextField;
 @property (nonatomic, strong) UIButton *commentsSendButton;
+@property (nonatomic, strong) UITapGestureRecognizer *commentsTapOutRecognizer;
 
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
@@ -141,6 +150,8 @@ static NSString *commentCellID = @"CommentCell";
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShown:) name:UIKeyboardDidShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
         
@@ -156,6 +167,70 @@ static NSString *commentCellID = @"CommentCell";
         [self setBackgroundColor:PRIMARY_COLOR];
     }
     return self;
+}
+
+- (void)commentsTapOut:(UIGestureRecognizer *)recognizer {
+    [self.commentsTextField resignFirstResponder];
+}
+
+- (void)keyboardWillShow:(NSNotification*)notification
+{
+    // Don't move stuff if its the caption keyboard. Only for the comments one.
+    if (self.editingCaption) return;
+    self.commentsTapOutRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(commentsTapOut:)];
+    [self addGestureRecognizer:self.commentsTapOutRecognizer];
+    [self moveControls:notification up:YES];
+}
+
+- (void)keyboardWillHide:(NSNotification*)notification
+{
+    if (self.editingCaption) return;
+    [self removeGestureRecognizer:self.commentsTapOutRecognizer];
+    // Don't move stuff if its the caption keyboard. Only for the comments one.
+    [self moveControls:notification up:NO];
+}
+
+- (void)moveControls:(NSNotification*)notification up:(BOOL)up
+{
+    NSDictionary* userInfo = [notification userInfo];
+    CGFloat kbHeight = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height;
+    CGFloat delta = kbHeight - self.keyboardHeight;
+    self.keyboardHeight = kbHeight;
+    CGRect wrapperFrame = self.commentsWrapperView.frame;
+    CGFloat wrapperHeight = wrapperFrame.size.height;
+    if (up) {
+        CGFloat paddingAboveKeyboard = 6;
+        CGFloat height = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION;
+        wrapperHeight = height + COMMENTS_TEXT_FIELD_HEIGHT + paddingAboveKeyboard;
+        wrapperFrame.size.height = wrapperHeight;
+        wrapperFrame.origin.y -= self.previousKeyboardLocation ? delta : kbHeight;
+    } else {
+        // just set the view back to the bottom
+        wrapperFrame.size.height = VIEW_HEIGHT*COMMENTS_HEIGHT_PROPORTION;
+        wrapperFrame.origin.y = VIEW_HEIGHT - COMMENTS_BOTTOM_MARGIN - wrapperFrame.size.height;
+    }
+    
+//    if (!self.previousKeyboardLocation && up) {
+//        // full on moving this keyboard up
+//        wrapperFrame.origin.y -= (COMMENTS_TEXT_FIELD_HEIGHT + 10);
+//    } else if (self.previousKeyboardLocation && !up) {
+//        // full on moving this keyboard down
+//        wrapperFrame.origin.y += (COMMENTS_TEXT_FIELD_HEIGHT + 10);
+//    }
+    
+    NSTimeInterval duration = [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    UIViewAnimationCurve animationCurve = [[userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] integerValue];
+    
+    [UIView animateWithDuration:duration
+                          delay:0
+                        options:(animationCurve << 16)
+                     animations:^{
+                         self.commentsWrapperView.frame = wrapperFrame;
+                     }
+                     completion:^(BOOL finished){
+                         [self.commentsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[self.events count]-1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                     }];
+    self.previousKeyboardLocation = up;
 }
 
 - (void)keyboardDown:(NSNotification*)n
@@ -254,7 +329,6 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)dealloc {
     [self clearFirebase];
-    [self removeKeyboardControl];
 
     [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION      object:nil];
@@ -265,6 +339,9 @@ static NSString *commentCellID = @"CommentCell";
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextInputCurrentInputModeDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
 }
@@ -433,19 +510,19 @@ static NSString *commentCellID = @"CommentCell";
 #pragma mark - Comments Table View
 
 - (void)setupCommentsContainer {
-    CGFloat bottomMargin = 50, sideMargin = 10, height = VIEW_HEIGHT*0.2f, textFieldHeight = 30, sendButtonWidth = 60;
-    CGFloat width = VIEW_WIDTH - 2*sideMargin;
-    self.commentsWrapperView = [[UIView alloc] initWithFrame:CGRectMake(sideMargin, VIEW_HEIGHT - bottomMargin - height, width, height)];
+    CGFloat height = VIEW_HEIGHT*COMMENTS_HEIGHT_PROPORTION;
+    CGFloat width = VIEW_WIDTH - 2*COMMENTS_SIDE_MARGIN;
+    self.commentsWrapperView = [[UIView alloc] initWithFrame:CGRectMake(COMMENTS_SIDE_MARGIN, VIEW_HEIGHT - COMMENTS_BOTTOM_MARGIN - height, width, height)];
     self.commentsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
     self.commentsTableView.backgroundColor = [UIColor clearColor];
     [self.commentsTableView registerClass:[YACommentsCell class] forCellReuseIdentifier:commentCellID];
     self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.commentsTableView.delegate = self;
     self.commentsTableView.dataSource = self;
-    self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, width - sendButtonWidth, textFieldHeight)];
+    self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, width - COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
     self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
-    UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, textFieldHeight)];
+    UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, width, COMMENTS_TEXT_FIELD_HEIGHT)];
     leftUsernameLabel.font = [UIFont boldSystemFontOfSize:15.f];
     leftUsernameLabel.text = [NSString stringWithFormat:@" %@: ", [YAUser currentUser].username];
     [leftUsernameLabel sizeToFit];
@@ -453,7 +530,7 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTextField.leftView = leftUsernameLabel;
     self.commentsTextField.textColor = [UIColor whiteColor];
     self.commentsTextField.font = [UIFont systemFontOfSize:14.f];
-    self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(width - sendButtonWidth, height, sendButtonWidth, textFieldHeight)];
+    self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(width - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     self.commentsSendButton.backgroundColor = PRIMARY_COLOR;
     [self.commentsSendButton setTitle:@"Send" forState:UIControlStateNormal];
     
@@ -462,15 +539,6 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentsWrapperView addSubview:self.commentsTextField];
     self.commentsWrapperView.layer.masksToBounds = YES;
     [self.overlay addSubview:self.commentsWrapperView];
-    
-    __weak YAVideoPage *weakSelf = self;
-    [self addKeyboardPanningWithActionHandler:^(CGRect keyboardFrameInView, BOOL opening, BOOL closing) {
-        CGRect wrapperFrame = weakSelf.commentsWrapperView.frame;
-        CGFloat wrapperHeight = opening ? height + textFieldHeight + 10 : height;
-        wrapperFrame.size.height = wrapperHeight;
-        wrapperFrame.origin.y = MIN(keyboardFrameInView.origin.y - wrapperHeight, VIEW_HEIGHT - bottomMargin - height); 
-        weakSelf.commentsWrapperView.frame = wrapperFrame;
-    }];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -725,27 +793,34 @@ static NSString *commentCellID = @"CommentCell";
 //    [self toggleEditingCaption:YES];
 //}
 
+- (void)setGesturesEnabled:(BOOL)enabled {
+    
+    self.hideGestureRecognizer.enabled = enabled;
+    self.captionTapRecognizer.enabled = enabled;
+    if (enabled) {
+        [self.presentingVC restoreAllGestures];
+    } else {
+        [self.presentingVC suspendAllGestures];
+    }
+}
+
+
+
 - (void)toggleEditingCaption:(BOOL)editing {
     self.editingCaption = editing;
     if (editing) {
+        [self setGesturesEnabled:NO];
         self.serverCaptionWrapperView.hidden = YES;
-        
-        self.hideGestureRecognizer.enabled = NO;
-        self.captionTapRecognizer.enabled = NO;
-        [self.presentingVC suspendAllGestures];
-        
         self.cancelCaptionButton.hidden = NO;
         self.rajsBelovedDoneButton.hidden = NO;
 //        self.textButton.hidden = YES;
         self.deleteButton.hidden = YES;
         self.shareButton.hidden = YES;
     } else {
+        [self setGesturesEnabled:YES];
+        
         self.serverCaptionWrapperView.hidden = NO;
 
-        self.hideGestureRecognizer.enabled = YES;
-        self.captionTapRecognizer.enabled = YES;
-        [self.presentingVC restoreAllGestures];
-        
         // could be prettier if i fade all of this
         self.cancelCaptionButton.hidden = YES;
         self.rajsBelovedDoneButton.hidden = YES;
@@ -1197,6 +1272,7 @@ static NSString *commentCellID = @"CommentCell";
     NSLog(@"tapped");
     if (self.editingCaption) return;
     if ([recognizer isEqual:self.captionTapRecognizer]){
+        [self toggleEditingCaption:YES];
         if (self.serverCaptionTextView) {
             [self beginEditableCaptionAtPoint:self.serverCaptionWrapperView.center
                                    initalText:self.serverCaptionTextView.text
@@ -1207,7 +1283,6 @@ static NSString *commentCellID = @"CommentCell";
                                     initalText:@""
                                initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE)];
         }
-        [self toggleEditingCaption:YES];
     }
 }
 
@@ -1352,6 +1427,7 @@ static NSString *commentCellID = @"CommentCell";
 //}
 
 - (void)commentButtonPressed {
+    [self setGesturesEnabled:NO];
     [self.commentsTextField becomeFirstResponder];
 }
 
