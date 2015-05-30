@@ -53,9 +53,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
 
-@property (nonatomic, strong) UILabel *likeCaptionToolTipLabel;
-@property (nonatomic, strong) UILabel *swipeDownTooltipLabel;
-
 @property (nonatomic, strong) YAActivityView *uploadingView;
 
 @property BOOL loading;
@@ -148,7 +145,6 @@ static NSString *commentCellID = @"CommentCell";
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
         
         [self initOverlayControls];
-//        [self initLikeCaptionTooltip];
         
 //#ifdef DEBUG
 //        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 30)];
@@ -258,7 +254,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)dealloc {
     [self clearFirebase];
-    [self removeKeyboardControl];g
+    [self removeKeyboardControl];
 
     [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION      object:nil];
@@ -1199,15 +1195,6 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
-    if (self.likeCaptionToolTipLabel) {
-        [self.likeCaptionToolTipLabel removeFromSuperview];
-        self.likeCaptionToolTipLabel = nil;
-        self.swipeDownTooltipLabel = [UILabel new]; // so that we can just check if nil after the like or caption
-    }
-    if (self.swipeDownTooltipLabel) {
-        self.swipeDownTooltipLabel.hidden = YES;
-    }
-    
     if (self.editingCaption) return;
     if ([recognizer isEqual:self.captionTapRecognizer]){
         if (self.serverCaptionTextView) {
@@ -1245,9 +1232,6 @@ static NSString *commentCellID = @"CommentCell";
 //        }];
 
     // show the swipe down tooltip if it or the like/caption tooltip was there before
-    if (self.swipeDownTooltipLabel) {
-        [self initSwipeDownTooltip];
-    }
     
 }
 
