@@ -14,5 +14,9 @@
 
 - (void)setUsername:(NSString *)username;
 - (void)setComment:(NSString *)comment;
+@property (nonatomic, strong) UILabel *usernameLabel;
+@property (nonatomic, strong) UITextView *commentsTextView;
+
+
 
 @end
