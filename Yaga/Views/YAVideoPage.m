@@ -34,7 +34,7 @@
 #define COMMENTS_SIDE_MARGIN 10.f
 #define COMMENTS_HEIGHT_PROPORTION 0.2f
 #define COMMENTS_TEXT_FIELD_HEIGHT 40.f
-#define COMMENTS_SEND_WIDTH 60.f
+#define COMMENTS_SEND_WIDTH 70.f
 
 #define BOTTOM_ACTION_SIZE 40.f
 #define BOTTOM_ACTION_MARGIN 10.f
@@ -179,6 +179,7 @@ static NSString *commentCellID = @"CommentCell";
 {
     // Don't move stuff if its the caption keyboard. Only for the comments one.
     if (self.editingCaption) return;
+    [self setGesturesEnabled:NO];
     self.commentsTapOutRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(commentsTapOut:)];
     [self addGestureRecognizer:self.commentsTapOutRecognizer];
     [self moveControls:notification up:YES];
@@ -187,6 +188,9 @@ static NSString *commentCellID = @"CommentCell";
 - (void)keyboardWillHide:(NSNotification*)notification
 {
     if (self.editingCaption) return;
+
+    [self setGesturesEnabled:YES];
+
     [self removeGestureRecognizer:self.commentsTapOutRecognizer];
     // Don't move stuff if its the caption keyboard. Only for the comments one.
     [self moveControls:notification up:NO];
@@ -201,9 +205,8 @@ static NSString *commentCellID = @"CommentCell";
     CGRect wrapperFrame = self.commentsWrapperView.frame;
     CGFloat wrapperHeight = wrapperFrame.size.height;
     if (up) {
-        CGFloat paddingAboveKeyboard = 4.f;
         CGFloat height = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION;
-        wrapperHeight = height + COMMENTS_TEXT_FIELD_HEIGHT + paddingAboveKeyboard;
+        wrapperHeight = height + COMMENTS_TEXT_FIELD_HEIGHT;
         wrapperFrame.size.height = wrapperHeight;
         wrapperFrame.origin.y -= self.previousKeyboardLocation ? delta : kbHeight;
     } else {
@@ -230,7 +233,9 @@ static NSString *commentCellID = @"CommentCell";
                          self.commentsWrapperView.frame = wrapperFrame;
                      }
                      completion:^(BOOL finished){
-                         [self.commentsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[self.events count]-1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+                         if ([self.events count]) {
+                             [self.commentsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+                         }
                      }];
     self.previousKeyboardLocation = up;
 }
@@ -486,7 +491,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
     
     [self setupCommentsContainer];
-    [self addFakeEvents];
+//    [self addFakeEvents];
 
     const CGFloat radius = 40;
     self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
@@ -539,26 +544,28 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)setupCommentsContainer {
     CGFloat height = VIEW_HEIGHT*COMMENTS_HEIGHT_PROPORTION;
-    CGFloat width = VIEW_WIDTH - 2*COMMENTS_SIDE_MARGIN;
-    self.commentsWrapperView = [[UIView alloc] initWithFrame:CGRectMake(COMMENTS_SIDE_MARGIN, VIEW_HEIGHT - COMMENTS_BOTTOM_MARGIN - height, width, height)];
-    self.commentsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+    self.commentsWrapperView = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - COMMENTS_BOTTOM_MARGIN - height, VIEW_WIDTH, height)];
+    self.commentsTableView = [[UITableView alloc] initWithFrame:CGRectMake(COMMENTS_SIDE_MARGIN, 0, VIEW_WIDTH - (2*COMMENTS_SIDE_MARGIN), height)];
+    self.commentsTableView.transform = CGAffineTransformMakeRotation(-M_PI);
+
     self.commentsTableView.backgroundColor = [UIColor clearColor];
     [self.commentsTableView registerClass:[YACommentsCell class] forCellReuseIdentifier:commentCellID];
     self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.commentsTableView.delegate = self;
     self.commentsTableView.dataSource = self;
-    self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, width - COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH-COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
     self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
-    UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, width, COMMENTS_TEXT_FIELD_HEIGHT)];
+    UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(COMMENTS_SIDE_MARGIN, 0, VIEW_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     leftUsernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
-    leftUsernameLabel.text = [NSString stringWithFormat:@" %@: ", [YAUser currentUser].username];
+    leftUsernameLabel.text = [NSString stringWithFormat:@"  %@: ", [YAUser currentUser].username];
     [leftUsernameLabel sizeToFit];
     leftUsernameLabel.textColor = PRIMARY_COLOR;
     self.commentsTextField.leftView = leftUsernameLabel;
     self.commentsTextField.textColor = [UIColor whiteColor];
     self.commentsTextField.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE];
-    self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(width - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    [self.commentsSendButton addTarget:self action:@selector(commentsSendPressed:) forControlEvents:UIControlEventTouchUpInside];
     self.commentsSendButton.backgroundColor = PRIMARY_COLOR;
     [self.commentsSendButton setTitle:@"Send" forState:UIControlStateNormal];
     
@@ -570,8 +577,24 @@ static NSString *commentCellID = @"CommentCell";
     
 }
 
+- (void)commentsSendPressed:(id)sender {
+    NSString *text = self.commentsTextField.text;
+    if ([text length]) {
+        // post the comment
+        NSDictionary *event = @{
+                                @"type":@"comment",
+                                @"username":[YAUser currentUser].username,
+                                @"comment":text
+                                };
+        [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:event];
+        self.commentsTextField.text = @"";
+    }
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     YACommentsCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
+    cell.transform = cell.transform = CGAffineTransformMakeRotation(M_PI);
+
     NSDictionary *event = self.events[indexPath.row];
     if (event[@"username"]) {
         [cell setUsername:event[@"username"]];
@@ -642,9 +665,9 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void) clearFirebase {
     
-    [[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] removeAllObservers];
-    [[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"events"] removeAllObservers];
-    [[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"caption"] removeAllObservers];
+    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] removeAllObservers];
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] removeAllObservers];
+    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] removeAllObservers];
 
     [self.serverCaptionWrapperView removeFromSuperview];
     self.serverCaptionWrapperView = nil;
@@ -653,9 +676,9 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void) initFirebase {
     
-    NSLog(@"serverid: %@", @"A_SERVER_ID");
+    NSLog(@"serverid: %@", self.video.serverId);
     
-    [self addFakeEvents]; //    self.events = [NSMutableArray array];
+    self.events = [NSMutableArray array];
 
     
     [self beginMonitoringForEvents];
@@ -664,7 +687,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)beginMonitoringForCaptionChanges {
     __weak YAVideoPage *weakSelf = self;
-    Firebase *caption = [[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"caption"];
+    Firebase *caption = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"];
     
     // TODO: Queue these up in case user changes text and position (common). As is, that will cause this to fire multiple times instantly.
     [caption observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
@@ -680,17 +703,17 @@ static NSString *commentCellID = @"CommentCell";
     }];
 }
 
+
 - (void)beginMonitoringForEvents {
-    Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"events"];
+    Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"];
     
     __weak YAVideoPage *weakSelf = self;
     
     __block BOOL initialLoaded = NO;
     
     [events observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        [weakSelf.events addObject:snapshot.value];
+        [weakSelf.events insertObject:snapshot.value atIndex:0];
         [weakSelf.commentsTableView reloadData];
-            // TODO: reload comments table
     }];
     
     [events observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
@@ -936,11 +959,11 @@ static NSString *commentCellID = @"CommentCell";
         self.editableCaptionWrapperView = nil;
         self.editableCaptionTextView = nil;
         
-        [[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"caption"] setValue:textData];
+        [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] setValue:textData];
         
         if (eventData) {
             self.serverCaptionWrapperView.alpha = 0;
-            [[[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
+            [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
         }
     }
 }
@@ -1329,7 +1352,7 @@ static NSString *commentCellID = @"CommentCell";
                                 @"username":[YAUser currentUser].username
                                 };
     
-    [[[[[YAServer sharedServer].firebase childByAppendingPath:@"A_SERVER_ID"] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];
+    [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];
     
 //        likeHeart.alpha = 0.0;
 //        [UIView animateWithDuration:0.2 animations:^{
@@ -1457,7 +1480,6 @@ static NSString *commentCellID = @"CommentCell";
 //}
 
 - (void)commentButtonPressed {
-    [self setGesturesEnabled:NO];
     [self.commentsTextField becomeFirstResponder];
 }
 
