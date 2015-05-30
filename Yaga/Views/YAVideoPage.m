@@ -148,7 +148,7 @@ static NSString *commentCellID = @"CommentCell";
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
         
         [self initOverlayControls];
-        [self initLikeCaptionTooltip];
+//        [self initLikeCaptionTooltip];
         
 //#ifdef DEBUG
 //        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 30)];
@@ -271,104 +271,6 @@ static NSString *commentCellID = @"CommentCell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextInputCurrentInputModeDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
-}
-
-- (void)initLikeCaptionTooltip {
-    if(![[NSUserDefaults standardUserDefaults] boolForKey:kSwipeDownShown]) {
-        [[NSUserDefaults standardUserDefaults] setBool:1 forKey:kSwipeDownShown];
-        //first start tooltips
-        CGFloat tooltipLeftMargin = 20.f;
-        self.likeCaptionToolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(tooltipLeftMargin, 0, VIEW_WIDTH-tooltipLeftMargin, VIEW_HEIGHT)];
-        
-        self.likeCaptionToolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:38];
-        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap Anywhere\nTo Caption\n\nor\n\nDouble Tap\nTo Like"
-                                                                     attributes:@{
-                                                                                  NSStrokeColorAttributeName:[UIColor colorWithWhite:1.0 alpha:0.6],
-                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-4]
-                                                                                  }];
-        
-        self.likeCaptionToolTipLabel.textAlignment = NSTextAlignmentCenter;
-        self.likeCaptionToolTipLabel.attributedText = string;
-        self.likeCaptionToolTipLabel.numberOfLines = 0;
-        self.likeCaptionToolTipLabel.textColor = PRIMARY_COLOR;
-        self.likeCaptionToolTipLabel.alpha = 0.0;
-        [self addSubview:self.likeCaptionToolTipLabel];
-        //warning create varible for all screen sizes
-        
-        [UIView animateKeyframesWithDuration:0.6 delay:0.3 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
-            [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
-                self.likeCaptionToolTipLabel.alpha = 1.0;
-            }];
-            
-            for(float i = 0; i < 4; i++){
-                [UIView addKeyframeWithRelativeStartTime:i/5.0 relativeDuration:i/(5.0) animations:^{
-                    self.likeCaptionToolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI/60 + (int)i%2 * -1* M_PI/30);
-                }];
-                
-            }
-            
-            [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
-                self.likeCaptionToolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI/30);
-            }];
-            
-            
-        } completion:^(BOOL finished) {
-            self.likeCaptionToolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI/30);
-        }];
-        
-        [UIView animateWithDuration:0.3 delay:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-            self.likeCaptionToolTipLabel.alpha = .8f;
-        } completion:nil];
-    }
-}
-
-- (void) initSwipeDownTooltip {
-    if(![[NSUserDefaults standardUserDefaults] boolForKey:kLikeTooltipShown]) {
-        [[NSUserDefaults standardUserDefaults] setBool:1 forKey:kLikeTooltipShown];
-        //first start tooltips
-        CGFloat tooltipLeftMargin = 5.f;
-        self.swipeDownTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(tooltipLeftMargin, 0, VIEW_WIDTH-tooltipLeftMargin, VIEW_HEIGHT)];
-        
-        self.swipeDownTooltipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:45];
-        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Swipe Down\n To Dismiss"
-                                                                     attributes:@{
-                                                                                  NSStrokeColorAttributeName:[UIColor colorWithWhite:1.0 alpha:0.6],
-                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5]
-                                                                                  }];
-        
-        self.swipeDownTooltipLabel.textAlignment = NSTextAlignmentCenter;
-        self.swipeDownTooltipLabel.attributedText = string;
-        self.swipeDownTooltipLabel.numberOfLines = 0;
-        self.swipeDownTooltipLabel.textColor = PRIMARY_COLOR;
-        self.swipeDownTooltipLabel.alpha = 0.0;
-        [self addSubview:self.swipeDownTooltipLabel];
-        //warning create varible for all screen sizes
-        
-        [UIView animateKeyframesWithDuration:0.6 delay:0.3 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
-            [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
-                self.swipeDownTooltipLabel.alpha = 1.0;
-            }];
-            
-            for(float i = 0; i < 4; i++){
-                [UIView addKeyframeWithRelativeStartTime:i/5.0 relativeDuration:i/(5.0) animations:^{
-                    self.swipeDownTooltipLabel.transform = CGAffineTransformMakeRotation(-M_PI/18 + M_PI/36 + (int)i%2 * -1* M_PI/18);
-                }];
-                
-            }
-            
-            [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
-                self.swipeDownTooltipLabel.transform = CGAffineTransformMakeRotation(-M_PI/18);
-            }];
-            
-            
-        } completion:^(BOOL finished) {
-            self.swipeDownTooltipLabel.transform = CGAffineTransformMakeRotation(-M_PI/18);
-        }];
-        
-        [UIView animateWithDuration:0.3 delay:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-            self.swipeDownTooltipLabel.alpha = 1.0;
-        } completion:nil];
-    }
 }
 
 #pragma mark - Overlay controls
@@ -856,10 +758,6 @@ static NSString *commentCellID = @"CommentCell";
         self.shareButton.hidden = NO;
         
         
-        // show the swipe down tooltip if it or the like/caption tooltip was there before
-        if (self.swipeDownTooltipLabel) {
-            [self initSwipeDownTooltip];
-        }
     }
 }
 
