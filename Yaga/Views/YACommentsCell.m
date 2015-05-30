@@ -23,12 +23,13 @@
         CGFloat initialUsernameWidth = 100, initialHeight = 24;
         self.usernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, initialUsernameWidth, initialHeight)];
         self.usernameLabel.textColor = PRIMARY_COLOR;
-        self.usernameLabel.font = [UIFont boldSystemFontOfSize:14.f];
+        self.usernameLabel.font = [UIFont boldSystemFontOfSize:15.f];
         [self addSubview:self.usernameLabel];
         self.commentsTextView = [[UITextView alloc] initWithFrame:CGRectMake(initialUsernameWidth, 0, self.frame.size.width - initialUsernameWidth, initialHeight)];
         self.commentsTextView.textContainer.lineFragmentPadding = 0;
         self.commentsTextView.textContainerInset = UIEdgeInsetsZero;
         self.commentsTextView.textColor = [UIColor whiteColor];
+        self.commentsTextView.textContainerInset = UIEdgeInsetsZero;
         self.commentsTextView.font = [UIFont systemFontOfSize:14.f];
         self.commentsTextView.backgroundColor = [UIColor clearColor];
         self.commentsTextView.scrollEnabled = NO;
@@ -54,6 +55,8 @@
     CGRect commentFrame = self.commentsTextView.frame;
     commentFrame.origin.x = userSize.width + 4;
     commentFrame.size.width = VIEW_WIDTH - (userSize.width + 12);
+//    commentFrame.origin.x = userWidth + 10;
+//    commentFrame.size.width = self.frame.size.width - (userWidth + 10);
     self.commentsTextView.frame = commentFrame;
 }
 

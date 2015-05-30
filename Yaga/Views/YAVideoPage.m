@@ -53,9 +53,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
 
-@property (nonatomic, strong) UILabel *likeCaptionToolTipLabel;
-@property (nonatomic, strong) UILabel *swipeDownTooltipLabel;
-
 @property (nonatomic, strong) YAActivityView *uploadingView;
 
 @property BOOL loading;
@@ -148,7 +145,6 @@ static NSString *commentCellID = @"CommentCell";
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
         
         [self initOverlayControls];
-//        [self initLikeCaptionTooltip];
         
 //#ifdef DEBUG
 //        self.debugLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 30)];
@@ -258,6 +254,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)dealloc {
     [self clearFirebase];
+    [self removeKeyboardControl];
 
     [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION      object:nil];
@@ -441,7 +438,7 @@ static NSString *commentCellID = @"CommentCell";
 #pragma mark - Comments Table View
 
 - (void)setupCommentsContainer {
-    CGFloat bottomMargin = 50, sideMargin = 10, height = VIEW_HEIGHT*0.2f, textFieldHeight = 20, sendButtonWidth = 50;
+    CGFloat bottomMargin = 50, sideMargin = 10, height = VIEW_HEIGHT*0.2f, textFieldHeight = 30, sendButtonWidth = 60;
     CGFloat width = VIEW_WIDTH - 2*sideMargin;
     self.commentsWrapperView = [[UIView alloc] initWithFrame:CGRectMake(sideMargin, VIEW_HEIGHT - bottomMargin - height, width, height)];
     self.commentsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
@@ -452,10 +449,15 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTableView.dataSource = self;
     self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, width - sendButtonWidth, textFieldHeight)];
     self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
+    self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
     UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, textFieldHeight)];
-    leftUsernameLabel.text = [YAUser currentUser].username;
+    leftUsernameLabel.font = [UIFont boldSystemFontOfSize:15.f];
+    leftUsernameLabel.text = [NSString stringWithFormat:@" %@: ", [YAUser currentUser].username];
+    [leftUsernameLabel sizeToFit];
     leftUsernameLabel.textColor = PRIMARY_COLOR;
     self.commentsTextField.leftView = leftUsernameLabel;
+    self.commentsTextField.textColor = [UIColor whiteColor];
+    self.commentsTextField.font = [UIFont systemFontOfSize:14.f];
     self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(width - sendButtonWidth, height, sendButtonWidth, textFieldHeight)];
     self.commentsSendButton.backgroundColor = PRIMARY_COLOR;
     [self.commentsSendButton setTitle:@"Send" forState:UIControlStateNormal];
@@ -465,6 +467,15 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentsWrapperView addSubview:self.commentsTextField];
     self.commentsWrapperView.layer.masksToBounds = YES;
     [self.overlay addSubview:self.commentsWrapperView];
+    
+    __weak YAVideoPage *weakSelf = self;
+    [self addKeyboardPanningWithActionHandler:^(CGRect keyboardFrameInView, BOOL opening, BOOL closing) {
+        CGRect wrapperFrame = weakSelf.commentsWrapperView.frame;
+        CGFloat wrapperHeight = opening ? height + textFieldHeight + 10 : height;
+        wrapperFrame.size.height = wrapperHeight;
+        wrapperFrame.origin.y = MIN(keyboardFrameInView.origin.y - wrapperHeight, VIEW_HEIGHT - bottomMargin - height); 
+        weakSelf.commentsWrapperView.frame = wrapperFrame;
+    }];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -1192,15 +1203,6 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
-    if (self.likeCaptionToolTipLabel) {
-        [self.likeCaptionToolTipLabel removeFromSuperview];
-        self.likeCaptionToolTipLabel = nil;
-        self.swipeDownTooltipLabel = [UILabel new]; // so that we can just check if nil after the like or caption
-    }
-    if (self.swipeDownTooltipLabel) {
-        self.swipeDownTooltipLabel.hidden = YES;
-    }
-    
     if (self.editingCaption) return;
     if ([recognizer isEqual:self.captionTapRecognizer]){
         if (self.serverCaptionTextView) {
@@ -1356,7 +1358,7 @@ static NSString *commentCellID = @"CommentCell";
 //}
 
 - (void)commentButtonPressed {
-    
+    [self.commentsTextField becomeFirstResponder];
 }
 
 - (void)animateButton:(UIButton*)button withImageName:(NSString*)imageName completion:(void (^)(void))completion {
