@@ -8,6 +8,8 @@
 
 #import "YACommentsCell.h"
 
+#define COMMENTS_FONT_SIZE 16.f
+
 @interface YACommentsCell ()
 
 
@@ -23,7 +25,7 @@
         CGFloat initialUsernameWidth = 100, initialHeight = 24;
         self.usernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, initialUsernameWidth, initialHeight)];
         self.usernameLabel.textColor = PRIMARY_COLOR;
-        self.usernameLabel.font = [UIFont boldSystemFontOfSize:18.f];
+        self.usernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
         
         self.usernameLabel.shadowColor = [UIColor blackColor];
         self.usernameLabel.shadowOffset = CGSizeMake(0.5, 0.5);
@@ -41,7 +43,7 @@
         self.commentsTextView.textContainerInset = UIEdgeInsetsZero;
         self.commentsTextView.textColor = [UIColor whiteColor];
         self.commentsTextView.textContainerInset = UIEdgeInsetsZero;
-        self.commentsTextView.font = [UIFont systemFontOfSize:18.f];
+        self.commentsTextView.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE];
         self.commentsTextView.backgroundColor = [UIColor clearColor];
         self.commentsTextView.scrollEnabled = NO;
         
@@ -81,11 +83,11 @@
     // should actually implement this
     UILabel *dummy = [[UILabel alloc] init];
     dummy.text = username;
-    dummy.font = [UIFont boldSystemFontOfSize:18.f];
+    dummy.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
     CGSize userSize = [dummy sizeThatFits:CGSizeMake(VIEW_WIDTH/2, CGFLOAT_MAX)];
     
     UITextView *dummyTextView = [[UITextView alloc] init];
-    dummyTextView.font = [UIFont boldSystemFontOfSize:18.f];
+    dummyTextView.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
     dummyTextView.textContainer.lineFragmentPadding = 0;
     dummyTextView.textContainerInset = UIEdgeInsetsZero;
     dummyTextView.text = comment;

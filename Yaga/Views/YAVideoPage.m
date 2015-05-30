@@ -30,9 +30,10 @@
 #define CAPTION_WRAPPER_INSET 100.f
 
 #define COMMENTS_BOTTOM_MARGIN 50.f
+#define COMMENTS_FONT_SIZE 16.f
 #define COMMENTS_SIDE_MARGIN 10.f
 #define COMMENTS_HEIGHT_PROPORTION 0.2f
-#define COMMENTS_TEXT_FIELD_HEIGHT 30.f
+#define COMMENTS_TEXT_FIELD_HEIGHT 40.f
 #define COMMENTS_SEND_WIDTH 60.f
 
 #define BOTTOM_ACTION_SIZE 40.f
@@ -199,7 +200,7 @@ static NSString *commentCellID = @"CommentCell";
     CGRect wrapperFrame = self.commentsWrapperView.frame;
     CGFloat wrapperHeight = wrapperFrame.size.height;
     if (up) {
-        CGFloat paddingAboveKeyboard = 6;
+        CGFloat paddingAboveKeyboard = 4.f;
         CGFloat height = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION;
         wrapperHeight = height + COMMENTS_TEXT_FIELD_HEIGHT + paddingAboveKeyboard;
         wrapperFrame.size.height = wrapperHeight;
@@ -528,13 +529,13 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
     self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
     UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, width, COMMENTS_TEXT_FIELD_HEIGHT)];
-    leftUsernameLabel.font = [UIFont boldSystemFontOfSize:15.f];
+    leftUsernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
     leftUsernameLabel.text = [NSString stringWithFormat:@" %@: ", [YAUser currentUser].username];
     [leftUsernameLabel sizeToFit];
     leftUsernameLabel.textColor = PRIMARY_COLOR;
     self.commentsTextField.leftView = leftUsernameLabel;
     self.commentsTextField.textColor = [UIColor whiteColor];
-    self.commentsTextField.font = [UIFont systemFontOfSize:14.f];
+    self.commentsTextField.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE];
     self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(width - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     self.commentsSendButton.backgroundColor = PRIMARY_COLOR;
     [self.commentsSendButton setTitle:@"Send" forState:UIControlStateNormal];
