@@ -525,6 +525,13 @@ static NSString *commentCellID = @"CommentCell";
     [self.overlay bringSubviewToFront:self.shareButton];
     [self.overlay bringSubviewToFront:self.deleteButton];
     [self.overlay bringSubviewToFront:self.commentButton];
+    
+    [self.overlay setAlpha:0.0];
+    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        [self.overlay setAlpha:1.0];
+    } completion:^(BOOL finished) {
+        //
+    }];
 
 }
 
