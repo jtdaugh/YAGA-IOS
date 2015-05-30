@@ -366,6 +366,11 @@ static NSString *commentCellID = @"CommentCell";
                                  },
                                 @{
                                  @"type":@"comment",
+                                 @"username":@"cewendel",
+                                 @"comment": @"this is exactly how i would imagine raj to drive hahahaha exactly the same lol."
+                                 },
+                                @{
+                                 @"type":@"comment",
                                  @"username":@"jtdaugherty",
                                  @"comment" : @"hahahahhaahhaahha"
                                  }, nil
@@ -565,8 +570,11 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     NSDictionary *event = self.events[indexPath.row];
     return [YACommentsCell heightForCellWithUsername:event[@"username"] comment:event[@"comment"] ? event[@"comment"] : @"liked the video"];
+    
+    
 }
 
 - (void)setupCaptionButtonContainer {
@@ -1306,8 +1314,6 @@ static NSString *commentCellID = @"CommentCell";
 //            likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
 //        }];
 
-    // show the swipe down tooltip if it or the like/caption tooltip was there before
-    
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
