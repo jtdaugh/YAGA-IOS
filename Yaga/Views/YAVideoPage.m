@@ -44,7 +44,7 @@
 
 static NSString *commentCellID = @"CommentCell";
 
-@interface YAVideoPage ()  <UITableViewDataSource, UITableViewDelegate>
+@interface YAVideoPage ()  <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>
 
 @property (nonatomic, strong) YAActivityView *activityView;
 
@@ -533,6 +533,7 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTableView.dataSource = self;
     self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH-COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
+    self.commentsTextField.returnKeyType = UIReturnKeySend;
     self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
     UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(COMMENTS_SIDE_MARGIN, 0, VIEW_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     leftUsernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
@@ -542,6 +543,7 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTextField.leftView = leftUsernameLabel;
     self.commentsTextField.textColor = [UIColor whiteColor];
     self.commentsTextField.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE];
+    self.commentsTextField.delegate = self;
     self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     [self.commentsSendButton addTarget:self action:@selector(commentsSendPressed:) forControlEvents:UIControlEventTouchUpInside];
     self.commentsSendButton.backgroundColor = PRIMARY_COLOR;
@@ -565,6 +567,7 @@ static NSString *commentCellID = @"CommentCell";
                                 };
         [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:event];
         self.commentsTextField.text = @"";
+        [self.commentsTextField resignFirstResponder];
     }
 }
 
@@ -579,7 +582,7 @@ static NSString *commentCellID = @"CommentCell";
     NSString *type = event[@"type"];
     if ([type isEqualToString:@"like"]) {
         [cell setComment:@"liked the video"];
-    } else if ([type isEqualToString:@"comment"]) {
+    } else if ([type isEqualToString:@"comment"]) {g
         [cell setComment:event[@"comment"]];
     }
     return cell;
@@ -1182,9 +1185,10 @@ static NSString *commentCellID = @"CommentCell";
 
 }
 
+// Send the comment
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [self doneTyping];
-    return YES;
+    [self commentsSendPressed:nil];
+    return NO;
 }
 
 //- (void)textButtonPressed {
