@@ -106,6 +106,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic) CGFloat keyboardHeight;
 @property (nonatomic) BOOL previousKeyboardLocation;
 
+@property (strong, nonatomic) UIView *commentsGradient;
 @property (nonatomic, strong) UIView *commentsWrapperView;
 @property (nonatomic, strong) UITableView *commentsTableView;
 @property (nonatomic, strong) UITextField *commentsTextField;
@@ -386,6 +387,28 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)initOverlayControls {
     
+    CGFloat gradientHeight = VIEW_HEIGHT/3;
+    
+    self.commentsGradient = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - gradientHeight, VIEW_WIDTH, gradientHeight)];
+//    self.commentsGradient.backgroundColor = [UIColor redColor];
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = self.commentsGradient.bounds;
+    ;
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[[UIColor colorWithWhite:0.0 alpha:.0] CGColor],
+                       (id)[[UIColor colorWithWhite:0.0 alpha:.4] CGColor],
+                       (id)[[UIColor colorWithWhite:0.0 alpha:.6] CGColor],
+//                       (id)[[UIColor colorWithWhite:0.0 alpha:.6] CGColor],
+                       nil];
+//    gradient.locations = [NSArray arrayWithObjects:
+//                          [NSNumber numberWithInt:1.0],
+//                          [NSNumber numberWithInt:0.75],
+////                          [NSNumber numberWithInt:0.0],
+//                          nil];
+    
+    [self.commentsGradient.layer insertSublayer:gradient atIndex:0];
+    [self.overlay addSubview:self.commentsGradient];
+    
     CGFloat height = 24;
     CGFloat gutter = 48;
     self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 200, height)];
@@ -427,7 +450,7 @@ static NSString *commentCellID = @"CommentCell";
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
     self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, bottomButtonCenterY)];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.likeButton];
+    [self.overlay addSubview:self.likeButton];
 
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -496,13 +519,19 @@ static NSString *commentCellID = @"CommentCell";
     self.hideGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(hideHold:)];
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
     [self addGestureRecognizer:self.hideGestureRecognizer];
-
     
     [self setupCaptionButtonContainer];
     [self setupCaptionGestureRecognizers];
     [self.overlay bringSubviewToFront:self.shareButton];
     [self.overlay bringSubviewToFront:self.deleteButton];
     [self.overlay bringSubviewToFront:self.commentButton];
+    
+    [self.overlay setAlpha:0.0];
+    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        [self.overlay setAlpha:1.0];
+    } completion:^(BOOL finished) {
+        //
+    }];
 
 }
 
@@ -554,6 +583,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentsWrapperView addSubview:self.commentsTextField];
     self.commentsWrapperView.layer.masksToBounds = YES;
     [self.overlay addSubview:self.commentsWrapperView];
+    
 }
 
 - (void)commentsSendPressed:(id)sender {
