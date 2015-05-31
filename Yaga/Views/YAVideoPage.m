@@ -1290,7 +1290,7 @@ static NSString *commentCellID = @"CommentCell";
     NSDictionary *heartData = @{
                                 @"type": @"comment",
                                 @"username": [YAUser currentUser].username,
-                                @"comment": @"<3"
+                                @"comment": @"💜"
                                 };
     
     [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];
