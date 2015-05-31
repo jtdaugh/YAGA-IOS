@@ -128,7 +128,6 @@ static NSString *commentCellID = @"CommentCell";
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.events = [NSMutableArray array];
 
         //self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
 //        self.loader = [[UIView alloc] initWithFrame:self.bounds];
@@ -405,7 +404,7 @@ static NSString *commentCellID = @"CommentCell";
     self.userLabel.layer.shadowRadius = 0.0f;
     self.userLabel.layer.shadowOpacity = 1.0;
     self.userLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
-    [self.overlay addSubview:self.userLabel];
+//    [self.overlay addSubview:self.userLabel];
     
     CGFloat timeHeight = 24;
     self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(buttonRadius*2 + padding*2, height + 12, 200, timeHeight)];
@@ -416,7 +415,7 @@ static NSString *commentCellID = @"CommentCell";
     self.timestampLabel.layer.shadowRadius = 0.0f;
     self.timestampLabel.layer.shadowOpacity = 1.0;
     self.timestampLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
-    [self.overlay addSubview:self.timestampLabel];
+//    [self.overlay addSubview:self.timestampLabel];
     
 
 //    CGFloat tSize = CAPTION_FONT_SIZE;
@@ -431,7 +430,10 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
 //    [self.overlay addSubview:self.likeButton];
 
+    
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    self.XButton.transform = CGAffineTransformMakeScale(0.5, 0.5);
+    self.XButton.alpha = 0.8;
     [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
     
@@ -441,9 +443,9 @@ static NSString *commentCellID = @"CommentCell";
     [self.overlay addSubview:self.shareButton];
 //    self.shareButton.layer.zPosition = 100;
     
-    self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(padding + buttonRadius, padding*2 + buttonRadius)];
-    [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.deleteButton];
+//    self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(padding + buttonRadius, padding*2 + buttonRadius)];
+//    [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+//    [self.overlay addSubview:self.deleteButton];
 //    self.deleteButton.layer.zPosition = 100;
     
     self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
@@ -1472,6 +1474,12 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
 //                    forState:UIControlStateNormal];
 //
+    self.events = [@[@{
+                         @"type":@"comment",
+                         @"username":self.video.creator,
+                         @"comment":[@"🎬  " stringByAppendingString:[[YAUser currentUser] formatDate:self.video.createdAt]]
+                                     }] mutableCopy];
+    [self.commentsTableView reloadData];
     [self clearFirebase];
     [self initFirebase];
     
