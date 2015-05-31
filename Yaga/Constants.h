@@ -40,6 +40,7 @@
 
 #define BIG_FONT @"Avenir"
 #define BOLD_FONT @"Avenir-Black"
+#define CAPTION_FONT @"AvenirNextCondensed-Bold"
 #define THIN_FONT @"HelveticaNeue-UltraLight"
 
 #define CAPTION_FONTS @[ @"AvenirNext-HeavyItalic", @"ChalkboardSE-Bold", @"AmericanTypewriter-Bold", @"Chalkduster", @"ArialRoundedMTBold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide", @"Futura-CondensedExtraBold", @"SnellRoundhand-Black"]

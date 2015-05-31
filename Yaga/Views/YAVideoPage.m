@@ -24,7 +24,7 @@
 #import "YACommentsCell.h"
 
 #define CAPTION_FONT_SIZE 60.0
-#define CAPTION_STROKE_WIDTH 1.f
+#define CAPTION_STROKE_WIDTH 3.f
 #define CAPTION_DEFAULT_SCALE 0.6f
 #define CAPTION_GUTTER 5.f
 #define CAPTION_WRAPPER_INSET 100.f
@@ -544,9 +544,11 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentsTableView registerClass:[YACommentsCell class] forCellReuseIdentifier:commentCellID];
     self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.commentsTableView.allowsSelection = NO;
+    self.commentsTableView.showsVerticalScrollIndicator = NO;
     self.commentsTableView.delegate = self;
     self.commentsTableView.dataSource = self;
     self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH-COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    self.commentsTextField.autocorrectionType = UITextAutocorrectionTypeNo;
     self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
     self.commentsTextField.returnKeyType = UIReturnKeySend;
     self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
@@ -729,20 +731,21 @@ static NSString *commentCellID = @"CommentCell";
     textView.editable = NO;
     
     CGSize newSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
-    CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
+    CGRect captionFrame = CGRectMake(0, 0, newSize.width, newSize.height);
     textView.frame = captionFrame;
 
-    CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
-                                     [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
-                                     newSize.width + (2.f*CAPTION_WRAPPER_INSET),
-                                     newSize.height + (2.f*CAPTION_WRAPPER_INSET));
+    CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f),
+                                     [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f),
+                                     newSize.width,
+                                     newSize.height);
     textWrapper.frame = wrapperFrame;
 
     [textWrapper addSubview:textView];
     textWrapper.transform =CGAffineTransformFromString(snapshot.value[@"transform"]);
 
     [self.overlay addSubview:textWrapper];
-
+    [self.overlay sendSubviewToBack:textWrapper];
+    
     self.serverCaptionWrapperView = textWrapper;
     self.serverCaptionTextView = textView;
     
@@ -755,7 +758,7 @@ static NSString *commentCellID = @"CommentCell";
     textWrapper.transform = CGAffineTransformScale(textWrapper.transform, 0.75, 0.75);
     
     [UIView animateWithDuration:0.1 delay:0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        textWrapper.alpha = 0.75;
+        textWrapper.alpha = 1.f;
         textWrapper.transform = original;
     } completion:nil];
 }
@@ -1035,7 +1038,7 @@ static NSString *commentCellID = @"CommentCell";
 - (CGSize)sizeThatFitsString:(NSString *)string {
     CGRect frame = [string boundingRectWithSize:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)
                                       options:NSStringDrawingUsesLineFragmentOrigin
-                                   attributes:@{ NSFontAttributeName:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE],
+                                   attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE],
                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH] } context:nil];
     return frame.size;
@@ -1044,7 +1047,7 @@ static NSString *commentCellID = @"CommentCell";
 // returns the same text view, modified. dont need to use return type if u dont wanna
 - (UITextView *)textViewWithCaptionAttributes {
     UITextView *textView = [UITextView new];
-    textView.alpha = 0.75;
+    textView.alpha = 1;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
@@ -1052,7 +1055,7 @@ static NSString *commentCellID = @"CommentCell";
     [textView setAttributedText:string];
     [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
     [textView setTextColor:PRIMARY_COLOR];
-    [textView setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
+    [textView setFont:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]];
     
     [textView setTextAlignment:NSTextAlignmentCenter];
     [textView setAutocorrectionType:UITextAutocorrectionTypeNo];
