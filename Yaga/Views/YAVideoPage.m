@@ -422,9 +422,9 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
 ////    [self addSubview:self.captionButton];
     
-    CGFloat buttonRadius = 22.f, padding = 8.f;
+    CGFloat buttonRadius = 22.f, padding = 4.f;
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
-    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, bottomButtonCenterY)];
+    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.likeButton];
 
@@ -539,10 +539,10 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH-COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
     self.commentsTextField.returnKeyType = UIReturnKeySend;
-    self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.7];
+    self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
     UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(COMMENTS_SIDE_MARGIN, 0, VIEW_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     leftUsernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
-    leftUsernameLabel.text = [NSString stringWithFormat:@"  %@: ", [YAUser currentUser].username];
+    leftUsernameLabel.text = [NSString stringWithFormat:@"  %@ ", [YAUser currentUser].username];
     [leftUsernameLabel sizeToFit];
     leftUsernameLabel.textColor = PRIMARY_COLOR;
     self.commentsTextField.leftView = leftUsernameLabel;
