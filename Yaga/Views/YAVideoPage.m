@@ -455,7 +455,7 @@ static NSString *commentCellID = @"CommentCell";
     
     CGFloat buttonRadius = 22.f, padding = 8.f;
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
-    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, bottomButtonCenterY)];
+    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
     [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.likeButton];
 
