@@ -96,7 +96,6 @@
 
     CGSize commentSize = [dummyTextView sizeThatFits:CGSizeMake(commentWidth, CGFLOAT_MAX)];
     
-    NSLog(@"height: %f", commentSize.height);
     return commentSize.height + 6.0f;
 }
 
