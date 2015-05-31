@@ -20,6 +20,7 @@
 
 @property (nonatomic, assign) NSUInteger currentPageIndex;
 @property (nonatomic, assign) NSUInteger previousPageIndex;
+@property (nonatomic, assign) NSUInteger visibleTileIndex;
 
 @property (nonatomic, assign) NSUInteger initialIndex;
 
@@ -238,11 +239,11 @@
 - (void)updatePages:(BOOL)preload {
     [self adjustPageFrames];
     
-    NSUInteger visibleTileIndex = 0;
+    self.visibleTileIndex = 0;
     
     //first page, current on the left
     if(self.currentPageIndex == 0) {
-        visibleTileIndex = 0;
+        self.visibleTileIndex = 0;
         
         [self updateTileAtIndex:0 withVideoAtIndex:0 shouldPreload:preload];
         
@@ -256,14 +257,14 @@
     else if(self.currentPageIndex == [YAUser currentUser].currentGroup.videos.count - 1) {
         //special case when there is less than 3 videos
         if([YAUser currentUser].currentGroup.videos.count < 3) {
-            visibleTileIndex = 1;
+            self.visibleTileIndex = 1;
             
             //index is always greater than 0 here, as previous condition index == 0 has already passed
             [self updateTileAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
             [self updateTileAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
         }
         else {
-            visibleTileIndex = 2;
+            self.visibleTileIndex = 2;
             
             if(self.currentPageIndex > 1)
                 [self updateTileAtIndex:0 withVideoAtIndex:self.currentPageIndex - 2 shouldPreload:preload];
@@ -276,7 +277,7 @@
     }
     //rest of pages, current in the middle
     else if(self.currentPageIndex > 0) {
-        visibleTileIndex = 1;
+        self.visibleTileIndex = 1;
         
         if([YAUser currentUser].currentGroup.videos.count > 0)
             [self updateTileAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
@@ -291,10 +292,10 @@
         YAVideoPage *page = self.pages[i];
 
         //prioritise mp4 download for visible page if needed
-        if(preload && !page.video.mp4Filename.length && i == visibleTileIndex)
+        if(preload && !page.video.mp4Filename.length && i == self.visibleTileIndex)
             [[YADownloadManager sharedManager] exclusivelyDownloadMp4ForVideo:page.video];
         
-        if(i == visibleTileIndex && preload) {
+        if(i == self.visibleTileIndex && preload) {
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
         }
@@ -368,14 +369,20 @@
 
 #pragma mark - YASuspendableGestureDelegate
 
-- (void)suspendAllGestures {
-    self.panGesture.enabled = NO;
-    self.scrollView.scrollEnabled = NO;
+- (void)suspendAllGestures:(id)sender {
+    // prevent non-visible pages from sending stray calls
+    if ([sender isEqual:self.pages[self.visibleTileIndex]]) {
+        self.panGesture.enabled = NO;
+        self.scrollView.scrollEnabled = NO;
+    }
 }
 
-- (void)restoreAllGestures {
-    self.panGesture.enabled = YES;
-    self.scrollView.scrollEnabled = YES;
+- (void)restoreAllGestures:(id)sender  {
+    // prevent non-visible pages from sending stray calls
+    if ([sender isEqual:self.pages[self.visibleTileIndex]]) {
+        self.panGesture.enabled = YES;
+        self.scrollView.scrollEnabled = YES;
+    }
 }
 
 @end

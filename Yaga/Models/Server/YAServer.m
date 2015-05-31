@@ -94,7 +94,7 @@
         [Firebase setOption:@"persistence" to:@YES];
         
         self.firebase = [[Firebase alloc] initWithUrl:@"https://yaga.firebaseio.com/video_data_cnc"];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:)  name:VIDEO_WILL_DELETE_NOTIFICATION  object:nil];
         
         [self applySavedAuthToken];

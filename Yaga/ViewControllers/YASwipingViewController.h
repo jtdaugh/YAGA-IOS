@@ -9,8 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @protocol YASuspendableGesturesDelegate <NSObject>
-- (void)suspendAllGestures;
-- (void)restoreAllGestures;
+- (void)suspendAllGestures:(id)sender;
+- (void)restoreAllGestures:(id)sender;
 @end
 
 @protocol YASwipingViewControllerDelegate <NSObject>

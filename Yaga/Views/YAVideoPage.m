@@ -24,8 +24,8 @@
 #import "YACommentsCell.h"
 
 #define CAPTION_FONT_SIZE 60.0
-#define CAPTION_STROKE_WIDTH 1.f
-#define CAPTION_DEFAULT_SCALE 0.6f
+#define CAPTION_STROKE_WIDTH 3.f
+#define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_GUTTER 5.f
 #define CAPTION_WRAPPER_INSET 100.f
 
@@ -54,7 +54,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property BOOL likesShown;
 @property (nonatomic, strong) UIButton *captionButton;
-@property (nonatomic, strong) UIButton *likeButton;
+//@property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
@@ -70,6 +70,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UILabel *debugLabel;
 @property NSUInteger fontIndex;
 
+@property (strong, nonatomic) UITapGestureRecognizer *likeDoubleTapRecognizer;
 @property (strong, nonatomic) UITapGestureRecognizer *captionTapRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
@@ -124,6 +125,7 @@ static NSString *commentCellID = @"CommentCell";
 @property CGFloat firstY;
 
 @property (nonatomic, assign) BOOL shouldPreload;
+@property (nonatomic, assign) BOOL myVideo;
 @end
 
 @implementation YAVideoPage
@@ -131,6 +133,8 @@ static NSString *commentCellID = @"CommentCell";
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
+        self.events = [NSMutableArray array];
+
         //self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width/5, self.bounds.size.width/5)];
 //        self.loader = [[UIView alloc] initWithFrame:self.bounds];
 //        [self addSubview:self.loader];
@@ -369,7 +373,8 @@ static NSString *commentCellID = @"CommentCell";
 - (void)initOverlayControls {
     
     CGFloat gradientHeight = VIEW_HEIGHT/3;
-    
+    CGFloat buttonRadius = 22.f, padding = 4.f;
+
     self.commentsGradient = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - gradientHeight, VIEW_WIDTH, gradientHeight)];
 //    self.commentsGradient.backgroundColor = [UIColor redColor];
     CAGradientLayer *gradient = [CAGradientLayer layer];
@@ -391,8 +396,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.overlay addSubview:self.commentsGradient];
     
     CGFloat height = 24;
-    CGFloat gutter = 48;
-    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 200, height)];
+    self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(buttonRadius*2 + padding*2, 10, 200, height)];
     [self.userLabel setTextAlignment:NSTextAlignmentLeft];
     
 //    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
@@ -409,7 +413,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.overlay addSubview:self.userLabel];
     
     CGFloat timeHeight = 24;
-    self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, height + 12, 200, timeHeight)];
+    self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(buttonRadius*2 + padding*2, height + 12, 200, timeHeight)];
     [self.timestampLabel setTextAlignment:NSTextAlignmentLeft];
     [self.timestampLabel setTextColor:[UIColor whiteColor]];
     [self.timestampLabel setFont:[UIFont fontWithName:BIG_FONT size:14]];
@@ -427,11 +431,10 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
 ////    [self addSubview:self.captionButton];
     
-    CGFloat buttonRadius = 22.f, padding = 4.f;
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
-    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
-    [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.likeButton];
+//    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
+//    [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+//    [self.overlay addSubview:self.likeButton];
 
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -443,7 +446,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.overlay addSubview:self.shareButton];
 //    self.shareButton.layer.zPosition = 100;
     
-    self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - padding*3 - buttonRadius*5, bottomButtonCenterY)];
+    self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(padding + buttonRadius, padding*2 + buttonRadius)];
     [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.deleteButton];
 //    self.deleteButton.layer.zPosition = 100;
@@ -492,9 +495,16 @@ static NSString *commentCellID = @"CommentCell";
     self.progressView.showsText = NO;
     self.progressView.tintColor = [UIColor whiteColor];
     
+    self.likeDoubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    [self.likeDoubleTapRecognizer setNumberOfTapsRequired:2];
+    self.likeDoubleTapRecognizer.delegate = self;
+    [self addGestureRecognizer:self.likeDoubleTapRecognizer];
+    
     self.captionTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     [self.captionTapRecognizer setNumberOfTapsRequired:1];
     self.captionTapRecognizer.delegate = self;
+    
+    [self.captionTapRecognizer requireGestureRecognizerToFail:self.likeDoubleTapRecognizer];
 
     self.hideGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(hideHold:)];
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
@@ -539,9 +549,11 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentsTableView registerClass:[YACommentsCell class] forCellReuseIdentifier:commentCellID];
     self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.commentsTableView.allowsSelection = NO;
+    self.commentsTableView.showsVerticalScrollIndicator = NO;
     self.commentsTableView.delegate = self;
     self.commentsTableView.dataSource = self;
     self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH-COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    self.commentsTextField.autocorrectionType = UITextAutocorrectionTypeNo;
     self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
     self.commentsTextField.returnKeyType = UIReturnKeySend;
     self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
@@ -669,26 +681,19 @@ static NSString *commentCellID = @"CommentCell";
     
     NSLog(@"serverid: %@", self.video.serverId);
     
-    self.events = [NSMutableArray array];
-
-    
     [self beginMonitoringForEvents];
-    [self beginMonitoringForCaptionChanges];
+    [self beginMonitoringForCaption];
 }
 
-- (void)beginMonitoringForCaptionChanges {
+- (void)beginMonitoringForCaption {
     __weak YAVideoPage *weakSelf = self;
     Firebase *caption = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"];
     
     // TODO: Queue these up in case user changes text and position (common). As is, that will cause this to fire multiple times instantly.
     [caption observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         if (snapshot.exists) {
-            if (weakSelf.serverCaptionTextView) {
-                [weakSelf updateCaptionFromSnapshot:snapshot];
-            } else {
-                [weakSelf insertCaptionFromSnapshot:snapshot];
-            }
-        } else {
+            [weakSelf insertCaptionFromSnapshot:snapshot];
+        } else if (self.myVideo) {
             [weakSelf addGestureRecognizer:weakSelf.captionTapRecognizer];
         }
     }];
@@ -731,20 +736,21 @@ static NSString *commentCellID = @"CommentCell";
     textView.editable = NO;
     
     CGSize newSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
-    CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
+    CGRect captionFrame = CGRectMake(0, 0, newSize.width, newSize.height);
     textView.frame = captionFrame;
 
-    CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
-                                     [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
-                                     newSize.width + (2.f*CAPTION_WRAPPER_INSET),
-                                     newSize.height + (2.f*CAPTION_WRAPPER_INSET));
+    CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f),
+                                     [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f),
+                                     newSize.width,
+                                     newSize.height);
     textWrapper.frame = wrapperFrame;
 
     [textWrapper addSubview:textView];
     textWrapper.transform =CGAffineTransformFromString(snapshot.value[@"transform"]);
 
     [self.overlay addSubview:textWrapper];
-
+    [self.overlay sendSubviewToBack:textWrapper];
+    
     self.serverCaptionWrapperView = textWrapper;
     self.serverCaptionTextView = textView;
     
@@ -752,14 +758,12 @@ static NSString *commentCellID = @"CommentCell";
         [self removeGestureRecognizer:self.captionTapRecognizer];
     }
     
-    [self.serverCaptionWrapperView addGestureRecognizer:self.captionTapRecognizer];
-
     textWrapper.alpha = 0;
     CGAffineTransform original = textWrapper.transform;
     textWrapper.transform = CGAffineTransformScale(textWrapper.transform, 0.75, 0.75);
     
     [UIView animateWithDuration:0.1 delay:0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        textWrapper.alpha = 0.75;
+        textWrapper.alpha = 1.f;
         textWrapper.transform = original;
     } completion:nil];
 }
@@ -782,39 +786,6 @@ static NSString *commentCellID = @"CommentCell";
         return NO;
     }
     return YES;
-    
-}
-
-- (void)updateCaptionFromSnapshot:(FDataSnapshot *)snapshot {
-    
-    if ([self captionSnapshot:snapshot isEqualToSnapshot:self.currentCaptionSnapshot]) {
-        // Nothing changed.
-        return;
-    }
-    self.currentCaptionSnapshot = snapshot;
-
-    self.serverCaptionWrapperView.alpha = 0;
-    self.serverCaptionTextView.text = snapshot.value[@"text"];
-    CGSize newSize = [self.serverCaptionTextView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
-    CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
-    self.serverCaptionTextView.frame = captionFrame;
-
-    CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
-                                     [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
-                                     newSize.width + (2.f*CAPTION_WRAPPER_INSET),
-                                     newSize.height + (2.f*CAPTION_WRAPPER_INSET));
-    
-    // If we dont set the transform to identity before adjusting the frame if fuxxs everything up.
-    self.serverCaptionWrapperView.transform = CGAffineTransformIdentity;
-    self.serverCaptionWrapperView.frame = wrapperFrame;
-    
-    CGAffineTransform finalTransform = CGAffineTransformFromString(snapshot.value[@"transform"]);
-    self.serverCaptionWrapperView.transform = CGAffineTransformScale(finalTransform, 0.75, 0.75);
-
-    [UIView animateWithDuration:0.1 animations:^{
-        self.serverCaptionWrapperView.transform = finalTransform;
-        self.serverCaptionWrapperView.alpha = 0.75;
-    }];
     
 }
 
@@ -847,10 +818,11 @@ static NSString *commentCellID = @"CommentCell";
     
     self.hideGestureRecognizer.enabled = enabled;
     self.captionTapRecognizer.enabled = enabled;
+    self.likeDoubleTapRecognizer.enabled = enabled;
     if (enabled) {
-        [self.presentingVC restoreAllGestures];
+        [self.presentingVC restoreAllGestures:self];
     } else {
-        [self.presentingVC suspendAllGestures];
+        [self.presentingVC suspendAllGestures:self];
     }
 }
 
@@ -908,47 +880,47 @@ static NSString *commentCellID = @"CommentCell";
                                    @"text":self.editableCaptionTextView.text
                                    };
        
-        if (![newText length]) {
-            // Caption Deleted
-            textData = nil;
-            if ([oldText length]) {
-                eventData = @{
-                              @"type":@"caption_deleted",
-                              @"username":[YAUser currentUser].username
-                              };
-            }
-        }
-        
-        
-        if ([newText length] && ![oldText length]) {
-            // Caption Created
-            eventData = @{
-                          @"type":@"caption_created",
-                          @"username":[YAUser currentUser].username,
-                          @"text":newText
-                          };
-        }
-        
-        if ([oldText length] && [newText length]) {
-            if ([oldText isEqualToString:newText] && ([self view:self.editableCaptionWrapperView isPositionedEqualTo:self.serverCaptionWrapperView])) {
-                // Nothing changed.
-                eventData = nil;
-            } else if (![oldText isEqualToString:newText]) {
-                // Changed text. In this case, dont care if they moved the caption in terms of event creation.
-                eventData = @{
-                              @"type":@"caption_change",
-                              @"username":[YAUser currentUser].username,
-                              @"text":newText
-                              };
-
-            } else {
-                // Caption repositioned but text is the same
-                eventData = @{
-                              @"type":@"caption_move",
-                              @"username":[YAUser currentUser].username
-                              };
-            }
-        }
+//        if (![newText length]) {
+//            // Caption Deleted
+//            textData = nil;
+//            if ([oldText length]) {
+//                eventData = @{
+//                              @"type":@"caption_deleted",
+//                              @"username":[YAUser currentUser].username
+//                              };
+//            }
+//        }
+//        
+//        
+//        if ([newText length] && ![oldText length]) {
+//            // Caption Created
+//            eventData = @{
+//                          @"type":@"caption_created",
+//                          @"username":[YAUser currentUser].username,
+//                          @"text":newText
+//                          };
+//        }
+//        
+//        if ([oldText length] && [newText length]) {
+//            if ([oldText isEqualToString:newText] && ([self view:self.editableCaptionWrapperView isPositionedEqualTo:self.serverCaptionWrapperView])) {
+//                // Nothing changed.
+//                eventData = nil;
+//            } else if (![oldText isEqualToString:newText]) {
+//                // Changed text. In this case, dont care if they moved the caption in terms of event creation.
+//                eventData = @{
+//                              @"type":@"caption_change",
+//                              @"username":[YAUser currentUser].username,
+//                              @"text":newText
+//                              };
+//
+//            } else {
+//                // Caption repositioned but text is the same
+//                eventData = @{
+//                              @"type":@"caption_move",
+//                              @"username":[YAUser currentUser].username
+//                              };
+//            }
+//        }
         
         [self.editableCaptionWrapperView removeFromSuperview];
         self.editableCaptionWrapperView = nil;
@@ -956,10 +928,10 @@ static NSString *commentCellID = @"CommentCell";
         
         [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] setValue:textData];
         
-        if (eventData) {
-            self.serverCaptionWrapperView.alpha = 0;
-            [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
-        }
+//        if (eventData) {
+//            self.serverCaptionWrapperView.alpha = 0;
+//            [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
+//        }
     }
 }
 
@@ -1071,7 +1043,7 @@ static NSString *commentCellID = @"CommentCell";
 - (CGSize)sizeThatFitsString:(NSString *)string {
     CGRect frame = [string boundingRectWithSize:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)
                                       options:NSStringDrawingUsesLineFragmentOrigin
-                                   attributes:@{ NSFontAttributeName:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE],
+                                   attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE],
                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH] } context:nil];
     return frame.size;
@@ -1080,7 +1052,7 @@ static NSString *commentCellID = @"CommentCell";
 // returns the same text view, modified. dont need to use return type if u dont wanna
 - (UITextView *)textViewWithCaptionAttributes {
     UITextView *textView = [UITextView new];
-    textView.alpha = 0.75;
+    textView.alpha = 1;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
                                                                                               NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                                               NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
@@ -1088,7 +1060,7 @@ static NSString *commentCellID = @"CommentCell";
     [textView setAttributedText:string];
     [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
     [textView setTextColor:PRIMARY_COLOR];
-    [textView setFont:[UIFont boldSystemFontOfSize:CAPTION_FONT_SIZE]];
+    [textView setFont:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]];
     
     [textView setTextAlignment:NSTextAlignmentCenter];
     [textView setAutocorrectionType:UITextAutocorrectionTypeNo];
@@ -1206,27 +1178,6 @@ static NSString *commentCellID = @"CommentCell";
     return NO;
 }
 
-//- (void)textButtonPressed {
-//    //    [self animateButton:self.captionButton withImageName:@"Text" completion:nil];
-//    
-//    
-//    if([self.captionField isFirstResponder]){
-//        if(!self.fontIndex){
-//            self.fontIndex = self.video.font;
-//        }
-//        
-//        self.fontIndex++;
-//        
-//        if(self.fontIndex >= [CAPTION_FONTS count]){
-//            self.fontIndex = 0;
-//        }
-//        
-//        [self.captionField setFont:[UIFont fontWithName:CAPTION_FONTS[self.fontIndex] size:MAX_CAPTION_SIZE]];
-//        [self resizeText];
-//    } else {
-//        [self.captionField becomeFirstResponder];
-//    }
-//}
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
     self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
@@ -1322,41 +1273,27 @@ static NSString *commentCellID = @"CommentCell";
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
     if (self.editingCaption) return;
-    if ([recognizer isEqual:self.captionTapRecognizer]){
+    if ([recognizer isEqual:self.likeDoubleTapRecognizer]) {
+        [self addLike];
+    } else if ([recognizer isEqual:self.captionTapRecognizer]){
         [self toggleEditingCaption:YES];
-        if (self.serverCaptionTextView) {
-            [self beginEditableCaptionAtPoint:self.serverCaptionWrapperView.center
-                                   initalText:self.serverCaptionTextView.text
-                              initalTransform:self.serverCaptionWrapperView.transform];
-        } else {
-            CGPoint loc = [recognizer locationInView:self];
-            [self beginEditableCaptionAtPoint:loc
-                                    initalText:@""
-                               initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE)];
-        }
+        CGPoint loc = [recognizer locationInView:self];
+        [self beginEditableCaptionAtPoint:loc
+                                initalText:@""
+                           initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE)];
     }
 }
 
-- (void)likeTappedAtPoint:(CGPoint)point {
-    
-    CGPoint tapLocation = point;
+- (void)addLike {
     
     NSDictionary *heartData = @{
-                                @"type": @"heart",
-                                @"x":[NSNumber numberWithDouble: tapLocation.x/VIEW_WIDTH],
-                                @"y":[NSNumber numberWithDouble: tapLocation.y/VIEW_HEIGHT],
-                                @"username":[YAUser currentUser].username
+                                @"type": @"comment",
+                                @"username": [YAUser currentUser].username,
+                                @"comment": @"💜"
                                 };
     
     [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];
     
-//        likeHeart.alpha = 0.0;
-//        [UIView animateWithDuration:0.2 animations:^{
-//            //
-//            likeHeart.alpha = 1.0;
-//            likeHeart.transform = CGAffineTransformScale(rotation, 1.0, 1.0);
-//        }];
-
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
@@ -1506,8 +1443,8 @@ static NSString *commentCellID = @"CommentCell";
 - (void)updateControls {
     
    
-    BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
-    self.deleteButton.hidden = !myVideo;
+    self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
+    self.deleteButton.hidden = !self.myVideo;
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
 
@@ -1535,7 +1472,7 @@ static NSString *commentCellID = @"CommentCell";
     self.captionButton.hidden = !mp4Downloaded;
     self.shareButton.hidden = !mp4Downloaded;
 
-    self.deleteButton.hidden = !mp4Downloaded && !myVideo;
+    self.deleteButton.hidden = !mp4Downloaded && !self.myVideo;
 
 //    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
 //                    forState:UIControlStateNormal];
