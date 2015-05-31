@@ -75,6 +75,11 @@ static NSString *commentCellID = @"CommentCell";
 
 @property (strong, nonatomic) UIView *overlay;
 @property (strong, nonatomic) UIVisualEffectView *captionBlurOverlay;
+@property (strong, nonatomic) UIVisualEffectView *shareBlurOverlay;
+
+@property (strong, nonatomic) UITableView *groupsList;
+@property (strong, nonatomic) UILabel *crossPostPrompt;
+@property (strong, nonatomic) UIView *shareBar;
 
 @property (strong, nonatomic) UIView *serverCaptionWrapperView;
 @property (strong, nonatomic) UITextView *serverCaptionTextView;
@@ -1557,6 +1562,48 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)shareButtonPressed {
+    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    
+    self.shareBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    
+    self.shareBlurOverlay.frame = self.bounds;
+    [self.shareBlurOverlay setAlpha:0.0];
+    
+    [self.overlay addSubview:self.shareBlurOverlay];
+    
+    CGFloat topPadding = 100;
+    CGFloat shareBarHeight = 100;
+    
+    CGFloat borderWidth = 4;
+    
+    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, 100, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
+    [self.groupsList setBackgroundColor:[UIColor greenColor]];
+    [self.shareBlurOverlay addSubview:self.groupsList];
+    
+    self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
+    [self.shareBar setBackgroundColor:PRIMARY_COLOR];
+    [self.shareBlurOverlay addSubview:self.shareBar];
+    
+    UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
+    [separator setBackgroundColor:[UIColor whiteColor]];
+    [self.shareBlurOverlay addSubview:separator];
+    
+    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
+    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        [self.shareBlurOverlay setAlpha:1.0];
+//        [self.groupsList setTransform:CGAffineTransformIdentity];
+        [self.groupsList setFrame:CGRectMake(0, 100, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
+        
+    } completion:^(BOOL finished) {
+        //
+    }];
+//    [self.overlay insertSubview:self.shareBlurOverlay belowSubview:self.editableCaptionWrapperView];
+//    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
+
+}
+
+- (void)oldShareButtonPressed {
     [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
