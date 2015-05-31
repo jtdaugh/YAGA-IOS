@@ -362,36 +362,6 @@ static NSString *commentCellID = @"CommentCell";
 
 #pragma mark - Overlay controls
 
-- (void)addFakeEvents {
-    self.events = [NSMutableArray arrayWithObjects:
-                                @{
-                                 @"type":@"comment",
-                                 @"username":[YAUser currentUser].username,
-                                 @"comment" : @"LOLOLOLOLOL"
-                                 },
-                                @{
-                                 @"type":@"like",
-                                 @"username":[YAUser currentUser].username
-                                 },
-                                @{
-                                 @"type":@"comment",
-                                 @"username":@"rjvir",
-                                 @"comment" : @"LOL ur such a bitch"
-                                 },
-                                @{
-                                 @"type":@"comment",
-                                 @"username":@"cewendel",
-                                 @"comment": @"this is exactly how i would imagine raj to drive hahahaha exactly the same lol."
-                                 },
-                                @{
-                                 @"type":@"comment",
-                                 @"username":@"jtdaugherty",
-                                 @"comment" : @"hahahahhaahhaahha"
-                                 }, nil
-                   ];
-    [self.commentsTableView reloadData];
-}
-
 - (void)initOverlayControls {
     
     CGFloat gradientHeight = VIEW_HEIGHT/3;
@@ -498,7 +468,6 @@ static NSString *commentCellID = @"CommentCell";
     [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
     
     [self setupCommentsContainer];
-//    [self addFakeEvents];
 
     const CGFloat radius = 40;
     self.progressView = [[YAProgressView alloc] initWithFrame:self.bounds];
@@ -565,6 +534,7 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTableView.backgroundColor = [UIColor clearColor];
     [self.commentsTableView registerClass:[YACommentsCell class] forCellReuseIdentifier:commentCellID];
     self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.commentsTableView.allowsSelection = NO;
     self.commentsTableView.delegate = self;
     self.commentsTableView.dataSource = self;
     self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH-COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
@@ -730,8 +700,11 @@ static NSString *commentCellID = @"CommentCell";
     
     [events observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [weakSelf.events insertObject:snapshot.value atIndex:0];
-        [weakSelf.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
-//        [weakSelf.commentsTableView reloadData];
+        if (initialLoaded) {
+            [weakSelf.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
+        } else {
+            [weakSelf.commentsTableView reloadData];
+        }
     }];
     
     [events observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {

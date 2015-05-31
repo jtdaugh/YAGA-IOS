@@ -51,6 +51,7 @@
         self.commentsTextView.layer.shadowOffset = CGSizeMake(0.5, 0.5);
         self.commentsTextView.layer.shadowOpacity = 1.0;
         self.commentsTextView.layer.shadowRadius = 0.0f;
+        self.commentsTextView.editable = NO;
         
         [self addSubview:self.commentsTextView];
         
