@@ -600,10 +600,12 @@ static NSString *commentCellID = @"CommentCell";
         [cell setUsername:event[@"username"]];
     }
     NSString *type = event[@"type"];
-    if ([type isEqualToString:@"like"]) {
-        [cell setComment:@"liked the video"];
-    } else if ([type isEqualToString:@"comment"]) {
+    if ([type isEqualToString:@"comment"]) {
+        [cell setCellType:YACommentsCellTypeComment];
         [cell setComment:event[@"comment"]];
+    } else if ([type isEqualToString:@"post"]) {
+        [cell setCellType:YACommentsCellTypePost];
+        [cell setTimestamp:event[@"timestamp"]];
     }
     return cell;
 }
@@ -619,9 +621,13 @@ static NSString *commentCellID = @"CommentCell";
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     NSDictionary *event = self.events[indexPath.row];
-    return [YACommentsCell heightForCellWithUsername:event[@"username"] comment:event[@"comment"] ? event[@"comment"] : @"liked the video"];
-    
-    
+    if ([event[@"type"] isEqualToString:@"comment"]) {
+        return [YACommentsCell heightForCommentCellWithUsername:event[@"username"] comment:event[@"comment"]];
+    } else if ([event[@"type"] isEqualToString:@"post"]) {
+        return [YACommentsCell heightForPostCellWithUsername:event[@"username"] timestamp:event[@"timestamp"]];
+    } else {
+        return 0.0;
+    }
 }
 
 - (void)setupCaptionButtonContainer {
@@ -1475,10 +1481,10 @@ static NSString *commentCellID = @"CommentCell";
 //                    forState:UIControlStateNormal];
 //
     self.events = [@[@{
-                         @"type":@"comment",
-                         @"username":self.video.creator,
-                         @"comment":[@"🎬  " stringByAppendingString:[[YAUser currentUser] formatDate:self.video.createdAt]]
-                                     }] mutableCopy];
+                @"type":@"post",
+                @"username":self.video.creator,
+                @"timestamp":[[YAUser currentUser] formatDate:self.video.createdAt]
+                    }] mutableCopy];
     [self.commentsTableView reloadData];
     [self clearFirebase];
     [self initFirebase];

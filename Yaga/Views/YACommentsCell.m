@@ -12,6 +12,11 @@
 
 @interface YACommentsCell ()
 
+@property (nonatomic, strong) UILabel *usernameLabel;
+@property (nonatomic, strong) UILabel *timestampLabel;
+@property (nonatomic, strong) UILabel *postEmojiLabel;
+
+@property (nonatomic, strong) UITextView *commentsTextView;
 
 @end
 
@@ -55,6 +60,19 @@
         
         [self addSubview:self.commentsTextView];
         
+        self.postEmojiLabel = [[UILabel alloc] initWithFrame:CGRectMake(initialUsernameWidth, -2, 30, initialHeight)];
+        self.postEmojiLabel.text = @"🎬";
+        self.postEmojiLabel.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE+6];
+        [self.postEmojiLabel sizeToFit];
+        [self addSubview:self.postEmojiLabel];
+        
+        self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, initialUsernameWidth, initialHeight)];
+        self.timestampLabel.textColor = [UIColor colorWithWhite:0.85 alpha:0.75];
+        self.timestampLabel.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE-3.f];
+        self.timestampLabel.shadowColor = [UIColor blackColor];
+        self.timestampLabel.shadowOffset = CGSizeMake(0.5, 0.5);
+        [self addSubview:self.timestampLabel];
+
 //        [self.usernameLabel setBackgroundColor:[UIColor greenColor]];
 //        [self.commentsTextView setBackgroundColor:[UIColor redColor]];
     }
@@ -67,6 +85,7 @@
 }
 
 - (void)setUsername:(NSString *)username {
+    // set username, resize username label, and then resize all other labels around the username label
     self.usernameLabel.text = username;
     CGSize userSize = [self.usernameLabel sizeThatFits:CGSizeMake(VIEW_WIDTH/2, CGFLOAT_MAX)];
     CGRect userFrame = self.usernameLabel.frame;
@@ -74,13 +93,41 @@
     self.usernameLabel.frame = userFrame;
     CGRect commentFrame = self.commentsTextView.frame;
     commentFrame.origin.x = userSize.width + 6.0f;
-    commentFrame.size.width = VIEW_WIDTH - (userSize.width + 6.0f);
+    commentFrame.size.width = VIEW_WIDTH - (commentFrame.origin.x);
 //    commentFrame.origin.x = userWidth + 10;
 //    commentFrame.size.width = self.frame.size.width - (userWidth + 10);
     self.commentsTextView.frame = commentFrame;
+    
+    CGRect postEmojiFrame = self.postEmojiLabel.frame;
+    postEmojiFrame.origin.x = userSize.width + 6.f;
+    self.postEmojiLabel.frame = postEmojiFrame;
+    
+    CGRect timestampFrame = self.timestampLabel.frame;
+    timestampFrame.origin.x = postEmojiFrame.origin.x + postEmojiFrame.size.width + 6.f;
+    timestampFrame.size.width = VIEW_WIDTH - timestampFrame.origin.x;
+    self.timestampLabel.frame = timestampFrame;
 }
 
-+ (CGFloat)heightForCellWithUsername:(NSString *)username comment:(NSString *)comment {
+- (void)setTimestamp:(NSString *)timestamp {
+    self.timestampLabel.text = timestamp;
+}
+
+- (void)setCellType:(YACommentsCellType)cellType {
+    switch (cellType) {
+        case YACommentsCellTypeComment:
+            self.commentsTextView.hidden = NO;
+            self.postEmojiLabel.hidden = YES;
+            self.timestampLabel.hidden = YES;
+            break;
+        case YACommentsCellTypePost:
+            self.commentsTextView.hidden = YES;
+            self.postEmojiLabel.hidden = NO;
+            self.timestampLabel.hidden = NO;
+            break;
+    }
+}
+
++ (CGFloat)heightForCommentCellWithUsername:(NSString *)username comment:(NSString *)comment {
     // should actually implement this
     UILabel *dummy = [[UILabel alloc] init];
     dummy.text = username;
@@ -97,6 +144,10 @@
     CGSize commentSize = [dummyTextView sizeThatFits:CGSizeMake(commentWidth, CGFLOAT_MAX)];
     
     return commentSize.height + 6.0f;
+}
+
++ (CGFloat)heightForPostCellWithUsername:(NSString *)username timestamp:(NSString *)timestamp {
+    return 24.f;
 }
 
 @end

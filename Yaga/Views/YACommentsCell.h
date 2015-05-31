@@ -8,15 +8,19 @@
 
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSUInteger, YACommentsCellType) {
+    YACommentsCellTypeComment,
+    YACommentsCellTypePost,
+};
+
 @interface YACommentsCell : UITableViewCell
 
-+ (CGFloat)heightForCellWithUsername:(NSString *)username comment:(NSString *)comment;
++ (CGFloat)heightForCommentCellWithUsername:(NSString *)username comment:(NSString *)comment;
++ (CGFloat)heightForPostCellWithUsername:(NSString *)username timestamp:(NSString *)timestamp;
 
 - (void)setUsername:(NSString *)username;
 - (void)setComment:(NSString *)comment;
-@property (nonatomic, strong) UILabel *usernameLabel;
-@property (nonatomic, strong) UITextView *commentsTextView;
-
-
+- (void)setTimestamp:(NSString *)timestamp;
+- (void)setCellType:(YACommentsCellType)cellType;
 
 @end
