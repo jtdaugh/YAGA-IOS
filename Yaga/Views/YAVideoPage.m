@@ -25,7 +25,7 @@
 
 #define CAPTION_FONT_SIZE 60.0
 #define CAPTION_STROKE_WIDTH 3.f
-#define CAPTION_DEFAULT_SCALE 0.6f
+#define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_GUTTER 5.f
 #define CAPTION_WRAPPER_INSET 100.f
 
@@ -1272,16 +1272,10 @@ static NSString *commentCellID = @"CommentCell";
         [self addLike];
     } else if ([recognizer isEqual:self.captionTapRecognizer]){
         [self toggleEditingCaption:YES];
-        if (self.serverCaptionTextView) {
-            [self beginEditableCaptionAtPoint:self.serverCaptionWrapperView.center
-                                   initalText:self.serverCaptionTextView.text
-                              initalTransform:self.serverCaptionWrapperView.transform];
-        } else {
-            CGPoint loc = [recognizer locationInView:self];
-            [self beginEditableCaptionAtPoint:loc
-                                    initalText:@""
-                               initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE)];
-        }
+        CGPoint loc = [recognizer locationInView:self];
+        [self beginEditableCaptionAtPoint:loc
+                                initalText:@""
+                           initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE)];
     }
 }
 
