@@ -204,13 +204,12 @@ static NSString *commentCellID = @"CommentCell";
     self.keyboardHeight = kbHeight;
     CGRect wrapperFrame = self.commentsWrapperView.frame;
     CGFloat wrapperHeight = wrapperFrame.size.height;
-    CGRect gradientFrame = self.commentsGradient.frame;
+    CGRect gradientFrame = self.commentsGradient.frame;g
     
     if (up) {
-        CGFloat height = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION;
-        wrapperHeight = height + COMMENTS_TEXT_FIELD_HEIGHT;
+        wrapperHeight = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION + COMMENTS_TEXT_FIELD_HEIGHT;
         wrapperFrame.size.height = wrapperHeight;
-        wrapperFrame.origin.y -= self.previousKeyboardLocation ? delta : kbHeight;
+        wrapperFrame.origin.y -= self.previousKeyboardLocation ? delta : (kbHeight + COMMENTS_TEXT_FIELD_HEIGHT-COMMENTS_BOTTOM_MARGIN);
         gradientFrame.origin.y -= self.previousKeyboardLocation ? delta : kbHeight;
     } else {
         // just set the view back to the bottom
