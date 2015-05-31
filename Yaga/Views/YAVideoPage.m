@@ -204,15 +204,19 @@ static NSString *commentCellID = @"CommentCell";
     self.keyboardHeight = kbHeight;
     CGRect wrapperFrame = self.commentsWrapperView.frame;
     CGFloat wrapperHeight = wrapperFrame.size.height;
+    CGRect gradientFrame = self.commentsGradient.frame;
+    
     if (up) {
         CGFloat height = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION;
         wrapperHeight = height + COMMENTS_TEXT_FIELD_HEIGHT;
         wrapperFrame.size.height = wrapperHeight;
         wrapperFrame.origin.y -= self.previousKeyboardLocation ? delta : kbHeight;
+        gradientFrame.origin.y -= self.previousKeyboardLocation ? delta : kbHeight;
     } else {
         // just set the view back to the bottom
         wrapperFrame.size.height = VIEW_HEIGHT*COMMENTS_HEIGHT_PROPORTION;
         wrapperFrame.origin.y = VIEW_HEIGHT - COMMENTS_BOTTOM_MARGIN - wrapperFrame.size.height;
+        gradientFrame.origin.y = VIEW_HEIGHT - gradientFrame.size.height;
     }
     
 //    if (!self.previousKeyboardLocation && up) {
@@ -231,6 +235,9 @@ static NSString *commentCellID = @"CommentCell";
                         options:(animationCurve << 16)
                      animations:^{
                          self.commentsWrapperView.frame = wrapperFrame;
+                         self.commentsGradient.frame = gradientFrame;
+                         self.commentsTextField.alpha = up ? 1.0 : 0.0;
+                         self.commentsSendButton.alpha = up ? 1.0 : 0.0;
                      }
                      completion:^(BOOL finished){
                          if ([self.events count]) {
@@ -597,7 +604,7 @@ static NSString *commentCellID = @"CommentCell";
                                 };
         [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:event];
         self.commentsTextField.text = @"";
-        [self.commentsTextField resignFirstResponder];
+//        [self.commentsTextField resignFirstResponder]; // do we want to hide the keyboard after each comment?
     }
 }
 
@@ -612,7 +619,7 @@ static NSString *commentCellID = @"CommentCell";
     NSString *type = event[@"type"];
     if ([type isEqualToString:@"like"]) {
         [cell setComment:@"liked the video"];
-    } else if ([type isEqualToString:@"comment"]) {g
+    } else if ([type isEqualToString:@"comment"]) {
         [cell setComment:event[@"comment"]];
     }
     return cell;
@@ -723,7 +730,8 @@ static NSString *commentCellID = @"CommentCell";
     
     [events observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [weakSelf.events insertObject:snapshot.value atIndex:0];
-        [weakSelf.commentsTableView reloadData];
+        [weakSelf.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
+//        [weakSelf.commentsTableView reloadData];
     }];
     
     [events observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
