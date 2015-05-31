@@ -204,7 +204,7 @@ static NSString *commentCellID = @"CommentCell";
     self.keyboardHeight = kbHeight;
     CGRect wrapperFrame = self.commentsWrapperView.frame;
     CGFloat wrapperHeight = wrapperFrame.size.height;
-    CGRect gradientFrame = self.commentsGradient.frame;g
+    CGRect gradientFrame = self.commentsGradient.frame;
     
     if (up) {
         wrapperHeight = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION + COMMENTS_TEXT_FIELD_HEIGHT;
