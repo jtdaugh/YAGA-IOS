@@ -32,7 +32,7 @@
 #define COMMENTS_BOTTOM_MARGIN 50.f
 #define COMMENTS_FONT_SIZE 16.f
 #define COMMENTS_SIDE_MARGIN 10.f
-#define COMMENTS_HEIGHT_PROPORTION 0.2f
+#define COMMENTS_HEIGHT_PROPORTION 0.25f
 #define COMMENTS_TEXT_FIELD_HEIGHT 40.f
 #define COMMENTS_SEND_WIDTH 70.f
 
@@ -544,6 +544,16 @@ static NSString *commentCellID = @"CommentCell";
 
     self.commentsTableView.backgroundColor = [UIColor clearColor];
     [self.commentsTableView registerClass:[YACommentsCell class] forCellReuseIdentifier:commentCellID];
+    
+    CAGradientLayer *commentsViewMask = [CAGradientLayer layer];
+    CGRect maskFrame = self.commentsWrapperView.bounds;
+    maskFrame.size.height += COMMENTS_TEXT_FIELD_HEIGHT;
+    commentsViewMask.frame = maskFrame;
+    commentsViewMask.colors = [NSArray arrayWithObjects:(id)[UIColor clearColor].CGColor, (id)[UIColor whiteColor].CGColor, nil];
+    commentsViewMask.startPoint = CGPointMake(0.5f, 0.0f);
+    commentsViewMask.endPoint = CGPointMake(0.5f, 0.22f);
+    self.commentsWrapperView.layer.mask = commentsViewMask;
+    
     self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.commentsTableView.allowsSelection = NO;
     self.commentsTableView.showsVerticalScrollIndicator = NO;
@@ -605,7 +615,7 @@ static NSString *commentCellID = @"CommentCell";
         [cell setComment:event[@"comment"]];
     } else if ([type isEqualToString:@"post"]) {
         [cell setCellType:YACommentsCellTypePost];
-        [cell setTimestamp:event[@"timestamp"]];
+        [cell setTimestamp:event[@"timestamp"] isOwnPost:[[YAUser currentUser].username isEqualToString:event[@"username"]]];
     }
     return cell;
 }
@@ -1485,7 +1495,12 @@ static NSString *commentCellID = @"CommentCell";
                 @"type":@"post",
                 @"username":self.video.creator,
                 @"timestamp":[[YAUser currentUser] formatDate:self.video.createdAt]
-                    }] mutableCopy];
+                },
+                    @{
+                        @"type":@"comment",
+                        @"username":@" ",
+                        @"comment":@" "
+                        }] mutableCopy];
     [self.commentsTableView reloadData];
     [self clearFirebase];
     [self initFirebase];

@@ -20,7 +20,8 @@ typedef NS_ENUM(NSUInteger, YACommentsCellType) {
 
 - (void)setUsername:(NSString *)username;
 - (void)setComment:(NSString *)comment;
-- (void)setTimestamp:(NSString *)timestamp;
+- (void)setTimestamp:(NSString *)timestamp isOwnPost:(BOOL)ownPost;
 - (void)setCellType:(YACommentsCellType)cellType;
+
 
 @end
