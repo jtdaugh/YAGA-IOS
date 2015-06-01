@@ -86,6 +86,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UIButton *externalShareButton;
 @property (strong, nonatomic) UIButton *saveButton;
 @property (strong, nonatomic) UIButton *confirmCrosspost;
+@property (strong, nonatomic) UIButton *closeCrosspost;
 
 @property (strong, nonatomic) UIView *serverCaptionWrapperView;
 @property (strong, nonatomic) UITextView *serverCaptionTextView;
@@ -649,11 +650,34 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+    [self renderButton:[[tableView indexPathsForSelectedRows] count]];
 }
 
 -(void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [tableView indexPathsForSelectedRows];
+    [self renderButton:[[tableView indexPathsForSelectedRows] count]];
+}
+
+- (void)renderButton:(NSUInteger) count {
+    if(count > 0){
+        NSString *title;
+        if(count == 1){
+            title = @"Post to 1 more group";
+        } else {
+            title = [NSString stringWithFormat:@"Post to %lu more groups", count];
+        }
+        [self.confirmCrosspost setTitle:title forState:UIControlStateNormal];
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+            [self.confirmCrosspost setTransform:CGAffineTransformIdentity];
+        } completion:^(BOOL finished) {
+            //
+        }];
+    } else {
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+            [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
+        } completion:^(BOOL finished) {
+            //
+        }];
+    }
 }
 
 - (void)setupCaptionButtonContainer {
@@ -1571,20 +1595,38 @@ static NSString *commentCellID = @"CommentCell";
     self.confirmCrosspost.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:24];
     self.confirmCrosspost.titleLabel.textColor = [UIColor whiteColor];
     [self.confirmCrosspost setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-    [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 16, 0, 0)];
-    [self.confirmCrosspost setTitle:@"Yo dawgs" forState:UIControlStateNormal];
+    [self.confirmCrosspost setImage:[UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
+    self.confirmCrosspost.imageView.contentMode = UIViewContentModeScaleAspectFit;
+//    [self.confirmCrosspost.imageView setBackgroundColor:[UIColor greenColor]];
+//    [self.confirmCrosspost.titleLabel setBackgroundColor:[UIColor purpleColor]];
+    [self.confirmCrosspost setContentEdgeInsets:UIEdgeInsetsZero];
+    [self.confirmCrosspost setImageEdgeInsets:UIEdgeInsetsMake(0, self.confirmCrosspost.frame.size.width - 48 - 16, 0, 48)];
+    [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
+    [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
     [self.shareBlurOverlay addSubview:self.confirmCrosspost];
     
+    CGFloat buttonRadius = 22.f, padding = 4.f;
+    self.closeCrosspost = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    [self.closeCrosspost addTarget:self action:@selector(closeCrosspostPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.shareBlurOverlay addSubview:self.closeCrosspost];
+
     UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
     [separator setBackgroundColor:[UIColor whiteColor]];
     [self.shareBlurOverlay addSubview:separator];
     
-    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
-    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+//    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
+    [self.shareBlurOverlay setTransform:CGAffineTransformMakeTranslation(0, self.shareBlurOverlay.frame.size.height)];
+    [UIView animateWithDuration:0.4 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+//    } completion:^(BOOL finished) {
+//        //
+//    }]
+//    
+//    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
         [self.shareBlurOverlay setAlpha:1.0];
-//        [self.groupsList setTransform:CGAffineTransformIdentity];
-        [self.groupsList setFrame:CGRectMake(0, 100, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
+        [self.shareBlurOverlay setTransform:CGAffineTransformIdentity];
+//        [self.groupsList setFrame:CGRectMake(0, 100, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
         
     } completion:^(BOOL finished) {
         //
@@ -1592,6 +1634,20 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.overlay insertSubview:self.shareBlurOverlay belowSubview:self.editableCaptionWrapperView];
 //    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
 
+}
+
+- (void)closeCrosspostPressed {
+    [self collapseCrosspost];
+}
+
+- (void)collapseCrosspost {
+    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        [self.shareBlurOverlay setAlpha:0.0];
+    } completion:^(BOOL finished) {
+        //
+        [self.shareBlurOverlay removeFromSuperview];
+    }];
 }
 
 - (void)oldShareButtonPressed {
