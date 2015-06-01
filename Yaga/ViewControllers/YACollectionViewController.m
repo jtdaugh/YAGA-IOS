@@ -366,13 +366,12 @@ static NSString *cellID = @"Cell";
             
             [self showActivityIndicator:NO];
         }];
-    }
-    else {
+        
+        [self.collectionView reloadData];
+    } else {
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         [self showActivityIndicator:NO];
     }
-    
-    [self.collectionView reloadData];
     
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
 
