@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
 		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
+		413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
 		41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C71B162E76008553A8 /* Fabric.framework */; };
 		41BD42CA1B162E76008553A8 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C81B162E76008553A8 /* Crashlytics.framework */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
@@ -123,6 +124,8 @@
 		0FDC3AF81B0E69C0003A688D /* UIWindow+YASnapshot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWindow+YASnapshot.h"; sourceTree = "<group>"; };
 		0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+YASnapshot.m"; sourceTree = "<group>"; };
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		413734B91B1D070700ADE96F /* YACrosspostCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACrosspostCell.h; sourceTree = "<group>"; };
+		413734BA1B1D070700ADE96F /* YACrosspostCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACrosspostCell.m; sourceTree = "<group>"; };
 		41BD42C71B162E76008553A8 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		41BD42C81B162E76008553A8 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -608,6 +611,8 @@
 				6EEDB8E41A8A555C000BB909 /* YANotificationView.m */,
 				8890451B1B18FF8700B3C4D7 /* YACommentsCell.h */,
 				8890451C1B18FF8700B3C4D7 /* YACommentsCell.m */,
+				413734B91B1D070700ADE96F /* YACrosspostCell.h */,
+				413734BA1B1D070700ADE96F /* YACrosspostCell.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -897,6 +902,7 @@
 				6E9188E71A3F3A5A0034AB63 /* YagaNavigationController.m in Sources */,
 				6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */,
 				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,
+				413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */,
 				6E11CB8C1AB9C8FB00B821A2 /* UIImage+Resize.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
