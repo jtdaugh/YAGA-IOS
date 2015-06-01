@@ -54,7 +54,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property BOOL likesShown;
 @property (nonatomic, strong) UIButton *captionButton;
-//@property (nonatomic, strong) UIButton *likeButton;
+@property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
@@ -426,9 +426,10 @@ static NSString *commentCellID = @"CommentCell";
 ////    [self addSubview:self.captionButton];
     
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
-//    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
-//    [self.likeButton addTarget:self action:@selector(likeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.overlay addSubview:self.likeButton];
+    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
+    [self.likeButton setImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateHighlighted | UIControlStateSelected];
+    [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.likeButton];
 
     
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
@@ -603,19 +604,18 @@ static NSString *commentCellID = @"CommentCell";
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     YACommentsCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
+    cell.containingVideoPage = self;
     cell.transform = cell.transform = CGAffineTransformMakeRotation(M_PI);
 
     NSDictionary *event = self.events[indexPath.row];
-    if (event[@"username"]) {
-        [cell setUsername:event[@"username"]];
-    }
+    NSString *username = event[@"username"];
     NSString *type = event[@"type"];
     if ([type isEqualToString:@"comment"]) {
-        [cell setCellType:YACommentsCellTypeComment];
-        [cell setComment:event[@"comment"]];
+        [cell configureCommentCellWithUsername:username comment:event[@"comment"]];
     } else if ([type isEqualToString:@"post"]) {
-        [cell setCellType:YACommentsCellTypePost];
-        [cell setTimestamp:event[@"timestamp"] isOwnPost:[[YAUser currentUser].username isEqualToString:event[@"username"]]];
+        [cell configurePostCellWithUsername:username timestamp:event[@"timestamp"] isOwnVideo:[[YAUser currentUser].username isEqualToString:event[@"username"]]];
+    } else if ([type isEqualToString:@"like"]) {
+        [cell configureLikeCellWithUsername:username];
     }
     return cell;
 }
@@ -634,7 +634,9 @@ static NSString *commentCellID = @"CommentCell";
     if ([event[@"type"] isEqualToString:@"comment"]) {
         return [YACommentsCell heightForCommentCellWithUsername:event[@"username"] comment:event[@"comment"]];
     } else if ([event[@"type"] isEqualToString:@"post"]) {
-        return [YACommentsCell heightForPostCellWithUsername:event[@"username"] timestamp:event[@"timestamp"]];
+        return [YACommentsCell heightForPostCell];
+    }  else if ([event[@"type"] isEqualToString:@"like"]) {
+        return [YACommentsCell heightForLikeCell];
     } else {
         return 0.0;
     }
@@ -716,7 +718,7 @@ static NSString *commentCellID = @"CommentCell";
 - (void)beginMonitoringForEvents {
     Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"];
     
-    __weak YAVideoPage *weakSelf = self;
+    __weak __block YAVideoPage *weakSelf = self;
     
     __block BOOL initialLoaded = NO;
     
@@ -1301,9 +1303,8 @@ static NSString *commentCellID = @"CommentCell";
 - (void)addLike {
     
     NSDictionary *heartData = @{
-                                @"type": @"comment",
-                                @"username": [YAUser currentUser].username,
-                                @"comment": @"😍"
+                                @"type": @"like",
+                                @"username": [YAUser currentUser].username
                                 };
     
     [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];

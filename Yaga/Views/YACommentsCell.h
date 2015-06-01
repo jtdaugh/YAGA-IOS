@@ -8,20 +8,18 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSUInteger, YACommentsCellType) {
-    YACommentsCellTypeComment,
-    YACommentsCellTypePost,
-};
+#import "YAVideoPage.h"
 
 @interface YACommentsCell : UITableViewCell
 
+@property (nonatomic, weak) YAVideoPage *containingVideoPage;
+
 + (CGFloat)heightForCommentCellWithUsername:(NSString *)username comment:(NSString *)comment;
-+ (CGFloat)heightForPostCellWithUsername:(NSString *)username timestamp:(NSString *)timestamp;
++ (CGFloat)heightForPostCell;
++ (CGFloat)heightForLikeCell;
 
-- (void)setUsername:(NSString *)username;
-- (void)setComment:(NSString *)comment;
-- (void)setTimestamp:(NSString *)timestamp isOwnPost:(BOOL)ownPost;
-- (void)setCellType:(YACommentsCellType)cellType;
-
+- (void)configurePostCellWithUsername:(NSString *)username timestamp:(NSString *)timestamp isOwnVideo:(BOOL)isOwnVideo;
+- (void)configureLikeCellWithUsername:(NSString *)username;
+- (void)configureCommentCellWithUsername:(NSString *)username comment:(NSString *)comment;
 
 @end

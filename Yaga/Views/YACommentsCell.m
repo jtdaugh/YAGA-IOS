@@ -10,11 +10,19 @@
 
 #define COMMENTS_FONT_SIZE 16.f
 
+
+typedef NS_ENUM(NSUInteger, YACommentsCellType) {
+    YACommentsCellTypeComment,
+    YACommentsCellTypeLike,
+    YACommentsCellTypePost,
+};
+
+
 @interface YACommentsCell ()
 
 @property (nonatomic, strong) UILabel *usernameLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
-@property (nonatomic, strong) UILabel *postEmojiLabel;
+@property (nonatomic, strong) UIImageView *iconImageView;
 @property (nonatomic, strong) UIButton *deleteButton;
 
 @property (nonatomic, strong) UITextView *commentsTextView;
@@ -35,8 +43,9 @@
         
         self.usernameLabel.shadowColor = [UIColor blackColor];
         self.usernameLabel.shadowOffset = CGSizeMake(0.5, 0.5);
-        
-//        
+        self.usernameLabel.userInteractionEnabled = NO;
+
+//
 //        self.commentsTextView.layer.shadowColor = [UIColor blackColor].CGColor;
 //        self.commentsTextView.layer.shadowOffset = CGSizeMake(1.0, 1.0);
 //        self.commentsTextView.layer.shadowOpacity = 1.0;
@@ -52,7 +61,7 @@
         self.commentsTextView.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE];
         self.commentsTextView.backgroundColor = [UIColor clearColor];
         self.commentsTextView.scrollEnabled = NO;
-        
+        self.commentsTextView.userInteractionEnabled = NO;
         self.commentsTextView.layer.shadowColor = [UIColor blackColor].CGColor;
         self.commentsTextView.layer.shadowOffset = CGSizeMake(0.5, 0.5);
         self.commentsTextView.layer.shadowOpacity = 1.0;
@@ -61,15 +70,16 @@
         
         [self addSubview:self.commentsTextView];
         
-        self.postEmojiLabel = [[UILabel alloc] initWithFrame:CGRectMake(initialUsernameWidth, -3, 30, initialHeight)];
-        self.postEmojiLabel.text = @"🎬";
-        self.postEmojiLabel.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE+6];
-        [self.postEmojiLabel sizeToFit];
-        [self addSubview:self.postEmojiLabel];
+        self.iconImageView = [[UIImageView alloc] initWithFrame:CGRectMake(initialUsernameWidth, -3, 30, initialHeight)];
+        self.iconImageView.image = [UIImage imageNamed:@"rainHeart"];
+        self.iconImageView.contentMode = UIViewContentModeScaleAspectFit;
+        [self addSubview:self.iconImageView];
         
         self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 3, initialUsernameWidth, initialHeight)];
         self.timestampLabel.textColor = [UIColor colorWithWhite:0.85 alpha:0.75];
         self.timestampLabel.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE-3.f];
+        self.timestampLabel.userInteractionEnabled = NO;
+
         self.timestampLabel.shadowColor = [UIColor blackColor];
         self.timestampLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         [self addSubview:self.timestampLabel];
@@ -81,6 +91,7 @@
 //        self.deleteButton.layer.borderWidth = 2.f;
         [self.deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE - 3.0f]];
         [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+        [self.deleteButton addTarget:self action:@selector(deletePressed) forControlEvents:UIControlEventTouchUpInside];
         [self.deleteButton setTitleColor:[UIColor colorWithRed:158.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0] forState:UIControlStateNormal];
         self.deleteButton.layer.shadowColor = [UIColor blackColor].CGColor;
         self.deleteButton.layer.shadowOffset = CGSizeMake(0.5, 0.5);
@@ -96,38 +107,57 @@
     return self;    
 }
 
-- (void)setComment:(NSString *)comment {
+- (void)configureCommentCellWithUsername:(NSString *)username comment:(NSString *)comment {
+    [self setCellType:YACommentsCellTypeComment];
+    self.usernameLabel.text = username;
+    [self layoutUsername];
     self.commentsTextView.text = comment;
-    [self.commentsTextView sizeToFit];
+    CGRect commentFrame = self.commentsTextView.frame;
+    commentFrame.origin.x = self.usernameLabel.frame.size.width + 6.0f;
+    CGSize commentsSize = [self.commentsTextView sizeThatFits:CGSizeMake(self.frame.size.width - (commentFrame.origin.x), CGFLOAT_MAX)];
+    commentFrame.size = commentsSize;
+    self.commentsTextView.frame = commentFrame;
 }
 
-- (void)setUsername:(NSString *)username {
-    // set username, resize username label, and then resize all other labels around the username label
+- (void)configureLikeCellWithUsername:(NSString *)username {
+    [self setCellType:YACommentsCellTypeLike];
     self.usernameLabel.text = username;
-    CGSize userSize = [self.usernameLabel sizeThatFits:CGSizeMake(VIEW_WIDTH/2, CGFLOAT_MAX)];
-    CGRect userFrame = self.usernameLabel.frame;
-    userFrame.size = userSize;
-    self.usernameLabel.frame = userFrame;
-    CGRect commentFrame = self.commentsTextView.frame;
-    commentFrame.origin.x = userSize.width + 6.0f;
-    commentFrame.size.width = VIEW_WIDTH - (commentFrame.origin.x);
-//    commentFrame.origin.x = userWidth + 10;
-//    commentFrame.size.width = self.frame.size.width - (userWidth + 10);
-    self.commentsTextView.frame = commentFrame;
+    [self layoutUsername];
+    self.iconImageView.image = [UIImage imageNamed:@"rainHeart"];
+    [self layoutImageView];
     
+}
+
+- (void)configurePostCellWithUsername:(NSString *)username timestamp:(NSString *)timestamp isOwnVideo:(BOOL)isOwnVideo {
+    [self setCellType:YACommentsCellTypePost];
+    self.usernameLabel.text = username;
+    [self layoutUsername];
+    self.timestampLabel.text = timestamp;
+    self.deleteButton.hidden = !isOwnVideo;
+    self.iconImageView.image = [UIImage imageNamed:@"Movie"];
+    [self layoutImageView];
     [self layoutPostViews];
 }
 
+- (void)layoutUsername {
+    CGSize userSize = [self.usernameLabel sizeThatFits:CGSizeMake(self.frame.size.width, CGFLOAT_MAX)];
+    CGRect userFrame = self.usernameLabel.frame;
+    userFrame.size = userSize;
+    self.usernameLabel.frame = userFrame;
+}
+
+- (void)layoutImageView {
+    CGRect imageFrame = self.iconImageView.frame;
+    imageFrame.origin.x = self.usernameLabel.frame.size.width + 6.f;
+    self.iconImageView.frame = imageFrame;
+}
+
 - (void)layoutPostViews {
-    CGRect postEmojiFrame = self.postEmojiLabel.frame;
-    postEmojiFrame.origin.x = self.usernameLabel.frame.size.width + 6.f;
-    self.postEmojiLabel.frame = postEmojiFrame;
-    
     CGFloat deleteWidth = self.deleteButton.frame.size.width;
 
     CGRect timestampFrame = self.timestampLabel.frame;
-    timestampFrame.origin.x = postEmojiFrame.origin.x + postEmojiFrame.size.width + 6.f;
-    timestampFrame.size.width = VIEW_WIDTH - timestampFrame.origin.x - deleteWidth;
+    timestampFrame.origin.x = self.iconImageView.frame.origin.x + self.iconImageView.frame.size.width + 6.f;
+    timestampFrame.size.width = self.frame.size.width - timestampFrame.origin.x - deleteWidth;
     self.timestampLabel.frame = timestampFrame;
     [self.timestampLabel sizeToFit];
     
@@ -137,28 +167,35 @@
     self.deleteButton.frame = deleteFrame;
 }
 
-- (void)setTimestamp:(NSString *)timestamp isOwnPost:(BOOL)ownPost{
-    self.timestampLabel.text = timestamp;
-    self.deleteButton.hidden = !ownPost;
-    [self layoutPostViews];
-}
-
 - (void)setCellType:(YACommentsCellType)cellType {
     switch (cellType) {
         case YACommentsCellTypeComment:
             self.commentsTextView.hidden = NO;
-            self.postEmojiLabel.hidden = YES;
+            self.iconImageView.hidden = YES;
             self.timestampLabel.hidden = YES;
             self.deleteButton.hidden = YES;
             break;
         case YACommentsCellTypePost:
             self.commentsTextView.hidden = YES;
-            self.postEmojiLabel.hidden = NO;
+            self.iconImageView.hidden = NO;
             self.timestampLabel.hidden = NO;
             self.deleteButton.hidden = NO;
             break;
+        case YACommentsCellTypeLike:
+            self.iconImageView.hidden = NO;
+            self.commentsTextView.hidden = YES;
+            self.timestampLabel.hidden = YES;
+            self.deleteButton.hidden = YES;
+            break;
     }
 }
+
+
+- (void)deletePressed {
+    [YAUtils deleteVideo:self.containingVideoPage.video];
+}
+
+#pragma mark - Class methods
 
 + (CGFloat)heightForCommentCellWithUsername:(NSString *)username comment:(NSString *)comment {
     // should actually implement this
@@ -179,7 +216,11 @@
     return commentSize.height + 6.0f;
 }
 
-+ (CGFloat)heightForPostCellWithUsername:(NSString *)username timestamp:(NSString *)timestamp {
++ (CGFloat)heightForPostCell {
+    return 24.f;
+}
+
++ (CGFloat)heightForLikeCell {
     return 24.f;
 }
 
