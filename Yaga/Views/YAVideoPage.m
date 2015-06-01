@@ -756,6 +756,7 @@ static NSString *commentCellID = @"CommentCell";
     
     self.serverCaptionWrapperView = textWrapper;
     self.serverCaptionTextView = textView;
+    self.serverCaptionTextView.userInteractionEnabled = NO;
     
     if ([[self gestureRecognizers] containsObject:self.captionTapRecognizer]) {
         [self removeGestureRecognizer:self.captionTapRecognizer];
@@ -1292,7 +1293,7 @@ static NSString *commentCellID = @"CommentCell";
     NSDictionary *heartData = @{
                                 @"type": @"comment",
                                 @"username": [YAUser currentUser].username,
-                                @"comment": @"💜"
+                                @"comment": @"😍"
                                 };
     
     [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];

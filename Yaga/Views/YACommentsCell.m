@@ -15,6 +15,7 @@
 @property (nonatomic, strong) UILabel *usernameLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) UILabel *postEmojiLabel;
+@property (nonatomic, strong) UIButton *deleteButton;
 
 @property (nonatomic, strong) UITextView *commentsTextView;
 
@@ -60,18 +61,27 @@
         
         [self addSubview:self.commentsTextView];
         
-        self.postEmojiLabel = [[UILabel alloc] initWithFrame:CGRectMake(initialUsernameWidth, -2, 30, initialHeight)];
+        self.postEmojiLabel = [[UILabel alloc] initWithFrame:CGRectMake(initialUsernameWidth, -3, 30, initialHeight)];
         self.postEmojiLabel.text = @"🎬";
         self.postEmojiLabel.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE+6];
         [self.postEmojiLabel sizeToFit];
         [self addSubview:self.postEmojiLabel];
         
-        self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, initialUsernameWidth, initialHeight)];
+        self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 3, initialUsernameWidth, initialHeight)];
         self.timestampLabel.textColor = [UIColor colorWithWhite:0.85 alpha:0.75];
         self.timestampLabel.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE-3.f];
         self.timestampLabel.shadowColor = [UIColor blackColor];
         self.timestampLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         [self addSubview:self.timestampLabel];
+        
+        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 100, initialHeight)];
+        self.deleteButton.backgroundColor = [UIColor clearColor];
+        self.deleteButton.layer.cornerRadius = 10.f;
+        self.deleteButton.layer.borderColor = [[UIColor redColor] CGColor];
+        self.deleteButton.layer.borderWidth = 2.f;
+        [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+        [self.deleteButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+        [self addSubview:self.deleteButton];
 
 //        [self.usernameLabel setBackgroundColor:[UIColor greenColor]];
 //        [self.commentsTextView setBackgroundColor:[UIColor redColor]];
@@ -98,18 +108,31 @@
 //    commentFrame.size.width = self.frame.size.width - (userWidth + 10);
     self.commentsTextView.frame = commentFrame;
     
+    [self layoutPostViews];
+}
+
+- (void)layoutPostViews {
     CGRect postEmojiFrame = self.postEmojiLabel.frame;
-    postEmojiFrame.origin.x = userSize.width + 6.f;
+    postEmojiFrame.origin.x = self.usernameLabel.frame.size.width + 6.f;
     self.postEmojiLabel.frame = postEmojiFrame;
+    
+    CGFloat deleteWidth = 80.f;
     
     CGRect timestampFrame = self.timestampLabel.frame;
     timestampFrame.origin.x = postEmojiFrame.origin.x + postEmojiFrame.size.width + 6.f;
-    timestampFrame.size.width = VIEW_WIDTH - timestampFrame.origin.x;
+    timestampFrame.size.width = VIEW_WIDTH - timestampFrame.origin.x - deleteWidth;
     self.timestampLabel.frame = timestampFrame;
+    [self.timestampLabel sizeToFit];
+    
+    CGRect deleteFrame = self.deleteButton.frame;
+    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + 10;
+    deleteFrame.size.width = deleteWidth;
+    self.deleteButton.frame = deleteFrame;
 }
 
 - (void)setTimestamp:(NSString *)timestamp {
     self.timestampLabel.text = timestamp;
+    [self layoutPostViews];
 }
 
 - (void)setCellType:(YACommentsCellType)cellType {
@@ -118,11 +141,13 @@
             self.commentsTextView.hidden = NO;
             self.postEmojiLabel.hidden = YES;
             self.timestampLabel.hidden = YES;
+            self.deleteButton.hidden = YES;
             break;
         case YACommentsCellTypePost:
             self.commentsTextView.hidden = YES;
             self.postEmojiLabel.hidden = NO;
             self.timestampLabel.hidden = NO;
+            self.deleteButton.hidden = NO;
             break;
     }
 }
