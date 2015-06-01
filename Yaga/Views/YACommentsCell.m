@@ -79,9 +79,15 @@
 //        self.deleteButton.layer.cornerRadius = 10.f;
 //        self.deleteButton.layer.borderColor = [[UIColor redColor] CGColor];
 //        self.deleteButton.layer.borderWidth = 2.f;
-        [self.deleteButton.titleLabel setFont:[UIFont systemFontOfSize:COMMENTS_FONT_SIZE]];
+        [self.deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE - 3.0f]];
         [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
-        [self.deleteButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+        [self.deleteButton setTitleColor:[UIColor colorWithRed:158.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0] forState:UIControlStateNormal];
+        self.deleteButton.layer.shadowColor = [UIColor blackColor].CGColor;
+        self.deleteButton.layer.shadowOffset = CGSizeMake(0.5, 0.5);
+        self.deleteButton.layer.shadowOpacity = 0.5;
+        self.deleteButton.layer.shadowRadius = 0.0f;
+        [self.deleteButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+
         [self addSubview:self.deleteButton];
 
 //        [self.usernameLabel setBackgroundColor:[UIColor greenColor]];
@@ -126,7 +132,7 @@
     [self.timestampLabel sizeToFit];
     
     CGRect deleteFrame = self.deleteButton.frame;
-    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + 6;
+    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + 6.f;
     deleteFrame.size.width = deleteWidth;
     self.deleteButton.frame = deleteFrame;
 }
