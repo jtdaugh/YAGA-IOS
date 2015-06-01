@@ -22,6 +22,7 @@
 #import "YADownloadManager.h"
 #import "YAServerTransactionQueue.h"
 #import "YACommentsCell.h"
+#import "YACrosspostCell.h"
 
 #define CAPTION_FONT_SIZE 60.0
 #define CAPTION_STROKE_WIDTH 3.f
@@ -78,9 +79,13 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UIVisualEffectView *captionBlurOverlay;
 @property (strong, nonatomic) UIVisualEffectView *shareBlurOverlay;
 
+@property (nonatomic, strong) RLMResults *groups;
 @property (strong, nonatomic) UITableView *groupsList;
 @property (strong, nonatomic) UILabel *crossPostPrompt;
 @property (strong, nonatomic) UIView *shareBar;
+@property (strong, nonatomic) UIButton *externalShareButton;
+@property (strong, nonatomic) UIButton *saveButton;
+@property (strong, nonatomic) UIButton *confirmCrosspost;
 
 @property (strong, nonatomic) UIView *serverCaptionWrapperView;
 @property (strong, nonatomic) UITextView *serverCaptionTextView;
@@ -595,24 +600,38 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    YACommentsCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
-    cell.transform = cell.transform = CGAffineTransformMakeRotation(M_PI);
-
-    NSDictionary *event = self.events[indexPath.row];
-    if (event[@"username"]) {
-        [cell setUsername:event[@"username"]];
+    
+    if([tableView isEqual:self.groupsList]){
+        YACrosspostCell *cell = [tableView dequeueReusableCellWithIdentifier:@"crossPostCell" forIndexPath:indexPath];
+        YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+        [cell setGroupTitle:group.name];
+        return cell;
+//        return [YACrosspostCell new];
+        
+    } else {
+        YACommentsCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
+        cell.transform = cell.transform = CGAffineTransformMakeRotation(M_PI);
+        
+        NSDictionary *event = self.events[indexPath.row];
+        if (event[@"username"]) {
+            [cell setUsername:event[@"username"]];
+        }
+        NSString *type = event[@"type"];
+        if ([type isEqualToString:@"like"]) {
+            [cell setComment:@"liked the video"];
+        } else if ([type isEqualToString:@"comment"]) {
+            [cell setComment:event[@"comment"]];
+        }
+        return cell;
     }
-    NSString *type = event[@"type"];
-    if ([type isEqualToString:@"like"]) {
-        [cell setComment:@"liked the video"];
-    } else if ([type isEqualToString:@"comment"]) {
-        [cell setComment:event[@"comment"]];
-    }
-    return cell;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.events count];
+    if([tableView isEqual:self.groupsList]){
+        return [self.groups count];
+    } else {
+        return [self.events count];
+    }
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -621,10 +640,20 @@ static NSString *commentCellID = @"CommentCell";
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    NSDictionary *event = self.events[indexPath.row];
-    return [YACommentsCell heightForCellWithUsername:event[@"username"] comment:event[@"comment"] ? event[@"comment"] : @"liked the video"];
+    if([tableView isEqual:self.groupsList]){
+        return XPCellHeight;
+    } else {
+        NSDictionary *event = self.events[indexPath.row];
+        return [YACommentsCell heightForCellWithUsername:event[@"username"] comment:event[@"comment"] ? event[@"comment"] : @"liked the video"];
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    
+}
+
+-(void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView indexPathsForSelectedRows];
 }
 
 - (void)setupCaptionButtonContainer {
@@ -1512,14 +1541,39 @@ static NSString *commentCellID = @"CommentCell";
     CGFloat shareBarHeight = 100;
     
     CGFloat borderWidth = 4;
-    
-    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, 100, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
-    [self.groupsList setBackgroundColor:[UIColor greenColor]];
+
+    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
+
+    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, topPadding, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
+    [self.groupsList setBackgroundColor:[UIColor clearColor]];
+    [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:@"crossPostCell"];
+    self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.groupsList.allowsSelection = YES;
+    self.groupsList.allowsMultipleSelection = YES;
+
+    self.groupsList.delegate = self;
+    self.groupsList.dataSource = self;
     [self.shareBlurOverlay addSubview:self.groupsList];
+    
+    self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, topPadding - 24, VIEW_WIDTH-24, 24)];
+    self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
+    self.crossPostPrompt.textColor = [UIColor whiteColor];
+    self.crossPostPrompt.text = @"Post to more groups";
+    [self.shareBlurOverlay addSubview:self.crossPostPrompt];
+    
     
     self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
     [self.shareBar setBackgroundColor:PRIMARY_COLOR];
     [self.shareBlurOverlay addSubview:self.shareBar];
+
+    self.confirmCrosspost = [[UIButton alloc] initWithFrame:self.shareBar.frame];
+    self.confirmCrosspost.backgroundColor = PRIMARY_COLOR;
+    self.confirmCrosspost.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:24];
+    self.confirmCrosspost.titleLabel.textColor = [UIColor whiteColor];
+    [self.confirmCrosspost setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 16, 0, 0)];
+    [self.confirmCrosspost setTitle:@"Yo dawgs" forState:UIControlStateNormal];
+    [self.shareBlurOverlay addSubview:self.confirmCrosspost];
     
     UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
     [separator setBackgroundColor:[UIColor whiteColor]];
@@ -1582,6 +1636,9 @@ static NSString *commentCellID = @"CommentCell";
         
     }}];
 }
+
+#pragma mark - UITableView delegate methods (groups list)
+
 
 #pragma mark - YAProgressView
 - (void)downloadDidStart:(NSNotification*)notif {
