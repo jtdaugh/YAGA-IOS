@@ -1620,7 +1620,7 @@ static NSString *commentCellID = @"CommentCell";
     self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, topPadding - 24, VIEW_WIDTH-24, 24)];
     self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
     self.crossPostPrompt.textColor = [UIColor whiteColor];
-    self.crossPostPrompt.text = @"Post to more groups";
+    self.crossPostPrompt.text = @"Post to other groups";
     [self.shareBlurOverlay addSubview:self.crossPostPrompt];
     
     
