@@ -6,19 +6,14 @@
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
-#import "YACommentsCell.h"
+#import "YAEventCell.h"
+
+#import "YAUser.h"
 
 #define COMMENTS_FONT_SIZE 16.f
 
 
-typedef NS_ENUM(NSUInteger, YACommentsCellType) {
-    YACommentsCellTypeComment,
-    YACommentsCellTypeLike,
-    YACommentsCellTypePost,
-};
-
-
-@interface YACommentsCell ()
+@interface YAEventCell ()
 
 @property (nonatomic, strong) UILabel *usernameLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
@@ -29,7 +24,7 @@ typedef NS_ENUM(NSUInteger, YACommentsCellType) {
 
 @end
 
-@implementation YACommentsCell
+@implementation YAEventCell
 
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
@@ -107,8 +102,24 @@ typedef NS_ENUM(NSUInteger, YACommentsCellType) {
     return self;    
 }
 
+- (void)configureCellWithEvent:(YAEvent *)event {
+    switch (event.eventType) {
+        case YAEventTypeComment:
+            [self configureCommentCellWithUsername:event.username comment:event.comment];
+            break;
+        case YAEventTypeLike:
+            [self configureLikeCellWithUsername:event.username];
+            break;
+        case YAEventTypePost:
+            [self configurePostCellWithUsername:event.username
+                                      timestamp:event.timestamp
+                                     isOwnVideo:[event.username isEqualToString:[YAUser currentUser].username]];
+            break;
+    }
+}
+
 - (void)configureCommentCellWithUsername:(NSString *)username comment:(NSString *)comment {
-    [self setCellType:YACommentsCellTypeComment];
+    [self setCellType:YAEventTypeComment];
     self.usernameLabel.text = username;
     [self layoutUsername];
     self.commentsTextView.text = comment;
@@ -120,7 +131,7 @@ typedef NS_ENUM(NSUInteger, YACommentsCellType) {
 }
 
 - (void)configureLikeCellWithUsername:(NSString *)username {
-    [self setCellType:YACommentsCellTypeLike];
+    [self setCellType:YAEventTypeLike];
     self.usernameLabel.text = username;
     [self layoutUsername];
     self.iconImageView.image = [UIImage imageNamed:@"rainHeart"];
@@ -129,7 +140,7 @@ typedef NS_ENUM(NSUInteger, YACommentsCellType) {
 }
 
 - (void)configurePostCellWithUsername:(NSString *)username timestamp:(NSString *)timestamp isOwnVideo:(BOOL)isOwnVideo {
-    [self setCellType:YACommentsCellTypePost];
+    [self setCellType:YAEventTypePost];
     self.usernameLabel.text = username;
     [self layoutUsername];
     self.timestampLabel.text = timestamp;
@@ -167,21 +178,21 @@ typedef NS_ENUM(NSUInteger, YACommentsCellType) {
     self.deleteButton.frame = deleteFrame;
 }
 
-- (void)setCellType:(YACommentsCellType)cellType {
+- (void)setCellType:(YAEventType)cellType {
     switch (cellType) {
-        case YACommentsCellTypeComment:
+        case YAEventTypeComment:
             self.commentsTextView.hidden = NO;
             self.iconImageView.hidden = YES;
             self.timestampLabel.hidden = YES;
             self.deleteButton.hidden = YES;
             break;
-        case YACommentsCellTypePost:
+        case YAEventTypePost:
             self.commentsTextView.hidden = YES;
             self.iconImageView.hidden = NO;
             self.timestampLabel.hidden = NO;
             self.deleteButton.hidden = NO;
             break;
-        case YACommentsCellTypeLike:
+        case YAEventTypeLike:
             self.iconImageView.hidden = NO;
             self.commentsTextView.hidden = YES;
             self.timestampLabel.hidden = YES;
@@ -196,6 +207,20 @@ typedef NS_ENUM(NSUInteger, YACommentsCellType) {
 }
 
 #pragma mark - Class methods
+
++ (CGFloat)heightForCellWithEvent:(YAEvent *)event {
+    switch (event.eventType) {
+        case YAEventTypeComment:
+            return [YAEventCell heightForCommentCellWithUsername:event.username comment:event.comment];
+            break;
+        case YAEventTypeLike:
+            return [YAEventCell heightForLikeCell];
+            break;
+        case YAEventTypePost:
+            return [YAEventCell heightForPostCell];
+            break;
+    }
+}
 
 + (CGFloat)heightForCommentCellWithUsername:(NSString *)username comment:(NSString *)comment {
     // should actually implement this

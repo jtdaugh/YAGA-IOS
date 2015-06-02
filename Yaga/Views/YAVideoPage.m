@@ -21,7 +21,8 @@
 #import "YAPanGestureRecognizer.h"
 #import "YADownloadManager.h"
 #import "YAServerTransactionQueue.h"
-#import "YACommentsCell.h"
+#import "YAEventCell.h"
+#import "NSArray+Reverse.h"
 
 #define CAPTION_FONT_SIZE 60.0
 #define CAPTION_STROKE_WIDTH 3.f
@@ -43,6 +44,7 @@
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 static NSString *commentCellID = @"CommentCell";
+
 
 @interface YAVideoPage ()  <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>
 
@@ -173,6 +175,23 @@ static NSString *commentCellID = @"CommentCell";
     }
     return self;
 }
+
+#pragma mark - YAEventReceiver
+
+- (void)video:(YAVideo *)video didReceiveNewEvent:(YAEvent *)event {
+    if (![video isEqual:self.video]) {
+        return;
+    }
+    [self.events insertObject:event atIndex:0];
+    [self.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
+}
+
+- (void)video:(YAVideo *)video receivedInitialEvents:(NSArray *)events {
+    self.events = [[events reversedArray] mutableCopy];
+    [self.commentsTableView reloadData];
+}
+
+#pragma mark - keyboard
 
 - (void)commentsTapOut:(UIGestureRecognizer *)recognizer {
     [self.commentsTextField resignFirstResponder];
@@ -344,8 +363,8 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)dealloc {
-    [self clearFirebase];
-
+//    [self clearFirebase];
+    
     [self.playerView removeObserver:self forKeyPath:@"readyToPlay"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DOWNLOAD_PART_NOTIFICATION      object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION      object:nil];
@@ -544,7 +563,7 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTableView.transform = CGAffineTransformMakeRotation(-M_PI);
 
     self.commentsTableView.backgroundColor = [UIColor clearColor];
-    [self.commentsTableView registerClass:[YACommentsCell class] forCellReuseIdentifier:commentCellID];
+    [self.commentsTableView registerClass:[YAEventCell class] forCellReuseIdentifier:commentCellID];
     
     CAGradientLayer *commentsViewMask = [CAGradientLayer layer];
     CGRect maskFrame = self.commentsWrapperView.bounds;
@@ -591,32 +610,25 @@ static NSString *commentCellID = @"CommentCell";
     NSString *text = self.commentsTextField.text;
     if ([text length]) {
         // post the comment
-        NSDictionary *event = @{
-                                @"type":@"comment",
-                                @"username":[YAUser currentUser].username,
-                                @"comment":text
-                                };
-        [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:event];
+        YAEvent *event = [YAEvent new];
+        event.eventType = YAEventTypeComment;
+        event.comment = text;
+        event.username = [YAUser currentUser].username;
+        [[YAEventManager sharedManager] addEvent:event toVideo:self.video];
+        
         self.commentsTextField.text = @"";
 //        [self.commentsTextField resignFirstResponder]; // do we want to hide the keyboard after each comment?
     }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    YACommentsCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
+    YAEventCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
     cell.containingVideoPage = self;
     cell.transform = cell.transform = CGAffineTransformMakeRotation(M_PI);
 
-    NSDictionary *event = self.events[indexPath.row];
-    NSString *username = event[@"username"];
-    NSString *type = event[@"type"];
-    if ([type isEqualToString:@"comment"]) {
-        [cell configureCommentCellWithUsername:username comment:event[@"comment"]];
-    } else if ([type isEqualToString:@"post"]) {
-        [cell configurePostCellWithUsername:username timestamp:event[@"timestamp"] isOwnVideo:[[YAUser currentUser].username isEqualToString:event[@"username"]]];
-    } else if ([type isEqualToString:@"like"]) {
-        [cell configureLikeCellWithUsername:username];
-    }
+    YAEvent *event = self.events[indexPath.row];
+    [cell configureCellWithEvent:event];
+
     return cell;
 }
 
@@ -630,16 +642,8 @@ static NSString *commentCellID = @"CommentCell";
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    NSDictionary *event = self.events[indexPath.row];
-    if ([event[@"type"] isEqualToString:@"comment"]) {
-        return [YACommentsCell heightForCommentCellWithUsername:event[@"username"] comment:event[@"comment"]];
-    } else if ([event[@"type"] isEqualToString:@"post"]) {
-        return [YACommentsCell heightForPostCell];
-    }  else if ([event[@"type"] isEqualToString:@"like"]) {
-        return [YACommentsCell heightForLikeCell];
-    } else {
-        return 0.0;
-    }
+    YAEvent *event = self.events[indexPath.row];
+    return [YAEventCell heightForCellWithEvent:event];
 }
 
 - (void)setupCaptionButtonContainer {
@@ -681,14 +685,6 @@ static NSString *commentCellID = @"CommentCell";
     [self toggleEditingCaption:NO];
 }
 
-- (void) clearFirebase {
-    
-    [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] removeAllObservers];
-    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] removeAllObservers];
-    [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] removeAllObservers];
-
-    [self.serverCaptionWrapperView removeFromSuperview];
-}
 
 - (void) initFirebase {
     
@@ -706,7 +702,6 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentsTableView reloadData];
 
     [self beginMonitoringForEvents];
-    [self beginMonitoringForCaption];
 }
 
 - (void)beginMonitoringForCaption {
@@ -1313,13 +1308,11 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)addLike {
-    
-    NSDictionary *heartData = @{
-                                @"type": @"like",
-                                @"username": [YAUser currentUser].username
-                                };
-    
-    [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:heartData];
+
+    YAEvent *event = [YAEvent new];
+    event.eventType = YAEventTypeLike;
+    event.username = [YAUser currentUser].username;
+    [[YAEventManager sharedManager] addEvent:event toVideo:self.video];
     
 }
 
@@ -1472,6 +1465,12 @@ static NSString *commentCellID = @"CommentCell";
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
+    self.events = [[[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray] mutableCopy];
+    [self.commentsTableView reloadData];
+    
+//    [self.serverCaptionWrapperView removeFromSuperview];
+//    [self beginMonitoringForCaption];
+//    
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
 
@@ -1505,8 +1504,8 @@ static NSString *commentCellID = @"CommentCell";
 //                    forState:UIControlStateNormal];
 //
     
-    [self clearFirebase];
-    [self initFirebase];
+//    [self clearFirebase];
+//    [self initFirebase];
     
     //get likers for video
     
