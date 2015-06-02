@@ -688,14 +688,23 @@ static NSString *commentCellID = @"CommentCell";
     [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] removeAllObservers];
 
     [self.serverCaptionWrapperView removeFromSuperview];
-    self.serverCaptionWrapperView = nil;
-    self.serverCaptionTextView = nil;
 }
 
 - (void) initFirebase {
     
     NSLog(@"serverid: %@", self.video.serverId);
-    
+    self.events = [@[@{
+                         @"type":@"post",
+                         @"username":self.video.creator,
+                         @"timestamp":[[YAUser currentUser] formatDate:self.video.createdAt]
+                         },
+                     @{
+                         @"type":@"comment",
+                         @"username":@" ",
+                         @"comment":@" "
+                         }] mutableCopy];
+    [self.commentsTableView reloadData];
+
     [self beginMonitoringForEvents];
     [self beginMonitoringForCaption];
 }
@@ -718,21 +727,24 @@ static NSString *commentCellID = @"CommentCell";
 - (void)beginMonitoringForEvents {
     Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"];
     
-    __weak __block YAVideoPage *weakSelf = self;
+    __weak YAVideoPage *weakSelf = self;
     
     __block BOOL initialLoaded = NO;
     
     [events observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         [weakSelf.events insertObject:snapshot.value atIndex:0];
         if (initialLoaded) {
+            NSLog(@"Firebase new comment added");
             [weakSelf.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
         } else {
-            [weakSelf.commentsTableView reloadData];
+            NSLog(@"Firebase initial comment added");
         }
     }];
     
     [events observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        NSLog(@"Firebase all initial comments loaded");
         initialLoaded = YES;
+        [weakSelf.commentsTableView reloadData];
     }];
     
 
@@ -1492,17 +1504,7 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
 //                    forState:UIControlStateNormal];
 //
-    self.events = [@[@{
-                @"type":@"post",
-                @"username":self.video.creator,
-                @"timestamp":[[YAUser currentUser] formatDate:self.video.createdAt]
-                },
-                    @{
-                        @"type":@"comment",
-                        @"username":@" ",
-                        @"comment":@" "
-                        }] mutableCopy];
-    [self.commentsTableView reloadData];
+    
     [self clearFirebase];
     [self initFirebase];
     
@@ -1736,7 +1738,6 @@ static NSString *commentCellID = @"CommentCell";
 - (void)accessoryButtonTaped:(id)sender {
 //    [self.video rename:self.captionField.text withFont:self.fontIndex];
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
-    [self updateControls];
     
     [self.editableCaptionTextView resignFirstResponder];
     self.keyBoardAccessoryButton.hidden = YES;
