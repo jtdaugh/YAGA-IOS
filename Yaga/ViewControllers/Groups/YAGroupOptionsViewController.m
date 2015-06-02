@@ -82,7 +82,6 @@
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     self.navigationController.navigationBar.translucent = YES;
     
-
     self.title = self.group.name;
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
@@ -338,6 +337,9 @@ static NSString *CellID = @"CellID";
         if(weakSelf.group.isInvalidated) {
             [self.navigationController popToRootViewControllerAnimated:YES];
             self.notificationToken = nil;
+        }
+        else {
+            [weakSelf.tableView reloadData];
         }
     }];
 }
