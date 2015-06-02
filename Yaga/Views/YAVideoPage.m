@@ -37,8 +37,8 @@
 #define COMMENTS_TEXT_FIELD_HEIGHT 40.f
 #define COMMENTS_SEND_WIDTH 70.f
 
-#define BOTTOM_ACTION_SIZE 40.f
-#define BOTTOM_ACTION_MARGIN 10.f
+#define CAPTION_BUTTON_HEIGHT 80.f
+#define CAPTION_DONE_PROPORTION 0.5
 
 #define MAX_CAPTION_WIDTH (VIEW_WIDTH - 2 * CAPTION_GUTTER)
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
@@ -661,10 +661,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)setupCaptionButtonContainer {
-    self.captionButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BOTTOM_ACTION_SIZE*2 - BOTTOM_ACTION_MARGIN*2,
-                                                                           VIEW_HEIGHT - BOTTOM_ACTION_MARGIN - BOTTOM_ACTION_SIZE,
-                                                                           BOTTOM_ACTION_SIZE*2 + BOTTOM_ACTION_MARGIN*2,
-                                                                           BOTTOM_ACTION_SIZE + BOTTOM_ACTION_MARGIN)];
+    self.captionButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - CAPTION_BUTTON_HEIGHT, VIEW_WIDTH, CAPTION_BUTTON_HEIGHT)];
     [self.overlay addSubview:self.captionButtonContainer];
     
 //    self.textButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
@@ -672,25 +669,15 @@ static NSString *commentCellID = @"CommentCell";
 //    self.textButton.tintColor = [YAUtils UIColorFromUsernameString:[YAUser currentUser].username];
 //    [self.textButton addTarget:self action:@selector(textButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 //    
-    self.rajsBelovedDoneButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
-    self.rajsBelovedDoneButton.backgroundColor = [UIColor colorWithRed:(39.f/255.f) green:(174.f/255.f) blue:(96.f/255.f) alpha:1];
-    self.rajsBelovedDoneButton.layer.cornerRadius = BOTTOM_ACTION_SIZE/2.f;
-    self.rajsBelovedDoneButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-    self.rajsBelovedDoneButton.layer.borderWidth = 1.f;
-    self.rajsBelovedDoneButton.layer.masksToBounds = YES;
-    [self.rajsBelovedDoneButton setImage:[UIImage imageNamed:@"Check"] forState:UIControlStateNormal];
-    [self.rajsBelovedDoneButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-
-    
-    self.cancelCaptionButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
-    [self.cancelCaptionButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
+    self.cancelCaptionButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH*(1.0-CAPTION_DONE_PROPORTION), CAPTION_BUTTON_HEIGHT)];
+    [self.cancelCaptionButton setTitle:@"Cancel" forState:UIControlStateNormal];
     self.cancelCaptionButton.backgroundColor = [UIColor colorWithRed:(231.f/255.f) green:(76.f/255.f) blue:(60.f/255.f) alpha:1];
-    self.cancelCaptionButton.layer.cornerRadius = BOTTOM_ACTION_SIZE/2.f;
-    self.cancelCaptionButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-    self.cancelCaptionButton.layer.borderWidth = 1.f;
-    self.cancelCaptionButton.layer.masksToBounds = YES;
-    
     [self.cancelCaptionButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+
+    self.rajsBelovedDoneButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cancelCaptionButton.frame.size.width, 0, VIEW_WIDTH*CAPTION_DONE_PROPORTION, CAPTION_BUTTON_HEIGHT)];
+    self.rajsBelovedDoneButton.backgroundColor = [UIColor colorWithRed:(39.f/255.f) green:(174.f/255.f) blue:(96.f/255.f) alpha:1];
+    [self.rajsBelovedDoneButton setTitle:@"Done" forState:UIControlStateNormal];
+    [self.rajsBelovedDoneButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 
     [self.captionButtonContainer addSubview:self.textButton];
     [self.captionButtonContainer addSubview:self.rajsBelovedDoneButton];
@@ -698,40 +685,6 @@ static NSString *commentCellID = @"CommentCell";
     
     [self toggleEditingCaption:NO];
 }
-
-
-- (void) initFirebase {
-    
-    NSLog(@"serverid: %@", self.video.serverId);
-    self.events = [@[@{
-                         @"type":@"post",
-                         @"username":self.video.creator,
-                         @"timestamp":[[YAUser currentUser] formatDate:self.video.createdAt]
-                         },
-                     @{
-                         @"type":@"comment",
-                         @"username":@" ",
-                         @"comment":@" "
-                         }] mutableCopy];
-    [self.commentsTableView reloadData];
-
-    [self beginMonitoringForEvents];
-}
-
-- (void)beginMonitoringForCaption {
-    __weak YAVideoPage *weakSelf = self;
-    Firebase *caption = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"];
-    
-    // TODO: Queue these up in case user changes text and position (common). As is, that will cause this to fire multiple times instantly.
-    [caption observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        if (snapshot.exists) {
-            [weakSelf insertCaptionFromSnapshot:snapshot];
-        } else if (self.myVideo) {
-            [weakSelf addGestureRecognizer:weakSelf.captionTapRecognizer];
-        }
-    }];
-}
-
 
 - (void)beginMonitoringForEvents {
     Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"];
@@ -760,29 +713,28 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 // initial adding of caption. modifications will instead call -updateCaptionFromSnapshot
-- (void)insertCaptionFromSnapshot:(FDataSnapshot *)snapshot {
-    self.currentCaptionSnapshot = snapshot;
-
-    NSString *username = snapshot.value[@"username"];
-    if (!username) username = @"yaga";
-
+- (void)insertCaption {
     UIView *textWrapper = [[UIView alloc] initWithFrame:CGRectInfinite];
     UITextView *textView = [self textViewWithCaptionAttributes];
-    textView.text = snapshot.value[@"text"];
+    textView.text = self.video.caption;
     textView.editable = NO;
     
     CGSize newSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
     CGRect captionFrame = CGRectMake(0, 0, newSize.width, newSize.height);
     textView.frame = captionFrame;
 
-    CGRect wrapperFrame = CGRectMake([snapshot.value[@"x"] doubleValue]*VIEW_WIDTH - (newSize.width/2.f),
-                                     [snapshot.value[@"y"] doubleValue]*VIEW_HEIGHT - (newSize.height/2.f),
+    CGFloat xPos = [@(self.video.name_x) doubleValue] * VIEW_WIDTH;
+    CGFloat yPos = [@(self.video.name_y) doubleValue] * VIEW_HEIGHT;
+    
+    CGRect wrapperFrame = CGRectMake(xPos - (newSize.width/2.f),
+                                     yPos - (newSize.height/2.f),
                                      newSize.width,
                                      newSize.height);
     textWrapper.frame = wrapperFrame;
 
     [textWrapper addSubview:textView];
-    textWrapper.transform =CGAffineTransformFromString(snapshot.value[@"transform"]);
+    
+//  TODO: add transform from scale and rotation INTS or Doubles
 
     [self.overlay addSubview:textWrapper];
     [self.overlay sendSubviewToBack:textWrapper];
@@ -870,22 +822,24 @@ static NSString *commentCellID = @"CommentCell";
     if (editing) {
         [self setGesturesEnabled:NO];
         self.serverCaptionWrapperView.hidden = YES;
-        self.cancelCaptionButton.hidden = NO;
-        self.rajsBelovedDoneButton.hidden = NO;
+        self.captionButtonContainer.hidden = NO;
 //        self.textButton.hidden = YES;
         self.deleteButton.hidden = YES;
         self.shareButton.hidden = YES;
+        self.commentsWrapperView.hidden = YES;
+        self.XButton.hidden = YES;
     } else {
         [self setGesturesEnabled:YES];
         
         self.serverCaptionWrapperView.hidden = NO;
 
         // could be prettier if i fade all of this
-        self.cancelCaptionButton.hidden = YES;
-        self.rajsBelovedDoneButton.hidden = YES;
+        self.captionButtonContainer.hidden = YES;
 //        self.textButton.hidden = NO;
         self.deleteButton.hidden = NO;
         self.shareButton.hidden = NO;
+        self.commentsWrapperView.hidden = NO;
+        self.XButton.hidden = NO;
         
         
     }
@@ -898,78 +852,27 @@ static NSString *commentCellID = @"CommentCell";
     return YES;
 }
 
+// TODO: Send to server, not firebase, and manually insert serverCaptionWrapper(andText)View
 - (void)commitCurrentCaption {
-    if (self.editableCaptionTextView) {
-
-        CGFloat vw = VIEW_WIDTH, vh = VIEW_HEIGHT;
-        
-        NSDictionary *eventData;
-        
-        NSString *oldText = self.serverCaptionTextView.text;
-        NSString *newText = self.editableCaptionTextView.text;
-
-        NSDictionary *textData = @{
-                                   @"type": @"text",
-                                   @"x":[NSNumber numberWithDouble: self.textFieldCenter.x/vw],
-                                   @"y":[NSNumber numberWithDouble: self.textFieldCenter.y/vh],
-                                   @"username":[YAUser currentUser].username,
-                                   @"transform":NSStringFromCGAffineTransform(self.textFieldTransform),
-                                   @"text":self.editableCaptionTextView.text
-                                   };
-       
-//        if (![newText length]) {
-//            // Caption Deleted
-//            textData = nil;
-//            if ([oldText length]) {
-//                eventData = @{
-//                              @"type":@"caption_deleted",
-//                              @"username":[YAUser currentUser].username
-//                              };
-//            }
-//        }
-//        
-//        
-//        if ([newText length] && ![oldText length]) {
-//            // Caption Created
-//            eventData = @{
-//                          @"type":@"caption_created",
-//                          @"username":[YAUser currentUser].username,
-//                          @"text":newText
-//                          };
-//        }
-//        
-//        if ([oldText length] && [newText length]) {
-//            if ([oldText isEqualToString:newText] && ([self view:self.editableCaptionWrapperView isPositionedEqualTo:self.serverCaptionWrapperView])) {
-//                // Nothing changed.
-//                eventData = nil;
-//            } else if (![oldText isEqualToString:newText]) {
-//                // Changed text. In this case, dont care if they moved the caption in terms of event creation.
-//                eventData = @{
-//                              @"type":@"caption_change",
-//                              @"username":[YAUser currentUser].username,
-//                              @"text":newText
-//                              };
+//    if (self.editableCaptionTextView) {
 //
-//            } else {
-//                // Caption repositioned but text is the same
-//                eventData = @{
-//                              @"type":@"caption_move",
-//                              @"username":[YAUser currentUser].username
-//                              };
-//            }
-//        }
-        
-        [self.editableCaptionWrapperView removeFromSuperview];
-        self.editableCaptionWrapperView = nil;
-        self.editableCaptionTextView = nil;
-        
-        [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] setValue:textData];
-        
-//        if (eventData) {
-//            self.serverCaptionWrapperView.alpha = 0;
-//            [[[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"] childByAutoId] setValue:eventData];
-//        }
-    }
+//        CGFloat vw = VIEW_WIDTH, vh = VIEW_HEIGHT;
+//        
+//        NSDictionary *textData = @{
+//                                   @"type": @"text",
+//                                   @"x":[NSNumber numberWithDouble: self.textFieldCenter.x/vw],
+//                                   @"y":[NSNumber numberWithDouble: self.textFieldCenter.y/vh],
+//                                   @"username":[YAUser currentUser].username,
+//                                   @"transform":NSStringFromCGAffineTransform(self.textFieldTransform),
+//                                   @"text":self.editableCaptionTextView.text
+//                                   };
+//        
+//        [self.editableCaptionWrapperView removeFromSuperview];
+//        self.editableCaptionWrapperView = nil;
+//        self.editableCaptionTextView = nil;
+//        
+//        [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] setValue:textData];
+//    }
 }
 
 - (void) setupCaptionGestureRecognizers {
@@ -1474,16 +1377,22 @@ static NSString *commentCellID = @"CommentCell";
     
 }
 
+- (void)initializeCaption {
+    [self.serverCaptionWrapperView removeFromSuperview];
+    if ([self.video.caption length]) {
+         [self insertCaption];
+    } else if (self.myVideo) {
+        [self addGestureRecognizer:self.captionTapRecognizer];
+    }
+}
+
 - (void)updateControls {
     
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
     [self refreshTableWithNewEvents:[[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray]];
-
-//    [self.serverCaptionWrapperView removeFromSuperview];
-//    [self beginMonitoringForCaption];
-//    
+    [self initializeCaption];
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
 
@@ -1516,10 +1425,7 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
 //                    forState:UIControlStateNormal];
 //
-    
-//    [self clearFirebase];
-//    [self initFirebase];
-    
+
     //get likers for video
     
     if(self.video.mp4Filename.length) {
