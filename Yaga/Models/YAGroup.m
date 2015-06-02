@@ -481,10 +481,10 @@
                         video.caption = videoDic[YA_RESPONSE_NAME];
                         video.font = (videoDic[YA_RESPONSE_FONT] == [NSNull null]) ? 0 : [videoDic[YA_RESPONSE_FONT] integerValue];
                         video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
-                        video.caption_x = [videoDic[YA_RESPONSE_NAME_X] floatValue];
-                        video.caption_y = [videoDic[YA_RESPONSE_NAME_Y] floatValue];
-                        video.caption_scale = [videoDic[YA_RESPONSE_SCALE] floatValue];
-                        video.caption_rotation = [videoDic[YA_RESPONSE_ROTATION] floatValue];
+                        video.caption_x = (videoDic[YA_RESPONSE_NAME_X] == [NSNull null]) ? 0.5 : [videoDic[YA_RESPONSE_NAME_X] floatValue];
+                        video.caption_y = (videoDic[YA_RESPONSE_NAME_Y] == [NSNull null]) ? 0.5 : [videoDic[YA_RESPONSE_NAME_Y] floatValue];
+                        video.caption_scale = (videoDic[YA_RESPONSE_SCALE] == [NSNull null]) ? 1.0 : [videoDic[YA_RESPONSE_SCALE] floatValue];
+                        video.caption_rotation = (videoDic[YA_RESPONSE_ROTATION] == [NSNull null]) ? 0 : [videoDic[YA_RESPONSE_ROTATION] floatValue];
                     }
                     NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
                     if (likers.count) {
@@ -527,10 +527,10 @@
             }
             video.font = ![videoDic[YA_RESPONSE_FONT] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_FONT] integerValue] : 0;
             video.group = self;
-            video.caption_x = [videoDic[YA_RESPONSE_NAME_X] floatValue];
-            video.caption_y = [videoDic[YA_RESPONSE_NAME_Y] floatValue];
-            video.caption_scale = [videoDic[YA_RESPONSE_SCALE] floatValue];
-            video.caption_rotation = [videoDic[YA_RESPONSE_ROTATION] floatValue];
+            video.caption_x = ![videoDic[YA_RESPONSE_NAME_X] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_X] floatValue] : 0.5;
+            video.caption_y = ![videoDic[YA_RESPONSE_NAME_Y] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_Y] floatValue] : 0.5;
+            video.caption_scale = ![videoDic[YA_RESPONSE_SCALE] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_SCALE] floatValue] : 1;
+            video.caption_rotation = ![videoDic[YA_RESPONSE_ROTATION] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_ROTATION] floatValue] : 0;
 
             [self.videos insertObject:video atIndex:0];
             
