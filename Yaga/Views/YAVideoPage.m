@@ -611,7 +611,7 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     [self.commentsSendButton addTarget:self action:@selector(commentsSendPressed:) forControlEvents:UIControlEventTouchUpInside];
 
-    [self.commentsSendButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.8f]] forState:UIControlStateNormal];
+    [self.commentsSendButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.f]] forState:UIControlStateNormal];
     [self.commentsSendButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5f]] forState:UIControlStateDisabled];
     [self.commentsSendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.commentsSendButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
