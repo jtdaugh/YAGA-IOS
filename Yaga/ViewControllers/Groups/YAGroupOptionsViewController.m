@@ -82,7 +82,6 @@
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     self.navigationController.navigationBar.translucent = YES;
     
-
     self.title = self.group.name;
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
@@ -294,13 +293,7 @@ static NSString *CellID = @"CellID";
         
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", @"") style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-            [[RLMRealm defaultRealm] beginWriteTransaction];
-            [self.group removeMember:contact withCompletion:^(NSError *error) {
-                if(!error) {
-                    [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
-                }
-            }];
-            [[RLMRealm defaultRealm] commitWriteTransaction];
+            [self.group removeMember:contact withCompletion:nil];
         }]];
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
         [self presentViewController:alert animated:YES completion:nil];
@@ -310,7 +303,6 @@ static NSString *CellID = @"CellID";
 -(NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
     return @"Remove";
 }
-
 
 - (void)inviteTapped:(UIButton*)sender {
     YAContact *contactToInvite = self.sortedMembers[sender.tag];
@@ -338,6 +330,9 @@ static NSString *CellID = @"CellID";
         if(weakSelf.group.isInvalidated) {
             [self.navigationController popToRootViewControllerAnimated:YES];
             self.notificationToken = nil;
+        }
+        else {
+            [weakSelf.tableView reloadData];
         }
     }];
 }
