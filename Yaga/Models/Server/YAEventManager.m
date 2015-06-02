@@ -67,7 +67,10 @@
     self.videoIdMonitoring = videoId;
     YAEvent *lastEvent = [self.eventsByVideoId[videoId] lastObject];
     __weak YAEventManager *weakSelf = self;
-    self.currentChildAddedQuery = [[[self.firebaseRoot childByAppendingPath:videoId] queryOrderedByKey] queryStartingAtValue:lastEvent.key];
+    self.currentChildAddedQuery = [self.firebaseRoot childByAppendingPath:videoId];
+    if (lastEvent.key) {
+        self.currentChildAddedQuery = [[self.currentChildAddedQuery queryOrderedByKey] queryStartingAtValue:lastEvent.key];
+    }
     [self.currentChildAddedQuery observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
         if ([lastEvent.key isEqual:snapshot.key]) {
             return;
@@ -94,6 +97,9 @@
 - (void)fetchInitalEventsForVideo:(YAVideo *)video {
     NSString *groupId = [YAUser currentUser].currentGroup.serverId;
     NSString *videoId = video.serverId;
+    
+    if (![videoId length]) return;
+    
     __weak YAEventManager *weakSelf = self;
     
     if ([self.videoIdMonitoring isEqualToString:videoId]) {

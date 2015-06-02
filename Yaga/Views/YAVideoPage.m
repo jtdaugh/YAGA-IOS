@@ -580,6 +580,7 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.commentsTableView.allowsSelection = NO;
     self.commentsTableView.showsVerticalScrollIndicator = NO;
+    self.commentsTableView.contentInset = UIEdgeInsetsMake(0, 0, 20, 0);
     self.commentsTableView.delegate = self;
     self.commentsTableView.dataSource = self;
     self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH-COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
