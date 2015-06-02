@@ -190,10 +190,20 @@ static NSString *commentCellID = @"CommentCell";
     if (![video isEqual:self.video]) {
         return;
     }
-    self.events = [[events reversedArray] mutableCopy];
-    [self.commentsTableView reloadData];
+    [self refreshTableWithNewEvents:[events reversedArray]];
 }
 
+- (void)refreshTableWithNewEvents:(NSArray *)events {
+    [self.events removeAllObjects];
+    [self.commentsTableView reloadData];
+    self.events = [events mutableCopy];
+    NSMutableArray *indexArray = [NSMutableArray array];
+    for (int i = 0; i < [events count]; i++) {
+        [indexArray addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+    }
+    [self.commentsTableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationTop];
+
+}
 #pragma mark - keyboard
 
 - (void)commentsTapOut:(UIGestureRecognizer *)recognizer {
@@ -1469,9 +1479,8 @@ static NSString *commentCellID = @"CommentCell";
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
-    self.events = [[[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray] mutableCopy];
-    [self.commentsTableView reloadData];
-    
+    [self refreshTableWithNewEvents:[[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray]];
+
 //    [self.serverCaptionWrapperView removeFromSuperview];
 //    [self beginMonitoringForCaption];
 //    

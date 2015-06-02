@@ -302,6 +302,10 @@
                 page.playerView.playWhenReady = YES;
         }
         else {
+            // 🔽 Ideally this would be called but its crashing stuff
+//            if (i != self.visibleTileIndex && preload) {
+//                [[YAEventManager sharedManager] prefetchEventsForVideo:page.video];
+//            }
             page.playerView.playWhenReady = NO;
             [page.playerView pause];
         }

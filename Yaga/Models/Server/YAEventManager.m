@@ -106,18 +106,24 @@
     
     __weak YAEventManager *weakSelf = self;
     [[self.firebaseRoot childByAppendingPath:video.serverId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        if ([groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
+        if (![groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
             // if group changed while this request was pending, discard its response.
-            NSMutableArray *events = [NSMutableArray array];
-            [events addObject:[YAEvent eventForCreationOfVideo:video]];
-            for (FDataSnapshot *eventSnapshot in snapshot.children) {
-                [events addObject:[YAEvent eventWithSnapshot:eventSnapshot]];
-            }
-            [weakSelf.eventsByVideoId setObject:events forKey:videoId];
-            [weakSelf.eventReceiver video:video receivedInitialEvents:events];
-            if ([weakSelf.videoIdWaitingToMonitor isEqualToString:videoId]) {
-                [weakSelf startChildAddedQueryForVideo:video];
-            }
+            return;
+        }
+        if ([self.eventsByVideoId[videoId] count]) {
+            // Already got this video's events
+            return;
+        }
+
+        NSMutableArray *events = [NSMutableArray array];
+        [events addObject:[YAEvent eventForCreationOfVideo:video]];
+        for (FDataSnapshot *eventSnapshot in snapshot.children) {
+            [events addObject:[YAEvent eventWithSnapshot:eventSnapshot]];
+        }
+        [weakSelf.eventsByVideoId setObject:events forKey:videoId];
+        [weakSelf.eventReceiver video:video receivedInitialEvents:events];
+        if ([weakSelf.videoIdWaitingToMonitor isEqualToString:videoId]) {
+            [weakSelf startChildAddedQueryForVideo:video];
         }
 //        NSLog(@"Firebase initial events loaded for video: %@", video.serverId);
     }];
