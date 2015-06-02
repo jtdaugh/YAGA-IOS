@@ -23,6 +23,8 @@
 
 #import "YANotificationView.h"
 
+#import "YAEventManager.h"
+
 @protocol GridViewControllerDelegate;
 
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
@@ -180,10 +182,12 @@ static NSString *cellID = @"Cell";
     
     [self.collectionView reloadData];
     
-    if(needRefresh)
+    if(needRefresh) {
         [self refreshCurrentGroup];
-    else
+    } else {
+        [[YAEventManager sharedManager] groupChanged];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+    }
 }
 
 -  (void)willDeleteVideo:(NSNotification*)notif {
@@ -290,6 +294,8 @@ static NSString *cellID = @"Cell";
     
     NSArray *newVideos = notification.userInfo[kVideos];
     
+    [[YAEventManager sharedManager] groupChanged];
+    
     //the following line will ensure visibleCells will return correct results
     [self.collectionView layoutIfNeeded];
     
@@ -366,13 +372,12 @@ static NSString *cellID = @"Cell";
             
             [self showActivityIndicator:NO];
         }];
-    }
-    else {
+        
+        [self.collectionView reloadData];
+    } else {
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         [self showActivityIndicator:NO];
     }
-    
-    [self.collectionView reloadData];
     
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
 

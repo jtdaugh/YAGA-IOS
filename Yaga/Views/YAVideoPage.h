@@ -9,10 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "YAVideoPlayerView.h"
 #import "YAVideo.h"
+#import "YAEventManager.h"
 
 @protocol YASuspendableGesturesDelegate;
 
-@interface YAVideoPage : UIView<UITextViewDelegate, UIActionSheetDelegate, UIGestureRecognizerDelegate>
+@interface YAVideoPage : UIView<UITextViewDelegate, UIActionSheetDelegate, UIGestureRecognizerDelegate, YAEventReceiver>
 
 @property (nonatomic, strong) YAVideo *video;
 @property (nonatomic, readonly) YAVideoPlayerView *playerView;
