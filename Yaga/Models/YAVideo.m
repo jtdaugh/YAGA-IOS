@@ -34,6 +34,10 @@
              @"mp4Filename":@"",
              @"caption":@"",
              @"namer":@"",
+             @"caption_x":@0,
+             @"caption_y":@0,
+             @"caption_scale":@0,
+             @"caption_rotation":@0,
              @"font": @0,
              @"createdAt":[NSDate date],
              @"url":@"",
@@ -102,11 +106,17 @@
     
    }
 
-- (void)rename:(NSString*)newName withFont:(NSInteger) font{
+- (void)updateCaption:(NSString*)caption
+        withXPosition:(CGFloat)xPosition
+            yPosition:(CGFloat)yPosition
+                scale:(CGFloat)scale
+             rotation:(CGFloat)rotation{
     [[RLMRealm defaultRealm] beginWriteTransaction];
-    self.caption = newName;
-    self.font = font;
-    self.namer = [YAUser currentUser].username;
+    self.caption = caption;
+    self.caption_x = xPosition;
+    self.caption_y = yPosition;
+    self.caption_scale = scale;
+    self.caption_rotation = rotation;
     
     DLog(@"renaming... %@", [YAUser currentUser].username);
     

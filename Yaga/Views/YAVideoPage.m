@@ -23,6 +23,7 @@
 #import "YAServerTransactionQueue.h"
 #import "YAEventCell.h"
 #import "NSArray+Reverse.h"
+#import "UIImage+Color.h"
 
 #define CAPTION_FONT_SIZE 60.0
 #define CAPTION_STROKE_WIDTH 3.f
@@ -609,8 +610,14 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTextField.delegate = self;
     self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     [self.commentsSendButton addTarget:self action:@selector(commentsSendPressed:) forControlEvents:UIControlEventTouchUpInside];
-    self.commentsSendButton.backgroundColor = PRIMARY_COLOR;
+
+    [self.commentsSendButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.8f]] forState:UIControlStateNormal];
+    [self.commentsSendButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5f]] forState:UIControlStateDisabled];
+    [self.commentsSendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.commentsSendButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
+    
     [self.commentsSendButton setTitle:@"Send" forState:UIControlStateNormal];
+    self.commentsSendButton.enabled = NO;
     
     [self.commentsWrapperView addSubview:self.commentsTableView];
     [self.commentsWrapperView addSubview:self.commentsSendButton];
@@ -631,8 +638,15 @@ static NSString *commentCellID = @"CommentCell";
         [[YAEventManager sharedManager] addEvent:event toVideo:self.video];
         
         self.commentsTextField.text = @"";
+        self.commentsSendButton.enabled = NO;
 //        [self.commentsTextField resignFirstResponder]; // do we want to hide the keyboard after each comment?
     }
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    NSString *replaced = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    self.commentsSendButton.enabled = [replaced length];
+    return YES;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -723,8 +737,8 @@ static NSString *commentCellID = @"CommentCell";
     CGRect captionFrame = CGRectMake(0, 0, newSize.width, newSize.height);
     textView.frame = captionFrame;
 
-    CGFloat xPos = [@(self.video.name_x) doubleValue] * VIEW_WIDTH;
-    CGFloat yPos = [@(self.video.name_y) doubleValue] * VIEW_HEIGHT;
+    CGFloat xPos = self.video.caption_x * VIEW_WIDTH;
+    CGFloat yPos = self.video.caption_y * VIEW_HEIGHT;
     
     CGRect wrapperFrame = CGRectMake(xPos - (newSize.width/2.f),
                                      yPos - (newSize.height/2.f),
@@ -734,7 +748,9 @@ static NSString *commentCellID = @"CommentCell";
 
     [textWrapper addSubview:textView];
     
-//  TODO: add transform from scale and rotation INTS or Doubles
+    CGAffineTransform transform = CGAffineTransformMakeScale(self.video.caption_scale, self.video.caption_scale);
+    transform = CGAffineTransformRotate(transform, self.video.caption_rotation);
+    textWrapper.transform = transform;
 
     [self.overlay addSubview:textWrapper];
     [self.overlay sendSubviewToBack:textWrapper];
@@ -854,25 +870,30 @@ static NSString *commentCellID = @"CommentCell";
 
 // TODO: Send to server, not firebase, and manually insert serverCaptionWrapper(andText)View
 - (void)commitCurrentCaption {
-//    if (self.editableCaptionTextView) {
-//
-//        CGFloat vw = VIEW_WIDTH, vh = VIEW_HEIGHT;
-//        
-//        NSDictionary *textData = @{
-//                                   @"type": @"text",
-//                                   @"x":[NSNumber numberWithDouble: self.textFieldCenter.x/vw],
-//                                   @"y":[NSNumber numberWithDouble: self.textFieldCenter.y/vh],
-//                                   @"username":[YAUser currentUser].username,
-//                                   @"transform":NSStringFromCGAffineTransform(self.textFieldTransform),
-//                                   @"text":self.editableCaptionTextView.text
-//                                   };
-//        
-//        [self.editableCaptionWrapperView removeFromSuperview];
-//        self.editableCaptionWrapperView = nil;
-//        self.editableCaptionTextView = nil;
-//        
-//        [[[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"caption"] setValue:textData];
-//    }
+    if (self.editableCaptionTextView) {
+        [self.editableCaptionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
+        [self.editableCaptionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
+        [self.editableCaptionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
+        [self.editableCaptionTextView removeGestureRecognizer:self.captionTapRecognizer];
+        [self removeGestureRecognizer:self.captionTapRecognizer];
+        
+        NSString *text = self.editableCaptionTextView.text;
+        CGFloat x = self.textFieldCenter.x / VIEW_WIDTH;
+        CGFloat y = self.textFieldCenter.y / VIEW_HEIGHT;
+        
+        CGAffineTransform t = self.transform;
+//        CGFloat scale = sqrt(t.a * t.a + t.c * t.c);
+        CGFloat scale = t.a;
+        
+        CGFloat rotation = atan2f(t.b, t.a);
+        
+        self.serverCaptionWrapperView = self.editableCaptionWrapperView;
+        self.serverCaptionTextView = self.editableCaptionTextView;
+        self.editableCaptionWrapperView = nil;
+        self.editableCaptionTextView = nil;
+        self.serverCaptionTextView.editable = NO;
+        [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
+    }
 }
 
 - (void) setupCaptionGestureRecognizers {
@@ -1033,9 +1054,6 @@ static NSString *commentCellID = @"CommentCell";
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
     if([text isEqualToString:@"\n"]) {
-//        [self.video rename:textView.text withFont:self.fontIndex];
-//        [self updateControls];
-//        
         [self doneTyping];
         return NO;
     }
@@ -1129,9 +1147,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)doneTyping {
-//    [self.video rename:self.captionField.text withFont:self.fontIndex];
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
-//    [self updateControls];
     
     [self.editableCaptionTextView resignFirstResponder];
     [self.captionBlurOverlay removeFromSuperview];

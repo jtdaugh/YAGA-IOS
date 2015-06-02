@@ -666,7 +666,7 @@
     
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, video.group.serverId, serverVideoId];
     
-    
+    // match yavideo variables with server fields.
     NSDictionary *parameters = @{
                                  @"name": video.caption,
                                  @"font": [NSNumber numberWithInteger: video.font]

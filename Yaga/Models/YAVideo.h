@@ -29,8 +29,10 @@ typedef void(^completionBlock)(NSError *error);
 @property NSString *jpgFilename;
 @property NSString *jpgFullscreenFilename;
 
-@property NSInteger name_x;
-@property NSInteger name_y;
+@property CGFloat caption_x; // 0 to 1000
+@property CGFloat caption_y; // 0 to 1000
+@property CGFloat caption_scale; // 0 to 1000
+@property CGFloat caption_rotation; // 0 to 1000
 
 @property NSInteger font;
 
@@ -53,7 +55,12 @@ typedef void(^completionBlock)(NSError *error);
 
 + (YAVideo*)video;
 - (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer;
-- (void)rename:(NSString*)newName withFont:(NSInteger)font;
+
+- (void)updateCaption:(NSString*)caption
+        withXPosition:(CGFloat)xPosition
+            yPosition:(CGFloat)yPosition
+                scale:(CGFloat)scale
+             rotation:(CGFloat)rotation;
 
 - (void)updateLikersWithArray:(NSArray *)likers;
 
