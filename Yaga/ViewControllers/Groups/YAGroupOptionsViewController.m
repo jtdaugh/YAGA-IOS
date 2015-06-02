@@ -17,6 +17,8 @@
 @property (nonatomic, strong) UITableView *tableView;
 
 @property (nonatomic, strong) RLMResults *sortedMembers;
+
+@property (nonatomic, strong) RLMNotificationToken *notificationToken;
 @end
 
 @implementation YAGroupOptionsViewController
@@ -327,5 +329,16 @@ static NSString *CellID = @"CellID";
         ((YAGroupAddMembersViewController*)segue.destinationViewController).embeddedMode = YES;
         ((YAGroupAddMembersViewController*)segue.destinationViewController).existingGroup = self.group;
     }
+}
+
+- (void)setGroup:(YAGroup *)group {
+    _group = group;
+    __weak typeof(self) weakSelf = self;
+    self.notificationToken = [self.group.realm addNotificationBlock:^(NSString *notification, RLMRealm *realm) {
+        if(weakSelf.group.isInvalidated) {
+            [self.navigationController popToRootViewControllerAnimated:YES];
+            self.notificationToken = nil;
+        }
+    }];
 }
 @end
