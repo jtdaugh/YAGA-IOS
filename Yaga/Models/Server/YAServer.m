@@ -669,11 +669,11 @@
     // match yavideo variables with server fields.
     NSDictionary *parameters = @{
                                  @"name": video.caption,
-                                 @"name_x":@(video.caption_x),
-                                 @"name_y":@(video.caption_y),
-                                 @"rotation":@(video.caption_rotation),
-                                 @"scale":@(video.caption_scale),
-                                 @"font": [NSNumber numberWithInteger: video.font]
+                                 @"name_x": [NSNumber numberWithFloat:video.caption_x],
+                                 @"name_y": [NSNumber numberWithFloat:video.caption_y],
+                                 @"rotation": [NSNumber numberWithFloat:video.caption_rotation],
+                                 @"scale": [NSNumber numberWithFloat:video.caption_scale],
+                                 @"font": [NSNumber numberWithInteger:video.font]
                                  };
     
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];

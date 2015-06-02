@@ -479,8 +479,12 @@
                     
                     if (![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
                         video.caption = videoDic[YA_RESPONSE_NAME];
-                        video.font = [videoDic[YA_RESPONSE_FONT] integerValue];
+                        video.font = (videoDic[YA_RESPONSE_FONT] == [NSNull null]) ? 0 : [videoDic[YA_RESPONSE_FONT] integerValue];
                         video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
+                        video.caption_x = [videoDic[YA_RESPONSE_NAME_X] floatValue];
+                        video.caption_y = [videoDic[YA_RESPONSE_NAME_Y] floatValue];
+                        video.caption_scale = [videoDic[YA_RESPONSE_SCALE] floatValue];
+                        video.caption_rotation = [videoDic[YA_RESPONSE_ROTATION] floatValue];
                     }
                     NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
                     if (likers.count) {
@@ -523,6 +527,11 @@
             }
             video.font = ![videoDic[YA_RESPONSE_FONT] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_FONT] integerValue] : 0;
             video.group = self;
+            video.caption_x = [videoDic[YA_RESPONSE_NAME_X] floatValue];
+            video.caption_y = [videoDic[YA_RESPONSE_NAME_Y] floatValue];
+            video.caption_scale = [videoDic[YA_RESPONSE_SCALE] floatValue];
+            video.caption_rotation = [videoDic[YA_RESPONSE_ROTATION] floatValue];
+
             [self.videos insertObject:video atIndex:0];
             
             [newVideos addObject:video];

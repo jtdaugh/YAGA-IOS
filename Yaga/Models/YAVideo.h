@@ -29,10 +29,10 @@ typedef void(^completionBlock)(NSError *error);
 @property NSString *jpgFilename;
 @property NSString *jpgFullscreenFilename;
 
-@property CGFloat caption_x; // 0 to 1000
-@property CGFloat caption_y; // 0 to 1000
-@property CGFloat caption_scale; // 0 to 1000
-@property CGFloat caption_rotation; // 0 to 1000
+@property CGFloat caption_x;
+@property CGFloat caption_y;
+@property CGFloat caption_scale;
+@property CGFloat caption_rotation;
 
 @property NSInteger font;
 

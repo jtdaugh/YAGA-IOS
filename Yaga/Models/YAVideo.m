@@ -106,7 +106,12 @@
         
     }];
     
-   }
+}
+
+float roundToFour(float num)
+{
+    return round(10000 * num) / 10000;
+}
 
 - (void)updateCaption:(NSString*)caption
         withXPosition:(CGFloat)xPosition
@@ -115,10 +120,10 @@
              rotation:(CGFloat)rotation{
     [[RLMRealm defaultRealm] beginWriteTransaction];
     self.caption = caption;
-    self.caption_x = xPosition;
-    self.caption_y = yPosition;
-    self.caption_scale = scale;
-    self.caption_rotation = rotation;
+    self.caption_x = roundToFour(xPosition);
+    self.caption_y = roundToFour(yPosition);
+    self.caption_scale = roundToFour(scale);
+    self.caption_rotation = roundToFour(rotation);
     
     DLog(@"renaming... %@", [YAUser currentUser].username);
     
