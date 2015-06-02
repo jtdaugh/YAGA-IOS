@@ -169,7 +169,12 @@
     [[Mixpanel sharedInstance] track:@"Opened app"];
 //    [AnalyticsKit logEvent:@"Opened app"];
     
-    [[YAServer sharedServer] startMonitoringInternetConnection:YES];
+    if(![[YAServer sharedServer] serverUp]) {
+        [[YAServer sharedServer] startMonitoringInternetConnection:YES];
+    }
+    else {
+        [[YAServer sharedServer] sync];
+    }
     
     [self endBackgroundTask];
     

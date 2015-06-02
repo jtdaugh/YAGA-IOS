@@ -614,7 +614,9 @@
                                                                      completion(nil, error);
                                                                      [self.multipartUploadsInProgress removeObjectForKey:serverId];
                                                                  }];
-    
+    [postOperation setUploadProgressBlock:^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
+        DLog(@"uploaded %lld out of %lld", totalBytesWritten, totalBytesExpectedToWrite);
+    }];
     [self.multipartUploadsInProgress setObject:postOperation forKey:serverId];
 }
 

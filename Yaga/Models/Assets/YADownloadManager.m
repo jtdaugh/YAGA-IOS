@@ -190,12 +190,14 @@
                         results = [YAVideo objectsWhere:predicate];
                     }
                     
-                    YAVideo *video = results[0];
-                    
-                    nextJob = [self createJobForVideo:video gifJob:gifJob];
-                    [self.downloadJobs setObject:nextJob forKey:waitingUrl];
-                    
-                    [nextJob start];
+                    if(results.count) {
+                        YAVideo *video = results[0];
+                        
+                        nextJob = [self createJobForVideo:video gifJob:gifJob];
+                        [self.downloadJobs setObject:nextJob forKey:waitingUrl];
+                        
+                        [nextJob start];
+                    }
                 });
             }
             else {
