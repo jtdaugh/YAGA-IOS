@@ -187,6 +187,9 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)video:(YAVideo *)video receivedInitialEvents:(NSArray *)events {
+    if (![video isEqual:self.video]) {
+        return;
+    }
     self.events = [[events reversedArray] mutableCopy];
     [self.commentsTableView reloadData];
 }

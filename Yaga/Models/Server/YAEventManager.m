@@ -17,8 +17,9 @@
 @property (strong, nonatomic) Firebase *firebaseRoot;
 @property (strong, nonatomic) NSMutableDictionary *eventsByVideoId;
 @property (strong, nonatomic) FQuery *currentChildAddedQuery;
-
-@property (strong, nonatomic) NSString *videoIdWaitingForPushes;
+@property (strong, nonatomic) NSString *groupId;
+@property (strong, nonatomic) NSString *videoIdWaitingToMonitor;
+@property (strong, nonatomic) NSString *videoIdMonitoring;
 
 @end
 
@@ -48,12 +49,13 @@
 }
 
 - (void)beginMonitoringForNewEventsOnVideo:(YAVideo *)video {
-    self.videoIdWaitingForPushes = nil;
+    self.videoIdWaitingToMonitor = nil;
+    self.videoIdMonitoring = nil;
     [self.currentChildAddedQuery removeAllObservers];
 
     if (![[self getEventsForVideo:video] count]) {
         // Inital event fetch hasnt returned yet.
-        self.videoIdWaitingForPushes = video.serverId;
+        self.videoIdWaitingToMonitor = video.serverId;
         return;
     }
     [self startChildAddedQueryForVideo:video];
@@ -62,20 +64,28 @@
 
 - (void)startChildAddedQueryForVideo:(YAVideo *)video {
     NSString *videoId = video.serverId;
+    self.videoIdMonitoring = videoId;
     YAEvent *lastEvent = [self.eventsByVideoId[videoId] lastObject];
     __weak YAEventManager *weakSelf = self;
-    self.currentChildAddedQuery = [[self.firebaseRoot childByAppendingPath:videoId] queryStartingAtValue:lastEvent.key];
+    self.currentChildAddedQuery = [[[self.firebaseRoot childByAppendingPath:videoId] queryOrderedByKey] queryStartingAtValue:lastEvent.key];
     [self.currentChildAddedQuery observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-         YAEvent *newEvent = [YAEvent eventWithSnapshot:snapshot];
-         [weakSelf.eventsByVideoId[videoId] addObject:newEvent];
-         [weakSelf.eventReceiver video:video didReceiveNewEvent:newEvent];
+        if ([lastEvent.key isEqual:snapshot.key]) {
+            return;
+        }
+        YAEvent *newEvent = [YAEvent eventWithSnapshot:snapshot];
+        [weakSelf.eventsByVideoId[videoId] addObject:newEvent];
+        [weakSelf.eventReceiver video:video didReceiveNewEvent:newEvent];
     }];
 }
 
 - (void)groupChanged {
-    [self.currentChildAddedQuery removeAllObservers];
-    self.videoIdWaitingForPushes = nil;
-    self.eventsByVideoId = [NSMutableDictionary dictionary];
+    if (![[YAUser currentUser].currentGroup.serverId isEqualToString:self.groupId]) {
+        self.eventsByVideoId = [NSMutableDictionary dictionary];
+        [self.currentChildAddedQuery removeAllObservers];
+        self.videoIdMonitoring = nil;
+        self.videoIdWaitingToMonitor = nil;
+    }
+    self.groupId = [YAUser currentUser].currentGroup.serverId;
     for (YAVideo *video in [YAUser currentUser].currentGroup.videos) {
         [self fetchInitalEventsForVideo:video];
     }
@@ -85,6 +95,10 @@
     NSString *groupId = [YAUser currentUser].currentGroup.serverId;
     NSString *videoId = video.serverId;
     __weak YAEventManager *weakSelf = self;
+    
+    if ([self.videoIdMonitoring isEqualToString:videoId]) {
+        return;
+    }
     
     [[self.firebaseRoot childByAppendingPath:video.serverId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         if ([groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
@@ -96,10 +110,11 @@
             }
             [weakSelf.eventsByVideoId setObject:events forKey:videoId];
             [weakSelf.eventReceiver video:video receivedInitialEvents:events];
-            if ([weakSelf.videoIdWaitingForPushes isEqualToString:videoId]) {
+            if ([weakSelf.videoIdWaitingToMonitor isEqualToString:videoId]) {
                 [weakSelf startChildAddedQueryForVideo:video];
             }
         }
+//        NSLog(@"Firebase initial events loaded for video: %@", video.serverId);
     }];
 }
 
