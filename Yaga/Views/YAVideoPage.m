@@ -448,11 +448,6 @@ static NSString *commentCellID = @"CommentCell";
     
 
 //    CGFloat tSize = CAPTION_FONT_SIZE;
-//    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
-//    [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
-//    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
-////    [self addSubview:self.captionButton];
     
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
     self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
@@ -460,7 +455,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.likeButton];
 
-    
+
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     self.XButton.transform = CGAffineTransformMakeScale(0.5, 0.5);
     self.XButton.alpha = 0.8;
@@ -481,6 +476,11 @@ static NSString *commentCellID = @"CommentCell";
     self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
+    
+    self.captionButton = [self circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius * 3 + padding*2, VIEW_HEIGHT - buttonRadius - padding)];
+    [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:self.captionButton];
+
 //    self.commentButton.layer.zPosition = 100;
     
 //    CGFloat likeSize = 42;
@@ -1213,6 +1213,16 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
+- (void)captionButtonPressed {
+    [self toggleEditingCaption:YES];
+    CGPoint loc = self.center;
+    [self beginEditableCaptionAtPoint:loc
+                           initalText:@""
+                      initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER,
+                                                                 CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER)];
+
+}
+
 - (void)addLike {
 
     YAEvent *event = [YAEvent new];
@@ -1380,6 +1390,7 @@ static NSString *commentCellID = @"CommentCell";
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
+    self.captionButton.hidden = self.myVideo && !self.video.caption;
     [self refreshTableWithNewEvents:[[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray]];
     [self initializeCaption];
     
