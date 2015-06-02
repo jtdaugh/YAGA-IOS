@@ -237,7 +237,8 @@ static NSString *CellID = @"CellID";
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    if (contact.registered)
+    NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact.number];
+    if (contact.registered || [phonebookItem[nYagaUser] boolValue])
     {
         cell.textLabel.text = [contact displayName];
         [cell.textLabel setTextColor:[UIColor blackColor]];
