@@ -448,11 +448,6 @@ static NSString *commentCellID = @"CommentCell";
     
 
 //    CGFloat tSize = CAPTION_FONT_SIZE;
-//    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - tSize, 0, tSize, tSize)];
-//    [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
-//    [self.captionButton addTarget:self action:@selector(textButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.captionButton setImageEdgeInsets:UIEdgeInsetsMake(12, 12, 12, 12)];
-////    [self addSubview:self.captionButton];
     
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
     self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
@@ -460,7 +455,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.likeButton];
 
-    
+
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     self.XButton.transform = CGAffineTransformMakeScale(0.5, 0.5);
     self.XButton.alpha = 0.8;
@@ -481,6 +476,11 @@ static NSString *commentCellID = @"CommentCell";
     self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
+    
+    self.captionButton = [self circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, buttonRadius + padding)];
+    [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.captionButton];
+
 //    self.commentButton.layer.zPosition = 100;
     
 //    CGFloat likeSize = 42;
@@ -1206,11 +1206,32 @@ static NSString *commentCellID = @"CommentCell";
     } else if ([recognizer isEqual:self.captionTapRecognizer]){
         [self toggleEditingCaption:YES];
         CGPoint loc = [recognizer locationInView:self];
+        
+        float randomRotation = ((float)rand() / RAND_MAX) * .4;
+        CGAffineTransform t = CGAffineTransformConcat(CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER,
+                                                                                 CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER), CGAffineTransformMakeRotation(-.2 + randomRotation));
+
         [self beginEditableCaptionAtPoint:loc
                                 initalText:@""
-                           initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER,
-                                                                      CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER)];
+                           initalTransform:t];
     }
+}
+
+- (void)captionButtonPressed {
+    [self toggleEditingCaption:YES];
+    
+    float randomX = ((float)rand() / RAND_MAX) * 100;
+    float randomY = ((float)rand() / RAND_MAX) * 200;
+    CGPoint loc = CGPointMake(VIEW_WIDTH/2 - 50 + randomX, VIEW_HEIGHT/2 - randomY);
+    
+    float randomRotation = ((float)rand() / RAND_MAX) * .4;
+    CGAffineTransform t = CGAffineTransformConcat(CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER,
+                                                       CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER), CGAffineTransformMakeRotation(-.2 + randomRotation));
+    
+    [self beginEditableCaptionAtPoint:loc
+                           initalText:@""
+                      initalTransform:t];
+
 }
 
 - (void)addLike {
@@ -1376,10 +1397,11 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)updateControls {
-    
+    NSLog(@"update controls");
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
+    self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqual:@""];
     [self refreshTableWithNewEvents:[[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray]];
     [self initializeCaption];
     
@@ -1406,7 +1428,7 @@ static NSString *commentCellID = @"CommentCell";
     
     // self.captionField.hidden = !mp4Downloaded;
     // self.captionerLabel.hidden = !mp4Downloaded || !self.captionField.text.length;
-    self.captionButton.hidden = !mp4Downloaded;
+//    self.captionButton.hidden = !mp4Downloaded;
     self.shareButton.hidden = !mp4Downloaded;
 
     self.deleteButton.hidden = !mp4Downloaded && !self.myVideo;
