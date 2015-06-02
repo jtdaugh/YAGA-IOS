@@ -135,7 +135,7 @@
     self.usernameLabel.text = username;
     [self layoutUsername];
     self.iconImageView.image = [UIImage imageNamed:@"rainHeart"];
-    [self layoutImageView];
+    [self layoutImageViewWithYOffset:-2.f];
     
 }
 
@@ -146,7 +146,7 @@
     self.timestampLabel.text = timestamp;
     self.deleteButton.hidden = !isOwnVideo;
     self.iconImageView.image = [UIImage imageNamed:@"Movie"];
-    [self layoutImageView];
+    [self layoutImageViewWithYOffset:-4.f];
     [self layoutPostViews];
 }
 
@@ -157,9 +157,10 @@
     self.usernameLabel.frame = userFrame;
 }
 
-- (void)layoutImageView {
+- (void)layoutImageViewWithYOffset:(CGFloat)yOffset {
     CGRect imageFrame = self.iconImageView.frame;
     imageFrame.origin.x = self.usernameLabel.frame.size.width + 6.f;
+    imageFrame.origin.y = yOffset;
     self.iconImageView.frame = imageFrame;
 }
 
@@ -238,15 +239,15 @@
 
     CGSize commentSize = [dummyTextView sizeThatFits:CGSizeMake(commentWidth, CGFLOAT_MAX)];
     
-    return commentSize.height + 6.0f;
+    return commentSize.height + 8.0f;
 }
 
 + (CGFloat)heightForPostCell {
-    return 24.f;
+    return 26.f;
 }
 
 + (CGFloat)heightForLikeCell {
-    return 24.f;
+    return 26.f;
 }
 
 @end
