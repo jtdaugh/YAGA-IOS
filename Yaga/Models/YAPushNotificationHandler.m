@@ -83,6 +83,9 @@
     else if([eventName isEqualToString:@"caption"]) {
         [self handleCaption];
     }
+    else if([eventName isEqualToString:@"comment"]) {
+        [self handleComment];
+    }
     else if([eventName isEqualToString:@"rename"]) {
         [self handleGroupRename];
     }
@@ -132,6 +135,10 @@
 }
 
 - (void)handleCaption {
+    [self handleLike];
+}
+
+- (void)handleComment {
     [self handleLike];
 }
 
