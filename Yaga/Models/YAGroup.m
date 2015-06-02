@@ -504,7 +504,7 @@
             
             YAVideo *video = [YAVideo video];
             video.serverId = videoId;
-            video.creator = videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME];
+            video.creator = ![videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME] : @"";
             NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
             [video updateLikersWithArray:likers];
             NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
@@ -516,7 +516,7 @@
                 video.gifUrl = ![gifUrl isKindOfClass:[NSNull class]] ? gifUrl : @"";
             }
             video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
-            if(![videoDic[YA_RESPONSE_NAMER] isKindOfClass:[NSNull class]]){
+            if(![videoDic[YA_RESPONSE_NAMER] isKindOfClass:[NSNull class]] && ![videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME] isKindOfClass:[NSNull class]]){
                 video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
             } else {
                 video.namer = @"";
