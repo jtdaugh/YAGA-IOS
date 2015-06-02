@@ -54,12 +54,12 @@
     [self.currentChildAddedQuery removeAllObservers];
 
     if (![[self getEventsForVideo:video] count]) {
-        // Inital event fetch hasnt returned yet.
+        // Inital event fetch hasnt returned or hasnt been called yet.
         self.videoIdWaitingToMonitor = video.serverId;
-        return;
+        [self prefetchEventsForVideo:video];
+    } else {
+        [self startChildAddedQueryForVideo:video];
     }
-    [self startChildAddedQueryForVideo:video];
-    
 }
 
 - (void)startChildAddedQueryForVideo:(YAVideo *)video {
@@ -89,12 +89,13 @@
         self.videoIdWaitingToMonitor = nil;
     }
     self.groupId = [YAUser currentUser].currentGroup.serverId;
-    for (YAVideo *video in [YAUser currentUser].currentGroup.videos) {
-        [self fetchInitalEventsForVideo:video];
-    }
+// Commented out in favor of calling -prefetchEventsForVideo in cellForItem in the gridCV
+//    for (YAVideo *video in [YAUser currentUser].currentGroup.videos) {
+//        [self prefetchEventsForVideo:video];
+//    }
 }
 
-- (void)fetchInitalEventsForVideo:(YAVideo *)video {
+- (void)prefetchEventsForVideo:(YAVideo *)video {
     NSString *groupId = [YAUser currentUser].currentGroup.serverId;
     NSString *videoId = video.serverId;
     
