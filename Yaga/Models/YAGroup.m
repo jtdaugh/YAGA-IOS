@@ -334,14 +334,16 @@
     [[YAServer sharedServer] removeGroupMemberByPhone:memberPhone fromGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
             DLog(@"can't remove member from the group with name %@, error %@", self.name, error.localizedDescription);
-            completion(error);
+            if(completion)
+                completion(error);
         }
         else {
             [[RLMRealm defaultRealm] beginWriteTransaction];
             [self.members removeObjectAtIndex:[self.members indexOfObject:contact]];
             [[RLMRealm defaultRealm] commitWriteTransaction];
             DLog(@"member %@ removed from the group: %@", memberPhone, self.name);
-            completion(nil);
+            if(completion)
+                completion(nil);
         }
     }];
 
