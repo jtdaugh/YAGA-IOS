@@ -1614,6 +1614,18 @@ static NSString *commentCellID = @"CommentCell";
     [separator setBackgroundColor:[UIColor whiteColor]];
     [self.shareBlurOverlay addSubview:separator];
     
+    self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
+    [self.saveButton setTitle:@"Save" forState:UIControlStateNormal];
+    [self.shareBar addSubview:self.saveButton];
+    
+    self.externalShareButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
+    [self.externalShareButton setTitle:@"Share" forState:UIControlStateNormal];
+    [self.shareBar addSubview:self.externalShareButton];
+    
+    UIView *vSeparator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - borderWidth/2, 0, borderWidth, self.shareBar.frame.size.height)];
+    [vSeparator setBackgroundColor:[UIColor whiteColor]];
+    [self.shareBar addSubview:vSeparator];
+    
 //    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
     [self.shareBlurOverlay setTransform:CGAffineTransformMakeTranslation(0, self.shareBlurOverlay.frame.size.height)];
     [UIView animateWithDuration:0.4 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
