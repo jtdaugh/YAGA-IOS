@@ -61,6 +61,8 @@
     void (^deleteBlock)(void) = ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
         
+        YAGroup *group = self.group;
+        
         NSString *videoId = self.localId;
         [[RLMRealm defaultRealm] beginWriteTransaction];
         
@@ -70,7 +72,7 @@
         
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId userInfo:@{@"group":group}];
         
         DLog(@"video with id:%@ deleted successfully", videoId);
     };
