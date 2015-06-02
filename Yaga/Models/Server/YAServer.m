@@ -90,9 +90,7 @@
         _xmlOperationsManager.requestSerializer.timeoutInterval = 60;
         
         self.multipartUploadsInProgress = [NSMutableDictionary new];
-                
-        self.firebase = [[Firebase alloc] initWithUrl:@"https://yaga.firebaseio.com/video_data_cnc"];
-
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:)  name:VIDEO_WILL_DELETE_NOTIFICATION  object:nil];
         
         [self applySavedAuthToken];
@@ -671,8 +669,13 @@
     // match yavideo variables with server fields.
     NSDictionary *parameters = @{
                                  @"name": video.caption,
+                                 @"name_x":@(video.caption_x),
+                                 @"name_y":@(video.caption_y),
+                                 @"rotation":@(video.caption_rotation),
+                                 @"scale":@(video.caption_scale),
                                  @"font": [NSNumber numberWithInteger: video.font]
                                  };
+    
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
     NSURL *url = [NSURL URLWithString:api];

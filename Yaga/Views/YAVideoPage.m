@@ -25,10 +25,7 @@
 #import "NSArray+Reverse.h"
 #import "UIImage+Color.h"
 
-#define CAPTION_FONT_SIZE 60.0
-#define CAPTION_STROKE_WIDTH 3.f
 #define CAPTION_DEFAULT_SCALE 0.75f
-#define CAPTION_GUTTER 5.f
 #define CAPTION_WRAPPER_INSET 100.f
 
 #define COMMENTS_BOTTOM_MARGIN 50.f
@@ -41,7 +38,6 @@
 #define CAPTION_BUTTON_HEIGHT 80.f
 #define CAPTION_DONE_PROPORTION 0.5
 
-#define MAX_CAPTION_WIDTH (VIEW_WIDTH - 2 * CAPTION_GUTTER)
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 static NSString *commentCellID = @"CommentCell";
@@ -700,32 +696,6 @@ static NSString *commentCellID = @"CommentCell";
     [self toggleEditingCaption:NO];
 }
 
-- (void)beginMonitoringForEvents {
-    Firebase *events = [[[YAServer sharedServer].firebase childByAppendingPath:self.video.serverId] childByAppendingPath:@"events"];
-    
-    __weak YAVideoPage *weakSelf = self;
-    
-    __block BOOL initialLoaded = NO;
-    
-    [events observeEventType:FEventTypeChildAdded withBlock:^(FDataSnapshot *snapshot) {
-        [weakSelf.events insertObject:snapshot.value atIndex:0];
-        if (initialLoaded) {
-            NSLog(@"Firebase new comment added");
-            [weakSelf.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
-        } else {
-            NSLog(@"Firebase initial comment added");
-        }
-    }];
-    
-    [events observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        NSLog(@"Firebase all initial comments loaded");
-        initialLoaded = YES;
-        [weakSelf.commentsTableView reloadData];
-    }];
-    
-
-}
-
 // initial adding of caption. modifications will instead call -updateCaptionFromSnapshot
 - (void)insertCaption {
     UIView *textWrapper = [[UIView alloc] initWithFrame:CGRectInfinite];
@@ -748,9 +718,11 @@ static NSString *commentCellID = @"CommentCell";
 
     [textWrapper addSubview:textView];
     
-    CGAffineTransform transform = CGAffineTransformMakeScale(self.video.caption_scale, self.video.caption_scale);
-    transform = CGAffineTransformRotate(transform, self.video.caption_rotation);
-    textWrapper.transform = transform;
+    CGFloat displayScale = self.video.caption_scale * CAPTION_SCREEN_MULTIPLIER;
+    
+    CGAffineTransform transform = CGAffineTransformMakeRotation(self.video.caption_rotation);
+    CGAffineTransform final = CGAffineTransformScale(transform, displayScale, displayScale);
+    textWrapper.transform = final;
 
     [self.overlay addSubview:textWrapper];
     [self.overlay sendSubviewToBack:textWrapper];
@@ -881,9 +853,10 @@ static NSString *commentCellID = @"CommentCell";
         CGFloat x = self.textFieldCenter.x / VIEW_WIDTH;
         CGFloat y = self.textFieldCenter.y / VIEW_HEIGHT;
         
-        CGAffineTransform t = self.transform;
-//        CGFloat scale = sqrt(t.a * t.a + t.c * t.c);
-        CGFloat scale = t.a;
+        CGAffineTransform t = self.textFieldTransform;
+        CGFloat scale = sqrt(t.a * t.a + t.c * t.c);
+//        CGFloat scale = t.a;
+        scale = scale / CAPTION_SCREEN_MULTIPLIER;
         
         CGFloat rotation = atan2f(t.b, t.a);
         
@@ -1117,7 +1090,6 @@ static NSString *commentCellID = @"CommentCell";
     
     CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, size.width, size.height);
     
-
     if (animated) {
         [UIView animateWithDuration:0.2f animations:^{
             self.editableCaptionWrapperView.frame = wrapperFrame;
@@ -1236,7 +1208,8 @@ static NSString *commentCellID = @"CommentCell";
         CGPoint loc = [recognizer locationInView:self];
         [self beginEditableCaptionAtPoint:loc
                                 initalText:@""
-                           initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE, CAPTION_DEFAULT_SCALE)];
+                           initalTransform:CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER,
+                                                                      CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER)];
     }
 }
 

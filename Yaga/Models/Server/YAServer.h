@@ -74,8 +74,6 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)sync;
 @property (nonatomic, strong) NSDate *lastUpdateTime;
 
-@property (strong, nonatomic) Firebase *firebase;
-
 ////execute when after recording, when gif is generated
 //- (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId;
 

@@ -16,6 +16,16 @@
 #define VIEW_HEIGHT ([[UIScreen mainScreen] applicationFrame].size.height + (([UIApplication sharedApplication].statusBarHidden)?0:20))
 #define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width
 
+#define STANDARDIZED_DEVICE_WIDTH 320.f
+#define STANDARDIZED_CAPTION_PADDING 5.f
+
+#define MAX_CAPTION_WIDTH (STANDARDIZED_DEVICE_WIDTH - (2 * STANDARDIZED_CAPTION_PADDING))
+#define CAPTION_SCREEN_MULTIPLIER (VIEW_WIDTH / STANDARDIZED_DEVICE_WIDTH)
+
+#define CAPTION_INSET_PROPORTION 0.05f
+#define CAPTION_FONT_SIZE 60.0
+#define CAPTION_STROKE_WIDTH 3.f
+
 #define NUM_TILES 96
 #define TILE_WIDTH (VIEW_WIDTH/2)
 #define TILE_HEIGHT (IS_IPHONE4 ? TILE_WIDTH / 1.13 : (VIEW_HEIGHT/4))
@@ -42,8 +52,6 @@
 #define BOLD_FONT @"Avenir-Black"
 #define CAPTION_FONT @"AvenirNextCondensed-Bold"
 #define THIN_FONT @"HelveticaNeue-UltraLight"
-
-#define CAPTION_FONTS @[ @"AvenirNext-HeavyItalic", @"ChalkboardSE-Bold", @"AmericanTypewriter-Bold", @"Chalkduster", @"ArialRoundedMTBold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide", @"Futura-CondensedExtraBold", @"SnellRoundhand-Black"]
 
 //notifications
 #define GROUP_WILL_REFRESH_NOTIFICATION         @"GROUP_WILL_REFRESH_NOTIFICATION"
