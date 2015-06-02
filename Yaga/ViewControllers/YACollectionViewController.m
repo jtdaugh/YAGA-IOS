@@ -297,7 +297,8 @@ static NSString *cellID = @"Cell";
     if(newVideos.count) {
         if([self.collectionView visibleCells].count)
             [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
-        
+#warning REFACTOR this
+        @try {
         [self.collectionView performBatchUpdates:^{
             //simple workaround to avoid manipulations with paginationThreshold
             if(newVideos.count == 1) {
@@ -367,6 +368,10 @@ static NSString *cellID = @"Cell";
             
             [self showActivityIndicator:NO];
         }];
+        } @catch(NSException *exception) {
+        }
+        @finally {
+        }
         
         [self.collectionView reloadData];
     } else {
