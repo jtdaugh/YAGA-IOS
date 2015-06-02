@@ -14,6 +14,7 @@
 #import "YAActivityView.h"
 #import "AFURLConnectionOperation.h"
 #import "YAServerTransactionQueue.h"
+#import "YAEventManager.h"
 
 #define LIKE_HEART_SIDE 40.f
 
@@ -109,6 +110,7 @@
 {
     [super prepareForReuse];
     
+    [[YAEventManager sharedManager] killPrefetchForVideo:self.video];
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;

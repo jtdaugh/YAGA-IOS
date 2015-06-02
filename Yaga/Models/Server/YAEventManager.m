@@ -89,24 +89,22 @@
         self.videoIdWaitingToMonitor = nil;
     }
     self.groupId = [YAUser currentUser].currentGroup.serverId;
-// Commented out in favor of calling -prefetchEventsForVideo in cellForItem in the gridCV
-//    for (YAVideo *video in [YAUser currentUser].currentGroup.videos) {
-//        [self prefetchEventsForVideo:video];
-//    }
+}
+
+- (void)killPrefetchForVideo:(YAVideo *)video {
+    if (![video.serverId length]) return;
+    [[self.firebaseRoot childByAppendingPath:video.serverId] removeAllObservers];
 }
 
 - (void)prefetchEventsForVideo:(YAVideo *)video {
     NSString *groupId = [YAUser currentUser].currentGroup.serverId;
     NSString *videoId = video.serverId;
     
-    if (![videoId length]) return;
+    if (![videoId length]) return; // No server id will cause Firebase crash
+    if ([self.eventsByVideoId[videoId] count]) return; // Already prefetched this video's events
+    if ([self.videoIdMonitoring isEqualToString:videoId]) return; // Already monitoring child added for this video
     
     __weak YAEventManager *weakSelf = self;
-    
-    if ([self.videoIdMonitoring isEqualToString:videoId]) {
-        return;
-    }
-    
     [[self.firebaseRoot childByAppendingPath:video.serverId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         if ([groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
             // if group changed while this request was pending, discard its response.

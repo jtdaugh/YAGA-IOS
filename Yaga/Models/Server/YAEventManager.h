@@ -28,8 +28,11 @@
 // Start monitoring childAdded
 - (void)beginMonitoringForNewEventsOnVideo:(YAVideo *)video;
 
-// Observe value once
+// Observe value once then kill observer
 - (void)prefetchEventsForVideo:(YAVideo *)video;
+
+// Stops the request for initial data on given video if it hasnt returned yet.
+- (void)killPrefetchForVideo:(YAVideo *)video;
 
 // If group changed or first call, clears any memory and pulls events data for new group.
 - (void)groupChanged;
