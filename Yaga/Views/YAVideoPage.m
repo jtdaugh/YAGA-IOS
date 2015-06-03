@@ -754,7 +754,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)captionCancelPressedWhileTyping {
     self.editableCaptionTextView.text = @"";
-    [self doneTyping];
+    [self doneTypingCaption];
 }
 
 - (void)cancelButtonPressed:(id)sender {
@@ -1016,7 +1016,7 @@ static NSString *commentCellID = @"CommentCell";
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
     if([text isEqualToString:@"\n"]) {
-        [self doneTyping];
+        [self doneTypingCaption];
         return NO;
     }
     
@@ -1104,10 +1104,10 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)doneEditingTapOut:(id)sender {
-    [self doneTyping];
+    [self doneTypingCaption];
 }
 
-- (void)doneTyping {
+- (void)doneTypingCaption {
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
     
     [self.editableCaptionTextView resignFirstResponder];
@@ -1490,9 +1490,8 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)accessoryButtonTaped:(id)sender {
 //    [self.video rename:self.captionField.text withFont:self.fontIndex];
-    [self removeGestureRecognizer:self.tapOutGestureRecognizer];
-    
-    [self.editableCaptionTextView resignFirstResponder];
+    [self doneTypingCaption];
+
     self.keyBoardAccessoryButton.hidden = YES;
 }
 
