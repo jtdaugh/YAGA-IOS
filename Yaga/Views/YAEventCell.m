@@ -10,7 +10,7 @@
 
 #import "YAUser.h"
 
-#define COMMENTS_FONT_SIZE 16.f
+#define COMMENTS_FONT_SIZE 17.f
 
 
 @interface YAEventCell ()
@@ -31,7 +31,7 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.backgroundColor = [UIColor clearColor];
-        CGFloat initialUsernameWidth = 100, initialHeight = 24;
+        CGFloat initialUsernameWidth = 100, initialHeight = 26;
         self.usernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, initialUsernameWidth, initialHeight)];
         self.usernameLabel.textColor = PRIMARY_COLOR;
         self.usernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
@@ -79,18 +79,23 @@
         self.timestampLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         [self addSubview:self.timestampLabel];
         
-        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, initialHeight)];
+
+        // Trash Icon Delete button
+        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
         self.deleteButton.backgroundColor = [UIColor clearColor];
-//        self.deleteButton.layer.cornerRadius = 10.f;
-//        self.deleteButton.layer.borderColor = [[UIColor redColor] CGColor];
-//        self.deleteButton.layer.borderWidth = 2.f;
-        [self.deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE - 3.0f]];
-        [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+        [self.deleteButton setImage:[[UIImage imageNamed:@"Delete"]imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+        self.deleteButton.tintColor = [UIColor colorWithRed:240.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0];
+        
+//        // Text Delete button
+//        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, initialHeight)];
+//        [self.deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE - 3.0f]];
+//        [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+//        [self.deleteButton setTitleColor:[UIColor colorWithRed:158.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0] forState:UIControlStateNormal];
+
         [self.deleteButton addTarget:self action:@selector(deletePressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.deleteButton setTitleColor:[UIColor colorWithRed:158.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0] forState:UIControlStateNormal];
         self.deleteButton.layer.shadowColor = [UIColor blackColor].CGColor;
         self.deleteButton.layer.shadowOffset = CGSizeMake(0.5, 0.5);
-        self.deleteButton.layer.shadowOpacity = 0.5;
+        self.deleteButton.layer.shadowOpacity = 0.3;
         self.deleteButton.layer.shadowRadius = 0.0f;
         [self.deleteButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
 
@@ -135,7 +140,7 @@
     self.usernameLabel.text = username;
     [self layoutUsername];
     self.iconImageView.image = [UIImage imageNamed:@"rainHeart"];
-    [self layoutImageViewWithYOffset:-2.f];
+    [self layoutImageViewWithYOffset:-1.f];
     
 }
 
@@ -146,7 +151,7 @@
     self.timestampLabel.text = timestamp;
     self.deleteButton.hidden = !isOwnVideo;
     self.iconImageView.image = [UIImage imageNamed:@"Movie"];
-    [self layoutImageViewWithYOffset:-4.f];
+    [self layoutImageViewWithYOffset:-3.f];
     [self layoutPostViews];
 }
 
@@ -174,7 +179,8 @@
     [self.timestampLabel sizeToFit];
     
     CGRect deleteFrame = self.deleteButton.frame;
-    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + 6.f;
+    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + 2.f;
+    deleteFrame.origin.y = -2.f;
     deleteFrame.size.width = deleteWidth;
     self.deleteButton.frame = deleteFrame;
 }
