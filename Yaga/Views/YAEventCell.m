@@ -10,9 +10,6 @@
 
 #import "YAUser.h"
 
-#define COMMENTS_FONT_SIZE 17.f
-
-
 @interface YAEventCell ()
 
 @property (nonatomic, strong) UILabel *usernameLabel;
@@ -131,7 +128,7 @@
     [self layoutUsername];
     self.commentsTextView.text = comment;
     CGRect commentFrame = self.commentsTextView.frame;
-    commentFrame.origin.x = self.usernameLabel.frame.size.width + 6.0f;
+    commentFrame.origin.x = self.usernameLabel.frame.size.width + 8.0f;
     CGSize commentsSize = [self.commentsTextView sizeThatFits:CGSizeMake(self.frame.size.width - (commentFrame.origin.x), CGFLOAT_MAX)];
     commentFrame.size = commentsSize;
     self.commentsTextView.frame = commentFrame;
@@ -168,7 +165,7 @@
 
 - (void)layoutImageViewWithYOffset:(CGFloat)yOffset {
     CGRect imageFrame = self.iconImageView.frame;
-    imageFrame.origin.x = self.usernameLabel.frame.size.width + 6.f;
+    imageFrame.origin.x = self.usernameLabel.frame.size.width + 4.f;
     imageFrame.origin.y = yOffset;
     self.iconImageView.frame = imageFrame;
 }

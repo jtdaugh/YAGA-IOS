@@ -24,13 +24,13 @@
 #import "YAEventCell.h"
 #import "NSArray+Reverse.h"
 #import "UIImage+Color.h"
+#import "Constants.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
 
 #define COMMENTS_BOTTOM_MARGIN 50.f
-#define COMMENTS_FONT_SIZE 16.f
-#define COMMENTS_SIDE_MARGIN 10.f
+#define COMMENTS_SIDE_MARGIN 9.f
 #define COMMENTS_HEIGHT_PROPORTION 0.25f
 #define COMMENTS_TEXT_FIELD_HEIGHT 40.f
 #define COMMENTS_SEND_WIDTH 70.f
@@ -271,6 +271,7 @@ static NSString *commentCellID = @"CommentCell";
                          self.commentsGradient.frame = gradientFrame;
                          self.commentsTextField.alpha = up ? 1.0 : 0.0;
                          self.commentsSendButton.alpha = up ? 1.0 : 0.0;
+                         self.likeButton.alpha = up ? 1.0 : 0.0;
                      }
                      completion:^(BOOL finished){
                          if ([self.events count]) {
@@ -452,10 +453,10 @@ static NSString *commentCellID = @"CommentCell";
 //    CGFloat tSize = CAPTION_FONT_SIZE;
     
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
-    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
-    [self.likeButton setImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateHighlighted | UIControlStateSelected];
-    [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.likeButton];
+//    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
+//    [self.likeButton setImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateHighlighted | UIControlStateSelected];
+//    [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
+//    [self.overlay addSubview:self.likeButton];
 
 
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
@@ -600,25 +601,39 @@ static NSString *commentCellID = @"CommentCell";
     UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(COMMENTS_SIDE_MARGIN, 0, VIEW_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     leftUsernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
     leftUsernameLabel.text = [NSString stringWithFormat:@"  %@ ", [YAUser currentUser].username];
+    leftUsernameLabel.shadowColor = [UIColor blackColor];
+    leftUsernameLabel.shadowOffset = CGSizeMake(0.5, 0.5);
+    leftUsernameLabel.userInteractionEnabled = NO;
+
     [leftUsernameLabel sizeToFit];
     leftUsernameLabel.textColor = PRIMARY_COLOR;
     self.commentsTextField.leftView = leftUsernameLabel;
     self.commentsTextField.textColor = [UIColor whiteColor];
     self.commentsTextField.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE];
+    self.commentsTextField.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.commentsTextField.layer.shadowOffset = CGSizeMake(0.5, 0.5);
+    self.commentsTextField.layer.shadowOpacity = 1.0;
+    self.commentsTextField.layer.shadowRadius = 0.0f;
+
     self.commentsTextField.delegate = self;
+    
     self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     [self.commentsSendButton addTarget:self action:@selector(commentsSendPressed:) forControlEvents:UIControlEventTouchUpInside];
-
     [self.commentsSendButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.f]] forState:UIControlStateNormal];
-    [self.commentsSendButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5f]] forState:UIControlStateDisabled];
     [self.commentsSendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.commentsSendButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
-    
     [self.commentsSendButton setTitle:@"Send" forState:UIControlStateNormal];
-    self.commentsSendButton.enabled = NO;
+    self.commentsSendButton.hidden = YES;
+    
+    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    [self.likeButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
+    [self.likeButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.f]] forState:UIControlStateNormal];
+    [self.likeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.likeButton setImage:[UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
     
     [self.commentsWrapperView addSubview:self.commentsTableView];
     [self.commentsWrapperView addSubview:self.commentsSendButton];
+    [self.commentsWrapperView addSubview:self.likeButton];
     [self.commentsWrapperView addSubview:self.commentsTextField];
     self.commentsWrapperView.layer.masksToBounds = YES;
     [self.overlay addSubview:self.commentsWrapperView];
@@ -636,14 +651,16 @@ static NSString *commentCellID = @"CommentCell";
         [[YAEventManager sharedManager] addEvent:event toVideo:self.video];
         
         self.commentsTextField.text = @"";
-        self.commentsSendButton.enabled = NO;
+        self.commentsSendButton.hidden = YES;
+        self.likeButton.hidden = NO;
 //        [self.commentsTextField resignFirstResponder]; // do we want to hide the keyboard after each comment?
     }
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     NSString *replaced = [textField.text stringByReplacingCharactersInRange:range withString:string];
-    self.commentsSendButton.enabled = [replaced length];
+    self.commentsSendButton.hidden = ![replaced length];
+    self.likeButton.hidden = [replaced length];
     return YES;
 }
 
