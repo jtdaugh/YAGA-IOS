@@ -26,6 +26,7 @@
 #import "NSArray+Reverse.h"
 #import "UIImage+Color.h"
 #import "Constants.h"
+#import "YACenterImageButton.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
@@ -82,8 +83,8 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UITableView *groupsList;
 @property (strong, nonatomic) UILabel *crossPostPrompt;
 @property (strong, nonatomic) UIView *shareBar;
-@property (strong, nonatomic) UIButton *externalShareButton;
-@property (strong, nonatomic) UIButton *saveButton;
+@property (strong, nonatomic) YACenterImageButton *externalShareButton;
+@property (strong, nonatomic) YACenterImageButton *saveButton;
 @property (strong, nonatomic) UIButton *confirmCrosspost;
 @property (strong, nonatomic) UIButton *closeCrosspost;
 
@@ -1350,7 +1351,7 @@ static NSString *commentCellID = @"CommentCell";
     self.shareBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
     
     self.shareBlurOverlay.frame = self.bounds;
-    [self.shareBlurOverlay setAlpha:0.0];
+//    [self.shareBlurOverlay setAlpha:0.0];
     
     [self.overlay addSubview:self.shareBlurOverlay];
     
@@ -1384,7 +1385,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.shareBlurOverlay addSubview:self.shareBar];
 
     self.confirmCrosspost = [[UIButton alloc] initWithFrame:self.shareBar.frame];
-    self.confirmCrosspost.backgroundColor = PRIMARY_COLOR;
+    self.confirmCrosspost.backgroundColor = SECONDARY_COLOR;
     self.confirmCrosspost.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:24];
     self.confirmCrosspost.titleLabel.textColor = [UIColor whiteColor];
     [self.confirmCrosspost setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
@@ -1407,12 +1408,20 @@ static NSString *commentCellID = @"CommentCell";
     [separator setBackgroundColor:[UIColor whiteColor]];
     [self.shareBlurOverlay addSubview:separator];
     
-    self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
+    self.saveButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
+    [self.saveButton setImage:[UIImage imageNamed:@"Download"] forState:UIControlStateNormal];
     [self.saveButton setTitle:@"Save" forState:UIControlStateNormal];
+    [self.saveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+    [self.saveButton addTarget:self action:@selector(saveToCameraRollPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.saveButton setBackgroundColor:PRIMARY_COLOR];
     [self.shareBar addSubview:self.saveButton];
     
-    self.externalShareButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
+    self.externalShareButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
+    [self.externalShareButton setImage:[UIImage imageNamed:@"External_Share"] forState:UIControlStateNormal];
     [self.externalShareButton setTitle:@"Share" forState:UIControlStateNormal];
+    [self.externalShareButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+    [self.externalShareButton addTarget:self action:@selector(externalShareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.externalShareButton setBackgroundColor:PRIMARY_COLOR];
     [self.shareBar addSubview:self.externalShareButton];
     
     UIView *vSeparator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - borderWidth/2, 0, borderWidth, self.shareBar.frame.size.height)];
@@ -1421,7 +1430,7 @@ static NSString *commentCellID = @"CommentCell";
     
 //    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
     [self.shareBlurOverlay setTransform:CGAffineTransformMakeTranslation(0, self.shareBlurOverlay.frame.size.height)];
-    [UIView animateWithDuration:0.4 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+    [UIView animateWithDuration:0.4 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
 //    } completion:^(BOOL finished) {
 //        //
@@ -1429,7 +1438,6 @@ static NSString *commentCellID = @"CommentCell";
 //    
 //    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
-        [self.shareBlurOverlay setAlpha:1.0];
         [self.shareBlurOverlay setTransform:CGAffineTransformIdentity];
 //        [self.groupsList setFrame:CGRectMake(0, 100, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
         
@@ -1448,15 +1456,15 @@ static NSString *commentCellID = @"CommentCell";
 - (void)collapseCrosspost {
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
-        [self.shareBlurOverlay setAlpha:0.0];
+        [self.shareBlurOverlay setTransform:CGAffineTransformMakeTranslation(0, self.shareBlurOverlay.frame.size.height)];
     } completion:^(BOOL finished) {
         //
         [self.shareBlurOverlay removeFromSuperview];
     }];
 }
 
-- (void)oldShareButtonPressed {
-    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
+- (void)externalShareButtonPressed {
+//    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
     NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
     
@@ -1466,24 +1474,24 @@ static NSString *commentCellID = @"CommentCell";
     
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
                                                 completion:^(NSURL *filePath, NSError *error) {
-    if (error) {
-        DLog(@"Error: can't add bumber");
-    } else {
+        if (error) {
+            DLog(@"Error: can't add bumber");
+        } else {
         
-        NSURL *videoFile = filePath;
-        YACopyVideoToClipboardActivity *copyActivity = [YACopyVideoToClipboardActivity new];
-        UIActivityViewController *activityViewController =
-        [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
-                                          applicationActivities:@[copyActivity]];
-        
-        activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
-        [(YASwipingViewController *)self.presentingVC presentViewController:activityViewController
-                                        animated:YES
-                                      completion:^{
-                                          [hud hide:YES];
-                                      }];
-        
-        [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+            NSURL *videoFile = filePath;
+//            YACopyVideoToClipboardActivity *copyActivity = [YACopyVideoToClipboardActivity new];
+            UIActivityViewController *activityViewController =
+            [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
+                                              applicationActivities:@[]];
+            
+    //        activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
+            [(YASwipingViewController *)self.presentingVC presentViewController:activityViewController
+                                            animated:YES
+                                          completion:^{
+                                              [hud hide:YES];
+                                          }];
+            
+            [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
                 if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
                     NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
                     [YAUtils showHudWithText:message];
@@ -1492,10 +1500,55 @@ static NSString *commentCellID = @"CommentCell";
                      NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
                     [YAUtils showHudWithText:message];
                 }
-            
-        }];
-        
-    }}];
+                if(completed){
+                    [self collapseCrosspost];
+                }
+            }];
+        }
+    }];
+}
+
+- (void)saveToCameraRollPressed {
+    /*
+     if (UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(path)) {
+     UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
+     }
+     */
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
+    hud.labelText = NSLocalizedString(@"Saving", @"");
+    hud.mode = MBProgressHUDModeIndeterminate;
+    
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
+                                                completion:^(NSURL *filePath, NSError *error) {
+                                                    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+                                                        
+                                                        [hud hide:YES];
+                                                        [self collapseCrosspost];
+                                                        //Your code goes in here
+                                                        NSLog(@"Main Thread Code");
+                                                        
+                                                    }];
+                                                    if (error) {
+                                                        DLog(@"Error: can't add bumber");
+                                                    } else {
+                                                        
+                                                        if(UIVideoAtPathIsCompatibleWithSavedPhotosAlbum([filePath path])) {
+                                                            UISaveVideoAtPathToSavedPhotosAlbum([filePath path], self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
+                                                        }
+
+                                                    }
+                                                }];
+}
+
+- (void)video:(NSString*)videoPath didFinishSavingWithError:(NSError*)error contextInfo:(void*)contextInfo {
+    if (error) {
+        NSString *message = @"Video Saving Failed";
+        [YAUtils showHudWithText:message];
+
+    } else {
+        NSString *message = @"Saved! ✌️";
+        [YAUtils showHudWithText:message];
+    }
 }
 
 #pragma mark - UITableView delegate methods (groups list)
@@ -1672,4 +1725,3 @@ static NSString *commentCellID = @"CommentCell";
 
 
 @end
-
