@@ -57,7 +57,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 static NSString *cellID = @"Cell";
 
-#define kPaginationItemsCountToStartLoadingNextPage 10
+#define kPaginationItemsCountToStartLoadingNextPage 5
 
 @implementation YACollectionViewController
 
@@ -85,6 +85,8 @@ static NSString *cellID = @"Cell";
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
 
+    [YAEventManager sharedManager].eventCountReceiver = self;
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupWillRefresh:) name:GROUP_WILL_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
@@ -100,6 +102,14 @@ static NSString *cellID = @"Cell";
     self.animationController = [YAAnimatedTransitioningController new];
     
     [self setupPullToRefresh];
+}
+
+- (void)video:(YAVideo *)video eventCountUpdated:(NSUInteger)eventCount {
+    NSUInteger item = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+    YAVideoCell *cell = (YAVideoCell *)[self.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0]];
+    if (cell) {
+        [cell setEventCount:eventCount - 1]; // -1 because of initial post event
+    }
 }
 
 - (void)scrollToCell:(NSNotification *)notif
@@ -209,25 +219,26 @@ static NSString *cellID = @"Cell";
 
 - (void)didDeleteVideo:(NSNotification*)notif {
     
-    YAVideo *video = notif.object;
+    NSString *videoLocalId = notif.object;
+    YAGroup *group = notif.userInfo[@"group"];
     
-    if(!video.group || [video.group isInvalidated])
+    if(!group || [group isInvalidated])
         return;
     
-    if(![video.group isEqual:[YAUser currentUser].currentGroup])
+    if(![group isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    if(![self.deleteDictionary objectForKey:video.localId])
+    if(![self.deleteDictionary objectForKey:videoLocalId])
         return;
     
-    NSUInteger videoIndex = [[self.deleteDictionary objectForKey:video.localId] integerValue];
+    NSUInteger videoIndex = [[self.deleteDictionary objectForKey:videoLocalId] integerValue];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
     
     self.paginationThreshold--;
     
     [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
     
-    [self.deleteDictionary removeObjectForKey:video.localId];
+    [self.deleteDictionary removeObjectForKey:videoLocalId];
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
@@ -302,7 +313,8 @@ static NSString *cellID = @"Cell";
     if(newVideos.count) {
         if([self.collectionView visibleCells].count)
             [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
-        
+#warning REFACTOR this
+        @try {
         [self.collectionView performBatchUpdates:^{
             //simple workaround to avoid manipulations with paginationThreshold
             if(newVideos.count == 1) {
@@ -372,12 +384,17 @@ static NSString *cellID = @"Cell";
             
             [self showActivityIndicator:NO];
         }];
+        } @catch(NSException *exception) {
+        }
+        @finally {
+        }
         
-        [self.collectionView reloadData];
     } else {
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         [self showActivityIndicator:NO];
     }
+    
+    [self.collectionView reloadData];
     
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
 
@@ -445,9 +462,11 @@ static NSString *cellID = @"Cell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
+    [[YAEventManager sharedManager] prefetchEventsForVideo:video];
     cell.index = indexPath.item;
     cell.video = video;
-    
+    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideo:video];
+    if (eventCount) [cell setEventCount:eventCount - 1];  // -1 because of initial post event
     return cell;
 }
 

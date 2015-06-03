@@ -23,4 +23,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 @property (nonatomic, strong) YAVideo *video;
 
 - (void)animateGifView:(BOOL)animate;
+
+- (void)setEventCount:(NSUInteger)eventCount;
+
 @end

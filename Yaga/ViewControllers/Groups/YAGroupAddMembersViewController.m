@@ -172,7 +172,17 @@
     frame.origin.x = 0;
     [cell setFrame:frame];
     
-    NSDictionary *contact = self.filteredContacts[indexPath.row];
+    NSMutableDictionary *contact = self.filteredContacts[indexPath.row];
+
+    //update some data from phonebook
+    NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact[nPhone]];
+    if(phonebookItem) {
+        if(phonebookItem[nYagaUser]) {
+            NSMutableDictionary *updatedContact = [contact mutableCopy];
+            [updatedContact setObject:phonebookItem[nYagaUser] forKey:nYagaUser];
+            [self.filteredContacts replaceObjectAtIndex:indexPath.row withObject:updatedContact];
+        }
+    }
     
     cell.indentationLevel = 0;
     cell.indentationWidth = 0.0f;
@@ -194,13 +204,7 @@
         cell.detailTextLabel.text = [YAUtils readableNumberFromString:contact[nPhone]];
     }
     
-    BOOL yagaUser = NO;
-    if(contact[nPhone]) {
-        NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact[nPhone]];
-        yagaUser = [phonebookItem[nYagaUser] boolValue];
-    }
-    
-    if (yagaUser){
+    if ([contact[nYagaUser] boolValue]){
         [cell.textLabel       setTextColor:[UIColor blackColor]];
         [cell.detailTextLabel setTextColor:[UIColor blackColor]];
         

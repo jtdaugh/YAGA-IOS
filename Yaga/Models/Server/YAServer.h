@@ -16,6 +16,10 @@
 #define YA_RESPONSE_NAME                @"name"
 #define YA_RESPONSE_NAMER               @"namer"
 #define YA_RESPONSE_FONT                @"font"
+#define YA_RESPONSE_NAME_X              @"name_x"
+#define YA_RESPONSE_NAME_Y              @"name_y"
+#define YA_RESPONSE_SCALE               @"scale"
+#define YA_RESPONSE_ROTATION            @"rotation"
 #define YA_RESPONSE_LIKES               @"likes"
 #define YA_RESPONSE_LIKERS              @"likers"
 #define YA_RESPONSE_MEMBERS             @"members"
@@ -73,8 +77,6 @@ typedef void(^responseBlock)(id response, NSError* error);
 @property (readonly) BOOL serverUp;
 - (void)sync;
 @property (nonatomic, strong) NSDate *lastUpdateTime;
-
-@property (strong, nonatomic) Firebase *firebase;
 
 ////execute when after recording, when gif is generated
 //- (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId;

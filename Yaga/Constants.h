@@ -43,8 +43,6 @@
 #define CAPTION_FONT @"AvenirNextCondensed-Bold"
 #define THIN_FONT @"HelveticaNeue-UltraLight"
 
-#define CAPTION_FONTS @[ @"AvenirNext-HeavyItalic", @"ChalkboardSE-Bold", @"AmericanTypewriter-Bold", @"Chalkduster", @"ArialRoundedMTBold", @"CourierNewPS-BoldItalicMT", @"MarkerFelt-Wide", @"Futura-CondensedExtraBold", @"SnellRoundhand-Black"]
-
 //notifications
 #define GROUP_WILL_REFRESH_NOTIFICATION         @"GROUP_WILL_REFRESH_NOTIFICATION"
 #define GROUP_DID_REFRESH_NOTIFICATION          @"GROUP_DID_REFRESH_NOTIFICATION"
@@ -84,6 +82,17 @@
 #define MIXPANEL_TOKEN @"154e8ff6623bbd104cbccc881adfd0b0"
 #define MIXPANEL_DEBUG_TOKEN @"30b5e350abfdd51dad650da6c8213af6"
 
-#define kPaginationDefaultThreshold 100
+#define kPaginationDefaultThreshold 40
+
+#define COMMENTS_FONT_SIZE 17.f
+
+// Captions
+#define STANDARDIZED_DEVICE_WIDTH 320.f
+#define STANDARDIZED_CAPTION_PADDING 5.f
+#define MAX_CAPTION_WIDTH (STANDARDIZED_DEVICE_WIDTH - (2 * STANDARDIZED_CAPTION_PADDING))
+#define CAPTION_SCREEN_MULTIPLIER (VIEW_WIDTH / STANDARDIZED_DEVICE_WIDTH)
+#define CAPTION_INSET_PROPORTION 0.05f
+#define CAPTION_FONT_SIZE 60.0
+#define CAPTION_STROKE_WIDTH 3.f
 
 #endif

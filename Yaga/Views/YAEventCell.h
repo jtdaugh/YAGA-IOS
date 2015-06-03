@@ -18,4 +18,6 @@
 
 - (void)configureCellWithEvent:(YAEvent *)event;
 
+- (void)setUploadInProgress:(BOOL)uploadInProgress;
+
 @end

@@ -14,6 +14,7 @@
 #import "YAActivityView.h"
 #import "AFURLConnectionOperation.h"
 #import "YAServerTransactionQueue.h"
+#import "YAEventManager.h"
 
 #define LIKE_HEART_SIDE 40.f
 
@@ -29,7 +30,10 @@
 @property (strong, nonatomic) FLAnimatedImageView *loaderView;
 
 @property (strong, nonatomic) UILabel *username;
-@property (strong, nonatomic) UILabel *caption;
+@property (strong, nonatomic) UILabel *eventCountLabel;
+@property (strong, nonatomic) UIImageView *commentIcon;
+@property (strong, nonatomic) UITextView *caption;
+@property (strong, nonatomic) UIView *captionWrapper;
 
 @property (strong, atomic) NSString *gifFilename;
 
@@ -69,7 +73,7 @@
 
         self.backgroundView = self.loaderView;
         
-        self.username = [[UILabel alloc] initWithFrame:CGRectMake(5, self.bounds.size.height - 30, self.bounds.size.width - 10, 30)];
+        self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30)];
         [self.username setTextAlignment:NSTextAlignmentRight];
         [self.username setMinimumScaleFactor:0.5];
         [self.username setAdjustsFontSizeToFitWidth:YES];
@@ -79,14 +83,28 @@
         self.username.shadowOffset = CGSizeMake(1, 1);
         [self.contentView addSubview:self.username];
 
-        CGRect captionFrame = CGRectMake(12, 12, self.bounds.size.width - 24, self.bounds.size.height - 24);
-        self.caption = [[UILabel alloc] initWithFrame:captionFrame];
-        [self.caption setNumberOfLines:3];
-        [self.caption setTextAlignment:NSTextAlignmentCenter];
-        [self.caption setTextColor:PRIMARY_COLOR];
-
-        [self.contentView addSubview:self.caption];
+        self.commentIcon = [[UIImageView alloc] initWithFrame:CGRectMake(5, self.bounds.size.height-8-15, 15, 15)];
+        [self.commentIcon setImage:[UIImage imageNamed:@"Comment_Filled"]];
+        [self.contentView addSubview:self.commentIcon];
         
+        self.eventCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(5 + 15 + 3, self.bounds.size.height - 25, 40, 20)];
+        [self.eventCountLabel setTextColor:[UIColor whiteColor]];
+        [self.eventCountLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
+        self.eventCountLabel.shadowColor = [UIColor blackColor];
+        self.eventCountLabel.shadowOffset = CGSizeMake(1, 1);
+        [self.contentView addSubview:self.eventCountLabel];
+        
+        
+        CGRect captionFrame = CGRectMake(0, 0, MAX_CAPTION_WIDTH, CGFLOAT_MAX);
+        self.captionWrapper = [[UIView alloc] initWithFrame:captionFrame];
+        self.caption = [self textViewWithCaptionAttributes];
+        self.caption.backgroundColor = [UIColor clearColor];
+        self.caption.userInteractionEnabled = NO;
+//        self.caption.backgroundColor = [UIColor redColor];
+//        self.captionWrapper.backgroundColor = [UIColor greenColor];
+        [self.captionWrapper addSubview:self.caption];
+        [self.contentView addSubview:self.captionWrapper];
+
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
     }
     return self;
@@ -105,14 +123,29 @@
     }
 }
 
+- (void)setEventCount:(NSUInteger)eventCount {
+    if (eventCount > 0) {
+        self.eventCountLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long) eventCount];
+        self.commentIcon.hidden = NO;
+    } else {
+        self.eventCountLabel.text = @"";
+        self.commentIcon.hidden = YES;
+    }
+}
+
 - (void)prepareForReuse
 {
     [super prepareForReuse];
     
+    [[YAEventManager sharedManager] killPrefetchForVideo:self.video];
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
     self.state = YAVideoCellStateLoading;
+//    self.commentIcon.hidden = YES;
+//    self.commentIcon.image = nil;
+//    self.commentIcon = nil;
+    self.eventCountLabel.text = @"";
 }
 
 - (void)dealloc {
@@ -231,7 +264,7 @@
         [self.loaderView startAnimating];
     
     // self.username.hidden = !show;
-    self.caption.hidden = NO;
+    self.captionWrapper.hidden = NO;
     
     [self updateCaptionAndUsername];
 }
@@ -259,13 +292,29 @@
 - (void)updateCaptionAndUsername {
     NSString *caption = self.video.caption;
     
-    if(caption.length && !self.caption.hidden) {
-        self.caption.attributedText = [self attributedStringFromString:caption font:[UIFont fontWithName:CAPTION_FONTS[self.video.font] size:30]];
+    if(caption.length) {
+        self.captionWrapper.transform = CGAffineTransformIdentity;
+
+        self.caption.text = caption;
+        CGSize capSize = [self.caption sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)];
+        CGSize cellSize = self.bounds.size;
+
+        self.captionWrapper.frame = CGRectMake(0,
+                                        0,
+                                        capSize.width, capSize.height);
+        self.captionWrapper.center = CGPointMake(cellSize.width/2.f, cellSize.height/2.f);
+        
+        self.caption.frame = CGRectMake(0, 0, capSize.width, capSize.height);
+        self.caption.center = CGPointMake(self.captionWrapper.frame.size.width/2.f, self.captionWrapper.frame.size.height/2.f);
+        CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH;
+        self.captionWrapper.transform = CGAffineTransformMakeScale(scale, scale);
+
+        self.captionWrapper.hidden = NO;
     } else {
         self.caption.text = @"";
+        self.captionWrapper.hidden = YES;
     }
-    
-    self.username.textAlignment = self.index % 2 ? NSTextAlignmentRight : NSTextAlignmentLeft;
+    self.username.textAlignment = NSTextAlignmentRight;
     self.username.text = self.video.creator;
 }
 
@@ -311,13 +360,34 @@
     
     NSMutableAttributedString *result = [[NSMutableAttributedString alloc] initWithString:input];
     
-    [result addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-5.0] range:NSMakeRange(0, result.length)];
+    [result addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH] range:NSMakeRange(0, result.length)];
     [result addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, result.length)];
     
     if(font)
         [result addAttribute:NSFontAttributeName value:font range:NSMakeRange(0, result.length)];
     
     return result;
+}
+
+- (UITextView *)textViewWithCaptionAttributes {
+    UITextView *textView = [UITextView new];
+    textView.alpha = 1;
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
+                                                                                              }];
+    [textView setAttributedText:string];
+    [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
+    [textView setTextColor:PRIMARY_COLOR];
+    [textView setFont:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]];
+    
+    [textView setTextAlignment:NSTextAlignmentCenter];
+    textView.editable = NO;
+    textView.userInteractionEnabled = NO;
+    textView.textContainer.lineFragmentPadding = 0;
+    textView.textContainerInset = UIEdgeInsetsZero;
+    
+    return textView;
 }
 
 @end

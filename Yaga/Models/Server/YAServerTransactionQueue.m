@@ -213,7 +213,8 @@
             DLog(@"Transaction impossible, video invalidated");
         }
         else if(error) {
-            DLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
+            // Commented out this line because it was causing a crash...
+//            DLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
             errorOccured = YES;
         }
         else {

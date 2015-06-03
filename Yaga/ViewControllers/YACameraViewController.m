@@ -1099,7 +1099,10 @@ typedef enum {
 }
 
 - (void)willEnterForeground {
-    [self initCamera];
+    // init camera if selfs view is visible
+    if (self.isViewLoaded && self.view.window){
+        [self initCamera];
+    }
 }
 
 - (void)showCameraAccessories:(BOOL)show {

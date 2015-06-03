@@ -288,11 +288,6 @@
             [self updateTileAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPreload:preload];
     }
     
-    YAVideoPage *visiblePage = self.pages[self.visibleTileIndex];
-    
-    [YAEventManager sharedManager].eventReceiver = visiblePage;
-    [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideo:visiblePage.video];
-    
     for(NSUInteger i = 0; i < 3; i++) {
         YAVideoPage *page = self.pages[i];
 
@@ -301,10 +296,16 @@
             [[YADownloadManager sharedManager] exclusivelyDownloadMp4ForVideo:page.video];
         
         if(i == self.visibleTileIndex && preload) {
+            [YAEventManager sharedManager].eventReceiver = page;
+            [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideo:page.video];
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
         }
         else {
+            // 🔽 Ideally this would be called but its crashing stuff
+//            if (i != self.visibleTileIndex && preload) {
+//                [[YAEventManager sharedManager] prefetchEventsForVideo:page.video];
+//            }
             page.playerView.playWhenReady = NO;
             [page.playerView pause];
         }

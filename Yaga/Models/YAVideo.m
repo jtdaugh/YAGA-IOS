@@ -34,6 +34,10 @@
              @"mp4Filename":@"",
              @"caption":@"",
              @"namer":@"",
+             @"caption_x":@0.5,
+             @"caption_y":@0.25,
+             @"caption_scale":@1,
+             @"caption_rotation":@0,
              @"font": @0,
              @"createdAt":[NSDate date],
              @"url":@"",
@@ -61,6 +65,8 @@
     void (^deleteBlock)(void) = ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
         
+        YAGroup *group = self.group;
+        
         NSString *videoId = self.localId;
         [[RLMRealm defaultRealm] beginWriteTransaction];
         
@@ -70,7 +76,7 @@
         
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId userInfo:@{@"group":group}];
         
         DLog(@"video with id:%@ deleted successfully", videoId);
     };
@@ -100,13 +106,24 @@
         
     }];
     
-   }
+}
 
-- (void)rename:(NSString*)newName withFont:(NSInteger) font{
+float roundToFour(float num)
+{
+    return round(10000 * num) / 10000;
+}
+
+- (void)updateCaption:(NSString*)caption
+        withXPosition:(CGFloat)xPosition
+            yPosition:(CGFloat)yPosition
+                scale:(CGFloat)scale
+             rotation:(CGFloat)rotation{
     [[RLMRealm defaultRealm] beginWriteTransaction];
-    self.caption = newName;
-    self.font = font;
-    self.namer = [YAUser currentUser].username;
+    self.caption = caption;
+    self.caption_x = roundToFour(xPosition);
+    self.caption_y = roundToFour(yPosition);
+    self.caption_scale = roundToFour(scale);
+    self.caption_rotation = roundToFour(rotation);
     
     DLog(@"renaming... %@", [YAUser currentUser].username);
     

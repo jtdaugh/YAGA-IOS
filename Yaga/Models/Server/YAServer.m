@@ -90,9 +90,7 @@
         _xmlOperationsManager.requestSerializer.timeoutInterval = 60;
         
         self.multipartUploadsInProgress = [NSMutableDictionary new];
-                
-        self.firebase = [[Firebase alloc] initWithUrl:@"https://yaga.firebaseio.com/video_data_cnc"];
-
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:)  name:VIDEO_WILL_DELETE_NOTIFICATION  object:nil];
         
         [self applySavedAuthToken];
@@ -614,7 +612,9 @@
                                                                      completion(nil, error);
                                                                      [self.multipartUploadsInProgress removeObjectForKey:serverId];
                                                                  }];
-    
+    [postOperation setUploadProgressBlock:^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
+        DLog(@"uploaded %lld out of %lld", totalBytesWritten, totalBytesExpectedToWrite);
+    }];
     [self.multipartUploadsInProgress setObject:postOperation forKey:serverId];
 }
 
@@ -666,11 +666,16 @@
     
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, video.group.serverId, serverVideoId];
     
-    
+    // match yavideo variables with server fields.
     NSDictionary *parameters = @{
                                  @"name": video.caption,
-                                 @"font": [NSNumber numberWithInteger: video.font]
+                                 @"name_x": [NSNumber numberWithFloat:video.caption_x],
+                                 @"name_y": [NSNumber numberWithFloat:video.caption_y],
+                                 @"rotation": [NSNumber numberWithFloat:video.caption_rotation],
+                                 @"scale": [NSNumber numberWithFloat:video.caption_scale],
+                                 @"font": [NSNumber numberWithInteger:video.font]
                                  };
+    
     id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
     
     NSURL *url = [NSURL URLWithString:api];
