@@ -92,7 +92,12 @@
 }
 
 - (void)killPrefetchForVideo:(YAVideo *)video {
-    if (![video.serverId length]) return;
+    NSString *vidId = video.serverId;
+    if (![vidId length]) return;
+    if ([vidId isEqualToString:self.videoIdMonitoring] ||
+        [vidId isEqualToString:self.videoIdWaitingToMonitor]) {
+        return; // Don't want to kill a prefetch that an enlarged video is waiting on.
+    }
     [[self.firebaseRoot childByAppendingPath:video.serverId] removeAllObservers];
 }
 
@@ -112,16 +117,15 @@
         }
         if ([self.eventsByVideoId[videoId] count]) {
             // Already got this video's events
-            return;
+        } else {
+            NSMutableArray *events = [NSMutableArray array];
+            [events addObject:[YAEvent eventForCreationOfVideo:video]];
+            for (FDataSnapshot *eventSnapshot in snapshot.children) {
+                [events addObject:[YAEvent eventWithSnapshot:eventSnapshot]];
+            }
+            [weakSelf.eventsByVideoId setObject:events forKey:videoId];
+            [weakSelf.eventReceiver video:video receivedInitialEvents:events];
         }
-
-        NSMutableArray *events = [NSMutableArray array];
-        [events addObject:[YAEvent eventForCreationOfVideo:video]];
-        for (FDataSnapshot *eventSnapshot in snapshot.children) {
-            [events addObject:[YAEvent eventWithSnapshot:eventSnapshot]];
-        }
-        [weakSelf.eventsByVideoId setObject:events forKey:videoId];
-        [weakSelf.eventReceiver video:video receivedInitialEvents:events];
         if ([weakSelf.videoIdWaitingToMonitor isEqualToString:videoId]) {
             [weakSelf startChildAddedQueryForVideo:video];
         }
