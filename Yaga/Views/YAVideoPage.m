@@ -609,7 +609,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.likeButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.f]] forState:UIControlStateNormal];
     [self.likeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.likeButton setImage:[UIImage imageNamed:@"Like"] forState:UIControlStateNormal];
+    [self.likeButton setImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateNormal];
     
     [self.commentsWrapperView addSubview:self.commentsTableView];
     [self.commentsWrapperView addSubview:self.commentsSendButton];

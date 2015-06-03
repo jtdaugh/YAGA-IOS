@@ -138,7 +138,7 @@
     [self setCellType:YAEventTypeLike];
     self.usernameLabel.text = username;
     [self layoutUsername];
-    self.iconImageView.image = [UIImage imageNamed:@"rainHeart"];
+    self.iconImageView.image = [UIImage imageNamed:@"Liked"];
     [self layoutImageViewWithYOffset:-1.f];
     
 }
