@@ -71,7 +71,7 @@
 
         self.backgroundView = self.loaderView;
         
-        self.username = [[UILabel alloc] initWithFrame:CGRectMake(5, self.bounds.size.height - 30, self.bounds.size.width - 10, 30)];
+        self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30)];
         [self.username setTextAlignment:NSTextAlignmentRight];
         [self.username setMinimumScaleFactor:0.5];
         [self.username setAdjustsFontSizeToFitWidth:YES];
