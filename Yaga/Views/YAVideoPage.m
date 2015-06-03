@@ -448,13 +448,6 @@ static NSString *commentCellID = @"CommentCell";
     
 
 //    CGFloat tSize = CAPTION_FONT_SIZE;
-    
-    CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
-    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
-    [self.likeButton setImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateHighlighted | UIControlStateSelected];
-    [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.likeButton];
-
 
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     self.XButton.transform = CGAffineTransformMakeScale(0.5, 0.5);
@@ -473,13 +466,20 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.overlay addSubview:self.deleteButton];
 //    self.deleteButton.layer.zPosition = 100;
     
+    self.captionButton = [self circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, buttonRadius + padding)];
+    [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.captionButton];
+
+    
     self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
     
-    self.captionButton = [self circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, buttonRadius + padding)];
-    [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.captionButton];
+    CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
+    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
+    [self.likeButton setImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateHighlighted | UIControlStateSelected];
+    [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.likeButton];
 
 //    self.commentButton.layer.zPosition = 100;
     
@@ -681,12 +681,14 @@ static NSString *commentCellID = @"CommentCell";
 //    
     self.cancelCaptionButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH*(1.0-CAPTION_DONE_PROPORTION), CAPTION_BUTTON_HEIGHT)];
     [self.cancelCaptionButton setTitle:@"Cancel" forState:UIControlStateNormal];
-    self.cancelCaptionButton.backgroundColor = [UIColor colorWithRed:(231.f/255.f) green:(76.f/255.f) blue:(60.f/255.f) alpha:1];
+    self.cancelCaptionButton.backgroundColor = [UIColor colorWithRed:(231.f/255.f) green:(76.f/255.f) blue:(60.f/255.f) alpha:.75];
+    [self.cancelCaptionButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
     [self.cancelCaptionButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 
     self.rajsBelovedDoneButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cancelCaptionButton.frame.size.width, 0, VIEW_WIDTH*CAPTION_DONE_PROPORTION, CAPTION_BUTTON_HEIGHT)];
-    self.rajsBelovedDoneButton.backgroundColor = [UIColor colorWithRed:(39.f/255.f) green:(174.f/255.f) blue:(96.f/255.f) alpha:1];
+    self.rajsBelovedDoneButton.backgroundColor = [UIColor colorWithRed:(39.f/255.f) green:(174.f/255.f) blue:(96.f/255.f) alpha:.75];
     [self.rajsBelovedDoneButton setTitle:@"Done" forState:UIControlStateNormal];
+    [self.rajsBelovedDoneButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
     [self.rajsBelovedDoneButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 
     [self.captionButtonContainer addSubview:self.textButton];
@@ -782,6 +784,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)doneButtonPressed:(id)sender {
     // Send caption data to firebase
+    self.captionButton.hidden = YES;
     [self toggleEditingCaption:NO];
     [self commitCurrentCaption];
 }
@@ -816,6 +819,8 @@ static NSString *commentCellID = @"CommentCell";
         self.shareButton.hidden = YES;
         self.commentsWrapperView.hidden = YES;
         self.XButton.hidden = YES;
+        self.likeButton.hidden = YES;
+        self.commentButton.hidden = YES;
     } else {
         [self setGesturesEnabled:YES];
         
@@ -829,7 +834,9 @@ static NSString *commentCellID = @"CommentCell";
         self.commentsWrapperView.hidden = NO;
         self.XButton.hidden = NO;
         
-        
+        self.likeButton.hidden = NO;
+        self.commentButton.hidden = NO;
+
     }
 }
 
