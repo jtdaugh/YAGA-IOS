@@ -65,7 +65,7 @@
         [self addSubview:self.commentsTextView];
         
         self.iconImageView = [[UIImageView alloc] initWithFrame:CGRectMake(initialUsernameWidth, -3, 30, initialHeight)];
-        self.iconImageView.image = [UIImage imageNamed:@"rainHeart"];
+        self.iconImageView.image = [UIImage imageNamed:@"Rock"];
         self.iconImageView.contentMode = UIViewContentModeScaleAspectFit;
         [self addSubview:self.iconImageView];
         
@@ -138,7 +138,7 @@
     [self setCellType:YAEventTypeLike];
     self.usernameLabel.text = username;
     [self layoutUsername];
-    self.iconImageView.image = [UIImage imageNamed:@"rainHeart"];
+    self.iconImageView.image = [UIImage imageNamed:@"Rock"];
     [self layoutImageViewWithYOffset:-1.f];
     
 }
