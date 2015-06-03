@@ -836,6 +836,7 @@ static NSString *commentCellID = @"CommentCell";
         [self.editableCaptionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
         [self.editableCaptionTextView removeGestureRecognizer:self.captionTapRecognizer];
         [self removeGestureRecognizer:self.captionTapRecognizer];
+        self.captionButton.hidden = YES;
         
         NSString *text = self.editableCaptionTextView.text;
         CGFloat x = self.textFieldCenter.x / VIEW_WIDTH;
