@@ -286,7 +286,7 @@
         self.caption.text = @"";
         self.captionWrapper.hidden = YES;
     }
-    self.username.textAlignment = self.index % 2 ? NSTextAlignmentRight : NSTextAlignmentLeft;
+    self.username.textAlignment = NSTextAlignmentRight;
     self.username.text = self.video.creator;
 }
 
