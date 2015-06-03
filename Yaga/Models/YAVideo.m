@@ -35,7 +35,7 @@
              @"caption":@"",
              @"namer":@"",
              @"caption_x":@0.5,
-             @"caption_y":@0.5,
+             @"caption_y":@0.25,
              @"caption_scale":@1,
              @"caption_rotation":@0,
              @"font": @0,

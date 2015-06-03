@@ -113,6 +113,8 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *commentsSendButton;
 @property (nonatomic, strong) UITapGestureRecognizer *commentsTapOutRecognizer;
 
+@property (nonatomic, assign) BOOL uploadInProgress;
+
 //@property CGFloat lastScale;
 //@property CGFloat lastRotation;
 @property CGFloat firstX;
@@ -652,7 +654,11 @@ static NSString *commentCellID = @"CommentCell";
 
     YAEvent *event = self.events[indexPath.row];
     [cell configureCellWithEvent:event];
-
+    
+    if (event.eventType == YAEventTypePost) {
+        [cell setUploadInProgress:self.uploadInProgress];
+    }
+    
     return cell;
 }
 
@@ -1565,16 +1571,11 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)showUploadingProgress:(BOOL)show {
-    if(show && !self.uploadingView) {
-        CGRect frame = self.deleteButton.frame;
-        frame.origin.x -= self.deleteButton.frame.size.width;
-        self.uploadingView = [[YAActivityView alloc] initWithFrame:frame];
-        [self addSubview:self.uploadingView];
-        [self.uploadingView startAnimating];
-    }
-    else {
-        [self.uploadingView removeFromSuperview];
-        self.uploadingView = nil;
+    self.uploadInProgress = show;
+    
+    YAEventCell *postCell = (YAEventCell *)[self.commentsTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[self.events count] - 1 inSection:0]];
+    if (postCell) {
+        [postCell setUploadInProgress:show];
     }
 }
 

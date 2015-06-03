@@ -22,6 +22,8 @@
 
 @property (nonatomic, strong) UITextView *commentsTextView;
 
+@property (nonatomic, strong) NSString *timestamp;
+
 @end
 
 @implementation YAEventCell
@@ -81,16 +83,16 @@
         
 
         // Trash Icon Delete button
-        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
-        self.deleteButton.backgroundColor = [UIColor clearColor];
-        [self.deleteButton setImage:[[UIImage imageNamed:@"Delete"]imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-        self.deleteButton.tintColor = [UIColor colorWithRed:240.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0];
+//        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+//        self.deleteButton.backgroundColor = [UIColor clearColor];
+//        [self.deleteButton setImage:[[UIImage imageNamed:@"Delete"]imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+//        self.deleteButton.tintColor = [UIColor colorWithRed:240.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0];
         
 //        // Text Delete button
-//        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, initialHeight)];
-//        [self.deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE - 3.0f]];
-//        [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
-//        [self.deleteButton setTitleColor:[UIColor colorWithRed:158.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0] forState:UIControlStateNormal];
+        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, initialHeight)];
+        [self.deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE - 3.0f]];
+        [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+        [self.deleteButton setTitleColor:[UIColor colorWithRed:158.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0] forState:UIControlStateNormal];
 
         [self.deleteButton addTarget:self action:@selector(deletePressed) forControlEvents:UIControlEventTouchUpInside];
         self.deleteButton.layer.shadowColor = [UIColor blackColor].CGColor;
@@ -145,6 +147,8 @@
 }
 
 - (void)configurePostCellWithUsername:(NSString *)username timestamp:(NSString *)timestamp isOwnVideo:(BOOL)isOwnVideo {
+    self.timestamp = timestamp;
+    
     [self setCellType:YAEventTypePost];
     self.usernameLabel.text = username;
     [self layoutUsername];
@@ -179,10 +183,21 @@
     [self.timestampLabel sizeToFit];
     
     CGRect deleteFrame = self.deleteButton.frame;
-    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + 2.f;
-    deleteFrame.origin.y = -2.f;
+    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + 6.f;
     deleteFrame.size.width = deleteWidth;
     self.deleteButton.frame = deleteFrame;
+}
+
+- (void)setUploadInProgress:(BOOL)uploadInProgress {
+    if (uploadInProgress) {
+        self.timestampLabel.text = @"Uploading...";
+        [self.deleteButton setTitle:@"Cancel" forState:UIControlStateNormal];
+        [self layoutPostViews];
+    } else {
+        self.timestampLabel.text = self.timestamp;
+        [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+        [self layoutPostViews];
+    }
 }
 
 - (void)setCellType:(YAEventType)cellType {
@@ -207,7 +222,6 @@
             break;
     }
 }
-
 
 - (void)deletePressed {
     [YAUtils deleteVideo:self.containingVideoPage.video];
