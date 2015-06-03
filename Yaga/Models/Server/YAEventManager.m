@@ -45,15 +45,21 @@
 }
 
 - (NSMutableArray *)getEventsForVideo:(YAVideo *)video {
+    if (video.isInvalidated) return nil;
+
     return [self.eventsByVideoId objectForKey:video.serverId];
 }
 
 - (NSUInteger)getEventCountForVideo:(YAVideo *)video {
+    if (video.isInvalidated) return 0;
+
     return [[self.eventsByVideoId objectForKey:video.serverId] count];
 }
 
 
 - (void)beginMonitoringForNewEventsOnVideo:(YAVideo *)video {
+    if (video.isInvalidated) return;
+
     self.videoIdWaitingToMonitor = nil;
     self.videoIdMonitoring = nil;
     [self.currentChildAddedQuery removeAllObservers];
@@ -68,6 +74,8 @@
 }
 
 - (void)startChildAddedQueryForVideo:(YAVideo *)video {
+    if (video.isInvalidated) return;
+
     NSString *videoId = video.serverId;
     self.videoIdMonitoring = videoId;
     YAEvent *lastEvent = [self.eventsByVideoId[videoId] lastObject];
@@ -98,6 +106,8 @@
 }
 
 - (void)killPrefetchForVideo:(YAVideo *)video {
+    if (video.isInvalidated) return;
+    
     NSString *vidId = video.serverId;
     if (![vidId length]) return;
     if ([vidId isEqualToString:self.videoIdMonitoring] ||
@@ -108,6 +118,8 @@
 }
 
 - (void)prefetchEventsForVideo:(YAVideo *)video {
+    if (video.isInvalidated) return;
+
     NSString *groupId = [YAUser currentUser].currentGroup.serverId;
     NSString *videoId = video.serverId;
     
@@ -141,6 +153,8 @@
 }
 
 - (void)addEvent:(YAEvent *)event toVideo:(YAVideo *)video {
+    if (video.isInvalidated) return;
+
     [[[self.firebaseRoot childByAppendingPath:video.serverId] childByAutoId] setValue:[event toDictionary]];
 }
 
