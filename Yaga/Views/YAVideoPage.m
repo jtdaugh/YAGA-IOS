@@ -450,8 +450,8 @@ static NSString *commentCellID = @"CommentCell";
 //    CGFloat tSize = CAPTION_FONT_SIZE;
 
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
-    self.XButton.transform = CGAffineTransformMakeScale(0.5, 0.5);
-    self.XButton.alpha = 0.8;
+//    self.XButton.transform = CGAffineTransformMakeScale(0.66, 0.66);
+    self.XButton.alpha = 0.7;
     [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
     
@@ -587,7 +587,7 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.commentsTableView.allowsSelection = NO;
     self.commentsTableView.showsVerticalScrollIndicator = NO;
-    self.commentsTableView.contentInset = UIEdgeInsetsMake(0, 0, 20, 0);
+    self.commentsTableView.contentInset = UIEdgeInsetsMake(0, 0, 25, 0);
     self.commentsTableView.delegate = self;
     self.commentsTableView.dataSource = self;
     self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH-COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
