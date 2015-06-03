@@ -110,7 +110,7 @@ static NSString *cellID = @"Cell";
     if (cell && (eventCount > 1)) {
         [cell setEventCount:eventCount - 1]; // -1 because of initial post event
     }
-}g
+}
 
 - (void)scrollToCell:(NSNotification *)notif
 {
