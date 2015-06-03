@@ -32,6 +32,8 @@
 // Returns an NSArray of YAEvents
 - (NSMutableArray *)getEventsForVideo:(YAVideo *)video;
 
+- (NSUInteger)getEventCountForVideo:(YAVideo *)video;
+
 // Start monitoring childAdded
 - (void)beginMonitoringForNewEventsOnVideo:(YAVideo *)video;
 

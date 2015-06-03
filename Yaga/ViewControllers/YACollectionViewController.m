@@ -465,8 +465,8 @@ static NSString *cellID = @"Cell";
     [[YAEventManager sharedManager] prefetchEventsForVideo:video];
     cell.index = indexPath.item;
     cell.video = video;
-    NSArray *events = [[YAEventManager sharedManager] getEventsForVideo:video];
-    [cell setEventCount:[events count] - 1];  // -1 because of initial post event
+    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideo:video];
+    if (eventCount) [cell setEventCount:eventCount - 1];  // -1 because of initial post event
     return cell;
 }
 

@@ -48,6 +48,11 @@
     return [self.eventsByVideoId objectForKey:video.serverId];
 }
 
+- (NSUInteger)getEventCountForVideo:(YAVideo *)video {
+    return [[self.eventsByVideoId objectForKey:video.serverId] count];
+}
+
+
 - (void)beginMonitoringForNewEventsOnVideo:(YAVideo *)video {
     self.videoIdWaitingToMonitor = nil;
     self.videoIdMonitoring = nil;
