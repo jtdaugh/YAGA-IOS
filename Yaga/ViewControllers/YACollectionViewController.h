@@ -7,6 +7,7 @@
 //
 #import "YAVideoCell.h"
 #import "YASwipingViewController.h"
+#import "YAEventManager.h"
 
 typedef void (^cameraCompletion)(void);
 
@@ -16,7 +17,8 @@ typedef void (^cameraCompletion)(void);
 - (void)collectionViewDidScroll;
 @end
 
-@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate, YASwipingViewControllerDelegate> {
+@interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate,
+    UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver> {
     CGPoint lastOffset;
     NSTimeInterval lastOffsetCapture;
     BOOL isScrollingFast;

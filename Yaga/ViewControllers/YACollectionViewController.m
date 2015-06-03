@@ -85,6 +85,8 @@ static NSString *cellID = @"Cell";
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
 
+    [YAEventManager sharedManager].eventCountReceiver = self;
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupWillRefresh:) name:GROUP_WILL_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
@@ -101,6 +103,14 @@ static NSString *cellID = @"Cell";
     
     [self setupPullToRefresh];
 }
+
+- (void)video:(YAVideo *)video eventCountUpdated:(NSUInteger)eventCount {
+    NSUInteger item = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+    YAVideoCell *cell = (YAVideoCell *)[self.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0]];
+    if (cell && (eventCount > 1)) {
+        [cell setEventCount:eventCount - 1]; // -1 because of initial post event
+    }
+}g
 
 - (void)scrollToCell:(NSNotification *)notif
 {
@@ -455,7 +465,10 @@ static NSString *cellID = @"Cell";
     [[YAEventManager sharedManager] prefetchEventsForVideo:video];
     cell.index = indexPath.item;
     cell.video = video;
-    
+    NSArray *events = [[YAEventManager sharedManager] getEventsForVideo:video];
+    if ([events count] > 1) {
+        [cell setEventCount:[events count] - 1];  // -1 because of initial post event
+    }
     return cell;
 }
 

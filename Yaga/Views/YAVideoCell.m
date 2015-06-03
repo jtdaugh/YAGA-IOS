@@ -30,6 +30,7 @@
 @property (strong, nonatomic) FLAnimatedImageView *loaderView;
 
 @property (strong, nonatomic) UILabel *username;
+@property (strong, nonatomic) UILabel *eventCountLabel;
 @property (strong, nonatomic) UITextView *caption;
 @property (strong, nonatomic) UIView *captionWrapper;
 
@@ -81,6 +82,14 @@
         self.username.shadowOffset = CGSizeMake(1, 1);
         [self.contentView addSubview:self.username];
 
+        self.eventCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(5, self.bounds.size.height - 25, 40, 20)];
+        [self.eventCountLabel setTextColor:[UIColor whiteColor]];
+        [self.eventCountLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
+        self.eventCountLabel.shadowColor = [UIColor blackColor];
+        self.eventCountLabel.shadowOffset = CGSizeMake(1, 1);
+        [self.contentView addSubview:self.eventCountLabel];
+        
+        
         CGRect captionFrame = CGRectMake(0, 0, MAX_CAPTION_WIDTH, CGFLOAT_MAX);
         self.captionWrapper = [[UIView alloc] initWithFrame:captionFrame];
         self.caption = [self textViewWithCaptionAttributes];
@@ -109,6 +118,10 @@
     }
 }
 
+- (void)setEventCount:(NSUInteger)eventCount {
+    self.eventCountLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)eventCount];
+}
+
 - (void)prepareForReuse
 {
     [super prepareForReuse];
@@ -118,6 +131,7 @@
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
     self.state = YAVideoCellStateLoading;
+    self.eventCountLabel.text = @"";
 }
 
 - (void)dealloc {

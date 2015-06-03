@@ -78,6 +78,7 @@
         YAEvent *newEvent = [YAEvent eventWithSnapshot:snapshot];
         [weakSelf.eventsByVideoId[videoId] addObject:newEvent];
         [weakSelf.eventReceiver video:video didReceiveNewEvent:newEvent];
+        [weakSelf.eventCountReceiver video:video eventCountUpdated:[weakSelf.eventsByVideoId[videoId] count]];
     }];
 }
 
@@ -115,17 +116,18 @@
             // if group changed while this request was pending, discard its response.
             return;
         }
-        if ([self.eventsByVideoId[videoId] count]) {
-            // Already got this video's events
-        } else {
-            NSMutableArray *events = [NSMutableArray array];
-            [events addObject:[YAEvent eventForCreationOfVideo:video]];
-            for (FDataSnapshot *eventSnapshot in snapshot.children) {
-                [events addObject:[YAEvent eventWithSnapshot:eventSnapshot]];
-            }
-            [weakSelf.eventsByVideoId setObject:events forKey:videoId];
-            [weakSelf.eventReceiver video:video receivedInitialEvents:events];
+        if ([weakSelf.videoIdMonitoring isEqualToString:videoId]) {
+            return; // Already monitoring childAdded. Don't mess with it.
         }
+        NSMutableArray *events = [NSMutableArray array];
+        [events addObject:[YAEvent eventForCreationOfVideo:video]];
+        for (FDataSnapshot *eventSnapshot in snapshot.children) {
+            [events addObject:[YAEvent eventWithSnapshot:eventSnapshot]];
+        }
+        [weakSelf.eventsByVideoId setObject:events forKey:videoId];
+        [weakSelf.eventReceiver video:video receivedInitialEvents:events];
+        [weakSelf.eventCountReceiver video:video eventCountUpdated:events.count];
+        
         if ([weakSelf.videoIdWaitingToMonitor isEqualToString:videoId]) {
             [weakSelf startChildAddedQueryForVideo:video];
         }

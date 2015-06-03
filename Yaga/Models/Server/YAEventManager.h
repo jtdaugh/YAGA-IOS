@@ -16,11 +16,18 @@
 
 @end
 
+@protocol YAEventCountReceiver <NSObject>
+
+- (void)video:(YAVideo *)video eventCountUpdated:(NSUInteger)eventCount;
+
+@end
+
 @interface YAEventManager : NSObject
 
 + (instancetype)sharedManager;
 
 @property (nonatomic, weak) id<YAEventReceiver> eventReceiver;
+@property (nonatomic, weak) id<YAEventCountReceiver> eventCountReceiver;
 
 // Returns an NSArray of YAEvents
 - (NSMutableArray *)getEventsForVideo:(YAVideo *)video;

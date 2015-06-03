@@ -479,10 +479,6 @@ static NSString *commentCellID = @"CommentCell";
     [self.overlay addSubview:self.commentButton];
     
     CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
-    self.likeButton = [self circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH/2, bottomButtonCenterY)];
-    [self.likeButton setImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateHighlighted | UIControlStateSelected];
-    [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.likeButton];
 
     self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
     [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
@@ -754,27 +750,6 @@ static NSString *commentCellID = @"CommentCell";
     } completion:nil];
 }
 
-- (BOOL)captionSnapshot:(FDataSnapshot *)snapshot1 isEqualToSnapshot:(FDataSnapshot *)snapshot2 {
-    if (!snapshot1.exists && snapshot2.exists) {
-        return NO;
-    }
-    
-    if (![snapshot1.value[@"text"] isEqualToString:snapshot2.value[@"text"]]) {
-        return NO;
-    }
-    if (!([snapshot1.value[@"x"] doubleValue] == [snapshot2.value[@"x"] doubleValue])) {
-        return NO;
-    }
-    if (!([snapshot1.value[@"y"] doubleValue] == [snapshot2.value[@"y"] doubleValue])) {
-        return NO;
-    }
-    if (![snapshot1.value[@"transform"] isEqualToString:snapshot2.value[@"transform"]]) {
-        return NO;
-    }
-    return YES;
-    
-}
-
 #pragma mark - caption gestures
 
 - (void)captionCancelPressedWhileTyping {
@@ -826,8 +801,8 @@ static NSString *commentCellID = @"CommentCell";
         self.shareButton.hidden = YES;
         self.commentsWrapperView.hidden = YES;
         self.XButton.hidden = YES;
-        self.likeButton.hidden = YES;
         self.commentButton.hidden = YES;
+        self.captionButton.hidden = YES;
     } else {
         [self setGesturesEnabled:YES];
         
@@ -841,9 +816,8 @@ static NSString *commentCellID = @"CommentCell";
         self.commentsWrapperView.hidden = NO;
         self.XButton.hidden = NO;
         
-        self.likeButton.hidden = NO;
         self.commentButton.hidden = NO;
-
+        self.captionButton.hidden = NO;
     }
 }
 
