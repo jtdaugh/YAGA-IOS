@@ -484,22 +484,6 @@ static NSString *commentCellID = @"CommentCell";
     [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.captionButton];
 
-//    self.commentButton.layer.zPosition = 100;
-    
-//    CGFloat likeSize = 42;
-//
-//    CGFloat likeCountWidth = 24, likeCountHeight = 42;
-//    self.likeCount = [[UIButton alloc] initWithFrame:CGRectMake(self.likeButton.frame.origin.x + self.likeButton.frame.size.width + 8, VIEW_HEIGHT - likeCountHeight - 12, likeCountWidth, likeCountHeight)];
-//    [self.likeCount addTarget:self action:@selector(likeCountPressed) forControlEvents:UIControlEventTouchUpInside];
-//    //    [self.likeCount setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-//    [self.likeCount.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
-//    self.likeCount.layer.shadowColor = [[UIColor blackColor] CGColor];
-//    self.likeCount.layer.shadowRadius = 1.0f;
-//    self.likeCount.layer.shadowOpacity = 1.0;
-//    self.likeCount.layer.shadowOffset = CGSizeZero;
-//    //    [self.likeCount setBackgroundColor:[UIColor greenColor]];
-////    [self addSubview:self.likeCount];
-    
     self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
     [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
     [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
@@ -601,7 +585,7 @@ static NSString *commentCellID = @"CommentCell";
     UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(COMMENTS_SIDE_MARGIN, 0, VIEW_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     leftUsernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
     leftUsernameLabel.text = [NSString stringWithFormat:@"  %@ ", [YAUser currentUser].username];
-    leftUsernameLabel.shadowColor = [UIColor blackColor];
+    leftUsernameLabel.shadowColor = [UIColor colorWithWhite:0.0 alpha:0.7];
     leftUsernameLabel.shadowOffset = CGSizeMake(0.5, 0.5);
     leftUsernameLabel.userInteractionEnabled = NO;
 
@@ -1154,73 +1138,6 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
-#pragma mark - Liking
-
-- (void)likeButtonPressed {
-//    NSString *likeCountSelf = self.likeCount.titleLabel.text;
-//    NSNumberFormatter *f = [NSNumberFormatter new];
-//    f.numberStyle = NSNumberFormatterDecimalStyle;
-//    NSUInteger likeCountNumber = [[f numberFromString:likeCountSelf] integerValue];
-//    if (!self.video.like) {
-//        if (likeCountNumber == 0) {
-//            self.likeCount.hidden = YES;
-//            [self.likeCount setTitle:@"0"
-//                            forState:UIControlStateNormal];
-//        } else {
-//            [self.likeCount setTitle:[NSString stringWithFormat:@"%lu", (unsigned long)++likeCountNumber]
-//                            forState:UIControlStateNormal];
-//        }
-//        [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-//            [self.likeCount setTitle:[NSString stringWithFormat:@"%@", response]
-//                            forState:UIControlStateNormal];
-//        }];
-//        [[Mixpanel sharedInstance] track:@"Video liked"];
-//    } else {
-//        if (likeCountNumber <= 1) {
-//            self.likeCount.hidden = YES;
-//            [self.likeCount setTitle:@"0"
-//                            forState:UIControlStateNormal];
-//        } else {
-//            [self.likeCount setTitle:[NSString stringWithFormat:@"%lu", (unsigned long)--likeCountNumber]
-//                            forState:UIControlStateNormal];
-//        }
-//        [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-//            [self.likeCount setTitle:[response integerValue] == 0 ? @"" : [NSString stringWithFormat:@"%@", response]
-//                            forState:UIControlStateNormal];
-//        }];
-//        [[Mixpanel sharedInstance] track:@"Video unliked"];
-//    }
-//    
-//    [[RLMRealm defaultRealm] beginWriteTransaction];
-//    self.video.like = !self.video.like;
-//    [[RLMRealm defaultRealm] commitWriteTransaction];
-//    
-//    [self animateButton:self.likeButton withImageName:self.video.like ? @"Liked" : @"Like" completion:nil];
-}
-
-//
-//- (void)likeCountPressed {
-//    
-//    if(self.likesShown){
-//        [self hideLikes];
-//        self.likesShown = NO;
-//        
-//        [self removeGestureRecognizer:[self.gestureRecognizers lastObject]];
-//    } else {
-//        [self showLikes];
-//        self.likesShown = YES;
-//        
-//        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideLikesTapOut:)];
-//        [self addGestureRecognizer:tap];
-//    }
-//}
-
-//- (void)hideLikesTapOut:(UIGestureRecognizer *) recognizer {
-//    [self removeGestureRecognizer:recognizer];
-//    [self hideLikes];
-//    self.likesShown = NO;
-//}
-
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     NSLog(@"tapped");
     if (self.editingCaption) return;
@@ -1279,83 +1196,7 @@ static NSString *commentCellID = @"CommentCell";
         }];
     }
 }
-//
-//- (void)showLikes {
-//    
-//    CGFloat origin = self.likeCount.frame.origin.y;
-//    CGFloat height = 24;
-//    CGFloat width = 72;
-//    
-//    self.likeLabels = [[NSMutableArray alloc] init];
-//    
-//    for(YAContact *cntct in self.video.likers){
-//        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin + self.likeCount.frame.size.height/2, width, height)];
-//        if (cntct.username.length) {
-//            [label setText:cntct.username];
-//        } else {
-//            [label setText:cntct.name];
-//        }
-//        [label setTextAlignment:NSTextAlignmentRight];
-//        [label setTextColor:[UIColor whiteColor]];
-//        [label setFont:[UIFont fontWithName:BIG_FONT size:16]];
-//        
-//        label.layer.shadowColor = [[UIColor blackColor] CGColor];
-//        label.layer.shadowRadius = 1.0f;
-//        label.layer.shadowOpacity = 1.0;
-//        label.layer.shadowOffset = CGSizeZero;
-//        [label setAlpha:0.0];
-//        
-//        [self.likeLabels addObject:label];
-//        [self addSubview:label];
-//    }
-//    
-//    CGFloat xRadius = 500;
-//    CGFloat yRadius = 3000;
-//    
-//    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-//        //
-//        int i = 0;
-//        
-//        for(UILabel *label in self.likeLabels){
-//            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
-//            //
-//            [label setAlpha:1.0];
-//            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - (i+1)*(height + margin), width, height)];
-//            CGFloat angle = (1.0f * M_PI / 180 * ((CGFloat) i + 1.0f));
-//            
-//            CGAffineTransform rotate = CGAffineTransformMakeRotation(angle);
-//            //            CGAffineTransformMake
-//            CGFloat translateX = xRadius - fabs(xRadius*cosf(angle));
-//            CGFloat translateY = -fabs(yRadius*sinf(angle));
-//            [label setTransform:CGAffineTransformTranslate(rotate, translateX, translateY)];
-//            
-//            i++;
-//            
-//        }
-//    } completion:^(BOOL finished) {
-//        //
-//    }];
-//}
 
-//- (void)hideLikes {
-//    int i = 0;
-//    
-//    for(UILabel *label in self.likeLabels){
-//        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-//            //            [UIView addKeyframeWithRelativeStartTime:(CGFloat) i / (CGFloat) [self.likeLabels count] relativeDuration:2.0f/(CGFloat)[self.likeLabels count] animations:^{
-//            //
-//            [label setAlpha:0.0];
-//            //            [label setFrame:CGRectMake(self.likeCount.frame.origin.x + self.likeCount.frame.size.width - width, origin - margin, width, height)];
-//            [label setTransform:CGAffineTransformIdentity];
-//            
-//        } completion:^(BOOL finished) {
-//            [label removeFromSuperview];
-//        }];
-//        i++;
-//    }
-//    
-//}
-//
 #pragma mark - ETC
 
 - (void)deleteButtonPressed {
@@ -1364,23 +1205,6 @@ static NSString *commentCellID = @"CommentCell";
     }];
 }
 
-//- (void)addEvent:(FDataSnapshot *)event toCommentsSheet:(YACommentsOverlayView *)commentsSheet{
-//    if ([event.value[@"type"] isEqualToString:@"comment"]) {
-//        [commentsSheet addCommentWithUsername:event.value[@"username"] Title:event.value[@"text"]];
-//
-//    } else if ([event.value[@"type"] isEqualToString:@"caption_created"]) {
-//        [commentsSheet addCaptionCreationWithUsername:event.value[@"username"] caption:event.value[@"text"]];
-//    
-//    } else if ([event.value[@"type"] isEqualToString:@"caption_change"]) {
-//        [commentsSheet addRecaptionWithUsername:event.value[@"username"] newCaption:event.value[@"text"]];
-//    
-//    } else if ([event.value[@"type"] isEqualToString:@"caption_move"]) {
-//        [commentsSheet addCaptionMoveWithUsername:event.value[@"username"]];
-//    
-//    } else if ([event.value[@"type"] isEqualToString:@"caption_deleted"]) {
-//        [commentsSheet addCaptionDeletionWithUsername:event.value[@"username"]];
-//    }
-//}
 
 - (void)commentButtonPressed {
     [self.commentsTextField becomeFirstResponder];
