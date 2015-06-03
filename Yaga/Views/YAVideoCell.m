@@ -71,7 +71,7 @@
 
         self.backgroundView = self.loaderView;
         
-        self.username = [[UILabel alloc] initWithFrame:CGRectMake(5, self.bounds.size.height - 30, self.bounds.size.width - 10, 30)];
+        self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30)];
         [self.username setTextAlignment:NSTextAlignmentRight];
         [self.username setMinimumScaleFactor:0.5];
         [self.username setAdjustsFontSizeToFitWidth:YES];
@@ -286,7 +286,7 @@
         self.caption.text = @"";
         self.captionWrapper.hidden = YES;
     }
-    self.username.textAlignment = self.index % 2 ? NSTextAlignmentRight : NSTextAlignmentLeft;
+    self.username.textAlignment = NSTextAlignmentRight;
     self.username.text = self.video.creator;
 }
 
