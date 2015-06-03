@@ -107,7 +107,7 @@ static NSString *cellID = @"Cell";
 - (void)video:(YAVideo *)video eventCountUpdated:(NSUInteger)eventCount {
     NSUInteger item = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
     YAVideoCell *cell = (YAVideoCell *)[self.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0]];
-    if (cell && (eventCount > 1)) {
+    if (cell) {
         [cell setEventCount:eventCount - 1]; // -1 because of initial post event
     }
 }
@@ -466,9 +466,7 @@ static NSString *cellID = @"Cell";
     cell.index = indexPath.item;
     cell.video = video;
     NSArray *events = [[YAEventManager sharedManager] getEventsForVideo:video];
-    if ([events count] > 1) {
-        [cell setEventCount:[events count] - 1];  // -1 because of initial post event
-    }
+    [cell setEventCount:[events count] - 1];  // -1 because of initial post event
     return cell;
 }
 
