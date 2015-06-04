@@ -91,7 +91,7 @@ typedef enum {
     self = [super init];
     if(self) {
         self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
-        self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2);
+        self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2 + recordButtonWidth/2);
         [self.cameraView setBackgroundColor:[UIColor blackColor]];
         [self.view addSubview:self.cameraView];
         [self.cameraView setUserInteractionEnabled:YES];
@@ -273,6 +273,15 @@ typedef enum {
         
         [self enableScrollToTop:YES];
         
+        self.swipeEnlargeCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeCamera:)];
+        self.swipeEnlargeCamera.direction = UISwipeGestureRecognizerDirectionDown;
+        [self.cameraView addGestureRecognizer:self.swipeEnlargeCamera];
+        
+        self.swipeCollapseCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(collapseCamera:)];
+        self.swipeCollapseCamera.direction = UISwipeGestureRecognizerDirectionUp;
+        [self.cameraView addGestureRecognizer:self.swipeCollapseCamera];
+
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
                                                      name:UIApplicationWillEnterForegroundNotification
@@ -399,14 +408,6 @@ typedef enum {
 - (void)enableRecording:(BOOL)enable {
     if(enable) {
         
-        self.swipeEnlargeCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeCamera:)];
-        self.swipeEnlargeCamera.direction = UISwipeGestureRecognizerDirectionDown;
-        [self.cameraView addGestureRecognizer:self.swipeEnlargeCamera];
-        
-        self.swipeCollapseCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(collapseCamera:)];
-        self.swipeCollapseCamera.direction = UISwipeGestureRecognizerDirectionUp;
-        [self.cameraView addGestureRecognizer:self.swipeCollapseCamera];
-
         self.longPressFullScreenGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         self.longPressFullScreenGestureRecognizer.delegate = self;
         [self.longPressFullScreenGestureRecognizer setMinimumPressDuration:0.2f];
@@ -418,8 +419,8 @@ typedef enum {
     }
     else {
         [self.cameraView removeGestureRecognizer:self.longPressFullScreenGestureRecognizer];
-        [self.cameraView removeGestureRecognizer:self.swipeEnlargeCamera];
-        [self.cameraView removeGestureRecognizer:self.swipeCollapseCamera];
+//        [self.cameraView removeGestureRecognizer:self.swipeEnlargeCamera];
+//        [self.cameraView removeGestureRecognizer:self.swipeCollapseCamera];
         [self.recordButton removeGestureRecognizer:self.longPressRedButtonGestureRecognizer];
     }
 //    [UIView animateWithDuration:0.2 animations:^{
@@ -432,13 +433,14 @@ typedef enum {
     if(self.largeCamera){
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             //
-            self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2);
+            self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self.infoButton setAlpha:1.0];
             [self.groupButton setAlpha:1.0];
             [self.switchGroupsButton setAlpha:1.0];
-            self.recordButton.transform = CGAffineTransformIdentity;
+//            self.recordButton.transform = CGAffineTransformIdentity;
             self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
+            [self.unviewedVideosBadge setAlpha:1.0];
         } completion:^(BOOL finished) {
         }];
         self.largeCamera = NO;
@@ -456,7 +458,7 @@ typedef enum {
             [self.switchGroupsButton setAlpha:0.0];
             [self.unviewedVideosBadge setAlpha:0.0];
             
-            self.recordButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
+//            self.recordButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
             self.recordButton.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT - recordButtonWidth);
         } completion:^(BOOL finished) {
         }];
@@ -735,7 +737,7 @@ typedef enum {
     self.cancelledRecording = NO;
     self.recording = [NSNumber numberWithBool:YES];
 //    self.recordingIndicator.alpha = 1.0;
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/16.f)];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, VIEW_HEIGHT/32.f)];
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
     [self.indicator setUserInteractionEnabled:NO];
 //    [self.indicatorText setText:@"Recording..."];
@@ -859,7 +861,7 @@ typedef enum {
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self showCameraAccessories:YES];
             [self showRecordingAccessories:0];
-            self.recordButton.transform = CGAffineTransformIdentity;
+//            self.recordButton.transform = CGAffineTransformIdentity;
             self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
          }];
         
