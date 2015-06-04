@@ -443,7 +443,7 @@ typedef enum {
     if(self.largeCamera){
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             //
-            self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
+            self.view.frame = self.previousViewFrame;
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self.infoButton setAlpha:1.0];
 //            [self.groupButton setAlpha:1.0];
@@ -462,6 +462,8 @@ typedef enum {
         if(self.recordTooltipLabel){
             [self.recordTooltipLabel removeFromSuperview];
         }
+        
+        self.previousViewFrame = self.view.frame;
         
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             //
@@ -777,7 +779,10 @@ typedef enum {
         [[Mixpanel sharedInstance] track:@"First video post"];
     }
     
-    self.previousViewFrame = self.view.frame;
+    if (!self.largeCamera) {
+        self.previousViewFrame = self.view.frame;
+    }
+    self.recordButton.hidden = YES;
     
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
@@ -868,6 +873,7 @@ typedef enum {
     
     if([self.recording boolValue]){
         self.recordingIndicator.alpha = 0.0;
+        self.recordButton.hidden = NO;
         
         [self.view bringSubviewToFront:self.cameraView];
         //        [self.view bringSubviewToFront:self.recordButton];
