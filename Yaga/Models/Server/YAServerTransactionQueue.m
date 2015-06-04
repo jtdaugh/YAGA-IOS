@@ -226,8 +226,8 @@
         //avoid deleted objects by checking error class
         if(error && ![error isKindOfClass:[YARealmObjectUnavailableError class]]) {
     
-            //-999 is for manually cancelled operations, execute them again immediately
-            if(error.code == -999) {
+            //-999 is for manually cancelled operations(disappeared connection treated as manual), execute them again immediately
+            if(error.code == -999 || error.code == -1005) {
                 [weakSelf.transactionsData addObject:transactionData];
             }
             else {
