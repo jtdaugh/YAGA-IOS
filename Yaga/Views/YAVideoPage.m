@@ -801,8 +801,6 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
-
-
 - (void)toggleEditingCaption:(BOOL)editing {
     self.editingCaption = editing;
     if (editing) {
@@ -1278,12 +1276,14 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
 //                    forState:UIControlStateNormal];
 //
-
-    //get likers for video
     
-    if(self.video.mp4Filename.length) {
-        [self showProgress:NO];
-    }
+    self.captionTapRecognizer.enabled = mp4Downloaded;
+    self.likeDoubleTapRecognizer.enabled = mp4Downloaded;
+    self.commentButton.enabled = mp4Downloaded;
+    self.captionButton.enabled = mp4Downloaded;
+    self.shareButton.enabled = mp4Downloaded;
+
+    [self showProgress:!mp4Downloaded];
     
 }
 
@@ -1366,9 +1366,6 @@ static NSString *commentCellID = @"CommentCell";
         }
         
         [self.progressView setCustomText:@""];
-        self.captionTapRecognizer.enabled = NO;
-    } else {
-        self.captionTapRecognizer.enabled = YES;
     }
 }
 
