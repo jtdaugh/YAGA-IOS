@@ -1056,6 +1056,7 @@ typedef enum {
             [videoDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
         }
         [videoDevice unlockForConfiguration];
+        [self.cameraView switchCamera:preferredPosition];
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{

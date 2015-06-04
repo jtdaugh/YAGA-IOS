@@ -46,6 +46,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVCaptureDevice.h>
 
 @class AVCaptureSession;
 
@@ -53,4 +54,7 @@
 
 @property (nonatomic) AVCaptureSession *session;
 @property (nonatomic, strong) UITapGestureRecognizer *tapToFocusRecognizer;
+
+- (void)switchCamera:(AVCaptureDevicePosition)position;
+
 @end
