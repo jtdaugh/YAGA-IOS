@@ -234,9 +234,12 @@ static NSString *cellID = @"Cell";
     NSUInteger videoIndex = [[self.deleteDictionary objectForKey:videoLocalId] integerValue];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
     
-    self.paginationThreshold--;
-    
-    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    if(self.paginationThreshold > videoIndex) {
+        
+        self.paginationThreshold--;
+        
+        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    }
     
     [self.deleteDictionary removeObjectForKey:videoLocalId];
 }
