@@ -312,7 +312,7 @@
 
         CGSize cellSize = self.bounds.size;
 
-        CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH * .75;
+        CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH * .88;
         self.captionWrapper.transform = CGAffineTransformIdentity;
         
         self.captionWrapper.frame = CGRectMake(0, 0, capSize.width, capSize.height);
