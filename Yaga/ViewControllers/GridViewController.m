@@ -111,9 +111,11 @@
     
     if(offset < 0) {
         offset = 0;
+        [self.cameraViewController removeBottomShadow];
     }
     else if(offset > VIEW_HEIGHT/2 - CAMERA_MARGIN) {
         offset = VIEW_HEIGHT/2 - CAMERA_MARGIN;
+        [self.cameraViewController showBottomShadow];
     }
     
     cameraFrame.origin.y = -offset;

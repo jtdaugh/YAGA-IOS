@@ -263,6 +263,13 @@ typedef enum {
         
         [self enableScrollToTop:YES];
         
+        // Add shadow to view
+        self.view.layer.masksToBounds = NO;
+        self.view.layer.shadowOffset = CGSizeMake(0, 8);
+        self.view.layer.shadowRadius = 3;
+        self.view.layer.shadowOpacity = 0.f;
+        self.view.layer.shadowColor = [UIColor blackColor].CGColor;
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
                                                      name:UIApplicationWillEnterForegroundNotification
@@ -1181,6 +1188,30 @@ typedef enum {
     else {
         [self.cameraView removeGestureRecognizer:self.scrollToTopTapRecognizer];
         self.scrollToTopTapRecognizer = nil;
+    }
+}
+
+- (void)showBottomShadow {
+    if (self.view.layer.shadowOpacity != 0.35f) {
+        CABasicAnimation *borderAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+        borderAnimation.fromValue = @(0.f);
+        borderAnimation.toValue = @(0.35f);
+        borderAnimation.duration = 0.25f;
+        
+        [self.view.layer addAnimation:borderAnimation forKey:@"shadowOpacity"];
+        self.view.layer.shadowOpacity = 0.35f;
+    }
+}
+
+- (void)removeBottomShadow {
+    if (self.view.layer.shadowOpacity != 0.f) {
+        CABasicAnimation *borderAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+        borderAnimation.fromValue = @(self.view.layer.shadowOpacity);
+        borderAnimation.toValue = @(0.f);
+        borderAnimation.duration = 0.25f;
+        
+        [self.view.layer addAnimation:borderAnimation forKey:@"shadowOpacity"];
+        self.view.layer.shadowOpacity = 0.f;
     }
 }
 
