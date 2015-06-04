@@ -64,7 +64,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UIView *loader;
 @property (nonatomic, strong) YAProgressView *progressView;
 @property (nonatomic) CGRect keyboardRect;
-@property (nonatomic, strong) UIButton *keyBoardAccessoryButton;
 
 @property (nonatomic, strong) UILabel *debugLabel;
 @property NSUInteger fontIndex;
@@ -151,11 +150,7 @@ static NSString *commentCellID = @"CommentCell";
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
 
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inputModeChanged:) name:UITextInputCurrentInputModeDidChangeNotification object:nil];
-        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShown:) name:UIKeyboardDidShowNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
         
@@ -284,11 +279,6 @@ static NSString *commentCellID = @"CommentCell";
     self.previousKeyboardLocation = up;
 }
 
-- (void)keyboardDown:(NSNotification*)n
-{
-    self.keyBoardAccessoryButton.hidden = YES;
-}
-
 - (void)keyboardShown:(NSNotification*)n
 {
     NSNumber *info = n.userInfo[ UIKeyboardFrameEndUserInfoKey ];
@@ -389,11 +379,9 @@ static NSString *commentCellID = @"CommentCell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingOperationDidFinishNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextInputCurrentInputModeDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
 }
 
@@ -865,6 +853,7 @@ static NSString *commentCellID = @"CommentCell";
         self.editableCaptionWrapperView = nil;
         self.editableCaptionTextView = nil;
         self.serverCaptionTextView.editable = NO;
+        [self.overlay sendSubviewToBack:self.serverCaptionWrapperView];
         [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
     }
 }
@@ -1467,47 +1456,6 @@ static NSString *commentCellID = @"CommentCell";
     if ([object isKindOfClass:[YAVideoPlayerView class]]) {
         [self showLoading:!((YAVideoPlayerView*)object).readyToPlay];
     }
-}
-
-#pragma mark - Observing input mode
-- (void)inputModeChanged:(NSNotification*)sender {
-    NSString *mode = self.editableCaptionTextView.textInputMode.primaryLanguage;
-    //Adding additional "Done" button for emoji keyboard
-    if (mode == nil) { //Appears to corespond to emoji
-        if (!self.keyBoardAccessoryButton) {
-            CGFloat buttonHeight = 40.f;
-            CGFloat buttonWidth = 100.f;
-            CGFloat buttonMargin = 5.f;
-            CGFloat buttonLeftMargin = self.keyboardRect.size.width - buttonWidth - 5.f;
-            self.keyBoardAccessoryButton = [[UIButton alloc] initWithFrame:CGRectMake(buttonLeftMargin,
-                                                                                      self.keyboardRect.origin.y - buttonHeight - buttonMargin,
-                                                                                      buttonWidth,
-                                                                                      buttonHeight)];
-            self.keyBoardAccessoryButton.layer.cornerRadius = 8.0f;
-            [self.keyBoardAccessoryButton setTitle:NSLocalizedString(@"Done", nil) forState:UIControlStateNormal];
-            [self.keyBoardAccessoryButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-            [self.keyBoardAccessoryButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
-            self.keyBoardAccessoryButton.layer.borderColor = [UIColor whiteColor].CGColor;
-            self.keyBoardAccessoryButton.layer.borderWidth = 2.0f;
-            self.keyBoardAccessoryButton.backgroundColor = PRIMARY_COLOR;
-            [self.keyBoardAccessoryButton addTarget:self
-                                             action:@selector(accessoryButtonTaped:)
-                                   forControlEvents:UIControlEventTouchUpInside];
-            [self addSubview:self.keyBoardAccessoryButton];
-        }
-        self.keyBoardAccessoryButton.hidden = NO;
-    }
-    else
-    {
-        self.keyBoardAccessoryButton.hidden = YES;
-    }
-}
-
-- (void)accessoryButtonTaped:(id)sender {
-//    [self.video rename:self.captionField.text withFont:self.fontIndex];
-    [self doneTypingCaption];
-
-    self.keyBoardAccessoryButton.hidden = YES;
 }
 
 
