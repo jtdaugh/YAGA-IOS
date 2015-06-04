@@ -41,6 +41,7 @@ typedef enum {
 @property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
 
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
+@property (strong, nonatomic) NSMutableArray *recordingAccessories;
 @property (strong, nonatomic) UIButton *switchCameraButton;
 @property (strong, nonatomic) UIButton *switchGroupsButton;
 @property (strong, nonatomic) UIImageView *unviewedVideosBadge;
@@ -78,6 +79,10 @@ typedef enum {
 @property int count;
 @property (strong, nonatomic) UILabel *countdownLabel;
 
+@property (strong, nonatomic) UISwipeGestureRecognizer *swipeEnlargeCamera;
+@property (strong, nonatomic) UISwipeGestureRecognizer *swipeCollapseCamera;
+@property BOOL largeCamera;
+
 @end
 
 @implementation YACameraViewController
@@ -86,13 +91,14 @@ typedef enum {
     self = [super init];
     if(self) {
         self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
-        self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2);
+        self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2 + recordButtonWidth/2);
         [self.cameraView setBackgroundColor:[UIColor blackColor]];
         [self.view addSubview:self.cameraView];
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
         
         self.cameraAccessories = [@[] mutableCopy];
+        self.recordingAccessories = [@[] mutableCopy];
         
         self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self.white setBackgroundColor:[UIColor whiteColor]];
@@ -226,6 +232,8 @@ typedef enum {
         self.switchCamZone.layer.shadowRadius = 1.0f;
         self.switchCamZone.layer.shadowOpacity = 1.0f;
         
+        [self.recordingAccessories addObject:self.switchCamZone];
+        
         CGFloat zoneIconSize = 60;
         UIImageView *switchZoneIcon = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchCamZone.frame.size.width/3 - zoneIconSize/2, self.switchCamZone.frame.size.height/3 - zoneIconSize/2, zoneIconSize, zoneIconSize)];
         [switchZoneIcon setImage:[UIImage imageNamed:@"Switch"]];
@@ -234,7 +242,6 @@ typedef enum {
         self.switchCamZoneTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
         self.switchCamZoneTapRecognizer.delegate = self;
         [self.switchCamZone addGestureRecognizer:self.switchCamZoneTapRecognizer];
-        
         [self.cameraView addSubview:self.switchCamZone];
         
         
@@ -259,9 +266,21 @@ typedef enum {
         self.trashZoneTapRecognizer.delegate = self;
         [self.trashZone addGestureRecognizer:self.trashZoneTapRecognizer];
         
+        [self.recordingAccessories addObject:self.trashZone];
         [self.cameraView addSubview:self.trashZone];
         
+        [self showRecordingAccessories:NO];
+        
         [self enableScrollToTop:YES];
+        
+        self.swipeEnlargeCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeCamera:)];
+        self.swipeEnlargeCamera.direction = UISwipeGestureRecognizerDirectionDown;
+        [self.cameraView addGestureRecognizer:self.swipeEnlargeCamera];
+        
+        self.swipeCollapseCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(collapseCamera:)];
+        self.swipeCollapseCamera.direction = UISwipeGestureRecognizerDirectionUp;
+        [self.cameraView addGestureRecognizer:self.swipeCollapseCamera];
+
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -388,6 +407,7 @@ typedef enum {
 
 - (void)enableRecording:(BOOL)enable {
     if(enable) {
+        
         self.longPressFullScreenGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         self.longPressFullScreenGestureRecognizer.delegate = self;
         [self.longPressFullScreenGestureRecognizer setMinimumPressDuration:0.2f];
@@ -399,11 +419,56 @@ typedef enum {
     }
     else {
         [self.cameraView removeGestureRecognizer:self.longPressFullScreenGestureRecognizer];
+//        [self.cameraView removeGestureRecognizer:self.swipeEnlargeCamera];
+//        [self.cameraView removeGestureRecognizer:self.swipeCollapseCamera];
         [self.recordButton removeGestureRecognizer:self.longPressRedButtonGestureRecognizer];
     }
 //    [UIView animateWithDuration:0.2 animations:^{
 //        self.recordButton.transforgm = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
 //    }];
+}
+
+- (void)collapseCamera:(UISwipeGestureRecognizer *)recognizer {
+    
+    if(self.largeCamera){
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+            //
+            self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
+            [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+            [self.infoButton setAlpha:1.0];
+            [self.groupButton setAlpha:1.0];
+            [self.switchGroupsButton setAlpha:1.0];
+//            self.recordButton.transform = CGAffineTransformIdentity;
+            self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
+            [self.unviewedVideosBadge setAlpha:1.0];
+        } completion:^(BOOL finished) {
+        }];
+        self.largeCamera = NO;
+    }
+}
+
+- (void)enlargeCamera:(UISwipeGestureRecognizer *)recognizer {
+    if(!self.largeCamera){
+        if(self.recordTooltipLabel){
+            [self.recordTooltipLabel removeFromSuperview];
+        }
+        
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+            //
+            self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
+            [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+            [self.infoButton setAlpha:0.0];
+            [self.groupButton setAlpha:0.0];
+            [self.switchGroupsButton setAlpha:0.0];
+            [self.unviewedVideosBadge setAlpha:0.0];
+            
+//            self.recordButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
+            self.recordButton.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT - recordButtonWidth);
+        } completion:^(BOOL finished) {
+        }];
+        
+        self.largeCamera = YES;
+    }
 }
 
 - (void)initCamera {
@@ -676,7 +741,7 @@ typedef enum {
     self.cancelledRecording = NO;
     self.recording = [NSNumber numberWithBool:YES];
 //    self.recordingIndicator.alpha = 1.0;
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, self.cameraView.frame.size.height/16.f)];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, VIEW_HEIGHT/32.f)];
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
     [self.indicator setUserInteractionEnabled:NO];
 //    [self.indicatorText setText:@"Recording..."];
@@ -704,6 +769,7 @@ typedef enum {
     
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
+        [self showRecordingAccessories:1];
         [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     } completion:^(BOOL finished) {
@@ -798,7 +864,11 @@ typedef enum {
             [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2)];
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self showCameraAccessories:YES];
-        }];
+            [self showRecordingAccessories:0];
+            self.recordButton.transform = CGAffineTransformIdentity;
+            self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
+         }];
+        self.largeCamera = NO;
         
         [self.indicatorText setText:NSLocalizedString(@"RECORD_TIP", @"")];
         [self.indicator removeFromSuperview];
@@ -1111,7 +1181,14 @@ typedef enum {
         if(show)
             [self.view bringSubviewToFront:v];
     }
-    
+}
+
+- (void)showRecordingAccessories:(BOOL)show {
+    for(UIView *v in self.recordingAccessories){
+        [v setAlpha:show ? 1 : 0];
+        if(show)
+            [self.view bringSubviewToFront:v];
+    }
 }
 
 - (void)openGroupOptions:(id)sender {
