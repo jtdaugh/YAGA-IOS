@@ -456,7 +456,7 @@ static NSString *commentCellID = @"CommentCell";
 //    CGFloat tSize = CAPTION_FONT_SIZE;
 
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
-//    self.XButton.transform = CGAffineTransformMakeScale(0.66, 0.66);
+    self.XButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
     self.XButton.alpha = 0.7;
     [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
@@ -498,6 +498,12 @@ static NSString *commentCellID = @"CommentCell";
     
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:self.progressView];
+    
+    UIButton *progressXButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    progressXButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
+    progressXButton.alpha = 0.7;
+    [progressXButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.progressView addSubview:progressXButton];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
@@ -794,8 +800,6 @@ static NSString *commentCellID = @"CommentCell";
         [self.presentingVC suspendAllGestures:self];
     }
 }
-
-
 
 - (void)toggleEditingCaption:(BOOL)editing {
     self.editingCaption = editing;
@@ -1272,12 +1276,14 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
 //                    forState:UIControlStateNormal];
 //
-
-    //get likers for video
     
-    if(self.video.mp4Filename.length) {
-        [self showProgress:NO];
-    }
+    self.captionTapRecognizer.enabled = mp4Downloaded;
+    self.likeDoubleTapRecognizer.enabled = mp4Downloaded;
+    self.commentButton.enabled = mp4Downloaded;
+    self.captionButton.enabled = mp4Downloaded;
+    self.shareButton.enabled = mp4Downloaded;
+
+    [self showProgress:!mp4Downloaded];
     
 }
 

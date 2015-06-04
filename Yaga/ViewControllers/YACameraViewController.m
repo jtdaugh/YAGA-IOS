@@ -446,7 +446,7 @@ typedef enum {
             self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self.infoButton setAlpha:1.0];
-            [self.groupButton setAlpha:1.0];
+//            [self.groupButton setAlpha:1.0];
             [self.switchGroupsButton setAlpha:1.0];
 //            self.recordButton.transform = CGAffineTransformIdentity;
             self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
@@ -468,7 +468,7 @@ typedef enum {
             self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
             [self.infoButton setAlpha:0.0];
-            [self.groupButton setAlpha:0.0];
+//            [self.groupButton setAlpha:0.0];
             [self.switchGroupsButton setAlpha:0.0];
             [self.unviewedVideosBadge setAlpha:0.0];
             
