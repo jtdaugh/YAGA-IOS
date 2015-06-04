@@ -287,7 +287,6 @@ typedef enum {
         self.swipeCollapseCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(collapseCamera:)];
         self.swipeCollapseCamera.direction = UISwipeGestureRecognizerDirectionUp;
         [self.cameraView addGestureRecognizer:self.swipeCollapseCamera];
-
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
