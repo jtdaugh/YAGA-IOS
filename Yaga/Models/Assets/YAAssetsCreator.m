@@ -267,13 +267,11 @@
     
     DLog(@"orderedDownloadUrlsFromVideos: gif_visible:%lu, gif_invisible:%lu, mp4_visible:%lu, mp4_invisible:%lu", (unsigned long)gifUrlsForVisible.count, (unsigned long)gifUrlsForInvisible.count, (unsigned long)mp4UrlsForVisible.count, (unsigned long)mp4UrlsForInvisible.count);
     
-    NSMutableArray *gifUrls = [NSMutableArray arrayWithArray:gifUrlsForVisible];
-    [gifUrls addObjectsFromArray:gifUrlsForInvisible];
-
-    NSMutableArray *mp4Urls = [NSMutableArray arrayWithArray:mp4UrlsForVisible];
-    [mp4Urls addObjectsFromArray:mp4UrlsForInvisible];
+    NSMutableArray *result = [NSMutableArray arrayWithArray:gifUrlsForVisible];
+    [result addObjectsFromArray:mp4UrlsForVisible];
+    [result addObjectsFromArray:gifUrlsForInvisible];
+    [result addObjectsFromArray:mp4UrlsForInvisible];
     
-    NSArray *result = @[gifUrls, mp4Urls];
     return result;
 }
 
