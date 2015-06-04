@@ -83,6 +83,8 @@ typedef enum {
 @property (strong, nonatomic) UISwipeGestureRecognizer *swipeCollapseCamera;
 @property BOOL largeCamera;
 
+@property (nonatomic, assign) CGRect previousViewFrame;
+
 @end
 
 @implementation YACameraViewController
@@ -279,6 +281,8 @@ typedef enum {
         self.view.layer.shadowRadius = 3;
         self.view.layer.shadowOpacity = 0.f;
         self.view.layer.shadowColor = [UIColor blackColor].CGColor;
+        
+        self.previousViewFrame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
 
         self.swipeEnlargeCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeCamera:)];
         self.swipeEnlargeCamera.direction = UISwipeGestureRecognizerDirectionDown;
@@ -773,6 +777,8 @@ typedef enum {
         [[Mixpanel sharedInstance] track:@"First video post"];
     }
     
+    self.previousViewFrame = self.view.frame;
+    
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
         [self showRecordingAccessories:1];
@@ -867,7 +873,7 @@ typedef enum {
         //        [self.view bringSubviewToFront:self.recordButton];
         
         [UIView animateWithDuration:0.2 animations:^{
-            [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2)];
+            self.view.frame = self.previousViewFrame;
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self showCameraAccessories:YES];
             [self showRecordingAccessories:0];
