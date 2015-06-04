@@ -676,6 +676,10 @@ static NSString *commentCellID = @"CommentCell";
     return [YAEventCell heightForCellWithEvent:event];
 }
 
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [YAEventCell heightForCellWithEvent:self.events[indexPath.row]];
+}
+
 - (void)setupCaptionButtonContainer {
     self.captionButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - CAPTION_BUTTON_HEIGHT, VIEW_WIDTH, CAPTION_BUTTON_HEIGHT)];
     [self.overlay addSubview:self.captionButtonContainer];

@@ -125,19 +125,18 @@
 - (void)configureCommentCellWithUsername:(NSString *)username comment:(NSString *)comment {
     [self setCellType:YAEventTypeComment];
     self.usernameLabel.text = username;
-    [self layoutUsername];
+    [self layoutUsername:username];
     self.commentsTextView.text = comment;
     CGRect commentFrame = self.commentsTextView.frame;
     commentFrame.origin.x = self.usernameLabel.frame.size.width + 8.0f;
-    CGSize commentsSize = [self.commentsTextView sizeThatFits:CGSizeMake(self.frame.size.width - (commentFrame.origin.x), CGFLOAT_MAX)];
-    commentFrame.size = commentsSize;
+    commentFrame.size = [[self class] sizeForCommentsCellWithUsername:username comment:comment];
     self.commentsTextView.frame = commentFrame;
 }
 
 - (void)configureLikeCellWithUsername:(NSString *)username {
     [self setCellType:YAEventTypeLike];
     self.usernameLabel.text = username;
-    [self layoutUsername];
+    [self layoutUsername:username];
     self.iconImageView.image = [UIImage imageNamed:@"Liked"];
     [self layoutImageViewWithYOffset:-1.f];
     
@@ -148,7 +147,7 @@
     
     [self setCellType:YAEventTypePost];
     self.usernameLabel.text = username;
-    [self layoutUsername];
+    [self layoutUsername:username];
     self.timestampLabel.text = timestamp;
     self.deleteButton.hidden = !isOwnVideo;
     self.iconImageView.image = [UIImage imageNamed:@"Movie"];
@@ -156,11 +155,8 @@
     [self layoutPostViews];
 }
 
-- (void)layoutUsername {
-    CGSize userSize = [self.usernameLabel sizeThatFits:CGSizeMake(self.frame.size.width, CGFLOAT_MAX)];
-    CGRect userFrame = self.usernameLabel.frame;
-    userFrame.size = userSize;
-    self.usernameLabel.frame = userFrame;
+- (void)layoutUsername:(NSString *)username {
+    self.usernameLabel.frame = [[self class] frameForUsernameLabel:username];
 }
 
 - (void)layoutImageViewWithYOffset:(CGFloat)yOffset {
@@ -241,22 +237,33 @@
 }
 
 + (CGFloat)heightForCommentCellWithUsername:(NSString *)username comment:(NSString *)comment {
-    // should actually implement this
-    UILabel *dummy = [[UILabel alloc] init];
-    dummy.text = username;
-    dummy.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
-    CGSize userSize = [dummy sizeThatFits:CGSizeMake(VIEW_WIDTH/2, CGFLOAT_MAX)];
-    
-    UITextView *dummyTextView = [[UITextView alloc] init];
-    dummyTextView.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
-    dummyTextView.textContainer.lineFragmentPadding = 0;
-    dummyTextView.textContainerInset = UIEdgeInsetsZero;
-    dummyTextView.text = comment;
-    CGFloat commentWidth = VIEW_WIDTH - (userSize.width + 6.0f);
-
-    CGSize commentSize = [dummyTextView sizeThatFits:CGSizeMake(commentWidth, CGFLOAT_MAX)];
-    
+    CGSize commentSize = [YAEventCell sizeForCommentsCellWithUsername:username comment:comment];
     return commentSize.height + 8.0f;
+}
+
++ (CGRect)frameForUsernameLabel:(NSString *)username {
+    NSDictionary *usernameAttributes = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE]};
+    CGRect rect = [username boundingRectWithSize:CGSizeMake(VIEW_HEIGHT/2, CGFLOAT_MAX)
+                                         options:NSStringDrawingUsesLineFragmentOrigin
+                                      attributes:usernameAttributes
+                                         context:nil];
+    
+    return rect;
+}
+
++ (CGSize)sizeForCommentsCellWithUsername:(NSString *)username comment:(NSString *)comment {
+    CGSize usernameSize = [[self class] frameForUsernameLabel:username].size;
+    CGFloat commentWidth = VIEW_WIDTH - (usernameSize.width + 6.0f);
+    
+    NSDictionary *commentAttributes = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE]};
+    CGRect commentsRect = [comment boundingRectWithSize:CGSizeMake(commentWidth, CGFLOAT_MAX)
+                                                options:NSStringDrawingUsesLineFragmentOrigin
+                                             attributes:commentAttributes
+                                                context:nil];
+    
+    CGSize commentSize = commentsRect.size;
+    
+    return commentSize;
 }
 
 + (CGFloat)heightForPostCell {
