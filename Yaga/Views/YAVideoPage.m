@@ -189,7 +189,9 @@ static NSString *commentCellID = @"CommentCell";
     if (![video isEqual:self.video]) {
         return;
     }
-    [self refreshTableWithNewEvents:[events reversedArray]];
+    if ([events count] > 1) {
+        [self refreshTableWithNewEvents:[events reversedArray]];
+    }
 }
 
 - (void)refreshTableWithNewEvents:(NSArray *)events {
@@ -758,7 +760,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)captionCancelPressedWhileTyping {
     self.editableCaptionTextView.text = @"";
-    [self doneTyping];
+    [self doneTypingCaption];
 }
 
 - (void)cancelButtonPressed:(id)sender {
@@ -1020,7 +1022,7 @@ static NSString *commentCellID = @"CommentCell";
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
     if([text isEqualToString:@"\n"]) {
-        [self doneTyping];
+        [self doneTypingCaption];
         return NO;
     }
     
@@ -1108,10 +1110,10 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)doneEditingTapOut:(id)sender {
-    [self doneTyping];
+    [self doneTypingCaption];
 }
 
-- (void)doneTyping {
+- (void)doneTypingCaption {
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
     
     [self.editableCaptionTextView resignFirstResponder];
@@ -1235,7 +1237,11 @@ static NSString *commentCellID = @"CommentCell";
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
     self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqual:@""];
-    [self refreshTableWithNewEvents:[[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray]];
+    NSArray *events = [[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray];
+    if (![events count]) {
+        events = @[[YAEvent eventForCreationOfVideo:self.video]];
+    }
+    [self refreshTableWithNewEvents:events];
     [self initializeCaption];
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
@@ -1494,9 +1500,8 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)accessoryButtonTaped:(id)sender {
 //    [self.video rename:self.captionField.text withFont:self.fontIndex];
-    [self removeGestureRecognizer:self.tapOutGestureRecognizer];
-    
-    [self.editableCaptionTextView resignFirstResponder];
+    [self doneTypingCaption];
+
     self.keyBoardAccessoryButton.hidden = YES;
 }
 
