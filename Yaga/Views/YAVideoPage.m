@@ -177,34 +177,35 @@ static NSString *commentCellID = @"CommentCell";
 
 #pragma mark - YAEventReceiver
 
-- (void)video:(YAVideo *)video didReceiveNewEvent:(YAEvent *)event {
-    if (![video isEqual:self.video]) {
+- (void)videoId:(NSString *)videoId didReceiveNewEvent:(YAEvent *)event {
+    if (![videoId isEqualToString:self.video.serverId]) {
         return;
     }
     [self.events insertObject:event atIndex:0];
     [self.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
 }
 
-- (void)video:(YAVideo *)video receivedInitialEvents:(NSArray *)events {
-    if (![video isEqual:self.video]) {
+- (void)videoId:(NSString *)videoId receivedInitialEvents:(NSArray *)events {
+    if (![videoId isEqualToString:self.video.serverId]) {
         return;
     }
-    if ([events count] > 1) {
-        [self refreshTableWithNewEvents:[events reversedArray]];
+    if ([events count]) {
+        [self refreshWholeTableWithEventsArray:[events reversedArray]];
     }
 }
 
-- (void)refreshTableWithNewEvents:(NSArray *)events {
+- (void)refreshWholeTableWithEventsArray:(NSArray *)events {
     [self.events removeAllObjects];
     [self.commentsTableView reloadData];
-    self.events = [events mutableCopy];
+    self.events = events ? [events mutableCopy] : [NSMutableArray array];
+    [self.events addObject:[YAEvent eventForCreationOfVideo:self.video]];
     NSMutableArray *indexArray = [NSMutableArray array];
-    for (int i = 0; i < [events count]; i++) {
+    for (int i = 0; i < [self.events count]; i++) {
         [indexArray addObject:[NSIndexPath indexPathForRow:i inSection:0]];
     }
     [self.commentsTableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationTop];
-
 }
+
 #pragma mark - keyboard
 
 - (void)commentsTapOut:(UIGestureRecognizer *)recognizer {
@@ -630,7 +631,7 @@ static NSString *commentCellID = @"CommentCell";
         event.eventType = YAEventTypeComment;
         event.comment = text;
         event.username = [YAUser currentUser].username;
-        [[YAEventManager sharedManager] addEvent:event toVideo:self.video];
+        [[YAEventManager sharedManager] addEvent:event toVideoId:[self.video.serverId copy]];
         
         self.commentsTextField.text = @"";
         self.commentsSendButton.hidden = YES;
@@ -1163,8 +1164,7 @@ static NSString *commentCellID = @"CommentCell";
     YAEvent *event = [YAEvent new];
     event.eventType = YAEventTypeLike;
     event.username = [YAUser currentUser].username;
-    [[YAEventManager sharedManager] addEvent:event toVideo:self.video];
-    
+    [[YAEventManager sharedManager] addEvent:event toVideoId:[self.video.serverId copy]];
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
@@ -1232,12 +1232,9 @@ static NSString *commentCellID = @"CommentCell";
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
-    self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqual:@""];
-    NSArray *events = [[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray];
-    if (![events count]) {
-        events = @[[YAEvent eventForCreationOfVideo:self.video]];
-    }
-    [self refreshTableWithNewEvents:events];
+    self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqualToString:@""];
+    NSArray *events = [[[YAEventManager sharedManager] getEventsForVideoId:self.video.serverId] reversedArray];
+    [self refreshWholeTableWithEventsArray:events];
     [self initializeCaption];
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
@@ -1411,6 +1408,8 @@ static NSString *commentCellID = @"CommentCell";
 - (void)didUploadVideo:(NSNotification*)notif {
     if([self.video isEqual:notif.object]) {
         [self showUploadingProgress:NO];
+        [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideoId:[self.video.serverId copy]
+                                                                     inGroup:[[YAUser currentUser].currentGroup.serverId copy]];
     }
 }
 

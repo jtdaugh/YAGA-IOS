@@ -297,7 +297,8 @@
         
         if(i == self.visibleTileIndex && preload) {
             [YAEventManager sharedManager].eventReceiver = page;
-            [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideo:page.video];
+            [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideoId:page.video.serverId
+                                                                         inGroup:[[YAUser currentUser].currentGroup.serverId copy]];
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
         }
