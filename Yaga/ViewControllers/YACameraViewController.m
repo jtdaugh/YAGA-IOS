@@ -190,7 +190,7 @@ typedef enum {
         CGFloat labelWidth = 96;
         self.countdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, labelWidth)];
         self.countdownLabel.alpha = 0.0;
-        self.countdownLabel.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
+        self.countdownLabel.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2 - 100.0f);
         [self.countdownLabel setTextAlignment:NSTextAlignmentCenter];
         [self.countdownLabel setFont:[UIFont fontWithName:@"AvenirNext-HeavyItalic" size:72]];
         NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"."
