@@ -449,6 +449,10 @@ typedef enum {
 
 - (void)enlargeCamera:(UISwipeGestureRecognizer *)recognizer {
     if(!self.largeCamera){
+        if(self.recordTooltipLabel){
+            [self.recordTooltipLabel removeFromSuperview];
+        }
+        
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             //
             self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
@@ -861,7 +865,7 @@ typedef enum {
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self showCameraAccessories:YES];
             [self showRecordingAccessories:0];
-//            self.recordButton.transform = CGAffineTransformIdentity;
+            self.recordButton.transform = CGAffineTransformIdentity;
             self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
          }];
         self.largeCamera = NO;
