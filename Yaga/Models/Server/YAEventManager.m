@@ -75,8 +75,9 @@
 
 - (void)startChildAddedQueryForVideo:(YAVideo *)video {
     if (video.isInvalidated) return;
-
     NSString *videoId = video.serverId;
+    if (![videoId length]) return;
+    
     self.videoIdMonitoring = videoId;
     YAEvent *lastEvent = [self.eventsByVideoId[videoId] lastObject];
     __weak YAEventManager *weakSelf = self;
@@ -123,7 +124,10 @@
     NSString *groupId = [YAUser currentUser].currentGroup.serverId;
     NSString *videoId = video.serverId;
     
-    if (![videoId length]) return; // No server id will cause Firebase crash
+    if (![videoId length]) {
+        NSLog(@"Not prefetching due to empty video serverId");
+        return; // No server id will cause Firebase crash
+    }
     if ([self.eventsByVideoId[videoId] count]) return; // Already prefetched this video's events
     if ([self.videoIdMonitoring isEqualToString:videoId]) return; // Already monitoring child added for this video
     
@@ -154,8 +158,9 @@
 
 - (void)addEvent:(YAEvent *)event toVideo:(YAVideo *)video {
     if (video.isInvalidated) return;
-
-    [[[self.firebaseRoot childByAppendingPath:video.serverId] childByAutoId] setValue:[event toDictionary]];
+    if ([video.serverId length]) {
+        [[[self.firebaseRoot childByAppendingPath:video.serverId] childByAutoId] setValue:[event toDictionary]];
+    }
 }
 
 @end

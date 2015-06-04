@@ -189,7 +189,9 @@ static NSString *commentCellID = @"CommentCell";
     if (![video isEqual:self.video]) {
         return;
     }
-    [self refreshTableWithNewEvents:[events reversedArray]];
+    if ([events count] > 1) {
+        [self refreshTableWithNewEvents:[events reversedArray]];
+    }
 }
 
 - (void)refreshTableWithNewEvents:(NSArray *)events {
@@ -1231,7 +1233,11 @@ static NSString *commentCellID = @"CommentCell";
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
     self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqual:@""];
-    [self refreshTableWithNewEvents:[[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray]];
+    NSArray *events = [[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray];
+    if (![events count]) {
+        events = @[[YAEvent eventForCreationOfVideo:self.video]];
+    }
+    [self refreshTableWithNewEvents:events];
     [self initializeCaption];
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
