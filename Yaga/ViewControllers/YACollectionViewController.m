@@ -104,11 +104,11 @@ static NSString *cellID = @"Cell";
     [self setupPullToRefresh];
 }
 
-- (void)video:(YAVideo *)video eventCountUpdated:(NSUInteger)eventCount {
-    NSUInteger item = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+- (void)videoId:(NSString *)videoId eventCountUpdated:(NSUInteger)eventCount {
+    NSUInteger item = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@", videoId];
     YAVideoCell *cell = (YAVideoCell *)[self.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0]];
     if (cell) {
-        [cell setEventCount:eventCount - 1]; // -1 because of initial post event
+        [cell setEventCount:eventCount];
     }
 }
 
@@ -462,11 +462,15 @@ static NSString *cellID = @"Cell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
-    [[YAEventManager sharedManager] prefetchEventsForVideo:video];
+    NSString *videoId = [video.serverId copy];
+    NSString *groupId = [[YAUser currentUser].currentGroup.serverId copy];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[YAEventManager sharedManager] prefetchEventsForVideoId:videoId inGroup:groupId];
+    });
     cell.index = indexPath.item;
     cell.video = video;
-    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideo:video];
-    if (eventCount) [cell setEventCount:eventCount - 1];  // -1 because of initial post event
+    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoId:videoId];
+    [cell setEventCount:eventCount];
     return cell;
 }
 

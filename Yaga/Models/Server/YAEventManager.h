@@ -11,14 +11,14 @@
 
 @protocol YAEventReceiver <NSObject>
 
-- (void)video:(YAVideo *)video didReceiveNewEvent:(YAEvent *)event;
-- (void)video:(YAVideo *)video receivedInitialEvents:(NSArray *)events;
+- (void)videoId:(NSString *)videoId didReceiveNewEvent:(YAEvent *)event;
+- (void)videoId:(NSString *)video receivedInitialEvents:(NSArray *)events;
 
 @end
 
 @protocol YAEventCountReceiver <NSObject>
 
-- (void)video:(YAVideo *)video eventCountUpdated:(NSUInteger)eventCount;
+- (void)videoId:(NSString *)videoId eventCountUpdated:(NSUInteger)eventCount;
 
 @end
 
@@ -30,22 +30,22 @@
 @property (nonatomic, weak) id<YAEventCountReceiver> eventCountReceiver;
 
 // Returns an NSArray of YAEvents
-- (NSMutableArray *)getEventsForVideo:(YAVideo *)video;
+- (NSMutableArray *)getEventsForVideoId:(NSString *)videoId;
 
-- (NSUInteger)getEventCountForVideo:(YAVideo *)video;
+- (NSUInteger)getEventCountForVideoId:(NSString *)videoId;
 
 // Start monitoring childAdded
-- (void)beginMonitoringForNewEventsOnVideo:(YAVideo *)video;
+- (void)beginMonitoringForNewEventsOnVideoId:(NSString *)videoId inGroup:(NSString *)groupId;
 
 // Observe value once then kill observer
-- (void)prefetchEventsForVideo:(YAVideo *)video;
+- (void)prefetchEventsForVideoId:(NSString *)videoId inGroup:(NSString *)groupId;
 
 // Stops the request for initial data on given video if it hasnt returned yet.
-- (void)killPrefetchForVideo:(YAVideo *)video;
+- (void)killPrefetchForVideoId:(NSString *)videoId;
 
 // If group changed or first call, clears any memory and pulls events data for new group.
 - (void)groupChanged;
 
-- (void)addEvent:(YAEvent *)event toVideo:(YAVideo *)video;
+- (void)addEvent:(YAEvent *)event toVideoId:(NSString *)videoId;
 
 @end
