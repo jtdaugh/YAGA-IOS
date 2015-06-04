@@ -778,6 +778,7 @@ typedef enum {
     }
     
     self.previousViewFrame = self.view.frame;
+    self.recordButton.hidden = YES;
     
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
@@ -868,6 +869,7 @@ typedef enum {
     
     if([self.recording boolValue]){
         self.recordingIndicator.alpha = 0.0;
+        self.recordButton.hidden = NO;
         
         [self.view bringSubviewToFront:self.cameraView];
         //        [self.view bringSubviewToFront:self.recordButton];
