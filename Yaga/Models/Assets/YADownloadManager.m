@@ -252,14 +252,18 @@
     NSUInteger videoIndex = [video.group.videos indexOfObject:video];
     if(videoIndex > 0) {
         YAVideo *leftVideo = [video.group.videos objectAtIndex:videoIndex - 1];
-        [self.waitingUrls removeObject:leftVideo.url];
-        [self.waitingUrls addObject:leftVideo.url];
+        if(!leftVideo.mp4Filename.length) {
+            [self.waitingUrls removeObject:leftVideo.url];
+            [self.waitingUrls addObject:leftVideo.url];
+        }
     }
     
     if(videoIndex < video.group.videos.count - 1) {
         YAVideo *rightVideo = [video.group.videos objectAtIndex:videoIndex + 1];
-        [self.waitingUrls removeObject:rightVideo.url];
-        [self.waitingUrls addObject:rightVideo.url];
+        if(!rightVideo.mp4Filename.length) {
+            [self.waitingUrls removeObject:rightVideo.url];
+            [self.waitingUrls addObject:rightVideo.url];
+        }
     }
 }
 
