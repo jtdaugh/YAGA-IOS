@@ -137,7 +137,9 @@
 {
     [super prepareForReuse];
     
-    [[YAEventManager sharedManager] killPrefetchForVideoId:[self.video.serverId copy]];
+    if (!self.video.invalidated) {
+        [[YAEventManager sharedManager] killPrefetchForVideoId:[self.video.serverId copy]];
+    }
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
