@@ -864,6 +864,7 @@ typedef enum {
 //            self.recordButton.transform = CGAffineTransformIdentity;
             self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
          }];
+        self.largeCamera = NO;
         
         [self.indicatorText setText:NSLocalizedString(@"RECORD_TIP", @"")];
         [self.indicator removeFromSuperview];
