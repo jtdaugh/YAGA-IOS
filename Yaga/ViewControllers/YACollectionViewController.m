@@ -448,6 +448,8 @@ static NSString *cellID = @"Cell";
     
     cell.video = video;
     
+    [self handlePagingForIndexPath:indexPath];
+    
     return cell;
 }
 
@@ -521,8 +523,6 @@ static NSString *cellID = @"Cell";
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self.delegate collectionViewDidScroll];
-    
-    [self handlePaging];
 
     [[YAAssetsCreator sharedCreator] cancelGifOperations];
     
@@ -640,28 +640,20 @@ static NSString *cellID = @"Cell";
 }
 
 #pragma mark - Paging
-- (void)handlePaging {
-    //the following line will ensure indexPathsForVisibleItems will return correct results
-    [self.collectionView layoutIfNeeded];
-    
-    NSArray *visibleIndexes = [[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"];
-    if(!visibleIndexes.count)
-        return;
-    
-    NSUInteger max = [[visibleIndexes valueForKeyPath:@"@max.intValue"] integerValue];
-    
-    if (max > self.paginationThreshold - kPaginationItemsCountToStartLoadingNextPage) {
-        //load more
-        [self.collectionView reloadItemsAtIndexPaths:[self.collectionView indexPathsForVisibleItems]];
-        [self.collectionView reloadData];
-        
+- (void)handlePagingForIndexPath:(NSIndexPath*)indexPath {
+    if(indexPath.row > self.paginationThreshold - kPaginationItemsCountToStartLoadingNextPage) {
         NSUInteger oldPaginationThreshold = self.paginationThreshold;
-        
-        // update the threshold
         self.paginationThreshold += kPaginationDefaultThreshold;
         
-        //enqueue new assets creation jobs
-        [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
+        //can't call reloadData methods when called from cellForRowAtIndexPath, using delay
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.collectionView reloadData];
+            
+            //enqueue new assets creation jobs
+            [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
+        
+            DLog(@"Page %lu loaded", self.paginationThreshold / kPaginationDefaultThreshold);
+        });
     }
 }
 
