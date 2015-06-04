@@ -105,6 +105,8 @@
         [self.captionWrapper addSubview:self.caption];
         [self.contentView addSubview:self.captionWrapper];
 
+        self.contentView.layer.masksToBounds = YES;
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
     }
     return self;
@@ -308,15 +310,15 @@
 
         CGSize cellSize = self.bounds.size;
 
-        CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH;
+        CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH * .75;
         self.captionWrapper.transform = CGAffineTransformIdentity;
         
         self.captionWrapper.frame = CGRectMake(0, 0, capSize.width, capSize.height);
-        self.captionWrapper.center = CGPointMake(cellSize.width/2.f, cellSize.height/2.f);
+        self.captionWrapper.center = CGPointMake(cellSize.width/2, cellSize.height/2);
         self.caption.frame = CGRectMake(0, 0, capSize.width, capSize.height);
         self.caption.center = CGPointMake(self.captionWrapper.frame.size.width/2.f, self.captionWrapper.frame.size.height/2.f);
         
-        self.captionWrapper.transform = CGAffineTransformMakeScale(scale, scale);
+        self.captionWrapper.transform = CGAffineTransformConcat(CGAffineTransformMakeRotation(self.video.caption_rotation), CGAffineTransformMakeScale(scale, scale));
 
         self.captionWrapper.hidden = NO;
     } else {
