@@ -49,6 +49,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import "YACameraFocusSquare.h"
 
+#define MAX_ZOOM_SCALE 4.f
+
 @interface AVCamPreviewView () <UIGestureRecognizerDelegate>
 @property (nonatomic, strong) YACameraFocusSquare *camFocus;
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchZoomGesture;
@@ -129,7 +131,7 @@
 }
 
 - (void)applyZoom {
-    if (self.effectiveScale >= 1 && self.effectiveScale <= self.captureDevice.activeFormat.videoMaxZoomFactor) {
+    if (self.effectiveScale >= 1 && self.effectiveScale <= MAX_ZOOM_SCALE) {
         NSNumber *DefaultZoomFactor = [[NSNumber alloc] initWithFloat:self.effectiveScale];
         NSError *error = nil;
         if ([self.captureDevice lockForConfiguration:&error]) {
@@ -195,6 +197,27 @@
             }
         }
     }
+}
+
+- (void)switchCamera:(AVCaptureDevicePosition)position {
+    self.captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:position];
+}
+
+- (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
+    AVCaptureDevice *captureDevice = [devices firstObject];
+    
+    for (AVCaptureDevice *device in devices)
+    {
+        if ([device position] == position)
+        {
+            captureDevice = device;
+            break;
+        }
+    }
+    
+    return captureDevice;
 }
 
 @end
