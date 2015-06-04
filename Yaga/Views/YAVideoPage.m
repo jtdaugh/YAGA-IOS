@@ -905,7 +905,7 @@ static NSString *commentCellID = @"CommentCell";
 - (void)handlePan:(UIPanGestureRecognizer *)recognizer {
     CGPoint translation = [recognizer translationInView:self];
     recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
-                                         recognizer.view.center.y + translation.y);
+                                         MIN(recognizer.view.center.y + translation.y, VIEW_HEIGHT*.666));
     
     [recognizer setTranslation:CGPointMake(0, 0) inView:self];
     
