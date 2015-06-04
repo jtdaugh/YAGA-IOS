@@ -1,5 +1,5 @@
 //
-//  YADownloadManager2.m
+//  YADownloadManager.m
 //  Yaga
 //
 //  Created by valentinkovalski on 4/29/15.
@@ -14,8 +14,7 @@
 //keeps executing and paused AFDownloadRequestOperations in memory so they can be resumed
 @property (nonatomic, strong) NSMutableDictionary *downloadJobs;
 
-@property (nonatomic, strong) NSMutableArray *waitingGifUrls;
-@property (nonatomic, strong) NSMutableArray *waitingMp4Urls;
+@property (nonatomic, strong) NSMutableArray *waitingUrls;
 
 @property (nonatomic, strong) NSMutableSet *executingUrls;
 
@@ -39,8 +38,7 @@
     self = [super init];
     if(self) {
         self.downloadJobs = [NSMutableDictionary new];
-        self.waitingGifUrls = [NSMutableArray new];
-        self.waitingMp4Urls = [NSMutableArray new];
+        self.waitingUrls = [NSMutableArray new];
         self.executingUrls = [NSMutableSet new];
         self.maxConcurentJobs = kDefaultCountOfConcurentJobs;
         _mp4DownloadProgress = [NSMutableDictionary new];
@@ -119,27 +117,12 @@
 }
 
 - (void)reorderJobs:(NSArray*)orderedUrls {
-    NSArray *gifUrls = orderedUrls[0];
-    NSArray *mp4Urls = orderedUrls[1];
+    [self.waitingUrls removeObjectsInArray:orderedUrls];
     
-    //move new gif urls to the top
-    NSMutableArray *allUrls = [NSMutableArray arrayWithArray:self.waitingGifUrls];
-    [allUrls removeObjectsInArray:gifUrls];
+    NSMutableArray *newWaitingUrls = [NSMutableArray arrayWithArray:orderedUrls];
+    [newWaitingUrls addObjectsFromArray:self.waitingUrls];
     
-    NSMutableArray *waitingUrlsMutable = [NSMutableArray arrayWithArray:gifUrls];
-    [waitingUrlsMutable addObjectsFromArray:self.waitingGifUrls];
-    
-    self.waitingGifUrls = waitingUrlsMutable;
-    
-    //move new mp4 urls to the top
-    allUrls = [NSMutableArray arrayWithArray:self.waitingMp4Urls];
-    [allUrls removeObjectsInArray:mp4Urls];
-    
-    waitingUrlsMutable = [NSMutableArray arrayWithArray:mp4Urls];
-    [waitingUrlsMutable addObjectsFromArray:self.waitingMp4Urls];
-    
-    self.waitingMp4Urls = waitingUrlsMutable;
-    
+    self.waitingUrls = newWaitingUrls;
 }
 
 - (void)pauseExecutingJobs {
@@ -148,10 +131,7 @@
         AFDownloadRequestOperation *executingJob = self.downloadJobs[executingUrl];
         [executingJob pause];
         
-        if([self isMp4DownloadJob:executingJob])
-            [self.waitingMp4Urls insertObject:executingUrl atIndex:0];
-        else
-            [self.waitingGifUrls insertObject:executingUrl atIndex:0];
+        [self.waitingUrls insertObject:executingUrl atIndex:0];
     }
     [self.executingUrls removeAllObjects];
     
@@ -159,10 +139,8 @@
 }
 
 - (NSString*)nextUrl {
-    if(self.waitingGifUrls.count)
-        return self.waitingGifUrls[0];
-    else if(self.waitingMp4Urls.count)
-        return self.waitingMp4Urls[0];
+    if(self.waitingUrls.count)
+        return self.waitingUrls[0];
     
     return nil;
 }
@@ -184,7 +162,7 @@
                     RLMResults *results = [YAVideo objectsWhere:predicate];
                     
                     BOOL gifJob = results.count;
-
+                    
                     if(!gifJob) {
                         predicate = [NSString stringWithFormat:@"url = '%@'", waitingUrl];
                         results = [YAVideo objectsWhere:predicate];
@@ -203,11 +181,10 @@
             else {
                 [nextJob resume];
             }
-                        
+            
             [self.executingUrls addObject:waitingUrl];
             
-            [self.waitingGifUrls removeObject:waitingUrl];
-            [self.waitingMp4Urls removeObject:waitingUrl];
+            [self.waitingUrls removeObject:waitingUrl];
         }
     }
     else {
@@ -216,7 +193,7 @@
 }
 
 - (void)waitUntilAllJobsAreFinished {
-    if(self.executingUrls.count == 0 && self.waitingGifUrls.count == 0 && self.waitingMp4Urls.count == 0)
+    if(self.executingUrls.count == 0 && self.waitingUrls.count == 0)
         return;
     
     self.waiting_semaphore = dispatch_semaphore_create(0);
@@ -230,15 +207,11 @@
     }
     [self.executingUrls removeAllObjects];
     
-    for (NSString *waitingUrl in self.waitingGifUrls) {
+    for (NSString *waitingUrl in self.waitingUrls) {
         [self.downloadJobs[waitingUrl] cancel];
     }
-    [self.waitingGifUrls removeAllObjects];
     
-    for (NSString *waitingUrl in self.waitingMp4Urls) {
-        [self.downloadJobs[waitingUrl] cancel];
-    }
-    [self.waitingMp4Urls removeAllObjects];
+    [self.waitingUrls removeAllObjects];
 }
 
 #pragma mark - Private
@@ -252,7 +225,7 @@
     
     DLog(@"%@ finished", gifJob ? @"gif" : @"mp4");
     
-    if(self.executingUrls.count == 0 && self.waitingGifUrls.count == 0 && self.waitingMp4Urls.count == 0) {
+    if(self.executingUrls.count == 0 && self.waitingUrls.count == 00) {
         DLog(@"YADownloadManager all done");
         if(self.waiting_semaphore)
             dispatch_semaphore_signal(self.waiting_semaphore);
@@ -272,8 +245,22 @@
     else
         [nextJob start];
     
-    [self.waitingMp4Urls removeObject:video.url];
+    [self.waitingUrls removeObject:video.url];
     [self.executingUrls addObject:video.url];
+    
+    //add/move left and right mp4 files to the top of waiting queue
+    NSUInteger videoIndex = [video.group.videos indexOfObject:video];
+    if(videoIndex > 0) {
+        YAVideo *leftVideo = [video.group.videos objectAtIndex:videoIndex - 1];
+        [self.waitingUrls removeObject:leftVideo.url];
+        [self.waitingUrls addObject:leftVideo.url];
+    }
+    
+    if(videoIndex < video.group.videos.count - 1) {
+        YAVideo *rightVideo = [video.group.videos objectAtIndex:videoIndex + 1];
+        [self.waitingUrls removeObject:rightVideo.url];
+        [self.waitingUrls addObject:rightVideo.url];
+    }
 }
 
 #pragma mark - Helper methods
