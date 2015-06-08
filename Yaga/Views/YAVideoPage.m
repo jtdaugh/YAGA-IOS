@@ -66,7 +66,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UIView *loader;
 @property (nonatomic, strong) YAProgressView *progressView;
 @property (nonatomic) CGRect keyboardRect;
-@property (nonatomic, strong) UIButton *keyBoardAccessoryButton;
 
 @property (nonatomic, strong) UILabel *debugLabel;
 @property NSUInteger fontIndex;
@@ -163,11 +162,7 @@ static NSString *commentCellID = @"CommentCell";
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
 
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(inputModeChanged:) name:UITextInputCurrentInputModeDidChangeNotification object:nil];
-        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShown:) name:UIKeyboardDidShowNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDown:) name:UIKeyboardDidHideNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
         
@@ -189,32 +184,35 @@ static NSString *commentCellID = @"CommentCell";
 
 #pragma mark - YAEventReceiver
 
-- (void)video:(YAVideo *)video didReceiveNewEvent:(YAEvent *)event {
-    if (![video isEqual:self.video]) {
+- (void)videoId:(NSString *)videoId didReceiveNewEvent:(YAEvent *)event {
+    if (![videoId isEqualToString:self.video.serverId]) {
         return;
     }
     [self.events insertObject:event atIndex:0];
     [self.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
 }
 
-- (void)video:(YAVideo *)video receivedInitialEvents:(NSArray *)events {
-    if (![video isEqual:self.video]) {
+- (void)videoId:(NSString *)videoId receivedInitialEvents:(NSArray *)events {
+    if (![videoId isEqualToString:self.video.serverId]) {
         return;
     }
-    [self refreshTableWithNewEvents:[events reversedArray]];
+    if ([events count]) {
+        [self refreshWholeTableWithEventsArray:[events reversedArray]];
+    }
 }
 
-- (void)refreshTableWithNewEvents:(NSArray *)events {
+- (void)refreshWholeTableWithEventsArray:(NSArray *)events {
     [self.events removeAllObjects];
     [self.commentsTableView reloadData];
-    self.events = [events mutableCopy];
+    self.events = events ? [events mutableCopy] : [NSMutableArray array];
+    [self.events addObject:[YAEvent eventForCreationOfVideo:self.video]];
     NSMutableArray *indexArray = [NSMutableArray array];
-    for (int i = 0; i < [events count]; i++) {
+    for (int i = 0; i < [self.events count]; i++) {
         [indexArray addObject:[NSIndexPath indexPathForRow:i inSection:0]];
     }
     [self.commentsTableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationTop];
-
 }
+
 #pragma mark - keyboard
 
 - (void)commentsTapOut:(UIGestureRecognizer *)recognizer {
@@ -291,11 +289,6 @@ static NSString *commentCellID = @"CommentCell";
                          }
                      }];
     self.previousKeyboardLocation = up;
-}
-
-- (void)keyboardDown:(NSNotification*)n
-{
-    self.keyBoardAccessoryButton.hidden = YES;
 }
 
 - (void)keyboardShown:(NSNotification*)n
@@ -398,11 +391,9 @@ static NSString *commentCellID = @"CommentCell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingOperationDidFinishNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidHideNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextInputCurrentInputModeDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
 }
 
@@ -465,7 +456,7 @@ static NSString *commentCellID = @"CommentCell";
 //    CGFloat tSize = CAPTION_FONT_SIZE;
 
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
-//    self.XButton.transform = CGAffineTransformMakeScale(0.66, 0.66);
+    self.XButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
     self.XButton.alpha = 0.7;
     [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
@@ -507,6 +498,12 @@ static NSString *commentCellID = @"CommentCell";
     
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:self.progressView];
+    
+    UIButton *progressXButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    progressXButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
+    progressXButton.alpha = 0.7;
+    [progressXButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.progressView addSubview:progressXButton];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_progressView]-0-|" options:0 metrics:nil views:views]];
@@ -640,7 +637,7 @@ static NSString *commentCellID = @"CommentCell";
         event.eventType = YAEventTypeComment;
         event.comment = text;
         event.username = [YAUser currentUser].username;
-        [[YAEventManager sharedManager] addEvent:event toVideo:self.video];
+        [[YAEventManager sharedManager] addEvent:event toVideoId:[self.video.serverId copy]];
         
         self.commentsTextField.text = @"";
         self.commentsSendButton.hidden = YES;
@@ -734,6 +731,10 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [YAEventCell heightForCellWithEvent:self.events[indexPath.row]];
+}
+
 - (void)setupCaptionButtonContainer {
     self.captionButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - CAPTION_BUTTON_HEIGHT, VIEW_WIDTH, CAPTION_BUTTON_HEIGHT)];
     [self.overlay addSubview:self.captionButtonContainer];
@@ -750,7 +751,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.cancelCaptionButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 
     self.rajsBelovedDoneButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cancelCaptionButton.frame.size.width, 0, VIEW_WIDTH*CAPTION_DONE_PROPORTION, CAPTION_BUTTON_HEIGHT)];
-    self.rajsBelovedDoneButton.backgroundColor = [UIColor colorWithRed:(39.f/255.f) green:(174.f/255.f) blue:(96.f/255.f) alpha:.75];
+    self.rajsBelovedDoneButton.backgroundColor = SECONDARY_COLOR;
     [self.rajsBelovedDoneButton setTitle:@"Done" forState:UIControlStateNormal];
     [self.rajsBelovedDoneButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
     [self.rajsBelovedDoneButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
@@ -815,7 +816,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)captionCancelPressedWhileTyping {
     self.editableCaptionTextView.text = @"";
-    [self doneTyping];
+    [self doneTypingCaption];
 }
 
 - (void)cancelButtonPressed:(id)sender {
@@ -848,8 +849,6 @@ static NSString *commentCellID = @"CommentCell";
         [self.presentingVC suspendAllGestures:self];
     }
 }
-
-
 
 - (void)toggleEditingCaption:(BOOL)editing {
     self.editingCaption = editing;
@@ -915,6 +914,7 @@ static NSString *commentCellID = @"CommentCell";
         self.editableCaptionWrapperView = nil;
         self.editableCaptionTextView = nil;
         self.serverCaptionTextView.editable = NO;
+        [self.overlay sendSubviewToBack:self.serverCaptionWrapperView];
         [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
     }
 }
@@ -955,7 +955,7 @@ static NSString *commentCellID = @"CommentCell";
 - (void)handlePan:(UIPanGestureRecognizer *)recognizer {
     CGPoint translation = [recognizer translationInView:self];
     recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
-                                         recognizer.view.center.y + translation.y);
+                                         MIN(recognizer.view.center.y + translation.y, VIEW_HEIGHT*.666));
     
     [recognizer setTranslation:CGPointMake(0, 0) inView:self];
     
@@ -1077,7 +1077,7 @@ static NSString *commentCellID = @"CommentCell";
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
     if([text isEqualToString:@"\n"]) {
-        [self doneTyping];
+        [self doneTypingCaption];
         return NO;
     }
     
@@ -1165,10 +1165,10 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)doneEditingTapOut:(id)sender {
-    [self doneTyping];
+    [self doneTypingCaption];
 }
 
-- (void)doneTyping {
+- (void)doneTypingCaption {
     [self removeGestureRecognizer:self.tapOutGestureRecognizer];
     
     [self.editableCaptionTextView resignFirstResponder];
@@ -1222,8 +1222,7 @@ static NSString *commentCellID = @"CommentCell";
     YAEvent *event = [YAEvent new];
     event.eventType = YAEventTypeLike;
     event.username = [YAUser currentUser].username;
-    [[YAEventManager sharedManager] addEvent:event toVideo:self.video];
-    
+    [[YAEventManager sharedManager] addEvent:event toVideoId:[self.video.serverId copy]];
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
@@ -1291,8 +1290,9 @@ static NSString *commentCellID = @"CommentCell";
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
-    self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqual:@""];
-    [self refreshTableWithNewEvents:[[[YAEventManager sharedManager] getEventsForVideo:self.video] reversedArray]];
+    self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqualToString:@""];
+    NSArray *events = [[[YAEventManager sharedManager] getEventsForVideoId:self.video.serverId] reversedArray];
+    [self refreshWholeTableWithEventsArray:events];
     [self initializeCaption];
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
@@ -1326,12 +1326,14 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
 //                    forState:UIControlStateNormal];
 //
-
-    //get likers for video
     
-    if(self.video.mp4Filename.length) {
-        [self showProgress:NO];
-    }
+    self.captionTapRecognizer.enabled = mp4Downloaded;
+    self.likeDoubleTapRecognizer.enabled = mp4Downloaded;
+    self.commentButton.enabled = mp4Downloaded;
+    self.captionButton.enabled = mp4Downloaded;
+    self.shareButton.enabled = mp4Downloaded;
+
+    [self showProgress:!mp4Downloaded];
     
 }
 
@@ -1632,6 +1634,8 @@ static NSString *commentCellID = @"CommentCell";
 - (void)didUploadVideo:(NSNotification*)notif {
     if([self.video isEqual:notif.object]) {
         [self showUploadingProgress:NO];
+        [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideoId:[self.video.serverId copy]
+                                                                     inGroup:[[YAUser currentUser].currentGroup.serverId copy]];
     }
 }
 
@@ -1679,48 +1683,6 @@ static NSString *commentCellID = @"CommentCell";
     if ([object isKindOfClass:[YAVideoPlayerView class]]) {
         [self showLoading:!((YAVideoPlayerView*)object).readyToPlay];
     }
-}
-
-#pragma mark - Observing input mode
-- (void)inputModeChanged:(NSNotification*)sender {
-    NSString *mode = self.editableCaptionTextView.textInputMode.primaryLanguage;
-    //Adding additional "Done" button for emoji keyboard
-    if (mode == nil) { //Appears to corespond to emoji
-        if (!self.keyBoardAccessoryButton) {
-            CGFloat buttonHeight = 40.f;
-            CGFloat buttonWidth = 100.f;
-            CGFloat buttonMargin = 5.f;
-            CGFloat buttonLeftMargin = self.keyboardRect.size.width - buttonWidth - 5.f;
-            self.keyBoardAccessoryButton = [[UIButton alloc] initWithFrame:CGRectMake(buttonLeftMargin,
-                                                                                      self.keyboardRect.origin.y - buttonHeight - buttonMargin,
-                                                                                      buttonWidth,
-                                                                                      buttonHeight)];
-            self.keyBoardAccessoryButton.layer.cornerRadius = 8.0f;
-            [self.keyBoardAccessoryButton setTitle:NSLocalizedString(@"Done", nil) forState:UIControlStateNormal];
-            [self.keyBoardAccessoryButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-            [self.keyBoardAccessoryButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
-            self.keyBoardAccessoryButton.layer.borderColor = [UIColor whiteColor].CGColor;
-            self.keyBoardAccessoryButton.layer.borderWidth = 2.0f;
-            self.keyBoardAccessoryButton.backgroundColor = PRIMARY_COLOR;
-            [self.keyBoardAccessoryButton addTarget:self
-                                             action:@selector(accessoryButtonTaped:)
-                                   forControlEvents:UIControlEventTouchUpInside];
-            [self addSubview:self.keyBoardAccessoryButton];
-        }
-        self.keyBoardAccessoryButton.hidden = NO;
-    }
-    else
-    {
-        self.keyBoardAccessoryButton.hidden = YES;
-    }
-}
-
-- (void)accessoryButtonTaped:(id)sender {
-//    [self.video rename:self.captionField.text withFont:self.fontIndex];
-    [self removeGestureRecognizer:self.tapOutGestureRecognizer];
-    
-    [self.editableCaptionTextView resignFirstResponder];
-    self.keyBoardAccessoryButton.hidden = YES;
 }
 
 

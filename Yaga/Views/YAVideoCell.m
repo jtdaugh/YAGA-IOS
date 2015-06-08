@@ -105,6 +105,8 @@
         [self.captionWrapper addSubview:self.caption];
         [self.contentView addSubview:self.captionWrapper];
 
+        self.contentView.layer.masksToBounds = YES;
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
     }
     return self;
@@ -137,7 +139,9 @@
 {
     [super prepareForReuse];
     
-    [[YAEventManager sharedManager] killPrefetchForVideo:self.video];
+    if (!self.video.invalidated) {
+        [[YAEventManager sharedManager] killPrefetchForVideoId:[self.video.serverId copy]];
+    }
     self.video = nil;
     self.gifView.image = nil;
     self.gifView.animatedImage = nil;
@@ -293,21 +297,30 @@
     NSString *caption = self.video.caption;
     
     if(caption.length) {
-        self.captionWrapper.transform = CGAffineTransformIdentity;
 
         self.caption.text = caption;
-        CGSize capSize = [self.caption sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)];
+        
+        NSDictionary *commentAttributes = @{NSFontAttributeName:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE],
+                                            NSStrokeColorAttributeName:[UIColor whiteColor],
+                                            NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
+                                            };
+
+        CGSize capSize = [caption boundingRectWithSize:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)
+                                                    options:NSStringDrawingUsesLineFragmentOrigin
+                                                 attributes:commentAttributes
+                                                    context:nil].size;
+
         CGSize cellSize = self.bounds.size;
 
-        self.captionWrapper.frame = CGRectMake(0,
-                                        0,
-                                        capSize.width, capSize.height);
-        self.captionWrapper.center = CGPointMake(cellSize.width/2.f, cellSize.height/2.f);
+        CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH * .88;
+        self.captionWrapper.transform = CGAffineTransformIdentity;
         
+        self.captionWrapper.frame = CGRectMake(0, 0, capSize.width, capSize.height);
+        self.captionWrapper.center = CGPointMake(cellSize.width/2, cellSize.height/2);
         self.caption.frame = CGRectMake(0, 0, capSize.width, capSize.height);
         self.caption.center = CGPointMake(self.captionWrapper.frame.size.width/2.f, self.captionWrapper.frame.size.height/2.f);
-        CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH;
-        self.captionWrapper.transform = CGAffineTransformMakeScale(scale, scale);
+        
+        self.captionWrapper.transform = CGAffineTransformConcat(CGAffineTransformMakeRotation(self.video.caption_rotation), CGAffineTransformMakeScale(scale, scale));
 
         self.captionWrapper.hidden = NO;
     } else {

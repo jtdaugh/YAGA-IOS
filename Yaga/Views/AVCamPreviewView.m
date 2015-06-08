@@ -49,8 +49,14 @@
 #import <AVFoundation/AVFoundation.h>
 #import "YACameraFocusSquare.h"
 
-@interface AVCamPreviewView ()
+#define MAX_ZOOM_SCALE 4.f
+
+@interface AVCamPreviewView () <UIGestureRecognizerDelegate>
 @property (nonatomic, strong) YACameraFocusSquare *camFocus;
+@property (nonatomic, strong) UIPinchGestureRecognizer *pinchZoomGesture;
+@property (nonatomic, strong) AVCaptureDevice *captureDevice;
+@property (nonatomic, assign) CGFloat effectiveScale;
+@property (nonatomic, assign) CGFloat beginGestureScale;
 @end
 @implementation AVCamPreviewView
 
@@ -72,8 +78,14 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+//        self.tapToFocusRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(zoom:)];
+//        self.tapToFocusRecognizer.enabled = YES;
 //        [self addGestureRecognizer:self.tapToFocusRecognizer];
+        self.pinchZoomGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchFrom:)];
+        self.pinchZoomGesture.delegate = self;
+        [self addGestureRecognizer:self.pinchZoomGesture];
+        self.effectiveScale = 1.f;
+        self.captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     }
     return self;
 }
@@ -97,6 +109,46 @@
     [UIView setAnimationDuration:1.5];
     [self.camFocus setAlpha:0.0];
     [UIView commitAnimations];
+}
+
+- (void)handlePinchFrom:(UIPinchGestureRecognizer *)pinchZoomGesture {
+    BOOL allTouchesAreOnThePreviewLayer = YES;
+    NSUInteger numTouches = [pinchZoomGesture numberOfTouches], i;
+    AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = (AVCaptureVideoPreviewLayer *)[self layer];
+    for ( i = 0; i < numTouches; ++i ) {
+        CGPoint location = [pinchZoomGesture locationOfTouch:i inView:self];
+        CGPoint convertedLocation = [captureVideoPreviewLayer convertPoint:location fromLayer:captureVideoPreviewLayer.superlayer];
+        if ( ! [captureVideoPreviewLayer containsPoint:convertedLocation] ) {
+            allTouchesAreOnThePreviewLayer = NO;
+            break;
+        }
+    }
+    
+    if ( allTouchesAreOnThePreviewLayer ) {
+        self.effectiveScale = self.beginGestureScale * pinchZoomGesture.scale;
+        [self applyZoom];
+    }
+}
+
+- (void)applyZoom {
+    if (self.effectiveScale >= 1 && self.effectiveScale <= MAX_ZOOM_SCALE) {
+        NSNumber *DefaultZoomFactor = [[NSNumber alloc] initWithFloat:self.effectiveScale];
+        NSError *error = nil;
+        if ([self.captureDevice lockForConfiguration:&error]) {
+            [self.captureDevice setVideoZoomFactor:[DefaultZoomFactor floatValue]];
+            [self.captureDevice unlockForConfiguration];
+        } else {
+            NSLog(@"%@", error);
+        }
+    }
+}
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if ( [gestureRecognizer isKindOfClass:[UIPinchGestureRecognizer class]] ) {
+        self.beginGestureScale = self.effectiveScale;
+    }
+    return YES;
 }
 
 //- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -145,6 +197,27 @@
             }
         }
     }
+}
+
+- (void)switchCamera:(AVCaptureDevicePosition)position {
+    self.captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:position];
+}
+
+- (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
+    AVCaptureDevice *captureDevice = [devices firstObject];
+    
+    for (AVCaptureDevice *device in devices)
+    {
+        if ([device position] == position)
+        {
+            captureDevice = device;
+            break;
+        }
+    }
+    
+    return captureDevice;
 }
 
 @end

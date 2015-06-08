@@ -206,6 +206,13 @@
         
         YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:pageFrame];
         page.presentingVC = self;
+        
+        pageFrame.origin.x = pageFrame.size.width;
+        pageFrame.size.width = kSeparator;
+        UIView *v = [[UIView alloc] initWithFrame:pageFrame];
+        v.backgroundColor = [UIColor whiteColor];
+        [page addSubview:v];
+        
 //        page.backgroundColor = PRIMARY_COLOR;
         
         [self.scrollView addSubview:page];
@@ -297,7 +304,8 @@
         
         if(i == self.visibleTileIndex && preload) {
             [YAEventManager sharedManager].eventReceiver = page;
-            [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideo:page.video];
+            [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideoId:page.video.serverId
+                                                                         inGroup:[[YAUser currentUser].currentGroup.serverId copy]];
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
         }

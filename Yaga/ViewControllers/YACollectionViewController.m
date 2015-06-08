@@ -104,11 +104,11 @@ static NSString *cellID = @"Cell";
     [self setupPullToRefresh];
 }
 
-- (void)video:(YAVideo *)video eventCountUpdated:(NSUInteger)eventCount {
-    NSUInteger item = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+- (void)videoId:(NSString *)videoId eventCountUpdated:(NSUInteger)eventCount {
+    NSUInteger item = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@", videoId];
     YAVideoCell *cell = (YAVideoCell *)[self.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0]];
     if (cell) {
-        [cell setEventCount:eventCount - 1]; // -1 because of initial post event
+        [cell setEventCount:eventCount];
     }
 }
 
@@ -234,9 +234,12 @@ static NSString *cellID = @"Cell";
     NSUInteger videoIndex = [[self.deleteDictionary objectForKey:videoLocalId] integerValue];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
     
-    self.paginationThreshold--;
-    
-    [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    if(self.paginationThreshold > videoIndex) {
+        
+        self.paginationThreshold--;
+        
+        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
+    }
     
     [self.deleteDictionary removeObjectForKey:videoLocalId];
 }
@@ -462,11 +465,18 @@ static NSString *cellID = @"Cell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
-    [[YAEventManager sharedManager] prefetchEventsForVideo:video];
+    NSString *videoId = [video.serverId copy];
+    NSString *groupId = [[YAUser currentUser].currentGroup.serverId copy];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[YAEventManager sharedManager] prefetchEventsForVideoId:videoId inGroup:groupId];
+    });
     cell.index = indexPath.item;
     cell.video = video;
-    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideo:video];
-    if (eventCount) [cell setEventCount:eventCount - 1];  // -1 because of initial post event
+    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoId:videoId];
+    [cell setEventCount:eventCount];
+    
+    [self handlePagingForIndexPath:indexPath];
+    
     return cell;
 }
 
@@ -540,8 +550,6 @@ static NSString *cellID = @"Cell";
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self.delegate collectionViewDidScroll];
-    
-    [self handlePaging];
 
     [[YAAssetsCreator sharedCreator] cancelGifOperations];
     
@@ -659,28 +667,20 @@ static NSString *cellID = @"Cell";
 }
 
 #pragma mark - Paging
-- (void)handlePaging {
-    //the following line will ensure indexPathsForVisibleItems will return correct results
-    [self.collectionView layoutIfNeeded];
-    
-    NSArray *visibleIndexes = [[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"];
-    if(!visibleIndexes.count)
-        return;
-    
-    NSUInteger max = [[visibleIndexes valueForKeyPath:@"@max.intValue"] integerValue];
-    
-    if (max > self.paginationThreshold - kPaginationItemsCountToStartLoadingNextPage) {
-        //load more
-        [self.collectionView reloadItemsAtIndexPaths:[self.collectionView indexPathsForVisibleItems]];
-        [self.collectionView reloadData];
-        
+- (void)handlePagingForIndexPath:(NSIndexPath*)indexPath {
+    if(indexPath.row > self.paginationThreshold - kPaginationItemsCountToStartLoadingNextPage) {
         NSUInteger oldPaginationThreshold = self.paginationThreshold;
-        
-        // update the threshold
         self.paginationThreshold += kPaginationDefaultThreshold;
         
-        //enqueue new assets creation jobs
-        [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
+        //can't call reloadData methods when called from cellForRowAtIndexPath, using delay
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.collectionView reloadData];
+            
+            //enqueue new assets creation jobs
+            [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
+        
+            DLog(@"Page %lu loaded", self.paginationThreshold / kPaginationDefaultThreshold);
+        });
     }
 }
 

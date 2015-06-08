@@ -35,4 +35,7 @@
 - (void)enableRecording:(BOOL)enable;
 - (void)updateCurrentGroupName;
 - (void)enableScrollToTop:(BOOL)enable;
+
+- (void)showBottomShadow;
+- (void)removeBottomShadow;
 @end
