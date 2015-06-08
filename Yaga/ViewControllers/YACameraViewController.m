@@ -512,6 +512,7 @@ typedef enum {
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.session commitConfiguration];
+                    [self.session startRunning];
                 });
             });
             
@@ -588,7 +589,6 @@ typedef enum {
     AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
     if (audioStatus == AVAuthorizationStatusAuthorized) {
         [self initAudioInput];
-        [self.session startRunning];
     } else {
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
                                  completionHandler:^(BOOL granted) {
