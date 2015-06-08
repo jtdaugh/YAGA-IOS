@@ -240,8 +240,6 @@
             
             if(block)
                 block(nil);
-            
-            [[YAUser currentUser].currentGroup refresh];
         }
     }];
 }
