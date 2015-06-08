@@ -85,6 +85,13 @@ typedef enum {
 
 @property (nonatomic, assign) CGRect previousViewFrame;
 
+@property NSUInteger filterIndex;
+@property (strong, nonatomic) UISwipeGestureRecognizer *swipeCameraLeft;
+@property (strong, nonatomic) UISwipeGestureRecognizer *swipeCameraRight;
+@property (strong, nonatomic) UILabel *filterLabel;
+@property (strong, nonatomic) NSArray *filters;
+@property (strong, nonatomic) AVAudioPlayer *audioPlayer;
+
 @end
 
 @implementation YACameraViewController
@@ -284,6 +291,14 @@ typedef enum {
         
         self.previousViewFrame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
 
+        self.swipeCameraLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraLeft:)];
+        self.swipeCameraLeft.direction = UISwipeGestureRecognizerDirectionLeft;
+        [self.cameraView addGestureRecognizer:self.swipeCameraLeft];
+        
+        self.swipeCameraRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraRight:)];
+        self.swipeCameraRight.direction = UISwipeGestureRecognizerDirectionRight;
+        [self.cameraView addGestureRecognizer:self.swipeCameraRight];
+
         self.swipeEnlargeCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeCamera:)];
         self.swipeEnlargeCamera.direction = UISwipeGestureRecognizerDirectionDown;
         [self.cameraView addGestureRecognizer:self.swipeEnlargeCamera];
@@ -357,6 +372,9 @@ typedef enum {
 //            center.y += 65.f;
 //            self.recordTooltipLabel.center = center;
         }
+        
+        self.filters = @[@"#nofilter", @"FREESTYLE"];
+        self.filterIndex = 0;
 
     }
     
@@ -436,6 +454,126 @@ typedef enum {
 //    [UIView animateWithDuration:0.2 animations:^{
 //        self.recordButton.transforgm = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
 //    }];
+}
+
+- (void)swipedCameraRight:(UISwipeGestureRecognizer *)recognizer {
+    NSLog(@"swiped right");
+    [self removeFilterAtIndex:self.filterIndex];
+    
+    self.filterIndex--;
+    if(self.filterIndex == -1){
+        self.filterIndex = [self.filters count] - 1;
+    }
+    
+    [self addFilterAtIndex:self.filterIndex];
+    
+    [self showFilterLabel:self.filters[self.filterIndex]];
+
+}
+
+- (void)swipedCameraLeft:(UISwipeGestureRecognizer *)recognizer {
+    NSLog(@"swiped left");
+    
+    // remove filter at index: self.filterIndex
+    
+    // filterIndex++
+    
+    // add filter at index: self.filterIndex
+    
+    // show filter label: self.filters[self.filterIndex
+    
+    [self removeFilterAtIndex:self.filterIndex];
+    
+    self.filterIndex++;
+    if(self.filterIndex > ([self.filters count] - 1)){
+        self.filterIndex = 0;
+    }
+    
+    [self addFilterAtIndex:self.filterIndex];
+    
+    [self showFilterLabel:self.filters[self.filterIndex]];
+}
+
+- (void) showFilterLabel:(NSString *) label {
+    [self.filterLabel removeFromSuperview];
+    
+    self.filterLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+    self.filterLabel.center = self.cameraView.center;
+    self.filterLabel.font = [UIFont fontWithName:BOLD_FONT size:36];
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:label
+                                                                 attributes:@{
+                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]
+                                                                              }];
+    [self.filterLabel setAttributedText:string];
+    [self.filterLabel setTextAlignment:NSTextAlignmentCenter];
+    [self.filterLabel setTextColor:PRIMARY_COLOR];
+    
+    
+//    [self.filterLabel setText:label];
+    
+    [self.filterLabel setAlpha:0.0];
+    [self.filterLabel setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
+    
+    [self.cameraView addSubview:self.filterLabel];
+    
+    [UIView animateKeyframesWithDuration:1.0 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+        //
+        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.05 animations:^{
+            //
+            self.filterLabel.transform = CGAffineTransformIdentity;
+            [self.filterLabel setAlpha:1.0];
+        }];
+        
+        [UIView addKeyframeWithRelativeStartTime:0.95 relativeDuration:0.05 animations:^{
+            //
+            self.filterLabel.transform = CGAffineTransformMakeScale(0.5, 0.5);
+            [self.filterLabel setAlpha:0.0];
+        }];
+        
+    } completion:^(BOOL finished) {
+        //
+        [self.filterLabel removeFromSuperview];
+    }];
+    
+}
+
+- (void)removeFilterAtIndex:(NSUInteger)index {
+    switch (index) {
+        case 0:
+            // #nofilter
+            break;
+            
+        case 1:
+            // beats
+            [self.audioPlayer stop];
+            self.audioPlayer = nil;
+            
+            break;
+        default:
+            break;
+    }
+    
+}
+
+- (void)addFilterAtIndex:(NSUInteger)index {
+    switch (index) {
+        case 0: {
+            // #nofilter
+            NSLog(@"case 0");
+            break;
+            
+        }
+        case 1: {
+            // beats
+            NSString *path = [[NSBundle mainBundle] pathForResource:@"snoop" ofType:@"mp3"];
+            NSURL *url = [NSURL fileURLWithPath:path];
+            self.audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:nil];
+            [self.audioPlayer play];
+        }
+        default:
+            break;
+    }
 }
 
 - (void)collapseCamera:(UISwipeGestureRecognizer *)recognizer {
