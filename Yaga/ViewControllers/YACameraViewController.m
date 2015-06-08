@@ -517,7 +517,7 @@ typedef enum {
     
     [self.cameraView addSubview:self.filterLabel];
     
-    [UIView animateKeyframesWithDuration:1.0 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+    [UIView animateKeyframesWithDuration:1.0 delay:0.0 options:0 animations:^{
         //
         [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.05 animations:^{
             //
@@ -569,6 +569,7 @@ typedef enum {
             NSString *path = [[NSBundle mainBundle] pathForResource:@"snoop" ofType:@"mp3"];
             NSURL *url = [NSURL fileURLWithPath:path];
             self.audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:nil];
+            self.audioPlayer.numberOfLoops = -1;
             [self.audioPlayer play];
         }
         default:
