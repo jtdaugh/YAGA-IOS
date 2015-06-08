@@ -509,9 +509,11 @@ typedef enum {
             
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 [self setupVideoInput];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.session commitConfiguration];
+                });
             });
-            
-            [self.session commitConfiguration];
             
             [self removeOpenSettingsButton];
             
