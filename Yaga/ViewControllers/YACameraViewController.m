@@ -495,6 +495,7 @@ typedef enum {
 }
 
 - (void) showFilterLabel:(NSString *) label {
+//    [self.filterLabel.layer removeAllAnimations];
     [self.filterLabel removeFromSuperview];
     
     self.filterLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
@@ -533,7 +534,9 @@ typedef enum {
         
     } completion:^(BOOL finished) {
         //
-        [self.filterLabel removeFromSuperview];
+        if(finished){
+            [self.filterLabel removeFromSuperview];
+        }
     }];
     
 }
