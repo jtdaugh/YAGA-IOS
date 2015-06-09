@@ -468,8 +468,6 @@ static NSString *commentCellID = @"CommentCell";
     self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
-    
-    CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
 
     self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
     [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];

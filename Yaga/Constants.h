@@ -66,7 +66,8 @@
 
 #define YA_GROUPS_UPDATED_AT                    @"YA_GROUPS_UPDATED_AT"
 
-#define kVideos                                 @"videos"
+#define kNewVideos                              @"newVideos"
+#define kUpdatedVideos                          @"updatedVideos"
 
 //first start tooltips
 #define kFirstVideoRecorded                     @"kFirstVideoRecorded"

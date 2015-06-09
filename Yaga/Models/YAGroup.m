@@ -427,9 +427,9 @@
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
             DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
             
-            NSArray *newVideos = [self updateVideosFromDictionaries:videoDictionaries];
+            NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries];
             
-            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:@{kVideos:newVideos}];
+            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
         }
     }];
 }
@@ -448,7 +448,7 @@
     return existingIds;
 }
 
-- (NSArray*)updateVideosFromDictionaries:(NSArray*)videoDictionaries {
+- (NSDictionary*)updateVideosFromDictionaries:(NSArray*)videoDictionaries {
     NSSet *existingIds = [self videoIds];
     NSSet *newIds = [NSSet setWithArray:[videoDictionaries valueForKey:YA_RESPONSE_ID]];
     
@@ -456,6 +456,7 @@
     [idsToAdd minusSet:existingIds];
     
     NSMutableArray *newVideos = [NSMutableArray new];
+    NSMutableArray *updatedVideos = [NSMutableArray new];
     
     videoDictionaries = [videoDictionaries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_VIDEO_READY_AT ascending:YES]]];
     
@@ -490,6 +491,8 @@
                     if (likers.count) {
                         [video updateLikersWithArray:likers];
                     }
+                    
+                    [updatedVideos addObject:video];
                 }
             }
         }
@@ -543,6 +546,6 @@
         [video removeFromCurrentGroupWithCompletion:nil removeFromServer:NO];
     }
     
-    return newVideos;
+    return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos};
 }
 @end

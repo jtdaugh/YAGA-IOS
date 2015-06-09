@@ -114,7 +114,7 @@
                         //start uploading while generating gif
                         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:self.group];
 
-                        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self.group userInfo:@{kVideos:@[self.video]}];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self.group userInfo:@{kNewVideos:@[self.video]}];
                                                 
                         [self setExecuting:NO];
                         [self setFinished:YES];
