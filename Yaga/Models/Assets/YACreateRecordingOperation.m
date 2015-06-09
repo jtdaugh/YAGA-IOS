@@ -107,9 +107,10 @@
                         [self.group.realm commitWriteTransaction];
                         
                         //update local update time so the "new" badge isn't shown
-                        NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
-                        [groupsUpdatedAt setObject:currentDate forKey:self.group.localId];
-                        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+//                        NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+//                        
+//                        [groupsUpdatedAt setObject:currentDate forKey:self.group.localId];
+//                        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
 
                         //start uploading while generating gif
                         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:self.group];
