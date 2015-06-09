@@ -21,6 +21,7 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 @property (nonatomic) NSInteger index;
 @property (nonatomic, strong) YAVideo *video;
+@property (nonatomic, assign) BOOL shouldPlayGifAutomatically;
 
 - (void)animateGifView:(BOOL)animate;
 

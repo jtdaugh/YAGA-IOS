@@ -37,6 +37,7 @@
 
 @property (strong, nonatomic) FLAnimatedImageView *uploadingView;
 
+@property (nonatomic, assign) BOOL gifWasPaused;
 @end
 
 @implementation YAVideoCell
@@ -92,6 +93,8 @@
         self.contentView.layer.masksToBounds = YES;
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
+        
+        self.shouldPlayGifAutomatically = YES;
     }
     
     return self;
@@ -238,19 +241,17 @@
 
 - (void)showCachedImage:(id)image animatedImage:(BOOL)animatedImage {
     if(animatedImage) {
+        self.gifView.shouldPlayGifAutomatically = self.shouldPlayGifAutomatically;
         self.gifView.animatedImage = image;
-        [self.gifView startAnimating];
     } else{
         self.gifView.image = image;
     }
-    
 }
 
 #pragma mark - Download progress bar
 - (void)downloadStarted:(NSNotification*)notif {
     NSOperation *op = notif.object;
     if(![self.video isInvalidated] && [op.name isEqualToString:self.video.gifUrl]) {
-        
         [self updateCaptionAndUsername];
     }
 }
