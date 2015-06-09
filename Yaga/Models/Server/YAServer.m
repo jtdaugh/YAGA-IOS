@@ -482,6 +482,7 @@
 
     NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
     NSString *videoLocalId = [video.localId copy];
+    
     [self.jsonOperationsManager POST:api
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -516,7 +517,7 @@
                        //gif might not be there yet, it's in progress, so uploading video at once and saving credentials for uploading gif, it will be uploaded when gif operation is done
                        [self multipartUpload:videoEndpoint withParameters:videoFields withFile:videoData videoServerId:video.serverId completion:^(id response, NSError *error) {
                            [[Mixpanel sharedInstance] track:@"Upload Video"];
-
+                           
                            if ([video isInvalidated]) {
                                YARealmObjectUnavailableError *yaError = [YARealmObjectUnavailableError new];
                                completion(videoLocalId, yaError);
@@ -528,9 +529,6 @@
                                [video.realm beginWriteTransaction];
                                video.serverId = @"";
                                [video.realm commitWriteTransaction];
-                           }
-                           else {
-                               [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_UPLOAD object:video];
                            }
                            
                            //call completion block when video is posted

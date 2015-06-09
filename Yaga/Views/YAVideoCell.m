@@ -35,7 +35,7 @@
 
 @property (strong, atomic) NSString *gifFilename;
 
-@property (strong, nonatomic) YAActivityView *uploadingView;
+@property (strong, nonatomic) FLAnimatedImageView *uploadingView;
 
 @end
 
@@ -91,8 +91,9 @@
 
         self.contentView.layer.masksToBounds = YES;
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
     }
+    
     return self;
 }
 
@@ -126,18 +127,16 @@
     if (!self.video.invalidated) {
         [[YAEventManager sharedManager] killPrefetchForVideoId:[self.video.serverId copy]];
     }
+    
     self.video = nil;
-    //self.gifView.image = nil;
-    //self.gifView.animatedImage = nil;
-    self.state = YAVideoCellStateLoading;
-//    self.commentIcon.hidden = YES;
-//    self.commentIcon.image = nil;
-//    self.commentIcon = nil;
+
+    [self updateState];
+    
     self.eventCountLabel.text = @"";
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
 }
 
 #pragma mark -
@@ -208,7 +207,6 @@
     //uploading progress
     BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
     [self showUploadingProgress:uploadInProgress];
- 
 }
 
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
@@ -262,22 +260,37 @@
 }
 
 - (void)showUploadingProgress:(BOOL)show {
-    if(show && !self.uploadingView) {
-        const CGFloat monkeyWidth = 50;
-        self.uploadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, monkeyWidth, monkeyWidth)];
-        self.uploadingView.center = self.center;
-        [self addSubview:self.uploadingView];
-        [self.uploadingView startAnimating];
+    if(show) {
+        const CGFloat uploadingWith = 30;
+        if (!self.uploadingView) {
+            self.uploadingView = [[FLAnimatedImageView alloc] initWithFrame:CGRectMake(3, self.bounds.size.height - 30, uploadingWith, uploadingWith)];
+            [self addSubview:self.uploadingView];
+        }
+        
+        static NSData* uploaderGifData = nil;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            uploaderGifData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"uploading" withExtension:@"gif"]];
+        });
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.uploadingView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:uploaderGifData];
+            [self.uploadingView startAnimating];
+        });
     }
     else {
-        [self.uploadingView removeFromSuperview];
-        self.uploadingView = nil;
+        if(self.uploadingView) {
+            [self.uploadingView removeFromSuperview];
+            self.uploadingView = nil;
+        }
     }
 }
 
-- (void)didUploadVideo:(NSNotification*)notif {
+- (void)videoChanged:(NSNotification*)notif {
     if([self.video isEqual:notif.object]) {
-        [self showUploadingProgress:NO];
+        //uploading progress
+        BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
+        [self showUploadingProgress:uploadInProgress];
     }
 }
 

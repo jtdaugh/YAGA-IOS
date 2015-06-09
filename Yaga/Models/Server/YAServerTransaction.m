@@ -308,6 +308,7 @@
                                   NSString *location = [response allHeaderFields][@"Location"];
                                   video.url = location;
                                   [video.realm commitWriteTransaction];
+                                  [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
                                   
                                   [self logEvent:[NSString stringWithFormat:@"video with id:%@ successfully uploaded to %@", videoLocalId, groupName] type:YANotificationTypeSuccess];
                                   
