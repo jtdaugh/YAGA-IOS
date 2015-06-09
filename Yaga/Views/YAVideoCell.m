@@ -27,8 +27,6 @@
 @property (nonatomic, assign) YAVideoCellState state;
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
 
-@property (strong, nonatomic) FLAnimatedImageView *loaderView;
-
 @property (strong, nonatomic) UILabel *username;
 @property (strong, nonatomic) UILabel *eventCountLabel;
 @property (strong, nonatomic) UIImageView *commentIcon;
@@ -58,20 +56,6 @@
         
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
-        
-        self.loaderView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
-        static NSData* loaderData = nil;
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
-        });
-
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.loaderView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
-            [self.loaderView startAnimating];
-        });
-
-        self.backgroundView = self.loaderView;
         
         self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30)];
         [self.username setTextAlignment:NSTextAlignmentRight];
@@ -143,8 +127,8 @@
         [[YAEventManager sharedManager] killPrefetchForVideoId:[self.video.serverId copy]];
     }
     self.video = nil;
-    self.gifView.image = nil;
-    self.gifView.animatedImage = nil;
+    //self.gifView.image = nil;
+    //self.gifView.animatedImage = nil;
     self.state = YAVideoCellStateLoading;
 //    self.commentIcon.hidden = YES;
 //    self.commentIcon.image = nil;
@@ -184,26 +168,41 @@
 - (void)updateCell {
     [self updateCaptionAndUsername];
     
+    BOOL showLoader = NO;
     switch (self.state) {
         case YAVideoCellStateLoading: {
-            //[self showLoader:YES];
+            showLoader = self.video;
             break;
         }
         case YAVideoCellStateJPEGPreview: {
-            //[self showLoader:YES];
+            showLoader = self.video;
             
             //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
-            [self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
+            //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
             break;
         }
         case YAVideoCellStateGIFPreview: {
             //loading is removed when gif is shown in showImageAsyncFromFilename
             [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
+            showLoader = NO;
             break;
         }
         default: {
             break;
         }
+    }
+    
+    if(showLoader) {
+        static NSData* loaderData = nil;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
+        });
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.gifView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
+            [self.gifView startAnimating];
+        });
     }
     
     //uploading progress
@@ -253,24 +252,13 @@
 - (void)downloadStarted:(NSNotification*)notif {
     NSOperation *op = notif.object;
     if(![self.video isInvalidated] && [op.name isEqualToString:self.video.gifUrl]) {
-        [self showLoader:YES];
+        
+        [self updateCaptionAndUsername];
     }
 }
 
 - (void)showProgress:(BOOL)show {
     //do nothing, tile loader is used
-}
-
-- (void)showLoader:(BOOL)show {
-    self.loaderView.hidden = !show;
-
-    if(!self.loaderView.hidden && !self.loaderView.isAnimating)
-        [self.loaderView startAnimating];
-    
-    // self.username.hidden = !show;
-    self.captionWrapper.hidden = NO;
-    
-    [self updateCaptionAndUsername];
 }
 
 - (void)showUploadingProgress:(BOOL)show {
@@ -295,6 +283,8 @@
 
 - (void)updateCaptionAndUsername {
     NSString *caption = self.video.caption;
+    
+    self.captionWrapper.hidden = NO;
     
     if(caption.length) {
 
