@@ -338,7 +338,6 @@ static NSString *cellID = @"Cell";
             }
         } completion:^(BOOL finished) {
             [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-            [self showActivityIndicator:NO];
             
             if(newIndexPaths.count) {
                 [self playVisible:YES];//play new if they are visible immediately, otherwise scroll to the top, they will start playing automatically
@@ -357,6 +356,7 @@ static NSString *cellID = @"Cell";
         hidePullToRefreshAfter = 0;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self showActivityIndicator:NO];
         [self.collectionView.pullToRefreshView stopAnimating];
         [self playVisible:YES];
         [self showNoVideosMessageIfNeeded];
