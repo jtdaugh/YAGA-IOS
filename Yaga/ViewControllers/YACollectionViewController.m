@@ -323,28 +323,29 @@ static NSString *cellID = @"Cell";
     
     [[YAEventManager sharedManager] groupChanged];
 
-    [self.collectionView performBatchUpdates:^{
-        if(newIndexPaths.count) {
-            //simple workaround to avoid manipulations with paginationThreshold
-            self.paginationThreshold += newVideos.count;
+    if(newIndexPaths.count || updatedIndexPaths.count) {
+        [self.collectionView performBatchUpdates:^{
+            if(newIndexPaths.count) {
+                //simple workaround to avoid manipulations with paginationThreshold
+                self.paginationThreshold += newVideos.count;
+                
+                [self.collectionView insertItemsAtIndexPaths:newIndexPaths];
+                
+                [self showCellTooltipIfNeeded];
+            }
+            else if(updatedIndexPaths.count) {
+                [self.collectionView reloadItemsAtIndexPaths:updatedIndexPaths];
+            }
+        } completion:^(BOOL finished) {
+            [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+            [self showActivityIndicator:NO];
             
-            [self.collectionView insertItemsAtIndexPaths:newIndexPaths];
-            
-            [self showCellTooltipIfNeeded];
-        }
-        else if(updatedIndexPaths.count) {
-            [self.collectionView reloadItemsAtIndexPaths:updatedIndexPaths];
-        }
-    } completion:^(BOOL finished) {
-        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-        [self showActivityIndicator:NO];
-        
-        if(newIndexPaths.count) {
-            [self playVisible:YES];//play new if they are visible immediately, otherwise scroll to the top, they will start playing automatically
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
-        }
-    }];
-    
+            if(newIndexPaths.count) {
+                [self playVisible:YES];//play new if they are visible immediately, otherwise scroll to the top, they will start playing automatically
+                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+            }
+        }];
+    }
     [self delayedHidePullToRefresh];
 }
 
