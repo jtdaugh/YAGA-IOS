@@ -529,16 +529,20 @@
                                [video.realm beginWriteTransaction];
                                video.serverId = @"";
                                [video.realm commitWriteTransaction];
+                               
+                               //show local notification if app is in background
+                               if([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+                                   UILocalNotification *localNotification = [[UILocalNotification alloc] init];
+                                   localNotification.fireDate = [NSDate date];
+                                   localNotification.alertBody = NSLocalizedString(@"Video failed to upload", @"");
+                                   localNotification.alertAction = NSLocalizedString(@"Retry", @"");
+                                   localNotification.applicationIconBadgeNumber = 1;
+                                   [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+                               }
                            }
                            
                            //call completion block when video is posted
                            completion(response, error);
-                           
-//                           if(!error && !video.isInvalidated && video.gifFilename.length)
-//                               [self uploadGIFForVideoWithServerId:video.serverId];
-//                           else {
-//                               DLog(@"Can't post GIF! It's not ready yet.");
-//                           }
                        }];
                    });
                    
