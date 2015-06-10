@@ -53,6 +53,8 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, strong) NSDate *willRefreshDate;
 
 @property (nonatomic, strong) UILabel *noVideosLabel;
+
+@property (nonatomic) BOOL scrollingFast;
 @end
 
 static NSString *cellID = @"Cell";
@@ -475,6 +477,7 @@ static NSString *cellID = @"Cell";
         [[YAEventManager sharedManager] prefetchEventsForVideoId:videoId inGroup:groupId];
     });
     cell.index = indexPath.item;
+    cell.shouldPlayGifAutomatically = !self.scrollingFast;
     cell.video = video;
     NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoId:videoId];
     [cell setEventCount:eventCount];
@@ -530,11 +533,14 @@ static NSString *cellID = @"Cell";
 }
 
 #pragma mark - UIScrollView
-- (BOOL)scrollingFast {
+- (void)updateScrollingFast {
+    if(!self.collectionView.superview)
+        return;
+    
     CGPoint currentOffset = self.collectionView.contentOffset;
     NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
     
-    BOOL result = NO;
+    _scrollingFast = NO;
     
     CGFloat distance = currentOffset.y - lastOffset.y;
     //The multiply by 10, / 1000 isn't really necessary.......
@@ -542,14 +548,13 @@ static NSString *cellID = @"Cell";
     
     CGFloat scrollSpeed = fabs(scrollSpeedNotAbs);
     if (scrollSpeed > 0.06) {
-        result = YES;
+        _scrollingFast = YES;
     } else {
-        result = NO;
+        _scrollingFast = NO;
     }
     
     lastOffset = currentOffset;
     lastOffsetCapture = currentTime;
-    return result;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
@@ -563,12 +568,15 @@ static NSString *cellID = @"Cell";
         return;
     }
     
-    BOOL scrollingFast = [self scrollingFast];
+    [self updateScrollingFast];
     
-    [self playVisible:!scrollingFast];
+    [self playVisible:!self.scrollingFast];
     
     self.scrolling = YES;
-    
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    [self playVisible:YES];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -584,28 +592,6 @@ static NSString *cellID = @"Cell";
         
         [self prioritiseDownloadsForVisibleCells];
         self.assetsPrioritisationHandled = YES;
-    }
-}
-
-- (void)adjustWhileDraggingWithVelocity:(CGPoint)velocity {
-    BOOL draggingFast = fabs(velocity.y) > 1;
-    BOOL draggingUp = velocity.y == fabs(velocity.y);
-    
-    
-    //show/hide camera
-    if(draggingFast && draggingUp) {
-        self.disableScrollHandling = YES;
-        [self.delegate showCamera:NO showPart:YES animated:YES completion:^{
-            self.disableScrollHandling = NO;
-            [self playVisible:YES];
-        }];
-    }
-    else if(draggingFast && !draggingUp){
-        self.disableScrollHandling = YES;
-        [self.delegate showCamera:YES showPart:NO animated:YES completion:^{
-            self.disableScrollHandling = NO;
-            [self playVisible:YES];
-        }];
     }
 }
 
