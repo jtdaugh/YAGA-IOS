@@ -679,8 +679,10 @@ static NSString *cellID = @"Cell";
     NSSet *visibleIndexes = [NSSet setWithArray:[[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"]];
     
     //don't do anything if it's visible already
-    if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]])
+    if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]]) {
+        [self.delegate collectionViewDidScroll]; //just make sure grid and camera has correct frames
         return;
+    }
     
     if(index < [self collectionView:self.collectionView numberOfItemsInSection:0]) {
         UIEdgeInsets tmp = self.collectionView.contentInset;
@@ -700,6 +702,5 @@ static NSString *cellID = @"Cell";
             self.assetsPrioritisationHandled = YES;
         });
     }
-    
 }
 @end
