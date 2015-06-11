@@ -67,7 +67,6 @@
     self.scrollView.showsHorizontalScrollIndicator = NO;
     [self.view addSubview:self.scrollView];
     
-    self.scrollView.contentSize = CGSizeMake([YAUser currentUser].currentGroup.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
     self.scrollView.pagingEnabled = YES;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
@@ -198,6 +197,8 @@
 
 - (void)initPages {
     self.pages = [[NSMutableArray alloc] initWithCapacity:3];
+    
+    self.scrollView.contentSize = CGSizeMake([YAUser currentUser].currentGroup.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
     
     NSUInteger initialTileIndex = [self tileIndexFromPageIndex:self.initialIndex];
     
@@ -376,9 +377,13 @@
         return;
     }
     
-    self.scrollView.contentSize = CGSizeMake([YAUser currentUser].currentGroup.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
+    for(UIView *page in [self.scrollView.subviews copy]) {
+        [page removeFromSuperview];
+    }
     
-    [self updatePages:YES];
+    self.initialIndex = self.currentPageIndex;
+    
+    [self initPages];
 }
 
 #pragma mark - YASuspendableGestureDelegate
