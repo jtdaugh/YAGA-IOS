@@ -199,6 +199,7 @@ static NSString *cellID = @"Cell";
     } else {
         [[YAEventManager sharedManager] groupChanged];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+        [self playVisible:YES];
     }
 }
 
