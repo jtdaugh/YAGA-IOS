@@ -1360,8 +1360,10 @@ static NSString *commentCellID = @"CommentCell";
     
     CGFloat borderWidth = 4;
 
-    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
-    
+    //exclude current group
+    NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", [YAUser currentUser].currentGroup.localId];
+    self.groups = [[YAGroup objectsWhere:predicate] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
+
     self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, topPadding, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
     [self.groupsList setBackgroundColor:[UIColor clearColor]];
     [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:@"crossPostCell"];
