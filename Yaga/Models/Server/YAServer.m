@@ -790,7 +790,7 @@
         NSMutableSet *groupIds = [NSMutableSet setWithSet:crosspostData[video.localId]];
         [groupIds addObjectsFromArray:groupIdsToCopyTo];
         
-        [crosspostData setObject:groupIds forKey:video.localId];
+        [crosspostData setObject:groupIds.allObjects forKey:video.localId];
         [[NSUserDefaults standardUserDefaults] setObject:crosspostData forKey:kCrosspostData];
         
         completion(nil, nil);

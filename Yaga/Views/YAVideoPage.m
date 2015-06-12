@@ -26,7 +26,8 @@
 #import "NSArray+Reverse.h"
 #import "UIImage+Color.h"
 #import "Constants.h"
-#import "YACenterImageButton.h"
+
+#import "YASharingViewController.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
@@ -49,6 +50,8 @@ static NSString *commentCellID = @"CommentCell";
 
 @property (nonatomic, strong) YAActivityView *activityView;
 
+@property (strong, nonatomic) UIVisualEffectView *captionBlurOverlay;
+
 //overlay controls
 @property (strong, nonatomic) UIButton *XButton;
 @property (nonatomic, strong) UILabel *userLabel;
@@ -59,8 +62,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
-
-@property (nonatomic, strong) YAActivityView *uploadingView;
 
 @property BOOL loading;
 @property (strong, nonatomic) UIView *loader;
@@ -75,17 +76,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
 @property (strong, nonatomic) UIView *overlay;
-@property (strong, nonatomic) UIVisualEffectView *captionBlurOverlay;
-@property (strong, nonatomic) UIVisualEffectView *shareBlurOverlay;
-
-@property (nonatomic, strong) RLMResults *groups;
-@property (strong, nonatomic) UITableView *groupsList;
-@property (strong, nonatomic) UILabel *crossPostPrompt;
-@property (strong, nonatomic) UIView *shareBar;
-@property (strong, nonatomic) YACenterImageButton *externalShareButton;
-@property (strong, nonatomic) YACenterImageButton *saveButton;
-@property (strong, nonatomic) UIButton *confirmCrosspost;
-@property (strong, nonatomic) UIButton *closeCrosspost;
 
 @property (strong, nonatomic) UIView *serverCaptionWrapperView;
 @property (strong, nonatomic) UITextView *serverCaptionTextView;
@@ -455,15 +445,15 @@ static NSString *commentCellID = @"CommentCell";
 
 //    CGFloat tSize = CAPTION_FONT_SIZE;
 
-    self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    self.XButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     self.XButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
     self.XButton.alpha = 0.7;
-    [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.XButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
     
-    self.shareButton = [self circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
+    self.shareButton = [YAUtils circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
-    [self.shareButton addTarget:self action:@selector(shareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.shareButton addTarget:self action:@selector(shareButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.shareButton];
 //    self.shareButton.layer.zPosition = 100;
     
@@ -472,12 +462,12 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.overlay addSubview:self.deleteButton];
 //    self.deleteButton.layer.zPosition = 100;
     
-    self.captionButton = [self circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, buttonRadius + padding)];
+    self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, buttonRadius + padding)];
     [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.captionButton];
 
     
-    self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
+    self.commentButton = [YAUtils circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
 
@@ -497,10 +487,10 @@ static NSString *commentCellID = @"CommentCell";
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:self.progressView];
     
-    UIButton *progressXButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    UIButton *progressXButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     progressXButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
     progressXButton.alpha = 0.7;
-    [progressXButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [progressXButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.progressView addSubview:progressXButton];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
@@ -540,18 +530,6 @@ static NSString *commentCellID = @"CommentCell";
         //
     }];
 
-}
-
-- (UIButton *)circleButtonWithImage:(NSString *)imageName diameter:(CGFloat)diameter center:(CGPoint)center {
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
-    button.center = center;
-//    button.backgroundColor = [UIColor colorWithWhite:0.9f alpha:0.2f];
-//    button.layer.borderColor = [[UIColor whiteColor] CGColor];
-//    button.layer.borderWidth = 1.f;
-//    button.layer.cornerRadius = diameter/2.f;
-//    button.layer.masksToBounds = YES;
-    [button setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
-    return button;
 }
 
 #pragma mark - Comments Table View
@@ -652,36 +630,22 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    YAEventCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
+    cell.containingVideoPage = self;
+    cell.transform = cell.transform = CGAffineTransformMakeRotation(M_PI);
     
-    if([tableView isEqual:self.groupsList]){
-        YACrosspostCell *cell = [tableView dequeueReusableCellWithIdentifier:@"crossPostCell" forIndexPath:indexPath];
-        YAGroup *group = [self.groups objectAtIndex:indexPath.row];
-        [cell setGroupTitle:group.name];
-        return cell;
-//        return [YACrosspostCell new];
-        
-    } else {
-        YAEventCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
-        cell.containingVideoPage = self;
-        cell.transform = cell.transform = CGAffineTransformMakeRotation(M_PI);
-        
-        YAEvent *event = self.events[indexPath.row];
-        [cell configureCellWithEvent:event];
-        
-        if (event.eventType == YAEventTypePost) {
-            [cell setUploadInProgress:self.uploadInProgress];
-        }
-        
-        return cell;
+    YAEvent *event = self.events[indexPath.row];
+    [cell configureCellWithEvent:event];
+    
+    if (event.eventType == YAEventTypePost) {
+        [cell setUploadInProgress:self.uploadInProgress];
     }
+    
+    return cell;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if([tableView isEqual:self.groupsList]){
-        return [self.groups count];
-    } else {
-        return [self.events count];
-    }
+    return [self.events count];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -689,44 +653,8 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if([tableView isEqual:self.groupsList]){
-        return XPCellHeight;
-    } else {
-        YAEvent *event = self.events[indexPath.row];
-        return [YAEventCell heightForCellWithEvent:event];
-    }
-}
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self renderButton:[[tableView indexPathsForSelectedRows] count]];
-}
-
--(void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self renderButton:[[tableView indexPathsForSelectedRows] count]];
-}
-
-- (void)renderButton:(NSUInteger) count {
-    if(count > 0){
-        NSString *title;
-        if(count == 1){
-            title = @"Post to 1 more group";
-        } else {
-            title = [NSString stringWithFormat:@"Post to %lu more groups", count];
-        }
-        [self.confirmCrosspost setTitle:title forState:UIControlStateNormal];
-        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-            [self.confirmCrosspost setTransform:CGAffineTransformIdentity];
-        } completion:^(BOOL finished) {
-            //
-        }];
-    } else {
-        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-            [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
-        } completion:^(BOOL finished) {
-            //
-        }];
-    }
+    YAEvent *event = self.events[indexPath.row];
+    return [YAEventCell heightForCellWithEvent:event];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -1340,242 +1268,18 @@ static NSString *commentCellID = @"CommentCell";
     
 }
 
-- (void)XButtonPressed {
-    NSLog(@"pressed?");
-    
+- (void)closeButtonPressed:(id)sender {
     // close video here
     if([self.presentingVC isKindOfClass:[YASwipingViewController class]]){
-        NSLog(@"is class?");
         [((YASwipingViewController *) self.presentingVC) dismissAnimated];
     }
 }
 
-- (void)shareButtonPressed {
-    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
-    
-    self.shareBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-    
-    self.shareBlurOverlay.frame = self.bounds;
-//    [self.shareBlurOverlay setAlpha:0.0];
-    
-    [self.overlay addSubview:self.shareBlurOverlay];
-    
-    CGFloat topPadding = 100;
-    CGFloat shareBarHeight = 100;
-    
-    CGFloat borderWidth = 4;
-
-    //exclude current group
-    NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", [YAUser currentUser].currentGroup.localId];
-    self.groups = [[YAGroup objectsWhere:predicate] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
-
-    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, topPadding, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
-    [self.groupsList setBackgroundColor:[UIColor clearColor]];
-    [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:@"crossPostCell"];
-    self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.groupsList.allowsSelection = YES;
-    self.groupsList.allowsMultipleSelection = YES;
-
-    self.groupsList.delegate = self;
-    self.groupsList.dataSource = self;
-    [self.shareBlurOverlay addSubview:self.groupsList];
-    
-    self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, topPadding - 24, VIEW_WIDTH-24, 24)];
-    self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
-    self.crossPostPrompt.textColor = [UIColor whiteColor];
-    self.crossPostPrompt.text = @"Post to other groups";
-    [self.shareBlurOverlay addSubview:self.crossPostPrompt];
-    
-    
-    self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
-    [self.shareBar setBackgroundColor:PRIMARY_COLOR];
-    [self.shareBlurOverlay addSubview:self.shareBar];
-
-    self.confirmCrosspost = [[UIButton alloc] initWithFrame:self.shareBar.frame];
-    self.confirmCrosspost.backgroundColor = SECONDARY_COLOR;
-    self.confirmCrosspost.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:24];
-    self.confirmCrosspost.titleLabel.textColor = [UIColor whiteColor];
-    [self.confirmCrosspost setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-    [self.confirmCrosspost setImage:[UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
-    self.confirmCrosspost.imageView.contentMode = UIViewContentModeScaleAspectFit;
-//    [self.confirmCrosspost.imageView setBackgroundColor:[UIColor greenColor]];
-//    [self.confirmCrosspost.titleLabel setBackgroundColor:[UIColor purpleColor]];
-    [self.confirmCrosspost setContentEdgeInsets:UIEdgeInsetsZero];
-    [self.confirmCrosspost setImageEdgeInsets:UIEdgeInsetsMake(0, self.confirmCrosspost.frame.size.width - 48 - 16, 0, 48)];
-    [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
-    [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
-    [self.confirmCrosspost addTarget:self action:@selector(confirmCrosspost:) forControlEvents:UIControlEventTouchUpInside];
-    [self.shareBlurOverlay addSubview:self.confirmCrosspost];
-    
-    CGFloat buttonRadius = 22.f, padding = 4.f;
-    self.closeCrosspost = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
-    [self.closeCrosspost addTarget:self action:@selector(closeCrosspostPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.shareBlurOverlay addSubview:self.closeCrosspost];
-
-    UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
-    [separator setBackgroundColor:[UIColor whiteColor]];
-    [self.shareBlurOverlay addSubview:separator];
-    
-    self.saveButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
-    [self.saveButton setImage:[UIImage imageNamed:@"Download"] forState:UIControlStateNormal];
-    [self.saveButton setTitle:@"Save" forState:UIControlStateNormal];
-    [self.saveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-    [self.saveButton addTarget:self action:@selector(saveToCameraRollPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.saveButton setBackgroundColor:PRIMARY_COLOR];
-    [self.shareBar addSubview:self.saveButton];
-    
-    self.externalShareButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
-    [self.externalShareButton setImage:[UIImage imageNamed:@"External_Share"] forState:UIControlStateNormal];
-    [self.externalShareButton setTitle:@"Share" forState:UIControlStateNormal];
-    [self.externalShareButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-    [self.externalShareButton addTarget:self action:@selector(externalShareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.externalShareButton setBackgroundColor:PRIMARY_COLOR];
-    [self.shareBar addSubview:self.externalShareButton];
-    
-    UIView *vSeparator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - borderWidth/2, 0, borderWidth, self.shareBar.frame.size.height)];
-    [vSeparator setBackgroundColor:[UIColor whiteColor]];
-    [self.shareBar addSubview:vSeparator];
-    
-//    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
-    [self.shareBlurOverlay setTransform:CGAffineTransformMakeTranslation(0, self.shareBlurOverlay.frame.size.height)];
-    [UIView animateWithDuration:0.4 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        //
-//    } completion:^(BOOL finished) {
-//        //
-//    }]
-//    
-//    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        //
-        [self.shareBlurOverlay setTransform:CGAffineTransformIdentity];
-//        [self.groupsList setFrame:CGRectMake(0, 100, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
-        
-    } completion:^(BOOL finished) {
-        //
-    }];
-//    [self.overlay insertSubview:self.shareBlurOverlay belowSubview:self.editableCaptionWrapperView];
-//    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
-
-}
-
-- (void)confirmCrosspost:(id)sender {
-    NSMutableArray *groupIds = [NSMutableArray new];
-    for(NSIndexPath *indexPath in self.groupsList.indexPathsForSelectedRows) {
-        if(self.groups.count > indexPath.row) {
-            YAGroup *group = self.groups[indexPath.row];
-            [groupIds addObject:group.serverId];
-        }
-    }
-    
-    [[YAServer sharedServer] copyVideo:self.video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
-        if(!error) {
-            [self collapseCrosspost];
-        }
-        else {
-            DLog(@"unable to copy video to groups: %@", groupIds);
-        }
-    }];
-}
-
-- (void)closeCrosspostPressed {
-    [self collapseCrosspost];
-}
-
-- (void)collapseCrosspost {
-    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        //
-        [self.shareBlurOverlay setTransform:CGAffineTransformMakeTranslation(0, self.shareBlurOverlay.frame.size.height)];
-    } completion:^(BOOL finished) {
-        //
-        [self.shareBlurOverlay removeFromSuperview];
-    }];
-}
-
-- (void)externalShareButtonPressed {
-//    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
-    NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
-    NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-    
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.labelText = NSLocalizedString(@"Exporting", @"");
-    hud.mode = MBProgressHUDModeIndeterminate;
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-                                                completion:^(NSURL *filePath, NSError *error) {
-        if (error) {
-            DLog(@"Error: can't add bumber");
-        } else {
-        
-            NSURL *videoFile = filePath;
-//            YACopyVideoToClipboardActivity *copyActivity = [YACopyVideoToClipboardActivity new];
-            UIActivityViewController *activityViewController =
-            [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
-                                              applicationActivities:@[]];
-            
-    //        activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
-            [(YASwipingViewController *)self.presentingVC presentViewController:activityViewController
-                                            animated:YES
-                                          completion:^{
-                                              [hud hide:YES];
-                                          }];
-            
-            [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-                if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
-                    NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
-                    [YAUtils showHudWithText:message];
-                }
-                else if ([activityType isEqualToString:@"yaga.copy.video"]) {
-                     NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
-                    [YAUtils showHudWithText:message];
-                }
-                if(completed){
-                    [self collapseCrosspost];
-                }
-            }];
-        }
-    }];
-}
-
-- (void)saveToCameraRollPressed {
-    /*
-     if (UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(path)) {
-     UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
-     }
-     */
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.labelText = NSLocalizedString(@"Saving", @"");
-    hud.mode = MBProgressHUDModeIndeterminate;
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-                                                completion:^(NSURL *filePath, NSError *error) {
-                                                    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-                                                        
-                                                        [hud hide:YES];
-                                                        [self collapseCrosspost];
-                                                        //Your code goes in here
-                                                        NSLog(@"Main Thread Code");
-                                                        
-                                                    }];
-                                                    if (error) {
-                                                        DLog(@"Error: can't add bumber");
-                                                    } else {
-                                                        
-                                                        if(UIVideoAtPathIsCompatibleWithSavedPhotosAlbum([filePath path])) {
-                                                            UISaveVideoAtPathToSavedPhotosAlbum([filePath path], self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
-                                                        }
-
-                                                    }
-                                                }];
-}
-
-- (void)video:(NSString*)videoPath didFinishSavingWithError:(NSError*)error contextInfo:(void*)contextInfo {
-    if (error) {
-        NSString *message = @"Video Saving Failed";
-        [YAUtils showHudWithText:message];
-
-    } else {
-        NSString *message = @"Saved! ✌️";
-        [YAUtils showHudWithText:message];
-    }
+- (void)shareButtonPressed:(id)sender {
+    YASharingViewController *sharingVC = [YASharingViewController new];
+    sharingVC.video = self.video;
+    sharingVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    [(YASwipingViewController*)self.presentingVC presentViewController:sharingVC animated:YES completion:nil];
 }
 
 #pragma mark - UITableView delegate methods (groups list)
