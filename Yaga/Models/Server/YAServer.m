@@ -775,7 +775,7 @@
                                      @"groups": groupIdsToCopyTo
                                     };
         
-        [self.jsonOperationsManager PUT:api
+        [self.jsonOperationsManager POST:api
                              parameters:parameters
                                 success:^(AFHTTPRequestOperation *operation, id responseObject) {
                                     completion(nil, nil);
