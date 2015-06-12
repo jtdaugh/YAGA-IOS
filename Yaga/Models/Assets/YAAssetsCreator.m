@@ -76,7 +76,8 @@
     session.outputURL = outputURL;
     session.outputFileType = AVFileTypeMPEG4;
     session.shouldOptimizeForNetworkUse = YES;
-    session.canPerformMultiplePassesOverSourceMediaData = YES;
+    if([UIDevice currentDevice].systemVersion.floatValue >= 8)
+        session.canPerformMultiplePassesOverSourceMediaData = YES;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputURL.path;
         if (path){

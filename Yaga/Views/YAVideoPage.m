@@ -1306,17 +1306,32 @@ static NSString *commentCellID = @"CommentCell";
                                           [hud hide:YES];
                                       }];
         
-        [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+        
+        if([UIDevice currentDevice].systemVersion.floatValue >= 8) {
+            [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
                 if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
                     NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
                     [YAUtils showHudWithText:message];
                 }
                 else if ([activityType isEqualToString:@"yaga.copy.video"]) {
-                     NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
+                    NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
                     [YAUtils showHudWithText:message];
                 }
-            
-        }];
+                
+            }];
+        }
+        else {
+            [activityViewController setCompletionHandler:^(NSString *activityType, BOOL completed) {
+                if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
+                    NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
+                    [YAUtils showHudWithText:message];
+                }
+                else if ([activityType isEqualToString:@"yaga.copy.video"]) {
+                    NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
+                    [YAUtils showHudWithText:message];
+                }
+            }];
+        }
         
     }}];
 }
