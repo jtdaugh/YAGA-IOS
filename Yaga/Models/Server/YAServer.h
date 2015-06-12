@@ -67,6 +67,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)uploadVideoCaptionWithId:(NSString*)serverVideoId withCompletion:(responseBlock)completion;
 - (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 - (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
+- (void)copyVideo:(YAVideo*)video toGroupsWithIds:(NSArray*)groupIds withCompletion:(responseBlock)completion;
 
 - (void)registerDeviceTokenWithCompletion:(responseBlock)completion;
 

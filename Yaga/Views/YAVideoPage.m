@@ -480,8 +480,6 @@ static NSString *commentCellID = @"CommentCell";
     self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
-    
-    CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
 
     self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
     [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
@@ -1363,7 +1361,7 @@ static NSString *commentCellID = @"CommentCell";
     CGFloat borderWidth = 4;
 
     self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
-
+    
     self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, topPadding, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
     [self.groupsList setBackgroundColor:[UIColor clearColor]];
     [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:@"crossPostCell"];
@@ -1399,6 +1397,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.confirmCrosspost setImageEdgeInsets:UIEdgeInsetsMake(0, self.confirmCrosspost.frame.size.width - 48 - 16, 0, 48)];
     [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
     [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
+    [self.confirmCrosspost addTarget:self action:@selector(confirmCrosspost:) forControlEvents:UIControlEventTouchUpInside];
     [self.shareBlurOverlay addSubview:self.confirmCrosspost];
     
     CGFloat buttonRadius = 22.f, padding = 4.f;
@@ -1449,6 +1448,25 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.overlay insertSubview:self.shareBlurOverlay belowSubview:self.editableCaptionWrapperView];
 //    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
 
+}
+
+- (void)confirmCrosspost:(id)sender {
+    NSMutableArray *groupIds = [NSMutableArray new];
+    for(NSIndexPath *indexPath in self.groupsList.indexPathsForSelectedRows) {
+        if(self.groups.count > indexPath.row) {
+            YAGroup *group = self.groups[indexPath.row];
+            [groupIds addObject:group.serverId];
+        }
+    }
+    
+    [[YAServer sharedServer] copyVideo:self.video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
+        if(!error) {
+            [self collapseCrosspost];
+        }
+        else {
+            DLog(@"unable to copy video to groups: %@", groupIds);
+        }
+    }];
 }
 
 - (void)closeCrosspostPressed {

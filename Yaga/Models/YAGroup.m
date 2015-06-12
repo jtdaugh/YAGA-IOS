@@ -515,6 +515,7 @@
             [video updateLikersWithArray:likers];
             NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
             video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
+            video.uploadedToAmazon = YES;
             video.url = videoDic[YA_VIDEO_ATTACHMENT];
             
             id gifUrl = videoDic[YA_VIDEO_ATTACHMENT_PREVIEW];

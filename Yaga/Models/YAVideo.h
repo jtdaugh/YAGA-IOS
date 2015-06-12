@@ -52,6 +52,7 @@ typedef void(^completionBlock)(NSError *error);
 @property NSString *url;
 @property NSString *gifUrl;
 @property YAGroup *group;
+@property BOOL uploadedToAmazon;
 
 + (YAVideo*)video;
 - (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer;
