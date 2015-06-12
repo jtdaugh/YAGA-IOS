@@ -151,3 +151,7 @@
 
 //no videos label
 "Things are a bit quiet in here. Hold the big red button to record a video." = "Things are a bit quiet in here. Hold the big red button to record a video.";
+
+"Copying video to groups" = "Copying video to groups";
+"Copied successfully" = "Copied successfully";
+"Can not copy video to groups" = "Can not copy video to groups";

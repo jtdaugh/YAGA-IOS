@@ -172,12 +172,16 @@
         }
     }
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Copying video to groups", @"")];
     [[YAServer sharedServer] copyVideo:self.video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
+        [hud hide:NO];
+        
         if(!error) {
             [self collapseCrosspost];
+            [YAUtils showHudWithText:NSLocalizedString(@"Copied successfully", @"")];
         }
         else {
-            DLog(@"unable to copy video to groups: %@", groupIds);
+            [YAUtils showHudWithText:NSLocalizedString(@"Can not copy video to groups", @"")];
         }
     }];
 }
