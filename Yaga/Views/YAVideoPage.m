@@ -730,7 +730,12 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return [YAEventCell heightForCellWithEvent:self.events[indexPath.row]];
+    if(self.events.count > indexPath.row) {
+        return [YAEventCell heightForCellWithEvent:self.events[indexPath.row]];
+    }
+    else {
+        return 0;
+    }
 }
 
 - (void)setupCaptionButtonContainer {
