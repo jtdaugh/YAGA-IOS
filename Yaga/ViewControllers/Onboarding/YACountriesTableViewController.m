@@ -49,6 +49,8 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
     [self.view setBackgroundColor:PRIMARY_COLOR];
     
     self.searchBar.tintColor = PRIMARY_COLOR;

@@ -233,12 +233,10 @@ static NSString *commentCellID = @"CommentCell";
     CGFloat delta = kbHeight - self.keyboardHeight;
     self.keyboardHeight = kbHeight;
     CGRect wrapperFrame = self.commentsWrapperView.frame;
-    CGFloat wrapperHeight = wrapperFrame.size.height;
     CGRect gradientFrame = self.commentsGradient.frame;
     
     if (up) {
-        wrapperHeight = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION + COMMENTS_TEXT_FIELD_HEIGHT;
-        wrapperFrame.size.height = wrapperHeight;
+        wrapperFrame.size.height = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION + COMMENTS_TEXT_FIELD_HEIGHT;;
         wrapperFrame.origin.y -= self.previousKeyboardLocation ? delta : (kbHeight + COMMENTS_TEXT_FIELD_HEIGHT-COMMENTS_BOTTOM_MARGIN);
         gradientFrame.origin.y -= self.previousKeyboardLocation ? delta : kbHeight;
     } else {

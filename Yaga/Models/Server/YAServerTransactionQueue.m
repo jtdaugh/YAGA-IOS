@@ -202,18 +202,14 @@
         
         self.transactionInProgress = NO;
         
-        BOOL errorOccured = NO;
-        
         if(error && error.code == -1005) {
             DLog(@"Server is down or there is no internet connection.. Pausing transaction queue till it's up again.");
             return;
         }
-        if ([error isKindOfClass:[YARealmObjectUnavailableError class]])
+        
+        if([error isKindOfClass:[YARealmObjectUnavailableError class]])
         {
             DLog(@"Transaction impossible, video invalidated");
-        }
-        else if(error) {
-            errorOccured = YES;
         }
         else {
             DLog(@"Transaction successfull!");
