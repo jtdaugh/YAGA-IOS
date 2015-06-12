@@ -492,6 +492,13 @@
                     if (likers.count) {
                         [video updateLikersWithArray:likers];
                     }
+                    
+                    //update created at
+                    if(![videoDic[YA_VIDEO_READY_AT] isEqual:[NSNull null]]) {
+                        NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
+                        video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
+                        video.uploadedToAmazon = YES;
+                    }
                 }
             }
         }
