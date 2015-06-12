@@ -353,9 +353,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     NSString *muteMessage = [NSLocalizedString(@"Are you sure you would like to leave?", @"") stringByAppendingFormat:@" %@", group.name];
     NSString *confirmTitle = [NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
     
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
+    MSAlertController*alert = [MSAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:MSAlertControllerStyleAlert];
     
-    [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+    [alert addAction:[MSAlertAction actionWithTitle:confirmTitle style:MSAlertActionStyleDestructive handler:^(MSAlertAction *action) {
         [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
         
         BOOL groupWasActive = [[YAUser currentUser].currentGroup isEqual:group];
@@ -385,7 +385,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         
     }]];
     
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+    [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:MSAlertActionStyleCancel handler:^(MSAlertAction *action) {
         
     }]];
     

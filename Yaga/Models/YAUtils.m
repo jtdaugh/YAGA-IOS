@@ -196,22 +196,22 @@
     NSString *alertMessageText = [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to delete this video from '%@'?", @""), [YAUser currentUser].currentGroup.name];
     
     NSString *alertMessage = NSLocalizedString(alertMessageText, nil);
-    UIAlertController *confirmAlert = [UIAlertController
+    MSAlertController*confirmAlert = [MSAlertController
                                        alertControllerWithTitle:NSLocalizedString(@"Delete video", nil)
                                        message:alertMessage
-                                       preferredStyle:UIAlertControllerStyleAlert];
+                                       preferredStyle:MSAlertControllerStyleAlert];
     
-    [confirmAlert addAction:[UIAlertAction
+    [confirmAlert addAction:[MSAlertAction
                              actionWithTitle:NSLocalizedString(@"Cancel", nil)
-                             style:UIAlertActionStyleCancel
-                             handler:^(UIAlertAction *action) {
+                             style:MSAlertActionStyleCancel
+                             handler:^(MSAlertAction *action) {
                                  
                              }]];
     
-    [confirmAlert addAction:[UIAlertAction
+    [confirmAlert addAction:[MSAlertAction
                              actionWithTitle:NSLocalizedString(@"Delete", nil)
-                             style:UIAlertActionStyleDestructive
-                             handler:^(UIAlertAction *action) {
+                             style:MSAlertActionStyleDestructive
+                             handler:^(MSAlertAction *action) {
                                  [video removeFromCurrentGroupWithCompletion:nil removeFromServer:YES];
                              }]];
     
@@ -259,32 +259,32 @@
     sharedUtils.acceptAction = acceptAction;
     sharedUtils.dismissAction = cancelAction;
     
-    if ([UIAlertController class]) {
-        
-        UIAlertController *alertController =
-        [UIAlertController alertControllerWithTitle:title
+//    if ([MSAlertController class]) {
+//        
+        MSAlertController *alertController =
+        [MSAlertController alertControllerWithTitle:title
                                             message:message
-                                     preferredStyle:UIAlertControllerStyleAlert];
+                                     preferredStyle:MSAlertControllerStyleAlert];
         
-        UIAlertAction* ok = [UIAlertAction actionWithTitle:okButtonTitle
-                                                     style:UIAlertActionStyleDefault
+        MSAlertAction* ok = [MSAlertAction actionWithTitle:okButtonTitle
+                                                     style:MSAlertActionStyleDefault
                                                    handler:sharedUtils.acceptAction];
         [alertController addAction:ok];
         
         [vc   presentViewController:alertController
                            animated:YES
                          completion:nil];
-    }
-    else
-    {
-        UIAlertView *alertView =
-        [[UIAlertView alloc] initWithTitle:title
-                                   message:message
-                                  delegate:sharedUtils
-                         cancelButtonTitle:okButtonTitle
-                         otherButtonTitles:nil];
-        [alertView show];
-    }
+//    }
+//    else
+//    {
+//        UIAlertView *alertView =
+//        [[UIAlertView alloc] initWithTitle:title
+//                                   message:message
+//                                  delegate:sharedUtils
+//                         cancelButtonTitle:okButtonTitle
+//                         otherButtonTitles:nil];
+//        [alertView show];
+//    }
 
 }
 

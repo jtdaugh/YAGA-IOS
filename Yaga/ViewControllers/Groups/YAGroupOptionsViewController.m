@@ -100,7 +100,7 @@
 
 #pragma mark - Event handlers
 - (void)editTitleTapped:(id)sender {
-    UIAlertController *changeTitleAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"CHANGE_GROUP_TITLE", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
+    MSAlertController *changeTitleAlert = [MSAlertController alertControllerWithTitle:NSLocalizedString(@"CHANGE_GROUP_TITLE", @"") message:nil preferredStyle:MSAlertControllerStyleAlert];
     
     [changeTitleAlert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
         textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
@@ -109,7 +109,7 @@
         [textField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
         [textField setAutocorrectionType:UITextAutocorrectionTypeNo];
     }];
-    [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [changeTitleAlert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:MSAlertActionStyleDefault handler:^(MSAlertAction *action) {
         NSString *newname = [changeTitleAlert.textFields[0] text];
         if(!newname.length)
             return;
@@ -120,7 +120,7 @@
         }];
 
     }]];
-    [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+    [changeTitleAlert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:MSAlertActionStyleCancel handler:^(MSAlertAction *action) {
     }]];
     [self presentViewController:changeTitleAlert animated:YES completion:nil];
 }
@@ -134,9 +134,9 @@
     muteTitle = [muteTitle stringByAppendingFormat:@" %@", self.group.name];
     NSString *muteMessage = self.group.muted  ?  NSLocalizedString(@"Recieve notifications from this group", @"") : NSLocalizedString(@"Stop receiving notifications from this group", @"");
     
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
+    MSAlertController *alert = [MSAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:MSAlertControllerStyleAlert];
     
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Confirm", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Confirm", @"") style:MSAlertActionStyleDefault handler:^(MSAlertAction *action) {
 //        [self.navigationController popViewControllerAnimated:YES];
         
         
@@ -152,7 +152,7 @@
         }];
     }]];
     
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:MSAlertActionStyleCancel handler:nil]];
     
     [self presentViewController:alert animated:YES completion:nil];
 }
@@ -162,9 +162,9 @@
     NSString *muteMessage = [NSLocalizedString(@"Are you sure you would like to leave?", @"") stringByAppendingFormat:@" %@", self.group.name];
     NSString *confirmTitle = [NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
     
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
+    MSAlertController*alert = [MSAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:MSAlertControllerStyleAlert];
     
-    [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+    [alert addAction:[MSAlertAction actionWithTitle:confirmTitle style:MSAlertActionStyleDestructive handler:^(MSAlertAction *action) {
         NSString *groupToLeave = self.group.name;
         
         BOOL groupWasActive = [[YAUser currentUser].currentGroup isEqual:self.group];
@@ -205,7 +205,7 @@
         }];
     }]];
     
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+    [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:MSAlertActionStyleCancel handler:^(MSAlertAction *action) {
         
     }]];
     
@@ -282,8 +282,8 @@ static NSString *CellID = @"CellID";
         YAContact *contact = self.sortedMembers[indexPath.row];
         
         if([contact.number isEqualToString:[YAUser currentUser].phoneNumber]) {
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Can't remove self from the group, use 'Leave' option when selecting group options.", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
-            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:nil]];
+            MSAlertController*alert = [MSAlertController alertControllerWithTitle:NSLocalizedString(@"Can't remove self from the group, use 'Leave' option when selecting group options.", @"") message:nil preferredStyle:MSAlertControllerStyleAlert];
+            [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:MSAlertActionStyleDefault handler:nil]];
             [self presentViewController:alert animated:YES completion:nil];
             return;
         }
@@ -291,11 +291,11 @@ static NSString *CellID = @"CellID";
         NSString *title = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Remove", @""), contact.name];
         NSString *message = [NSString stringWithFormat:NSLocalizedString(@"Are you sure you would like to remove %@ from %@?", @""), contact.name, self.group.name];
         
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", @"") style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+        MSAlertController*alert = [MSAlertController alertControllerWithTitle:title message:message preferredStyle:MSAlertControllerStyleAlert];
+        [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Remove", @"") style:(MSAlertActionStyleDefault) handler:^(MSAlertAction *action) {
             [self.group removeMember:contact withCompletion:nil];
         }]];
-        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:nil]];
+        [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:MSAlertActionStyleCancel handler:nil]];
         [self presentViewController:alert animated:YES completion:nil];
     }
 }

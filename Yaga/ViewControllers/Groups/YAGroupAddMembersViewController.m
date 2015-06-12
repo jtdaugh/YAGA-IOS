@@ -450,13 +450,13 @@
     
     if(errorsString.length) {
         NSString *alertMessage = [NSString stringWithFormat:@"%@:\n\n%@", NSLocalizedString(@"SOME PHONE NUMBERS ARE INCORRECT MESSAGE", @""), errorsString];
-        UIAlertController *alertController = [UIAlertController
+        MSAlertController *alertController = [MSAlertController
                                               alertControllerWithTitle:NSLocalizedString(@"Warning", nil)
                                               message:alertMessage
-                                              preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *okAction = [UIAlertAction
+                                              preferredStyle:MSAlertControllerStyleAlert];
+        MSAlertAction *okAction = [MSAlertAction
                                    actionWithTitle:NSLocalizedString(@"OK", nil)
-                                   style:UIAlertActionStyleDefault
+                                   style:MSAlertActionStyleDefault
                                    handler:nil];
         
         [alertController addAction:okAction];

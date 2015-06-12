@@ -15,6 +15,7 @@
 #import "AFURLConnectionOperation.h"
 #import "YAServerTransactionQueue.h"
 #import "YAEventManager.h"
+#import "AFDownloadRequestOperation.h"
 
 #define LIKE_HEART_SIDE 40.f
 
@@ -250,8 +251,9 @@
 
 #pragma mark - Download progress bar
 - (void)downloadStarted:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.gifUrl]) {
+    AFDownloadRequestOperation *op = notif.object;
+    
+    if(![self.video isInvalidated] && [op.request.URL.absoluteString isEqualToString:self.video.gifUrl]) {
         [self updateCaptionAndUsername];
     }
 }

@@ -33,6 +33,7 @@ PODS:
   - Mixpanel/Mixpanel (2.8.1):
     - Mixpanel/MPCategoryHelpers
   - Mixpanel/MPCategoryHelpers (2.8.1)
+  - MSAlertController (1.0.2)
   - NSDate-Time-Ago (1.0.1)
   - OrderedDictionary (1.2)
   - Realm (0.90.6):
@@ -52,6 +53,7 @@ DEPENDENCIES:
   - libPhoneNumber-iOS (~> 0.7)
   - MBProgressHUD (~> 0.8)
   - Mixpanel
+  - MSAlertController
   - NSDate-Time-Ago
   - OrderedDictionary
   - Realm (~> 0.90.2)
@@ -78,6 +80,7 @@ SPEC CHECKSUMS:
   libPhoneNumber-iOS: b8ccd23576379caca37c7cbdd554addf384459ed
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
   Mixpanel: 93c4825025e6380ced273ed7178496282e385077
+  MSAlertController: 502577669b8fef56c492c943cb0d5ae94392369d
   NSDate-Time-Ago: e9de167d0659ebe465c273e833e7b582f061fc41
   OrderedDictionary: 9cc5d69c5c5314ad696ed1839190724e83d534c7
   Realm: a4b2766a29006293693a0f26664ecb5a84a54455
