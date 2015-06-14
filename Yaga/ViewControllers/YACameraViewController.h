@@ -8,6 +8,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "AVCamPreviewView.h"
+#import "GPUImage.h"
 
 @protocol YACameraViewControllerDelegate <NSObject>
 - (void)toggleGroups;
@@ -23,10 +24,16 @@
 - (void)initCamera;
 
 @property (assign, nonatomic) BOOL flash;
-@property (strong, nonatomic) AVCamPreviewView *cameraView;
 
-@property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
-@property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
+@property (strong, nonatomic) AVCamPreviewView *cameraView; // to remove
+@property (strong, nonatomic) GPUImageView *gpuCameraView;
+
+@property (strong, nonatomic) AVCaptureDeviceInput *videoInput; // to remove
+@property (strong, nonatomic) AVCaptureDeviceInput *audioInput; // to remove
+
+@property (strong, nonatomic) GPUImageVideoCamera *videoCamera;
+
+@property (strong, nonatomic) GPUImageMovieWriter *movieWriter;
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 

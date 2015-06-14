@@ -24,21 +24,21 @@ typedef enum {
 } YATouchDragState;
 
 @interface YACameraViewController ()
-@property (strong, nonatomic) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
+
 @property (strong, nonatomic) UIView *indicator;
 @property (strong, nonatomic) UILabel *indicatorText;
 @property (strong, nonatomic) UIView *white;
 @property (strong, nonatomic) NSNumber *recording;
 @property (strong, nonatomic) NSDate *recordingTime;
-@property (strong, nonatomic) NSNumber *FrontCamera;
+@property (strong, nonatomic) NSNumber *FrontCamera; // to remove
 @property BOOL cancelledRecording;
 
 @property (strong, nonatomic) NSNumber *previousBrightness;
 
-@property (strong, nonatomic) AVCaptureSession *session;
-@property (nonatomic) dispatch_queue_t sessionQueue;
+@property (strong, nonatomic) AVCaptureSession *session; // to remove
+@property (nonatomic) dispatch_queue_t sessionQueue; // to remove
 
-@property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput;
+@property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput; // to remove
 
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 @property (strong, nonatomic) NSMutableArray *recordingAccessories;
@@ -102,9 +102,16 @@ typedef enum {
         self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
         self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2 + recordButtonWidth/2);
         [self.cameraView setBackgroundColor:[UIColor blackColor]];
-        [self.view addSubview:self.cameraView];
+//        [self.view addSubview:self.cameraView];
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
+        
+        self.gpuCameraView = [[GPUImageView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+        [self.gpuCameraView setBackgroundColor:[UIColor blackColor]];
+        [self.view addSubview:self.gpuCameraView];
+        [self.gpuCameraView setUserInteractionEnabled:YES];
+        [self.gpuCameraView setFillMode:kGPUImageFillModePreserveAspectRatioAndFill];
+        self.gpuCameraView.autoresizingMask = UIViewAutoresizingNone;
         
         self.cameraAccessories = [@[] mutableCopy];
         self.recordingAccessories = [@[] mutableCopy];
@@ -636,47 +643,57 @@ typedef enum {
         
         //set still image output
         
-        AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-        if (videoStatus == AVAuthorizationStatusAuthorized) {
-            
-            self.session = [[AVCaptureSession alloc] init];
-           
-            [self.session beginConfiguration];
-//            self.session.automaticallyConfiguresApplicationAudioSession = NO;
-            
-            self.session.sessionPreset = AVCaptureSessionPreset640x480;
-            
-            [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
-            [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                [self setupVideoInput];
-            });
-            
-            [self.session commitConfiguration];
-            
-            [self removeOpenSettingsButton];
-            
-        } else {
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
-                                     completionHandler:^(BOOL granted) {
-                                         self.session = [[AVCaptureSession alloc] init];
-                                         [self.session beginConfiguration];
-                                         self.session.sessionPreset = AVCaptureSessionPreset640x480;
-                                         
-                                         [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
-                                         [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-                                         if (granted) {
-                                             [self setupVideoInput];
-                                         } else {
-                                             dispatch_async(dispatch_get_main_queue(), ^{
-                                                 [self addOpenSettingsButton];
-                                             });
-                                             
-                                         }
-                                         [self.session commitConfiguration];
-                                     }];
-        }
+        self.
+        self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
+        self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
+        
+        
+        
+        [self.videoCamera addTarget:self.gpuCameraView];
+        self.videoCamera.audioEncodingTarget = self.movieWriter;
+        [self.videoCamera startCameraCapture];
+        
+//        AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+//        if (videoStatus == AVAuthorizationStatusAuthorized) {
+//            
+//            self.session = [[AVCaptureSession alloc] init];
+//           
+//            [self.session beginConfiguration];
+////            self.session.automaticallyConfiguresApplicationAudioSession = NO;
+//            
+//            self.session.sessionPreset = AVCaptureSessionPreset640x480;
+//            
+//            [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
+//            [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+//            
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//                [self setupVideoInput];
+//            });
+//            
+//            [self.session commitConfiguration];
+//            
+//            [self removeOpenSettingsButton];
+//            
+//        } else {
+//            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
+//                                     completionHandler:^(BOOL granted) {
+//                                         self.session = [[AVCaptureSession alloc] init];
+//                                         [self.session beginConfiguration];
+//                                         self.session.sessionPreset = AVCaptureSessionPreset640x480;
+//                                         
+//                                         [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
+//                                         [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+//                                         if (granted) {
+//                                             [self setupVideoInput];
+//                                         } else {
+//                                             dispatch_async(dispatch_get_main_queue(), ^{
+//                                                 [self addOpenSettingsButton];
+//                                             });
+//                                             
+//                                         }
+//                                         [self.session commitConfiguration];
+//                                     }];
+//        }
     }
 }
 
@@ -924,6 +941,7 @@ typedef enum {
     if (!self.largeCamera) {
         self.previousViewFrame = self.view.frame;
     }
+    
     self.recordButton.hidden = YES;
     
     [UIView animateWithDuration:0.2 animations:^{
@@ -962,7 +980,10 @@ typedef enum {
         //
     }];
 
+//    [GPUImageMovieWriter alloc] initWith
+//    [self.movieWriter startRecording];
     [self startRecordingVideo];
+    NSLog(@"starting something...");
     
 }
 
@@ -1064,8 +1085,9 @@ typedef enum {
 }
 
 - (void) startRecordingVideo {
-    if(!self.session.outputs.count)
-        return;
+//    if(!self.session.outputs.count)
+//        NSLog(@"return?");
+//        return;
     
     //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
     
@@ -1084,20 +1106,36 @@ typedef enum {
     }
     //Start recording
     
-    self.recordingSemaphore = dispatch_semaphore_create(0);
-    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+//    self.recordingSemaphore = dispatch_semaphore_create(0);
+//    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+    self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:outputURL size:CGSizeMake(480.0, 640.0)];
+    self.movieWriter.encodingLiveVideo = YES;
+    [self.movieWriter startRecording];
+    
+    [self performSelector:@selector(gpuSwitchCamera) withObject:self afterDelay:3.0];
+    
+    NSLog(@"start recording video?!?!?!");
+}
+
+- (void) gpuSwitchCamera {
+    [self.videoCamera rotateCamera];
 }
 
 - (void) stopRecordingVideo {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        if(self.recordingSemaphore)
-            dispatch_semaphore_wait(self.recordingSemaphore, DISPATCH_TIME_FOREVER);
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.movieFileOutput stopRecording];
-            DLog(@"stop recording video");
-        });
-    });
+    NSLog(@"Finish recording?");
+    [self.movieWriter finishRecordingWithCompletionHandler:^{
+        NSLog(@"Finish recording 2?");
+        //
+    }];
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//        if(self.recordingSemaphore)
+//            dispatch_semaphore_wait(self.recordingSemaphore, DISPATCH_TIME_FOREVER);
+//        
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [self.movieFileOutput stopRecording];
+//            DLog(@"stop recording video");
+//        });
+//    });
 }
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
