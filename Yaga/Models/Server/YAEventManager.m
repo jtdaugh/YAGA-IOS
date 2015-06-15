@@ -121,27 +121,20 @@
     
     __weak YAEventManager *weakSelf = self;
     [[self.firebaseRoot childByAppendingPath:videoId] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (![groupId isEqualToString:[YAUser currentUser].currentGroup.serverId]) {
-                // if group changed while this request was pending, discard its response.
-                return;
+        if ([weakSelf.videoIdMonitoring isEqualToString:videoId]) {
+            return; // Already monitoring childAdded. Don't mess with it.
+        }
+        NSMutableArray *events = [NSMutableArray array];
+        for (FDataSnapshot *eventSnapshot in snapshot.children) {
+            [events addObject:[YAEvent eventWithSnapshot:eventSnapshot]];
+        }
+        [weakSelf.eventsByVideoId setObject:events forKey:videoId];
+        [weakSelf.eventReceiver videoId:videoId receivedInitialEvents:events];
+        [weakSelf.eventCountReceiver videoId:videoId eventCountUpdated:events.count];
+        
+        if ([weakSelf.videoIdWaitingToMonitor isEqualToString:videoId]) {
+            [weakSelf startChildAddedQueryForVideoId:videoId];
             }
-            if ([weakSelf.videoIdMonitoring isEqualToString:videoId]) {
-                return; // Already monitoring childAdded. Don't mess with it.
-            }
-            NSMutableArray *events = [NSMutableArray array];
-            for (FDataSnapshot *eventSnapshot in snapshot.children) {
-                [events addObject:[YAEvent eventWithSnapshot:eventSnapshot]];
-            }
-            [weakSelf.eventsByVideoId setObject:events forKey:videoId];
-            [weakSelf.eventReceiver videoId:videoId receivedInitialEvents:events];
-            [weakSelf.eventCountReceiver videoId:videoId eventCountUpdated:events.count];
-            
-            if ([weakSelf.videoIdWaitingToMonitor isEqualToString:videoId]) {
-                [weakSelf startChildAddedQueryForVideoId:videoId];
-            }
-        });
-//        NSLog(@"Firebase initial events loaded for video: %@", video.serverId);
     }];
 }
 
