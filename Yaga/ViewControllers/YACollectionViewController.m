@@ -273,7 +273,7 @@ static NSString *cellID = @"Cell";
             [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
         }
         else {
-            [NSException raise:@"something is really wrong" format:nil];
+            [NSException raise:@"something is really wrong" format:@""];
         }
     });
 }

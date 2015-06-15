@@ -173,11 +173,11 @@
     BOOL showLoader = NO;
     switch (self.state) {
         case YAVideoCellStateLoading: {
-            showLoader = self.video;
+            showLoader = self.video != nil;
             break;
         }
         case YAVideoCellStateJPEGPreview: {
-            showLoader = self.video;
+            showLoader = self.video != nil;
             
             //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
             //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
