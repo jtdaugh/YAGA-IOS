@@ -243,7 +243,7 @@
 
 + (CGRect)frameForUsernameLabel:(NSString *)username {
     NSDictionary *usernameAttributes = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE]};
-    CGRect rect = [username boundingRectWithSize:CGSizeMake(VIEW_HEIGHT/2, CGFLOAT_MAX)
+    CGRect rect = [username boundingRectWithSize:CGSizeMake(VIEW_WIDTH/2, CGFLOAT_MAX)
                                          options:NSStringDrawingUsesLineFragmentOrigin
                                       attributes:usernameAttributes
                                          context:nil];
@@ -253,7 +253,7 @@
 
 + (CGSize)sizeForCommentsCellWithUsername:(NSString *)username comment:(NSString *)comment {
     CGSize usernameSize = [[self class] frameForUsernameLabel:username].size;
-    CGFloat commentWidth = VIEW_WIDTH - (usernameSize.width + 6.0f);
+    CGFloat commentWidth = VIEW_WIDTH - (COMMENTS_SIDE_MARGIN*2) - (usernameSize.width + 6.0f);
     
     NSDictionary *commentAttributes = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE]};
     CGRect commentsRect = [comment boundingRectWithSize:CGSizeMake(commentWidth, CGFLOAT_MAX)
