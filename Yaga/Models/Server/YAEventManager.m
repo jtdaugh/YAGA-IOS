@@ -10,7 +10,12 @@
 #import <Firebase/Firebase.h>
 #import "YAUser.h"
 
+#if (DEBUG && DEBUG_SERVER)
+#define FIREBASE_EVENTS_ROOT (@"https://yaga-dev.firebaseio.com/events")
+#else
 #define FIREBASE_EVENTS_ROOT (@"https://yaga.firebaseio.com/events")
+#endif
+
 
 @interface YAEventManager ()
 
