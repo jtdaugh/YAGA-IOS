@@ -21,6 +21,8 @@
 
 #define kContactsAccessWasRequested @"kContactsAccessWasRequested"
 
+#define kLastYagaUsersRequestDate @"kLastYagaUsersRequestDate"
+
 @implementation YAUser
 
 + (YAUser*)currentUser {
@@ -195,17 +197,22 @@
             {
                 completion(nil, result);
                 
-                //think of how we can have less requests to the server here
-                [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
-                    NSArray *registeredPhones = [response valueForKey:nPhone];
-                    for(NSString *phone in registeredPhones) {
-                        NSMutableDictionary *phonebookItem = [self.phonebook objectForKey:phone];
-                        [phonebookItem setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];
-                        [self.phonebook setObject:phonebookItem forKey:phone];
-                    }
-                    completion(nil, result);
-                }];
+                NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
                 
+                //request yaga users once per hour
+                if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60]] == NSOrderedDescending) {
+                    [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
+                        
+                        [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastYagaUsersRequestDate];
+                        NSArray *registeredPhones = [response valueForKey:nPhone];
+                        for(NSString *phone in registeredPhones) {
+                            NSMutableDictionary *phonebookItem = [self.phonebook objectForKey:phone];
+                            [phonebookItem setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];
+                            [self.phonebook setObject:phonebookItem forKey:phone];
+                        }
+                        completion(nil, result);
+                    }];
+                }
             }
         }
         else
