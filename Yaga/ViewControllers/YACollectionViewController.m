@@ -617,6 +617,7 @@ static NSString *cellID = @"Cell";
     
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
+        [videoCell setEventCount:[[YAEventManager sharedManager] getEventCountForVideoId:videoCell.video.serverId]];
     }
 }
 
