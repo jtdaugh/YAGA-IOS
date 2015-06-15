@@ -202,20 +202,14 @@
         
         self.transactionInProgress = NO;
         
-        BOOL errorOccured = NO;
-        
-        if(![[YAServer sharedServer] serverUp]) {
+        if(error && error.code == -1005) {
             DLog(@"Server is down or there is no internet connection.. Pausing transaction queue till it's up again.");
             return;
         }
-        if ([error isKindOfClass:[YARealmObjectUnavailableError class]])
+        
+        if([error isKindOfClass:[YARealmObjectUnavailableError class]])
         {
             DLog(@"Transaction impossible, video invalidated");
-        }
-        else if(error) {
-            // Commented out this line because it was causing a crash...
-//            DLog(@"Error performing transaction %@\n Error: %@\n", transactionData, error);
-            errorOccured = YES;
         }
         else {
             DLog(@"Transaction successfull!");
@@ -228,7 +222,7 @@
         if(error && ![error isKindOfClass:[YARealmObjectUnavailableError class]]) {
     
             //-999 is for manually cancelled operations(disappeared connection treated as manual), execute them again immediately
-            if(error.code == -999 || error.code == -1005) {
+            if(error.code == -999) {
                 [weakSelf.transactionsData addObject:transactionData];
             }
             else {

@@ -21,7 +21,6 @@ typedef void (^cameraCompletion)(void);
     UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver> {
     CGPoint lastOffset;
     NSTimeInterval lastOffsetCapture;
-    BOOL isScrollingFast;
 }
 
 @property (strong, nonatomic) UICollectionView *collectionView;

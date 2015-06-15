@@ -23,6 +23,7 @@
 "Leave" = "Leave";
 "Group" = "Group";
 "Remove" = "Remove";
+"Retry" = "Retry";
 "No members" = "No members";
 "Application error" = "Application error";
 "Choose your Country" = "Choose your Country";
@@ -151,3 +152,5 @@
 
 //no videos label
 "Things are a bit quiet in here. Hold the big red button to record a video." = "Things are a bit quiet in here. Hold the big red button to record a video.";
+
+"Video failed to upload" = "Video failed to upload";

@@ -48,7 +48,7 @@
 
 
 - (void)viewDidLoad {
-    
+    [super viewDidLoad];
     
     self.cameraView = [[AVCamPreviewView alloc] initWithFrame:self.view.bounds];
     [self.cameraView setBackgroundColor:[UIColor blackColor]];
@@ -147,6 +147,8 @@
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
     dispatch_async(dispatch_get_main_queue(), ^{
