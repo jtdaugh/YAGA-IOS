@@ -670,7 +670,7 @@ static NSString *cellID = @"Cell";
             //enqueue new assets creation jobs
             [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
             
-            DLog(@"Page %lu loaded", self.paginationThreshold / kPaginationDefaultThreshold);
+            DLog(@"Page %u loaded", self.paginationThreshold / kPaginationDefaultThreshold);
         });
     }
 }
