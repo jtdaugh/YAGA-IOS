@@ -150,7 +150,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     self.player = nil;
     
     DLog(@"YAVideoPlayerView deallocated");
-}g
+}
 
 - (BOOL)isPlaying
 {

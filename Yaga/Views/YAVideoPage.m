@@ -462,12 +462,12 @@ static NSString *commentCellID = @"CommentCell";
     self.viewCountLabel.layer.shadowOpacity = 1.0;
     self.viewCountLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
     [self.overlay addSubview:self.viewCountLabel];
-    CATransition *transitionAnimation = [CATransition animation];
-    [transitionAnimation setType:kCATransitionFade];
-    [transitionAnimation setDuration:0.3f];
-    [transitionAnimation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
-    [transitionAnimation setFillMode:kCAFillModeBoth];
-    [self.viewCountLabel.layer addAnimation:transitionAnimation forKey:@"fadeAnimation"];
+    CATransition *animation = [CATransition animation];
+    animation.duration = .2;
+    animation.type = kCATransitionFromBottom;
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    animation.removedOnCompletion = NO;
+    [self.viewCountLabel.layer addAnimation:animation forKey:@"changeTextTransition"];
 
 //    CGFloat tSize = CAPTION_FONT_SIZE;
 
