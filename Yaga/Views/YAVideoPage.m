@@ -47,6 +47,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) ADTickerLabel *viewCountLabel;
+@property (nonatomic, strong) UIImageView *viewCountImageView;
 @property BOOL likesShown;
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *likeButton;
@@ -201,14 +202,18 @@ static NSString *commentCellID = @"CommentCell";
     if ((myViewCount + othersViewCount) > 0) {
         if (self.viewCountLabel.hidden) {
             self.viewCountLabel.alpha = 0;
+            self.viewCountImageView.alpha = 0;
             self.viewCountLabel.hidden = NO;
+            self.viewCountImageView.hidden = NO;
             [UIView animateWithDuration:0.5f animations:^{
                 self.viewCountLabel.alpha = 1;
+                self.viewCountImageView.alpha = 0.8;
             }];
         }
-        self.viewCountLabel.text = [NSString stringWithFormat:@"%d", othersViewCount + myViewCount];
+        self.viewCountLabel.text = [NSString stringWithFormat:@"%lu", othersViewCount + myViewCount];
     } else {
         self.viewCountLabel.hidden = YES;
+        self.viewCountImageView.hidden = YES;
     }
 }
 
@@ -447,13 +452,14 @@ static NSString *commentCellID = @"CommentCell";
     self.timestampLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
 //    [self.overlay addSubview:self.timestampLabel];
     
-    CGSize viewCountSize = CGSizeMake(100, 24);
-    self.viewCountLabel = [[ADTickerLabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2.f - (viewCountSize.width / 2.f),
+    CGSize viewCountSize = CGSizeMake(100, 20);
+    
+    self.viewCountLabel = [[ADTickerLabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2.f+2,
                                                                     VIEW_HEIGHT - viewCountSize.height - 10,
                                                                     viewCountSize.width, viewCountSize.height)];
     self.viewCountLabel.changeTextAnimationDuration = .3f;
-    [self.viewCountLabel setTextAlignment:NSTextAlignmentCenter];
-    [self.viewCountLabel setTextColor:[UIColor colorWithWhite:0.9 alpha:0.7]];
+    [self.viewCountLabel setTextAlignment:NSTextAlignmentLeft];
+    [self.viewCountLabel setTextColor:[UIColor colorWithWhite:0.9 alpha:0.8]];
     [self.viewCountLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
     self.viewCountLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.viewCountLabel.layer.shadowRadius = 0.0f;
@@ -461,7 +467,15 @@ static NSString *commentCellID = @"CommentCell";
     self.viewCountLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
     [self.overlay addSubview:self.viewCountLabel];
 
-//    CGFloat tSize = CAPTION_FONT_SIZE;
+    CGSize viewCountImgSize = CGSizeMake(25, 20);
+    self.viewCountImageView = [[UIImageView alloc]initWithFrame:CGRectMake(VIEW_WIDTH/2.f - 2 - viewCountImgSize.width,
+                                                                           VIEW_HEIGHT - viewCountImgSize.height - 10,
+                                                                           viewCountImgSize.width, viewCountImgSize.height)];
+    self.viewCountImageView.image = [UIImage imageNamed:@"Views"];
+    self.viewCountImageView.contentMode = UIViewContentModeScaleAspectFit;
+    [self.overlay addSubview:self.viewCountImageView];
+    
+    //    CGFloat tSize = CAPTION_FONT_SIZE;
 
     self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     self.XButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
@@ -1253,6 +1267,7 @@ static NSString *commentCellID = @"CommentCell";
     [self refreshWholeTableWithEventsArray:events];
     [self initializeCaption];
     self.viewCountLabel.hidden = YES;
+    self.viewCountImageView.hidden = YES;
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
 
