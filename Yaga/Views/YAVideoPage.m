@@ -25,6 +25,7 @@
 #import "UIImage+Color.h"
 #import "Constants.h"
 #import "YAViewCountManager.h"
+#import "UICountingLabel.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
@@ -45,7 +46,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UIButton *XButton;
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
-@property (nonatomic, strong) UILabel *viewCountLabel;
+@property (nonatomic, strong) UICountingLabel *viewCountLabel;
 @property BOOL likesShown;
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *likeButton;
@@ -198,8 +199,16 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)updatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount {
     if ((myViewCount + othersViewCount) > 0) {
-        self.viewCountLabel.hidden = NO;
-        self.viewCountLabel.text = [NSString stringWithFormat:@"%d loops", myViewCount + othersViewCount];
+        if (self.viewCountLabel.hidden) {
+            self.viewCountLabel.alpha = 0;
+            self.viewCountLabel.hidden = NO;
+            [UIView animateWithDuration:0.5f animations:^{
+                self.viewCountLabel.alpha = 1;
+            }];
+            [self.viewCountLabel countFromZeroTo:myViewCount + othersViewCount withDuration:0.5f];
+        } else {
+            [self.viewCountLabel countFromCurrentValueTo:myViewCount + othersViewCount withDuration:0.05f];
+        }
     } else {
         self.viewCountLabel.hidden = YES;
     }
@@ -441,9 +450,10 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.overlay addSubview:self.timestampLabel];
     
     CGSize viewCountSize = CGSizeMake(100, 24);
-    self.viewCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2.f - (viewCountSize.width / 2.f),
+    self.viewCountLabel = [[UICountingLabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2.f - (viewCountSize.width / 2.f),
                                                                     VIEW_HEIGHT - viewCountSize.height - 10,
                                                                     viewCountSize.width, viewCountSize.height)];
+    self.viewCountLabel.format = @"%d loops";
     [self.viewCountLabel setTextAlignment:NSTextAlignmentCenter];
     [self.viewCountLabel setTextColor:[UIColor colorWithWhite:0.9 alpha:0.7]];
     [self.viewCountLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
@@ -452,6 +462,12 @@ static NSString *commentCellID = @"CommentCell";
     self.viewCountLabel.layer.shadowOpacity = 1.0;
     self.viewCountLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
     [self.overlay addSubview:self.viewCountLabel];
+    CATransition *transitionAnimation = [CATransition animation];
+    [transitionAnimation setType:kCATransitionFade];
+    [transitionAnimation setDuration:0.3f];
+    [transitionAnimation setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+    [transitionAnimation setFillMode:kCAFillModeBoth];
+    [self.viewCountLabel.layer addAnimation:transitionAnimation forKey:@"fadeAnimation"];
 
 //    CGFloat tSize = CAPTION_FONT_SIZE;
 

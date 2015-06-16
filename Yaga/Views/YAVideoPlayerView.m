@@ -39,6 +39,11 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     return [AVPlayerLayer class];
 }
 
+- (void)playerItemDidReachEnd:(NSNotification *)notification {
+    AVPlayerItem *p = [notification object];
+    [p seekToTime:kCMTimeZero];
+}
+
 - (void)updatePlayerLayer {
     AVPlayerLayer *playerLayer = (AVPlayerLayer*)[self layer];
     [playerLayer setPlayer:self.player];
@@ -137,6 +142,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     [self.viewCountTimer invalidate];
     [self.player removeObserver:self forKeyPath:@"currentItem"];
     [self.player removeObserver:self forKeyPath:@"rate"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
     [self.playerItem removeObserver:self forKeyPath:@"status"];
 
     [self.player pause];
@@ -144,7 +150,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     self.player = nil;
     
     DLog(@"YAVideoPlayerView deallocated");
-}
+}g
 
 - (BOOL)isPlaying
 {
@@ -196,7 +202,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
         /* Remove existing player item key value observers and notifications. */
         [self.viewCountTimer invalidate];
         [self.playerItem removeObserver:self forKeyPath:@"status"];
-        
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
         //        [[NSNotificationCenter defaultCenter] removeObserver:self
         //                                                        name:AVPlayerItemDidPlayToEndTimeNotification
         //                                                      object:self.playerItem];
@@ -212,14 +218,19 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
                               forKeyPath:@"status"
                                  options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
                                  context:AVPlayerDemoPlaybackViewControllerStatusObservationContext];
-            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(playerItemDidReachEnd:)
+                                                         name:AVPlayerItemDidPlayToEndTimeNotification
+                                                       object:self.playerItem];
+
             
             /* Create new player, if we don't already have one. */
             if (!self.player)
             {
                 /* Get a new AVPlayer initialized to play the specified player item. */
                 [self setPlayer:[AVPlayer playerWithPlayerItem:self.playerItem]];
-                
+                self.player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
+
                 /* Observe the AVPlayer "currentItem" property to find out when any
                  AVPlayer replaceCurrentItemWithPlayerItem: replacement will/did
                  occur.*/
