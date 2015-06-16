@@ -1084,45 +1084,63 @@ typedef enum {
 }
 
 - (void) startRecordingVideo {
-//    if(!self.session.outputs.count)
-//        NSLog(@"return?");
-//        return;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //    if(!self.session.outputs.count)
+        //        NSLog(@"return?");
+        //        return;
+        
+        //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+        
+        //Create temporary URL to record to
+        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
+        self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
+        unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
+        
+        
+        //Start recording
+        
+        //    self.recordingSemaphore = dispatch_semaphore_create(0);
+        //    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
+        //
+        
+        NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
+        [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
+        [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
+        [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
+        
+        AudioChannelLayout channelLayout;
+        memset(&channelLayout, 0, sizeof(AudioChannelLayout));
+        channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
+        
+        NSDictionary *audioSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                       [ NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
+                                       [ NSNumber numberWithInt: 2 ], AVNumberOfChannelsKey,
+                                       [ NSNumber numberWithFloat: 16000.0 ], AVSampleRateKey,
+                                       [ NSData dataWithBytes:&channelLayout length: sizeof( AudioChannelLayout ) ], AVChannelLayoutKey,
+                                       [ NSNumber numberWithInt: 32000 ], AVEncoderBitRateKey,
+                                       nil];
+        
+        
+        
+        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
+        self.movieWriter.encodingLiveVideo = YES;
+        self.movieWriter.shouldPassthroughAudio = NO; // default YES
+        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
+        self.videoCamera.audioEncodingTarget = self.movieWriter;
+        
+
+        [self.videoCamera addTarget:self.movieWriter];
+        [self.movieWriter startRecording];
+        
+#warning add image writer
+//        [filter useNextFrameForImageCapture];
+//        UIImage *capturedImage = [filter imageFromCurrentFramebufferWithOrientation:UIImageOrientationUp];
+//        NSLog(@"%@",capturedImage);
+    });
     
-    //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
     
-    //Create temporary URL to record to
-    NSString *randomString = [[NSProcessInfo processInfo] globallyUniqueString];
-    NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), randomString];
-    self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:outputPath])
-    {
-        NSError *error;
-        if ([fileManager removeItemAtPath:outputPath error:&error] == NO)
-        {
-            //Error - handle if requried
-        }
-    }
+    //    [self performSelector:@selector(gpuSwitchCamera) withObject:self afterDelay:3.0];
     
-    
-    //Start recording
-    
-//    self.recordingSemaphore = dispatch_semaphore_create(0);
-//    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
-    
-//    GPUImagePixellatePositionFilter *customFilter = [[GPUImagePixellatePositionFilter alloc] init];
-    
-    self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0)];
-    self.movieWriter.encodingLiveVideo = YES;
-    self.movieWriter.shouldPassthroughAudio = YES;
-    self.videoCamera.audioEncodingTarget = self.movieWriter;
-    
-//    [self.videoCamera addTarget:customFilter];
-//    [customFilter addTarget:self.gpuCameraView];
-    
-    [self.movieWriter startRecording];
-    
-//    [self performSelector:@selector(gpuSwitchCamera) withObject:self afterDelay:3.0];
     
     NSLog(@"start recording video?!?!?!");
 }
@@ -1137,9 +1155,16 @@ typedef enum {
     [self.movieWriter finishRecordingWithCompletionHandler:^{
         NSLog(@"Finish recording 2?");
         NSLog(@"recording path: %@ ?", self.currentlyRecordingUrl.path);
+
+        [self.videoCamera removeTarget:self.movieWriter];
+
+        //NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:self.currentlyRecordingUrl.path error:nil];
+        //UISaveVideoAtPathToSavedPhotosAlbum(self.currentlyRecordingUrl.path, self, @selector(video:didFinishSavingWithError: contextInfo:), nil);
         
-        UISaveVideoAtPathToSavedPhotosAlbum(self.currentlyRecordingUrl.path, nil, nil, nil);
-        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.videoCamera startCameraCapture];
+        });
+            
         if(!self.cancelledRecording){
             if (![self.recording boolValue]) {
                 [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:self.currentlyRecordingUrl addToGroup:[YAUser currentUser].currentGroup];
