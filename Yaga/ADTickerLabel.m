@@ -75,11 +75,11 @@
         
         if (selectedCharacterIndex < self.selectedCharacterIndex)
         {
+            self.selectedCharacterIndex = selectedCharacterIndex;
             [self moveToPosition: [self positionYForCharacterAtIndex: selectedCharacterIndex]
                         animated: animated
                       completion:
              ^{
-                 self.selectedCharacterIndex = selectedCharacterIndex;
              }];
         }
         else if(selectedCharacterIndex > self.selectedCharacterIndex)
@@ -89,11 +89,11 @@
             selectedCharacterIndex = [ self.charactersArray indexOfObject: selectedCharacter
                                                                   inRange: NSMakeRange(self.selectedCharacterIndex, [self.charactersArray count] - self.selectedCharacterIndex)];
             
+            self.selectedCharacterIndex = [self.charactersArray indexOfObject: selectedCharacter];
             [self moveToPosition: [self positionYForCharacterAtIndex: selectedCharacterIndex]
                         animated: animated
                       completion:
              ^{
-                 self.selectedCharacterIndex = [self.charactersArray indexOfObject: selectedCharacter];
                  
                  CGRect newFrame = self.frame;
                  newFrame.origin.y = [self positionYForCharacterAtIndex: self.selectedCharacterIndex];
@@ -112,11 +112,11 @@
         
         if (selectedCharacterIndex < self.selectedCharacterIndex)
         {
+            self.selectedCharacterIndex = selectedCharacterIndex;
             [self moveToPosition: [self positionYForCharacterAtIndex: selectedCharacterIndex]
                         animated: animated
                       completion:
              ^{
-                 self.selectedCharacterIndex = selectedCharacterIndex;
              }];
         }
         else if(selectedCharacterIndex > self.selectedCharacterIndex){
@@ -125,11 +125,11 @@
             selectedCharacterIndex = [ self.charactersArray indexOfObject: selectedCharacter
                                                                   inRange: NSMakeRange(self.selectedCharacterIndex, [self.charactersArray count] - self.selectedCharacterIndex)];
             
+            self.selectedCharacterIndex = [self.charactersArray indexOfObject: selectedCharacter];
             [self moveToPosition: [self positionYForCharacterAtIndex: selectedCharacterIndex]
                         animated: animated
                       completion:
              ^{
-                 self.selectedCharacterIndex = [self.charactersArray indexOfObject: selectedCharacter];
                  
                  CGRect newFrame = self.frame;
                  newFrame.origin.y = [self positionYForCharacterAtIndex: self.selectedCharacterIndex];

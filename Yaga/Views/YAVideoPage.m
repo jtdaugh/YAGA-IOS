@@ -457,7 +457,7 @@ static NSString *commentCellID = @"CommentCell";
     self.viewCountLabel = [[ADTickerLabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2.f+2,
                                                                     VIEW_HEIGHT - viewCountSize.height - 10,
                                                                     viewCountSize.width, viewCountSize.height)];
-    self.viewCountLabel.changeTextAnimationDuration = .3f;
+    self.viewCountLabel.changeTextAnimationDuration = .9f;
     [self.viewCountLabel setTextAlignment:NSTextAlignmentLeft];
     [self.viewCountLabel setTextColor:[UIColor colorWithWhite:0.9 alpha:0.8]];
     [self.viewCountLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
