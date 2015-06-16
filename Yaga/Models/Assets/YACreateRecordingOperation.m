@@ -89,17 +89,17 @@
         exportSession.shouldOptimizeForNetworkUse = NO;
         exportSession.outputFileType = AVFileTypeMPEG4;
         exportSession.canPerformMultiplePassesOverSourceMediaData = YES;
-        [exportSession exportAsynchronouslyWithCompletionHandler:^{
-            
-            switch ([exportSession status]) {
-                case AVAssetExportSessionStatusCompleted:
-                {
+//        [exportSession exportAsynchronouslyWithCompletionHandler:^{
+//            
+//            switch ([exportSession status]) {
+//                case AVAssetExportSessionStatusCompleted:
+//                {
                     NSDate *currentDate = [NSDate date];
                     dispatch_sync(dispatch_get_main_queue(), ^{
                         [self.group.realm beginWriteTransaction];
                         self.video.creator = [[YAUser currentUser] username];
                         self.video.createdAt = currentDate;
-                        self.video.mp4Filename = mp4Filename;
+                        self.video.mp4Filename = movFilename;
                         self.video.group = self.group;
                         self.group.updatedAt = currentDate;
                         [self.group.videos insertObject:self.video atIndex:0];
@@ -120,14 +120,14 @@
                         [self setFinished:YES];
                     });
                     
-                    break;
-                }
-                default:
-                    DLog(@"Error: Unable to convert mov to mp4!");
-                    break;
-            }
-            
-        }];
+//                    break;
+//                }
+//                default:
+//                    DLog(@"Error: Unable to convert mov to mp4!");
+//                    break;
+//            }
+//            
+//        }];
     }
 }
 

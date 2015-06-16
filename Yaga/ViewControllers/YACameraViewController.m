@@ -65,6 +65,7 @@ typedef enum {
 @property (nonatomic, strong) CTCallCenter *callCenter;
 
 @property (nonatomic, strong) NSMutableArray *currentRecordingURLs;
+@property (strong, nonatomic) NSURL *currentlyRecordingUrl;
 @property (strong, nonatomic) UIView *recordingIndicator;
 
 @property (nonatomic) YATouchDragState lastTouchDragState;
@@ -643,14 +644,12 @@ typedef enum {
         
         //set still image output
         
-        self.
         self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
         self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
         
         
         
         [self.videoCamera addTarget:self.gpuCameraView];
-        self.videoCamera.audioEncodingTarget = self.movieWriter;
         [self.videoCamera startCameraCapture];
         
 //        AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
@@ -1094,7 +1093,7 @@ typedef enum {
     //Create temporary URL to record to
     NSString *randomString = [[NSProcessInfo processInfo] globallyUniqueString];
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@.mov", NSTemporaryDirectory(), randomString];
-    NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
+    self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:outputPath])
     {
@@ -1104,15 +1103,26 @@ typedef enum {
             //Error - handle if requried
         }
     }
+    
+    
     //Start recording
     
 //    self.recordingSemaphore = dispatch_semaphore_create(0);
 //    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
-    self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:outputURL size:CGSizeMake(480.0, 640.0)];
+    
+//    GPUImagePixellatePositionFilter *customFilter = [[GPUImagePixellatePositionFilter alloc] init];
+    
+    self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0)];
     self.movieWriter.encodingLiveVideo = YES;
+    self.movieWriter.shouldPassthroughAudio = YES;
+    self.videoCamera.audioEncodingTarget = self.movieWriter;
+    
+//    [self.videoCamera addTarget:customFilter];
+//    [customFilter addTarget:self.gpuCameraView];
+    
     [self.movieWriter startRecording];
     
-    [self performSelector:@selector(gpuSwitchCamera) withObject:self afterDelay:3.0];
+//    [self performSelector:@selector(gpuSwitchCamera) withObject:self afterDelay:3.0];
     
     NSLog(@"start recording video?!?!?!");
 }
@@ -1123,8 +1133,21 @@ typedef enum {
 
 - (void) stopRecordingVideo {
     NSLog(@"Finish recording?");
+//    [self.videoCamera stopCameraCapture];
     [self.movieWriter finishRecordingWithCompletionHandler:^{
         NSLog(@"Finish recording 2?");
+        NSLog(@"recording path: %@ ?", self.currentlyRecordingUrl.path);
+        
+        UISaveVideoAtPathToSavedPhotosAlbum(self.currentlyRecordingUrl.path, nil, nil, nil);
+        
+        if(!self.cancelledRecording){
+            if (![self.recording boolValue]) {
+                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:self.currentlyRecordingUrl addToGroup:[YAUser currentUser].currentGroup];
+            }
+        } else {
+            self.cancelledRecording = NO;
+        }
+
         //
     }];
 //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
