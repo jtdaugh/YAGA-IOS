@@ -40,7 +40,6 @@ PODS:
   - Realm/Headers (0.93.2)
   - SVPullToRefresh (0.4.1)
   - UCZProgressView (1.0.1)
-  - UICountingLabel (1.2.0)
 
 DEPENDENCIES:
   - AFDownloadRequestOperation
@@ -58,7 +57,6 @@ DEPENDENCIES:
   - Realm (~> 0.93.2)
   - SVPullToRefresh
   - UCZProgressView
-  - UICountingLabel
 
 EXTERNAL SOURCES:
   FLAnimatedImage:
@@ -85,6 +83,5 @@ SPEC CHECKSUMS:
   Realm: 2fdd0ae74f730e190384e0338d8a0d3654df8220
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
   UCZProgressView: 32fa5c572ff1300bf22553c8286600d9ae42f50f
-  UICountingLabel: 1db4e7d023e1762171eb226d6dff47a7a84f27aa
 
 COCOAPODS: 0.37.2
