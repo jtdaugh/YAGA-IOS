@@ -8,8 +8,14 @@
 
 #import "YAVideoPlayerView.h"
 
+#import "YAViewCountManager.h"
+#import "YAWeakTimerTarget.h"
+
+#define NUM_OF_COPIES 100
+
 @interface YAVideoPlayerView ()
 @property (strong) AVPlayerItem* playerItem;
+@property (nonatomic, strong) NSTimer *viewCountTimer;
 @end
 
 static void *AVPlayerDemoPlaybackViewControllerRateObservationContext = &AVPlayerDemoPlaybackViewControllerRateObservationContext;
@@ -58,7 +64,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 
 - (AVAsset*)makeAssetCompositionFromAsset:(AVAsset*)sourceAsset {
     
-    int numOfCopies = 100;
     
     
     AVMutableComposition *composition = [[AVMutableComposition alloc] init];
@@ -72,7 +77,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     BOOL result = [composition insertTimeRange:editRange ofAsset:sourceAsset atTime:composition.duration error:&editError];
     
     if (result) {
-        for (int i = 0; i < numOfCopies; i++) {
+        for (int i = 0; i < NUM_OF_COPIES; i++) {
             [composition insertTimeRange:editRange ofAsset:sourceAsset atTime:composition.duration error:&editError];
         }
     }
@@ -129,10 +134,11 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 #pragma mark
 - (void)dealloc
 {
+    [self.viewCountTimer invalidate];
     [self.player removeObserver:self forKeyPath:@"currentItem"];
     [self.player removeObserver:self forKeyPath:@"rate"];
     [self.playerItem removeObserver:self forKeyPath:@"status"];
-    
+
     [self.player pause];
     self.playerItem = nil;
     self.player = nil;
@@ -188,7 +194,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     if (self.playerItem)
     {
         /* Remove existing player item key value observers and notifications. */
-        
+        [self.viewCountTimer invalidate];
         [self.playerItem removeObserver:self forKeyPath:@"status"];
         
         //        [[NSNotificationCenter defaultCenter] removeObserver:self
@@ -232,6 +238,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
             /* Make our new AVPlayerItem the AVPlayer's current item. */
             if (self.player.currentItem != self.playerItem)
             {
+                [self.viewCountTimer invalidate];
                 /* Replace the player item with a new player item. The item replacement occurs
                  asynchronously; observe the currentItem property to find out when the
                  replacement will/did occur
@@ -329,8 +336,12 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)play {
+    [self.viewCountTimer invalidate];
+    float singlePlayTime = CMTimeGetSeconds(self.playerItem.asset.duration) / (float) NUM_OF_COPIES;
+    self.viewCountTimer = [YAWeakTimerTarget scheduledTimerWithTimeInterval:singlePlayTime target:self selector:@selector(incrementViewCount) userInfo:nil repeats:YES];
+    
     [self.player play];
-
+    
     //hide fullscreen jpg preview
     if(self.subviews.count && [self.subviews[0] isKindOfClass:[UIImageView class]]) {
         UIImageView *jpgView = self.subviews[0];
@@ -340,9 +351,13 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)pause {
+    [self.viewCountTimer invalidate];
     [self.player pause];
 }
 
+- (void)incrementViewCount {
+    [[YAViewCountManager sharedManager] addViewToCurrentVideo];
+}
 
 @end
 

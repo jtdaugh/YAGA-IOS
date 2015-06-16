@@ -12,7 +12,6 @@
 #import "YAAssetsCreator.h"
 #import "YAUtils.h"
 #import "YAServer.h"
-#import <Social/Social.h>
 #import "YAProgressView.h"
 #import "YASwipingViewController.h"
 #import "YACopyVideoToClipboardActivity.h"
@@ -25,6 +24,7 @@
 #import "NSArray+Reverse.h"
 #import "UIImage+Color.h"
 #import "Constants.h"
+#import "YAViewCountManager.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
@@ -45,6 +45,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UIButton *XButton;
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
+@property (nonatomic, strong) UILabel *viewCountLabel;
 @property BOOL likesShown;
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *likeButton;
@@ -191,6 +192,17 @@ static NSString *commentCellID = @"CommentCell";
         [indexArray addObject:[NSIndexPath indexPathForRow:i inSection:0]];
     }
     [self.commentsTableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationTop];
+}
+
+#pragma mark - YAViewCountDelegate
+
+- (void)updatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount {
+    if ((myViewCount + othersViewCount) > 0) {
+        self.viewCountLabel.hidden = NO;
+        self.viewCountLabel.text = [NSString stringWithFormat:@"%d loops", myViewCount + othersViewCount];
+    } else {
+        self.viewCountLabel.hidden = YES;
+    }
 }
 
 #pragma mark - keyboard
@@ -428,6 +440,18 @@ static NSString *commentCellID = @"CommentCell";
     self.timestampLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
 //    [self.overlay addSubview:self.timestampLabel];
     
+    CGSize viewCountSize = CGSizeMake(100, 24);
+    self.viewCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2.f - (viewCountSize.width / 2.f),
+                                                                    VIEW_HEIGHT - viewCountSize.height - 10,
+                                                                    viewCountSize.width, viewCountSize.height)];
+    [self.viewCountLabel setTextAlignment:NSTextAlignmentCenter];
+    [self.viewCountLabel setTextColor:[UIColor colorWithWhite:0.9 alpha:0.7]];
+    [self.viewCountLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
+    self.viewCountLabel.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.viewCountLabel.layer.shadowRadius = 0.0f;
+    self.viewCountLabel.layer.shadowOpacity = 1.0;
+    self.viewCountLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
+    [self.overlay addSubview:self.viewCountLabel];
 
 //    CGFloat tSize = CAPTION_FONT_SIZE;
 
@@ -1216,9 +1240,11 @@ static NSString *commentCellID = @"CommentCell";
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
     self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqualToString:@""];
+
     NSArray *events = [[[YAEventManager sharedManager] getEventsForVideoId:self.video.serverId] reversedArray];
     [self refreshWholeTableWithEventsArray:events];
     [self initializeCaption];
+    self.viewCountLabel.hidden = YES;
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
 

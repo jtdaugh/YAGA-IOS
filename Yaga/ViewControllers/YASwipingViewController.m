@@ -13,6 +13,7 @@
 #import "YAVideo.h"
 #import "YAUser.h"
 #import "YADownloadManager.h"
+#import "YAViewCountManager.h"
 
 @interface YASwipingViewController ()
 
@@ -307,6 +308,9 @@
             [YAEventManager sharedManager].eventReceiver = page;
             [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideoId:page.video.serverId
                                                                          inGroup:[[YAUser currentUser].currentGroup.serverId copy]];
+            [[YAViewCountManager sharedManager] switchVideoId:page.video.serverId];
+            [YAViewCountManager sharedManager].viewCountDelegate = page;
+
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
         }

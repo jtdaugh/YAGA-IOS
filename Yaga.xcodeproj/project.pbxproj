@@ -114,6 +114,7 @@
 		887AFD0F1AD8ADEA00F00948 /* YAInviteCameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0E1AD8ADEA00F00948 /* YAInviteCameraViewController.m */; };
 		8890451D1B18FF8700B3C4D7 /* YAEventCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8890451C1B18FF8700B3C4D7 /* YAEventCell.m */; };
 		88E3E21C1B2FBCE000BF5E83 /* YAViewCountManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */; };
+		88E3E21F1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */; };
 		88FB0A231B1D4F36002C213C /* YAEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A221B1D4F36002C213C /* YAEvent.m */; };
 		88FB0A261B1D5250002C213C /* YAEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A251B1D5250002C213C /* YAEventManager.m */; };
 		88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A2B1B1D6D78002C213C /* NSArray+Reverse.m */; };
@@ -312,6 +313,8 @@
 		8890451C1B18FF8700B3C4D7 /* YAEventCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAEventCell.m; sourceTree = "<group>"; };
 		88E3E21A1B2FBCE000BF5E83 /* YAViewCountManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAViewCountManager.h; sourceTree = "<group>"; };
 		88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAViewCountManager.m; sourceTree = "<group>"; };
+		88E3E21D1B2FE0CA00BF5E83 /* YAWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAWeakTimerTarget.h; sourceTree = "<group>"; };
+		88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAWeakTimerTarget.m; sourceTree = "<group>"; };
 		88FB0A211B1D4F36002C213C /* YAEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YAEvent.h; path = Server/YAEvent.h; sourceTree = "<group>"; };
 		88FB0A221B1D4F36002C213C /* YAEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YAEvent.m; path = Server/YAEvent.m; sourceTree = "<group>"; };
 		88FB0A241B1D5250002C213C /* YAEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAEventManager.h; sourceTree = "<group>"; };
@@ -705,6 +708,8 @@
 			children = (
 				882F082B1AEF6F12007FAA66 /* YAPanGestureRecognizer.h */,
 				882F082C1AEF6F12007FAA66 /* YAPanGestureRecognizer.m */,
+				88E3E21D1B2FE0CA00BF5E83 /* YAWeakTimerTarget.h */,
+				88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */,
 			);
 			name = UtilityClasses;
 			sourceTree = "<group>";
@@ -872,6 +877,7 @@
 				8668D3F21ADE646C002ADA45 /* YACopyVideoToClipboardActivity.m in Sources */,
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
 				6E73F4241A432FAC000B3A14 /* NoGroupsViewController.m in Sources */,
+				88E3E21F1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m in Sources */,
 				861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailableError.m in Sources */,
 				6E1E209C1A6EF2E90041DF54 /* YACreateRecordingOperation.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* GridViewController.m in Sources */,
