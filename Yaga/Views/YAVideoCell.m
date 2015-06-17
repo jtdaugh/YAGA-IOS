@@ -277,12 +277,18 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             self.uploadingView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:uploaderGifData];
             [self.uploadingView startAnimating];
+            
+            self.eventCountLabel.hidden = YES;
         });
     }
     else {
         if(self.uploadingView) {
             [self.uploadingView removeFromSuperview];
             self.uploadingView = nil;
+            
+            if(self.eventCountLabel.text.length) {
+                self.eventCountLabel.hidden = NO;
+            }
         }
     }
 }
