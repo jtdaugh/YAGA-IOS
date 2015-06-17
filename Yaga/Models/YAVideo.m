@@ -43,7 +43,8 @@
              @"url":@"",
              @"gifUrl":@"",
              @"serverId":@"",
-             @"localCreatedAt":[NSDate date]};
+             @"localCreatedAt":[NSDate date],
+             @"owner" : @""};
 }
 
 + (NSArray *)indexedProperties {

@@ -328,7 +328,15 @@
         self.captionWrapper.hidden = YES;
     }
     self.username.textAlignment = NSTextAlignmentRight;
-    self.username.text = self.video.creator;
+    
+    if(self.video.owner.length && ![self.video.owner isEqualToString:self.video.creator]) {
+        self.username.text = [[NSString alloc] initWithFormat:@"%@ via %@", self.video.creator, self.video.owner];
+        self.username.frame = CGRectMake(self.bounds.size.width/2-20, self.bounds.size.height - 30, self.bounds.size.width/2 + 15   , 30);
+    }
+    else {
+        self.username.text = self.video.creator;
+        self.username.frame = CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30);
+    }
 }
 
 #pragma mark - UITapGestureRecognizer actions

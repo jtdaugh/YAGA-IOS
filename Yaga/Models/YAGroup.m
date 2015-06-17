@@ -518,6 +518,7 @@
             YAVideo *video = [YAVideo video];
             video.serverId = videoId;
             video.creator = ![videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME] : @"";
+            video.owner = ![videoDic[YA_RESPONSE_OWNER][YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_OWNER][YA_RESPONSE_NAME] : @"";
             NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
             [video updateLikersWithArray:likers];
             NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
