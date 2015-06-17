@@ -1256,7 +1256,7 @@ static NSString *commentCellID = @"CommentCell";
     // self.captionField.hidden = !mp4Downloaded;
     // self.captionerLabel.hidden = !mp4Downloaded || !self.captionField.text.length;
 //    self.captionButton.hidden = !mp4Downloaded;
-    self.shareButton.hidden = !mp4Downloaded;
+
 
     self.deleteButton.hidden = !mp4Downloaded && !self.myVideo;
 
