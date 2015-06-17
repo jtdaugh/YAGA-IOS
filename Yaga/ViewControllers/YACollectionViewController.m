@@ -203,6 +203,9 @@ static NSString *cellID = @"Cell";
     }
     
     [self.collectionView reloadData];
+
+    //datasource reloaded, do nothing on didDeleteVideo
+    [self.deleteDictionary removeAllObjects];
     
     if(needRefresh) {
         [self refreshCurrentGroup];
@@ -682,11 +685,14 @@ static NSString *cellID = @"Cell";
         //can't call reloadData methods when called from cellForRowAtIndexPath, using delay
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.collectionView reloadData];
-            
+
+            //datasource reloaded, do nothing on didDeleteVideo
+            [self.deleteDictionary removeAllObjects];
+
             //enqueue new assets creation jobs
             [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
             
-            DLog(@"Page %u loaded", self.paginationThreshold / kPaginationDefaultThreshold);
+            DLog(@"Page %lu loaded", (unsigned long)self.paginationThreshold / kPaginationDefaultThreshold);
         });
     }
 }
