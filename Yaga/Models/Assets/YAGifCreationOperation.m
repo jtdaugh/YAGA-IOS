@@ -25,7 +25,8 @@
     if (self = [super init]) {
         _video = video;
         _quality = quality;
-        self.name = video.url;
+        if([UIDevice currentDevice].systemVersion.floatValue >= 8)
+            self.name = video.url;
     }
     return self;
 }
