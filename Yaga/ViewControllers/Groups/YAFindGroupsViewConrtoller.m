@@ -13,6 +13,7 @@
 #import "YAUser.h"
 
 @interface YAFindGroupsViewConrtoller ()
+@property (nonatomic, strong) UIColor *oldNavigationColor;
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -105,6 +106,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     [super viewDidLoad];
     
     self.title = NSLocalizedString(@"Join Groups", @"");
+    self.oldNavigationColor = self.navigationController.view.backgroundColor;
+    self.navigationController.view.backgroundColor = PRIMARY_COLOR;
     
     self.view.backgroundColor = PRIMARY_COLOR;
 
@@ -127,6 +130,11 @@ static NSString *CellIdentifier = @"GroupsCell";
     [super viewWillAppear:animated];
 
     [self.navigationController setNavigationBarHidden:NO animated:YES];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    self.navigationController.view.backgroundColor = self.oldNavigationColor;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
