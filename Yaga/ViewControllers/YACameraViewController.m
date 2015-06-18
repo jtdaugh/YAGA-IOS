@@ -652,6 +652,21 @@ typedef enum {
         [self.videoCamera addTarget:self.gpuCameraView];
         [self.videoCamera startCameraCapture];
         
+        NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
+        [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
+        [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
+        [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
+
+        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
+        self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
+        unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
+
+        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
+        //        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
+        self.videoCamera.audioEncodingTarget = self.movieWriter;
+
+//        self.videoCamera.audioEncodingTarget = self.movieWriter;
+        
 //        AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
 //        if (videoStatus == AVAuthorizationStatusAuthorized) {
 //            
@@ -1125,10 +1140,9 @@ typedef enum {
         self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
         self.movieWriter.encodingLiveVideo = YES;
         self.movieWriter.shouldPassthroughAudio = NO; // default YES
-        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
+//        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
         self.videoCamera.audioEncodingTarget = self.movieWriter;
         
-
         [self.videoCamera addTarget:self.movieWriter];
         [self.movieWriter startRecording];
         
@@ -1139,7 +1153,7 @@ typedef enum {
     });
     
     
-    //    [self performSelector:@selector(gpuSwitchCamera) withObject:self afterDelay:3.0];
+    [self performSelector:@selector(gpuSwitchCamera) withObject:self afterDelay:3.0];
     
     
     NSLog(@"start recording video?!?!?!");
