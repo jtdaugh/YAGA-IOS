@@ -36,9 +36,9 @@ PODS:
   - MSAlertController (1.0.2)
   - NSDate-Time-Ago (1.0.1)
   - OrderedDictionary (1.2)
-  - Realm (0.90.6):
-    - Realm/Headers (= 0.90.6)
-  - Realm/Headers (0.90.6)
+  - Realm (0.93.2):
+    - Realm/Headers (= 0.93.2)
+  - Realm/Headers (0.93.2)
   - SVPullToRefresh (0.4.1)
   - UCZProgressView (1.0.1)
 
@@ -56,7 +56,7 @@ DEPENDENCIES:
   - MSAlertController
   - NSDate-Time-Ago
   - OrderedDictionary
-  - Realm (~> 0.90.2)
+  - Realm (~> 0.93.2)
   - SVPullToRefresh
   - UCZProgressView
 
@@ -83,7 +83,7 @@ SPEC CHECKSUMS:
   MSAlertController: 502577669b8fef56c492c943cb0d5ae94392369d
   NSDate-Time-Ago: e9de167d0659ebe465c273e833e7b582f061fc41
   OrderedDictionary: 9cc5d69c5c5314ad696ed1839190724e83d534c7
-  Realm: a4b2766a29006293693a0f26664ecb5a84a54455
+  Realm: 2fdd0ae74f730e190384e0338d8a0d3654df8220
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
   UCZProgressView: 32fa5c572ff1300bf22553c8286600d9ae42f50f
 

@@ -174,11 +174,11 @@
     BOOL showLoader = NO;
     switch (self.state) {
         case YAVideoCellStateLoading: {
-            showLoader = self.video;
+            showLoader = self.video != nil;
             break;
         }
         case YAVideoCellStateJPEGPreview: {
-            showLoader = self.video;
+            showLoader = self.video != nil;
             
             //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
             //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
@@ -279,12 +279,18 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             self.uploadingView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:uploaderGifData];
             [self.uploadingView startAnimating];
+            
+            self.eventCountLabel.hidden = YES;
         });
     }
     else {
         if(self.uploadingView) {
             [self.uploadingView removeFromSuperview];
             self.uploadingView = nil;
+            
+            if(self.eventCountLabel.text.length) {
+                self.eventCountLabel.hidden = NO;
+            }
         }
     }
 }

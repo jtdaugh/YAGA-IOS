@@ -107,11 +107,21 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)videoId:(NSString *)videoId eventCountUpdated:(NSUInteger)eventCount {
-    NSUInteger item = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@", videoId];
-    YAVideoCell *cell = (YAVideoCell *)[self.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0]];
-    if (cell) {
-        [cell setEventCount:eventCount];
-    }
+    NSLog(@"Scrolling fast: %@", self.scrollingFast ? @"YES" :  @"NO");
+    if (self.scrollingFast) return;
+    __weak YACollectionViewController *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@", videoId];
+        if (weakSelf.scrollingFast) return;
+        if (index == NSNotFound) {
+            return;
+        }
+        YAVideoCell *cell = (YAVideoCell *)[weakSelf.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
+        if (cell) {
+            NSLog(@"Updating comment count for videoID: %@", videoId);
+            [cell setEventCount:eventCount];
+        }
+    });
 }
 
 - (void)scrollToCell:(NSNotification *)notif
@@ -193,12 +203,16 @@ static NSString *cellID = @"Cell";
     }
     
     [self.collectionView reloadData];
+
+    //datasource reloaded, do nothing on didDeleteVideo
+    [self.deleteDictionary removeAllObjects];
     
     if(needRefresh) {
         [self refreshCurrentGroup];
     } else {
         [[YAEventManager sharedManager] groupChanged];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+        [self playVisible:YES];
     }
 }
 
@@ -272,7 +286,7 @@ static NSString *cellID = @"Cell";
             [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
         }
         else {
-            [NSException raise:@"something is really wrong" format:nil];
+            [NSException raise:@"something is really wrong" format:@""];
         }
     });
 }
@@ -473,14 +487,19 @@ static NSString *cellID = @"Cell";
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     NSString *videoId = [video.serverId copy];
     NSString *groupId = [[YAUser currentUser].currentGroup.serverId copy];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [[YAEventManager sharedManager] prefetchEventsForVideoId:videoId inGroup:groupId];
-    });
+    
+    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoId:videoId];
+    [cell setEventCount:eventCount];
+    if (!eventCount) {
+        NSLog(@"Prefetching comment count for videoID: %@", videoId);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+            [[YAEventManager sharedManager] prefetchEventsForVideoId:videoId inGroup:groupId];
+        });
+    }
+    
     cell.index = indexPath.item;
     cell.shouldPlayGifAutomatically = !self.scrollingFast;
     cell.video = video;
-    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoId:videoId];
-    [cell setEventCount:eventCount];
     
     [self handlePagingForIndexPath:indexPath];
     
@@ -601,6 +620,7 @@ static NSString *cellID = @"Cell";
     
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
+        [videoCell setEventCount:[[YAEventManager sharedManager] getEventCountForVideoId:videoCell.video.serverId]];
     }
 }
 
@@ -665,11 +685,14 @@ static NSString *cellID = @"Cell";
         //can't call reloadData methods when called from cellForRowAtIndexPath, using delay
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.collectionView reloadData];
-            
+
+            //datasource reloaded, do nothing on didDeleteVideo
+            [self.deleteDictionary removeAllObjects];
+
             //enqueue new assets creation jobs
             [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
             
-            DLog(@"Page %lu loaded", self.paginationThreshold / kPaginationDefaultThreshold);
+            DLog(@"Page %lu loaded", (unsigned long)self.paginationThreshold / kPaginationDefaultThreshold);
         });
     }
 }
