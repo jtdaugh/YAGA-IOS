@@ -160,3 +160,7 @@
 "Pending" = "Pending";
 "Searching groups" = "Searching groups";
 "Failed to search groups" = "Failed to search groups";
+"Requests" = "Requests";
+"Members" = "Members";
+"Requesting to join to group" = "Requesting to join to group";
+"Failed to join group" = "Failed to join group";

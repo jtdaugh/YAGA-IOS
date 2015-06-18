@@ -214,8 +214,55 @@
 }
 
 #pragma mark - TableView datasource and delegate
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return self.group.pending_members.count > 0 ? 2 : 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return self.group.pending_members.count > 0 ? 40 : 0;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    NSString *name = @"";
+    switch (section) {
+        case 0:
+            name = NSLocalizedString(@"Requests", @"");;
+            break;
+        case 1:
+            name = NSLocalizedString(@"Members", @"");
+            break;
+        default:
+            name = @"";
+            break;
+    }
+    
+    UIView *headerView = [UIView.alloc initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 40)];
+    headerView.backgroundColor = PRIMARY_COLOR;
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.frame.size.width - 10, 40)];
+    label.text = name;
+    label.textColor = [UIColor whiteColor];
+    label.font = [UIFont fontWithName:BOLD_FONT size:20];
+    [headerView addSubview:label];
+    
+    return headerView;
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.sortedMembers.count;
+    if(!self.group.pending_members.count)
+        return self.sortedMembers.count;
+
+    switch (section) {
+        case 0:
+            return 1;
+            break;
+        case 1:
+            return self.sortedMembers.count;
+            break;
+        default:
+            return 0;
+            break;
+    }
 }
 
 static NSString *CellID = @"CellID";
@@ -227,45 +274,74 @@ static NSString *CellID = @"CellID";
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellID];
     }
     
-    CGRect frame = cell.contentView.frame;
-    frame.origin.x = 0;
-    [cell setFrame:frame];
-    
-    YAContact *contact = self.sortedMembers[indexPath.row];
-    
-    cell.indentationLevel = 0;
-    cell.indentationWidth = 0.0f;
-    
-    [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
-    
-    NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact.number];
-    if (contact.registered || [phonebookItem[nYagaUser] boolValue])
-    {
-        cell.textLabel.text = [contact displayName];
-        [cell.textLabel setTextColor:[UIColor blackColor]];
+    if(indexPath.section == 0 && self.group.pending_members.count) {
+        cell.textLabel.text = @"Testing";
+        UIView *requestAccessoryView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 50)];
+        UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        cancelButton.frame = CGRectMake(15, 5, 40, 40);
+        cancelButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        cancelButton.layer.borderWidth = 2;
+        cancelButton.layer.cornerRadius = cancelButton.frame.size.height/2;
+        [cancelButton setTintColor:[UIColor whiteColor]];
+        [cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [cancelButton setTitle:@"X" forState:UIControlStateNormal];
+        [requestAccessoryView addSubview:cancelButton];
         
-        [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
-        UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey"]];
-        [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
-        cell.accessoryView = accessoryView;
-
-    } else {
-        NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
-        cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
+        UIButton *allowButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        allowButton.backgroundColor = [UIColor greenColor];
+        allowButton.frame = CGRectMake(60, 5, 40, 40);
+        allowButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        allowButton.layer.borderWidth = 2;
+        allowButton.layer.cornerRadius = cancelButton.frame.size.height/2;
+        [allowButton setTintColor:[UIColor whiteColor]];
+        [allowButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [allowButton setTitle:@"V" forState:UIControlStateNormal];
         
-        [cell.textLabel setTextColor:[UIColor whiteColor]];
+        [requestAccessoryView addSubview:allowButton];
+//        requestAccessoryView.backgroundColor = [UIColor redColor];
         
-        [cell.detailTextLabel setTextColor:[UIColor blackColor]];
-        
-        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
-        UIButton *inviteButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        inviteButton.tag = indexPath.row;
-        [inviteButton setImage:[UIImage imageNamed:@"Envelope"] forState:UIControlStateNormal];
-        [inviteButton setFrame:CGRectMake(0, 0, 36, 36)];
-        cell.accessoryView = inviteButton;
-        [inviteButton addTarget:self action:@selector(inviteTapped:) forControlEvents:UIControlEventTouchUpInside];
+        cell.accessoryView = requestAccessoryView;
     }
-
+    else {
+        CGRect frame = cell.contentView.frame;
+        frame.origin.x = 0;
+        [cell setFrame:frame];
+        
+        YAContact *contact = self.sortedMembers[indexPath.row];
+        
+        cell.indentationLevel = 0;
+        cell.indentationWidth = 0.0f;
+        
+        [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+        
+        NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact.number];
+        if (contact.registered || [phonebookItem[nYagaUser] boolValue])
+        {
+            cell.textLabel.text = [contact displayName];
+            [cell.textLabel setTextColor:[UIColor blackColor]];
+            
+            [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+            UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey"]];
+            [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
+            cell.accessoryView = accessoryView;
+            
+        } else {
+            NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
+            cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
+            
+            [cell.textLabel setTextColor:[UIColor whiteColor]];
+            
+            [cell.detailTextLabel setTextColor:[UIColor blackColor]];
+            
+            cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+            UIButton *inviteButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            inviteButton.tag = indexPath.row;
+            [inviteButton setImage:[UIImage imageNamed:@"Envelope"] forState:UIControlStateNormal];
+            [inviteButton setFrame:CGRectMake(0, 0, 36, 36)];
+            cell.accessoryView = inviteButton;
+            [inviteButton addTarget:self action:@selector(inviteTapped:) forControlEvents:UIControlEventTouchUpInside];
+        }
+    }
     [cell setBackgroundColor:[UIColor clearColor]];
     
     return cell;

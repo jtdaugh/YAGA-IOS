@@ -103,6 +103,7 @@
     NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
+    NSArray *pending_members = dictionary[YA_RESPONSE_PENDING_MEMBERS];
     
     for(NSDictionary *memberDic in members){
         NSString *phoneNumber = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
@@ -144,6 +145,31 @@
             [self.members removeObjectAtIndex:indexToRemove];
     }
     
+    //pending members
+    for(NSDictionary *memberDic in pending_members){
+        NSString *phoneNumber = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
+        
+        //skip myself
+        if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
+            continue;
+        
+        NSString *predicate = [NSString stringWithFormat:@"number = '%@'", phoneNumber];
+        RLMResults *existingContacts = [YAContact objectsWhere:predicate];
+        
+        YAContact *contact;
+        if(existingContacts.count) {
+            contact = existingContacts[0];
+        }
+        else {
+            contact = [YAContact new];
+        }
+        
+        [contact updateFromDictionary:memberDic];
+        
+        if([self.pending_members indexOfObject:contact] == NSNotFound)
+            [self.pending_members addObject:contact];
+        
+    }
 }
 
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {

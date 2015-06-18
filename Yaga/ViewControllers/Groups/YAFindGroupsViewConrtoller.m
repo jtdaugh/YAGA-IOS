@@ -24,9 +24,20 @@ static NSString *CellIdentifier = @"GroupsCell";
     for (NSDictionary *groupData in groupsDataArray) {
         NSArray *members = groupData[YA_RESPONSE_MEMBERS];
         NSString *membersString = [self membersStringFromMembersArray:members];
-        [result addObject:@{YA_RESPONSE_NAME : groupData[YA_RESPONSE_NAME], YA_RESPONSE_MEMBERS : membersString}];
+        
+        BOOL isPending = [self alreadyRequestedAccessToGroup:groupData];
+        [result addObject:@{YA_RESPONSE_ID : groupData[YA_RESPONSE_ID], YA_RESPONSE_NAME : groupData[YA_RESPONSE_NAME], YA_RESPONSE_MEMBERS : membersString, YA_RESPONSE_PENDING_MEMBERS : [NSNumber numberWithBool:isPending]}];
     }
     _groupsDataArray = result;
+}
+
+- (BOOL)alreadyRequestedAccessToGroup:(NSDictionary*)groupData {
+    for (NSDictionary *pending_member in groupData[YA_RESPONSE_PENDING_MEMBERS]) {
+        NSString *phoneNumber = pending_member[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
+        if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
+            return YES;
+    }
+    return NO;
 }
 
 - (NSString*)contactDisplayNameFromDictionary:(NSDictionary*)contactDictionary {
@@ -176,7 +187,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     pendingLabel.textAlignment = NSTextAlignmentCenter;
     pendingLabel.text = NSLocalizedString(@"Pending", @"");
     
-    cell.accessoryView = indexPath.row % 2 ? requestButton : pendingLabel;
+    cell.accessoryView = [groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]? pendingLabel : requestButton;
 
     return cell;
 }
@@ -199,12 +210,22 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (IBAction)unwindToGrid:(id)source {}
 
-- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
-    
-}
 
 - (void)requestButtonTapped:(UIButton*)sender {
-    
+    NSDictionary *groupData = self.groupsDataArray[sender.tag];
+    [[YAServer sharedServer] joinGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:^(id response, NSError *error) {
+        if(!error) {
+            NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
+            [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
+            NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.groupsDataArray];
+            [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
+            _groupsDataArray = upatedDataArray;
+            [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+        }
+        else {
+            DLog(@"Can't send request to join group");
+        }
+    }];
 }
 
 @end
