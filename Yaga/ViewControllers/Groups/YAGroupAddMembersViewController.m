@@ -314,6 +314,7 @@
                     if(![selectedUsernames containsObject:contact.username]) {
                         NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
                         contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
+                        contactDicMutable[nYagaUser] = [NSNumber numberWithBool:YES];
                         [self.filteredContacts addObject:contactDicMutable];
                     }
                     
