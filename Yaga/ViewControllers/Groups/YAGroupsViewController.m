@@ -23,6 +23,7 @@
 #import "YAPullToRefreshLoadingView.h"
 
 #import "YAUserPermissions.h"
+#import "YAFindGroupsViewConrtoller.h"
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -88,16 +89,10 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
     if(self.embeddedMode) {
-        //create group button
-//        UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, self.tableView.frame.size.height+1, VIEW_WIDTH, 1)];
-//        separatorView.backgroundColor = [UIColor lightGrayColor];
-//        separatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-//        [self.view addSubview:separatorView];
-        
         UIButton *createGroupButton = [[UIButton alloc] initWithFrame:
                                        CGRectMake(0,
                                                   self.tableView.frame.size.height,
-                                                  VIEW_WIDTH,
+                                                  VIEW_WIDTH/2 - 1,
                                                   VIEW_HEIGHT - self.tableView.frame.size.height)
                                        ];
         createGroupButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
@@ -111,6 +106,24 @@ static NSString *CellIdentifier = @"GroupsCell";
         UIColor *bkgColor = self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor];
         [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[bkgColor colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
         [self.view addSubview:createGroupButton];
+        
+        UIButton *findGroupsButton = [[UIButton alloc] initWithFrame:
+                                       CGRectMake(VIEW_WIDTH/2 + 1,
+                                                  self.tableView.frame.size.height,
+                                                  VIEW_WIDTH/2 - 1,
+                                                  VIEW_HEIGHT - self.tableView.frame.size.height)
+                                       ];
+        findGroupsButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+        [findGroupsButton setTitle:@"Find Groups" forState:UIControlStateNormal];
+        [findGroupsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+        [findGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+        [findGroupsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [findGroupsButton setBackgroundColor:PRIMARY_COLOR];
+        findGroupsButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+        [findGroupsButton addTarget:self action:@selector(findGroups) forControlEvents:UIControlEventTouchUpInside];
+        [findGroupsButton setBackgroundImage:[YAUtils imageWithColor:[bkgColor colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
+        [self.view addSubview:findGroupsButton];
+
     }
     
     if(self.embeddedMode)
@@ -322,9 +335,27 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)createGroup {
     [self close];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self performSegueWithIdentifier:@"NameGroup" sender:self];
+        [self performSegueWithIdentifier:@"NameGroup" sender:self];
     });
+}
 
+- (void)findGroups {
+    
+    [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+        if(!error) {
+            [self close];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                YAFindGroupsViewConrtoller *findGroups = [YAFindGroupsViewConrtoller new];
+                findGroups.groupsDataArray = (NSArray*)response;
+                [(UINavigationController*)[UIApplication sharedApplication].keyWindow.rootViewController pushViewController:findGroups animated:YES];
+            });
+        }
+        else {
+            DLog(@"Failed to search groups");
+        }
+    }];
+
+    
 }
 
 - (IBAction)unwindToGrid:(id)source {}

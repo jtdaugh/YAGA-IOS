@@ -86,6 +86,8 @@
 
 #define COMMENTS_FONT_SIZE 17.f
 
+#define kMaxUsersShownInList (8)
+
 // Captions
 #define STANDARDIZED_DEVICE_WIDTH 320.f
 #define STANDARDIZED_CAPTION_PADDING 5.f

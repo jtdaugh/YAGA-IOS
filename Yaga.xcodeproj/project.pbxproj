@@ -26,6 +26,7 @@
 		6E1E20A91A6FAB500041DF54 /* syllable.csv in Resources */ = {isa = PBXBuildFile; fileRef = 6E1E20A41A6FAB500041DF54 /* syllable.csv */; };
 		6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */ = {isa = PBXBuildFile; fileRef = 6E1E20A51A6FAB500041DF54 /* title.csv */; };
 		6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */; };
+		6E40C9E11B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E40C9E01B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m */; };
 		6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */; };
 		6E5333541AA09B2A00C221DC /* YAPushNotificationHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E5333531AA09B2A00C221DC /* YAPushNotificationHandler.m */; };
 		6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E583B6E1A6535BC00639BE5 /* YASwipingViewController.m */; };
@@ -152,6 +153,8 @@
 		6E1E20A51A6FAB500041DF54 /* title.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = title.csv; sourceTree = "<group>"; };
 		6E32D72B1A5AEEBA00EAB261 /* YACameraFocusSquare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraFocusSquare.h; sourceTree = "<group>"; };
 		6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACameraFocusSquare.m; sourceTree = "<group>"; };
+		6E40C9DF1B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAFindGroupsViewConrtoller.h; sourceTree = "<group>"; };
+		6E40C9E01B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAFindGroupsViewConrtoller.m; sourceTree = "<group>"; };
 		6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		6E5333521AA09B2A00C221DC /* YAPushNotificationHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPushNotificationHandler.h; sourceTree = "<group>"; };
 		6E5333531AA09B2A00C221DC /* YAPushNotificationHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPushNotificationHandler.m; sourceTree = "<group>"; };
@@ -427,6 +430,8 @@
 		6E73F41B1A432FAC000B3A14 /* Groups */ = {
 			isa = PBXGroup;
 			children = (
+				6E40C9DF1B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.h */,
+				6E40C9E01B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m */,
 				6E62F71E1A51A8CB008F5116 /* YAGroupAddMembersViewController.h */,
 				6E62F71F1A51A8CB008F5116 /* YAGroupAddMembersViewController.m */,
 				6E73F41C1A432FAC000B3A14 /* YAGroupsViewController.h */,
@@ -874,6 +879,7 @@
 				88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */,
 				861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
+				6E40C9E11B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m in Sources */,
 				6E583B751A6535C400639BE5 /* YAVideoPlayerView.m in Sources */,
 				6E1603F61B184F4A00D5D90E /* YANoServerIdError.m in Sources */,
 				6E62F7201A51A8CB008F5116 /* YAGroupAddMembersViewController.m in Sources */,

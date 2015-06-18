@@ -14,8 +14,6 @@
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 
-#define kMaxUsersShownInList (8)
-
 @interface YAGroup ()
 @property (atomic, assign) BOOL videosUpdateInProgress;
 @end

@@ -43,6 +43,9 @@
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
 
+#warning change "search" to "discover"
+#define API_GROUPS_SEARCH_TEMPLATE          @"%@/groups/search/"
+
 #define API_GROUP_MEMBERS_TEMPLATE          @"%@/groups/%@/members/"
 
 #define API_GROUP_POSTS_TEMPLATE            @"%@/groups/%@/posts/"
@@ -471,6 +474,29 @@
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+}
+
+- (void)searchGroupsWithCompletion:(responseBlock)completion
+{
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+    
+    NSAssert(self.authToken.length, @"auth token not set");
+    
+    NSString *api = [NSString stringWithFormat:API_GROUPS_SEARCH_TEMPLATE, self.base_api];
+    
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Searching groups", @"")];
+    [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [hud hide:NO];
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [hud hide:NO];
+        [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
         completion(nil, error);
     }];
 }
