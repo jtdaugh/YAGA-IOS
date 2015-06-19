@@ -288,8 +288,8 @@
 }
 
 - (BOOL)gifOperationInProgressForUrl:(NSString*)url {
-    for(NSOperation *op in self.gifQueue.operations) {
-        if([op.name isEqualToString:url]) {
+    for(YAGifCreationOperation *op in self.gifQueue.operations) {
+        if([op.videoUrl isEqualToString:url]) {
             return YES;
         }
     }

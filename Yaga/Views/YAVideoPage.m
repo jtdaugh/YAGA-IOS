@@ -1332,15 +1332,15 @@ static NSString *commentCellID = @"CommentCell";
 
 #pragma mark - YAProgressView
 - (void)downloadDidStart:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+    AFDownloadRequestOperation *op = notif.object;
+    if(![self.video isInvalidated] && [op.request.URL.absoluteString isEqualToString:self.video.url]) {
         [self showProgress:YES];
     }
 }
 
 - (void)downloadDidFinish:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+    AFDownloadRequestOperation *op = notif.object;
+    if(![self.video isInvalidated] && [op.request.URL.absoluteString isEqualToString:self.video.url]) {
         [self showProgress:NO];
     }
 }
