@@ -9,6 +9,7 @@
 #import "YAGroupOptionsViewController.h"
 #import "YAGroupAddMembersViewController.h"
 #import "YAInviteViewController.h"
+#import "YAServer.h"
 
 @interface YAGroupOptionsViewController ()
 @property (nonatomic, strong) UIButton *addMembersButton;
@@ -19,7 +20,10 @@
 @property (nonatomic, strong) RLMResults *sortedMembers;
 
 @property (nonatomic, strong) RLMNotificationToken *notificationToken;
+@property (nonatomic, strong) NSMutableArray *membersPendingJoin;
 @end
+
+#define kCancelledJoins @"kCancelledJoins"
 
 @implementation YAGroupOptionsViewController
 
@@ -73,7 +77,9 @@
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.dataSource = self;
-    self.tableView.delegate = self;    
+    self.tableView.delegate = self;
+    
+    [self updateMembersPendingJoin];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -215,11 +221,11 @@
 
 #pragma mark - TableView datasource and delegate
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.group.pending_members.count > 0 ? 2 : 1;
+    return self.membersPendingJoin.count > 0 ? 2 : 1;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return self.group.pending_members.count > 0 ? 40 : 0;
+    return self.membersPendingJoin.count > 0 ? 40 : 0;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
@@ -249,7 +255,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if(!self.group.pending_members.count)
+    if(!self.membersPendingJoin.count)
         return self.sortedMembers.count;
 
     switch (section) {
@@ -274,10 +280,12 @@ static NSString *CellID = @"CellID";
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellID];
     }
     
-    if(indexPath.section == 0 && self.group.pending_members.count) {
-        cell.textLabel.text = @"Testing";
+    if(indexPath.section == 0 && self.membersPendingJoin.count) {
+        NSDictionary *pendingMember = self.membersPendingJoin[indexPath.row];
+        cell.textLabel.text = pendingMember[@"username"];
         UIView *requestAccessoryView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 50)];
         UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        cancelButton.tag = indexPath.row;
         cancelButton.frame = CGRectMake(15, 5, 40, 40);
         cancelButton.layer.borderColor = [[UIColor whiteColor] CGColor];
         cancelButton.layer.borderWidth = 2;
@@ -285,9 +293,11 @@ static NSString *CellID = @"CellID";
         [cancelButton setTintColor:[UIColor whiteColor]];
         [cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [cancelButton setTitle:@"X" forState:UIControlStateNormal];
+        [cancelButton addTarget:self action:@selector(cancelJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         [requestAccessoryView addSubview:cancelButton];
         
         UIButton *allowButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        allowButton.tag = indexPath.row;
         allowButton.backgroundColor = [UIColor greenColor];
         allowButton.frame = CGRectMake(60, 5, 40, 40);
         allowButton.layer.borderColor = [[UIColor whiteColor] CGColor];
@@ -296,9 +306,9 @@ static NSString *CellID = @"CellID";
         [allowButton setTintColor:[UIColor whiteColor]];
         [allowButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [allowButton setTitle:@"V" forState:UIControlStateNormal];
+        [allowButton addTarget:self action:@selector(allowJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         
         [requestAccessoryView addSubview:allowButton];
-//        requestAccessoryView.backgroundColor = [UIColor redColor];
         
         cell.accessoryView = requestAccessoryView;
     }
@@ -390,6 +400,38 @@ static NSString *CellID = @"CellID";
     [self.navigationController pushViewController:inviteVC animated:YES];
 }
 
+- (void)updateMembersPendingJoin {
+    NSSet *cancelledJoins = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
+    self.membersPendingJoin = [NSMutableArray new];
+    
+    for(YAContact *member in self.group.pending_members) {
+        if(![cancelledJoins containsObject:member.number])
+            [self.membersPendingJoin addObject:member];
+    }
+}
+
+- (void)cancelJoinButtonPressed:(UIButton*)sender {
+    NSMutableArray *cancelled = [NSMutableArray arrayWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
+    YAContact *cancelledContact = self.membersPendingJoin[sender.tag];
+    [cancelled addObject:cancelledContact.number];
+    
+    [self.membersPendingJoin removeObject:cancelledContact];
+    [self.tableView reloadData];
+}
+
+- (void)allowJoinButtonPressed:(UIButton*)sender {
+    YAContact *allowedContact = self.membersPendingJoin[sender.tag];
+    
+    [[YAServer sharedServer] addGroupMembersByPhones:@[allowedContact.number] andUsernames:@[] toGroupWithId:self.group.serverId withCompletion:^(id response, NSError *error) {
+        if(!error) {
+            [self.membersPendingJoin removeObject:allowedContact];
+            [self.tableView reloadData];
+        }
+        else {
+            DLog(@"Can't add members");
+        }
+    }];
+}
 
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
