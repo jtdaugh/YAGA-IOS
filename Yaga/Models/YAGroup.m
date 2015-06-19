@@ -170,6 +170,21 @@
             [self.pending_members addObject:contact];
         
     }
+    
+    
+    //delete local pendning members which do not exist on server anymore
+    serverContactIds = [[dictionary[@"pending_members"] valueForKey:@"user"] valueForKey:@"id"];
+    contactsTorRemove = [NSMutableSet set];
+    for (YAContact *contact in self.pending_members) {
+        if(![serverContactIds containsObject:contact.serverId])
+            [contactsTorRemove addObject:contact];
+    }
+    
+    for(YAContact *contactToRemove in contactsTorRemove) {
+        NSInteger indexToRemove = [self.pending_members indexOfObject:contactToRemove];
+        if(indexToRemove >= 0)
+            [self.pending_members removeObjectAtIndex:indexToRemove];
+    }
 }
 
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {
