@@ -63,14 +63,14 @@
     [self.shareBlurOverlay addSubview:self.groupsList];
     
     self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, topPadding - 24, VIEW_WIDTH-24, 24)];
-    self.crossPostPrompt.font = [UIFont fontWithName:BIG_FONT size:21];
-    self.crossPostPrompt.textColor = PRIMARY_COLOR;
+    self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
+    self.crossPostPrompt.textColor = [UIColor whiteColor];
     self.crossPostPrompt.text = @"Post to more groups";
-    self.crossPostPrompt.layer.shadowRadius = 0.5f;
-    self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
-    self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
-    self.crossPostPrompt.layer.shadowOpacity = 1.0;
-    self.crossPostPrompt.layer.masksToBounds = NO;
+//    self.crossPostPrompt.layer.shadowRadius = 0.5f;
+//    self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
+//    self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
+//    self.crossPostPrompt.layer.shadowOpacity = 1.0;
+//    self.crossPostPrompt.layer.masksToBounds = NO;
     [self.shareBlurOverlay addSubview:self.crossPostPrompt];
     
     
