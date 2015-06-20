@@ -38,9 +38,12 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    [self.navigationController setNavigationBarHidden:NO];
+
     
-    CGFloat origin = 0;
-    
+    CGFloat origin = 12;
+    CGFloat leftMargin = 0;
 //    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2 + 15, origin, width - 30, VIEW_HEIGHT*.3)];
 //    [titleLabel setText:NSLocalizedString(@"My Groups", @"")];
 //    [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
@@ -48,14 +51,26 @@ static NSString *CellIdentifier = @"GroupsCell";
 //    [self.view addSubview:titleLabel];
 //    origin = titleLabel.frame.origin.y + titleLabel.frame.size.height;
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(22, origin, VIEW_WIDTH-22, self.view.bounds.size.height - (origin + 10))];
+    CGSize segSize = CGSizeMake(200, 30);
+    UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithFrame:CGRectMake((VIEW_WIDTH - segSize.width)/2, origin, segSize.width, segSize.height)];
+    [segmentedControl insertSegmentWithTitle:@"My Groups" atIndex:0 animated:NO];
+    [segmentedControl insertSegmentWithTitle:@"Find Groups" atIndex:1 animated:NO];
+    segmentedControl.tintColor = PRIMARY_COLOR;
+    segmentedControl.selectedSegmentIndex = 0;
+    
+    [self.view addSubview:segmentedControl];
+    
+    origin += segSize.height + 10;
+    
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(leftMargin, origin, VIEW_WIDTH - leftMargin, self.view.bounds.size.height - origin)];
 
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
-    
+//    self.tableView.contentInset = UIEdgeInsetsMake(44,0,0,0);
+
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
     
@@ -67,24 +82,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
-    UIButton *createGroupButton = [[UIButton alloc] initWithFrame:
-                                   CGRectMake(0,
-                                              VIEW_HEIGHT - 60,
-                                              VIEW_WIDTH,
-                                              60)
-                                   ];
-    createGroupButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-    [createGroupButton setTitle:@"Create Group" forState:UIControlStateNormal];
-    [createGroupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-    [createGroupButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-    [createGroupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [createGroupButton setBackgroundColor:PRIMARY_COLOR];
-    createGroupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-    [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
-//    UIColor *bkgColor = PRIMARY_COLOR;
-//    [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[bkgColor colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
-    [self.view addSubview:createGroupButton];
-
     [self setupPullToRefresh];
     
     //notifications
@@ -93,14 +90,32 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+
     [self.navigationController setNavigationBarHidden:NO];
+    self.navigationController.navigationBar.barTintColor = PRIMARY_COLOR;
+    
+//    UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 120, 40)];
+    UIImageView *yagaLogo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 46)];
+    yagaLogo.image = [UIImage imageNamed:@"Logo"];
+    yagaLogo.contentMode = UIViewContentModeScaleAspectFit;
+//    [titleView addSubview:yagaLogo];
+    self.navigationItem.titleView = yagaLogo;
+    
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"Create" style:UIBarButtonItemStylePlain target:self action:nil];
+    rightItem.tintColor = [UIColor whiteColor];
+    self.navigationItem.rightBarButtonItem = rightItem;
+    
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Settings"] style:UIBarButtonItemStylePlain target:self action:nil];
+    leftItem.tintColor = [UIColor whiteColor];
+    self.navigationItem.leftBarButtonItem = leftItem;
     
     [self updateState];
     
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
         [self updateState];
     }];
+    
 }
 
 - (void)setupPullToRefresh {
@@ -228,10 +243,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(indexPath.row == self.groups.count) {
-        return 60;
-    }
-    
+
     YAGroup *group = self.groups[indexPath.row];
     
     NSDictionary *attributes = @{NSFontAttributeName:[GroupsTableViewCell defaultDetailedLabelFont]};

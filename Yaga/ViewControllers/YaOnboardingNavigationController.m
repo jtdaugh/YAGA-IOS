@@ -6,15 +6,15 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "YagaNavigationController.h"
+#import "YaOnboardingNavigationController.h"
 #import "YAPhoneNumberViewController.h"
 #import "YAGroupAddMembersViewController.h"
 
-@interface YagaNavigationController ()
+@interface YaOnboardingNavigationController ()
 
 @end
 
-@implementation YagaNavigationController
+@implementation YaOnboardingNavigationController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

@@ -8,7 +8,7 @@
 
 #import "GridViewController.h"
 
-#import "YagaNavigationController.h"
+#import "YaOnboardingNavigationController.h"
 #import "YAPhoneNumberViewController.h"
 #import "YAGroupAddMembersViewController.h"
 
@@ -29,6 +29,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
@@ -36,7 +37,7 @@
 - (void)logout {
     [[YAUser currentUser] logout];
     
-    YagaNavigationController *vc = [[YagaNavigationController alloc] init];
+    YaOnboardingNavigationController *vc = [[YaOnboardingNavigationController alloc] init];
     [vc setViewControllers:@[[[YAPhoneNumberViewController alloc] init]]];
     
     [self closeGroups];
