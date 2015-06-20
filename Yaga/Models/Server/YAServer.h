@@ -14,7 +14,6 @@
 
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_NAME                @"name"
-#define YA_RESPONSE_OWNER               @"owner"
 #define YA_RESPONSE_NAMER               @"namer"
 #define YA_RESPONSE_FONT                @"font"
 #define YA_RESPONSE_NAME_X              @"name_x"

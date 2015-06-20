@@ -37,7 +37,6 @@ typedef void(^completionBlock)(NSError *error);
 @property NSInteger font;
 
 @property NSString *creator;
-@property NSString *owner;
 @property NSString *caption;
 @property NSString *namer;
 @property NSDate *createdAt;

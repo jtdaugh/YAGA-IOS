@@ -1234,13 +1234,7 @@ static NSString *commentCellID = @"CommentCell";
 //                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-2.0]                                                                                              }];
 //    [self.userLabel setAttributedText: string];
 //
-    if(self.video.owner.length && ![self.video.owner isEqualToString:self.video.creator]) {
-        self.userLabel.text = [[NSString alloc] initWithFormat:@"%@ via %@", self.video.creator, self.video.owner];
-    }
-    else {
-        self.userLabel.text = self.video.creator;
-    }
-    
+    [self.userLabel setText:self.video.creator];
 //    self.userLabel.textColor = [YAUtils UIColorFromUsernameString:self.video.creator];
     
     self.timestampLabel.text = [[YAUser currentUser] formatDate:self.video.createdAt]; //[[self.video.createdAt formattedAsTimeAgo] lowercaseString];
