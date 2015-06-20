@@ -9,7 +9,7 @@
 #import "YACrosspostCell.h"
 @interface YACrosspostCell ()
 @property (strong, nonatomic) UILabel *groupTitleLabel;
-@property (strong, nonatomic) UIView *checkbox;
+@property (strong, nonatomic) UIImageView *checkbox;
 @end
 
 @implementation YACrosspostCell
@@ -28,15 +28,16 @@
         CGFloat padding = 24;
         
         self.groupTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding,0,VIEW_WIDTH - padding - checkboxWidth - padding, XPCellHeight)];
-        self.groupTitleLabel.font = [UIFont fontWithName:BOLD_FONT size:32];
-        self.groupTitleLabel.textColor = PRIMARY_COLOR;
+        self.groupTitleLabel.font = [UIFont fontWithName:BIG_FONT size:28];
+        self.groupTitleLabel.textColor = [UIColor whiteColor];
         [self addSubview:self.groupTitleLabel];
         
-        self.checkbox = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - checkboxWidth - padding, (XPCellHeight - checkboxWidth)/2, checkboxWidth, checkboxWidth)];
+        self.checkbox = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - checkboxWidth - padding, (XPCellHeight - checkboxWidth)/2, checkboxWidth, checkboxWidth)];
         self.checkbox.layer.masksToBounds = YES;
-        self.checkbox.layer.cornerRadius = checkboxWidth/2;
-        self.checkbox.layer.borderColor = PRIMARY_COLOR.CGColor;
-        self.checkbox.layer.borderWidth = 5.0f;
+        self.checkbox.layer.cornerRadius = 2;
+        self.checkbox.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.checkbox.layer.borderWidth = 2.0f;
+        
         [self addSubview:self.checkbox];
         //        [self.usernameLabel setBackgroundColor:[UIColor greenColor]];
         //        [self.commentsTextView setBackgroundColor:[UIColor redColor]];
@@ -48,9 +49,12 @@
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
     if(selected){
-        [self.checkbox setBackgroundColor:PRIMARY_COLOR];
+        [self.checkbox setImage:[UIImage imageNamed:@"Check"]];
+        [self.groupTitleLabel setTextColor:PRIMARY_COLOR];
+//        [self.checkbox setBackgroundColor:PRIMARY_COLOR];
     } else {
-        [self.checkbox setBackgroundColor:[UIColor clearColor]];
+        [self.checkbox setImage:[UIImage new]];
+        [self.groupTitleLabel setTextColor:[UIColor whiteColor]];
     }
     // Configure the view for the selected state
 }

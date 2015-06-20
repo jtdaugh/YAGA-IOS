@@ -63,9 +63,14 @@
     [self.shareBlurOverlay addSubview:self.groupsList];
     
     self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, topPadding - 24, VIEW_WIDTH-24, 24)];
-    self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
-    self.crossPostPrompt.textColor = [UIColor whiteColor];
-    self.crossPostPrompt.text = @"Post to other groups";
+    self.crossPostPrompt.font = [UIFont fontWithName:BIG_FONT size:21];
+    self.crossPostPrompt.textColor = PRIMARY_COLOR;
+    self.crossPostPrompt.text = @"Post to more groups";
+    self.crossPostPrompt.layer.shadowRadius = 0.5f;
+    self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
+    self.crossPostPrompt.layer.shadowOpacity = 1.0;
+    self.crossPostPrompt.layer.masksToBounds = NO;
     [self.shareBlurOverlay addSubview:self.crossPostPrompt];
     
     
@@ -73,9 +78,15 @@
     [self.shareBar setBackgroundColor:PRIMARY_COLOR];
     [self.shareBlurOverlay addSubview:self.shareBar];
     
+//    FBShimmeringView *shimmeringView = [[FBShimmeringView alloc] initWithFrame:self.shareBar.frame];
+    
+    
+    // Start shimmering.
+//    shimmeringView.shimmering = YES;
+    
     self.confirmCrosspost = [[UIButton alloc] initWithFrame:self.shareBar.frame];
     self.confirmCrosspost.backgroundColor = SECONDARY_COLOR;
-    self.confirmCrosspost.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:24];
+    self.confirmCrosspost.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
     self.confirmCrosspost.titleLabel.textColor = [UIColor whiteColor];
     [self.confirmCrosspost setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
     [self.confirmCrosspost setImage:[UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
@@ -88,6 +99,10 @@
     [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
     [self.confirmCrosspost addTarget:self action:@selector(confirmCrosspost:) forControlEvents:UIControlEventTouchUpInside];
     [self.shareBlurOverlay addSubview:self.confirmCrosspost];
+//    shimmeringView.contentView = self.confirmCrosspost;
+//    [self.confirmCrosspost addSubview:shimmeringView];
+
+
     
     CGFloat buttonRadius = 22.f, padding = 4.f;
     self.closeCrosspost = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
@@ -101,7 +116,7 @@
     self.saveButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
     [self.saveButton setImage:[UIImage imageNamed:@"Download"] forState:UIControlStateNormal];
     [self.saveButton setTitle:@"Save" forState:UIControlStateNormal];
-    [self.saveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+    [self.saveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
     [self.saveButton addTarget:self action:@selector(saveToCameraRollPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.saveButton setBackgroundColor:PRIMARY_COLOR];
     [self.shareBar addSubview:self.saveButton];
@@ -109,7 +124,7 @@
     self.externalShareButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
     [self.externalShareButton setImage:[UIImage imageNamed:@"External_Share"] forState:UIControlStateNormal];
     [self.externalShareButton setTitle:@"Share" forState:UIControlStateNormal];
-    [self.externalShareButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+    [self.externalShareButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
     [self.externalShareButton addTarget:self action:@selector(externalShareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.externalShareButton setBackgroundColor:PRIMARY_COLOR];
     [self.shareBar addSubview:self.externalShareButton];
@@ -181,6 +196,7 @@
             [YAUtils showHudWithText:NSLocalizedString(@"Copied successfully", @"")];
         }
         else {
+            NSLog(@"%@", error);
             [YAUtils showHudWithText:NSLocalizedString(@"Can not copy video to groups", @"")];
         }
     }];

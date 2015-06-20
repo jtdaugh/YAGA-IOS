@@ -23,6 +23,7 @@
     [super layoutSubviews];
     
     CGRect frame = self.imageView.frame;
+    frame.size = CGSizeMake(frame.size.width - 8.0f, frame.size.height-8.0f);
     frame = CGRectMake(truncf((self.bounds.size.width - frame.size.width) / 2), 12.0f, frame.size.width, frame.size.height);
     self.imageView.frame = frame;
     
