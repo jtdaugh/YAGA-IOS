@@ -38,35 +38,17 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    if(self.embeddedMode) {
-        UITapGestureRecognizer *tapToClose = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(close)];
-        tapToClose.delegate = self;
-        [self.view addGestureRecognizer:tapToClose];
-    }
     
-    self.view.backgroundColor = self.embeddedMode ? [UIColor whiteColor] : PRIMARY_COLOR;
+    CGFloat origin = 0;
     
-    CGFloat width = VIEW_WIDTH * 1.0;
+//    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2 + 15, origin, width - 30, VIEW_HEIGHT*.3)];
+//    [titleLabel setText:NSLocalizedString(@"My Groups", @"")];
+//    [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+//    [titleLabel setTextColor:PRIMARY_COLOR];
+//    [self.view addSubview:titleLabel];
+//    origin = titleLabel.frame.origin.y + titleLabel.frame.size.height;
     
-    CGFloat origin = VIEW_HEIGHT * 0.1;
-    
-    CGFloat buttonHeight = ELEVATOR_MARGIN * 1.5;
-    
-    if(!self.embeddedMode) {
-        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2 + 15, origin, width - 30, VIEW_HEIGHT*.3)];
-        [titleLabel setText:NSLocalizedString(@"Looks like you're already a part of a group", @"")];
-        [titleLabel setNumberOfLines:4];
-        [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-        [titleLabel setTextAlignment:NSTextAlignmentCenter];
-        [titleLabel setTextColor:[UIColor whiteColor]];
-        [self.view addSubview:titleLabel];
-        origin = titleLabel.frame.origin.y + titleLabel.frame.size.height;
-    }
-    else {
-        origin = 0;
-    }
-    
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(22, origin, VIEW_WIDTH-22, self.view.bounds.size.height - (self.embeddedMode ? buttonHeight : origin + 10))];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(22, origin, VIEW_WIDTH-22, self.view.bounds.size.height - (origin + 10))];
 
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.tableView];
@@ -74,11 +56,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.tableView.delegate = self;
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     
-    //    [self.tableView setSeparatorColor:PRIMARY_COLOR];
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
     
-    // This will remove extra separators from tableview
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     //ios8 fix for separatorInset
@@ -87,34 +67,25 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
-    if(self.embeddedMode) {
-        //create group button
-//        UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, self.tableView.frame.size.height+1, VIEW_WIDTH, 1)];
-//        separatorView.backgroundColor = [UIColor lightGrayColor];
-//        separatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-//        [self.view addSubview:separatorView];
-        
-        UIButton *createGroupButton = [[UIButton alloc] initWithFrame:
-                                       CGRectMake(0,
-                                                  self.tableView.frame.size.height,
-                                                  VIEW_WIDTH,
-                                                  VIEW_HEIGHT - self.tableView.frame.size.height)
-                                       ];
-        createGroupButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-        [createGroupButton setTitle:@"Create Group" forState:UIControlStateNormal];
-        [createGroupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-        [createGroupButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-        [createGroupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [createGroupButton setBackgroundColor:PRIMARY_COLOR];
-        createGroupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-        [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
-        UIColor *bkgColor = self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor];
-        [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[bkgColor colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
-        [self.view addSubview:createGroupButton];
-    }
-    
-    if(self.embeddedMode)
-        [self setupPullToRefresh];
+    UIButton *createGroupButton = [[UIButton alloc] initWithFrame:
+                                   CGRectMake(0,
+                                              VIEW_HEIGHT - 60,
+                                              VIEW_WIDTH,
+                                              60)
+                                   ];
+    createGroupButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+    [createGroupButton setTitle:@"Create Group" forState:UIControlStateNormal];
+    [createGroupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+    [createGroupButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    [createGroupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [createGroupButton setBackgroundColor:PRIMARY_COLOR];
+    createGroupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+    [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
+//    UIColor *bkgColor = PRIMARY_COLOR;
+//    [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[bkgColor colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
+    [self.view addSubview:createGroupButton];
+
+    [self setupPullToRefresh];
     
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
@@ -123,7 +94,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self.navigationController setNavigationBarHidden:YES];
+    [self.navigationController setNavigationBarHidden:NO];
     
     [self updateState];
     
@@ -164,15 +135,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 
     [self.tableView reloadData];
 
-    //size to fit table view
-    if(!self.embeddedMode) {
-        CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-        CGFloat rowsCount = [self tableView:self.tableView numberOfRowsInSection:0];
-        CGFloat contentHeight = rowHeight * rowsCount;
-        if(self.tableView.frame.size.height > contentHeight) {
-            self.tableView.frame = CGRectMake(self.tableView.frame.origin.x, self.tableView.frame.origin.y, self.tableView.frame.size.width, contentHeight);
-        }
-    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -248,31 +210,25 @@ static NSString *CellIdentifier = @"GroupsCell";
         cell.layoutMargins = UIEdgeInsetsZero;
     }
     
-    if(!self.embeddedMode)
-        cell.accessoryView = nil;
-    
-    
-    cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : (self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor]);
-    cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : (self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor]);
+    cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
+    cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
     cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
     NSDate *localGroupUpdateDate = [self.groupsUpdatedAt objectForKey:group.localId];
-    if(self.embeddedMode) {
-        if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
-            UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]];
-            cell.imageView.image = img;
-        }
-        else {
-            UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.0]];
-            cell.imageView.image = img;
-        }
+    if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+        UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]];
+        cell.imageView.image = img;
+    }
+    else {
+        UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.0]];
+        cell.imageView.image = img;
     }
     
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(self.embeddedMode && indexPath.row == self.groups.count) {
+    if(indexPath.row == self.groups.count) {
         return 60;
     }
     
@@ -292,17 +248,13 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [YAUser currentUser].currentGroup = group;
     
-    if(self.embeddedMode) {
-        [self close];
-    }
-    else
-        [self performSegueWithIdentifier:@"SelectExistingGroupAndCompleteOnboarding" sender:self];
+    [self performSegueWithIdentifier:@"GroupsToGrid" sender:self];
     
 }
 
 #pragma mark - Editing
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return self.embeddedMode;
+    return YES;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {

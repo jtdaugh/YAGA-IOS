@@ -132,14 +132,14 @@
                                                      [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
                                                          
                                                          if(!error) {
+                                                             // TODO: Adjust mixpanel for humanity
                                                              if([YAGroup allObjects].count) {
                                                                  [[Mixpanel sharedInstance] track:@"Onboarding user already a part of some groups"];
-                                                                 [self performSegueWithIdentifier:@"MyGroups" sender:self];
                                                              }
                                                              else {
                                                                  [[Mixpanel sharedInstance] track:@"Onboarding user doesn't have any groups"];
-                                                                 [self performSegueWithIdentifier:@"NoGroups" sender:self];
                                                              }
+                                                             [self performSegueWithIdentifier:@"MyGroupsFromUsername" sender:self];
                                                          }
                                                          else {
                                                              [weakSelf.activityIndicator stopAnimating];

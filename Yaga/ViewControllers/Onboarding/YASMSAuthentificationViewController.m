@@ -103,6 +103,12 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBarHidden = NO;
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
@@ -188,10 +194,7 @@
                         //Get all groups for this user
                         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
                             if(!error) {
-                                if([YAGroup allObjects].count)
-                                    [self performSegueWithIdentifier:@"ShowExistingGroupsAfterAuthenitificatioon" sender:self];
-                                else
-                                    [self performSegueWithIdentifier:@"ShowNoGroupsForExistingUser" sender:self];
+                                [self performSegueWithIdentifier:@"ShowGroupsAfterAuthentication" sender:self];
                             }
                             else {
                                 [self.activityIndicator stopAnimating];
