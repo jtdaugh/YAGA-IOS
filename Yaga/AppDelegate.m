@@ -109,17 +109,11 @@
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
 #endif
         NSString *identifier;
-        if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
+        if([[YAUser currentUser] loggedIn]) {
             identifier = @"LoggedInUserNavigationController";
         }
-        else if(![[YAUser currentUser] loggedIn]) {
+        else {
             identifier = @"OnboardingNavigationController";
-        }
-        else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && ![YAGroup allObjects].count) {
-            identifier = @"OnboardingNoGroupsNavigationController";
-        }
-        else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && [YAGroup allObjects].count) {
-            identifier = @"OnboardingSelectGroupNavigationController";
         }
         
         UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
