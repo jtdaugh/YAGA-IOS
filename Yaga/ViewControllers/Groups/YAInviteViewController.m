@@ -267,7 +267,6 @@
         }
         case MessageComposeResultFailed:
         {
-            [self.camViewController.cameraView setSession:nil];
             [[Mixpanel sharedInstance] track:@"iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
             if (self.inOnboardingFlow) {
@@ -279,7 +278,6 @@
         }
             
         case MessageComposeResultSent:
-            [self.camViewController.cameraView setSession:nil];
             [[Mixpanel sharedInstance] track:@"iMessage sent"];
 //            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
             if (self.inOnboardingFlow) {
@@ -397,30 +395,5 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
-//- (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion {
-//    
-//    void (^showHideBlock)(void) = ^void(void) {
-//        if(show) {
-//            self.camViewController.view.frame = CGRectMake(0, 0, self.camViewController.view.frame.size.width, self.camViewController.view.frame.size.height);
-//        }
-//        else {
-//            self.camViewController.view.frame = self.smallCameraFrame;
-//        }
-//    };
-//    
-//    if(animated) {
-//        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-//            showHideBlock();
-//            
-//        } completion:^(BOOL finished) {
-//            if(finished && completion)
-//                completion();
-//        }];
-//    }
-//    else {
-//        showHideBlock();
-//    }
-//}
 
 @end

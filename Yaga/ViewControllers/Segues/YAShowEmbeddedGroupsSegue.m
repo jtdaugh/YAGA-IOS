@@ -59,7 +59,8 @@
         
     } completion:^(BOOL finished) {
         gridController.elevatorOpen = YES;
-        gridController.cameraViewController.cameraView.tapToFocusRecognizer.enabled = NO;
+//        gridController.cameraViewController.cameraView.tapToFocusRecognizer.enabled = NO;
+        
         [gridController.cameraViewController enableScrollToTop:YES];
         
     }];
