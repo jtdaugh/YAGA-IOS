@@ -19,6 +19,7 @@
 //Swift headers
 //#import "Yaga-Swift.h"
 
+
 @implementation GridViewController
 
 - (void)viewDidLoad {
@@ -31,8 +32,11 @@
     [super viewWillAppear:animated];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-}
+    
+    self.navigationController.interactivePopGestureRecognizer.delegate = nil;
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
 
+}
 
 - (void)logout {
     [[YAUser currentUser] logout];

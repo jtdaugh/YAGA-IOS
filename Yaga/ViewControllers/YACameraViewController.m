@@ -17,6 +17,9 @@
 
 #import <QuartzCore/QuartzCore.h>
 
+#define BUTTON_SIZE 60.f
+#define INFO_SIZE 30.f
+
 typedef enum {
     YATouchDragStateInsideTrash,
     YATouchDragStateInsideFlip,
@@ -43,7 +46,6 @@ typedef enum {
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 @property (strong, nonatomic) NSMutableArray *recordingAccessories;
 @property (strong, nonatomic) UIButton *switchCameraButton;
-@property (strong, nonatomic) UIButton *switchGroupsButton;
 @property (strong, nonatomic) UIImageView *unviewedVideosBadge;
 @property (strong, nonatomic) UIButton *groupButton;
 
@@ -112,8 +114,7 @@ typedef enum {
         tapGestureRecognizer.delegate = self;
         [self.white addGestureRecognizer:tapGestureRecognizer];
         
-        CGFloat size = 60;
-        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
+        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 10, self.cameraView.frame.size.height - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
@@ -122,7 +123,7 @@ typedef enum {
         [self.cameraAccessories addObject:self.switchCameraButton];
         [self.cameraView addSubview:self.switchCameraButton];
         
-        UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size - 10, size - 10)];
+        UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, self.cameraView.frame.size.height - BUTTON_SIZE - 10, BUTTON_SIZE - 10, BUTTON_SIZE - 10)];
         //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
         [flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
         [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
@@ -131,9 +132,14 @@ typedef enum {
         [self.cameraAccessories addObject:self.flashButton];
         [self.cameraView addSubview:self.flashButton];
         
+        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, INFO_SIZE, INFO_SIZE)];
+        //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.infoButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
+        [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
+        [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+
         //current group
-        CGFloat groupButtonXOrigin = flashButton.frame.origin.x + flashButton.frame.size.width + 5;
-        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(groupButtonXOrigin, 10, self.switchCameraButton.frame.origin.x - groupButtonXOrigin - 10 , size)];
+        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 10, 300, BUTTON_SIZE)];
         [self.groupButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
         [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
         [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
@@ -143,6 +149,7 @@ typedef enum {
         self.groupButton.layer.shadowOffset = CGSizeZero;
         [self.cameraAccessories addObject:self.groupButton];
         [self.cameraView addSubview:self.groupButton];
+        [self adjustGroupButtonFrame];
         
         //record button
         self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - 1.0*recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
@@ -156,33 +163,6 @@ typedef enum {
         
         //switch groups button
         
-        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30-10, 40)];
-        //        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
-        [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
-        [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
-        [self.switchGroupsButton addTarget:self action:@selector(toggleGroups:) forControlEvents:UIControlEventTouchUpInside];
-        [self.switchGroupsButton setTitle:[NSString stringWithFormat:@"%@", NSLocalizedString(@"Groups", @"")] forState:UIControlStateNormal];
-        
-        CGFloat requiredWidth = [self.switchGroupsButton.titleLabel.attributedText size].width;
-        CGRect tempFrame = self.switchGroupsButton.frame;
-        tempFrame.origin.x = VIEW_WIDTH - 10 - requiredWidth;
-        tempFrame.size.width = requiredWidth;
-        [self.switchGroupsButton setFrame:tempFrame];
-        
-        self.switchGroupsButton.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.switchGroupsButton.layer.shadowRadius = 1.0f;
-        self.switchGroupsButton.layer.shadowOpacity = 1.0;
-        self.switchGroupsButton.layer.shadowOffset = CGSizeZero;
-        
-        [self.cameraAccessories addObject:self.switchGroupsButton];
-        [self.cameraView addSubview:self.switchGroupsButton];
-        
-        CGFloat infoSize = 36;
-        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(4, self.cameraView.frame.size.height - infoSize - 4, infoSize, infoSize)];
-        //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
-        [self.infoButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
-        [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
-        [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
         
         [self.cameraAccessories addObject:self.infoButton];
         [self.cameraView addSubview:self.infoButton];
@@ -204,13 +184,13 @@ typedef enum {
         
         //unviewed badge
         const CGFloat badgeWidth = 10;
-        CGFloat badgeMargin = 8;
-        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.switchGroupsButton.frame.origin.x - badgeWidth - badgeMargin, self.switchGroupsButton.frame.origin.y + badgeWidth + 5, badgeWidth, badgeWidth)];
+        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(4, (BUTTON_SIZE - badgeWidth)/2, badgeWidth, badgeWidth)];
         self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5]];
         self.unviewedVideosBadge.clipsToBounds = YES;
         self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
         [self.cameraAccessories addObject:self.unviewedVideosBadge];
         [self.cameraView addSubview:self.unviewedVideosBadge];
+        
         
         
         CGFloat width = 48;
@@ -373,6 +353,12 @@ typedef enum {
     return self;
 }
 
+- (void)adjustGroupButtonFrame {
+    [self.groupButton sizeToFit];
+    self.groupButton.center = CGPointMake(VIEW_WIDTH/2 - 5, (BUTTON_SIZE/2));
+    self.infoButton.center = CGPointMake(self.groupButton.frame.origin.x + self.groupButton.frame.size.width + 5 + INFO_SIZE/2, (BUTTON_SIZE/2));
+}
+
 - (void)cameraViewTapped:(id)sender {
     [self.delegate scrollToTop];
 }
@@ -447,7 +433,6 @@ typedef enum {
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self.infoButton setAlpha:1.0];
 //            [self.groupButton setAlpha:1.0];
-            [self.switchGroupsButton setAlpha:1.0];
 //            self.recordButton.transform = CGAffineTransformIdentity;
             self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
             [self.unviewedVideosBadge setAlpha:1.0];
@@ -471,7 +456,6 @@ typedef enum {
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
             [self.infoButton setAlpha:0.0];
 //            [self.groupButton setAlpha:0.0];
-            [self.switchGroupsButton setAlpha:0.0];
             [self.unviewedVideosBadge setAlpha:0.0];
             
 //            self.recordButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
@@ -1220,6 +1204,7 @@ typedef enum {
 
 - (void)updateCurrentGroupName {
     [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
+    [self adjustGroupButtonFrame];
 }
 
 - (void)updateUviewedViedeosBadge {

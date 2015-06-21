@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAGroupsNavigationController : UINavigationController
+@interface YAGroupsNavigationController : UINavigationController 
 
 @end
