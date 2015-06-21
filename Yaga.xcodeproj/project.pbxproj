@@ -102,7 +102,7 @@
 		86AB83F61A83B29B00EB36EA /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86AB83F51A83B29B00EB36EA /* Social.framework */; };
 		86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B642931A52E83400E095AD /* YASetNewRootVCSegue.m */; };
 		86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */; };
-		86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */; };
+		86B8649E1A41D332002256FF /* GroupsCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BD1A3F3A5A0034AB63 /* GroupsCollectionViewCell.m */; };
 		86B864A01A43287C002256FF /* countries.json in Resources */ = {isa = PBXBuildFile; fileRef = 86B8649F1A43287C002256FF /* countries.json */; };
 		86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A51A433185002256FF /* YACountriesTableViewController.m */; };
 		86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A81A43322F002256FF /* CountryListDataSource.m */; };
@@ -235,8 +235,8 @@
 		6E9188B71A3F3A5A0034AB63 /* CliqueTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CliqueTextField.m; sourceTree = "<group>"; };
 		6E9188BA1A3F3A5A0034AB63 /* GroupDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupDetailView.h; sourceTree = "<group>"; };
 		6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupDetailView.m; sourceTree = "<group>"; };
-		6E9188BC1A3F3A5A0034AB63 /* GroupsTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupsTableViewCell.h; sourceTree = "<group>"; };
-		6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupsTableViewCell.m; sourceTree = "<group>"; };
+		6E9188BC1A3F3A5A0034AB63 /* GroupsCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupsCollectionViewCell.h; sourceTree = "<group>"; };
+		6E9188BD1A3F3A5A0034AB63 /* GroupsCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupsCollectionViewCell.m; sourceTree = "<group>"; };
 		6E9188C31A3F3A5A0034AB63 /* VENBackspaceTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENBackspaceTextField.h; sourceTree = "<group>"; };
 		6E9188C41A3F3A5A0034AB63 /* VENBackspaceTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VENBackspaceTextField.m; sourceTree = "<group>"; };
 		6E9188C51A3F3A5A0034AB63 /* VENToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENToken.h; sourceTree = "<group>"; };
@@ -616,8 +616,8 @@
 				6E9188B71A3F3A5A0034AB63 /* CliqueTextField.m */,
 				6E9188BA1A3F3A5A0034AB63 /* GroupDetailView.h */,
 				6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */,
-				6E9188BC1A3F3A5A0034AB63 /* GroupsTableViewCell.h */,
-				6E9188BD1A3F3A5A0034AB63 /* GroupsTableViewCell.m */,
+				6E9188BC1A3F3A5A0034AB63 /* GroupsCollectionViewCell.h */,
+				6E9188BD1A3F3A5A0034AB63 /* GroupsCollectionViewCell.m */,
 				6E9188C21A3F3A5A0034AB63 /* VENTokenField */,
 				6E32D72B1A5AEEBA00EAB261 /* YACameraFocusSquare.h */,
 				6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */,
@@ -862,7 +862,7 @@
 				6E1E20991A6EF2E90041DF54 /* YAAssetsCreator.m in Sources */,
 				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
 				6E5C991A1A5EAFAA00A9F586 /* YAActivityView.m in Sources */,
-				86B8649E1A41D332002256FF /* GroupsTableViewCell.m in Sources */,
+				86B8649E1A41D332002256FF /* GroupsCollectionViewCell.m in Sources */,
 				6E7324E31AF109F7002CCFED /* YADownloadManager.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,

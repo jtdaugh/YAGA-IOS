@@ -11,7 +11,7 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 
-#import "GroupsTableViewCell.h"
+#import "GroupsCollectionViewCell.h"
 #import "YAServer.h"
 #import "UIImage+Color.h"
 #import "YAServer.h"
@@ -42,7 +42,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.navigationController setNavigationBarHidden:NO];
 
     
-    CGFloat origin = 12;
+    CGFloat origin = 0;
     CGFloat leftMargin = 0;
 //    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2 + 15, origin, width - 30, VIEW_HEIGHT*.3)];
 //    [titleLabel setText:NSLocalizedString(@"My Groups", @"")];
@@ -51,36 +51,18 @@ static NSString *CellIdentifier = @"GroupsCell";
 //    [self.view addSubview:titleLabel];
 //    origin = titleLabel.frame.origin.y + titleLabel.frame.size.height;
     
-    CGSize segSize = CGSizeMake(200, 30);
-    UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithFrame:CGRectMake((VIEW_WIDTH - segSize.width)/2, origin, segSize.width, segSize.height)];
-    [segmentedControl insertSegmentWithTitle:@"My Groups" atIndex:0 animated:NO];
-    [segmentedControl insertSegmentWithTitle:@"Find Groups" atIndex:1 animated:NO];
-    segmentedControl.tintColor = PRIMARY_COLOR;
-    segmentedControl.selectedSegmentIndex = 0;
-    
-    [self.view addSubview:segmentedControl];
-    
-    origin += segSize.height + 10;
-    
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(leftMargin, origin, VIEW_WIDTH - leftMargin, self.view.bounds.size.height - origin)];
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumLineSpacing = 20;
+    layout.itemSize = CGSizeMake(VIEW_WIDTH, [GroupsCollectionViewCell cellHeight]);
+    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(leftMargin, origin, VIEW_WIDTH - leftMargin, self.view.bounds.size.height - origin) collectionViewLayout:layout];
 
-    self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    [self.view addSubview:self.tableView];
-    self.tableView.dataSource = self;
-    self.tableView.delegate = self;
-    self.tableView.backgroundColor = [self.view.backgroundColor copy];
-//    self.tableView.contentInset = UIEdgeInsetsMake(44,0,0,0);
+    self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:self.collectionView];
+    self.collectionView.dataSource = self;
+    self.collectionView.delegate = self;
+    self.collectionView.backgroundColor = [self.view.backgroundColor copy];
 
-    [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
-    [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
-    
-    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-    
-    //ios8 fix for separatorInset
-    if ([self.tableView respondsToSelector:@selector(layoutMargins)])
-        self.tableView.layoutMargins = UIEdgeInsetsZero;
-    
-    self.tableView.allowsMultipleSelectionDuringEditing = NO;
+    [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:CellIdentifier];
     
     [self setupPullToRefresh];
     
@@ -95,13 +77,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.navigationController setNavigationBarHidden:NO];
     self.navigationController.navigationBar.barTintColor = PRIMARY_COLOR;
     
-//    UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 120, 40)];
-    UIImageView *yagaLogo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 46)];
-    yagaLogo.image = [UIImage imageNamed:@"Logo"];
-    yagaLogo.contentMode = UIViewContentModeScaleAspectFit;
-//    [titleView addSubview:yagaLogo];
-    self.navigationItem.titleView = yagaLogo;
-    
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"Create" style:UIBarButtonItemStylePlain target:self action:nil];
     rightItem.tintColor = [UIColor whiteColor];
     self.navigationItem.rightBarButtonItem = rightItem;
@@ -110,6 +85,15 @@ static NSString *CellIdentifier = @"GroupsCell";
     leftItem.tintColor = [UIColor whiteColor];
     self.navigationItem.leftBarButtonItem = leftItem;
     
+    CGSize segSize = CGSizeMake(10, 30);
+    UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithFrame:CGRectMake((VIEW_WIDTH - segSize.width)/2, 10, segSize.width, segSize.height)];
+    [segmentedControl insertSegmentWithTitle:@"My Groups" atIndex:0 animated:NO];
+    [segmentedControl insertSegmentWithTitle:@"Find Groups" atIndex:1 animated:NO];
+    segmentedControl.tintColor = [UIColor whiteColor];
+    segmentedControl.selectedSegmentIndex = 0;
+    self.navigationItem.titleView = segmentedControl;
+
+
     [self updateState];
     
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
@@ -122,20 +106,20 @@ static NSString *CellIdentifier = @"GroupsCell";
     //pull to refresh
     __weak typeof(self) weakSelf = self;
     
-    [self.tableView addPullToRefreshWithActionHandler:^{
+    [self.collectionView addPullToRefreshWithActionHandler:^{
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
             [weakSelf updateState];
-            [weakSelf.tableView.pullToRefreshView stopAnimating];
+            [weakSelf.collectionView.pullToRefreshView stopAnimating];
         }];
     }];
     
     //    self.collectionView.pullToRefreshView.
     
-    YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.tableView.pullToRefreshView.bounds.size.height)];
+    YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];
     
-    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
-    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
-    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
+    [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
+    [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
+    [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
 }
 
 - (void)groupDidRefresh:(NSNotification*)notif {
@@ -148,7 +132,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
 
-    [self.tableView reloadData];
+    [self.collectionView reloadData];
 
 }
 
@@ -163,29 +147,21 @@ static NSString *CellIdentifier = @"GroupsCell";
         [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
             if (!error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.tableView reloadData];
+                    [self.collectionView reloadData];
                 });
             }
         } excludingPhoneNumbers:nil];
     }
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    
-    //crash fixed
-    //http://stackoverflow.com/questions/19230446/tableviewcaneditrowatindexpath-crash-when-popping-viewcontroller
-    self.tableView.editing = NO;
-}
-
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    if([touch.view isKindOfClass:[UITableViewCell class]])
+    if([touch.view isKindOfClass:[UICollectionViewCell class]])
         return NO;
     // UITableViewCellContentView => UITableViewCell
-    if([touch.view.superview isKindOfClass:[UITableViewCell class]])
+    if([touch.view.superview isKindOfClass:[UICollectionViewCell class]])
         return NO;
     // UITableViewCellContentView => UITableViewCellScrollView => UITableViewCell
-    if([touch.view.superview.superview isKindOfClass:[UITableViewCell class]])
+    if([touch.view.superview.superview isKindOfClass:[UICollectionViewCell class]])
         return NO;
     
     if([touch.view isKindOfClass:[UIButton class]])
@@ -194,69 +170,34 @@ static NSString *CellIdentifier = @"GroupsCell";
     return YES;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return self.groups.count;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    // This will create a "invisible" footer
-    return 0.01f;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell;
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    GroupsCollectionViewCell *cell;
     
-    cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+    cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
+    YAGroup *group = [self.groups objectAtIndex:indexPath.item];
     
-    cell.textLabel.text = group.name;
-    cell.detailTextLabel.text = group.membersString;
+    cell.groupName = group.name;
+    cell.membersString = group.membersString;
     
-    if(indexPath.row == self.groups.count - 1)
-        cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, cell.bounds.size.width);
-    
-    __weak typeof(self) weakSelf = self;
-    ((GroupsTableViewCell*)cell).editBlock = ^{
-        [weakSelf tableView:weakSelf.tableView accessoryButtonTappedForRowWithIndexPath:indexPath];
-    };
-    
-    //ios8 fix
-    if ([cell respondsToSelector:@selector(layoutMargins)]) {
-        cell.layoutMargins = UIEdgeInsetsZero;
-    }
-    
-    cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
-    cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
-    cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
+    cell.muted = group.muted;
     
     NSDate *localGroupUpdateDate = [self.groupsUpdatedAt objectForKey:group.localId];
     if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
-        UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]];
-        cell.imageView.image = img;
+        cell.showUpdatedIndicator = YES;
     }
     else {
-        UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.0]];
-        cell.imageView.image = img;
+        cell.showUpdatedIndicator = NO;
     }
     
     return cell;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-
-    YAGroup *group = self.groups[indexPath.row];
-    
-    NSDictionary *attributes = @{NSFontAttributeName:[GroupsTableViewCell defaultDetailedLabelFont]};
-    CGRect rect = [group.membersString boundingRectWithSize:CGSizeMake([GroupsTableViewCell contentWidth], CGFLOAT_MAX)
-                                                    options:NSStringDrawingUsesLineFragmentOrigin
-                                                 attributes:attributes
-                                                    context:nil];
-    
-    return rect.size.height + 80;
-}
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    YAGroup *group = self.groups[indexPath.row];
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    YAGroup *group = self.groups[indexPath.item];
     
     [YAUser currentUser].currentGroup = group;
     
@@ -265,19 +206,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 #pragma mark - Editing
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
-}
-
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [self leaveGroupAtIndexPath:indexPath];
-    }
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return @"Leave";
-}
 
 - (void)close {
     [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
@@ -289,15 +217,6 @@ static NSString *CellIdentifier = @"GroupsCell";
             [self performSegueWithIdentifier:@"NameGroup" sender:self];
     });
 
-}
-
-- (IBAction)unwindToGrid:(id)source {}
-
-- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
-    self.editingGroup = self.groups[indexPath.row];
-
-    [self performSegueWithIdentifier:@"ShowGroupOptions" sender:self];
-//    [self close];    
 }
 
 #pragma mark - Segues

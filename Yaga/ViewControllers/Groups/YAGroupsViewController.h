@@ -8,8 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAGroupsViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate> 
-@property (nonatomic, strong) UITableView *tableView;
+@interface YAGroupsViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, UIGestureRecognizerDelegate>
+@property (nonatomic, strong) UICollectionView *collectionView;
 
 @property (nonatomic, assign) BOOL embeddedMode;
 
