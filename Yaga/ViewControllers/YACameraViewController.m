@@ -51,6 +51,7 @@ typedef enum {
 
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
+@property (strong, nonatomic) UIButton *backButton;
 
 @property (strong, nonatomic) UIButton *infoButton;
 
@@ -132,14 +133,14 @@ typedef enum {
         [self.cameraAccessories addObject:self.flashButton];
         [self.cameraView addSubview:self.flashButton];
         
-        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, INFO_SIZE, INFO_SIZE)];
+        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - INFO_SIZE - 10, (BUTTON_SIZE - INFO_SIZE), INFO_SIZE, INFO_SIZE)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.infoButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
         [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
 
         //current group
-        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 10, 300, BUTTON_SIZE)];
+        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 0, 200, BUTTON_SIZE)];
         [self.groupButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
         [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
         [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
@@ -149,7 +150,6 @@ typedef enum {
         self.groupButton.layer.shadowOffset = CGSizeZero;
         [self.cameraAccessories addObject:self.groupButton];
         [self.cameraView addSubview:self.groupButton];
-        [self adjustGroupButtonFrame];
         
         //record button
         self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - 1.0*recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
@@ -182,9 +182,16 @@ typedef enum {
         [self.countdownLabel setTextColor:PRIMARY_COLOR];
         [self.cameraView addSubview:self.countdownLabel];
         
-        //unviewed badge
+        CGFloat backButtonSize = 30;
+        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(5, (BUTTON_SIZE - backButtonSize)/2, backButtonSize, backButtonSize)];
+        self.backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        [self.backButton setImage:[UIImage imageNamed:@"Back"] forState:UIControlStateNormal];
+        
+        [self.backButton addTarget:self action:@selector(backButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.cameraView addSubview:self.backButton];
+        
         const CGFloat badgeWidth = 10;
-        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(4, (BUTTON_SIZE - badgeWidth)/2, badgeWidth, badgeWidth)];
+        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.backButton.frame.origin.x + self.backButton.frame.size.width, (BUTTON_SIZE - badgeWidth)/2, badgeWidth, badgeWidth)];
         self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5]];
         self.unviewedVideosBadge.clipsToBounds = YES;
         self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
@@ -353,10 +360,14 @@ typedef enum {
     return self;
 }
 
-- (void)adjustGroupButtonFrame {
-    [self.groupButton sizeToFit];
-    self.groupButton.center = CGPointMake(VIEW_WIDTH/2 - 5, (BUTTON_SIZE/2));
-    self.infoButton.center = CGPointMake(self.groupButton.frame.origin.x + self.groupButton.frame.size.width + 5 + INFO_SIZE/2, (BUTTON_SIZE/2));
+//- (void)adjustGroupButtonFrame {
+//    [self.groupButton sizeToFit];
+//    self.groupButton.center = CGPointMake(VIEW_WIDTH/2 - 5, (BUTTON_SIZE/2));
+//    self.infoButton.center = CGPointMake(self.groupButton.frame.origin.x + self.groupButton.frame.size.width + 5 + INFO_SIZE/2, (BUTTON_SIZE/2));
+//}
+
+- (void)backButtonPressed {
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)cameraViewTapped:(id)sender {
@@ -1204,7 +1215,6 @@ typedef enum {
 
 - (void)updateCurrentGroupName {
     [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
-    [self adjustGroupButtonFrame];
 }
 
 - (void)updateUviewedViedeosBadge {

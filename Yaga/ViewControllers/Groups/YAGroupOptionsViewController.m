@@ -26,18 +26,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Edit Title", @"") style:UIBarButtonItemStylePlain target:self action:@selector(editTitleTapped:)];
-    
-    self.view.backgroundColor = PRIMARY_COLOR;
+    self.view.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
     
     const CGFloat buttonWidth = VIEW_WIDTH - 40;
     CGFloat buttonHeight = 54;
     
-    self.addMembersButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, 60, buttonWidth, VIEW_HEIGHT*.08)];
-    [self.addMembersButton setBackgroundColor:[UIColor whiteColor]];
+    self.addMembersButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, 74, buttonWidth, VIEW_HEIGHT*.08)];
+    [self.addMembersButton setBackgroundColor:PRIMARY_COLOR];
     [self.addMembersButton setTitle:NSLocalizedString(@"Invite Members", @"") forState:UIControlStateNormal];
-    [self.addMembersButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
-    [self.addMembersButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.addMembersButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
+    [self.addMembersButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     self.addMembersButton.layer.cornerRadius = 8.0;
     self.addMembersButton.layer.masksToBounds = YES;
     [self.addMembersButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
@@ -47,8 +45,10 @@
     [self.muteButton setBackgroundColor:[UIColor whiteColor]];
     [self.muteButton setTitle:NSLocalizedString(@"Mute", @"") forState:UIControlStateNormal];
     [self.muteButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
-    [self.muteButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.muteButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
     self.muteButton.layer.cornerRadius = 8.0;
+    self.muteButton.layer.borderWidth = 3.f;
+    self.muteButton.layer.borderColor = [PRIMARY_COLOR CGColor];
     self.muteButton.layer.masksToBounds = YES;
     [self.muteButton addTarget:self action:@selector(muteTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.muteButton];
@@ -67,9 +67,8 @@
     
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height + 10, VIEW_WIDTH, self.muteButton.frame.origin.y - (self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height) - 20) style:UITableViewStylePlain];
                                                                    
-    self.tableView.backgroundColor = [UIColor yellowColor];
     [self.view addSubview:self.tableView];
-    self.tableView.backgroundColor = PRIMARY_COLOR;
+    self.tableView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.dataSource = self;
@@ -79,10 +78,13 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self.navigationController setNavigationBarHidden:NO animated:YES];
-    self.navigationController.navigationBar.translucent = YES;
-    
-    self.title = self.group.name;
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    [self.navigationController setNavigationBarHidden:NO animated:NO];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Edit Title", @"") style:UIBarButtonItemStylePlain target:self action:@selector(editTitleTapped:)];
+
+    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName : [UIColor whiteColor]};
+    self.navigationItem.title = self.group.name;
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
     [self.muteButton setTitle:muteTitle forState:UIControlStateNormal];
@@ -116,7 +118,7 @@
         
         [self.group rename:newname withCompletion:^(NSError *error) {
             if(!error)
-                self.title = newname;
+                self.navigationItem.title = newname;
         }];
 
     }]];
@@ -242,10 +244,10 @@ static NSString *CellID = @"CellID";
     if (contact.registered || [phonebookItem[nYagaUser] boolValue])
     {
         cell.textLabel.text = [contact displayName];
-        [cell.textLabel setTextColor:[UIColor blackColor]];
+        [cell.textLabel setTextColor:PRIMARY_COLOR];
         
-        [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
-        UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey"]];
+        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+        UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey_Pink"]];
         [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
         cell.accessoryView = accessoryView;
 
@@ -253,14 +255,15 @@ static NSString *CellID = @"CellID";
         NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
         cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
         
-        [cell.textLabel setTextColor:[UIColor whiteColor]];
+        [cell.textLabel setTextColor:[UIColor blackColor]];
         
         [cell.detailTextLabel setTextColor:[UIColor blackColor]];
         
         cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
         UIButton *inviteButton = [UIButton buttonWithType:UIButtonTypeCustom];
         inviteButton.tag = indexPath.row;
-        [inviteButton setImage:[UIImage imageNamed:@"Envelope"] forState:UIControlStateNormal];
+        [inviteButton.imageView setTintColor:[UIColor blackColor]];
+        [inviteButton setImage:[[UIImage imageNamed:@"Envelope"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
         [inviteButton setFrame:CGRectMake(0, 0, 36, 36)];
         cell.accessoryView = inviteButton;
         [inviteButton addTarget:self action:@selector(inviteTapped:) forControlEvents:UIControlEventTouchUpInside];
