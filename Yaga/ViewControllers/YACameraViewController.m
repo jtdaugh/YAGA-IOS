@@ -601,7 +601,7 @@ typedef enum {
 - (void) startEnlargeAnimation {
     // ...
     CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateEnlargeAnimation:)];
-    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     self.animationStartTime = -1.0f;
     // ...
 }
@@ -611,24 +611,13 @@ typedef enum {
         self.animationStartTime = [displayLink timestamp];
     }
     
-    double currentTime = [displayLink timestamp];
+    float currentTime = [displayLink timestamp];
     
-    double totalTime = 0.2;
+    float totalTime = 0.2;
     
-    double progress = (currentTime - self.animationStartTime)/totalTime;
+    float progress = (currentTime - self.animationStartTime)/totalTime;
     
-    /*
-     final = (3/4 * VIEW_HEIGHT)
-     start = VIEW_WIDTH
-     [self.gpuCameraView setFrame:CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT)];
-
-     diff = start + progress * (final - start)
-     
-     
-     */
-    
-//    self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + VIEW_HEIGHT/2 * progress);
-    [self.cameraView setFrame:CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2 * progress, 0, VIEW_WIDTH + progress * (VIEW_HEIGHT * 3/4 - VIEW_WIDTH), VIEW_HEIGHT/2 + VIEW_HEIGHT/2 * progress)];
+    [self.cameraView setFrame:CGRectMake(-((float)VIEW_HEIGHT * 3.0f/4.0f - (float)VIEW_WIDTH)/2.0f * (float)progress, 0, (float)VIEW_WIDTH + (float)progress * ((float)VIEW_HEIGHT * 3.0f/4.0f - (float)VIEW_WIDTH), (float)VIEW_HEIGHT/2.0f + (float)VIEW_HEIGHT/2.0f * (float)progress)];
     
     NSLog(@"progress: %f", progress);
     NSLog(@"last time: %f", self.animationStartTime);
@@ -653,12 +642,12 @@ typedef enum {
         
         self.previousViewFrame = self.view.frame;
         
-        [self startEnlargeAnimation];
+//        [self startEnlargeAnimation];
         
         [UIView animateWithDuration:0.2 delay:0.0 options:0 animations:^{
             //
             self.view.frame = CGRectMake(0, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
-//            [self.gpuCameraView setFrame:CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT)];
+            [self.cameraView setFrame:CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT)];
             [self.infoButton setAlpha:0.0];
 //            [self.groupButton setAlpha:0.0];
             [self.switchGroupsButton setAlpha:0.0];
