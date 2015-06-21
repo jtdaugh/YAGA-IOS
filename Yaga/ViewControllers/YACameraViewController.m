@@ -301,11 +301,11 @@ typedef enum {
 
         self.swipeCameraLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraLeft:)];
         self.swipeCameraLeft.direction = UISwipeGestureRecognizerDirectionLeft;
-        [self.gpuCameraView addGestureRecognizer:self.swipeCameraLeft];
+//        [self.gpuCameraView addGestureRecognizer:self.swipeCameraLeft];
         
         self.swipeCameraRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraRight:)];
         self.swipeCameraRight.direction = UISwipeGestureRecognizerDirectionRight;
-        [self.gpuCameraView addGestureRecognizer:self.swipeCameraRight];
+//        [self.gpuCameraView addGestureRecognizer:self.swipeCameraRight];
 
         self.swipeEnlargeCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeCamera:)];
         self.swipeEnlargeCamera.direction = UISwipeGestureRecognizerDirectionDown;
@@ -381,7 +381,7 @@ typedef enum {
 //            self.recordTooltipLabel.center = center;
         }
         
-        self.filters = @[@"#nofilter", @"FREESTYLE"];
+        self.filters = @[@"#nofilter"];
         self.filterIndex = 0;
 
     }
@@ -1342,7 +1342,6 @@ typedef enum {
     //    [self.session commitConfiguration];
     
 }
-
 
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
 {
