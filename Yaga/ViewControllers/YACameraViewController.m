@@ -11,6 +11,7 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 #import "YAAssetsCreator.h"
+#import "YACameraManager.h"
 
 #import <CoreTelephony/CTCall.h>
 #import <CoreTelephony/CTCallCenter.h>
@@ -23,22 +24,19 @@ typedef enum {
     YATouchDragStateOutside
 } YATouchDragState;
 
-@interface YACameraViewController ()
+@interface YACameraViewController () <YACameraManagerDelegate>
+
+@property (nonatomic, strong) YACameraView *cameraView;
 
 @property (strong, nonatomic) UIView *indicator;
 @property (strong, nonatomic) UILabel *indicatorText;
 @property (strong, nonatomic) UIView *white;
 @property (strong, nonatomic) NSNumber *recording;
 @property (strong, nonatomic) NSDate *recordingTime;
-@property (strong, nonatomic) NSNumber *FrontCamera; // to remove
-@property BOOL cancelledRecording;
+@property (nonatomic) BOOL cancelledRecording;
+@property (nonatomic) BOOL flash;
 
 @property (strong, nonatomic) NSNumber *previousBrightness;
-
-@property (strong, nonatomic) AVCaptureSession *session; // to remove
-@property (nonatomic) dispatch_queue_t sessionQueue; // to remove
-
-@property (strong, nonatomic) AVCaptureMovieFileOutput *movieFileOutput; // to remove
 
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 @property (strong, nonatomic) NSMutableArray *recordingAccessories;
@@ -60,12 +58,8 @@ typedef enum {
 
 @property (nonatomic, strong) UIButton *openSettingsButton;
 
-@property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
-
 @property (nonatomic, strong) CTCallCenter *callCenter;
 
-@property (nonatomic, strong) NSMutableArray *currentRecordingURLs;
-@property (strong, nonatomic) NSURL *currentlyRecordingUrl;
 @property (strong, nonatomic) UIView *recordingIndicator;
 
 @property (nonatomic) YATouchDragState lastTouchDragState;
@@ -100,19 +94,13 @@ typedef enum {
 - (id)init {
     self = [super init];
     if(self) {
-        self.cameraView = [[AVCamPreviewView alloc] initWithFrame:CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2)];
         self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2 + recordButtonWidth/2);
+        
+        self.cameraView = [[YACameraView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
         [self.cameraView setBackgroundColor:[UIColor blackColor]];
-//        [self.view addSubview:self.cameraView];
+        [self.view addSubview:self.cameraView];
         [self.cameraView setUserInteractionEnabled:YES];
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
-        
-        self.gpuCameraView = [[GPUImageView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
-        [self.gpuCameraView setBackgroundColor:[UIColor blackColor]];
-        [self.view addSubview:self.gpuCameraView];
-        [self.gpuCameraView setUserInteractionEnabled:YES];
-        [self.gpuCameraView setFillMode:kGPUImageFillModePreserveAspectRatioAndFill];
-        self.gpuCameraView.autoresizingMask = UIViewAutoresizingNone;
         
         self.cameraAccessories = [@[] mutableCopy];
         self.recordingAccessories = [@[] mutableCopy];
@@ -123,28 +111,28 @@ typedef enum {
         
         [self.white setUserInteractionEnabled:YES];
         
-        UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchFlashMode:)];
+        UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleFlash:)];
         tapGestureRecognizer.delegate = self;
         [self.white addGestureRecognizer:tapGestureRecognizer];
         
         CGFloat size = 60;
-        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.gpuCameraView.frame.size.width-size- 10, 10, size, size)];
+        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width-size- 10, 10, size, size)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
         [self.switchCameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
         
         [self.cameraAccessories addObject:self.switchCameraButton];
-        [self.gpuCameraView addSubview:self.switchCameraButton];
+        [self.cameraView addSubview:self.switchCameraButton];
         
         UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, size - 10, size - 10)];
         //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
-        [flashButton addTarget:self action:@selector(switchFlashMode:) forControlEvents:UIControlEventTouchUpInside];
+        [flashButton addTarget:self action:@selector(toggleFlash:) forControlEvents:UIControlEventTouchUpInside];
         [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
         [flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
         self.flashButton = flashButton;
         [self.cameraAccessories addObject:self.flashButton];
-        [self.gpuCameraView addSubview:self.flashButton];
+        [self.cameraView addSubview:self.flashButton];
         
         //current group
         CGFloat groupButtonXOrigin = flashButton.frame.origin.x + flashButton.frame.size.width + 5;
@@ -157,10 +145,10 @@ typedef enum {
         self.groupButton.layer.shadowOpacity = 1.0;
         self.groupButton.layer.shadowOffset = CGSizeZero;
         [self.cameraAccessories addObject:self.groupButton];
-        [self.gpuCameraView addSubview:self.groupButton];
+        [self.cameraView addSubview:self.groupButton];
         
         //record button
-        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.gpuCameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.gpuCameraView.frame.size.height - 1.0*recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
+        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - 1.0*recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
         [self.recordButton setBackgroundColor:[UIColor redColor]];
         [self.recordButton.layer setCornerRadius:recordButtonWidth/2.0];
         [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
@@ -171,7 +159,7 @@ typedef enum {
         
         //switch groups button
         
-        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.gpuCameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30-10, 40)];
+        self.switchGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2+30, self.cameraView.frame.size.height - 40, VIEW_WIDTH - VIEW_WIDTH/2-30-10, 40)];
         //        self.switchGroupsButton.backgroundColor= [UIColor yellowColor];
         [self.switchGroupsButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
         [self.switchGroupsButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
@@ -190,17 +178,17 @@ typedef enum {
         self.switchGroupsButton.layer.shadowOffset = CGSizeZero;
         
         [self.cameraAccessories addObject:self.switchGroupsButton];
-        [self.gpuCameraView addSubview:self.switchGroupsButton];
+        [self.cameraView addSubview:self.switchGroupsButton];
         
         CGFloat infoSize = 36;
-        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(4, self.gpuCameraView.frame.size.height - infoSize - 4, infoSize, infoSize)];
+        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(4, self.cameraView.frame.size.height - infoSize - 4, infoSize, infoSize)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.infoButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
         [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
         
         [self.cameraAccessories addObject:self.infoButton];
-        [self.gpuCameraView addSubview:self.infoButton];
+        [self.cameraView addSubview:self.infoButton];
         
         CGFloat labelWidth = 96;
         self.countdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, labelWidth)];
@@ -215,7 +203,7 @@ typedef enum {
                                                                                   }];
         self.countdownLabel.attributedText = string;
         [self.countdownLabel setTextColor:PRIMARY_COLOR];
-        [self.gpuCameraView addSubview:self.countdownLabel];
+        [self.cameraView addSubview:self.countdownLabel];
         
         //unviewed badge
         const CGFloat badgeWidth = 10;
@@ -225,16 +213,16 @@ typedef enum {
         self.unviewedVideosBadge.clipsToBounds = YES;
         self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
         [self.cameraAccessories addObject:self.unviewedVideosBadge];
-        [self.gpuCameraView addSubview:self.unviewedVideosBadge];
+        [self.cameraView addSubview:self.unviewedVideosBadge];
         
         
         CGFloat width = 48;
-        self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(self.gpuCameraView.frame.size.width/2 - width/2, 20, width, width)];
+        self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2 - width/2, 20, width, width)];
         UIImageView *monkeyIndicator = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, width, width)];
         [monkeyIndicator setImage:[UIImage imageNamed:@"Monkey_Pink"]];
         [self.recordingIndicator addSubview:monkeyIndicator];
         self.recordingIndicator.alpha = 0.0;
-        [self.gpuCameraView addSubview:self.recordingIndicator];
+        [self.cameraView addSubview:self.recordingIndicator];
                 
         CGFloat switchCamZoneRadius = VIEW_WIDTH / 3;
         self.switchCamZone = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - switchCamZoneRadius, VIEW_HEIGHT - switchCamZoneRadius, switchCamZoneRadius*2, switchCamZoneRadius*2)];
@@ -259,7 +247,7 @@ typedef enum {
         self.switchCamZoneTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
         self.switchCamZoneTapRecognizer.delegate = self;
         [self.switchCamZone addGestureRecognizer:self.switchCamZoneTapRecognizer];
-        [self.gpuCameraView addSubview:self.switchCamZone];
+        [self.cameraView addSubview:self.switchCamZone];
         
         
         CGFloat trashZoneRadius = VIEW_WIDTH / 3;
@@ -284,7 +272,7 @@ typedef enum {
         [self.trashZone addGestureRecognizer:self.trashZoneTapRecognizer];
         
         [self.recordingAccessories addObject:self.trashZone];
-        [self.gpuCameraView addSubview:self.trashZone];
+        [self.cameraView addSubview:self.trashZone];
         
         [self showRecordingAccessories:NO];
         
@@ -301,19 +289,19 @@ typedef enum {
 
         self.swipeCameraLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraLeft:)];
         self.swipeCameraLeft.direction = UISwipeGestureRecognizerDirectionLeft;
-//        [self.gpuCameraView addGestureRecognizer:self.swipeCameraLeft];
+//        [self.cameraView addGestureRecognizer:self.swipeCameraLeft];
         
         self.swipeCameraRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraRight:)];
         self.swipeCameraRight.direction = UISwipeGestureRecognizerDirectionRight;
-//        [self.gpuCameraView addGestureRecognizer:self.swipeCameraRight];
+//        [self.cameraView addGestureRecognizer:self.swipeCameraRight];
 
         self.swipeEnlargeCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeCamera:)];
         self.swipeEnlargeCamera.direction = UISwipeGestureRecognizerDirectionDown;
-        [self.gpuCameraView addGestureRecognizer:self.swipeEnlargeCamera];
+        [self.cameraView addGestureRecognizer:self.swipeEnlargeCamera];
         
         self.swipeCollapseCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(collapseCamera:)];
         self.swipeCollapseCamera.direction = UISwipeGestureRecognizerDirectionUp;
-        [self.gpuCameraView addGestureRecognizer:self.swipeCollapseCamera];
+        [self.cameraView addGestureRecognizer:self.swipeCollapseCamera];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(willEnterForeground)
@@ -407,7 +395,8 @@ typedef enum {
     [super viewWillAppear:animated];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self initCamera];
+        [YACameraManager sharedManager].delegate = self;
+        [[YACameraManager sharedManager] setCameraView:self.cameraView];
         
         [self enableRecording:YES];
         
@@ -421,13 +410,14 @@ typedef enum {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self enableRecording:NO];
         
-        [self closeCamera];
+//        [[YACameraManager sharedManager] closeCamera];
     });
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    [YACameraManager sharedManager].delegate = self;
+    [[YACameraManager sharedManager] initCamera];
     //2 px view in the bottom
     UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height/2, self.view.bounds.size.width, 2)];
     v.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -447,14 +437,14 @@ typedef enum {
         self.longPressFullScreenGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         self.longPressFullScreenGestureRecognizer.delegate = self;
         [self.longPressFullScreenGestureRecognizer setMinimumPressDuration:0.2f];
-        [self.gpuCameraView addGestureRecognizer:self.longPressFullScreenGestureRecognizer];
+        [self.cameraView addGestureRecognizer:self.longPressFullScreenGestureRecognizer];
         self.longPressRedButtonGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
         [self.longPressRedButtonGestureRecognizer setMinimumPressDuration:0.0f];
         self.longPressRedButtonGestureRecognizer.delegate = self;
         [self.recordButton addGestureRecognizer:self.longPressRedButtonGestureRecognizer];
     }
     else {
-        [self.gpuCameraView removeGestureRecognizer:self.longPressFullScreenGestureRecognizer];
+        [self.cameraView removeGestureRecognizer:self.longPressFullScreenGestureRecognizer];
 //        [self.cameraView removeGestureRecognizer:self.swipeEnlargeCamera];
 //        [self.cameraView removeGestureRecognizer:self.swipeCollapseCamera];
         [self.recordButton removeGestureRecognizer:self.longPressRedButtonGestureRecognizer];
@@ -507,7 +497,7 @@ typedef enum {
     [self.filterLabel removeFromSuperview];
     
     self.filterLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
-    self.filterLabel.center = self.gpuCameraView.center;
+    self.filterLabel.center = self.cameraView.center;
     self.filterLabel.font = [UIFont fontWithName:BOLD_FONT size:36];
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:label
                                                                  attributes:@{
@@ -524,7 +514,7 @@ typedef enum {
     [self.filterLabel setAlpha:0.0];
     [self.filterLabel setTransform:CGAffineTransformMakeScale(1.5, 1.5)];
     
-    [self.gpuCameraView addSubview:self.filterLabel];
+    [self.cameraView addSubview:self.filterLabel];
     
     [UIView animateKeyframesWithDuration:1.0 delay:0.0 options:0 animations:^{
         //
@@ -594,7 +584,7 @@ typedef enum {
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             //
             self.view.frame = self.previousViewFrame;
-            [self.gpuCameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+            [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self.infoButton setAlpha:1.0];
 //            [self.groupButton setAlpha:1.0];
             [self.switchGroupsButton setAlpha:1.0];
@@ -615,10 +605,9 @@ typedef enum {
         
         self.previousViewFrame = self.view.frame;
         
-        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-            //
+        [UIView animateKeyframesWithDuration:3.f delay:0 options:UIViewKeyframeAnimationOptionBeginFromCurrentState animations:^{            self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
+            self.cameraView.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
             self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
-            [self.gpuCameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
             [self.infoButton setAlpha:0.0];
 //            [self.groupButton setAlpha:0.0];
             [self.switchGroupsButton setAlpha:0.0];
@@ -630,181 +619,6 @@ typedef enum {
         }];
         
         self.largeCamera = YES;
-    }
-}
-
-- (void)initCamera {
-    // only init camera if not simulator
-    
-    if(TARGET_IPHONE_SIMULATOR){
-        DLog(@"no camera, simulator");
-    } else {
-        
-        DLog(@"init camera");
-        
-        //set still image output
-        
-        self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
-        self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
-        
-        
-        
-        [self.videoCamera addTarget:self.gpuCameraView];
-        [self.videoCamera startCameraCapture];
-        
-        NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
-        [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
-        [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
-        [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
-
-        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
-        self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
-        unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
-
-        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
-        //        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
-        self.videoCamera.audioEncodingTarget = self.movieWriter;
-
-//        self.videoCamera.audioEncodingTarget = self.movieWriter;
-        
-//        AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-//        if (videoStatus == AVAuthorizationStatusAuthorized) {
-//            
-//            self.session = [[AVCaptureSession alloc] init];
-//           
-//            [self.session beginConfiguration];
-////            self.session.automaticallyConfiguresApplicationAudioSession = NO;
-//            
-//            self.session.sessionPreset = AVCaptureSessionPreset640x480;
-//            
-//            [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
-//            [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-//            
-//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//                [self setupVideoInput];
-//            });
-//            
-//            [self.session commitConfiguration];
-//            
-//            [self removeOpenSettingsButton];
-//            
-//        } else {
-//            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
-//                                     completionHandler:^(BOOL granted) {
-//                                         self.session = [[AVCaptureSession alloc] init];
-//                                         [self.session beginConfiguration];
-//                                         self.session.sessionPreset = AVCaptureSessionPreset640x480;
-//                                         
-//                                         [(AVCaptureVideoPreviewLayer *)([self.cameraView layer]) setSession:self.session];
-//                                         [(AVCaptureVideoPreviewLayer *)(self.cameraView.layer) setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-//                                         if (granted) {
-//                                             [self setupVideoInput];
-//                                         } else {
-//                                             dispatch_async(dispatch_get_main_queue(), ^{
-//                                                 [self addOpenSettingsButton];
-//                                             });
-//                                             
-//                                         }
-//                                         [self.session commitConfiguration];
-//                                     }];
-//        }
-    }
-}
-
-- (void)setupVideoInput {
-    NSError *error = nil;
-    
-    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-    AVCaptureDevice *captureDevice = [devices firstObject];
-    
-    for (AVCaptureDevice *device in devices)
-    {
-        if ([device position] == AVCaptureDevicePositionBack)
-        {
-            captureDevice = device;
-            break;
-        }
-    }
-    
-    if([captureDevice lockForConfiguration:nil]){
-        if([captureDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
-            [captureDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-        }
-        
-        if([captureDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
-            [captureDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
-        }
-        [captureDevice unlockForConfiguration];
-    }
-    
-    self.videoInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-    
-    if (error)
-    {
-        DLog(@"add video input error: %@", error);
-    }
-    
-    if ([self.session canAddInput:self.videoInput])
-    {
-        [self.session addInput:self.videoInput];
-    }
-    
-    self.movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-    
-    if ([self.session canAddOutput:self.movieFileOutput])
-    {
-        [self.session addOutput:self.movieFileOutput];
-    }
-    
-    AVAuthorizationStatus audioStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
-    if (audioStatus == AVAuthorizationStatusAuthorized) {
-        [self initAudioInput];
-        [self.session startRunning];
-    } else {
-        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
-                                 completionHandler:^(BOOL granted) {
-                                     if (granted) {
-                                         [self initAudioInput];
-                                         [self.session startRunning];
-                                     }
-                                 }];
-    }
-    
-}
-
-- (void)initAudioInput {
-    NSError *error = nil;
-    AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
-    self.audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
-    
-    if (error)
-    {
-        DLog(@"add audio input error: %@", error);
-    }
-    
-    //Don't add just now to allow bg audio to play
-    if ([self.session canAddInput:self.audioInput])
-    {
-        [self.session addInput:self.audioInput];
-    }
-    
-}
-
-- (void)closeCamera {
-    AVAuthorizationStatus videoStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    // Don't try to configure anything if no permissions are granted. This would be rare anyway.
-    if (videoStatus == AVAuthorizationStatusAuthorized) {
-        if (self.session) {
-            [self.session beginConfiguration];
-            for(AVCaptureDeviceInput *input in self.session.inputs){
-                [self.session removeInput:input];
-            }
-            [self.session commitConfiguration];
-            
-            if ([self.session isRunning])
-                [self.session stopRunning];
-        }
-        self.session = nil;
     }
 }
 
@@ -908,28 +722,11 @@ typedef enum {
     
     self.recordingTime = [NSDate date];
     
-//    if ([self.session canAddInput:self.audioInput])
-//    {
-//        [self.session addInput:self.audioInput];
-//    }
-
-    
-//    //We're starting to shoot so add audio
-//    if (!self.audioInputAdded) {
-//        [self.session beginConfiguration];
-//        [self.session addInput:self.audioInput];
-//        self.audioInputAdded = YES;
-//        [self.session commitConfiguration];
-//    }
-
-    self.currentRecordingURLs = [NSMutableArray new];
     self.cancelledRecording = NO;
     self.recording = [NSNumber numberWithBool:YES];
-//    self.recordingIndicator.alpha = 1.0;
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.gpuCameraView.frame.size.width, VIEW_HEIGHT/32.f)];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, VIEW_HEIGHT/32.f)];
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
     [self.indicator setUserInteractionEnabled:NO];
-//    [self.indicatorText setText:@"Recording..."];
     [self.view addSubview:self.indicator];
     
     [self.view bringSubviewToFront:self.white];
@@ -962,40 +759,19 @@ typedef enum {
         [self showCameraAccessories:0];
         [self showRecordingAccessories:1];
         [self.view setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-        [self.gpuCameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+        [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     } completion:^(BOOL finished) {
         
     }];
     
-//    self.recordingIndicator.transform = CGAffineTransformIdentity;
-//    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
-//        //
-//        self.recordingIndicator.transform = CGAffineTransformMakeScale(1.618, 1.618);
-//    } completion:^(BOOL finished) {
-//        //
-//    }];
-    
-//    [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:1.0 options:0 animations:^{
-//        //
-//        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
-//    } completion:^(BOOL finished) {
-//        //
-//        if(finished){
-//            [self endHold];
-//        }
-//    }];
-
     [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        [self.indicator setFrame:CGRectMake(self.gpuCameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
+        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
     } completion:^(BOOL finished) {
         if(finished){
             [self endHold];
         }
-        //
     }];
 
-//    [GPUImageMovieWriter alloc] initWith
-//    [self.movieWriter startRecording];
     [self startRecordingVideo];
     NSLog(@"starting something...");
     
@@ -1020,22 +796,17 @@ typedef enum {
         self.countdownLabel.transform = CGAffineTransformIdentity;
         
         [UIView animateKeyframesWithDuration:0.8 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
-            //
             [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.33 animations:^{
-                //
                 self.countdownLabel.transform = CGAffineTransformMakeScale(1.5, 1.5);
                 self.countdownLabel.alpha = 1.0;
             }];
             
             [UIView addKeyframeWithRelativeStartTime:0.66 relativeDuration:0.33 animations:^{
-                //
                 self.countdownLabel.transform = CGAffineTransformIdentity;
                 self.countdownLabel.alpha = 0.0;
             }];
         } completion:^(BOOL finished) {
-            //
-//            self.countdownLabel.transform = CGAffineTransformIdentity;
-//            self.countdownLabel.alpha = 0.0;
+
         }];
         
     } else if(remaining == 0) {
@@ -1052,12 +823,11 @@ typedef enum {
         self.recordingIndicator.alpha = 0.0;
         self.recordButton.hidden = NO;
         
-        [self.view bringSubviewToFront:self.gpuCameraView];
-        //        [self.view bringSubviewToFront:self.recordButton];
+        [self.view bringSubviewToFront:self.cameraView];
         
         [UIView animateWithDuration:0.2 animations:^{
             self.view.frame = self.previousViewFrame;
-            [self.gpuCameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+            [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self showCameraAccessories:YES];
             [self showRecordingAccessories:0];
             self.recordButton.transform = CGAffineTransformIdentity;
@@ -1073,19 +843,12 @@ typedef enum {
         [self.recordingIndicator.layer removeAllAnimations];
         
         if(self.flash){
-            [self switchFlashMode:nil];
+            [self setFlashMode:NO];
         }
         
         [self.countdown invalidate];
         self.countdown = nil;
-        
-        //        [self.session removeInput:self.audioInput];
-        //        if ([self.session canAddInput:self.audioInput])
-        //        {
-        //            [self.session addInput:self.audioInput];
-        //        }
-        
-        
+
         NSDate *recordingFinished = [NSDate date];
         NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
         
@@ -1099,320 +862,57 @@ typedef enum {
 }
 
 - (void) startRecordingVideo {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //    if(!self.session.outputs.count)
-        //        NSLog(@"return?");
-        //        return;
-        
-        //    AVCaptureMovieFileOutput *aMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-        
-        //Create temporary URL to record to
-        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
-        self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
-        unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
-        
-        
-        //Start recording
-        
-        //    self.recordingSemaphore = dispatch_semaphore_create(0);
-        //    [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
-        //
-        
-        NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
-        [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
-        [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
-        [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
-        
-        AudioChannelLayout channelLayout;
-        memset(&channelLayout, 0, sizeof(AudioChannelLayout));
-        channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
-        
-        NSDictionary *audioSettings = [NSDictionary dictionaryWithObjectsAndKeys:
-                                       [ NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
-                                       [ NSNumber numberWithInt: 2 ], AVNumberOfChannelsKey,
-                                       [ NSNumber numberWithFloat: 16000.0 ], AVSampleRateKey,
-                                       [ NSData dataWithBytes:&channelLayout length: sizeof( AudioChannelLayout ) ], AVChannelLayoutKey,
-                                       [ NSNumber numberWithInt: 32000 ], AVEncoderBitRateKey,
-                                       nil];
-        
-        
-        
-        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
-        self.movieWriter.encodingLiveVideo = YES;
-        self.movieWriter.shouldPassthroughAudio = NO; // default YES
-//        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
-        self.videoCamera.audioEncodingTarget = self.movieWriter;
-        
-        [self.videoCamera addTarget:self.movieWriter];
-        [self.movieWriter startRecording];
-        
-#warning add image writer
-//        [filter useNextFrameForImageCapture];
-//        UIImage *capturedImage = [filter imageFromCurrentFramebufferWithOrientation:UIImageOrientationUp];
-//        NSLog(@"%@",capturedImage);
-    });
-    
-    
-//    [self performSelector:@selector(gpuSwitchCamera) withObject:self afterDelay:3.0];
-    
-    
-    NSLog(@"start recording video?!?!?!");
-}
-
-- (void) gpuSwitchCamera {
-    [self.videoCamera rotateCamera];
+    [[YACameraManager sharedManager] startRecording];
 }
 
 - (void) stopRecordingVideo {
-    NSLog(@"Finish recording?");
-//    [self.videoCamera stopCameraCapture];
-    [self.movieWriter finishRecordingWithCompletionHandler:^{
-        NSLog(@"Finish recording 2?");
-        NSLog(@"recording path: %@ ?", self.currentlyRecordingUrl.path);
-
-        [self.videoCamera removeTarget:self.movieWriter];
-
-        //NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:self.currentlyRecordingUrl.path error:nil];
-        //UISaveVideoAtPathToSavedPhotosAlbum(self.currentlyRecordingUrl.path, self, @selector(video:didFinishSavingWithError: contextInfo:), nil);
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.videoCamera startCameraCapture];
-        });
-            
-        if(!self.cancelledRecording){
-            if (![self.recording boolValue]) {
-                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:self.currentlyRecordingUrl addToGroup:[YAUser currentUser].currentGroup];
-            }
-        } else {
-            self.cancelledRecording = NO;
+    __weak YACameraViewController *weakSelf = self;
+    [[YACameraManager sharedManager] stopRecordingWithCompletion:^(NSURL *recordedURL) {
+        if (!weakSelf.cancelledRecording) {
+            [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:recordedURL addToGroup:[YAUser currentUser].currentGroup];
         }
-
-        //
     }];
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//        if(self.recordingSemaphore)
-//            dispatch_semaphore_wait(self.recordingSemaphore, DISPATCH_TIME_FOREVER);
-//        
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            [self.movieFileOutput stopRecording];
-//            DLog(@"stop recording video");
-//        });
-//    });
 }
 
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
-{
-    dispatch_semaphore_signal(self.recordingSemaphore);
-    
-    DLog(@"didStartRecordingToOutputFileAtURL");
+- (void)switchCamera:(id)sender {
+    [self setFlashMode:NO];
+    [[YACameraManager sharedManager] switchCamera];
 }
 
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
-    
-    DLog(@"didFinishRecordingToOutputFileAtURL");
-    
-    BOOL RecordedSuccessfully = YES;
-    if ([error code] != noErr) {
-        // A problem occurred: Find out if the recording was successful.
-        id value = [[error userInfo] objectForKey:AVErrorRecordingSuccessfullyFinishedKey];
-        if (value) {
-            RecordedSuccessfully = [value boolValue];
-        }
-    }
-    
-    
-    if (RecordedSuccessfully) {
-        
-        if(error) {
-            [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:YANotificationTypeError];
-            return;
-        }
+- (YACameraView *)currentCameraView {
+    return self.cameraView;
+}
 
-        NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:outputFileURL.path error:nil];
-        
-        NSNumber *fileSizeNumber = [fileAttributes objectForKey:NSFileSize];
-        long long fileSize = [fileSizeNumber longLongValue];
-        
-        DLog(@"file size: %lld", fileSize);
-        
-        [self.currentRecordingURLs addObject:outputFileURL];
-        
-        if(!self.cancelledRecording){
-            if (![self.recording boolValue]) {
-                if ([self.currentRecordingURLs count] > 1) {
-                    [[YAAssetsCreator sharedCreator] createVideoFromSequenceOfURLs:self.currentRecordingURLs addToGroup:[YAUser currentUser].currentGroup];
-                } else {
-                    [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:outputFileURL addToGroup:[YAUser currentUser].currentGroup];
-                }
-            }
-        } else {
-            self.cancelledRecording = NO;
+- (void)setFrontFacingFlash:(BOOL)showFlash {
+    if(!showFlash) {
+        // turn flash off
+        if(self.previousBrightness){
+            [[UIScreen mainScreen] setBrightness:[self.previousBrightness floatValue]];
         }
+        [self.white removeFromSuperview];
     } else {
-        [YAUtils showNotification:[NSString stringWithFormat:@"Unable to save recording, %@", error.localizedDescription] type:YANotificationTypeError];
-    }
-    
-}
-
-- (void)switchCamera:(id)sender { //switch cameras front and rear camerashiiegor@gmail.com
-    [self.videoCamera rotateCamera];
-    
-//    if(self.openSettingsButton)
-//        return;
-//    
-//
-//    if([self.recording boolValue]){
-//        [self stopRecordingVideo];
-//    }
-    
-    if(self.flash){
-        [self switchFlashMode:nil];
-    }
-    
-//    AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
-//    AVCaptureDevicePosition preferredPosition = AVCaptureDevicePositionUnspecified;
-//    AVCaptureDevicePosition currentPosition = [currentVideoDevice position];
-//    
-//    switch (currentPosition)
-//    {
-//        case AVCaptureDevicePositionUnspecified:
-//            preferredPosition = AVCaptureDevicePositionFront;
-//            break;
-//        case AVCaptureDevicePositionBack:
-//            preferredPosition = AVCaptureDevicePositionFront;
-//            break;
-//        case AVCaptureDevicePositionFront:
-//            preferredPosition = AVCaptureDevicePositionBack;
-//            break;
-//    }
-//    
-//    //[self addAudioInput];
-//    
-//    AVCaptureDevice *videoDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:preferredPosition];
-//    AVCaptureDeviceInput *videoDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:nil];
-//    
-//    if([videoDevice lockForConfiguration:nil]){
-//        if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
-//            [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-//        }
-//        
-//        if([videoDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
-//            [videoDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
-//        }
-//        [videoDevice unlockForConfiguration];
-//        [self.videoCamera rotateCamera];
-////        [self.gpuCameraView switchCamera:preferredPosition];
-//    }
-//    
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        [self configureFlashButton:NO];
-//    });
-//    
-//    [[self session] beginConfiguration];
-//    
-//    [[self session] removeInput:[self videoInput]];
-//    if ([[self session] canAddInput:videoDeviceInput]) {
-//        [[self session] addInput:videoDeviceInput];
-//        [self setVideoInput:videoDeviceInput];
-//    }
-//    else
-//    {
-//        [[self session] addInput:[self videoInput]];
-//    }
-//    
-//    
-//    [[self session] commitConfiguration];
-//    
-////    [UIView transitionWithView:self.cameraView
-////                      duration:0.5
-////                       options:UIViewAnimationOptionTransitionFlipFromRight|UIViewAnimationOptionCurveEaseInOut
-////                    animations:^{
-////                    }
-////                    completion:^(BOOL finished) {
-////                        if (finished) {
-////                            //DO Stuff
-////                        }
-////                    }];
-//    
-//    if([self.recording boolValue]){
-//        [self performSelector:@selector(startRecordingVideo) withObject:self afterDelay:.25];
-//    }
-    
-    //    [self.session beginConfiguration];
-    //    [self.session commitConfiguration];
-    
-}
-
-- (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position
-{
-    NSArray *devices = [AVCaptureDevice devicesWithMediaType:mediaType];
-    AVCaptureDevice *captureDevice = [devices firstObject];
-    
-    for (AVCaptureDevice *device in devices)
-    {
-        if ([device position] == position)
-        {
-            captureDevice = device;
-            break;
-        }
-    }
-    
-    return captureDevice;
-}
-
-- (void)switchFlashMode:(id)sender {
-    
-    DLog(@"switching flash mode");
-    AVCaptureDevice *currentVideoDevice = [[self videoInput] device];
-    
-    if([currentVideoDevice position] == AVCaptureDevicePositionBack){
-        // back camera
-        [currentVideoDevice lockForConfiguration:nil];
-        if(self.flash){
-            //turn flash off
-            if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOff]){
-                [currentVideoDevice setTorchMode:AVCaptureTorchModeOff];
-            }
-            [self configureFlashButton:NO];
-        } else {
-            //turn flash on
-            NSError *error = nil;
-            if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOn]){
-                [currentVideoDevice setTorchModeOnWithLevel:0.8 error:&error];
-            }
-            if(error){
-                DLog(@"error: %@", error);
-            }
-            
-            [self configureFlashButton:YES];
-        }
-        [currentVideoDevice unlockForConfiguration];
+        // turn flash on
+        self.previousBrightness = [NSNumber numberWithFloat: [[UIScreen mainScreen] brightness]];
+        [[UIScreen mainScreen] setBrightness:1.0];
+        [self.view addSubview:self.white];
         
-    } else if([currentVideoDevice position] == AVCaptureDevicePositionFront) {
-        //front camera
-        if(self.flash){
-            // turn flash off
-            if(self.previousBrightness){
-                [[UIScreen mainScreen] setBrightness:[self.previousBrightness floatValue]];
-            }
-            [self.white removeFromSuperview];
-            [self configureFlashButton:NO];
-        } else {
-            // turn flash on
-            self.previousBrightness = [NSNumber numberWithFloat: [[UIScreen mainScreen] brightness]];
-            [[UIScreen mainScreen] setBrightness:1.0];
-            [self.view addSubview:self.white];
-            
-            [self.view bringSubviewToFront:self.gpuCameraView];
-            [self showCameraAccessories:YES];
-            [self configureFlashButton:YES];
-        }
+        [self.view bringSubviewToFront:self.cameraView];
+        [self showCameraAccessories:YES];
     }
-    
+}
+
+- (void)toggleFlash:(id)sender {
+    [self setFlashMode:!self.flash];
+}
+
+- (void)setFlashMode:(BOOL)flashOn {
+    self.flash = flashOn;
+    DLog(@"switching flash mode");
+    [self configureFlashButton:flashOn];
+    [[YACameraManager sharedManager] toggleFlash:flashOn];
 }
 
 - (void)configureFlashButton:(BOOL)flash {
-    self.flash = flash;
     if(flash){
         [self.flashButton setImage:[UIImage imageNamed:@"TorchOn"] forState:UIControlStateNormal];
     } else {
@@ -1426,15 +926,15 @@ typedef enum {
 
 - (void)didEnterBackground {
     if(self.flash){
-        [self switchFlashMode:nil];
+        [self setFlashMode:NO];
     }
-    [self closeCamera];
+    [[YACameraManager sharedManager] closeCamera];
 }
 
 - (void)willEnterForeground {
     // init camera if selfs view is visible
     if (self.isViewLoaded && self.view.window){
-        [self initCamera];
+        [[YACameraManager sharedManager] initCamera];
     }
 }
 
@@ -1480,7 +980,7 @@ typedef enum {
 #pragma mark Settings
 - (void)addOpenSettingsButton {
     if(!self.openSettingsButton) {
-        CGRect r = self.gpuCameraView.bounds;
+        CGRect r = self.cameraView.bounds;
         r.size.height /= 2;
         r.size.width *= .6;
         r.origin.x = (self.view.frame.size.width - r.size.width)/2;
@@ -1494,7 +994,7 @@ typedef enum {
         [self.openSettingsButton.titleLabel setTextAlignment:NSTextAlignmentCenter];
         [self.openSettingsButton.titleLabel setNumberOfLines:0];
         self.openSettingsButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        [self.gpuCameraView addSubview:self.openSettingsButton];
+        [self.cameraView addSubview:self.openSettingsButton];
         
         [self.recordTooltipLabel removeFromSuperview];
         self.recordTooltipLabel = nil;
@@ -1516,10 +1016,10 @@ typedef enum {
 - (void)enableScrollToTop:(BOOL)enable {
     if(enable && ! self.scrollToTopTapRecognizer) {
         self.scrollToTopTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cameraViewTapped:)];
-        [self.gpuCameraView addGestureRecognizer:self.scrollToTopTapRecognizer];
+        [self.cameraView addGestureRecognizer:self.scrollToTopTapRecognizer];
     }
     else {
-        [self.gpuCameraView removeGestureRecognizer:self.scrollToTopTapRecognizer];
+        [self.cameraView removeGestureRecognizer:self.scrollToTopTapRecognizer];
         self.scrollToTopTapRecognizer = nil;
     }
 }
