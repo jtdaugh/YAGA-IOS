@@ -268,7 +268,6 @@
             NSError *error = [NSError errorWithDomain:@"YAGA" code:0 userInfo:nil];
             completion(error);
         }
-        
         return;
     }
     

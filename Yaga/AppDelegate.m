@@ -17,6 +17,7 @@
 #import "YAUtils.h"
 #import "YAServerTransactionQueue.h"
 #import "YAAssetsCreator.h"
+#import "YACameraManager.h"
 
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
@@ -156,6 +157,9 @@
     if(pushInfo) {
         [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:@{@"meta":pushInfo[@"meta"]}];
     }
+    
+    [[YACameraManager sharedManager] initCamera];
+
     return YES;
 }
 
@@ -198,10 +202,13 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
 //    [AnalyticsKit applicationWillEnterForeground];
+    [[YACameraManager sharedManager] initCamera];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
 //    [AnalyticsKit applicationDidEnterBackground];
+    [[YACameraManager sharedManager] toggleFlash:NO];
+    [[YACameraManager sharedManager] closeCamera];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

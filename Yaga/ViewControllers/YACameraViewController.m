@@ -137,7 +137,7 @@ typedef enum {
         [self.cameraAccessories addObject:self.flashButton];
         [self.view addSubview:self.flashButton];
         
-        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - INFO_SIZE - 10, (BUTTON_SIZE - INFO_SIZE), INFO_SIZE, INFO_SIZE)];
+        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - INFO_SIZE - 10, (BUTTON_SIZE - INFO_SIZE)/2, INFO_SIZE, INFO_SIZE)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.infoButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
         [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
@@ -288,11 +288,6 @@ typedef enum {
         [self.cameraView addGestureRecognizer:self.swipeCollapseCamera];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(willEnterForeground)
-                                                     name:UIApplicationWillEnterForegroundNotification
-                                                   object:nil];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didEnterBackground)
                                                      name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
@@ -403,15 +398,12 @@ typedef enum {
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self enableRecording:NO];
-        
-//        [[YACameraManager sharedManager] closeCamera];
     });
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [YACameraManager sharedManager].delegate = self;
-    [[YACameraManager sharedManager] initCamera];
     //2 px view in the bottom
     UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height/2, self.view.bounds.size.width, 2)];
     v.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -421,7 +413,6 @@ typedef enum {
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 }
 
@@ -959,14 +950,6 @@ typedef enum {
 - (void)didEnterBackground {
     if(self.flash){
         [self setFlashMode:NO];
-    }
-    [[YACameraManager sharedManager] closeCamera];
-}
-
-- (void)willEnterForeground {
-    // init camera if selfs view is visible
-    if (self.isViewLoaded && self.view.window){
-        [[YACameraManager sharedManager] initCamera];
     }
 }
 
