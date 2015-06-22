@@ -566,6 +566,11 @@ typedef enum {
 - (void)collapseCamera:(UISwipeGestureRecognizer *)recognizer {
     
     if(self.largeCamera){
+        CGRect flashFrame = self.flashButton.frame;
+        flashFrame.origin.y = VIEW_HEIGHT/2 - flashFrame.size.height - 10;
+        CGRect switchCamFrame = self.switchCameraButton.frame;
+        switchCamFrame.origin.y = VIEW_HEIGHT/2 - switchCamFrame.size.height - 10;
+
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             //
             self.view.frame = self.previousViewFrame;
@@ -574,6 +579,9 @@ typedef enum {
 //            [self.groupButton setAlpha:1.0];
 //            self.recordButton.transform = CGAffineTransformIdentity;
             self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
+            self.flashButton.frame = flashFrame;
+            self.switchCameraButton.frame = switchCamFrame;
+            
             [self.unviewedVideosBadge setAlpha:1.0];
         } completion:^(BOOL finished) {
         }];
@@ -626,7 +634,10 @@ typedef enum {
         self.previousViewFrame = self.view.frame;
         
 //        [self startEnlargeAnimation];
-        
+        CGRect flashFrame = self.flashButton.frame;
+        flashFrame.origin.y = VIEW_HEIGHT - flashFrame.size.height - 10;
+        CGRect switchCamFrame = self.switchCameraButton.frame;
+        switchCamFrame.origin.y = VIEW_HEIGHT - switchCamFrame.size.height - 10;
         [UIView animateWithDuration:0.2 delay:0.0 options:0 animations:^{
             //
             self.view.frame = CGRectMake(0, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
@@ -634,6 +645,8 @@ typedef enum {
             [self.infoButton setAlpha:0.0];
 //            [self.groupButton setAlpha:0.0];
             [self.unviewedVideosBadge setAlpha:0.0];
+            self.flashButton.frame = flashFrame;
+            self.switchCameraButton.frame = switchCamFrame;
             
 //            self.recordButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
             self.recordButton.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT - recordButtonWidth);
@@ -847,12 +860,19 @@ typedef enum {
         self.recordButton.hidden = NO;
         
         [self.view bringSubviewToFront:self.cameraView];
-        
+        CGRect flashFrame = self.flashButton.frame;
+        flashFrame.origin.y = VIEW_HEIGHT/2 - flashFrame.size.height - 10;
+        CGRect switchCamFrame = self.switchCameraButton.frame;
+        switchCamFrame.origin.y = VIEW_HEIGHT/2 - switchCamFrame.size.height - 10;
+
         [UIView animateWithDuration:0.2 animations:^{
             self.view.frame = self.previousViewFrame;
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self showCameraAccessories:YES];
             [self showRecordingAccessories:0];
+            self.flashButton.frame = flashFrame;
+            self.switchCameraButton.frame = switchCamFrame;
+
             self.recordButton.transform = CGAffineTransformIdentity;
             self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
          }];
