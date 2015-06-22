@@ -137,8 +137,12 @@ typedef enum {
         [self.cameraAccessories addObject:self.flashButton];
         [self.view addSubview:self.flashButton];
         
-        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - INFO_SIZE - 10, (BUTTON_SIZE - INFO_SIZE)/2, INFO_SIZE, INFO_SIZE)];
+        CGFloat infoPadding = 10;
+        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - INFO_SIZE - infoPadding*2,
+                                                                     (BUTTON_SIZE - INFO_SIZE - infoPadding*2)/2,
+                                                                     INFO_SIZE+infoPadding*2, INFO_SIZE+infoPadding*2)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
+        self.infoButton.imageEdgeInsets = UIEdgeInsetsMake(infoPadding, infoPadding, infoPadding, infoPadding);
         [self.infoButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
         [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
@@ -183,7 +187,9 @@ typedef enum {
         [self.view addSubview:self.countdownLabel];
         
         CGFloat backButtonSize = 30;
-        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(5, (BUTTON_SIZE - backButtonSize)/2, backButtonSize, backButtonSize)];
+        CGFloat backPadding = 7;
+        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (BUTTON_SIZE - backButtonSize-(backPadding*2))/2, backButtonSize+backPadding*2, backButtonSize+backPadding*2)];
+        self.backButton.imageEdgeInsets = UIEdgeInsetsMake(backPadding, backPadding, backPadding, backPadding);
         self.backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
         [self.backButton setImage:[UIImage imageNamed:@"Back"] forState:UIControlStateNormal];
         
@@ -365,12 +371,6 @@ typedef enum {
     
     return self;
 }
-
-//- (void)adjustGroupButtonFrame {
-//    [self.groupButton sizeToFit];
-//    self.groupButton.center = CGPointMake(VIEW_WIDTH/2 - 5, (BUTTON_SIZE/2));
-//    self.infoButton.center = CGPointMake(self.groupButton.frame.origin.x + self.groupButton.frame.size.width + 5 + INFO_SIZE/2, (BUTTON_SIZE/2));
-//}
 
 - (void)backButtonPressed {
     [self.navigationController popViewControllerAnimated:YES];

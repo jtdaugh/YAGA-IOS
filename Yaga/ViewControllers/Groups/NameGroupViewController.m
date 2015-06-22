@@ -28,13 +28,20 @@
     // Do any additional setup after loading the view.
     
     [self.view setBackgroundColor:PRIMARY_COLOR];
-    self.title = @"";
-    
+
+    UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
+    backButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+    [backButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    backButton.tintColor = [UIColor whiteColor];
+    [backButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [backButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:backButton];
+
     CGFloat width = VIEW_WIDTH * .8;
     
     DLog(@" view width: %f", VIEW_WIDTH);
     
-    CGFloat origin = VIEW_HEIGHT *.05;
+    CGFloat origin = VIEW_HEIGHT *.1;
     
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.08)];
     [titleLabel setText:@"Name this group"];
@@ -87,6 +94,10 @@
 
 - (CGFloat)getNewOrigin:(UIView *) anchor {
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
+}
+
+- (void)backButtonPressed:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)editingChanged {
