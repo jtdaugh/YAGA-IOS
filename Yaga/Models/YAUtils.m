@@ -357,4 +357,16 @@
     return nil;
 }
 
++ (UIButton *)circleButtonWithImage:(NSString *)imageName diameter:(CGFloat)diameter center:(CGPoint)center {
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
+    button.center = center;
+    //    button.backgroundColor = [UIColor colorWithWhite:0.9f alpha:0.2f];
+    //    button.layer.borderColor = [[UIColor whiteColor] CGColor];
+    //    button.layer.borderWidth = 1.f;
+    //    button.layer.cornerRadius = diameter/2.f;
+    //    button.layer.masksToBounds = YES;
+    [button setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+    return button;
+}
+
 @end

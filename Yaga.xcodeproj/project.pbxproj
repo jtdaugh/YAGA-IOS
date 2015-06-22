@@ -10,10 +10,12 @@
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
 		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
 		412DAA1B1B26574900D92EB8 /* snoop.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 412DAA1A1B26574900D92EB8 /* snoop.mp3 */; };
+		413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
 		41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C71B162E76008553A8 /* Fabric.framework */; };
 		41BD42CA1B162E76008553A8 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C81B162E76008553A8 /* Crashlytics.framework */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
 		41D519B91AABAE07000246CF /* bumper480x640.m4v in Resources */ = {isa = PBXBuildFile; fileRef = 41D519B81AABAE07000246CF /* bumper480x640.m4v */; };
+		41D53FF01B1FB4A4004DB886 /* YACenterImageButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 41D53FEF1B1FB4A4004DB886 /* YACenterImageButton.m */; };
 		6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */; };
 		6E11CB8C1AB9C8FB00B821A2 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11CB8B1AB9C8FB00B821A2 /* UIImage+Resize.m */; };
 		6E1603F61B184F4A00D5D90E /* YANoServerIdError.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1603F51B184F4A00D5D90E /* YANoServerIdError.m */; };
@@ -73,6 +75,7 @@
 		6EA942191A405C80001803C5 /* YAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942181A405C80001803C5 /* YAUtils.m */; };
 		6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA9421B1A41E5C9001803C5 /* YAVideo.m */; };
 		6EC1F08A1B27394E00297D0F /* uploading.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6EC1F0891B27394E00297D0F /* uploading.gif */; };
+		6EC1F0961B2B18AC00297D0F /* YASharingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC1F0951B2B18AC00297D0F /* YASharingViewController.m */; };
 		6ECCCDF81A804EF000B1E1BC /* YAProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */; };
 		6ED379E41AB1C6F40099BDC1 /* YAUserPermissions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED379E31AB1C6F40099BDC1 /* YAUserPermissions.m */; };
 		6ED8FC0F1ADD6A0B0023750E /* YAGroupOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED8FC0D1ADD6A0B0023750E /* YAGroupOptionsViewController.m */; };
@@ -126,10 +129,14 @@
 		0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+YASnapshot.m"; sourceTree = "<group>"; };
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		412DAA1A1B26574900D92EB8 /* snoop.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = snoop.mp3; sourceTree = "<group>"; };
+		413734B91B1D070700ADE96F /* YACrosspostCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACrosspostCell.h; sourceTree = "<group>"; };
+		413734BA1B1D070700ADE96F /* YACrosspostCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACrosspostCell.m; sourceTree = "<group>"; };
 		41BD42C71B162E76008553A8 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		41BD42C81B162E76008553A8 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		41D519B81AABAE07000246CF /* bumper480x640.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper480x640.m4v; sourceTree = "<group>"; };
+		41D53FEE1B1FB4A4004DB886 /* YACenterImageButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACenterImageButton.h; sourceTree = "<group>"; };
+		41D53FEF1B1FB4A4004DB886 /* YACenterImageButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACenterImageButton.m; sourceTree = "<group>"; };
 		6E0A374F1A807E4F0034ABB4 /* YAPullToRefreshLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPullToRefreshLoadingView.h; sourceTree = "<group>"; };
 		6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPullToRefreshLoadingView.m; sourceTree = "<group>"; };
 		6E11CB8A1AB9C8FB00B821A2 /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
@@ -242,6 +249,8 @@
 		6EA9421A1A41E5C9001803C5 /* YAVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideo.h; sourceTree = "<group>"; };
 		6EA9421B1A41E5C9001803C5 /* YAVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideo.m; sourceTree = "<group>"; };
 		6EC1F0891B27394E00297D0F /* uploading.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = uploading.gif; sourceTree = "<group>"; };
+		6EC1F0941B2B18AC00297D0F /* YASharingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASharingViewController.h; sourceTree = "<group>"; };
+		6EC1F0951B2B18AC00297D0F /* YASharingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASharingViewController.m; sourceTree = "<group>"; };
 		6ECCCDF61A804EF000B1E1BC /* YAProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAProgressView.h; sourceTree = "<group>"; };
 		6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAProgressView.m; sourceTree = "<group>"; };
 		6ED379E21AB1C6F40099BDC1 /* YAUserPermissions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAUserPermissions.h; sourceTree = "<group>"; };
@@ -567,6 +576,8 @@
 				6E583B6E1A6535BC00639BE5 /* YASwipingViewController.m */,
 				6E583B761A65394800639BE5 /* YAAnimatedTransitioningController.h */,
 				6E583B771A65394800639BE5 /* YAAnimatedTransitioningController.m */,
+				6EC1F0941B2B18AC00297D0F /* YASharingViewController.h */,
+				6EC1F0951B2B18AC00297D0F /* YASharingViewController.m */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -620,8 +631,12 @@
 				6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */,
 				6EEDB8E31A8A555C000BB909 /* YANotificationView.h */,
 				6EEDB8E41A8A555C000BB909 /* YANotificationView.m */,
+				413734B91B1D070700ADE96F /* YACrosspostCell.h */,
+				413734BA1B1D070700ADE96F /* YACrosspostCell.m */,
 				8890451B1B18FF8700B3C4D7 /* YAEventCell.h */,
 				8890451C1B18FF8700B3C4D7 /* YAEventCell.m */,
+				41D53FEE1B1FB4A4004DB886 /* YACenterImageButton.h */,
+				41D53FEF1B1FB4A4004DB886 /* YACenterImageButton.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -886,6 +901,7 @@
 				6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */,
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
+				41D53FF01B1FB4A4004DB886 /* YACenterImageButton.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
 				6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */,
@@ -893,6 +909,7 @@
 				887AFD0F1AD8ADEA00F00948 /* YAInviteCameraViewController.m in Sources */,
 				8695EF881AAF519900431E44 /* YAGifCopyActivity.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
+				6EC1F0961B2B18AC00297D0F /* YASharingViewController.m in Sources */,
 				6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */,
 				6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */,
 				0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */,
@@ -913,6 +930,7 @@
 				6E9188E71A3F3A5A0034AB63 /* YaOnboardingNavigationController.m in Sources */,
 				6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */,
 				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,
+				413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */,
 				6E11CB8C1AB9C8FB00B821A2 /* UIImage+Resize.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

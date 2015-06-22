@@ -51,8 +51,13 @@
 #define API_GROUP_POST_LIKE                 @"%@/groups/%@/posts/%@/like/"
 #define API_GROUP_POST_LIKERS               @"%@/groups/%@/posts/%@/likers/"
 
+#define API_GROUP_POST_COPY                 @"%@/groups/%@/posts/%@/copy/"
+
 #define USER_PHONE  @"phone"
 #define ERROR_DATA  @"com.alamofire.serialization.response.error.data"
+
+
+#define kCrosspostData @"kCrosspostData"
 
 @interface YAServer ()
 
@@ -523,11 +528,12 @@
                                completion(videoLocalId, yaError);
                                return;
                            }
-                           
+
                            //empty server id in case of an error, transaction will be executed again
                            if(error) {
                                [video.realm beginWriteTransaction];
                                video.serverId = @"";
+                               video.uploadedToAmazon = NO;
                                [video.realm commitWriteTransaction];
                                
                                //show local notification if app is in background
@@ -539,8 +545,16 @@
                                    localNotification.applicationIconBadgeNumber = 1;
                                    [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
                                }
+                              
                            }
-                           
+                           else {
+                               [video.realm beginWriteTransaction];
+                               video.uploadedToAmazon = YES;
+                               [video.realm commitWriteTransaction];
+                               [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
+                               [self executePendingCopyForVideo:video];
+                           }
+
                            //call completion block when video is posted
                            completion(response, error);
                        }];
@@ -755,6 +769,52 @@
                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                        completion(nil, nil);
                    }];
+}
+
+- (void)copyVideo:(YAVideo*)video toGroupsWithIds:(NSArray*)groupIdsToCopyTo withCompletion:(responseBlock)completion {
+    NSAssert(self.authToken.length, @"auth token not set");
+    
+    //execute copy video
+    if(video.uploadedToAmazon) {
+        NSString *api = [NSString stringWithFormat:API_GROUP_POST_COPY, self.base_api, video.group.serverId, video.serverId];
+        NSDictionary *parameters = @{
+                                     @"groups": groupIdsToCopyTo
+                                    };
+        
+        [self.jsonOperationsManager POST:api
+                             parameters:parameters
+                                success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                    completion(nil, nil);
+                                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                    NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+                                    completion([NSString stringFromHex:hex], error);
+                                }];
+    }
+    //otherwise save copy data for later execution when video is uploaded
+    else {
+        NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
+        NSMutableSet *groupIds = [NSMutableSet setWithSet:crosspostData[video.localId]];
+        [groupIds addObjectsFromArray:groupIdsToCopyTo];
+        
+        [crosspostData setObject:groupIds.allObjects forKey:video.localId];
+        [[NSUserDefaults standardUserDefaults] setObject:crosspostData forKey:kCrosspostData];
+        
+        completion(nil, nil);
+    }
+}
+
+- (void)executePendingCopyForVideo:(YAVideo*)video {
+    NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
+    NSArray *groupIds = [crosspostData[video.localId] allObjects];
+    
+    if(groupIds.count) {
+        [self copyVideo:video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
+            if(!error) {
+                [crosspostData removeObjectForKey:video.localId];
+                [[NSUserDefaults standardUserDefaults] setObject:crosspostData forKey:kCrosspostData];
+            }
+        }];
+    }
 }
 
 #pragma mark - Device token

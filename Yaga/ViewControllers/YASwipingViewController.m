@@ -78,8 +78,8 @@
     [self showJpgPreview:YES];
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     
     //hide selected video fullscreen jpg preview
     [self showJpgPreview:NO];

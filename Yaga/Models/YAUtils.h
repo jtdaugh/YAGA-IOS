@@ -54,4 +54,6 @@ typedef void (^uploadDataCompletionBlock)(NSError *error);
 
 + (NSString*)phoneNumberFromText:(NSString *)text numberFormat:(NBEPhoneNumberFormat)format;
 
++ (UIButton *)circleButtonWithImage:(NSString *)imageName diameter:(CGFloat)diameter center:(CGPoint)center;
+
 @end

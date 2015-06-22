@@ -21,10 +21,13 @@
 #import "YAPanGestureRecognizer.h"
 #import "YADownloadManager.h"
 #import "YAServerTransactionQueue.h"
+#import "YACrosspostCell.h"
 #import "YAEventCell.h"
 #import "NSArray+Reverse.h"
 #import "UIImage+Color.h"
 #import "Constants.h"
+
+#import "YASharingViewController.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
@@ -41,6 +44,8 @@ static NSString *commentCellID = @"CommentCell";
 
 @property (nonatomic, strong) YAActivityView *activityView;
 
+@property (strong, nonatomic) UIVisualEffectView *captionBlurOverlay;
+
 //overlay controls
 @property (strong, nonatomic) UIButton *XButton;
 @property (nonatomic, strong) UILabel *userLabel;
@@ -51,8 +56,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
-
-@property (nonatomic, strong) YAActivityView *uploadingView;
 
 @property BOOL loading;
 @property (strong, nonatomic) UIView *loader;
@@ -67,7 +70,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
 @property (strong, nonatomic) UIView *overlay;
-@property (strong, nonatomic) UIVisualEffectView *captionBlurOverlay;
 
 @property (strong, nonatomic) UIView *serverCaptionWrapperView;
 @property (strong, nonatomic) UITextView *serverCaptionTextView;
@@ -431,15 +433,15 @@ static NSString *commentCellID = @"CommentCell";
 
 //    CGFloat tSize = CAPTION_FONT_SIZE;
 
-    self.XButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    self.XButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     self.XButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
     self.XButton.alpha = 0.7;
-    [self.XButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.XButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
     
-    self.shareButton = [self circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
+    self.shareButton = [YAUtils circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
-    [self.shareButton addTarget:self action:@selector(shareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.shareButton addTarget:self action:@selector(shareButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.shareButton];
 //    self.shareButton.layer.zPosition = 100;
     
@@ -448,12 +450,12 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.overlay addSubview:self.deleteButton];
 //    self.deleteButton.layer.zPosition = 100;
     
-    self.captionButton = [self circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, buttonRadius + padding)];
+    self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, buttonRadius + padding)];
     [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.captionButton];
 
     
-    self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
+    self.commentButton = [YAUtils circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
 
@@ -473,10 +475,10 @@ static NSString *commentCellID = @"CommentCell";
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:self.progressView];
     
-    UIButton *progressXButton = [self circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    UIButton *progressXButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     progressXButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
     progressXButton.alpha = 0.7;
-    [progressXButton addTarget:self action:@selector(XButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [progressXButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.progressView addSubview:progressXButton];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(_progressView);
@@ -516,18 +518,6 @@ static NSString *commentCellID = @"CommentCell";
         //
     }];
 
-}
-
-- (UIButton *)circleButtonWithImage:(NSString *)imageName diameter:(CGFloat)diameter center:(CGPoint)center {
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
-    button.center = center;
-//    button.backgroundColor = [UIColor colorWithWhite:0.9f alpha:0.2f];
-//    button.layer.borderColor = [[UIColor whiteColor] CGColor];
-//    button.layer.borderWidth = 1.f;
-//    button.layer.cornerRadius = diameter/2.f;
-//    button.layer.masksToBounds = YES;
-    [button setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
-    return button;
 }
 
 #pragma mark - Comments Table View
@@ -631,7 +621,7 @@ static NSString *commentCellID = @"CommentCell";
     YAEventCell *cell = [tableView dequeueReusableCellWithIdentifier:commentCellID forIndexPath:indexPath];
     cell.containingVideoPage = self;
     cell.transform = cell.transform = CGAffineTransformMakeRotation(M_PI);
-
+    
     YAEvent *event = self.events[indexPath.row];
     [cell configureCellWithEvent:event];
 
@@ -651,13 +641,17 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
     YAEvent *event = self.events[indexPath.row];
     return [YAEventCell heightForCellWithEvent:event];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return [YAEventCell heightForCellWithEvent:self.events[indexPath.row]];
+    if(self.events.count > indexPath.row) {
+        return [YAEventCell heightForCellWithEvent:self.events[indexPath.row]];
+    }
+    else {
+        return 0;
+    }
 }
 
 - (void)setupCaptionButtonContainer {
@@ -1215,6 +1209,7 @@ static NSString *commentCellID = @"CommentCell";
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
+    self.shareButton.hidden = !self.myVideo;
     self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqualToString:@""];
     NSArray *events = [[[YAEventManager sharedManager] getEventsForVideoId:self.video.serverId] reversedArray];
     [self refreshWholeTableWithEventsArray:events];
@@ -1244,7 +1239,7 @@ static NSString *commentCellID = @"CommentCell";
     // self.captionField.hidden = !mp4Downloaded;
     // self.captionerLabel.hidden = !mp4Downloaded || !self.captionField.text.length;
 //    self.captionButton.hidden = !mp4Downloaded;
-    self.shareButton.hidden = !mp4Downloaded;
+
 
     self.deleteButton.hidden = !mp4Downloaded && !self.myVideo;
 
@@ -1262,58 +1257,22 @@ static NSString *commentCellID = @"CommentCell";
     
 }
 
-- (void)XButtonPressed {
-    NSLog(@"pressed?");
-    
+- (void)closeButtonPressed:(id)sender {
     // close video here
     if([self.presentingVC isKindOfClass:[YASwipingViewController class]]){
-        NSLog(@"is class?");
         [((YASwipingViewController *) self.presentingVC) dismissAnimated];
     }
 }
 
-- (void)shareButtonPressed {
-    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
-    NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
-    NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-    
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.labelText = NSLocalizedString(@"Exporting", @"");
-    hud.mode = MBProgressHUDModeIndeterminate;
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-                                                completion:^(NSURL *filePath, NSError *error) {
-    if (error) {
-        DLog(@"Error: can't add bumber");
-    } else {
-        
-        NSURL *videoFile = filePath;
-        YACopyVideoToClipboardActivity *copyActivity = [YACopyVideoToClipboardActivity new];
-        UIActivityViewController *activityViewController =
-        [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
-                                          applicationActivities:@[copyActivity]];
-        
-        activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
-        [(YASwipingViewController *)self.presentingVC presentViewController:activityViewController
-                                        animated:YES
-                                      completion:^{
-                                          [hud hide:YES];
-                                      }];
-        
-        [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-                if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
-                    NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
-                    [YAUtils showHudWithText:message];
-                }
-                else if ([activityType isEqualToString:@"yaga.copy.video"]) {
-                     NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
-                    [YAUtils showHudWithText:message];
-                }
-            
-        }];
-        
-    }}];
+- (void)shareButtonPressed:(id)sender {
+    YASharingViewController *sharingVC = [YASharingViewController new];
+    sharingVC.video = self.video;
+    sharingVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    [(YASwipingViewController*)self.presentingVC presentViewController:sharingVC animated:YES completion:nil];
 }
+
+#pragma mark - UITableView delegate methods (groups list)
+
 
 #pragma mark - YAProgressView
 - (void)downloadDidStart:(NSNotification*)notif {
@@ -1441,4 +1400,3 @@ static NSString *commentCellID = @"CommentCell";
 
 
 @end
-
