@@ -21,7 +21,6 @@
 @property (strong, nonatomic) NSMutableArray *filteredContacts;
 @property (strong, nonatomic) NSArray *deviceContacts;
 
-@property (nonatomic) BOOL inOnboarding;
 @property (nonatomic, strong) NSArray *contactsThatNeedInvite;
 
 @property (nonatomic, readonly) BOOL existingGroupDirty;
@@ -355,7 +354,7 @@
     if(![self validateSelectedContacts])
         return;
 
-    //If we come from NoGroupsViewController
+    //If we come from GridViewController
     __block BOOL found = NO;
     [self.navigationController.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([obj isKindOfClass:[GridViewController class]]) {
@@ -363,7 +362,7 @@
             *stop = YES;
         }
     }];
-    self.inOnboarding = !found;
+    self.inCreateGroupFlow = !found;
     
     __weak typeof(self) weakSelf = self;
     
@@ -375,16 +374,13 @@
                 
                 weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
                 if (![weakSelf.contactsThatNeedInvite count]) {
-                    
-                    [weakSelf.navigationController popToRootViewControllerAnimated:YES];
-                    
                     NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), weakSelf.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
-                    
                     [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+                    [weakSelf popToGridViewController];
                 } else {
                     // Push the invite screen
                     YAInviteViewController *nextVC = [YAInviteViewController new];
-                    nextVC.inOnboardingFlow = NO;
+                    nextVC.inCreateGroupFlow = NO;
                     nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
                     [weakSelf.navigationController pushViewController:nextVC animated:YES];
                 }
@@ -400,24 +396,36 @@
                 
                 weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
                 if (![weakSelf.contactsThatNeedInvite count]) {
-                    if (weakSelf.inOnboarding) {
-                        [weakSelf performSegueWithIdentifier:@"CompleteOnboarding" sender:weakSelf];
-                    } else {
-                        [weakSelf.navigationController popToRootViewControllerAnimated:YES];
-                    }
+                    [weakSelf popToGridViewController];
                 } else {
-                    if (weakSelf.inOnboarding) {
-                        [weakSelf performSegueWithIdentifier:@"ShowInviteScreen" sender:weakSelf];
-                    } else {
-                        // Push the invite screen
-                        YAInviteViewController *nextVC = [YAInviteViewController new];
-                        nextVC.inOnboardingFlow = NO;
-                        nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
-                        [weakSelf.navigationController pushViewController:nextVC animated:YES];
-                    }
+                    YAInviteViewController *nextVC = [YAInviteViewController new];
+                    nextVC.inCreateGroupFlow = NO;
+                    nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
+                    [weakSelf.navigationController pushViewController:nextVC animated:YES];
                 }
             }
         }];
+    }
+}
+
+- (void)popToGridViewController {
+    if (self.inCreateGroupFlow) {
+        NSMutableArray *navStack = [[self.navigationController viewControllers] mutableCopy];
+        GridViewController *gridVC = [[GridViewController alloc] init];
+        [navStack insertObject:gridVC atIndex:1]; // right after groups VC
+        [self.navigationController setViewControllers:navStack];
+    }
+    UIViewController *dest = nil;
+    for (UIViewController *vc in [self.navigationController viewControllers]) {
+        if ([vc isKindOfClass:[GridViewController class]]) {
+            dest = vc;
+            break;
+        }
+    }
+    if (dest) {
+        [self.navigationController popToViewController:dest animated:YES];
+    } else {
+        [self.navigationController popToRootViewControllerAnimated:YES];
     }
 }
 
@@ -467,19 +475,6 @@
     return errorsString.length == 0;
 }
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([segue.destinationViewController isKindOfClass:[YAInviteViewController class]]) {
-        YAInviteViewController *destinationVC = (YAInviteViewController*)segue.destinationViewController;
-        destinationVC.inOnboardingFlow = self.inOnboarding;
-        destinationVC.contactsThatNeedInvite = self.contactsThatNeedInvite;
-    }
-    if([segue.destinationViewController isKindOfClass:[NameGroupViewController class]]) {
-        NameGroupViewController *destinationVC = (NameGroupViewController*)segue.destinationViewController;
-        destinationVC.membersDic = self.selectedContacts;
-        destinationVC.embeddedMode = self.embeddedMode;
-    }
-}
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -487,12 +482,7 @@
 
 #pragma mark - Actions
 - (void)backTapped {
-//    if(self.existingGroup) {
-//        [self.navigationController popToRootViewControllerAnimated:YES];
-//    }
-//    else {
-        [self.navigationController popViewControllerAnimated:YES];
-//    }
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark -

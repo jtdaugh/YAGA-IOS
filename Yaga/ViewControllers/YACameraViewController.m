@@ -943,10 +943,6 @@ typedef enum {
     }
 }
 
-- (void)toggleGroups:(id)sender {
-    [self.delegate toggleGroups];
-}
-
 - (void)didEnterBackground {
     if(self.flash){
         [self setFlashMode:NO];

@@ -128,7 +128,10 @@
 }
 
 - (void)addMembersTapped:(id)sender {
-    [self performSegueWithIdentifier:@"AddMembersFromGroupOptions" sender:self];
+    YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
+    vc.inCreateGroupFlow = NO;
+    vc.existingGroup = self.group;
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 - (void)muteTapped:(id)sender {
@@ -312,18 +315,9 @@ static NSString *CellID = @"CellID";
     
     YAInviteViewController *inviteVC = [YAInviteViewController new];
     inviteVC.canNavigateBack = YES;
-    inviteVC.inOnboardingFlow = NO;
+    inviteVC.inCreateGroupFlow = NO;
     inviteVC.contactsThatNeedInvite = @[[contactToInvite dictionaryRepresentation]];
     [self.navigationController pushViewController:inviteVC animated:YES];
-}
-
-
-#pragma mark - Segues
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
-        ((YAGroupAddMembersViewController*)segue.destinationViewController).embeddedMode = YES;
-        ((YAGroupAddMembersViewController*)segue.destinationViewController).existingGroup = self.group;
-    }
 }
 
 - (void)setGroup:(YAGroup *)group {

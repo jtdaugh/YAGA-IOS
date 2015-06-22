@@ -12,6 +12,7 @@
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import "MBProgressHUD.h"
+#import "GridViewController.h"
 
 #define kMaxUserNamesShown (6)
 
@@ -161,7 +162,6 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
     self.quoteTimer = [NSTimer scheduledTimerWithTimeInterval:2.f target:self selector:@selector(switchToNextQuote) userInfo:nil repeats:YES];
 }
 
@@ -201,12 +201,27 @@
 }
 
 - (void)skipButtonPressed:(id)sender {
-    if (self.inOnboardingFlow) {
-        [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
+    [self popToGridViewController];
+}
+
+- (void)popToGridViewController {
+    if (self.inCreateGroupFlow) {
+        NSMutableArray *navStack = [[self.navigationController viewControllers] mutableCopy];
+        GridViewController *gridVC = [[GridViewController alloc] init];
+        [navStack insertObject:gridVC atIndex:1]; // right after groups VC
+        [self.navigationController setViewControllers:navStack];
+    }
+    UIViewController *dest = nil;
+    for (UIViewController *vc in [self.navigationController viewControllers]) {
+        if ([vc isKindOfClass:[GridViewController class]]) {
+            dest = vc;
+            break;
+        }
+    }
+    if (dest) {
+        [self.navigationController popToViewController:dest animated:YES];
     } else {
         [self.navigationController popToRootViewControllerAnimated:YES];
-//        NSString *notificationMessage = NSLocalizedString(@"Group updated successfully", @"");
-//        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
     }
 }
 
@@ -273,27 +288,21 @@
         {
             [[Mixpanel sharedInstance] track:@"iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
-            if (self.inOnboardingFlow) {
-                [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
-            } else {
-                [self.navigationController popToRootViewControllerAnimated:YES];
-            }
+            [self popToGridViewController];
             break;
         }
             
         case MessageComposeResultSent:
             [[Mixpanel sharedInstance] track:@"iMessage sent"];
 //            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
-            if (self.inOnboardingFlow) {
-                [self performSegueWithIdentifier:@"CompeteOnboardingAfterInvite" sender:self];
-            } else {
-                [self.navigationController popToRootViewControllerAnimated:YES];
-            }
-//            if([YAUser currentUser].currentGroup) {
-//                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:self.recordingURL addToGroup:[YAUser currentUser].currentGroup];
-//            }
+            [self popToGridViewController];
+            
             break;
     }
+}
+
+- (void)popToGrid {
+    
 }
 
 - (void)finishedRecordingVideoToURL:(NSURL *)videoURL {

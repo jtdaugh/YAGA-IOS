@@ -13,7 +13,6 @@
 #import "YAGroupAddMembersViewController.h"
 
 #import "YAUtils.h"
-#import "YAHideEmbeddedGroupsSegue.h"
 #import "YAGroupOptionsViewController.h"
 
 //Swift headers
@@ -41,8 +40,6 @@
     
     YaOnboardingNavigationController *vc = [[YaOnboardingNavigationController alloc] init];
     [vc setViewControllers:@[[[YAPhoneNumberViewController alloc] init]]];
-    
-    [self closeGroups];
     
     [self presentViewController:vc animated:NO completion:^{
     }];
@@ -127,25 +124,11 @@
     self.collectionViewController.view.frame = gridFrame;
 }
 
-#pragma mark -
-- (void)toggleGroups {
-    if(self.elevatorOpen){
-        [self closeGroups];
-    } else {
-        [self openGroups];
-    }
-}
-
-- (void)openGroups {
-    [self performSegueWithIdentifier:@"ShowEmbeddedUserGroups" sender:self];
-}
-
-- (void)closeGroups {
-    [self.groupsViewController performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-}
 
 - (void)openGroupOptions {
-    [self performSegueWithIdentifier:@"ShowGroupOptionsFromGrid" sender:self];
+    YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
+    vc.group = [YAUser currentUser].currentGroup;
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 - (void)scrollToTop {
@@ -155,24 +138,6 @@
 -(BOOL)prefersStatusBarHidden {
     return YES;
 }
-
-#pragma mark - Segues
-- (UIViewController*)viewControllerForUnwindSegueAction:(SEL)action fromViewController:(UIViewController *)fromViewController withSender:(id)sender {
-    return fromViewController;
-}
-
-- (UIStoryboardSegue *)segueForUnwindingToViewController:(UIViewController *)toViewController fromViewController:(UIViewController *)fromViewController identifier:(NSString *)identifier {
-    // Instantiate a new CustomUnwindSegue
-    YAHideEmbeddedGroupsSegue *segue = [[YAHideEmbeddedGroupsSegue alloc] initWithIdentifier:identifier source:fromViewController destination:toViewController];
-    return segue;
-}
-
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
-        ((YAGroupOptionsViewController*)segue.destinationViewController).group = [YAUser currentUser].currentGroup;
-    }
-}
-
 
 
 @end

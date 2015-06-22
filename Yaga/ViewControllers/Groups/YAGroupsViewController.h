@@ -11,8 +11,6 @@
 @interface YAGroupsViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) UICollectionView *collectionView;
 
-@property (nonatomic, assign) BOOL embeddedMode;
-
 @property (nonatomic, strong) UITapGestureRecognizer *cameraTapToClose;
 @property (nonatomic, strong) UITapGestureRecognizer *collectionTapToClose;
 @end

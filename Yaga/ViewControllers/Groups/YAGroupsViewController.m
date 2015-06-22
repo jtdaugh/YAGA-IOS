@@ -21,6 +21,8 @@
 
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
+#import "NameGroupViewController.h"
+#import "GridViewController.h"
 
 #import "YAUserPermissions.h"
 
@@ -44,12 +46,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     CGFloat origin = 0;
     CGFloat leftMargin = 0;
-//    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2 + 15, origin, width - 30, VIEW_HEIGHT*.3)];
-//    [titleLabel setText:NSLocalizedString(@"My Groups", @"")];
-//    [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-//    [titleLabel setTextColor:PRIMARY_COLOR];
-//    [self.view addSubview:titleLabel];
-//    origin = titleLabel.frame.origin.y + titleLabel.frame.size.height;
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.minimumLineSpacing = 20;
@@ -140,6 +136,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    [YAUser currentUser].currentGroup = nil;
     
     if(![YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
@@ -200,80 +197,14 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     YAGroup *group = self.groups[indexPath.item];
-    
     [YAUser currentUser].currentGroup = group;
-    
-    [self performSegueWithIdentifier:@"GroupsToGrid" sender:self];
-    
+    [self.navigationController pushViewController:[GridViewController new] animated:YES];
 }
 
 #pragma mark - Editing
 
-- (void)close {
-    [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-}
-
 - (void)createGroup {
-    [self close];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self performSegueWithIdentifier:@"NameGroup" sender:self];
-    });
-
+    [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
 }
 
-#pragma mark - Segues
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
-        ((YAGroupAddMembersViewController*)segue.destinationViewController).embeddedMode = self.embeddedMode;
-    }
-    else if([segue.destinationViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
-        ((YAGroupOptionsViewController*)segue.destinationViewController).group = self.editingGroup;
-    }
-}
-
-- (void)leaveGroupAtIndexPath:(NSIndexPath*)indexPath {
-    YAGroup *group = self.groups[indexPath.row];
-    
-    NSString *muteTitle = [NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
-    NSString *muteMessage = [NSLocalizedString(@"Are you sure you would like to leave?", @"") stringByAppendingFormat:@" %@", group.name];
-    NSString *confirmTitle = [NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
-    
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
-        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-        
-        BOOL groupWasActive = [[YAUser currentUser].currentGroup isEqual:group];
-        
-        [group leaveWithCompletion:^(NSError *error) {
-            if(!error) {
-                if(groupWasActive) {
-                    if(self.groups.count) {
-                        [YAUser currentUser].currentGroup = self.groups[0];
-                    }
-                    else
-                        [YAUser currentUser].currentGroup = nil;
-                    
-                    if(![YAUser currentUser].currentGroup) {
-                        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-                        UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"OnboardingNoGroupsNavigationController"];
-                        
-                        [UIView transitionWithView:[UIApplication sharedApplication].keyWindow
-                                          duration:0.4
-                                           options:UIViewAnimationOptionTransitionFlipFromLeft
-                                        animations:^{ [UIApplication sharedApplication].keyWindow.rootViewController = viewController; }
-                                        completion:nil];
-                    }
-                }
-            }
-        }];
-        
-    }]];
-    
-    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        
-    }]];
-    
-    [self presentViewController:alert animated:YES completion:nil];
-}
 @end

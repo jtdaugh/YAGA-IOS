@@ -123,31 +123,9 @@
 
 - (void)proceed {
     [YAUser currentUser].currentGroup = self.group;
-    
-    if(!self.embeddedMode) {
-        [self performSegueWithIdentifier:@"AddMembers" sender:self];
-    }
-    else {
-        [self.navigationController popToRootViewControllerAnimated:YES];
-    }
+    YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
+    vc.inCreateGroupFlow = YES;
+    [self.navigationController pushViewController:vc animated:YES];
 }
-
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
-        ((YAGroupAddMembersViewController *)segue.destinationViewController).embeddedMode = self.embeddedMode;
-    }
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-
-#pragma mark - Navigation
-
-- (IBAction)unwindToGrid:(UIStoryboardSegue *)segue {}
-
 
 @end

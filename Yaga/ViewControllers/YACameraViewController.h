@@ -10,7 +10,6 @@
 #import "AVCamPreviewView.h"
 
 @protocol YACameraViewControllerDelegate <NSObject>
-- (void)toggleGroups;
 - (void)openGroupOptions;
 - (void)scrollToTop;
 @end
