@@ -16,17 +16,7 @@
 @end
 
 #define recordButtonWidth 60.0
-@interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate>
-
-- (void)switchFlashMode:(id)sender;
-- (void)closeCamera;
-- (void)initCamera;
-
-@property (assign, nonatomic) BOOL flash;
-@property (strong, nonatomic) AVCamPreviewView *cameraView;
-
-@property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
-@property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
+@interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate>
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 
