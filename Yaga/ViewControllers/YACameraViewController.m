@@ -18,7 +18,8 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-#define BUTTON_SIZE 60.f
+#define BUTTON_SIZE (VIEW_WIDTH / 7)
+#define HEADER_HEIGHT 60.f
 #define INFO_SIZE 30.f
 
 typedef enum {
@@ -119,7 +120,7 @@ typedef enum {
         tapGestureRecognizer.delegate = self;
         [self.white addGestureRecognizer:tapGestureRecognizer];
         
-        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 10, self.cameraView.frame.size.height - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
+        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 8, self.cameraView.frame.size.height - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
@@ -128,7 +129,8 @@ typedef enum {
         [self.cameraAccessories addObject:self.switchCameraButton];
         [self.view addSubview:self.switchCameraButton];
         
-        UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, self.cameraView.frame.size.height - BUTTON_SIZE - 10, BUTTON_SIZE - 10, BUTTON_SIZE - 10)];
+        CGFloat flashSize = BUTTON_SIZE - 8;
+        UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, self.cameraView.frame.size.height - (flashSize) - 14, flashSize, flashSize)];
         //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
         [flashButton addTarget:self action:@selector(toggleFlash:) forControlEvents:UIControlEventTouchUpInside];
         [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
@@ -139,7 +141,7 @@ typedef enum {
         
         CGFloat infoPadding = 10;
         self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - INFO_SIZE - infoPadding*2,
-                                                                     (BUTTON_SIZE - INFO_SIZE - infoPadding*2)/2,
+                                                                     (HEADER_HEIGHT - INFO_SIZE - infoPadding*2)/2,
                                                                      INFO_SIZE+infoPadding*2, INFO_SIZE+infoPadding*2)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         self.infoButton.imageEdgeInsets = UIEdgeInsetsMake(infoPadding, infoPadding, infoPadding, infoPadding);
@@ -150,7 +152,7 @@ typedef enum {
         [self.view addSubview:self.infoButton];
 
         //current group
-        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 0, 200, BUTTON_SIZE)];
+        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 0, 200, HEADER_HEIGHT)];
         [self.groupButton addTarget:self action:@selector(openGroupOptions:) forControlEvents:UIControlEventTouchUpInside];
         [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
         [self.groupButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
@@ -188,7 +190,7 @@ typedef enum {
         
         CGFloat backButtonSize = 30;
         CGFloat backPadding = 7;
-        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (BUTTON_SIZE - backButtonSize-(backPadding*2))/2, backButtonSize+backPadding*2, backButtonSize+backPadding*2)];
+        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (HEADER_HEIGHT - backButtonSize-(backPadding*2))/2, backButtonSize+backPadding*2, backButtonSize+backPadding*2)];
         self.backButton.imageEdgeInsets = UIEdgeInsetsMake(backPadding, backPadding, backPadding, backPadding);
         self.backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
         [self.backButton setImage:[UIImage imageNamed:@"Back"] forState:UIControlStateNormal];
@@ -197,7 +199,7 @@ typedef enum {
         [self.cameraView addSubview:self.backButton];
         
         const CGFloat badgeWidth = 10;
-        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.backButton.frame.origin.x + self.backButton.frame.size.width, (BUTTON_SIZE - badgeWidth)/2, badgeWidth, badgeWidth)];
+        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.backButton.frame.origin.x + self.backButton.frame.size.width, (HEADER_HEIGHT - badgeWidth)/2, badgeWidth, badgeWidth)];
         self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5]];
         self.unviewedVideosBadge.clipsToBounds = YES;
         self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
@@ -567,7 +569,7 @@ typedef enum {
     
     if(self.largeCamera){
         CGRect flashFrame = self.flashButton.frame;
-        flashFrame.origin.y = VIEW_HEIGHT/2 - flashFrame.size.height - 10;
+        flashFrame.origin.y = VIEW_HEIGHT/2 - flashFrame.size.height - 14;
         CGRect switchCamFrame = self.switchCameraButton.frame;
         switchCamFrame.origin.y = VIEW_HEIGHT/2 - switchCamFrame.size.height - 10;
 
@@ -635,7 +637,7 @@ typedef enum {
         
 //        [self startEnlargeAnimation];
         CGRect flashFrame = self.flashButton.frame;
-        flashFrame.origin.y = VIEW_HEIGHT - flashFrame.size.height - 10;
+        flashFrame.origin.y = VIEW_HEIGHT - flashFrame.size.height - 14;
         CGRect switchCamFrame = self.switchCameraButton.frame;
         switchCamFrame.origin.y = VIEW_HEIGHT - switchCamFrame.size.height - 10;
         [UIView animateWithDuration:0.2 delay:0.0 options:0 animations:^{
