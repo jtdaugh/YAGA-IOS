@@ -72,13 +72,13 @@ static NSString *CellIdentifier = @"GroupsCell";
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 
     [self.navigationController setNavigationBarHidden:NO animated:YES];
-
-    self.navigationController.navigationBar.barTintColor = PRIMARY_COLOR;
     
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"Create" style:UIBarButtonItemStylePlain target:self action:nil];
     rightItem.tintColor = [UIColor whiteColor];
+    rightItem.target = self;
+    rightItem.action = @selector(createGroup);
     self.navigationItem.rightBarButtonItem = rightItem;
-    
+
     UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Settings"] style:UIBarButtonItemStylePlain target:self action:nil];
     leftItem.tintColor = [UIColor whiteColor];
     self.navigationItem.leftBarButtonItem = leftItem;

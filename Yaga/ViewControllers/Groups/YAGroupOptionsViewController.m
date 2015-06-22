@@ -11,6 +11,7 @@
 #import "YAInviteViewController.h"
 
 @interface YAGroupOptionsViewController ()
+
 @property (nonatomic, strong) UIButton *addMembersButton;
 @property (nonatomic, strong) UIButton *muteButton;
 @property (nonatomic, strong) UIButton *leaveButton;
@@ -26,7 +27,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
+    self.view.backgroundColor = [UIColor colorWithWhite:0.98 alpha:1];
+    
+    [self addNavBarView];
     
     const CGFloat buttonWidth = VIEW_WIDTH - 40;
     CGFloat buttonHeight = 54;
@@ -68,23 +71,50 @@
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height + 10, VIEW_WIDTH, self.muteButton.frame.origin.y - (self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height) - 20) style:UITableViewStylePlain];
                                                                    
     [self.view addSubview:self.tableView];
-    self.tableView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
+    self.tableView.backgroundColor = [self.view.backgroundColor copy];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.dataSource = self;
     self.tableView.delegate = self;    
 }
 
+- (void)addNavBarView {
+    
+    UIView *topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 64)];
+    topBar.backgroundColor = PRIMARY_COLOR;
+    UILabel *groupNameLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 28, 200, 30)];
+    groupNameLabel.textColor = [UIColor whiteColor];
+    groupNameLabel.textAlignment = NSTextAlignmentCenter;
+    [groupNameLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
+    groupNameLabel.text = self.group.name;
+
+    [topBar addSubview:groupNameLabel];
+    
+    CGFloat editTitleWidth = 100;
+    UIButton *editTitleButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - editTitleWidth - 10, 31, editTitleWidth, 28)];
+    [editTitleButton setTitle:@"Edit Title" forState:UIControlStateNormal];
+    [editTitleButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [editTitleButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+    [editTitleButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
+    editTitleButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+    [editTitleButton addTarget:self action:@selector(editTitleTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [topBar addSubview:editTitleButton];
+    
+    UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
+    backButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+    [backButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    backButton.tintColor = [UIColor whiteColor];
+    [backButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [backButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [topBar addSubview:backButton];
+    [self.view addSubview:topBar];
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    [self.navigationController setNavigationBarHidden:NO animated:NO];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Edit Title", @"") style:UIBarButtonItemStylePlain target:self action:@selector(editTitleTapped:)];
 
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
-    self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName : [UIColor whiteColor]};
-    self.navigationItem.title = self.group.name;
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
     [self.muteButton setTitle:muteTitle forState:UIControlStateNormal];
@@ -101,6 +131,11 @@
 }
 
 #pragma mark - Event handlers
+
+- (void)backButtonPressed:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 - (void)editTitleTapped:(id)sender {
     UIAlertController *changeTitleAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"CHANGE_GROUP_TITLE", @"") message:nil preferredStyle:UIAlertControllerStyleAlert];
     
@@ -171,41 +206,12 @@
     
     [alert addAction:[UIAlertAction actionWithTitle:confirmTitle style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
         NSString *groupToLeave = self.group.name;
-        
-        BOOL groupWasActive = [[YAUser currentUser].currentGroup isEqual:self.group];
-        
         [self.group leaveWithCompletion:^(NSError *error) {
             if(!error) {
-                
-                [self.navigationController popViewControllerAnimated:YES];
-                
-                if(groupWasActive) {
-                    if([YAGroup allObjects].count) {
-                        [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
-                    }
-                    else
-                        [YAUser currentUser].currentGroup = nil;
-                    
-                    if([YAUser currentUser].currentGroup) {
-                        NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@. Current group is %@.", groupToLeave, [YAUser currentUser].currentGroup.name];
-                        [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-                    }
-                    else {
-                        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-                        UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"OnboardingNoGroupsNavigationController"];
-                        
-                        [UIView transitionWithView:[UIApplication sharedApplication].keyWindow
-                                          duration:0.4
-                                           options:UIViewAnimationOptionTransitionFlipFromLeft
-                                        animations:^{ [UIApplication sharedApplication].keyWindow.rootViewController = viewController; }
-                                        completion:nil];
-                    }
-                }
-                else {
-                    NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@", groupToLeave];
-                    [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-                }
-                
+                [YAUser currentUser].currentGroup = nil;
+                [self.navigationController popToRootViewControllerAnimated:YES];
+                NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@", groupToLeave];
+                [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
             }
         }];
     }]];

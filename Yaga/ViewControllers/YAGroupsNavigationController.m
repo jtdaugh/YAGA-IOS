@@ -31,7 +31,26 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self setNavigationBarHidden:NO];
     
+    [self.navigationBar setTranslucent:NO];
+    [self.navigationBar setTintColor:[UIColor whiteColor]];
+    [self.navigationBar setTitleTextAttributes:@{
+                                                 NSForegroundColorAttributeName: [UIColor whiteColor],
+                                                 NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:20]
+                                                 }];
+    
+    [self.navigationBar setShadowImage:[UIImage new]];
+    [self.navigationBar setBarTintColor:PRIMARY_COLOR];
+    [self.navigationBar setBackgroundImage:[UIImage new]
+                            forBarPosition:UIBarPositionAny
+                                barMetrics:UIBarMetricsDefault];
+    //    [self.navigationBar setBackgroundColor:[UIColor blackColor]];
+    // Do any additional setup after loading the view.
+    
+    [self.view setBackgroundColor:PRIMARY_COLOR];
+    [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(-1000, -1000) forBarMetrics:UIBarMetricsDefault];
+
     if (!self.delegate) {
         self.delegate = self;
     }

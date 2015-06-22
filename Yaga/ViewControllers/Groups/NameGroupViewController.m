@@ -17,6 +17,7 @@
 @interface NameGroupViewController ()
 @property (strong, nonatomic) UITextField *groupNameTextField;
 @property (strong, nonatomic) UIButton *nextButton;
+@property (strong, nonatomic) UIButton *backButton;
 @property (strong, nonatomic) YAGroup *group;
 @end
 
@@ -74,12 +75,12 @@
     self.nextButton.layer.cornerRadius = 8.0;
     self.nextButton.layer.masksToBounds = YES;
     [self.nextButton addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.nextButton];
+    [self.view addSubview:self.nextButton];    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
     
     [self.groupNameTextField becomeFirstResponder];
 }
