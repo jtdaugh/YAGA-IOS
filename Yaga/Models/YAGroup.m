@@ -412,7 +412,7 @@
         }
         else {
             NSDate *updatedAt = [NSDate dateWithTimeIntervalSince1970:[response[@"updated_at"] intValue]];
-            [groupsUpdatedAt setObject:updatedAt forKey:[YAUser currentUser].currentGroup.localId];
+            [groupsUpdatedAt setObject:updatedAt forKey:self.localId];
             [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
             
             [self.realm beginWriteTransaction];
