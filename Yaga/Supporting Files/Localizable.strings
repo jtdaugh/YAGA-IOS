@@ -157,3 +157,13 @@
 "Copying video to groups" = "Copying video to groups";
 "Copied successfully" = "Copied successfully";
 "Can not copy video to groups" = "Can not copy video to groups";
+
+"Join Groups" = "Join Groups";
+"Request" = "Request";
+"Pending" = "Pending";
+"Searching groups" = "Searching groups";
+"Failed to search groups" = "Failed to search groups";
+"Requests" = "Requests";
+"Members" = "Members";
+"Requesting to join to group" = "Requesting to join to group";
+"Failed to join group" = "Failed to join group";

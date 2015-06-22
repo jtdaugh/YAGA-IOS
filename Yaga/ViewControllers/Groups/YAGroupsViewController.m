@@ -25,12 +25,14 @@
 #import "GridViewController.h"
 
 #import "YAUserPermissions.h"
+#import "YAFindGroupsViewConrtoller.h"
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) UIButton *createGroupButton;
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
 @property (nonatomic, strong) YAGroup *editingGroup;
+@property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -42,7 +44,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     [self.navigationController setNavigationBarHidden:NO];
-
+    
     
     CGFloat origin = 0;
     CGFloat leftMargin = 0;
@@ -51,13 +53,13 @@ static NSString *CellIdentifier = @"GroupsCell";
     layout.minimumLineSpacing = 20;
     layout.itemSize = CGSizeMake(VIEW_WIDTH, [GroupsCollectionViewCell cellHeight]);
     self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(leftMargin, origin, VIEW_WIDTH - leftMargin, self.view.bounds.size.height - origin) collectionViewLayout:layout];
-
+    
     self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.collectionView];
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
     self.collectionView.backgroundColor = [self.view.backgroundColor copy];
-
+    
     [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:CellIdentifier];
     
     [self setupPullToRefresh];
@@ -70,7 +72,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     [super viewWillAppear:animated];
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-
+    
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"Create" style:UIBarButtonItemStylePlain target:self action:nil];
@@ -78,7 +80,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     rightItem.target = self;
     rightItem.action = @selector(createGroup);
     self.navigationItem.rightBarButtonItem = rightItem;
-
+    
     UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Settings"] style:UIBarButtonItemStylePlain target:self action:nil];
     leftItem.tintColor = [UIColor whiteColor];
     self.navigationItem.leftBarButtonItem = leftItem;
@@ -90,14 +92,13 @@ static NSString *CellIdentifier = @"GroupsCell";
     segmentedControl.tintColor = [UIColor whiteColor];
     segmentedControl.selectedSegmentIndex = 0;
     self.navigationItem.titleView = segmentedControl;
-
-
+    [segmentedControl addTarget:self action:@selector(segmentedControlValueChanged:) forControlEvents:UIControlEventValueChanged];
+    
     [self updateState];
     
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
         [self updateState];
     }];
-    
 }
 
 - (void)setupPullToRefresh {
@@ -129,9 +130,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
     self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
-
+    
     [self.collectionView reloadData];
-
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -200,11 +201,30 @@ static NSString *CellIdentifier = @"GroupsCell";
     [YAUser currentUser].currentGroup = group;
     [self.navigationController pushViewController:[GridViewController new] animated:YES];
 }
-
-#pragma mark - Editing
-
 - (void)createGroup {
     [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
 }
 
+- (void)segmentedControlValueChanged:(UISegmentedControl*)segmentedControl {
+    if(segmentedControl.selectedSegmentIndex == 1) {
+        [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+            if(!error) {
+                self.findGroups = [YAFindGroupsViewConrtoller new];
+                self.findGroups.groupsDataArray = (NSArray*)response;
+                [self addChildViewController:self.findGroups];
+                self.findGroups.view.frame = self.view.bounds;
+                [self.view addSubview:self.findGroups.view];
+            }
+            else {
+                DLog(@"Failed to search groups");
+                segmentedControl.selectedSegmentIndex = 0;
+            }
+        }];
+    }
+    else {
+        [self.findGroups removeFromParentViewController];
+        [self.findGroups.view removeFromSuperview];
+        self.findGroups = nil;
+    }
+}
 @end

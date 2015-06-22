@@ -126,11 +126,6 @@
         
         [self.videoCamera addTarget:self.movieWriter];
         [self.movieWriter startRecording];
-        
-#warning add image writer
-        //        [filter useNextFrameForImageCapture];
-        //        UIImage *capturedImage = [filter imageFromCurrentFramebufferWithOrientation:UIImageOrientationUp];
-        //        NSLog(@"%@",capturedImage);
     });
     
     

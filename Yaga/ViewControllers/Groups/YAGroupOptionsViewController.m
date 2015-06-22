@@ -9,6 +9,7 @@
 #import "YAGroupOptionsViewController.h"
 #import "YAGroupAddMembersViewController.h"
 #import "YAInviteViewController.h"
+#import "YAServer.h"
 
 @interface YAGroupOptionsViewController ()
 
@@ -20,7 +21,10 @@
 @property (nonatomic, strong) RLMResults *sortedMembers;
 
 @property (nonatomic, strong) RLMNotificationToken *notificationToken;
+@property (nonatomic, strong) NSMutableArray *membersPendingJoin;
 @end
+
+#define kCancelledJoins @"kCancelledJoins"
 
 @implementation YAGroupOptionsViewController
 
@@ -69,13 +73,15 @@
     [self.view addSubview:self.leaveButton];
     
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height + 10, VIEW_WIDTH, self.muteButton.frame.origin.y - (self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height) - 20) style:UITableViewStylePlain];
-                                                                   
+    
     [self.view addSubview:self.tableView];
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.dataSource = self;
-    self.tableView.delegate = self;    
+    self.tableView.delegate = self;
+    
+    [self updateMembersPendingJoin];
 }
 
 - (void)addNavBarView {
@@ -87,7 +93,7 @@
     groupNameLabel.textAlignment = NSTextAlignmentCenter;
     [groupNameLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
     groupNameLabel.text = self.group.name;
-
+    
     [topBar addSubview:groupNameLabel];
     
     CGFloat editTitleWidth = 100;
@@ -114,11 +120,11 @@
     [super viewWillAppear:animated];
     
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
-
+    
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
     [self.muteButton setTitle:muteTitle forState:UIControlStateNormal];
-
+    
     [self.tableView reloadData];
 }
 
@@ -155,7 +161,7 @@
             if(!error)
                 self.navigationItem.title = newname;
         }];
-
+        
     }]];
     [changeTitleAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
     }]];
@@ -177,7 +183,7 @@
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:UIAlertControllerStyleAlert];
     
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Confirm", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-//        [self.navigationController popViewControllerAnimated:YES];
+        //        [self.navigationController popViewControllerAnimated:YES];
         
         
         [self.group muteUnmuteWithCompletion:^(NSError *error) {
@@ -221,12 +227,59 @@
     }]];
     
     [self presentViewController:alert animated:YES completion:nil];
-
+    
 }
 
 #pragma mark - TableView datasource and delegate
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return self.membersPendingJoin.count > 0 ? 2 : 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return self.membersPendingJoin.count > 0 ? 40 : 0;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    NSString *name = @"";
+    switch (section) {
+        case 0:
+            name = NSLocalizedString(@"Requests", @"");;
+            break;
+        case 1:
+            name = NSLocalizedString(@"Members", @"");
+            break;
+        default:
+            name = @"";
+            break;
+    }
+    
+    UIView *headerView = [UIView.alloc initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 40)];
+    headerView.backgroundColor = PRIMARY_COLOR;
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.frame.size.width - 10, 40)];
+    label.text = name;
+    label.textColor = [UIColor whiteColor];
+    label.font = [UIFont fontWithName:BOLD_FONT size:20];
+    [headerView addSubview:label];
+    
+    return headerView;
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.sortedMembers.count;
+    if(!self.membersPendingJoin.count)
+        return self.sortedMembers.count;
+    
+    switch (section) {
+        case 0:
+            return 1;
+            break;
+        case 1:
+            return self.sortedMembers.count;
+            break;
+        default:
+            return 0;
+            break;
+    }
 }
 
 static NSString *CellID = @"CellID";
@@ -249,24 +302,47 @@ static NSString *CellID = @"CellID";
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
-    NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact.number];
-    if (contact.registered || [phonebookItem[nYagaUser] boolValue])
-    {
-        cell.textLabel.text = [contact displayName];
-        [cell.textLabel setTextColor:PRIMARY_COLOR];
+    NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
+    cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
+    
+    [cell.textLabel setTextColor:[UIColor blackColor]];
+    
+    if(indexPath.section == 0 && self.membersPendingJoin.count) {
+        NSDictionary *pendingMember = self.membersPendingJoin[indexPath.row];
+        cell.textLabel.text = pendingMember[@"username"];
+        UIView *requestAccessoryView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 50)];
+        UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        cancelButton.tag = indexPath.row;
+        cancelButton.frame = CGRectMake(15, 5, 40, 40);
+        cancelButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        cancelButton.layer.borderWidth = 2;
+        cancelButton.layer.cornerRadius = cancelButton.frame.size.height/2;
+        [cancelButton setTintColor:[UIColor whiteColor]];
+        [cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [cancelButton setTitle:@"X" forState:UIControlStateNormal];
+        [cancelButton addTarget:self action:@selector(cancelJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+        [requestAccessoryView addSubview:cancelButton];
         
-        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
-        UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey_Pink"]];
-        [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
-        cell.accessoryView = accessoryView;
-
-    } else {
-        NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
-        cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
+        UIButton *allowButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        allowButton.tag = indexPath.row;
+        allowButton.backgroundColor = [UIColor greenColor];
+        allowButton.frame = CGRectMake(60, 5, 40, 40);
+        allowButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        allowButton.layer.borderWidth = 2;
+        allowButton.layer.cornerRadius = cancelButton.frame.size.height/2;
+        [allowButton setTintColor:[UIColor whiteColor]];
+        [allowButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [allowButton setTitle:@"V" forState:UIControlStateNormal];
+        [allowButton addTarget:self action:@selector(allowJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         
-        [cell.textLabel setTextColor:[UIColor blackColor]];
+        [requestAccessoryView addSubview:allowButton];
         
-        [cell.detailTextLabel setTextColor:[UIColor blackColor]];
+        cell.accessoryView = requestAccessoryView;
+    }
+    else {
+        CGRect frame = cell.contentView.frame;
+        frame.origin.x = 0;
+        [cell setFrame:frame];
         
         cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
         UIButton *inviteButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -276,8 +352,42 @@ static NSString *CellID = @"CellID";
         [inviteButton setFrame:CGRectMake(0, 0, 36, 36)];
         cell.accessoryView = inviteButton;
         [inviteButton addTarget:self action:@selector(inviteTapped:) forControlEvents:UIControlEventTouchUpInside];
+        YAContact *contact = self.sortedMembers[indexPath.row];
+        
+        cell.indentationLevel = 0;
+        cell.indentationWidth = 0.0f;
+        
+        [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+        
+        NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact.number];
+        
+        if (contact.registered || [phonebookItem[nYagaUser] boolValue])
+        {
+            cell.textLabel.text = [contact displayName];
+            [cell.textLabel setTextColor:PRIMARY_COLOR];
+            
+            [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+            UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey_Pink"]];
+            [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
+            cell.accessoryView = accessoryView;
+            
+        } else {
+            NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
+            cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
+            
+            [cell.textLabel setTextColor:[UIColor whiteColor]];
+            
+            [cell.detailTextLabel setTextColor:[UIColor blackColor]];
+            
+            cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+            UIButton *inviteButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            inviteButton.tag = indexPath.row;
+            [inviteButton setImage:[UIImage imageNamed:@"Envelope"] forState:UIControlStateNormal];
+            [inviteButton setFrame:CGRectMake(0, 0, 36, 36)];
+            cell.accessoryView = inviteButton;
+            [inviteButton addTarget:self action:@selector(inviteTapped:) forControlEvents:UIControlEventTouchUpInside];
+        }
     }
-
     [cell setBackgroundColor:[UIColor clearColor]];
     
     return cell;
@@ -286,7 +396,6 @@ static NSString *CellID = @"CellID";
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     return YES;
 }
-
 
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -324,6 +433,47 @@ static NSString *CellID = @"CellID";
     inviteVC.inCreateGroupFlow = NO;
     inviteVC.contactsThatNeedInvite = @[[contactToInvite dictionaryRepresentation]];
     [self.navigationController pushViewController:inviteVC animated:YES];
+}
+
+- (void)updateMembersPendingJoin {
+    NSSet *cancelledJoins = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
+    self.membersPendingJoin = [NSMutableArray new];
+    
+    for(YAContact *member in self.group.pending_members) {
+        if(![cancelledJoins containsObject:member.number])
+            [self.membersPendingJoin addObject:member];
+    }
+}
+
+- (void)cancelJoinButtonPressed:(UIButton*)sender {
+    NSMutableArray *cancelled = [NSMutableArray arrayWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
+    YAContact *cancelledContact = self.membersPendingJoin[sender.tag];
+    [cancelled addObject:cancelledContact.number];
+    
+    [self.membersPendingJoin removeObject:cancelledContact];
+    [self.tableView reloadData];
+}
+
+- (void)allowJoinButtonPressed:(UIButton*)sender {
+    YAContact *allowedContact = self.membersPendingJoin[sender.tag];
+    
+    [[YAServer sharedServer] addGroupMembersByPhones:@[allowedContact.number] andUsernames:@[] toGroupWithId:self.group.serverId withCompletion:^(id response, NSError *error) {
+        if(!error) {
+            [self.membersPendingJoin removeObject:allowedContact];
+            [self.tableView reloadData];
+        }
+        else {
+            DLog(@"Can't add members");
+        }
+    }];
+}
+
+#pragma mark - Segues
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
+//        ((YAGroupAddMembersViewController*)segue.destinationViewController).embeddedMode = YES;
+        ((YAGroupAddMembersViewController*)segue.destinationViewController).existingGroup = self.group;
+    }
 }
 
 - (void)setGroup:(YAGroup *)group {

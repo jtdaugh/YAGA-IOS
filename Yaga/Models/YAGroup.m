@@ -14,8 +14,6 @@
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 
-#define kMaxUsersShownInList (8)
-
 @interface YAGroup ()
 @property (atomic, assign) BOOL videosUpdateInProgress;
 @end
@@ -105,6 +103,7 @@
     NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
+    NSArray *pending_members = dictionary[YA_RESPONSE_PENDING_MEMBERS];
     
     for(NSDictionary *memberDic in members){
         NSString *phoneNumber = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
@@ -146,6 +145,46 @@
             [self.members removeObjectAtIndex:indexToRemove];
     }
     
+    //pending members
+    for(NSDictionary *memberDic in pending_members){
+        NSString *phoneNumber = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
+        
+        //skip myself
+        if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
+            continue;
+        
+        NSString *predicate = [NSString stringWithFormat:@"number = '%@'", phoneNumber];
+        RLMResults *existingContacts = [YAContact objectsWhere:predicate];
+        
+        YAContact *contact;
+        if(existingContacts.count) {
+            contact = existingContacts[0];
+        }
+        else {
+            contact = [YAContact new];
+        }
+        
+        [contact updateFromDictionary:memberDic];
+        
+        if([self.pending_members indexOfObject:contact] == NSNotFound)
+            [self.pending_members addObject:contact];
+        
+    }
+    
+    
+    //delete local pendning members which do not exist on server anymore
+    serverContactIds = [[dictionary[@"pending_members"] valueForKey:@"user"] valueForKey:@"id"];
+    contactsTorRemove = [NSMutableSet set];
+    for (YAContact *contact in self.pending_members) {
+        if(![serverContactIds containsObject:contact.serverId])
+            [contactsTorRemove addObject:contact];
+    }
+    
+    for(YAContact *contactToRemove in contactsTorRemove) {
+        NSInteger indexToRemove = [self.pending_members indexOfObject:contactToRemove];
+        if(indexToRemove >= 0)
+            [self.pending_members removeObjectAtIndex:indexToRemove];
+    }
 }
 
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {

@@ -23,6 +23,7 @@
 #define YA_RESPONSE_LIKES               @"likes"
 #define YA_RESPONSE_LIKERS              @"likers"
 #define YA_RESPONSE_MEMBERS             @"members"
+#define YA_RESPONSE_PENDING_MEMBERS     @"pending_members"
 #define YA_RESPONSE_MEMBER_PHONE        @"phone"
 #define YA_RESPONSE_MEMBER_JOINED_AT    @"joined_at"
 #define YA_RESPONSE_RESULT              @"result"
@@ -53,6 +54,8 @@ typedef void(^responseBlock)(id response, NSError* error);
 //groups and memebers
 - (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion;
 - (void)getGroupsWithCompletion:(responseBlock)completion;
+- (void)searchGroupsWithCompletion:(responseBlock)completion;
+- (void)joinGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
 - (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
