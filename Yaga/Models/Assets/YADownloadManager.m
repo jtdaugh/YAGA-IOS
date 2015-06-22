@@ -12,11 +12,11 @@
 
 @interface YADownloadManager ()
 //keeps executing and paused AFDownloadRequestOperations in memory so they can be resumed
-@property (nonatomic, strong) NSMutableDictionary *downloadJobs;
+@property (atomic, strong) NSMutableDictionary *downloadJobs;
 
-@property (nonatomic, strong) NSMutableArray *waitingUrls;
+@property (atomic, strong) NSMutableArray *waitingUrls;
 
-@property (nonatomic, strong) NSMutableSet *executingUrls;
+@property (atomic, strong) NSMutableSet *executingUrls;
 
 @property (strong) dispatch_semaphore_t waiting_semaphore;
 @end
