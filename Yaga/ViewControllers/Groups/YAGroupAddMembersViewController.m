@@ -314,6 +314,7 @@
                     if(![selectedUsernames containsObject:contact.username]) {
                         NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
                         contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
+                        contactDicMutable[nYagaUser] = [NSNumber numberWithBool:YES];
                         [self.filteredContacts addObject:contactDicMutable];
                     }
                     
@@ -501,16 +502,17 @@
     NSMutableArray *memberPhones = [NSMutableArray new];
     for(YAContact *contact in self.existingGroup.members) {
         
+        NSString *memberPhone = [contact readableNumber];
+        if(!memberPhone.length)
+            continue;
+        
         NSDictionary *item = @{nCompositeName:[NSString stringWithFormat:@"%@ %@", contact.firstName, contact.lastName],
-                               nPhone:[contact readableNumber],
+                               nPhone:memberPhone,
                                nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
                                nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
                                nRegistered:[NSNumber numberWithBool:contact.registered]};
         [self.selectedContacts addObject:item];
-        
-        NSString *memberPhone = [contact readableNumber];
-        if(memberPhone.length)
-            [memberPhones addObject:memberPhone];
+        [memberPhones addObject:memberPhone];
     }
     
     self.filteredContacts = [[self.deviceContacts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (%K IN %@)", nPhone, memberPhones]] mutableCopy];

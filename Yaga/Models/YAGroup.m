@@ -22,13 +22,8 @@
 
 @implementation YAGroup
 
-+ (RLMPropertyAttributes)attributesForProperty:(NSString *)propertyName {
-    RLMPropertyAttributes attributes = [super attributesForProperty:propertyName];
-    if ([propertyName isEqualToString:@"localId"] || [propertyName isEqualToString:@"serverId"]) {
-        attributes |= RLMPropertyAttributeIndexed;
-    }
-        
-    return attributes;
++ (NSArray *)indexedProperties {
+    return @[@"localId", @"serverId"];
 }
 
 + (NSArray *)ignoredProperties {
@@ -240,8 +235,6 @@
             
             if(block)
                 block(nil);
-            
-            [[YAUser currentUser].currentGroup refresh];
         }
     }];
 }
@@ -429,9 +422,9 @@
             NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
             DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
             
-            NSArray *newVideos = [self updateVideosFromDictionaries:videoDictionaries];
+            NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries];
             
-            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:@{kVideos:newVideos}];
+            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
         }
     }];
 }
@@ -450,7 +443,7 @@
     return existingIds;
 }
 
-- (NSArray*)updateVideosFromDictionaries:(NSArray*)videoDictionaries {
+- (NSDictionary*)updateVideosFromDictionaries:(NSArray*)videoDictionaries {
     NSSet *existingIds = [self videoIds];
     NSSet *newIds = [NSSet setWithArray:[videoDictionaries valueForKey:YA_RESPONSE_ID]];
     
@@ -458,6 +451,7 @@
     [idsToAdd minusSet:existingIds];
     
     NSMutableArray *newVideos = [NSMutableArray new];
+    NSMutableArray *updatedVideos = [NSMutableArray new];
     
     videoDictionaries = [videoDictionaries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_VIDEO_READY_AT ascending:YES]]];
     
@@ -492,6 +486,8 @@
                     if (likers.count) {
                         [video updateLikersWithArray:likers];
                     }
+                    
+                    [updatedVideos addObject:video];
                 }
             }
         }
@@ -545,6 +541,6 @@
         [video removeFromCurrentGroupWithCompletion:nil removeFromServer:NO];
     }
     
-    return newVideos;
+    return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos};
 }
 @end

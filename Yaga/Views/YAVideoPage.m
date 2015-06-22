@@ -29,12 +29,6 @@
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
 
-#define COMMENTS_BOTTOM_MARGIN 50.f
-#define COMMENTS_SIDE_MARGIN 9.f
-#define COMMENTS_HEIGHT_PROPORTION 0.25f
-#define COMMENTS_TEXT_FIELD_HEIGHT 40.f
-#define COMMENTS_SEND_WIDTH 70.f
-
 #define CAPTION_BUTTON_HEIGHT 80.f
 #define CAPTION_DONE_PROPORTION 0.5
 
@@ -154,8 +148,6 @@ static NSString *commentCellID = @"CommentCell";
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
-        
         [self initOverlayControls];
         
 //#ifdef DEBUG
@@ -235,12 +227,10 @@ static NSString *commentCellID = @"CommentCell";
     CGFloat delta = kbHeight - self.keyboardHeight;
     self.keyboardHeight = kbHeight;
     CGRect wrapperFrame = self.commentsWrapperView.frame;
-    CGFloat wrapperHeight = wrapperFrame.size.height;
     CGRect gradientFrame = self.commentsGradient.frame;
     
     if (up) {
-        wrapperHeight = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION + COMMENTS_TEXT_FIELD_HEIGHT;
-        wrapperFrame.size.height = wrapperHeight;
+        wrapperFrame.size.height = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION + COMMENTS_TEXT_FIELD_HEIGHT;;
         wrapperFrame.origin.y -= self.previousKeyboardLocation ? delta : (kbHeight + COMMENTS_TEXT_FIELD_HEIGHT-COMMENTS_BOTTOM_MARGIN);
         gradientFrame.origin.y -= self.previousKeyboardLocation ? delta : kbHeight;
     } else {
@@ -381,8 +371,6 @@ static NSString *commentCellID = @"CommentCell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
-
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
 }
 
 #pragma mark - Overlay controls
@@ -468,8 +456,6 @@ static NSString *commentCellID = @"CommentCell";
     self.commentButton = [self circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
-    
-    CGFloat bottomButtonCenterY = VIEW_HEIGHT - buttonRadius - padding;
 
     self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
     [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
@@ -648,7 +634,7 @@ static NSString *commentCellID = @"CommentCell";
 
     YAEvent *event = self.events[indexPath.row];
     [cell configureCellWithEvent:event];
-    
+
     if (event.eventType == YAEventTypePost) {
         [cell setUploadInProgress:self.uploadInProgress];
     }
@@ -1404,15 +1390,6 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
-- (void)didUploadVideo:(NSNotification*)notif {
-    if([self.video isEqual:notif.object]) {
-        [self showUploadingProgress:NO];
-        [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideoId:[self.video.serverId copy]
-                                                                     inGroup:[[YAUser currentUser].currentGroup.serverId copy]];
-    }
-}
-
-
 - (void)videoChanged:(NSNotification*)notif {
     if([notif.object isEqual:self.video] && !self.playerView.URL && self.shouldPreload && self.video.mp4Filename.length) {
         //setURL will remove playWhenReady flag, so saving it and using later
@@ -1421,6 +1398,10 @@ static NSString *commentCellID = @"CommentCell";
         self.playerView.playWhenReady = playWhenReady;
         
         [self updateControls];
+        
+        //uploading progress
+        BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
+        [self showUploadingProgress:uploadInProgress];
     }
 }
 

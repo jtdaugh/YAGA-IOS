@@ -15,7 +15,7 @@
     
     [RLMRealm setSchemaVersion:bundleVersion
                 forRealmAtPath:[RLMRealm defaultRealmPath]
-            withMigrationBlock:^(RLMMigration *migration, NSUInteger oldSchemaVersion) {
+            withMigrationBlock:^(RLMMigration *migration, uint64_t oldSchemaVersion) {
                 // We haven’t migrated anything yet, so oldSchemaVersion == 0
 //                if (oldSchemaVersion < 1) {
 //                    // The enumerateObjects:block: method iterates

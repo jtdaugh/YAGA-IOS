@@ -53,6 +53,8 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, strong) NSDate *willRefreshDate;
 
 @property (nonatomic, strong) UILabel *noVideosLabel;
+
+@property (nonatomic) BOOL scrollingFast;
 @end
 
 static NSString *cellID = @"Cell";
@@ -84,7 +86,7 @@ static NSString *cellID = @"Cell";
     self.collectionView.backgroundColor = [UIColor whiteColor];
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
-
+    
     [YAEventManager sharedManager].eventCountReceiver = self;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupWillRefresh:) name:GROUP_WILL_REFRESH_NOTIFICATION     object:nil];
@@ -94,7 +96,7 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollToCell:)    name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
     
@@ -105,11 +107,21 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)videoId:(NSString *)videoId eventCountUpdated:(NSUInteger)eventCount {
-    NSUInteger item = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@", videoId];
-    YAVideoCell *cell = (YAVideoCell *)[self.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0]];
-    if (cell) {
-        [cell setEventCount:eventCount];
-    }
+    NSLog(@"Scrolling fast: %@", self.scrollingFast ? @"YES" :  @"NO");
+    if (self.scrollingFast) return;
+    __weak YACollectionViewController *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@", videoId];
+        if (weakSelf.scrollingFast) return;
+        if (index == NSNotFound) {
+            return;
+        }
+        YAVideoCell *cell = (YAVideoCell *)[weakSelf.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
+        if (cell) {
+            NSLog(@"Updating comment count for videoID: %@", videoId);
+            [cell setEventCount:eventCount];
+        }
+    });
 }
 
 - (void)scrollToCell:(NSNotification *)notif
@@ -135,7 +147,7 @@ static NSString *cellID = @"Cell";
         [weakSelf refreshCurrentGroup];
     }];
     
-//    self.collectionView.pullToRefreshView.
+    //    self.collectionView.pullToRefreshView.
     
     YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];
     
@@ -172,7 +184,7 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
-
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_VIDEO_NOTIFICATION object:nil];
 }
@@ -191,12 +203,16 @@ static NSString *cellID = @"Cell";
     }
     
     [self.collectionView reloadData];
+
+    //datasource reloaded, do nothing on didDeleteVideo
+    [self.deleteDictionary removeAllObjects];
     
     if(needRefresh) {
         [self refreshCurrentGroup];
     } else {
         [[YAEventManager sharedManager] groupChanged];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+        [self playVisible:YES];
     }
 }
 
@@ -270,7 +286,7 @@ static NSString *cellID = @"Cell";
             [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
         }
         else {
-            [NSException raise:@"something is really wrong" format:nil];
+            [NSException raise:@"something is really wrong" format:@""];
         }
     });
 }
@@ -306,110 +322,114 @@ static NSString *cellID = @"Cell";
     if(![notification.object isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    NSArray *newVideos = notification.userInfo[kVideos];
+    //looking for updated and new index paths
+    NSArray *newVideos = notification.userInfo[kNewVideos];
+    NSArray *updatedVideos = notification.userInfo[kUpdatedVideos];
+    NSMutableArray *newIndexPaths = [NSMutableArray array];
+    NSMutableArray *updatedIndexPaths = [NSMutableArray array];
+    
+    for (YAVideo *video in updatedVideos) {
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+        [updatedIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
+    }
+    for (YAVideo *video in newVideos) {
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+        [newIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
+    }
     
     [[YAEventManager sharedManager] groupChanged];
-    
-    //the following line will ensure visibleCells will return correct results
-    [self.collectionView layoutIfNeeded];
-    
-    if(newVideos.count) {
-        if([self.collectionView visibleCells].count)
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
-#warning REFACTOR this
-        @try {
+
+    if(newIndexPaths.count || updatedIndexPaths.count) {
         [self.collectionView performBatchUpdates:^{
-            //simple workaround to avoid manipulations with paginationThreshold
-            if(newVideos.count == 1) {
-                self.paginationThreshold++;
-                [self.collectionView insertItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]]];
+            if(newIndexPaths.count) {
+                //simple workaround to avoid manipulations with paginationThreshold
+                self.paginationThreshold += newVideos.count;
                 
-                if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]
-                   && [[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded] && !self.toolTipLabel) {
-                    //first start tooltips
-                    self.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2, VIEW_HEIGHT/4)];
-                    self.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
-                    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap to \nenlarge"
-                                                                                 attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
-                                                                                              }];
-                    
-                    self.toolTipLabel.textAlignment = NSTextAlignmentCenter;
-                    self.toolTipLabel.attributedText = string;
-                    self.toolTipLabel.numberOfLines = 3;
-                    self.toolTipLabel.textColor = PRIMARY_COLOR;
-                    self.toolTipLabel.alpha = 0.0;
-                    [self.collectionView addSubview:self.toolTipLabel];
-                    //warning create varible for all screen sizes
-                    
-                    [UIView animateKeyframesWithDuration:0.6 delay:1.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
-                        //
-                        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
-                            //
-                            self.toolTipLabel.alpha = 1.0;
-                        }];
-                        
-                        for(float i = 0; i < 4; i++){
-                            [UIView addKeyframeWithRelativeStartTime:i/5.0 relativeDuration:i/(5.0) animations:^{
-                                //
-                                self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6 + M_PI/36 + (int)i%2 * -1* M_PI/18);
-                            }];
-                            
-                        }
-                        
-                        [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
-                            self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
-                        }];
-
-
-                    } completion:^(BOOL finished) {
-                        self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
-                    }];
-                    
-                    [UIView animateWithDuration:0.3 delay:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-                        //
-                        self.toolTipLabel.alpha = 1.0;
-                    } completion:^(BOOL finished) {
-                        //
-                    }];
-                }
-
+                [self.collectionView insertItemsAtIndexPaths:newIndexPaths];
+                
+                [self showCellTooltipIfNeeded];
             }
-            
-            else {
-                [self.collectionView reloadSections:[NSIndexSet indexSetWithIndex:0]];
+            else if(updatedIndexPaths.count) {
+                [self.collectionView reloadItemsAtIndexPaths:updatedIndexPaths];
             }
         } completion:^(BOOL finished) {
             [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
             
-            [self playVisible:YES];
-            
-            [self showActivityIndicator:NO];
+            if(newIndexPaths.count) {
+                [self playVisible:YES];//play new if they are visible immediately, otherwise scroll to the top, they will start playing automatically
+                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+            }
         }];
-        } @catch(NSException *exception) {
-        }
-        @finally {
-        }
-        
-    } else {
-        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-        [self showActivityIndicator:NO];
     }
-    
-    [self.collectionView reloadData];
-    
-    NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
+    [self delayedHidePullToRefresh];
+}
 
+- (void)delayedHidePullToRefresh {
+    NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
+    
     double hidePullToRefreshAfter = 1 - seconds;
     if(hidePullToRefreshAfter < 0)
         hidePullToRefreshAfter = 0;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self showActivityIndicator:NO];
         [self.collectionView.pullToRefreshView stopAnimating];
         [self playVisible:YES];
         [self showNoVideosMessageIfNeeded];
     });
+}
+
+- (void)showCellTooltipIfNeeded {
+    if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]
+       && [[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded] && !self.toolTipLabel) {
+        //first start tooltips
+        self.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2, VIEW_HEIGHT/4)];
+        self.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap to \nenlarge"
+                                                                     attributes:@{
+                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+                                                                                  }];
+        
+        self.toolTipLabel.textAlignment = NSTextAlignmentCenter;
+        self.toolTipLabel.attributedText = string;
+        self.toolTipLabel.numberOfLines = 3;
+        self.toolTipLabel.textColor = PRIMARY_COLOR;
+        self.toolTipLabel.alpha = 0.0;
+        [self.collectionView addSubview:self.toolTipLabel];
+        //warning create varible for all screen sizes
+        
+        [UIView animateKeyframesWithDuration:0.6 delay:1.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+            //
+            [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
+                //
+                self.toolTipLabel.alpha = 1.0;
+            }];
+            
+            for(float i = 0; i < 4; i++){
+                [UIView addKeyframeWithRelativeStartTime:i/5.0 relativeDuration:i/(5.0) animations:^{
+                    //
+                    self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6 + M_PI/36 + (int)i%2 * -1* M_PI/18);
+                }];
+                
+            }
+            
+            [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
+                self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
+            }];
+            
+            
+        } completion:^(BOOL finished) {
+            self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
+        }];
+        
+        [UIView animateWithDuration:0.3 delay:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+            //
+            self.toolTipLabel.alpha = 1.0;
+        } completion:^(BOOL finished) {
+            //
+        }];
+    }
 }
 
 - (void)showNoVideosMessageIfNeeded {
@@ -467,13 +487,19 @@ static NSString *cellID = @"Cell";
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     NSString *videoId = [video.serverId copy];
     NSString *groupId = [[YAUser currentUser].currentGroup.serverId copy];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [[YAEventManager sharedManager] prefetchEventsForVideoId:videoId inGroup:groupId];
-    });
-    cell.index = indexPath.item;
-    cell.video = video;
+    
     NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoId:videoId];
     [cell setEventCount:eventCount];
+    if (!eventCount) {
+        NSLog(@"Prefetching comment count for videoID: %@", videoId);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+            [[YAEventManager sharedManager] prefetchEventsForVideoId:videoId inGroup:groupId];
+        });
+    }
+    
+    cell.index = indexPath.item;
+    cell.shouldPlayGifAutomatically = !self.scrollingFast;
+    cell.video = video;
     
     [self handlePagingForIndexPath:indexPath];
     
@@ -526,11 +552,14 @@ static NSString *cellID = @"Cell";
 }
 
 #pragma mark - UIScrollView
-- (BOOL)scrollingFast {
+- (void)updateScrollingFast {
+    if(!self.collectionView.superview)
+        return;
+    
     CGPoint currentOffset = self.collectionView.contentOffset;
     NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
     
-    BOOL result = NO;
+    _scrollingFast = NO;
     
     CGFloat distance = currentOffset.y - lastOffset.y;
     //The multiply by 10, / 1000 isn't really necessary.......
@@ -538,19 +567,18 @@ static NSString *cellID = @"Cell";
     
     CGFloat scrollSpeed = fabs(scrollSpeedNotAbs);
     if (scrollSpeed > 0.06) {
-        result = YES;
+        _scrollingFast = YES;
     } else {
-        result = NO;
+        _scrollingFast = NO;
     }
     
     lastOffset = currentOffset;
     lastOffsetCapture = currentTime;
-    return result;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self.delegate collectionViewDidScroll];
-
+    
     [[YAAssetsCreator sharedCreator] cancelGifOperations];
     
     self.assetsPrioritisationHandled = NO;
@@ -559,12 +587,15 @@ static NSString *cellID = @"Cell";
         return;
     }
     
-    BOOL scrollingFast = [self scrollingFast];
+    [self updateScrollingFast];
     
-    [self playVisible:!scrollingFast];
+    [self playVisible:!self.scrollingFast];
     
     self.scrolling = YES;
+}
 
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    [self playVisible:YES];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -583,41 +614,20 @@ static NSString *cellID = @"Cell";
     }
 }
 
-- (void)adjustWhileDraggingWithVelocity:(CGPoint)velocity {
-    BOOL draggingFast = fabs(velocity.y) > 1;
-    BOOL draggingUp = velocity.y == fabs(velocity.y);
-    
-    
-    //show/hide camera
-    if(draggingFast && draggingUp) {
-        self.disableScrollHandling = YES;
-        [self.delegate showCamera:NO showPart:YES animated:YES completion:^{
-            self.disableScrollHandling = NO;
-            [self playVisible:YES];
-        }];
-    }
-    else if(draggingFast && !draggingUp){
-        self.disableScrollHandling = YES;
-        [self.delegate showCamera:YES showPart:NO animated:YES completion:^{
-            self.disableScrollHandling = NO;
-            [self playVisible:YES];
-        }];
-    }
-}
-
 - (void)playVisible:(BOOL)playValue {
     //the following line will ensure visibleCells will return correct results
     [self.collectionView layoutIfNeeded];
-
+    
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
+        [videoCell setEventCount:[[YAEventManager sharedManager] getEventCountForVideoId:videoCell.video.serverId]];
     }
 }
 
 #pragma mark - Assets creation
 
 - (void)prioritiseDownloadsForVisibleCells {
-
+    
     //sort them fist
     NSArray *visibleVideoIndexes = [[[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"] sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
         return [obj1 compare:obj2];
@@ -675,11 +685,14 @@ static NSString *cellID = @"Cell";
         //can't call reloadData methods when called from cellForRowAtIndexPath, using delay
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.collectionView reloadData];
-            
+
+            //datasource reloaded, do nothing on didDeleteVideo
+            [self.deleteDictionary removeAllObjects];
+
             //enqueue new assets creation jobs
             [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
-        
-            DLog(@"Page %lu loaded", self.paginationThreshold / kPaginationDefaultThreshold);
+            
+            DLog(@"Page %lu loaded", (unsigned long)self.paginationThreshold / kPaginationDefaultThreshold);
         });
     }
 }
@@ -689,8 +702,10 @@ static NSString *cellID = @"Cell";
     NSSet *visibleIndexes = [NSSet setWithArray:[[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"]];
     
     //don't do anything if it's visible already
-    if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]])
+    if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]]) {
+        [self.delegate collectionViewDidScroll]; //just make sure grid and camera has correct frames
         return;
+    }
     
     if(index < [self collectionView:self.collectionView numberOfItemsInSection:0]) {
         UIEdgeInsets tmp = self.collectionView.contentInset;
@@ -710,6 +725,5 @@ static NSString *cellID = @"Cell";
             self.assetsPrioritisationHandled = YES;
         });
     }
-
 }
 @end

@@ -52,7 +52,6 @@
 #define VIDEO_WILL_DELETE_NOTIFICATION          @"VIDEO_WILL_DELETE_NOTIFICATION"
 #define VIDEO_DID_DELETE_NOTIFICATION           @"VIDEO_DID_DELETE_NOTIFICATION"
 #define OPEN_VIDEO_NOTIFICATION                 @"OPEN_VIDEO_NOTIFICATION"
-#define VIDEO_DID_UPLOAD                        @"VIDEO_DID_UPLOAD"
 
 #define SCROLL_TO_CELL_INDEXPATH_NOTIFICATION   @"SCROLL_TO_CELL_INDEXPATH_NOTIFICATION"
 
@@ -66,7 +65,8 @@
 
 #define YA_GROUPS_UPDATED_AT                    @"YA_GROUPS_UPDATED_AT"
 
-#define kVideos                                 @"videos"
+#define kNewVideos                              @"newVideos"
+#define kUpdatedVideos                          @"updatedVideos"
 
 //first start tooltips
 #define kFirstVideoRecorded                     @"kFirstVideoRecorded"
@@ -92,7 +92,14 @@
 #define MAX_CAPTION_WIDTH (STANDARDIZED_DEVICE_WIDTH - (2 * STANDARDIZED_CAPTION_PADDING))
 #define CAPTION_SCREEN_MULTIPLIER (VIEW_WIDTH / STANDARDIZED_DEVICE_WIDTH)
 #define CAPTION_INSET_PROPORTION 0.05f
-#define CAPTION_FONT_SIZE 60.0
+#define CAPTION_FONT_SIZE 54.0
 #define CAPTION_STROKE_WIDTH 3.f
+
+// Comments
+#define COMMENTS_BOTTOM_MARGIN 50.f
+#define COMMENTS_SIDE_MARGIN 9.f
+#define COMMENTS_HEIGHT_PROPORTION 0.25f
+#define COMMENTS_TEXT_FIELD_HEIGHT 40.f
+#define COMMENTS_SEND_WIDTH 70.f
 
 #endif

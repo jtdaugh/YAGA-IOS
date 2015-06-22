@@ -41,6 +41,9 @@
 
 
 - (void)viewDidLoad {
+    
+    [super viewDidLoad];
+    
     self.cameraView = [[YACameraView alloc] initWithFrame:self.view.bounds];
     [self.cameraView setBackgroundColor:[UIColor blackColor]];
     [self.view addSubview:self.cameraView];
@@ -138,6 +141,8 @@
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 }

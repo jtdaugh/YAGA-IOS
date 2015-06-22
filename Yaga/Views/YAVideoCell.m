@@ -27,8 +27,6 @@
 @property (nonatomic, assign) YAVideoCellState state;
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
 
-@property (strong, nonatomic) FLAnimatedImageView *loaderView;
-
 @property (strong, nonatomic) UILabel *username;
 @property (strong, nonatomic) UILabel *eventCountLabel;
 @property (strong, nonatomic) UIImageView *commentIcon;
@@ -37,8 +35,9 @@
 
 @property (strong, atomic) NSString *gifFilename;
 
-@property (strong, nonatomic) YAActivityView *uploadingView;
+@property (strong, nonatomic) FLAnimatedImageView *uploadingView;
 
+@property (nonatomic, assign) BOOL gifWasPaused;
 @end
 
 @implementation YAVideoCell
@@ -58,20 +57,6 @@
         
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
-        
-        self.loaderView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
-        static NSData* loaderData = nil;
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
-        });
-
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.loaderView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
-            [self.loaderView startAnimating];
-        });
-
-        self.backgroundView = self.loaderView;
         
         self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30)];
         [self.username setTextAlignment:NSTextAlignmentRight];
@@ -107,8 +92,11 @@
 
         self.contentView.layer.masksToBounds = YES;
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUploadVideo:) name:VIDEO_DID_UPLOAD object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
+        
+        self.shouldPlayGifAutomatically = YES;
     }
+    
     return self;
 }
 
@@ -142,18 +130,16 @@
     if (!self.video.invalidated) {
         [[YAEventManager sharedManager] killPrefetchForVideoId:[self.video.serverId copy]];
     }
+    
     self.video = nil;
-    self.gifView.image = nil;
-    self.gifView.animatedImage = nil;
-    self.state = YAVideoCellStateLoading;
-//    self.commentIcon.hidden = YES;
-//    self.commentIcon.image = nil;
-//    self.commentIcon = nil;
+
+    [self updateState];
+    
     self.eventCountLabel.text = @"";
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_UPLOAD object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
 }
 
 #pragma mark -
@@ -184,21 +170,23 @@
 - (void)updateCell {
     [self updateCaptionAndUsername];
     
+    BOOL showLoader = NO;
     switch (self.state) {
         case YAVideoCellStateLoading: {
-            //[self showLoader:YES];
+            showLoader = self.video != nil;
             break;
         }
         case YAVideoCellStateJPEGPreview: {
-            //[self showLoader:YES];
+            showLoader = self.video != nil;
             
             //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
-            [self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
+            //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
             break;
         }
         case YAVideoCellStateGIFPreview: {
             //loading is removed when gif is shown in showImageAsyncFromFilename
             [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
+            showLoader = NO;
             break;
         }
         default: {
@@ -206,10 +194,22 @@
         }
     }
     
+    if(showLoader) {
+        static NSData* loaderData = nil;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
+        });
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.gifView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
+            [self.gifView startAnimating];
+        });
+    }
+    
     //uploading progress
     BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
     [self showUploadingProgress:uploadInProgress];
- 
 }
 
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
@@ -241,19 +241,18 @@
 
 - (void)showCachedImage:(id)image animatedImage:(BOOL)animatedImage {
     if(animatedImage) {
+        self.gifView.shouldPlayGifAutomatically = self.shouldPlayGifAutomatically;
         self.gifView.animatedImage = image;
-        [self.gifView startAnimating];
     } else{
         self.gifView.image = image;
     }
-    
 }
 
 #pragma mark - Download progress bar
 - (void)downloadStarted:(NSNotification*)notif {
     NSOperation *op = notif.object;
     if(![self.video isInvalidated] && [op.name isEqualToString:self.video.gifUrl]) {
-        [self showLoader:YES];
+        [self updateCaptionAndUsername];
     }
 }
 
@@ -261,40 +260,51 @@
     //do nothing, tile loader is used
 }
 
-- (void)showLoader:(BOOL)show {
-    self.loaderView.hidden = !show;
-
-    if(!self.loaderView.hidden && !self.loaderView.isAnimating)
-        [self.loaderView startAnimating];
-    
-    // self.username.hidden = !show;
-    self.captionWrapper.hidden = NO;
-    
-    [self updateCaptionAndUsername];
-}
-
 - (void)showUploadingProgress:(BOOL)show {
-    if(show && !self.uploadingView) {
-        const CGFloat monkeyWidth = 50;
-        self.uploadingView = [[YAActivityView alloc] initWithFrame:CGRectMake(0, 0, monkeyWidth, monkeyWidth)];
-        self.uploadingView.center = self.center;
-        [self addSubview:self.uploadingView];
-        [self.uploadingView startAnimating];
+    if(show) {
+        const CGFloat uploadingWith = 30;
+        if (!self.uploadingView) {
+            self.uploadingView = [[FLAnimatedImageView alloc] initWithFrame:CGRectMake(3, self.bounds.size.height - 30, uploadingWith, uploadingWith)];
+            [self addSubview:self.uploadingView];
+        }
+        
+        static NSData* uploaderGifData = nil;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            uploaderGifData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"uploading" withExtension:@"gif"]];
+        });
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.uploadingView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:uploaderGifData];
+            [self.uploadingView startAnimating];
+            
+            self.eventCountLabel.hidden = YES;
+        });
     }
     else {
-        [self.uploadingView removeFromSuperview];
-        self.uploadingView = nil;
+        if(self.uploadingView) {
+            [self.uploadingView removeFromSuperview];
+            self.uploadingView = nil;
+            
+            if(self.eventCountLabel.text.length) {
+                self.eventCountLabel.hidden = NO;
+            }
+        }
     }
 }
 
-- (void)didUploadVideo:(NSNotification*)notif {
+- (void)videoChanged:(NSNotification*)notif {
     if([self.video isEqual:notif.object]) {
-        [self showUploadingProgress:NO];
+        //uploading progress
+        BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
+        [self showUploadingProgress:uploadInProgress];
     }
 }
 
 - (void)updateCaptionAndUsername {
     NSString *caption = self.video.caption;
+    
+    self.captionWrapper.hidden = NO;
     
     if(caption.length) {
 

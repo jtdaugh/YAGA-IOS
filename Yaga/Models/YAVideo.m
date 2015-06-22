@@ -18,14 +18,6 @@
 
 #pragma mark - Realm
 
-+ (RLMPropertyAttributes)attributesForProperty:(NSString *)propertyName {
-    RLMPropertyAttributes attributes = [super attributesForProperty:propertyName];
-    if ([propertyName isEqualToString:@"localId"] || [propertyName isEqualToString:@"serverId"]) {
-        attributes |= RLMPropertyAttributeIndexed;
-    }
-    return attributes;
-}
-
 + (NSDictionary *)defaultPropertyValues{
     return @{@"highQualityGifFilename":@"",
              @"jpgFilename":@"",
@@ -47,7 +39,7 @@
 }
 
 + (NSArray *)indexedProperties {
-    return @[@"gifUrl", @"url"];
+    return @[@"gifUrl", @"url", @"localId", @"serverId"];
 }
 
 + (NSString *)primaryKey {
