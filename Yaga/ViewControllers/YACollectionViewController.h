@@ -8,7 +8,7 @@
 #import "YAVideoCell.h"
 #import "YASwipingViewController.h"
 #import "YAEventManager.h"
-#import "GridViewController.h"
+#import "YAGridViewController.h"
 
 @interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate,
     UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver> {

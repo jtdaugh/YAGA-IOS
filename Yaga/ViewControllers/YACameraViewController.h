@@ -28,4 +28,6 @@
 
 - (void)showBottomShadow;
 - (void)removeBottomShadow;
+
+- (void)updateCameraAccessories;
 @end

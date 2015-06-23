@@ -22,16 +22,14 @@
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
 #import "NameGroupViewController.h"
-#import "GridViewController.h"
+#import "YAGridViewController.h"
 
 #import "YAUserPermissions.h"
 #import "YAFindGroupsViewConrtoller.h"
-#import "GridViewController.h"
 #import "YACollectionViewController.h"
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
-@property (nonatomic, strong) UIButton *createGroupButton;
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
 @property (nonatomic, strong) YAGroup *editingGroup;
 @property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
@@ -206,6 +204,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     YACollectionViewController *vc = [YACollectionViewController new];
     vc.delegate = self.delegate;
     [self.navigationController pushViewController:vc animated:YES];
+    [self.delegate updateCameraAccessories];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -213,33 +212,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     NSString *membersString = group.membersString;
     
     return [GroupsCollectionViewCell sizeForMembersString:membersString];
-}
-
-- (void)createGroup {
-    [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
-}
-
-- (void)segmentedControlValueChanged:(UISegmentedControl*)segmentedControl {
-//    if(segmentedControl.selectedSegmentIndex == 1) {
-//        [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
-//            if(!error) {
-//                self.findGroups = [YAFindGroupsViewConrtoller new];
-//                self.findGroups.groupsDataArray = (NSArray*)response;
-//                [self addChildViewController:self.findGroups];
-//                self.findGroups.view.frame = self.view.bounds;
-//                [self.view addSubview:self.findGroups.view];
-//            }
-//            else {
-//                DLog(@"Failed to search groups");
-//                segmentedControl.selectedSegmentIndex = 0;
-//            }
-//        }];
-//    }
-//    else {
-//        [self.findGroups removeFromParentViewController];
-//        [self.findGroups.view removeFromSuperview];
-//        self.findGroups = nil;
-//    }
 }
 
 @end

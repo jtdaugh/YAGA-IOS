@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GridViewController.h"
+#import "YAGridViewController.h"
 
 @interface YAGroupsViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) UICollectionView *collectionView;

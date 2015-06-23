@@ -12,7 +12,7 @@
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import "MBProgressHUD.h"
-#import "GridViewController.h"
+#import "YAGridViewController.h"
 
 #define kMaxUserNamesShown (6)
 
@@ -217,13 +217,13 @@
 - (void)popToGridViewController {
     if (self.inCreateGroupFlow) {
         NSMutableArray *navStack = [[self.navigationController viewControllers] mutableCopy];
-        GridViewController *gridVC = [[GridViewController alloc] init];
+        YAGridViewController *gridVC = [[YAGridViewController alloc] init];
         [navStack insertObject:gridVC atIndex:1]; // right after groups VC
         [self.navigationController setViewControllers:navStack];
     }
     UIViewController *dest = nil;
     for (UIViewController *vc in [self.navigationController viewControllers]) {
-        if ([vc isKindOfClass:[GridViewController class]]) {
+        if ([vc isKindOfClass:[YAGridViewController class]]) {
             dest = vc;
             break;
         }

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Raj Vir. All rights reserved.
 //
 
-#import "GridViewController.h"
+#import "YAGridViewController.h"
 
 #import "YaOnboardingNavigationController.h"
 #import "YAPhoneNumberViewController.h"
@@ -24,7 +24,7 @@
 //#import "Yaga-Swift.h"
 
 
-@implementation GridViewController
+@implementation YAGridViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -74,7 +74,21 @@
     [self.navigationController setNavigationBarHidden:YES];
 }
 
-#pragma mark - YACollectionViewControllerDelegate
+- (UICollectionView *)getRelevantCollectionView {
+    NSArray *vcs = self.groupsNavigationController.viewControllers;
+    for (NSUInteger i = [vcs count] - 1;; i--) {
+        id vc = vcs[i];
+        if ([vc isKindOfClass:[YAGroupsViewController class]] ||
+            [vc isKindOfClass:[YACollectionViewController class]]) {
+            return [vc collectionView];
+        }
+        if (i == 0) break;
+    }
+    return nil;
+}
+
+#pragma mark - YAGridViewControllerDelegate
+
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion {
     
     void (^showHideBlock)(void) = ^void(void) {
@@ -109,19 +123,6 @@
     [self.cameraViewController enableRecording:enable];
 }
 
-- (UICollectionView *)getRelevantCollectionView {
-    NSArray *vcs = self.groupsNavigationController.viewControllers;
-    for (NSUInteger i = [vcs count] - 1;; i--) {
-        id vc = vcs[i];
-        if ([vc isKindOfClass:[YAGroupsViewController class]] ||
-            [vc isKindOfClass:[YACollectionViewController class]]) {
-            return [vc collectionView];
-        }
-        if (i == 0) break;
-    }
-    return nil;
-}
-
 - (void)scrollViewDidScroll {
     CGRect cameraFrame = self.cameraViewController.view.frame;
     CGRect gridFrame = self.groupsNavigationController.view.frame;
@@ -147,7 +148,11 @@
     self.groupsNavigationController.view.frame = gridFrame;
 }
 
+- (void)updateCameraAccessories {
+    [self.cameraViewController updateCameraAccessories];
+}
 
+#pragma mark - YACameraViewControllerDelegate
 - (void)openGroupOptions {
     YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
     vc.group = [YAUser currentUser].currentGroup;
@@ -161,6 +166,7 @@
 }
 
 - (void)backPressed {
+    [YAUser currentUser].currentGroup = nil;
     [self.groupsNavigationController popViewControllerAnimated:YES];
 }
 

@@ -8,7 +8,7 @@
 
 #import "YAGroupAddMembersViewController.h"
 #import "YAInviteViewController.h"
-#import "GridViewController.h"
+#import "YAGridViewController.h"
 #import "NameGroupViewController.h"
 #import "APPhoneWithLabel.h"
 #import "NSString+Hash.h"
@@ -385,7 +385,7 @@
     //If we come from GridViewController
     __block BOOL found = NO;
     [self.navigationController.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj isKindOfClass:[GridViewController class]]) {
+        if ([obj isKindOfClass:[YAGridViewController class]]) {
             found = YES;
             *stop = YES;
         }
@@ -439,13 +439,13 @@
 - (void)popToGridViewController {
     if (self.inCreateGroupFlow) {
         NSMutableArray *navStack = [[self.navigationController viewControllers] mutableCopy];
-        GridViewController *gridVC = [[GridViewController alloc] init];
+        YAGridViewController *gridVC = [[YAGridViewController alloc] init];
         [navStack insertObject:gridVC atIndex:1]; // right after groups VC
         [self.navigationController setViewControllers:navStack];
     }
     UIViewController *dest = nil;
     for (UIViewController *vc in [self.navigationController viewControllers]) {
-        if ([vc isKindOfClass:[GridViewController class]]) {
+        if ([vc isKindOfClass:[YAGridViewController class]]) {
             dest = vc;
             break;
         }
