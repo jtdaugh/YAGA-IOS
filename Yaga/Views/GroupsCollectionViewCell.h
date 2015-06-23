@@ -20,5 +20,8 @@ typedef void (^editButtonClickedBlock)(void);
 @property (nonatomic) BOOL showUpdatedIndicator;
 
 + (CGFloat)cellHeight;
++ (CGFloat)contentWidth;
+
++ (CGSize) sizeForMembersString:(NSString *)string;
 
 @end
