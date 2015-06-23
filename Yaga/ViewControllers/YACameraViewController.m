@@ -202,7 +202,7 @@ typedef enum {
         [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
         self.leftBottomButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
         [self.leftBottomButton addTarget:self action:@selector(leftBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.cameraView addSubview:self.leftBottomButton];
+        [self.view addSubview:self.leftBottomButton];
         
         self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f, kUnviwedBadgeWidth, kUnviwedBadgeWidth)];
         self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5]];
