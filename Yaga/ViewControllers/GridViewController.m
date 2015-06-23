@@ -14,6 +14,7 @@
 
 #import "YAUtils.h"
 #import "YAGroupOptionsViewController.h"
+#import "YACameraManager.h"
 
 //Swift headers
 //#import "Yaga-Swift.h"
@@ -25,6 +26,7 @@
     [super viewDidLoad];
     
     [self setupView];
+    [[YACameraManager sharedManager] initCamera];
 }
 
 - (void)viewWillAppear:(BOOL)animated {

@@ -22,6 +22,7 @@
 @property (strong, nonatomic) GPUImageMovieWriter *movieWriter;
 
 @property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
+@property (nonatomic) BOOL isInitialized;
 
 @end
 
@@ -42,11 +43,17 @@
         self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
         self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
         self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
+        self.isInitialized = NO;
     }
     return self;
 }
 
 - (void)initCamera {
+    if (self.isInitialized) {
+        return;
+    }
+    self.isInitialized = YES;
+    
     // only init camera if not simulator
     if(TARGET_IPHONE_SIMULATOR){
         DLog(@"no camera, simulator");
@@ -88,6 +95,7 @@
 }
 
 - (void)closeCamera {
+    self.isInitialized = NO;
     [self.videoCamera stopCameraCapture];
 }
 
