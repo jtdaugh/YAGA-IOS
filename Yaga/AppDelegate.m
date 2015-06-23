@@ -226,8 +226,10 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
 //    [AnalyticsKit applicationDidEnterBackground];
-    [[YACameraManager sharedManager] toggleFlash:NO];
-    [[YACameraManager sharedManager] closeCamera];
+    if ([[YAUser currentUser] loggedIn]) {
+        [[YACameraManager sharedManager] toggleFlash:NO];
+        [[YACameraManager sharedManager] closeCamera];
+    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
