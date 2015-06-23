@@ -1,6 +1,6 @@
 //
 //  YAFindGroupsViewConrtoller.m
-//  
+//
 //
 //  Created by valentinkovalski on 6/18/15.
 //
@@ -11,9 +11,13 @@
 #import "YAGroup.h"
 #import "YAServer.h"
 #import "YAUser.h"
+#import "UIScrollView+SVPullToRefresh.h"
+#import "YAPullToRefreshLoadingView.h"
+
+#define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"
 
 @interface YAFindGroupsViewConrtoller ()
-@property (nonatomic, strong) UIColor *oldNavigationColor;
+@property (nonatomic, strong) NSArray *groupsDataArray;
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -106,11 +110,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     [super viewDidLoad];
     
     self.title = NSLocalizedString(@"Join Groups", @"");
-    self.oldNavigationColor = self.navigationController.view.backgroundColor;
-    self.navigationController.view.backgroundColor = PRIMARY_COLOR;
     
     self.view.backgroundColor = PRIMARY_COLOR;
-
+    
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     
@@ -124,17 +126,30 @@ static NSString *CellIdentifier = @"GroupsCell";
     //ios8 fix for separatorInset
     if ([self.tableView respondsToSelector:@selector(layoutMargins)])
         self.tableView.layoutMargins = UIEdgeInsetsZero;
+    
+    _groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
+    [self.tableView reloadData];
+    
+    [self setupPullToRefresh];
+    [self.tableView triggerPullToRefresh];
+    
+    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(backButtonPressed:)];
+    self.navigationItem.leftBarButtonItem = backButton;
+    [[UIBarButtonItem appearance] setTintColor:[UIColor whiteColor]];
+}
+
+- (void)backButtonPressed:(id)sender {
+    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-
+    
     [self.navigationController setNavigationBarHidden:NO animated:YES];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    self.navigationController.view.backgroundColor = self.oldNavigationColor;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -196,7 +211,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     pendingLabel.text = NSLocalizedString(@"Pending", @"");
     
     cell.accessoryView = [groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]? pendingLabel : requestButton;
-
+    
     return cell;
 }
 
@@ -205,15 +220,15 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     NSDictionary *attributes = @{NSFontAttributeName:[GroupsTableViewCell defaultDetailedLabelFont]};
     CGRect rect = [groupData[YA_RESPONSE_MEMBERS] boundingRectWithSize:CGSizeMake([GroupsTableViewCell contentWidth] - 50, CGFLOAT_MAX)
-                                                    options:NSStringDrawingUsesLineFragmentOrigin
-                                                 attributes:attributes
-                                                    context:nil];
+                                                               options:NSStringDrawingUsesLineFragmentOrigin
+                                                            attributes:attributes
+                                                               context:nil];
     
     return rect.size.height + 80;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-   
+    
 }
 
 - (IBAction)unwindToGrid:(id)source {}
@@ -235,5 +250,31 @@ static NSString *CellIdentifier = @"GroupsCell";
         }
     }];
 }
+
+- (void)setupPullToRefresh {
+    //pull to refresh
+    __weak typeof(self) weakSelf = self;
+    
+    [self.tableView addPullToRefreshWithActionHandler:^{
+        [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+            if(error) {
+                [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
+            }
+            else {
+                [weakSelf.tableView.pullToRefreshView stopAnimating];
+                weakSelf.groupsDataArray = (NSArray*)response;
+                [weakSelf.tableView reloadData];
+                [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
+            }
+        }];
+    }];
+    
+    YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.tableView.pullToRefreshView.bounds.size.height)];
+    
+    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
+    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
+    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
+}
+
 
 @end

@@ -9,5 +9,4 @@
 #import <UIKit/UIKit.h>
 
 @interface YAFindGroupsViewConrtoller : UITableViewController
-@property (nonatomic, strong) NSArray *groupsDataArray;
 @end

@@ -17,6 +17,8 @@
 #import <CoreTelephony/CTCallCenter.h>
 
 #import <QuartzCore/QuartzCore.h>
+#import "YAGroupsNavigationController.h"
+#import "YAFindGroupsViewConrtoller.h"
 
 #define BUTTON_SIZE (VIEW_WIDTH / 7)
 #define HEADER_HEIGHT 60.f
@@ -50,7 +52,7 @@ typedef enum {
 
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
-@property (strong, nonatomic) UIButton *backButton;
+@property (strong, nonatomic) UIButton *findGroupsButton;
 
 @property (strong, nonatomic) UIButton *infoButton;
 
@@ -188,18 +190,18 @@ typedef enum {
         [self.countdownLabel setTextColor:PRIMARY_COLOR];
         [self.view addSubview:self.countdownLabel];
         
-        CGFloat backButtonSize = 30;
+        CGFloat backButtonSize = 100;
         CGFloat backPadding = 7;
-        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 - backButtonSize-backPadding*2 - 10, backButtonSize+backPadding*2, backButtonSize+backPadding*2)];
-        self.backButton.imageEdgeInsets = UIEdgeInsetsMake(backPadding, backPadding, backPadding, backPadding);
-        self.backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-        [self.backButton setImage:[UIImage imageNamed:@"Back"] forState:UIControlStateNormal];
+        self.findGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT/2 - backButtonSize+backPadding*2, backButtonSize+backPadding*2, backButtonSize+backPadding*2)];
+        self.findGroupsButton.imageEdgeInsets = UIEdgeInsetsMake(backPadding, backPadding, backPadding, backPadding);
+        self.findGroupsButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        [self.findGroupsButton setTitle:NSLocalizedString(@"Find groups", @"") forState:UIControlStateNormal];
         
-        [self.backButton addTarget:self action:@selector(backButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.cameraView addSubview:self.backButton];
+        [self.findGroupsButton addTarget:self action:@selector(findGroupsButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.cameraView addSubview:self.findGroupsButton];
         
         const CGFloat badgeWidth = 10;
-        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.backButton.frame.origin.x + self.backButton.frame.size.width, self.backButton.frame.origin.y + self.backButton.frame.size.height/2.0f - badgeWidth/2.0f, badgeWidth, badgeWidth)];
+        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.findGroupsButton.frame.origin.x + self.findGroupsButton.frame.size.width, self.findGroupsButton.frame.origin.y + self.findGroupsButton.frame.size.height/2.0f - badgeWidth/2.0f, badgeWidth, badgeWidth)];
         self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5]];
         self.unviewedVideosBadge.clipsToBounds = YES;
         self.unviewedVideosBadge.layer.cornerRadius = badgeWidth/2;
@@ -374,8 +376,9 @@ typedef enum {
     return self;
 }
 
-- (void)backButtonPressed {
-    [self.navigationController popViewControllerAnimated:YES];
+- (void)findGroupsButtonPressed {
+    YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
+    [self presentViewController:navController animated:YES completion:nil];
 }
 
 - (void)cameraViewTapped:(id)sender {
