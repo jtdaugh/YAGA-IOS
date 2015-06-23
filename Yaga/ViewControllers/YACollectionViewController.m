@@ -577,7 +577,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [self.delegate collectionViewDidScroll];
+    [self.delegate scrollViewDidScroll];
     
     [[YAAssetsCreator sharedCreator] cancelGifOperations];
     
@@ -703,7 +703,7 @@ static NSString *cellID = @"Cell";
     
     //don't do anything if it's visible already
     if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]]) {
-        [self.delegate collectionViewDidScroll]; //just make sure grid and camera has correct frames
+        [self.delegate scrollViewDidScroll]; //just make sure grid and camera has correct frames
         return;
     }
     
@@ -717,7 +717,7 @@ static NSString *cellID = @"Cell";
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             self.collectionView.contentInset = tmp;
             
-            [self.delegate collectionViewDidScroll];
+            [self.delegate scrollViewDidScroll];
             
             [self playVisible:YES];
             
@@ -726,4 +726,5 @@ static NSString *cellID = @"Cell";
         });
     }
 }
+
 @end

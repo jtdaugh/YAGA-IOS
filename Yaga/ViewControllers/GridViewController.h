@@ -8,16 +8,23 @@
 
 #import <UIKit/UIKit.h>
 #import "YAUser.h"
-
-#import "YACollectionViewController.h"
+#import "YAGroupsNavigationController.h"
 #import "YACameraViewController.h"
-#import "YAGroupsViewController.h"
+
+@class YAGroupsViewController;
+
+typedef void (^cameraCompletion)(void);
+
+@protocol YAGridViewControllerDelegate <NSObject>
+- (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion;
+- (void)enableRecording:(BOOL)enable;
+- (void)scrollViewDidScroll;
+@end
 
 @interface GridViewController : UIViewController <UIApplicationDelegate,
-YACameraViewControllerDelegate, YACollectionViewControllerDelegate>
+YACameraViewControllerDelegate, YAGridViewControllerDelegate>
 
 @property (nonatomic, readonly) YACameraViewController *cameraViewController;
-@property (nonatomic, readonly) YACollectionViewController *collectionViewController;
-@property (nonatomic, weak) YAGroupsViewController *groupsViewController;
+@property (nonatomic, strong) YAGroupsNavigationController *groupsNavigationController;
 
 @end

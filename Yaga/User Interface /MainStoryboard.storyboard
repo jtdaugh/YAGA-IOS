@@ -173,10 +173,10 @@
             </objects>
             <point key="canvasLocation" x="-666" y="774"/>
         </scene>
-        <!--Groups View Controller-->
+        <!--Grid View Controller-->
         <scene sceneID="PG1-gJ-s8x">
             <objects>
-                <viewController id="owe-ug-5LR" customClass="YAGroupsViewController" sceneMemberID="viewController">
+                <viewController id="owe-ug-5LR" customClass="GridViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="pEP-hn-pWg"/>
                         <viewControllerLayoutGuide type="bottom" id="HMg-br-RDJ"/>

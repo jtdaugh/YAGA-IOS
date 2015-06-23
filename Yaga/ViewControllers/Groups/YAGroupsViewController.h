@@ -7,10 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "GridViewController.h"
 
 @interface YAGroupsViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) UICollectionView *collectionView;
 
 @property (nonatomic, strong) UITapGestureRecognizer *cameraTapToClose;
 @property (nonatomic, strong) UITapGestureRecognizer *collectionTapToClose;
+
+@property (nonatomic, weak) id<YAGridViewControllerDelegate> delegate;
+
 @end

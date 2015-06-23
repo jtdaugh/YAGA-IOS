@@ -26,6 +26,8 @@
 
 #import "YAUserPermissions.h"
 #import "YAFindGroupsViewConrtoller.h"
+#import "GridViewController.h"
+#import "YACollectionViewController.h"
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -46,8 +48,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    [self.navigationController setNavigationBarHidden:NO];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    [self.navigationController setNavigationBarHidden:YES];
     
     
     CGFloat origin = 0;
@@ -63,7 +65,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
     self.collectionView.backgroundColor = [self.view.backgroundColor copy];
-    
+    self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
+
     [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:CellIdentifier];
     
     [self setupPullToRefresh];
@@ -74,30 +77,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    
-    [self.navigationController setNavigationBarHidden:NO animated:YES];
-    
-    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"Create" style:UIBarButtonItemStylePlain target:self action:nil];
-    rightItem.tintColor = [UIColor whiteColor];
-    rightItem.target = self;
-    rightItem.action = @selector(createGroup);
-    self.navigationItem.rightBarButtonItem = rightItem;
-    
-    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Settings"] style:UIBarButtonItemStylePlain target:self action:nil];
-    leftItem.tintColor = [UIColor whiteColor];
-    self.navigationItem.leftBarButtonItem = leftItem;
-    
-    CGSize segSize = CGSizeMake(10, 30);
-    UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithFrame:CGRectMake((VIEW_WIDTH - segSize.width)/2, 10, segSize.width, segSize.height)];
-    [segmentedControl insertSegmentWithTitle:@"My Groups" atIndex:0 animated:NO];
-    [segmentedControl insertSegmentWithTitle:@"Find Groups" atIndex:1 animated:NO];
-    segmentedControl.tintColor = [UIColor whiteColor];
-    segmentedControl.selectedSegmentIndex = 0;
-    self.navigationItem.titleView = segmentedControl;
-    [segmentedControl addTarget:self action:@selector(segmentedControlValueChanged:) forControlEvents:UIControlEventValueChanged];
-    
+
     [self updateState];
     
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
@@ -113,7 +93,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         weakSelf.willRefreshDate = [NSDate date];
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
 //            [weakSelf updateState];
-            [self delayedHidePullToRefresh];
+            [weakSelf delayedHidePullToRefresh];
 //            [weakSelf.collectionView.pullToRefreshView stopAnimating];
         }];
     }];
@@ -189,6 +169,11 @@ static NSString *CellIdentifier = @"GroupsCell";
     return YES;
 }
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+ 
+    [self.delegate scrollViewDidScroll];
+
+}
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return self.groups.count;
 }
@@ -218,7 +203,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     YAGroup *group = self.groups[indexPath.item];
     [YAUser currentUser].currentGroup = group;
-    [self.navigationController pushViewController:[GridViewController new] animated:YES];
+    YACollectionViewController *vc = [YACollectionViewController new];
+    vc.delegate = self.delegate;
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -254,4 +241,5 @@ static NSString *CellIdentifier = @"GroupsCell";
         self.findGroups = nil;
     }
 }
+
 @end

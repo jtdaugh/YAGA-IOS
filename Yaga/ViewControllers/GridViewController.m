@@ -16,6 +16,9 @@
 #import "YAGroupOptionsViewController.h"
 #import "YACameraManager.h"
 
+#import "YACameraViewController.h"
+#import "YAGroupsViewController.h"
+
 //Swift headers
 //#import "Yaga-Swift.h"
 
@@ -24,6 +27,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    [self.navigationController setNavigationBarHidden:YES animated:NO];
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
     
     [self setupView];
     [[YACameraManager sharedManager] initCamera];
@@ -31,9 +37,6 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
-    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
 
 }
 
@@ -49,13 +52,14 @@
 }
 
 - (void)setupView {
-    _collectionViewController = [YACollectionViewController new];
-    _collectionViewController.delegate = self;
-    _collectionViewController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
-    [_collectionViewController.collectionView.layer setMasksToBounds:NO];
-
-    [self addChildViewController:_collectionViewController];
-    [self.view addSubview:_collectionViewController.view];
+    YAGroupsViewController *groupsRootViewController = [YAGroupsViewController new];
+    groupsRootViewController.delegate = self;
+    _groupsNavigationController = [[YAGroupsNavigationController alloc] initWithRootViewController:groupsRootViewController];
+    _groupsNavigationController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
+    [_groupsNavigationController.view.layer setMasksToBounds:NO];
+    
+    [self addChildViewController:_groupsNavigationController];
+    [self.view addSubview:_groupsNavigationController.view];
     
     _cameraViewController = [YACameraViewController new];
     _cameraViewController.delegate = self;
@@ -81,7 +85,7 @@
         }
         CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
         CGFloat separator = show ? 2 : 0;
-        self.collectionViewController.view.frame = CGRectMake(0, origin + separator, self.collectionViewController.view.frame.size.width, VIEW_HEIGHT - origin - separator);
+        self.groupsNavigationController.view.frame = CGRectMake(0, origin + separator, self.groupsNavigationController.view.frame.size.width, VIEW_HEIGHT - origin - separator);
         
         [self.cameraViewController showCameraAccessories:(show && !showPart)];
     };
@@ -104,12 +108,14 @@
     [self.cameraViewController enableRecording:enable];
 }
 
-- (void)collectionViewDidScroll {
+- (void)scrollViewDidScroll {
     CGRect cameraFrame = self.cameraViewController.view.frame;
-    CGRect gridFrame = self.collectionViewController.view.frame;
+    CGRect gridFrame = self.groupsNavigationController.view.frame;
+    id vc = self.groupsNavigationController.visibleViewController;
+    UICollectionView *collectionView = [vc collectionView];
     
-    CGFloat scrollOffset = self.collectionViewController.collectionView.contentOffset.y;
-    CGFloat offset = self.collectionViewController.collectionView.contentInset.top + scrollOffset;
+    CGFloat scrollOffset = collectionView.contentOffset.y;
+    CGFloat offset = collectionView.contentInset.top + scrollOffset;
     
     if(offset < 0) {
         offset = 0;
@@ -123,7 +129,7 @@
     cameraFrame.origin.y = -offset;
 
     self.cameraViewController.view.frame = cameraFrame;
-    self.collectionViewController.view.frame = gridFrame;
+    self.groupsNavigationController.view.frame = gridFrame;
 }
 
 
@@ -134,7 +140,9 @@
 }
 
 - (void)scrollToTop {
-    [self.collectionViewController.collectionView setContentOffset:CGPointMake(0, -1 * (VIEW_HEIGHT/2 - CAMERA_MARGIN)) animated:YES];
+    id vc = self.groupsNavigationController.visibleViewController;
+    UICollectionView *collectionView = [vc collectionView];
+    [collectionView setContentOffset:CGPointMake(0, -1 * (VIEW_HEIGHT/2 - CAMERA_MARGIN)) animated:YES];
 }
 
 -(BOOL)prefersStatusBarHidden {
