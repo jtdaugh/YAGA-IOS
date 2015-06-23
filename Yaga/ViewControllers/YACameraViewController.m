@@ -202,6 +202,7 @@ typedef enum {
         [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
         self.leftBottomButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
         [self.leftBottomButton addTarget:self action:@selector(leftBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.cameraAccessories addObject:self.leftBottomButton];
         [self.view addSubview:self.leftBottomButton];
         
         self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f, kUnviwedBadgeWidth, kUnviwedBadgeWidth)];
@@ -597,6 +598,7 @@ typedef enum {
             self.view.frame = self.previousViewFrame;
             [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             [self.rightBottomButton setAlpha:1.0];
+            [self.leftBottomButton setAlpha:1.0];
 //            [self.groupButton setAlpha:1.0];
 //            self.recordButton.transform = CGAffineTransformIdentity;
             self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
@@ -666,6 +668,7 @@ typedef enum {
             [self.rightBottomButton setAlpha:0.0];
 //            [self.groupButton setAlpha:0.0];
             [self.unviewedVideosBadge setAlpha:0.0];
+            [self.leftBottomButton setAlpha:0.0];
 //            self.flashButton.frame = flashFrame;
 //            self.switchCameraButton.frame = switchCamFrame;
             
