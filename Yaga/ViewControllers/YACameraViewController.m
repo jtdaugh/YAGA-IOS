@@ -375,7 +375,8 @@ typedef enum {
 }
 
 - (void)backButtonPressed {
-    [self.navigationController popViewControllerAnimated:YES];
+    [self.delegate backPressed];
+//    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)cameraViewTapped:(id)sender {

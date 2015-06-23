@@ -28,7 +28,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+//    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     [self.navigationController setNavigationBarHidden:YES animated:NO];
     self.navigationController.interactivePopGestureRecognizer.enabled = YES;
     
@@ -158,6 +158,10 @@
     UICollectionView *collectionView = [self getRelevantCollectionView];
     if (!collectionView) return;
     [collectionView setContentOffset:CGPointMake(0, -1 * (VIEW_HEIGHT/2 - CAMERA_MARGIN)) animated:YES];
+}
+
+- (void)backPressed {
+    [self.groupsNavigationController popViewControllerAnimated:YES];
 }
 
 -(BOOL)prefersStatusBarHidden {

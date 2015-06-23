@@ -12,6 +12,7 @@
 @protocol YACameraViewControllerDelegate <NSObject>
 - (void)openGroupOptions;
 - (void)scrollToTop;
+- (void)backPressed;
 @end
 
 #define recordButtonWidth 60.0
