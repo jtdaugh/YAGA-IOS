@@ -145,7 +145,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     [super viewDidAppear:animated];
     
     [YAUser currentUser].currentGroup = nil;
-    
+    [self.delegate updateCameraAccessories];
+
     if(![YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
     
