@@ -71,6 +71,15 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
+
+    //open current group if needed
+    if([YAUser currentUser].currentGroup) {
+        YACollectionViewController *vc = [YACollectionViewController new];
+        vc.delegate = self.delegate;
+        [self.navigationController pushViewController:vc animated:NO];
+        [self.delegate updateCameraAccessories];
+    }
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -135,6 +144,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    [YAUser currentUser].currentGroup = nil;
+    
     if(![YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
     
@@ -147,12 +158,6 @@ static NSString *CellIdentifier = @"GroupsCell";
                 });
             }
         } excludingPhoneNumbers:nil];
-    }
-    
-    //open current group if needed
-    if([YAUser currentUser].currentGroup) {
-        NSUInteger groupIndex = [self.groups indexOfObject:[YAUser currentUser].currentGroup];
-        [self collectionView:self.collectionView didSelectItemAtIndexPath:[NSIndexPath indexPathForRow:groupIndex inSection:0]];
     }
 }
 
