@@ -18,6 +18,7 @@
 
 #import "YACameraViewController.h"
 #import "YAGroupsViewController.h"
+#import "YACollectionViewController.h"
 
 //Swift headers
 //#import "Yaga-Swift.h"
@@ -108,11 +109,25 @@
     [self.cameraViewController enableRecording:enable];
 }
 
+- (UICollectionView *)getRelevantCollectionView {
+    NSArray *vcs = self.groupsNavigationController.viewControllers;
+    for (NSUInteger i = [vcs count] - 1;; i--) {
+        id vc = vcs[i];
+        if ([vc isKindOfClass:[YAGroupsViewController class]] ||
+            [vc isKindOfClass:[YACollectionViewController class]]) {
+            return [vc collectionView];
+        }
+        if (i == 0) break;
+    }
+    return nil;
+}
+
 - (void)scrollViewDidScroll {
     CGRect cameraFrame = self.cameraViewController.view.frame;
     CGRect gridFrame = self.groupsNavigationController.view.frame;
-    id vc = self.groupsNavigationController.visibleViewController;
-    UICollectionView *collectionView = [vc collectionView];
+    
+    UICollectionView *collectionView = [self getRelevantCollectionView];
+    if (!collectionView) return;
     
     CGFloat scrollOffset = collectionView.contentOffset.y;
     CGFloat offset = collectionView.contentInset.top + scrollOffset;
@@ -140,8 +155,8 @@
 }
 
 - (void)scrollToTop {
-    id vc = self.groupsNavigationController.visibleViewController;
-    UICollectionView *collectionView = [vc collectionView];
+    UICollectionView *collectionView = [self getRelevantCollectionView];
+    if (!collectionView) return;
     [collectionView setContentOffset:CGPointMake(0, -1 * (VIEW_HEIGHT/2 - CAMERA_MARGIN)) animated:YES];
 }
 
