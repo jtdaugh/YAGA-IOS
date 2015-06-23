@@ -134,7 +134,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [YAUser currentUser].currentGroup = nil;
     
     if(![YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
@@ -148,6 +147,12 @@ static NSString *CellIdentifier = @"GroupsCell";
                 });
             }
         } excludingPhoneNumbers:nil];
+    }
+    
+    //open current group if needed
+    if([YAUser currentUser].currentGroup) {
+        NSUInteger groupIndex = [self.groups indexOfObject:[YAUser currentUser].currentGroup];
+        [self collectionView:self.collectionView didSelectItemAtIndexPath:[NSIndexPath indexPathForRow:groupIndex inSection:0]];
     }
 }
 
