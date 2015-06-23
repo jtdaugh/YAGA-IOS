@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAGroupsViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate, UIGestureRecognizerDelegate>
+@interface YAGroupsViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) UICollectionView *collectionView;
 
 @property (nonatomic, strong) UITapGestureRecognizer *cameraTapToClose;

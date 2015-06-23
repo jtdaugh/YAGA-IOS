@@ -33,6 +33,10 @@
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
 @property (nonatomic, strong) YAGroup *editingGroup;
 @property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
+
+//needed to have pull down to refresh shown for at least 1 second
+@property (nonatomic, strong) NSDate *willRefreshDate;
+
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -106,9 +110,11 @@ static NSString *CellIdentifier = @"GroupsCell";
     __weak typeof(self) weakSelf = self;
     
     [self.collectionView addPullToRefreshWithActionHandler:^{
+        weakSelf.willRefreshDate = [NSDate date];
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-            [weakSelf updateState];
-            [weakSelf.collectionView.pullToRefreshView stopAnimating];
+//            [weakSelf updateState];
+            [self delayedHidePullToRefresh];
+//            [weakSelf.collectionView.pullToRefreshView stopAnimating];
         }];
     }];
     
@@ -119,6 +125,19 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
+}
+
+- (void)delayedHidePullToRefresh {
+    NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
+    
+    double hidePullToRefreshAfter = 1 - seconds;
+    if(hidePullToRefreshAfter < 0)
+        hidePullToRefreshAfter = 0;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.collectionView.pullToRefreshView stopAnimating];
+        [self updateState];
+    });
 }
 
 - (void)groupDidRefresh:(NSNotification*)notif {
@@ -201,6 +220,14 @@ static NSString *CellIdentifier = @"GroupsCell";
     [YAUser currentUser].currentGroup = group;
     [self.navigationController pushViewController:[GridViewController new] animated:YES];
 }
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    YAGroup *group = self.groups[indexPath.item];
+    NSString *membersString = group.membersString;
+    
+    return [GroupsCollectionViewCell sizeForMembersString:membersString];
+}
+
 - (void)createGroup {
     [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
 }
