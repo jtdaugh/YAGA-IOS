@@ -31,7 +31,7 @@
 
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
-
+#import "Harpy.h"
 #import "YARealmMigrationManager.h"
 
 
@@ -142,6 +142,24 @@
 #else
     [Mixpanel sharedInstanceWithToken:MIXPANEL_TOKEN];
 #endif
+
+    // Harpy
+    [[Harpy sharedInstance] setAppID:@"976285308"];
+    
+    // Set the UIViewController that will present an instance of UIAlertController
+    [[Harpy sharedInstance] setPresentingViewController:_window.rootViewController];
+    
+    // (Optional) The tintColor for the alertController
+    [[Harpy sharedInstance] setAlertControllerTintColor:PRIMARY_COLOR];
+    
+    // (Optional) Set the App Name for your app
+    [[Harpy sharedInstance] setAppName:@"Yaga"];
+    [[Harpy sharedInstance] setPatchUpdateAlertType:HarpyAlertTypeNone];
+    [[Harpy sharedInstance] setMinorUpdateAlertType:HarpyAlertTypeOption];
+    [[Harpy sharedInstance] setMajorUpdateAlertType:HarpyAlertTypeForce];
+
+    [[Harpy sharedInstance] checkVersion];
+
     
     if([[YAUser currentUser] loggedIn]){
         [[Mixpanel sharedInstance] identify:[YAUser currentUser].phoneNumber];
@@ -157,8 +175,6 @@
     if(pushInfo) {
         [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:@{@"meta":pushInfo[@"meta"]}];
     }
-    
-    [[YACameraManager sharedManager] initCamera];
 
     return YES;
 }
@@ -166,7 +182,8 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     [[Mixpanel sharedInstance] track:@"Opened app"];
 //    [AnalyticsKit logEvent:@"Opened app"];
-    
+    [[Harpy sharedInstance] checkVersionDaily];
+
     if(![[YAServer sharedServer] serverUp]) {
         [[YAServer sharedServer] startMonitoringInternetConnection:YES];
     }
@@ -202,7 +219,9 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
 //    [AnalyticsKit applicationWillEnterForeground];
-    [[YACameraManager sharedManager] initCamera];
+    if ([[YAUser currentUser] loggedIn]) {
+        [[YACameraManager sharedManager] initCamera];
+    }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {

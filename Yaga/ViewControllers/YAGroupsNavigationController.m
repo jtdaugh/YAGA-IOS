@@ -8,6 +8,8 @@
 
 #import "YAGroupsNavigationController.h"
 
+#import "YACameraManager.h"
+
 @interface YAGroupsNavigationController () <UINavigationControllerDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, getter = isDuringPushAnimation) BOOL duringPushAnimation;
@@ -54,6 +56,7 @@
     if (!self.delegate) {
         self.delegate = self;
     }
+    [[YACameraManager sharedManager] initCamera];
     
     self.interactivePopGestureRecognizer.delegate = self;
 }
