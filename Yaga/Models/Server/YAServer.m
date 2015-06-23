@@ -496,13 +496,9 @@
     
     NSString *api = [NSString stringWithFormat:API_GROUPS_SEARCH_TEMPLATE, self.base_api];
     
-    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Searching groups", @"")];
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        [hud hide:NO];
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [hud hide:NO];
-        [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
         completion(nil, error);
     }];
 }

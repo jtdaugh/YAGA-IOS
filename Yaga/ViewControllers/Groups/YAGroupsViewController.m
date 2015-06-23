@@ -220,26 +220,26 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)segmentedControlValueChanged:(UISegmentedControl*)segmentedControl {
-    if(segmentedControl.selectedSegmentIndex == 1) {
-        [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
-            if(!error) {
-                self.findGroups = [YAFindGroupsViewConrtoller new];
-                self.findGroups.groupsDataArray = (NSArray*)response;
-                [self addChildViewController:self.findGroups];
-                self.findGroups.view.frame = self.view.bounds;
-                [self.view addSubview:self.findGroups.view];
-            }
-            else {
-                DLog(@"Failed to search groups");
-                segmentedControl.selectedSegmentIndex = 0;
-            }
-        }];
-    }
-    else {
-        [self.findGroups removeFromParentViewController];
-        [self.findGroups.view removeFromSuperview];
-        self.findGroups = nil;
-    }
+//    if(segmentedControl.selectedSegmentIndex == 1) {
+//        [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+//            if(!error) {
+//                self.findGroups = [YAFindGroupsViewConrtoller new];
+//                self.findGroups.groupsDataArray = (NSArray*)response;
+//                [self addChildViewController:self.findGroups];
+//                self.findGroups.view.frame = self.view.bounds;
+//                [self.view addSubview:self.findGroups.view];
+//            }
+//            else {
+//                DLog(@"Failed to search groups");
+//                segmentedControl.selectedSegmentIndex = 0;
+//            }
+//        }];
+//    }
+//    else {
+//        [self.findGroups removeFromParentViewController];
+//        [self.findGroups.view removeFromSuperview];
+//        self.findGroups = nil;
+//    }
 }
 
 @end
