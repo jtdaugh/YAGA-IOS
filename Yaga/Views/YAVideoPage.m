@@ -314,10 +314,7 @@ static NSString *commentCellID = @"CommentCell";
         [self addFullscreenJpgPreview];
     }
     
-    //uploading progress
-    BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
-    [self showUploadingProgress:uploadInProgress];
-
+    [self updateUploadingProgress];
 }
 
 - (void)prepareVideoForPlaying {
@@ -1536,27 +1533,26 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
-- (void)showUploadingProgress:(BOOL)show {
-    self.uploadInProgress = show;
-    
+- (void)updateUploadingProgress {
+    self.uploadInProgress = !self.video.uploadedToAmazon;
+
     YAEventCell *postCell = (YAEventCell *)[self.commentsTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[self.events count] - 1 inSection:0]];
     if (postCell) {
-        [postCell setUploadInProgress:show];
+        [postCell setUploadInProgress:self.uploadInProgress];
     }
 }
 
 - (void)videoChanged:(NSNotification*)notif {
-    if([notif.object isEqual:self.video] && !self.playerView.URL && self.shouldPreload && self.video.mp4Filename.length) {
+    if([notif.object isEqual:self.video] && self.shouldPreload && self.video.mp4Filename.length) {
         //setURL will remove playWhenReady flag, so saving it and using later
-        BOOL playWhenReady = self.playerView.playWhenReady;
-        [self prepareVideoForPlaying];
-        self.playerView.playWhenReady = playWhenReady;
-        
-        [self updateControls];
-        
-        //uploading progress
-        BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
-        [self showUploadingProgress:uploadInProgress];
+        if (!self.playerView.URL) {
+            BOOL playWhenReady = self.playerView.playWhenReady;
+            [self prepareVideoForPlaying];
+            self.playerView.playWhenReady = playWhenReady;
+            
+            [self updateControls];
+        }
+        [self updateUploadingProgress];
     }
 }
 
