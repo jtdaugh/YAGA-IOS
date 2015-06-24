@@ -34,12 +34,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.clipsToBounds = YES;
-    self.view.backgroundColor = [UIColor blackColor];    
+    self.view.backgroundColor = [UIColor blackColor];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
+
     [self initVideoPage];
 
     // Do any additional setup after loading the view.
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
+}
 
 - (void)initVideoPage {
     YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:self.view.bounds];
@@ -56,6 +61,11 @@
     page.playerView.playWhenReady = YES;
     self.videoPage = page;
 }
+
+- (void)didDeleteVideo:(id)sender {
+    [self dismissAnimated];
+}
+
 
 - (void)suspendAllGestures:(id)sender {
     // prevent non-visible pages from sending stray calls
