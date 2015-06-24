@@ -17,6 +17,7 @@
 
 @interface YAFindGroupsViewConrtoller ()
 @property (nonatomic, strong) NSArray *groupsDataArray;
+@property (nonatomic, strong) NSMutableSet *pendingRequestsInProgress;
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -134,27 +135,37 @@ static NSString *CellIdentifier = @"GroupsCell";
         cell.layoutMargins = UIEdgeInsetsZero;
     }
     
-    UIButton *requestButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    requestButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
-    requestButton.tag = indexPath.row;
-    requestButton.frame = CGRectMake(0, 0, 90, 30);
-    [requestButton addTarget:self action:@selector(requestButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [requestButton setTitle:NSLocalizedString(@"Request", @"") forState:UIControlStateNormal];
-    [requestButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [requestButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
-    [requestButton setTintColor:[UIColor whiteColor]];
-    requestButton.layer.borderWidth = 2.0f;
-    requestButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-    requestButton.layer.cornerRadius = 4;
-    
-    UILabel *pendingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 90, 30)];
-    pendingLabel.textColor = [UIColor whiteColor];
-    pendingLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
-    pendingLabel.textAlignment = NSTextAlignmentCenter;
-    pendingLabel.text = NSLocalizedString(@"Pending", @"");
-    
-    cell.accessoryView = [groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]? pendingLabel : requestButton;
-    
+    if([self.pendingRequestsInProgress containsObject:[NSNumber numberWithInteger:indexPath.row]]) {
+        UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        activityView.frame = CGRectMake(0, 0, 90, 30);
+        cell.accessoryView = activityView;
+        [activityView startAnimating];
+    }
+    else if([groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]) {
+        UILabel *pendingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 90, 30)];
+        pendingLabel.textColor = [UIColor whiteColor];
+        pendingLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        pendingLabel.textAlignment = NSTextAlignmentCenter;
+        pendingLabel.text = NSLocalizedString(@"Pending", @"");
+        cell.accessoryView = pendingLabel;
+    }
+    else {
+        UIButton *requestButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        requestButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        requestButton.tag = indexPath.row;
+        requestButton.frame = CGRectMake(0, 0, 90, 30);
+        [requestButton addTarget:self action:@selector(requestButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [requestButton setTitle:NSLocalizedString(@"Request", @"") forState:UIControlStateNormal];
+        [requestButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [requestButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+        [requestButton setTintColor:[UIColor whiteColor]];
+        requestButton.layer.borderWidth = 2.0f;
+        requestButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        requestButton.layer.cornerRadius = 4;
+        
+        cell.accessoryView = requestButton;
+    }
+
     return cell;
 }
 
@@ -181,19 +192,36 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 
 - (void)requestButtonTapped:(UIButton*)sender {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        return;
+    }
+    
+    if(!self.pendingRequestsInProgress)
+        self.pendingRequestsInProgress = [NSMutableSet set];
+    
+    [self.pendingRequestsInProgress addObject:[NSNumber numberWithInteger:sender.tag]];
+    [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+    
     NSDictionary *groupData = self.groupsDataArray[sender.tag];
+    
     [[YAServer sharedServer] joinGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:^(id response, NSError *error) {
+
         if(!error) {
             NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
             [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
             NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.groupsDataArray];
             [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
             _groupsDataArray = upatedDataArray;
-            [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+            
         }
         else {
             DLog(@"Can't send request to join group");
         }
+        
+        [self.pendingRequestsInProgress removeObject:[NSNumber numberWithInteger:sender.tag]];
+        [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
     }];
 }
 

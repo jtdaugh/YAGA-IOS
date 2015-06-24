@@ -496,22 +496,13 @@
 
 - (void)joinGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion
 {
-    if(![YAServer sharedServer].serverUp) {
-        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
-        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
-        return;
-    }
-    
     NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api = [NSString stringWithFormat:API_GROUP_JOIN_TEMPLATE, self.base_api, serverGroupId];
     
-    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Requesting to join to group", @"")];
     [self.jsonOperationsManager PUT:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        [hud hide:NO];
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [hud hide:NO];
         [YAUtils showHudWithText:NSLocalizedString(@"Failed to join group", @"")];
         completion(nil, error);
     }];
