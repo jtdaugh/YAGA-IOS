@@ -11,6 +11,7 @@
 @protocol YASuspendableGesturesDelegate <NSObject>
 - (void)suspendAllGestures:(id)sender;
 - (void)restoreAllGestures:(id)sender;
+- (void)dismissAnimated;
 @end
 
 @protocol YASwipingViewControllerDelegate <NSObject>
@@ -22,7 +23,6 @@
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 - (id)initWithInitialIndex:(NSUInteger)initialIndex;
-- (void)dismissAnimated;
 
 @property (nonatomic, weak) id<YASwipingViewControllerDelegate> delegate;
 

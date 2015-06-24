@@ -1263,9 +1263,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)closeButtonPressed:(id)sender {
     // close video here
-    if([self.presentingVC isKindOfClass:[YASwipingViewController class]]){
-        [((YASwipingViewController *) self.presentingVC) dismissAnimated];
-    }
+    [self.presentingVC dismissAnimated];
 }
 
 - (void)shareButtonPressed:(id)sender {

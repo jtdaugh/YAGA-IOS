@@ -20,6 +20,7 @@
 @interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate>
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
+@property (strong, nonatomic) NSNumber *recording;
 
 - (void)showCameraAccessories:(BOOL)show;
 

@@ -43,7 +43,6 @@ typedef enum {
 @property (strong, nonatomic) UIView *indicator;
 @property (strong, nonatomic) UILabel *indicatorText;
 @property (strong, nonatomic) UIView *white;
-@property (strong, nonatomic) NSNumber *recording;
 @property (strong, nonatomic) NSDate *recordingTime;
 @property (nonatomic) BOOL cancelledRecording;
 @property (nonatomic) BOOL flash;

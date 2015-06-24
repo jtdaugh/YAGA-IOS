@@ -13,7 +13,6 @@
 
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 - (id)initWithVideo:(YAVideo *)video;
-- (void)dismissAnimated;
 
 
 @end

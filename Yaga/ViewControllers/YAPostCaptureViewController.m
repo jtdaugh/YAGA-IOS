@@ -59,7 +59,7 @@
     }
     [page setVideo:self.video shouldPreload:YES];
     page.playerView.playWhenReady = YES;
-    
+    self.videoPage = page;
 }
 
 #pragma mark - Animated dismissal

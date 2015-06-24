@@ -165,7 +165,9 @@
     
     cameraFrame.origin.y = -offset;
 
-    self.cameraViewController.view.frame = cameraFrame;
+    if (![self.cameraViewController.recording boolValue]) {
+        self.cameraViewController.view.frame = cameraFrame;
+    }
     self.groupsNavigationController.view.frame = gridFrame;
 }
 
