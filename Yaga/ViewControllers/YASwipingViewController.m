@@ -62,7 +62,7 @@
     
     self.scrollView = [[UIScrollView alloc] initWithFrame:rect];
     self.scrollView.delegate = self;
-    self.scrollView.backgroundColor = PRIMARY_COLOR;
+    self.scrollView.backgroundColor = [UIColor blackColor];
     self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.scrollView.showsHorizontalScrollIndicator = NO;
     [self.view addSubview:self.scrollView];
@@ -79,7 +79,7 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
+    [super viewDidAppear:animated];
     
     //hide selected video fullscreen jpg preview
     [self showJpgPreview:NO];
@@ -213,9 +213,7 @@
         UIView *v = [[UIView alloc] initWithFrame:pageFrame];
         v.backgroundColor = [UIColor whiteColor];
         [page addSubview:v];
-        
-//        page.backgroundColor = PRIMARY_COLOR;
-        
+                
         [self.scrollView addSubview:page];
         [self.pages addObject:page];
     }

@@ -1220,6 +1220,11 @@ static NSString *commentCellID = @"CommentCell";
     [self refreshWholeTableWithEventsArray:events];
     [self initializeCaption];
     
+    if (!self.video.group) {
+        // hacky delay to do this after you can see video.
+        [self performSelector:@selector(shareButtonPressed:) withObject:nil afterDelay:0.4];
+    }
+    
     BOOL mp4Downloaded = self.video.mp4Filename.length;
 
 //    NSAttributedString *string = [[NSAttributedString alloc] initWithString:self.video.creator attributes:@{

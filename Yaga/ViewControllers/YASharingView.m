@@ -170,26 +170,34 @@
 
 - (void)confirmCrosspost:(id)sender {
     NSMutableArray *groupIds = [NSMutableArray new];
+    NSMutableArray *yaGroups = [NSMutableArray new];
+    
     for(NSIndexPath *indexPath in self.groupsList.indexPathsForSelectedRows) {
         if(self.groups.count > indexPath.row) {
             YAGroup *group = self.groups[indexPath.row];
             [groupIds addObject:group.serverId];
+            [yaGroups addObject:group];
         }
     }
-    
-    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Copying video to groups", @"")];
-    [[YAServer sharedServer] copyVideo:self.video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
-        [hud hide:NO];
-        
-        if(!error) {
-            [self.page collapseCrosspost];
-            [YAUtils showHudWithText:NSLocalizedString(@"Copied successfully", @"")];
-        }
-        else {
-            NSLog(@"%@", error);
-            [YAUtils showHudWithText:NSLocalizedString(@"Can not copy video to groups", @"")];
-        }
-    }];
+    if (self.video.group) {
+        __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Copying video to groups", @"")];
+        [[YAServer sharedServer] copyVideo:self.video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
+            [hud hide:NO];
+            
+            if(!error) {
+                [YAUtils showHudWithText:NSLocalizedString(@"Copied successfully", @"")];
+            }
+            else {
+                NSLog(@"%@", error);
+                [YAUtils showHudWithText:NSLocalizedString(@"Can not copy video to groups", @"")];
+            }
+        }];
+        [self.page collapseCrosspost];
+    } else {
+        [[YAServer sharedServer] postUngroupedVideo:self.video toGroups:yaGroups];
+        [self.page.presentingVC dismissAnimated];
+    }
+
 }
 
 - (void)collapseCrosspost {

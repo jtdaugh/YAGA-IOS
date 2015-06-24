@@ -12,5 +12,5 @@
 
 @interface YASharingView : UIView<UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, strong) YAVideo *video;
-@property (strong, nonatomic) YAVideoPage *page;
+@property (weak, nonatomic) YAVideoPage *page;
 @end

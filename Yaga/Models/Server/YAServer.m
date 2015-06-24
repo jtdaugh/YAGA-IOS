@@ -817,6 +817,42 @@
                    }];
 }
 
+// TODO: replace this method with a correct server call to post a video in (at the time) no groups into multiple groups
+- (void)postUngroupedVideo:(YAVideo *)video toGroups:(NSArray *)groups {
+    if (![groups count]) return;
+    YAGroup *firstGroup = groups[0];
+    NSDate *currentDate = [NSDate date];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        video.group = firstGroup;
+        [firstGroup.realm beginWriteTransaction];
+        firstGroup.updatedAt = currentDate;
+        [firstGroup.videos insertObject:video atIndex:0];
+        [firstGroup.realm commitWriteTransaction];
+        
+        //update local update time so the "new" badge isn't shown
+        NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+        [groupsUpdatedAt setObject:currentDate forKey:firstGroup.localId];
+        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+        
+        //start uploading while generating gif
+        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:firstGroup];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:firstGroup userInfo:@{kNewVideos:@[video]}];
+        
+        NSMutableArray *remainingGroupIds = [NSMutableArray array];
+        for (int i = 0; i < [groups count]; i++) {
+            YAGroup *group = groups[i];
+            [remainingGroupIds addObject:group.serverId];
+        }
+        if ([remainingGroupIds count]) {
+            [self copyVideo:video toGroupsWithIds:remainingGroupIds withCompletion:^(id response, NSError *error) {
+                // No confirmation or anything on completion
+            }];
+        }
+    });
+    
+}
+
 - (void)copyVideo:(YAVideo*)video toGroupsWithIds:(NSArray*)groupIdsToCopyTo withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     
