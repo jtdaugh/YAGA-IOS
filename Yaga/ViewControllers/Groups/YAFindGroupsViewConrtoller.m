@@ -257,11 +257,13 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [self.tableView addPullToRefreshWithActionHandler:^{
         [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+            [weakSelf.tableView.pullToRefreshView stopAnimating];
+            
             if(error) {
-                [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
+                if(![error.domain isEqualToString:@"YANoConnection"])
+                    [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
             }
             else {
-                [weakSelf.tableView.pullToRefreshView stopAnimating];
                 weakSelf.groupsDataArray = (NSArray*)response;
                 [weakSelf.tableView reloadData];
                 [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
