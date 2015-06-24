@@ -1284,7 +1284,7 @@ static NSString *commentCellID = @"CommentCell";
 
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {    
     NSLog(@"button index: %lu", buttonIndex);
     switch (buttonIndex) {
         case 0: {
