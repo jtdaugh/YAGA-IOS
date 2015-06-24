@@ -71,16 +71,10 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
-
-    //open current group if needed
-    if([YAUser currentUser].currentGroup) {
-        YACollectionViewController *vc = [YACollectionViewController new];
-        vc.delegate = self.delegate;
-        self.forcePushGrid = YES;
-        [self.navigationController pushViewController:vc animated:NO];
-        [self.delegate updateCameraAccessories];
-    }
-
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION    object:nil];
+    
+    //force to open last selected group
+    [self groupDidChange:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -130,6 +124,20 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)groupDidRefresh:(NSNotification*)notif {
     [self updateState];
+}
+
+- (void)groupDidChange:(NSNotification*)notif {
+    [self.navigationController popToRootViewControllerAnimated:NO];
+    
+    //open current group if needed
+    if([YAUser currentUser].currentGroup) {
+        YACollectionViewController *vc = [YACollectionViewController new];
+        vc.delegate = self.delegate;
+        self.forcePushGrid = YES;
+        [self.navigationController pushViewController:vc animated:NO];
+        [self.delegate updateCameraAccessories];
+    }
+
 }
 
 - (void)updateState {
