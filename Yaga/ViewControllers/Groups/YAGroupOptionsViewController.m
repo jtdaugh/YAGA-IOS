@@ -13,7 +13,6 @@
 
 @interface YAGroupOptionsViewController ()
 
-@property (nonatomic, strong) UIButton *addMembersButton;
 @property (nonatomic, strong) UIButton *muteButton;
 @property (nonatomic, strong) UIButton *leaveButton;
 @property (nonatomic, strong) UITableView *tableView;
@@ -23,6 +22,8 @@
 @property (nonatomic, strong) RLMNotificationToken *notificationToken;
 @property (nonatomic, strong) NSMutableArray *membersPendingJoin;
 @property (nonatomic, strong) NSMutableSet *pendingMembersInProgress;
+
+@property (nonatomic, strong) UIButton *groupNameButton;
 @end
 
 #define kCancelledJoins @"kCancelledJoins"
@@ -38,16 +39,6 @@
     
     const CGFloat buttonWidth = VIEW_WIDTH - 40;
     CGFloat buttonHeight = 54;
-    
-    self.addMembersButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, 74, buttonWidth, VIEW_HEIGHT*.08)];
-    [self.addMembersButton setBackgroundColor:PRIMARY_COLOR];
-    [self.addMembersButton setTitle:NSLocalizedString(@"Invite Members", @"") forState:UIControlStateNormal];
-    [self.addMembersButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
-    [self.addMembersButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    self.addMembersButton.layer.cornerRadius = 8.0;
-    self.addMembersButton.layer.masksToBounds = YES;
-    [self.addMembersButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.addMembersButton];
     
     self.muteButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, VIEW_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
     [self.muteButton setBackgroundColor:[UIColor whiteColor]];
@@ -73,15 +64,15 @@
     [self.leaveButton addTarget:self action:@selector(leaveTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.leaveButton];
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height + 10, VIEW_WIDTH, self.muteButton.frame.origin.y - (self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height) - 20) style:UITableViewStylePlain];
-    
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, VIEW_WIDTH, self.muteButton.frame.origin.y - 64) style:UITableViewStylePlain];
+
     [self.view addSubview:self.tableView];
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
-    
+
     [self updateMembersPendingJoin];
 }
 
@@ -89,23 +80,20 @@
     
     UIView *topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 64)];
     topBar.backgroundColor = PRIMARY_COLOR;
-    UILabel *groupNameLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 28, 200, 30)];
-    groupNameLabel.textColor = [UIColor whiteColor];
-    groupNameLabel.textAlignment = NSTextAlignmentCenter;
-    [groupNameLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
-    groupNameLabel.text = self.group.name;
+    self.groupNameButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 28, 200, 30)];
+    self.groupNameButton.tintColor = [UIColor whiteColor];
+    self.groupNameButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:20];
+    [self.groupNameButton setTitle:self.group.name forState:UIControlStateNormal];
+    [self.groupNameButton addTarget:self action:@selector(editTitleTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [topBar addSubview:self.groupNameButton];
     
-    [topBar addSubview:groupNameLabel];
-    
-    CGFloat editTitleWidth = 100;
-    UIButton *editTitleButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - editTitleWidth - 10, 31, editTitleWidth, 28)];
-    [editTitleButton setTitle:@"Edit Title" forState:UIControlStateNormal];
-    [editTitleButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [editTitleButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
-    [editTitleButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
-    editTitleButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-    [editTitleButton addTarget:self action:@selector(editTitleTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [topBar addSubview:editTitleButton];
+    CGFloat addMembersButtonWidth = 100;
+    UIButton *addMembersButton = [UIButton buttonWithType:UIButtonTypeContactAdd];
+    addMembersButton.frame = CGRectMake(VIEW_WIDTH - addMembersButtonWidth - 10, 31, addMembersButtonWidth, 28);
+    addMembersButton.tintColor = [UIColor whiteColor];
+    addMembersButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+    [addMembersButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [topBar addSubview:addMembersButton];
     
     UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
     backButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
@@ -160,7 +148,7 @@
         
         [self.group rename:newname withCompletion:^(NSError *error) {
             if(!error)
-                self.navigationItem.title = newname;
+                [self.groupNameButton setTitle:newname forState:UIControlStateNormal];
         }];
         
     }]];
