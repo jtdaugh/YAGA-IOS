@@ -71,11 +71,11 @@
     self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
     self.crossPostPrompt.textColor = [UIColor whiteColor];
     self.crossPostPrompt.text = @"Post to more groups";
-//    self.crossPostPrompt.layer.shadowRadius = 0.5f;
-//    self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
-//    self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
-//    self.crossPostPrompt.layer.shadowOpacity = 1.0;
-//    self.crossPostPrompt.layer.masksToBounds = NO;
+    self.crossPostPrompt.layer.shadowRadius = 0.5f;
+    self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.5f, 0.5f);
+    self.crossPostPrompt.layer.shadowOpacity = 1.0;
+    self.crossPostPrompt.layer.masksToBounds = NO;
     [self.bgOverlay addSubview:self.crossPostPrompt];
     
     
@@ -182,7 +182,7 @@
         [hud hide:NO];
         
         if(!error) {
-            [self collapseCrosspost];
+            [self.page collapseCrosspost];
             [YAUtils showHudWithText:NSLocalizedString(@"Copied successfully", @"")];
         }
         else {
@@ -239,7 +239,7 @@
                                                                 [YAUtils showHudWithText:message];
                                                             }
                                                             if(completed){
-                                                                [self collapseCrosspost];
+                                                                [self.page collapseCrosspost];
                                                             }
                                                         }];
                                                     }

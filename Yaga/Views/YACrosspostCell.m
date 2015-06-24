@@ -30,6 +30,13 @@
         self.groupTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding,0,VIEW_WIDTH - padding - checkboxWidth - padding, XPCellHeight)];
         self.groupTitleLabel.font = [UIFont fontWithName:BIG_FONT size:28];
         self.groupTitleLabel.textColor = [UIColor whiteColor];
+        
+        self.groupTitleLabel.shadowColor = [UIColor blackColor];
+        self.groupTitleLabel.shadowOffset = CGSizeMake(0.5, 0.5);
+//        self.groupTitleLabel.layer.shadowRadius = 0.5;
+//        self.groupTitleLabel.layer.masksToBounds = YES;
+        
+        
         [self addSubview:self.groupTitleLabel];
         
         self.checkbox = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - checkboxWidth - padding, (XPCellHeight - checkboxWidth)/2, checkboxWidth, checkboxWidth)];
