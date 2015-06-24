@@ -76,8 +76,9 @@
 		6EA942161A404B00001803C5 /* YAGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942151A404B00001803C5 /* YAGroup.m */; };
 		6EA942191A405C80001803C5 /* YAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942181A405C80001803C5 /* YAUtils.m */; };
 		6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA9421B1A41E5C9001803C5 /* YAVideo.m */; };
+		6EB995421B3B0035004ACF05 /* YASwipeToDismissViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB995411B3B0035004ACF05 /* YASwipeToDismissViewController.m */; };
+		6EB995451B3B005A004ACF05 /* YASharingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB995441B3B005A004ACF05 /* YASharingView.m */; };
 		6EC1F08A1B27394E00297D0F /* uploading.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6EC1F0891B27394E00297D0F /* uploading.gif */; };
-		6EC1F0961B2B18AC00297D0F /* YASharingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC1F0951B2B18AC00297D0F /* YASharingView.m */; };
 		6ECCCDF81A804EF000B1E1BC /* YAProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */; };
 		6ED379E41AB1C6F40099BDC1 /* YAUserPermissions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED379E31AB1C6F40099BDC1 /* YAUserPermissions.m */; };
 		6ED8FC0F1ADD6A0B0023750E /* YAGroupOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED8FC0D1ADD6A0B0023750E /* YAGroupOptionsViewController.m */; };
@@ -255,9 +256,11 @@
 		6EA942181A405C80001803C5 /* YAUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAUtils.m; sourceTree = "<group>"; };
 		6EA9421A1A41E5C9001803C5 /* YAVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideo.h; sourceTree = "<group>"; };
 		6EA9421B1A41E5C9001803C5 /* YAVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideo.m; sourceTree = "<group>"; };
+		6EB995401B3B0035004ACF05 /* YASwipeToDismissViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASwipeToDismissViewController.h; sourceTree = "<group>"; };
+		6EB995411B3B0035004ACF05 /* YASwipeToDismissViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASwipeToDismissViewController.m; sourceTree = "<group>"; };
+		6EB995431B3B005A004ACF05 /* YASharingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASharingView.h; sourceTree = "<group>"; };
+		6EB995441B3B005A004ACF05 /* YASharingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASharingView.m; sourceTree = "<group>"; };
 		6EC1F0891B27394E00297D0F /* uploading.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = uploading.gif; sourceTree = "<group>"; };
-		6EC1F0941B2B18AC00297D0F /* YASharingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASharingView.h; sourceTree = "<group>"; };
-		6EC1F0951B2B18AC00297D0F /* YASharingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASharingView.m; sourceTree = "<group>"; };
 		6ECCCDF61A804EF000B1E1BC /* YAProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAProgressView.h; sourceTree = "<group>"; };
 		6ECCCDF71A804EF000B1E1BC /* YAProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAProgressView.m; sourceTree = "<group>"; };
 		6ED379E21AB1C6F40099BDC1 /* YAUserPermissions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAUserPermissions.h; sourceTree = "<group>"; };
@@ -589,8 +592,8 @@
 				88F906551B3A224400EE5527 /* YAPostCaptureViewController.m */,
 				6E583B761A65394800639BE5 /* YAAnimatedTransitioningController.h */,
 				6E583B771A65394800639BE5 /* YAAnimatedTransitioningController.m */,
-				6EC1F0941B2B18AC00297D0F /* YASharingView.h */,
-				6EC1F0951B2B18AC00297D0F /* YASharingView.m */,
+				6EB995401B3B0035004ACF05 /* YASwipeToDismissViewController.h */,
+				6EB995411B3B0035004ACF05 /* YASwipeToDismissViewController.m */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -617,6 +620,8 @@
 		6E9188B11A3F3A5A0034AB63 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				6EB995431B3B005A004ACF05 /* YASharingView.h */,
+				6EB995441B3B005A004ACF05 /* YASharingView.m */,
 				6E583B701A6535C400639BE5 /* YAVideoPage.h */,
 				6E583B711A6535C400639BE5 /* YAVideoPage.m */,
 				6E583B721A6535C400639BE5 /* YAVideoPlayerView.h */,
@@ -899,6 +904,7 @@
 				861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
 				6E40C9E11B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m in Sources */,
+				6EB995451B3B005A004ACF05 /* YASharingView.m in Sources */,
 				6E583B751A6535C400639BE5 /* YAVideoPlayerView.m in Sources */,
 				6E1603F61B184F4A00D5D90E /* YANoServerIdError.m in Sources */,
 				6E62F7201A51A8CB008F5116 /* YAGroupAddMembersViewController.m in Sources */,
@@ -926,7 +932,6 @@
 				887AFD0F1AD8ADEA00F00948 /* YAInviteCameraViewController.m in Sources */,
 				8695EF881AAF519900431E44 /* YAGifCopyActivity.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
-				6EC1F0961B2B18AC00297D0F /* YASharingView.m in Sources */,
 				6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */,
 				6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */,
 				0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */,
@@ -945,6 +950,7 @@
 				6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */,
 				6EEDB8E51A8A555C000BB909 /* YANotificationView.m in Sources */,
 				6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */,
+				6EB995421B3B0035004ACF05 /* YASwipeToDismissViewController.m in Sources */,
 				6E9188E71A3F3A5A0034AB63 /* YaOnboardingNavigationController.m in Sources */,
 				6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */,
 				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,

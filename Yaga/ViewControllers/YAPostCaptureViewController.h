@@ -8,11 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "YASwipingViewController.h"
+#import "YASwipeToDismissViewController.h"
 
-@interface YAPostCaptureViewController : UIViewController <YASuspendableGesturesDelegate>
+@interface YAPostCaptureViewController : YASwipeToDismissViewController <YASuspendableGesturesDelegate>
 
-@property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 - (id)initWithVideo:(YAVideo *)video;
-
 
 @end
