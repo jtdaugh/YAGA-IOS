@@ -1308,7 +1308,7 @@ static NSString *commentCellID = @"CommentCell";
             
             break;
         } default: {
-            NSLog(@"no switch case for button with index: %d", buttonIndex);
+            NSLog(@"no switch case for button with index: %lu", (unsigned long)buttonIndex);
         }
     }
 }

@@ -268,12 +268,9 @@
     [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
-    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Adding members", @"")];
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                               
-                               [hud hide:NO];
                                
                                if([(NSHTTPURLResponse*)response statusCode] == 200) {
                                    [YAUtils showHudWithText:NSLocalizedString(@"Members added", @"")];
