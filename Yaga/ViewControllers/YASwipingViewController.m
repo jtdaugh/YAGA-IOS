@@ -78,7 +78,7 @@
     [self showJpgPreview:YES];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
+- (void)viewDidAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
     //hide selected video fullscreen jpg preview
