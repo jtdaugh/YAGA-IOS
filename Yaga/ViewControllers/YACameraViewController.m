@@ -600,7 +600,7 @@ typedef enum {
 //        CGRect switchCamFrame = self.switchCameraButton.frame;
 //        switchCamFrame.origin.y = VIEW_HEIGHT/2 - switchCamFrame.size.height - 10;
 
-        [self animateToOriginalCameraFrameWithDelay:0];
+        [self animateToOriginalCameraFrame];
         
         self.largeCamera = NO;
     }
@@ -902,9 +902,10 @@ typedef enum {
         
         if(executionTime < 0.5 || self.cancelledRecording){
             self.cancelledRecording = YES;
-            [self animateToOriginalCameraFrameWithDelay:0];
+            [self animateToOriginalCameraFrame];
         } else {
-            [self animateToOriginalCameraFrameWithDelay:0.5];
+            [self performSelector:@selector(animateToOriginalCameraFrame) withObject:self afterDelay:0.5];
+//            [self animateToOriginalCameraFrame];
         }
         
         [self stopRecordingVideo];
@@ -912,8 +913,8 @@ typedef enum {
 
 }
 
-- (void)animateToOriginalCameraFrameWithDelay:(NSTimeInterval)delay {
-    [UIView animateWithDuration:0.2 delay:delay options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+- (void)animateToOriginalCameraFrame {
+    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         self.view.frame = self.previousViewFrame;
         [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
         [self showCameraAccessories:YES];
