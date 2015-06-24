@@ -60,6 +60,7 @@
     [self.groupsList setBackgroundColor:[UIColor clearColor]];
     [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:@"crossPostCell"];
     self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [self.groupsList setContentInset:UIEdgeInsetsMake(0, 0, shareBarHeight, 0)];
     self.groupsList.allowsSelection = YES;
     self.groupsList.allowsMultipleSelection = YES;
     
