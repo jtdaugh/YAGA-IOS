@@ -87,6 +87,7 @@
         
         self.caption.backgroundColor = [UIColor clearColor];
         self.caption.userInteractionEnabled = NO;
+        self.caption.textAlignment = NSTextAlignmentCenter;
         [self.captionWrapper addSubview:self.caption];
         [self.contentView addSubview:self.captionWrapper];
 
