@@ -460,6 +460,9 @@ static NSString *cellID = @"Cell";
             self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
             [self.collectionView addSubview:self.activityView];
             [self.activityView startAnimating];
+            
+            [self.noVideosLabel removeFromSuperview];
+            self.noVideosLabel = nil;
         }
     }
     else {
