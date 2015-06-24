@@ -192,8 +192,8 @@
     }
 }
 
-+ (void)deleteVideo:(YAVideo*)video {
-    NSString *alertMessageText = [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to delete this video from '%@'?", @""), [YAUser currentUser].currentGroup.name];
++ (void)confirmDeleteVideo:(YAVideo*)video withConfirmationBlock:(confirmationBlock)block {
+    NSString *alertMessageText = [YAUser currentUser].currentGroup ? [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to delete this video from '%@'?", @""), [YAUser currentUser].currentGroup.name] : NSLocalizedString(@"Are you sure you want to delete this video?", @"");
     
     NSString *alertMessage = NSLocalizedString(alertMessageText, nil);
     UIAlertController *confirmAlert = [UIAlertController
@@ -212,7 +212,8 @@
                              actionWithTitle:NSLocalizedString(@"Delete", nil)
                              style:UIAlertActionStyleDestructive
                              handler:^(UIAlertAction *action) {
-                                 [video removeFromCurrentGroupWithCompletion:nil removeFromServer:YES];
+                                 if(block)
+                                     block();
                              }]];
     
     UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;

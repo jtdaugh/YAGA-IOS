@@ -513,7 +513,6 @@ static NSString *commentCellID = @"CommentCell";
     [self setupCaptionButtonContainer];
     [self setupCaptionGestureRecognizers];
     [self.overlay bringSubviewToFront:self.moreButton];
-//    [self.overlay bringSubviewToFront:self.deleteButton];
     [self.overlay bringSubviewToFront:self.commentButton];
     
     [self.overlay setAlpha:0.0];
@@ -1165,13 +1164,6 @@ static NSString *commentCellID = @"CommentCell";
 
 #pragma mark - ETC
 
-- (void)deleteButtonPressed {
-    [self animateButton:self.deleteButton withImageName:nil completion:^{
-        [YAUtils deleteVideo:self.video];
-    }];
-}
-
-
 - (void)commentButtonPressed {
     [self.commentsTextField becomeFirstResponder];
 }
@@ -1269,23 +1261,25 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)closeButtonPressed:(id)sender {
     // close video here
+    [self closeAnimated];
+}
+
+- (void)closeAnimated {
     [self.presentingVC dismissAnimated];
 }
 
 - (void)moreButtonPressed:(id)sender {
-    NSLog(@"More pressed!");
     UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"✌🏾"
                                                              delegate:self
                                                     cancelButtonTitle:@"Cancel"
                                                destructiveButtonTitle:nil
                                                     otherButtonTitles:@"Share", @"Post to other groups", @"Add Caption", @"Save to Camera Roll", @"Delete", nil];
     actionSheet.destructiveButtonIndex = 4;
+    actionSheet.cancelButtonIndex = 5;
     [actionSheet showInView:self];
-
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    NSLog(@"button index: %lu", (unsigned long)buttonIndex);
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
     switch (buttonIndex) {
         case 0: {
             // export and share
@@ -1305,10 +1299,16 @@ static NSString *commentCellID = @"CommentCell";
             break;
         } case 4: {
             // delete
-            [YAUtils deleteVideo:self.video];
+            [YAUtils confirmDeleteVideo:self.video withConfirmationBlock:^{
+                if(self.video.realm)
+                    [self.video removeFromCurrentGroupWithCompletion:nil removeFromServer:[YAUser currentUser].currentGroup != nil];
+                else
+                    [self closeAnimated];
+            }];
+            
             break;
         } default: {
-            NSLog(@"wtf");
+            NSLog(@"no switch case for button with index: %d", buttonIndex);
         }
     }
 }

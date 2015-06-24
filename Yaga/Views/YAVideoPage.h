@@ -21,5 +21,6 @@
 
 - (void)setVideo:(YAVideo *)video shouldPreload:(BOOL)shouldPreload;
 - (void)collapseCrosspost;
-    
+- (void)closeAnimated;
+
 @end
