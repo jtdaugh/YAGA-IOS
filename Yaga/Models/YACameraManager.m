@@ -43,6 +43,12 @@
         self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
         self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
         self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
+        
+        NSArray *ranges = self.videoCamera.inputCamera.activeFormat.videoSupportedFrameRateRanges;
+        
+        for(NSString *range in ranges){
+            NSLog(@"range: %@", range);
+        }
         self.isInitialized = NO;
     }
     return self;
@@ -66,6 +72,7 @@
                 [self.videoCamera addTarget:self.currentCameraView];
             }
         }
+
         [self.videoCamera startCameraCapture];
         
         NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
@@ -77,6 +84,7 @@
         self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
         unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
         
+//        [GPUImageMovieWriter alloc] initWith
         self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
         //        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
         self.videoCamera.audioEncodingTarget = self.movieWriter;
@@ -129,6 +137,7 @@
         self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
         self.movieWriter.encodingLiveVideo = YES;
         self.movieWriter.shouldPassthroughAudio = NO; // default YES
+        self.movieWriter.assetWriter.movieFragmentInterval = kCMTimeInvalid;
         //        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
         self.videoCamera.audioEncodingTarget = self.movieWriter;
         
@@ -177,6 +186,7 @@
     if([currentVideoDevice position] == AVCaptureDevicePositionBack){
         // back camera
         [currentVideoDevice lockForConfiguration:nil];
+        
         if(!flashOn){
             //turn flash off
             if([currentVideoDevice isTorchModeSupported:AVCaptureTorchModeOff]){

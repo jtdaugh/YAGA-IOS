@@ -212,7 +212,7 @@ typedef enum {
         [self.view addSubview:self.unviewedVideosBadge];
         
         CGFloat width = 48;
-        self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2 - width/2, 20, width, width)];
+        self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - width/2, 20, width, width)];
         UIImageView *monkeyIndicator = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, width, width)];
         [monkeyIndicator setImage:[UIImage imageNamed:@"Monkey_Pink"]];
         [self.recordingIndicator addSubview:monkeyIndicator];
@@ -777,7 +777,7 @@ typedef enum {
     
     self.cancelledRecording = NO;
     self.recording = [NSNumber numberWithBool:YES];
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.cameraView.frame.size.width, VIEW_HEIGHT/32.f)];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, VIEW_HEIGHT/32.f)];
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
     [self.indicator setUserInteractionEnabled:NO];
     [self.view addSubview:self.indicator];
@@ -819,7 +819,7 @@ typedef enum {
     [self enlargeCamera:nil];
     
     [UIView animateWithDuration:MAX_VIDEO_DURATION delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        [self.indicator setFrame:CGRectMake(self.cameraView.frame.size.width, 0, 0, self.indicator.frame.size.height)];
+        [self.indicator setFrame:CGRectMake(self.view.frame.size.width, 0, 0, self.indicator.frame.size.height)];
     } completion:^(BOOL finished) {
         if(finished){
             [self endHold];
@@ -900,7 +900,7 @@ typedef enum {
         NSDate *recordingFinished = [NSDate date];
         NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
         
-        if(executionTime < 0.5 || self.cancelledRecording){
+        if((executionTime < 0.5) || self.cancelledRecording){
             self.cancelledRecording = YES;
             [self animateToOriginalCameraFrame];
         } else {
@@ -940,7 +940,9 @@ typedef enum {
 
 - (void) stopRecordingVideo {
     __weak YACameraViewController *weakSelf = self;
+    NSLog(@"yo 1");
     [[YACameraManager sharedManager] stopRecordingWithCompletion:^(NSURL *recordedURL) {
+        NSLog(@"got here");
         if (!weakSelf.cancelledRecording) {
             if ([YAUser currentUser].currentGroup) {
                 [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:recordedURL

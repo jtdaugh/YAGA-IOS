@@ -20,7 +20,7 @@
 #define ACCESSORY_SIZE 26
 #define LEFT_MARGIN 40
 #define RIGHT_MARGIN 10
-#define Y_MARGIN 10
+#define Y_MARGIN 25
 #define NAME_HEIGHT 30
 #define MEMBERS_HEIGHT 24
 #define BETWEEN_MARGIN 5
@@ -125,7 +125,7 @@
                                            attributes:attributes
                                               context:nil];
     
-    return CGSizeMake(VIEW_WIDTH, rect.size.height + 60.0f);
+    return CGSizeMake(VIEW_WIDTH, rect.size.height + 2*Y_MARGIN + NAME_HEIGHT + BETWEEN_MARGIN);
 }
 
 - (void)layoutSubviews {

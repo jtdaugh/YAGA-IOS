@@ -54,7 +54,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     CGFloat leftMargin = 0;
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.minimumLineSpacing = 20;
+    layout.minimumLineSpacing = 0;
     layout.itemSize = CGSizeMake(VIEW_WIDTH, [GroupsCollectionViewCell cellHeight]);
     self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(leftMargin, origin, VIEW_WIDTH - leftMargin, self.view.bounds.size.height - origin) collectionViewLayout:layout];
     
