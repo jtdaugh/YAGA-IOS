@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "YAVideo.h"
+#import "YAVideoPage.h"
 
-@interface YASharingViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
+@interface YASharingView : UIView<UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, strong) YAVideo *video;
+@property (strong, nonatomic) YAVideoPage *page;
 @end

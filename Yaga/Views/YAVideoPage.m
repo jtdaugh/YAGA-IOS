@@ -27,7 +27,7 @@
 #import "UIImage+Color.h"
 #import "Constants.h"
 
-#import "YASharingViewController.h"
+#import "YASharingView.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
@@ -82,6 +82,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic) CGAffineTransform textFieldTransform;
 @property (nonatomic) CGPoint textFieldCenter;
 
+@property (strong, nonatomic) UIView *tapOutView;
 @property (strong, nonatomic) UITapGestureRecognizer *tapOutGestureRecognizer;
 @property (strong, nonatomic) YAPanGestureRecognizer *panGestureRecognizer;
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
@@ -117,6 +118,9 @@ static NSString *commentCellID = @"CommentCell";
 
 @property (nonatomic, assign) BOOL shouldPreload;
 @property (nonatomic, assign) BOOL myVideo;
+
+@property (strong, nonatomic) YASharingView *sharingView;
+
 @end
 
 @implementation YAVideoPage
@@ -1265,10 +1269,63 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)shareButtonPressed:(id)sender {
-    YASharingViewController *sharingVC = [YASharingViewController new];
-    sharingVC.video = self.video;
-    sharingVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-    [(YASwipingViewController*)self.presentingVC presentViewController:sharingVC animated:YES completion:nil];
+    
+    NSLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
+    self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT * .6, VIEW_WIDTH, VIEW_HEIGHT*.4)];
+    self.sharingView.video = self.video;
+    self.sharingView.page = self;
+    [self setGesturesEnabled:NO];
+    [self addSubview:self.sharingView];
+    
+    [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
+    CGRect gradientFrame = self.commentsGradient.frame;
+    gradientFrame.size.height = VIEW_HEIGHT / 3;
+
+    [UIView animateWithDuration:0.2 animations:^{
+        self.commentsGradient.frame = gradientFrame;
+        self.commentsWrapperView.alpha = 0.0;
+        self.commentButton.alpha = 0.0;
+        self.shareButton.alpha = 0.0;
+        [self.sharingView setTransform:CGAffineTransformIdentity];
+
+    }];
+    
+    self.tapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_HEIGHT * .6, VIEW_WIDTH)];
+    [self addSubview:self.tapOutView];
+    self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneCrosspostingTapOut:)];
+    [self.tapOutView addGestureRecognizer:self.tapOutGestureRecognizer];
+    
+//    sharingVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+//    [(YASwipingViewController*)self.presentingVC presentViewController:sharingVC animated:YES completion:nil];
+}
+
+- (void)collapseCrosspost {
+    NSLog(@"collapsing...");
+    [self setGesturesEnabled:YES];
+    
+    CGRect gradientFrame = self.commentsGradient.frame;
+    gradientFrame.size.height = VIEW_HEIGHT * .5;
+    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        //
+        self.commentsGradient.frame = gradientFrame;
+        self.commentsWrapperView.alpha = 1.0;
+        self.commentButton.alpha = 1.0;
+        self.shareButton.alpha = 1.0;
+        [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
+    } completion:^(BOOL finished) {
+        //
+        [self.sharingView removeFromSuperview];
+
+    }];
+
+    [self.tapOutView removeFromSuperview];
+    [self.tapOutView removeGestureRecognizer:self.tapOutGestureRecognizer];
+    
+}
+
+- (void)doneCrosspostingTapOut:(UITapGestureRecognizer *)recognizer {
+    NSLog(@"rec");
+    [self collapseCrosspost];
 }
 
 #pragma mark - UITableView delegate methods (groups list)

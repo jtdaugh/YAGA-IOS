@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
-#import "YASharingViewController.h"
+#import "YASharingView.h"
 #import "YACenterImageButton.h"
 
 #import "YAGroup.h"
@@ -16,34 +16,39 @@
 #import "YAServer.h"
 #import "YAAssetsCreator.h"
 
-@interface YASharingViewController ()
-@property (strong, nonatomic) UIVisualEffectView *shareBlurOverlay;
+#import "YASwipingViewController.h"
+
+@interface YASharingView ()
+
+@property (strong, nonatomic) UIView *bgOverlay;
 
 @property (nonatomic, strong) RLMResults *groups;
 @property (strong, nonatomic) UITableView *groupsList;
 @property (strong, nonatomic) UILabel *crossPostPrompt;
 @property (strong, nonatomic) UIView *shareBar;
-@property (strong, nonatomic) YACenterImageButton *externalShareButton;
-@property (strong, nonatomic) YACenterImageButton *saveButton;
+@property (strong, nonatomic) UIButton *externalShareButton;
+@property (strong, nonatomic) UIButton *saveButton;
 @property (strong, nonatomic) UIButton *confirmCrosspost;
 @property (strong, nonatomic) UIButton *closeCrosspost;
 @end
 
-@implementation YASharingViewController
+@implementation YASharingView
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (id) initWithFrame:(CGRect)frame {
+//    [super init];
+//    [super viewDidLoad];
     
-    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    self = [super initWithFrame:frame];
     
-    self.shareBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+//    [self setUserInteractionEnabled:NO];
     
-    self.shareBlurOverlay.frame = self.view.bounds;
-    //    [self.shareBlurOverlay setAlpha:0.0];
-    [self.view addSubview:self.shareBlurOverlay];
+    self.bgOverlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
     
-    CGFloat topPadding = 100;
-    CGFloat shareBarHeight = 100;
+    //    [self.bgOverlay setAlpha:0.0];
+    [self addSubview:self.bgOverlay];
+    
+    CGFloat topPadding = 10;
+    CGFloat shareBarHeight = 60;
     
     CGFloat borderWidth = 4;
     
@@ -51,7 +56,7 @@
     NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", [YAUser currentUser].currentGroup.localId];
     self.groups = [[YAGroup objectsWhere:predicate] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
-    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, topPadding, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
+    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, topPadding, VIEW_WIDTH, self.frame.size.height - topPadding)];
     [self.groupsList setBackgroundColor:[UIColor clearColor]];
     [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:@"crossPostCell"];
     self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -60,7 +65,7 @@
     
     self.groupsList.delegate = self;
     self.groupsList.dataSource = self;
-    [self.shareBlurOverlay addSubview:self.groupsList];
+    [self.bgOverlay addSubview:self.groupsList];
     
     self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, topPadding - 24, VIEW_WIDTH-24, 24)];
     self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
@@ -71,12 +76,12 @@
 //    self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.0f, 0.0f);
 //    self.crossPostPrompt.layer.shadowOpacity = 1.0;
 //    self.crossPostPrompt.layer.masksToBounds = NO;
-    [self.shareBlurOverlay addSubview:self.crossPostPrompt];
+    [self.bgOverlay addSubview:self.crossPostPrompt];
     
     
-    self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
-    [self.shareBar setBackgroundColor:PRIMARY_COLOR];
-    [self.shareBlurOverlay addSubview:self.shareBar];
+    self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
+//    [self.shareBar setBackgroundColor:PRIMARY_COLOR];
+    [self.bgOverlay addSubview:self.shareBar];
     
 //    FBShimmeringView *shimmeringView = [[FBShimmeringView alloc] initWithFrame:self.shareBar.frame];
     
@@ -98,7 +103,7 @@
     [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
     [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
     [self.confirmCrosspost addTarget:self action:@selector(confirmCrosspost:) forControlEvents:UIControlEventTouchUpInside];
-    [self.shareBlurOverlay addSubview:self.confirmCrosspost];
+    [self.bgOverlay addSubview:self.confirmCrosspost];
 //    shimmeringView.contentView = self.confirmCrosspost;
 //    [self.confirmCrosspost addSubview:shimmeringView];
 
@@ -107,19 +112,19 @@
     CGFloat buttonRadius = 22.f, padding = 4.f;
     self.closeCrosspost = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     [self.closeCrosspost addTarget:self action:@selector(collapseCrosspost) forControlEvents:UIControlEventTouchUpInside];
-    [self.shareBlurOverlay addSubview:self.closeCrosspost];
+//    [self.bgOverlay addSubview:self.closeCrosspost];
     
-    UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
+    UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
     [separator setBackgroundColor:[UIColor whiteColor]];
-    [self.shareBlurOverlay addSubview:separator];
+//    [self.bgOverlay addSubview:separator];
     
-    self.saveButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
+    self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
     [self.saveButton setImage:[UIImage imageNamed:@"Download"] forState:UIControlStateNormal];
     [self.saveButton setTitle:@"Save" forState:UIControlStateNormal];
-    [self.saveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
+    [self.saveButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
     [self.saveButton addTarget:self action:@selector(saveToCameraRollPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.saveButton setBackgroundColor:PRIMARY_COLOR];
-    [self.shareBar addSubview:self.saveButton];
+//    [self.saveButton setBackgroundColor:PRIMARY_COLOR];
+//    [self.shareBar addSubview:self.saveButton];
     
     self.externalShareButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
     [self.externalShareButton setImage:[UIImage imageNamed:@"External_Share"] forState:UIControlStateNormal];
@@ -127,32 +132,17 @@
     [self.externalShareButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
     [self.externalShareButton addTarget:self action:@selector(externalShareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.externalShareButton setBackgroundColor:PRIMARY_COLOR];
-    [self.shareBar addSubview:self.externalShareButton];
+//    [self.shareBar addSubview:self.externalShareButton];
     
     UIView *vSeparator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - borderWidth/2, 0, borderWidth, self.shareBar.frame.size.height)];
     [vSeparator setBackgroundColor:[UIColor whiteColor]];
-    [self.shareBar addSubview:vSeparator];
+//    [self.shareBar addSubview:vSeparator];
     
     //    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
-    [self.shareBlurOverlay setTransform:CGAffineTransformMakeTranslation(0, self.shareBlurOverlay.frame.size.height)];
-    [UIView animateWithDuration:0.4 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        //
-        //    } completion:^(BOOL finished) {
-        //        //
-        //    }]
-        //
-        //    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        //
-        [self.shareBlurOverlay setTransform:CGAffineTransformIdentity];
-        //        [self.groupsList setFrame:CGRectMake(0, 100, VIEW_WIDTH, VIEW_HEIGHT - topPadding - shareBarHeight - borderWidth)];
-        
-    } completion:^(BOOL finished) {
-        //
-    }];
-    //    [self.overlay insertSubview:self.shareBlurOverlay belowSubview:self.editableCaptionWrapperView];
+    //    [self.overlay insertSubview:self.bgOverlay belowSubview:self.editableCaptionWrapperView];
     //    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
     
-
+    return self;
 }
 
 - (void)renderButton:(NSUInteger) count {
@@ -203,14 +193,7 @@
 }
 
 - (void)collapseCrosspost {
-    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-        //
-        [self.shareBlurOverlay setTransform:CGAffineTransformMakeTranslation(0, self.shareBlurOverlay.frame.size.height)];
-    } completion:^(BOOL finished) {
-        //
-        [self.shareBlurOverlay removeFromSuperview];
-    }];
-    [self dismissViewControllerAnimated:YES completion:nil];
+    NSLog(@"collapsing 1");
 }
 
 
@@ -236,8 +219,11 @@
                                                                                           applicationActivities:@[]];
                                                         
                                                         //        activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
-
-                                                        [self presentViewController:activityViewController
+                                                        
+                                                        
+                                                        (YASwipingViewController *) self.page.presentingVC;
+                                                        YASwipingViewController *presentingVC = (YASwipingViewController *) self.page.presentingVC;
+                                                        [presentingVC presentViewController:activityViewController
                                                                                                                    animated:YES
                                                                                                                  completion:^{
                                                                                                                      [hud hide:YES];
