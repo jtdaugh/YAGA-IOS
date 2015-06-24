@@ -760,14 +760,24 @@ static NSString *commentCellID = @"CommentCell";
 //}
 
 - (void)setGesturesEnabled:(BOOL)enabled {
-    
-    self.hideGestureRecognizer.enabled = enabled;
-    self.captionTapRecognizer.enabled = enabled;
-    self.likeDoubleTapRecognizer.enabled = enabled;
-    if (enabled) {
-        [self.presentingVC restoreAllGestures:self];
+    if (!self.video.group) {
+        self.hideGestureRecognizer.enabled = enabled;
+        self.captionTapRecognizer.enabled = NO;
+        self.likeDoubleTapRecognizer.enabled = NO;
+        if (enabled) {
+            [self.presentingVC restoreAllGestures:self];
+        } else {
+            [self.presentingVC suspendAllGestures:self];
+        }
     } else {
-        [self.presentingVC suspendAllGestures:self];
+        self.hideGestureRecognizer.enabled = enabled;
+        self.captionTapRecognizer.enabled = enabled;
+        self.likeDoubleTapRecognizer.enabled = enabled;
+        if (enabled) {
+            [self.presentingVC restoreAllGestures:self];
+        } else {
+            [self.presentingVC suspendAllGestures:self];
+        }
     }
 }
 
@@ -1425,6 +1435,10 @@ static NSString *commentCellID = @"CommentCell";
     self.sharingView.video = self.video;
     self.sharingView.page = self;
     [self setGesturesEnabled:NO];
+    if (!self.video.group) {
+        [self.presentingVC restoreAllGestures:self];
+    }
+    
     [self addSubview:self.sharingView];
     
     [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
