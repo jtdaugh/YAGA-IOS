@@ -44,6 +44,10 @@
         self.checkbox.layer.cornerRadius = 2;
         self.checkbox.layer.borderColor = [UIColor whiteColor].CGColor;
         self.checkbox.layer.borderWidth = 2.0f;
+        self.checkbox.layer.shadowColor = [UIColor blackColor].CGColor;
+        self.checkbox.layer.shadowOffset = CGSizeMake(0.5, 0.5);
+        self.checkbox.layer.shadowOpacity = 1.0f;
+        self.checkbox.layer.shadowRadius = 0.5;
         
         [self addSubview:self.checkbox];
         //        [self.usernameLabel setBackgroundColor:[UIColor greenColor]];

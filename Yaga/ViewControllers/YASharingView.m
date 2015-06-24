@@ -70,7 +70,7 @@
     self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, topPadding - 24, VIEW_WIDTH-24, 24)];
     self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
     self.crossPostPrompt.textColor = [UIColor whiteColor];
-    self.crossPostPrompt.text = @"Post to more groups";
+    self.crossPostPrompt.text = @"Post to groups";
     self.crossPostPrompt.layer.shadowRadius = 0.5f;
     self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
     self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.5f, 0.5f);
@@ -149,9 +149,9 @@
     if(count > 0){
         NSString *title;
         if(count == 1){
-            title = @"Post to 1 more group";
+            title = @"Post to 1 group";
         } else {
-            title = [NSString stringWithFormat:@"Post to %lu more groups", count];
+            title = [NSString stringWithFormat:@"Post to %lu groups", count];
         }
         [self.confirmCrosspost setTitle:title forState:UIControlStateNormal];
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
