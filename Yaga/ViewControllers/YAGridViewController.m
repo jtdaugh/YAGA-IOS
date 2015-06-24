@@ -22,6 +22,8 @@
 #import "YACollectionViewController.h"
 #import "YAPostCaptureViewController.h"
 
+#import "SloppySwiper.h"
+
 //Swift headers
 //#import "Yaga-Swift.h"
 
@@ -30,6 +32,7 @@
 
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 @property (nonatomic, strong) UINavigationController *bottomNavigationController;
+@property (strong, nonatomic) SloppySwiper *swiper;
 
 @end
 
@@ -38,8 +41,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
-    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+//    [self.navigationController setNavigationBarHidden:YES animated:NO];
+//    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
     
     [self setupView];
     [[YACameraManager sharedManager] initCamera];
@@ -71,6 +74,8 @@
     _bottomNavigationController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
     [_bottomNavigationController.view.layer setMasksToBounds:NO];
     _bottomNavigationController.interactivePopGestureRecognizer.enabled = NO;
+    self.swiper = [[SloppySwiper alloc] initWithNavigationController:_bottomNavigationController];
+    _bottomNavigationController.delegate = self.swiper;
 
     [self addChildViewController:_bottomNavigationController];
     [self.view addSubview:_bottomNavigationController.view];

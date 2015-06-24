@@ -40,6 +40,7 @@ PODS:
   - Realm (0.93.2):
     - Realm/Headers (= 0.93.2)
   - Realm/Headers (0.93.2)
+  - SloppySwiper (0.4.1)
   - SVPullToRefresh (0.4.1)
   - UCZProgressView (1.0.1)
 
@@ -59,6 +60,7 @@ DEPENDENCIES:
   - NSDate-Time-Ago
   - OrderedDictionary
   - Realm (~> 0.93.2)
+  - SloppySwiper
   - SVPullToRefresh
   - UCZProgressView
 
@@ -93,6 +95,7 @@ SPEC CHECKSUMS:
   NSDate-Time-Ago: e9de167d0659ebe465c273e833e7b582f061fc41
   OrderedDictionary: 9cc5d69c5c5314ad696ed1839190724e83d534c7
   Realm: 2fdd0ae74f730e190384e0338d8a0d3654df8220
+  SloppySwiper: 9518b65478d92b8ea9ffd283c1ce3e5d123bf3a9
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
   UCZProgressView: 32fa5c572ff1300bf22553c8286600d9ae42f50f
 

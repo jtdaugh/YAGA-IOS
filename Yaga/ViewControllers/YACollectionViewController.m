@@ -102,9 +102,9 @@ static NSString *cellID = @"Cell";
     
     //transitions
     
-    self.swipeBackRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didSwipeBack)];
-    self.swipeBackRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
-    [self.view addGestureRecognizer:self.swipeBackRecognizer];
+//    self.swipeBackRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didSwipeBack)];
+//    self.swipeBackRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
+//    [self.view addGestureRecognizer:self.swipeBackRecognizer];
     
     [self setupPullToRefresh];
 }
