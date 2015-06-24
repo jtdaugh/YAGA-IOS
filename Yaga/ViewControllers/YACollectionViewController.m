@@ -36,7 +36,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
 
-
 @property (nonatomic, assign) NSUInteger paginationThreshold;
 
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
@@ -53,6 +52,9 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, strong) UILabel *noVideosLabel;
 
 @property (nonatomic) BOOL scrollingFast;
+
+@property (nonatomic, strong) UISwipeGestureRecognizer *swipeBackRecognizer;
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -99,6 +101,10 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
     
     //transitions
+    
+    self.swipeBackRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didSwipeBack)];
+    self.swipeBackRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
+    [self.view addGestureRecognizer:self.swipeBackRecognizer];
     
     [self setupPullToRefresh];
 }
@@ -660,6 +666,10 @@ static NSString *cellID = @"Cell";
     }
     
     [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:visibleVideos invisibleVideos:invisibleVideos];
+}
+
+- (void)didSwipeBack {
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark - Paging
