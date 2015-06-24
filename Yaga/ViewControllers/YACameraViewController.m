@@ -58,7 +58,6 @@ typedef enum {
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
 @property (strong, nonatomic) UIButton *leftBottomButton;
-@property (strong, nonatomic) UIButton *createGroupButton;
 
 @property (strong, nonatomic) UIButton *rightBottomButton;
 

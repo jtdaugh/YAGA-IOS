@@ -92,6 +92,8 @@
 
 #define kCountryCode        @"kCountryCode"
 
+#define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"
+
 // Captions
 #define STANDARDIZED_DEVICE_WIDTH 320.f
 #define STANDARDIZED_CAPTION_PADDING 5.f

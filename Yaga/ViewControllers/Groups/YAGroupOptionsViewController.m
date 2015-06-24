@@ -13,7 +13,6 @@
 
 @interface YAGroupOptionsViewController ()
 
-@property (nonatomic, strong) UIButton *addMembersButton;
 @property (nonatomic, strong) UIButton *muteButton;
 @property (nonatomic, strong) UIButton *leaveButton;
 @property (nonatomic, strong) UITableView *tableView;
@@ -22,6 +21,9 @@
 
 @property (nonatomic, strong) RLMNotificationToken *notificationToken;
 @property (nonatomic, strong) NSMutableArray *membersPendingJoin;
+@property (nonatomic, strong) NSMutableSet *pendingMembersInProgress;
+
+@property (nonatomic, strong) UIButton *groupNameButton;
 @end
 
 #define kCancelledJoins @"kCancelledJoins"
@@ -37,16 +39,6 @@
     
     const CGFloat buttonWidth = VIEW_WIDTH - 40;
     CGFloat buttonHeight = 54;
-    
-    self.addMembersButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, 74, buttonWidth, VIEW_HEIGHT*.08)];
-    [self.addMembersButton setBackgroundColor:PRIMARY_COLOR];
-    [self.addMembersButton setTitle:NSLocalizedString(@"Invite Members", @"") forState:UIControlStateNormal];
-    [self.addMembersButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
-    [self.addMembersButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    self.addMembersButton.layer.cornerRadius = 8.0;
-    self.addMembersButton.layer.masksToBounds = YES;
-    [self.addMembersButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.addMembersButton];
     
     self.muteButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, VIEW_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
     [self.muteButton setBackgroundColor:[UIColor whiteColor]];
@@ -72,15 +64,15 @@
     [self.leaveButton addTarget:self action:@selector(leaveTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.leaveButton];
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height + 10, VIEW_WIDTH, self.muteButton.frame.origin.y - (self.addMembersButton.frame.origin.y + self.addMembersButton.frame.size.height) - 20) style:UITableViewStylePlain];
-    
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, VIEW_WIDTH, self.muteButton.frame.origin.y - 64) style:UITableViewStylePlain];
+
     [self.view addSubview:self.tableView];
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
-    
+
     [self updateMembersPendingJoin];
 }
 
@@ -88,23 +80,20 @@
     
     UIView *topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 64)];
     topBar.backgroundColor = PRIMARY_COLOR;
-    UILabel *groupNameLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 28, 200, 30)];
-    groupNameLabel.textColor = [UIColor whiteColor];
-    groupNameLabel.textAlignment = NSTextAlignmentCenter;
-    [groupNameLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
-    groupNameLabel.text = self.group.name;
+    self.groupNameButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 28, 200, 30)];
+    self.groupNameButton.tintColor = [UIColor whiteColor];
+    self.groupNameButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:20];
+    [self.groupNameButton setTitle:self.group.name forState:UIControlStateNormal];
+    [self.groupNameButton addTarget:self action:@selector(editTitleTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [topBar addSubview:self.groupNameButton];
     
-    [topBar addSubview:groupNameLabel];
-    
-    CGFloat editTitleWidth = 100;
-    UIButton *editTitleButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - editTitleWidth - 10, 31, editTitleWidth, 28)];
-    [editTitleButton setTitle:@"Edit Title" forState:UIControlStateNormal];
-    [editTitleButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [editTitleButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
-    [editTitleButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:16]];
-    editTitleButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-    [editTitleButton addTarget:self action:@selector(editTitleTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [topBar addSubview:editTitleButton];
+    CGFloat addMembersButtonWidth = 100;
+    UIButton *addMembersButton = [UIButton buttonWithType:UIButtonTypeContactAdd];
+    addMembersButton.frame = CGRectMake(VIEW_WIDTH - addMembersButtonWidth - 10, 31, addMembersButtonWidth, 28);
+    addMembersButton.tintColor = [UIColor whiteColor];
+    addMembersButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+    [addMembersButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [topBar addSubview:addMembersButton];
     
     UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
     backButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
@@ -119,7 +108,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-//    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
@@ -159,7 +148,7 @@
         
         [self.group rename:newname withCompletion:^(NSError *error) {
             if(!error)
-                self.navigationItem.title = newname;
+                [self.groupNameButton setTitle:newname forState:UIControlStateNormal];
         }];
         
     }]];
@@ -254,11 +243,11 @@
     }
     
     UIView *headerView = [UIView.alloc initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 40)];
-    headerView.backgroundColor = PRIMARY_COLOR;
+    headerView.backgroundColor = [UIColor clearColor];
     
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.frame.size.width - 10, 40)];
     label.text = name;
-    label.textColor = [UIColor whiteColor];
+    label.textColor = PRIMARY_COLOR;
     label.font = [UIFont fontWithName:BOLD_FONT size:20];
     [headerView addSubview:label];
     
@@ -311,32 +300,41 @@ static NSString *CellID = @"CellID";
         NSDictionary *pendingMember = self.membersPendingJoin[indexPath.row];
         cell.textLabel.text = pendingMember[@"username"];
         UIView *requestAccessoryView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 50)];
-        UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        cancelButton.tag = indexPath.row;
-        cancelButton.frame = CGRectMake(15, 5, 40, 40);
-        cancelButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-        cancelButton.layer.borderWidth = 2;
-        cancelButton.layer.cornerRadius = cancelButton.frame.size.height/2;
-        [cancelButton setTintColor:[UIColor whiteColor]];
-        [cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [cancelButton setTitle:@"X" forState:UIControlStateNormal];
-        [cancelButton addTarget:self action:@selector(cancelJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-        [requestAccessoryView addSubview:cancelButton];
         
-        UIButton *allowButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        allowButton.tag = indexPath.row;
-        allowButton.backgroundColor = [UIColor greenColor];
-        allowButton.frame = CGRectMake(60, 5, 40, 40);
-        allowButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-        allowButton.layer.borderWidth = 2;
-        allowButton.layer.cornerRadius = cancelButton.frame.size.height/2;
-        [allowButton setTintColor:[UIColor whiteColor]];
-        [allowButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [allowButton setTitle:@"V" forState:UIControlStateNormal];
-        [allowButton addTarget:self action:@selector(allowJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-        
-        [requestAccessoryView addSubview:allowButton];
-        
+        if( [self.pendingMembersInProgress containsObject:[NSNumber numberWithInteger:indexPath.row]]) {
+            UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+            activityView.center = CGPointMake(requestAccessoryView.center.x + 20, requestAccessoryView.center.y);
+            [requestAccessoryView addSubview:activityView];
+            [activityView startAnimating];
+        }
+        else {
+            UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            cancelButton.tag = indexPath.row;
+            cancelButton.frame = CGRectMake(15, 5, 40, 40);
+            cancelButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+            cancelButton.layer.borderWidth = 2;
+            cancelButton.layer.cornerRadius = cancelButton.frame.size.height/2;
+            [cancelButton setTintColor:[UIColor whiteColor]];
+            [cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [cancelButton setTitle:@"X" forState:UIControlStateNormal];
+            [cancelButton addTarget:self action:@selector(cancelJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+            cancelButton.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.2];
+            [requestAccessoryView addSubview:cancelButton];
+            
+            UIButton *allowButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            allowButton.tag = indexPath.row;
+            allowButton.backgroundColor = [UIColor colorWithRed:55.0/255.0 green:177/255.0 blue:48/255.0 alpha:1.0];
+            allowButton.frame = CGRectMake(60, 5, 40, 40);
+            allowButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+            allowButton.layer.borderWidth = 2;
+            allowButton.layer.cornerRadius = cancelButton.frame.size.height/2;
+            [allowButton setTintColor:[UIColor whiteColor]];
+            [allowButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [allowButton setTitle:@"✓" forState:UIControlStateNormal];
+            [allowButton addTarget:self action:@selector(allowJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+            
+            [requestAccessoryView addSubview:allowButton];
+        }
         cell.accessoryView = requestAccessoryView;
     }
     else {
@@ -375,14 +373,15 @@ static NSString *CellID = @"CellID";
             NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
             cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
             
-            [cell.textLabel setTextColor:[UIColor whiteColor]];
+            [cell.textLabel setTextColor:[UIColor blackColor]];
             
             [cell.detailTextLabel setTextColor:[UIColor blackColor]];
             
             cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
             UIButton *inviteButton = [UIButton buttonWithType:UIButtonTypeCustom];
             inviteButton.tag = indexPath.row;
-            [inviteButton setImage:[UIImage imageNamed:@"Envelope"] forState:UIControlStateNormal];
+            [inviteButton setImage:[[UIImage imageNamed:@"Envelope"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+            [inviteButton setTintColor:[UIColor blackColor]];
             [inviteButton setFrame:CGRectMake(0, 0, 36, 36)];
             cell.accessoryView = inviteButton;
             [inviteButton addTarget:self action:@selector(inviteTapped:) forControlEvents:UIControlEventTouchUpInside];
@@ -457,7 +456,17 @@ static NSString *CellID = @"CellID";
 - (void)allowJoinButtonPressed:(UIButton*)sender {
     YAContact *allowedContact = self.membersPendingJoin[sender.tag];
     
+    if(!self.pendingMembersInProgress)
+        self.pendingMembersInProgress = [NSMutableSet set];
+    
+    [self.pendingMembersInProgress addObject:[NSNumber numberWithInteger:sender.tag]];
+    [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+
     [[YAServer sharedServer] addGroupMembersByPhones:@[allowedContact.number] andUsernames:@[] toGroupWithId:self.group.serverId withCompletion:^(id response, NSError *error) {
+        
+        [self.pendingMembersInProgress removeObject:[NSNumber numberWithInteger:sender.tag]];
+        [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
         if(!error) {
             [self.membersPendingJoin removeObject:allowedContact];
             [self.tableView reloadData];

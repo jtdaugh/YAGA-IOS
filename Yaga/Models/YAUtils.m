@@ -14,6 +14,7 @@
 #import "YAGifCreationOperation.h"
 #import "NSString+Hash.h"
 #import "NBNumberFormat.h"
+#import "YAServer.h"
 
 @interface YAUtils ()
 @property (copy) void (^acceptAction)();
@@ -192,8 +193,8 @@
     }
 }
 
-+ (void)deleteVideo:(YAVideo*)video {
-    NSString *alertMessageText = [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to delete this video from '%@'?", @""), [YAUser currentUser].currentGroup.name];
++ (void)confirmDeleteVideo:(YAVideo*)video withConfirmationBlock:(confirmationBlock)block {
+    NSString *alertMessageText = [YAUser currentUser].currentGroup ? [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to delete this video from '%@'?", @""), [YAUser currentUser].currentGroup.name] : NSLocalizedString(@"Are you sure you want to delete this video?", @"");
     
     NSString *alertMessage = NSLocalizedString(alertMessageText, nil);
     UIAlertController *confirmAlert = [UIAlertController
@@ -212,7 +213,8 @@
                              actionWithTitle:NSLocalizedString(@"Delete", nil)
                              style:UIAlertActionStyleDestructive
                              handler:^(UIAlertAction *action) {
-                                 [video removeFromCurrentGroupWithCompletion:nil removeFromServer:YES];
+                                 if(block)
+                                     block();
                              }]];
     
     UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
@@ -368,5 +370,89 @@
     [button setBackgroundImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
     return button;
 }
+
+#pragma mark - Find Groups helper methods
++ (NSArray*)readableGroupsArrayFromResponse:(NSArray *)response {
+    NSMutableArray *result = [NSMutableArray new];
+    for (NSDictionary *groupData in response) {
+        NSArray *members = groupData[YA_RESPONSE_MEMBERS];
+        NSString *membersString = [self membersStringFromMembersArray:members];
+        
+        BOOL isPending = [self alreadyRequestedAccessToGroup:groupData];
+        [result addObject:@{YA_RESPONSE_ID : groupData[YA_RESPONSE_ID], YA_RESPONSE_NAME : groupData[YA_RESPONSE_NAME], YA_RESPONSE_MEMBERS : membersString, YA_RESPONSE_PENDING_MEMBERS : [NSNumber numberWithBool:isPending]}];
+    }
+    return result;
+}
+
++ (BOOL)alreadyRequestedAccessToGroup:(NSDictionary*)groupData {
+    for (NSDictionary *pending_member in groupData[YA_RESPONSE_PENDING_MEMBERS]) {
+        NSString *phoneNumber = pending_member[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
+        if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
+            return YES;
+    }
+    return NO;
+}
+
++ (NSString*)contactDisplayNameFromDictionary:(NSDictionary*)contactDictionary {
+    NSString *phoneNumber = contactDictionary[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
+    NSString *name = contactDictionary[YA_RESPONSE_USER][YA_RESPONSE_NAME];
+    name = [name isKindOfClass:[NSNull class]] ? @"" : name;
+    
+    if(!name.length) {
+        if([[YAUser currentUser].phonebook objectForKey:phoneNumber]) {
+            name = [[YAUser currentUser].phonebook objectForKey:phoneNumber][nCompositeName];
+        }
+        else {
+            name = kDefaultUsername;
+        }
+    }
+    return name;
+}
+
++ (NSString*)membersStringFromMembersArray:(NSArray*)members {
+    if(!members.count) {
+        return NSLocalizedString(@"No members", @"");
+    }
+    
+    NSString *results = @"";
+    
+    NSUInteger andMoreCount = 0;
+    for(int i = 0; i < members.count; i++) {
+        NSDictionary *contatDictionary = [members objectAtIndex:i];
+        
+        NSString *displayName = [self contactDisplayNameFromDictionary:contatDictionary];
+        
+        if([displayName isEqualToString:kDefaultUsername] || ! displayName)
+            andMoreCount++;
+        else {
+            if(!results.length)
+                results = displayName;
+            else
+                results = [results stringByAppendingFormat:@", %@", displayName];
+        }
+        if (i >= kMaxUsersShownInList) {
+            andMoreCount += members.count - kMaxUsersShownInList;
+            break;
+        }
+    }
+    
+    if(andMoreCount == 1) {
+        if(results.length)
+            results = [results stringByAppendingString:NSLocalizedString(@" and 1 more", @"")];
+        else
+            results = NSLocalizedString(@"ONE_UNKOWN_USER", @"");
+    }
+    else if(andMoreCount > 1) {
+        if(!results.length) {
+            results = [results stringByAppendingFormat:NSLocalizedString(@"N_UNKOWN_USERS_TEMPLATE", @""), andMoreCount];
+        }
+        else {
+            results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), andMoreCount];
+        }
+        
+    }
+    return results;
+}
+
 
 @end

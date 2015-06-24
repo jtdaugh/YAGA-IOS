@@ -151,7 +151,7 @@
         if(count == 1){
             title = @"Post to 1 group";
         } else {
-            title = [NSString stringWithFormat:@"Post to %lu groups", count];
+            title = [NSString stringWithFormat:@"Post to %lu groups", (unsigned long)count];
         }
         [self.confirmCrosspost setTitle:title forState:UIControlStateNormal];
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
@@ -226,10 +226,6 @@
                                                         [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
                                                                                           applicationActivities:@[]];
                                                         
-                                                        //        activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
-                                                        
-                                                        
-                                                        (YASwipingViewController *) self.page.presentingVC;
                                                         YASwipingViewController *presentingVC = (YASwipingViewController *) self.page.presentingVC;
                                                         [presentingVC presentViewController:activityViewController
                                                                                                                    animated:YES

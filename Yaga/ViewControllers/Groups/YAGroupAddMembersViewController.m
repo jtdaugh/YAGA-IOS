@@ -427,7 +427,7 @@
                     [weakSelf popToGridViewController];
                 } else {
                     YAInviteViewController *nextVC = [YAInviteViewController new];
-                    nextVC.inCreateGroupFlow = NO;
+                    nextVC.inCreateGroupFlow = YES;
                     nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
                     [weakSelf.navigationController pushViewController:nextVC animated:YES];
                 }
@@ -437,24 +437,7 @@
 }
 
 - (void)popToGridViewController {
-    if (self.inCreateGroupFlow) {
-        NSMutableArray *navStack = [[self.navigationController viewControllers] mutableCopy];
-        YAGridViewController *gridVC = [[YAGridViewController alloc] init];
-        [navStack insertObject:gridVC atIndex:1]; // right after groups VC
-        [self.navigationController setViewControllers:navStack];
-    }
-    UIViewController *dest = nil;
-    for (UIViewController *vc in [self.navigationController viewControllers]) {
-        if ([vc isKindOfClass:[YAGridViewController class]]) {
-            dest = vc;
-            break;
-        }
-    }
-    if (dest) {
-        [self.navigationController popToViewController:dest animated:YES];
-    } else {
-        [self.navigationController popToRootViewControllerAnimated:YES];
-    }
+    [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 - (NSArray *)filterContactsToInvite {

@@ -28,6 +28,5 @@ typedef void (^cameraCompletion)(void);
 YACameraViewControllerDelegate, YAGridViewControllerDelegate>
 
 @property (nonatomic, readonly) YACameraViewController *cameraViewController;
-@property (nonatomic, strong) YAGroupsNavigationController *groupsNavigationController;
 
 @end

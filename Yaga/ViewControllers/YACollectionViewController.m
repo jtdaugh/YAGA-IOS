@@ -36,7 +36,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
 
-
 @property (nonatomic, assign) NSUInteger paginationThreshold;
 
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
@@ -53,6 +52,9 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, strong) UILabel *noVideosLabel;
 
 @property (nonatomic) BOOL scrollingFast;
+
+@property (nonatomic, strong) UISwipeGestureRecognizer *swipeBackRecognizer;
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -100,12 +102,15 @@ static NSString *cellID = @"Cell";
     
     //transitions
     
+    self.swipeBackRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didSwipeBack)];
+    self.swipeBackRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
+    [self.view addGestureRecognizer:self.swipeBackRecognizer];
+    
     [self setupPullToRefresh];
 }
 
 - (void)videoId:(NSString *)videoId eventCountUpdated:(NSUInteger)eventCount {
-    NSLog(@"Scrolling fast: %@", self.scrollingFast ? @"YES" :  @"NO");
-    if (self.scrollingFast) return;
+    if (self.scrolling) return; // dont update unless the collection view is still
     __weak YACollectionViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@", videoId];
@@ -461,6 +466,9 @@ static NSString *cellID = @"Cell";
             self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
             [self.collectionView addSubview:self.activityView];
             [self.activityView startAnimating];
+            
+            [self.noVideosLabel removeFromSuperview];
+            self.noVideosLabel = nil;
         }
     }
     else {
@@ -658,6 +666,10 @@ static NSString *cellID = @"Cell";
     }
     
     [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:visibleVideos invisibleVideos:invisibleVideos];
+}
+
+- (void)didSwipeBack {
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark - Paging

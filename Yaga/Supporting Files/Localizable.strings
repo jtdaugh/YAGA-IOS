@@ -100,6 +100,7 @@
 
 "Video saved to the camera roll" = "Video saved to the camera roll";
 "Are you sure you want to delete this video from '%@'?" = "Are you sure you want to delete this video from '%@'?";
+"Are you sure you want to delete this video" = "Are you sure you want to delete this video";
 "Delete video" = "Delete video";
 
 //pushes
@@ -168,3 +169,4 @@
 "Members" = "Members";
 "Requesting to join to group" = "Requesting to join to group";
 "Failed to join group" = "Failed to join group";
+"Wow, you're early. Create a group to get your friends on Yaga" = "Wow, you're early. Create a group to get your friends on Yaga";

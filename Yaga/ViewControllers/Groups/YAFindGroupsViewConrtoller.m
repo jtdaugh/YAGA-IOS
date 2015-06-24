@@ -13,98 +13,16 @@
 #import "YAUser.h"
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
-
-#define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"
+#import "NameGroupViewController.h"
 
 @interface YAFindGroupsViewConrtoller ()
 @property (nonatomic, strong) NSArray *groupsDataArray;
+@property (nonatomic, strong) NSMutableSet *pendingRequestsInProgress;
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
 
 @implementation YAFindGroupsViewConrtoller
-
-- (void)setGroupsDataArray:(NSArray *)groupsDataArray {
-    NSMutableArray *result = [NSMutableArray new];
-    for (NSDictionary *groupData in groupsDataArray) {
-        NSArray *members = groupData[YA_RESPONSE_MEMBERS];
-        NSString *membersString = [self membersStringFromMembersArray:members];
-        
-        BOOL isPending = [self alreadyRequestedAccessToGroup:groupData];
-        [result addObject:@{YA_RESPONSE_ID : groupData[YA_RESPONSE_ID], YA_RESPONSE_NAME : groupData[YA_RESPONSE_NAME], YA_RESPONSE_MEMBERS : membersString, YA_RESPONSE_PENDING_MEMBERS : [NSNumber numberWithBool:isPending]}];
-    }
-    _groupsDataArray = result;
-}
-
-- (BOOL)alreadyRequestedAccessToGroup:(NSDictionary*)groupData {
-    for (NSDictionary *pending_member in groupData[YA_RESPONSE_PENDING_MEMBERS]) {
-        NSString *phoneNumber = pending_member[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
-        if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
-            return YES;
-    }
-    return NO;
-}
-
-- (NSString*)contactDisplayNameFromDictionary:(NSDictionary*)contactDictionary {
-    NSString *phoneNumber = contactDictionary[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
-    NSString *name = contactDictionary[YA_RESPONSE_USER][YA_RESPONSE_NAME];
-    name = [name isKindOfClass:[NSNull class]] ? @"" : name;
-    
-    if(!name.length) {
-        if([[YAUser currentUser].phonebook objectForKey:phoneNumber]) {
-            name = [[YAUser currentUser].phonebook objectForKey:phoneNumber][nCompositeName];
-        }
-        else {
-            name = kDefaultUsername;
-        }
-    }
-    return name;
-}
-
-- (NSString*)membersStringFromMembersArray:(NSArray*)members {
-    if(!members.count) {
-        return NSLocalizedString(@"No members", @"");
-    }
-    
-    NSString *results = @"";
-    
-    NSUInteger andMoreCount = 0;
-    for(int i = 0; i < members.count; i++) {
-        NSDictionary *contatDictionary = [members objectAtIndex:i];
-        
-        NSString *displayName = [self contactDisplayNameFromDictionary:contatDictionary];
-        
-        if([displayName isEqualToString:kDefaultUsername] || ! displayName)
-            andMoreCount++;
-        else {
-            if(!results.length)
-                results = displayName;
-            else
-                results = [results stringByAppendingFormat:@", %@", displayName];
-        }
-        if (i >= kMaxUsersShownInList) {
-            andMoreCount += members.count - kMaxUsersShownInList;
-            break;
-        }
-    }
-    
-    if(andMoreCount == 1) {
-        if(results.length)
-            results = [results stringByAppendingString:NSLocalizedString(@" and 1 more", @"")];
-        else
-            results = NSLocalizedString(@"ONE_UNKOWN_USER", @"");
-    }
-    else if(andMoreCount > 1) {
-        if(!results.length) {
-            results = [results stringByAppendingFormat:NSLocalizedString(@"N_UNKOWN_USERS_TEMPLATE", @""), andMoreCount];
-        }
-        else {
-            results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), andMoreCount];
-        }
-        
-    }
-    return results;
-}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -153,7 +71,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.groupsDataArray.count;
+    NSUInteger result = self.groupsDataArray.count;
+    if(!result)
+        result = 1;
+    return result;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
@@ -165,14 +86,41 @@ static NSString *CellIdentifier = @"GroupsCell";
     UITableViewCell *cell;
     
     cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    NSDictionary *groupData = [self.groupsDataArray objectAtIndex:indexPath.row];
     
-    cell.textLabel.text = groupData[YA_RESPONSE_NAME];
-    cell.detailTextLabel.text = groupData[YA_RESPONSE_MEMBERS];
+    cell.textLabel.textColor = [UIColor whiteColor];
+    cell.detailTextLabel.textColor = [UIColor whiteColor];
+    cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
     cell.textLabel.frame = CGRectMake(cell.textLabel.frame.origin.x, cell.textLabel.frame.origin.y, cell.textLabel.frame.size.width - 150, cell.textLabel.frame.size.height);
     
     cell.detailTextLabel.frame = CGRectMake(cell.detailTextLabel.frame.origin.x, cell.detailTextLabel.frame.origin.y, cell.detailTextLabel.frame.size.width - 150, cell.detailTextLabel.frame.size.height);
+    
+    if(!self.groupsDataArray.count) {
+        cell.textLabel.text = NSLocalizedString(@"Wow, you're early. Create a group to get your friends on Yaga", @"");
+        cell.textLabel.numberOfLines = 0;
+        cell.textLabel.font = [UIFont fontWithName:cell.textLabel.font.fontName size:18];
+        UIButton *createGroupButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        createGroupButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        createGroupButton.tag = indexPath.row;
+        createGroupButton.frame = CGRectMake(0, 0, 90, 30);
+        [createGroupButton addTarget:self action:@selector(createGroupButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [createGroupButton setTitle:NSLocalizedString(@"Create", @"") forState:UIControlStateNormal];
+        [createGroupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [createGroupButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+        [createGroupButton setTintColor:[UIColor whiteColor]];
+        createGroupButton.layer.borderWidth = 2.0f;
+        createGroupButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        createGroupButton.layer.cornerRadius = 4;
+        cell.accessoryView = createGroupButton;
+        return cell;
+    }
+    
+    cell.textLabel.font = [UIFont fontWithName:cell.textLabel.font.fontName size:28];
+    
+    NSDictionary *groupData = [self.groupsDataArray objectAtIndex:indexPath.row];
+    
+    cell.textLabel.text = groupData[YA_RESPONSE_NAME];
+    cell.detailTextLabel.text = groupData[YA_RESPONSE_MEMBERS];
     
     if(indexPath.row == self.groupsDataArray.count - 1)
         cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, cell.bounds.size.width);
@@ -187,35 +135,44 @@ static NSString *CellIdentifier = @"GroupsCell";
         cell.layoutMargins = UIEdgeInsetsZero;
     }
     
-    cell.textLabel.textColor = [UIColor whiteColor];
-    cell.detailTextLabel.textColor = [UIColor whiteColor];
-    cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
-    
-    UIButton *requestButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    requestButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
-    requestButton.tag = indexPath.row;
-    requestButton.frame = CGRectMake(0, 0, 90, 30);
-    [requestButton addTarget:self action:@selector(requestButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [requestButton setTitle:NSLocalizedString(@"Request", @"") forState:UIControlStateNormal];
-    [requestButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [requestButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
-    [requestButton setTintColor:[UIColor whiteColor]];
-    requestButton.layer.borderWidth = 2.0f;
-    requestButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-    requestButton.layer.cornerRadius = 4;
-    
-    UILabel *pendingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 90, 30)];
-    pendingLabel.textColor = [UIColor whiteColor];
-    pendingLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
-    pendingLabel.textAlignment = NSTextAlignmentCenter;
-    pendingLabel.text = NSLocalizedString(@"Pending", @"");
-    
-    cell.accessoryView = [groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]? pendingLabel : requestButton;
-    
+    if([self.pendingRequestsInProgress containsObject:[NSNumber numberWithInteger:indexPath.row]]) {
+        UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        activityView.frame = CGRectMake(0, 0, 90, 30);
+        cell.accessoryView = activityView;
+        [activityView startAnimating];
+    }
+    else if([groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]) {
+        UILabel *pendingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 90, 30)];
+        pendingLabel.textColor = [UIColor whiteColor];
+        pendingLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        pendingLabel.textAlignment = NSTextAlignmentCenter;
+        pendingLabel.text = NSLocalizedString(@"Pending", @"");
+        cell.accessoryView = pendingLabel;
+    }
+    else {
+        UIButton *requestButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        requestButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        requestButton.tag = indexPath.row;
+        requestButton.frame = CGRectMake(0, 0, 90, 30);
+        [requestButton addTarget:self action:@selector(requestButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [requestButton setTitle:NSLocalizedString(@"Request", @"") forState:UIControlStateNormal];
+        [requestButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [requestButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+        [requestButton setTintColor:[UIColor whiteColor]];
+        requestButton.layer.borderWidth = 2.0f;
+        requestButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        requestButton.layer.cornerRadius = 4;
+        
+        cell.accessoryView = requestButton;
+    }
+
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if(!self.groupsDataArray.count)
+        return 150;
+    
     NSDictionary *groupData = self.groupsDataArray[indexPath.row];
     
     NSDictionary *attributes = @{NSFontAttributeName:[GroupsTableViewCell defaultDetailedLabelFont]};
@@ -235,19 +192,43 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 
 - (void)requestButtonTapped:(UIButton*)sender {
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        return;
+    }
+    
+    if(!self.pendingRequestsInProgress)
+        self.pendingRequestsInProgress = [NSMutableSet set];
+    
+    [self.pendingRequestsInProgress addObject:[NSNumber numberWithInteger:sender.tag]];
+    [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+    
     NSDictionary *groupData = self.groupsDataArray[sender.tag];
+    
     [[YAServer sharedServer] joinGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:^(id response, NSError *error) {
+
         if(!error) {
             NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
             [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
             NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.groupsDataArray];
             [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
             _groupsDataArray = upatedDataArray;
-            [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+            
         }
         else {
             DLog(@"Can't send request to join group");
         }
+        
+        [self.pendingRequestsInProgress removeObject:[NSNumber numberWithInteger:sender.tag]];
+        [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+    }];
+}
+
+- (void)createGroupButtonTapped:(UIButton*)sender {
+    __weak id presentingController = self.presentingViewController;
+    [self dismissViewControllerAnimated:YES completion:^{
+        [presentingController pushViewController:[NameGroupViewController new] animated:YES];
     }];
 }
 
@@ -256,15 +237,26 @@ static NSString *CellIdentifier = @"GroupsCell";
     __weak typeof(self) weakSelf = self;
     
     [self.tableView addPullToRefreshWithActionHandler:^{
+        if(![YAServer sharedServer].serverUp) {
+            [weakSelf.tableView.pullToRefreshView stopAnimating];
+            [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+            return;
+        }
+        
         [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+            [weakSelf.tableView.pullToRefreshView stopAnimating];
+            
             if(error) {
                 [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
             }
             else {
-                [weakSelf.tableView.pullToRefreshView stopAnimating];
-                weakSelf.groupsDataArray = (NSArray*)response;
-                [weakSelf.tableView reloadData];
-                [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    weakSelf.groupsDataArray = [YAUtils readableGroupsArrayFromResponse:response];
+                    [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.tableView reloadData];
+                    });
+                });
             }
         }];
     }];
