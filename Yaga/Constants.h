@@ -90,6 +90,8 @@
 
 #define kMaxUsersShownInList (8)
 
+#define kCountryCode        @"kCountryCode"
+
 // Captions
 #define STANDARDIZED_DEVICE_WIDTH 320.f
 #define STANDARDIZED_CAPTION_PADDING 5.f
