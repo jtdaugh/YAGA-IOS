@@ -69,6 +69,7 @@
     _groupsNavigationController = [[YAGroupsNavigationController alloc] initWithRootViewController:groupsRootViewController];
     _groupsNavigationController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
     [_groupsNavigationController.view.layer setMasksToBounds:NO];
+    _groupsNavigationController.interactivePopGestureRecognizer.enabled = NO;
     
     [self addChildViewController:_groupsNavigationController];
     [self.view addSubview:_groupsNavigationController.view];

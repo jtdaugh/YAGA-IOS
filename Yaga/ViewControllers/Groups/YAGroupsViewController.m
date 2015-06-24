@@ -33,7 +33,7 @@
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
 @property (nonatomic, strong) YAGroup *editingGroup;
 @property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
-@property (nonatomic) BOOL forcePushGrid;
+@property (nonatomic) BOOL animatePush;
 //needed to have pull down to refresh shown for at least 1 second
 @property (nonatomic, strong) NSDate *willRefreshDate;
 
@@ -74,17 +74,43 @@ static NSString *CellIdentifier = @"GroupsCell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION    object:nil];
     
     //force to open last selected group
+    self.animatePush = NO;
     [self groupDidChange:nil];
+    [self updateState];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    NSLog(@"view WILL appear");
 
-    [self updateState];
-    
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    NSLog(@"view DID appear");
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
         [self updateState];
     }];
+    if (self.animatePush) {
+        [YAUser currentUser].currentGroup = nil;
+    }
+    self.animatePush = YES;
+    
+    [self.delegate updateCameraAccessories];
+    
+    if(![YAUserPermissions pushPermissionsRequestedBefore])
+        [YAUserPermissions registerUserNotificationSettings];
+    
+    //load phonebook if it wasn't done before
+    if(![YAUser currentUser].phonebook.count) {
+        [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
+            if (!error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.collectionView reloadData];
+                });
+            }
+        } excludingPhoneNumbers:nil];
+    }
 }
 
 - (void)setupPullToRefresh {
@@ -127,17 +153,18 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)groupDidChange:(NSNotification*)notif {
-    [self.navigationController popToRootViewControllerAnimated:NO];
-    
-    //open current group if needed
-    if([YAUser currentUser].currentGroup) {
-        YACollectionViewController *vc = [YACollectionViewController new];
-        vc.delegate = self.delegate;
-        self.forcePushGrid = YES;
-        [self.navigationController pushViewController:vc animated:YES];
-        [self.delegate updateCameraAccessories];
+    if ([self.navigationController.visibleViewController isEqual:self]) {
+        //open current group if needed
+        if([YAUser currentUser].currentGroup) {
+            YACollectionViewController *vc = [YACollectionViewController new];
+            vc.delegate = self.delegate;
+            [self.navigationController pushViewController:vc animated:self.animatePush];
+            [self.delegate updateCameraAccessories];
+        }
+    } else {
+        // Grid is already visible, let it push the VC
     }
-
+    self.animatePush = YES;
 }
 
 - (void)updateState {
@@ -148,29 +175,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [self.collectionView reloadData];
     
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    if (!self.forcePushGrid) {
-        [YAUser currentUser].currentGroup = nil;
-    }
-    self.forcePushGrid = NO;
-    [self.delegate updateCameraAccessories];
-
-    if(![YAUserPermissions pushPermissionsRequestedBefore])
-        [YAUserPermissions registerUserNotificationSettings];
-    
-    //load phonebook if it wasn't done before
-    if(![YAUser currentUser].phonebook.count) {
-        [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
-            if (!error) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.collectionView reloadData];
-                });
-            }
-        } excludingPhoneNumbers:nil];
-    }
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -223,6 +227,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     YAGroup *group = self.groups[indexPath.item];
     [YAUser currentUser].currentGroup = group;
+    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
     [self.delegate updateCameraAccessories];
 }
 
