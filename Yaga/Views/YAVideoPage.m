@@ -775,7 +775,7 @@ static NSString *commentCellID = @"CommentCell";
     if (!self.video.group) {
         self.crosspostTapOutView.hidden = editing;
         // Toggle sharing view and caption editing for unposted video state
-        self.sharingView.hidden = !editing;
+        self.sharingView.hidden = NO;
         [UIView animateWithDuration:0.2 animations:^{
             self.sharingView.alpha = editing ? 0.0 : 1.0;
         } completion:^(BOOL finished) {
