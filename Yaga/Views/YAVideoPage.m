@@ -173,7 +173,7 @@ static NSString *commentCellID = @"CommentCell";
 #pragma mark - YAEventReceiver
 
 - (void)videoId:(NSString *)videoId didReceiveNewEvent:(YAEvent *)event {
-    if (![videoId isEqualToString:self.video.serverId]) {
+    if (!self.video.invalidated && ![videoId isEqualToString:self.video.serverId]) {
         return;
     }
     [self.events insertObject:event atIndex:0];
@@ -181,7 +181,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)videoId:(NSString *)videoId receivedInitialEvents:(NSArray *)events {
-    if (![videoId isEqualToString:self.video.serverId]) {
+    if (!self.video.invalidated && ![videoId isEqualToString:self.video.serverId]) {
         return;
     }
     if ([events count]) {

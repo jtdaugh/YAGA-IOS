@@ -62,7 +62,7 @@
     self.videoPage = page;
 }
 
-g- (void)didDeleteVideo:(id)sender {
+- (void)didDeleteVideo:(id)sender {
     [self dismissAnimated];
 }
 
