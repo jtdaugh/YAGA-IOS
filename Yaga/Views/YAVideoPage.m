@@ -159,7 +159,7 @@ static NSString *commentCellID = @"CommentCell";
 //        [self addSubview:self.debugLabel];
 //#endif
         
-        [self setBackgroundColor:PRIMARY_COLOR];
+        [self setBackgroundColor:[UIColor blackColor]];
     }
     return self;
 }

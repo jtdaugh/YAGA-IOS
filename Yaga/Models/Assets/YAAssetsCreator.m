@@ -149,8 +149,35 @@
 
 #pragma mark - Queue operations
 
+- (void)createUnsentVideoFromRecodingURL:(NSURL*)recordingUrl {
+    YAVideo *video = [YAVideo video];
+    
+    NSString *hashStr = [YAUtils uniqueId];
+    NSString *mp4Filename = [hashStr stringByAppendingPathExtension:@"mp4"];
+    NSString *mp4Path = [[YAUtils cachesDirectory] stringByAppendingPathComponent:mp4Filename];
+    NSURL    *mp4Url = [NSURL fileURLWithPath:mp4Path];
+    
+    NSError *error;
+    [[NSFileManager defaultManager] moveItemAtURL:recordingUrl toURL:mp4Url error:&error];
+    if(error) {
+        DLog(@"Error in createVideoFromRecodingURL, can't move recording, %@", error);
+        return;
+    }
+    
+    NSDate *currentDate = [NSDate date];
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        video.creator = [[YAUser currentUser] username];
+        video.createdAt = currentDate;
+        video.mp4Filename = mp4Filename;
+        [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
+    });
+                      
+    [self enqueueJpgCreationForVideo:video];
+}
+
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
-                        addToGroup:(YAGroup*)group {
+                        addToGroup:(YAGroup*)group
+       isImmediatelyAfterRecording:(BOOL)isImmediatelyAfterRecording {
     
     YAVideo *video = [YAVideo video];
 
@@ -168,14 +195,16 @@
     
     NSDate *currentDate = [NSDate date];
     dispatch_sync(dispatch_get_main_queue(), ^{
-        [group.realm beginWriteTransaction];
         video.creator = [[YAUser currentUser] username];
         video.createdAt = currentDate;
         video.mp4Filename = mp4Filename;
         video.group = group;
+        if (isImmediatelyAfterRecording)
+            [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
+
+        [group.realm beginWriteTransaction];
         group.updatedAt = currentDate;
-        [group.videos insertObject:video atIndex:0];
-        
+        [group.videos insertObject:video atIndex:0];        
         [group.realm commitWriteTransaction];
         
         //update local update time so the "new" badge isn't shown
@@ -187,7 +216,8 @@
         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:group];
         
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kNewVideos:@[video]}];
-        
+      
+
         [self enqueueJpgCreationForVideo:video];
     });
     
@@ -196,20 +226,21 @@
     //one operation can create gif earlier and start uploading, second operation will clean up the file for saving new gif date and and that moment zero bytes are read for uploading.
 }
 
-- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs
-                        addToGroup:(YAGroup*)group {
-    NSURL *outputUrl = [YAUtils urlFromFileName:@"concatenated.mp4"];
-    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
-
-    [self concatenateAssetsAtURLs:videoURLs
-                    withOutputURL:outputUrl
-                    exportQuality:AVAssetExportPreset640x480
-                       completion:^(NSURL *filePath, NSError *error) {
-        if (!error) {
-            [self createVideoFromRecodingURL:filePath addToGroup:[YAUser currentUser].currentGroup];
-        }
-    }];
-}
+// Was used for stiching switch-cam videos. GPU image made this method unneeded for now
+//- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs
+//                        addToGroup:(YAGroup*)group {
+//    NSURL *outputUrl = [YAUtils urlFromFileName:@"concatenated.mp4"];
+//    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
+//
+//    [self concatenateAssetsAtURLs:videoURLs
+//                    withOutputURL:outputUrl
+//                    exportQuality:AVAssetExportPreset640x480
+//                       completion:^(NSURL *filePath, NSError *error) {
+//        if (!error) {
+//            [self createVideoFromRecodingURL:filePath addToGroup:[YAUser currentUser].currentGroup];
+//        }
+//    }];
+//}
 
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {

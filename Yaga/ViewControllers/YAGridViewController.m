@@ -11,6 +11,7 @@
 #import "YaOnboardingNavigationController.h"
 #import "YAPhoneNumberViewController.h"
 #import "YAGroupAddMembersViewController.h"
+#import "YAAnimatedTransitioningController.h"
 
 #import "YAUtils.h"
 #import "YAGroupOptionsViewController.h"
@@ -19,10 +20,17 @@
 #import "YACameraViewController.h"
 #import "YAGroupsViewController.h"
 #import "YACollectionViewController.h"
+#import "YAPostCaptureViewController.h"
 
 //Swift headers
 //#import "Yaga-Swift.h"
 
+
+@interface YAGridViewController ()
+
+@property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
+
+@end
 
 @implementation YAGridViewController
 
@@ -34,6 +42,8 @@
     
     [self setupView];
     [[YACameraManager sharedManager] initCamera];
+    self.animationController = [YAAnimatedTransitioningController new];
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -133,6 +143,17 @@
     CGFloat scrollOffset = collectionView.contentOffset.y;
     CGFloat offset = collectionView.contentInset.top + scrollOffset;
     
+    // Update the groups table view to match the scrolling of the group table view.
+    id groupsVC = self.groupsNavigationController.viewControllers[0];
+    UICollectionView *groupsCollectionView;
+    if ([groupsVC respondsToSelector:@selector(collectionView)])
+        groupsCollectionView = [groupsVC collectionView];
+    if (groupsCollectionView && ![collectionView isEqual:groupsCollectionView]) {
+        CGPoint groupsOffset = groupsCollectionView.contentOffset;
+        groupsOffset.y = MIN(collectionView.contentOffset.y, 0);
+        groupsCollectionView.contentOffset = groupsOffset;
+    }
+    
     if(offset < 0) {
         offset = 0;
     } else if(offset > VIEW_HEIGHT/2 - CAMERA_MARGIN) {
@@ -173,6 +194,32 @@
 -(BOOL)prefersStatusBarHidden {
     return YES;
 }
+
+- (void)presentNewlyRecordedVideo:(YAVideo *)video {
+    YAPostCaptureViewController *vc = [[YAPostCaptureViewController alloc] initWithVideo:video];
+    vc.transitioningDelegate = self;
+    vc.modalPresentationStyle = UIModalPresentationCustom;
+
+    [self presentViewController:vc animated:NO completion:nil];
+}
+
+- (void)setInitialAnimationFrame:(CGRect)initialFrame {
+    self.animationController.initialFrame = initialFrame;
+}
+
+#pragma mark - Custom transitions
+- (id <UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
+    self.animationController.presentingMode = YES;
+    
+    return self.animationController;
+}
+
+- (id <UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
+    self.animationController.presentingMode = NO;
+    
+    return self.animationController;
+}
+
 
 
 @end

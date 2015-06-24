@@ -314,6 +314,10 @@ typedef enum {
                                                      name:GROUP_DID_CHANGE_NOTIFICATION
                                                    object:nil];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(showVideoPage:)
+                                                     name:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON
+                                                   object:nil];
         [self updateUviewedViedeosBadge];
         
         if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
@@ -436,6 +440,10 @@ typedef enum {
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_CHANGE_NOTIFICATION object:nil];
+
 }
 
 - (void)enableRecording:(BOOL)enable {
@@ -593,21 +601,8 @@ typedef enum {
 //        CGRect switchCamFrame = self.switchCameraButton.frame;
 //        switchCamFrame.origin.y = VIEW_HEIGHT/2 - switchCamFrame.size.height - 10;
 
-        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-            //
-            self.view.frame = self.previousViewFrame;
-            [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
-            [self.rightBottomButton setAlpha:1.0];
-            [self.leftBottomButton setAlpha:1.0];
-//            [self.groupButton setAlpha:1.0];
-//            self.recordButton.transform = CGAffineTransformIdentity;
-            self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
-//            self.flashButton.frame = flashFrame;
-//            self.switchCameraButton.frame = switchCamFrame;
-            
-            [self.unviewedVideosBadge setAlpha:1.0];
-        } completion:^(BOOL finished) {
-        }];
+        [self animateToOriginalCameraFrameWithDelay:0];
+        
         self.largeCamera = NO;
     }
 }
@@ -658,7 +653,7 @@ typedef enum {
         
 //        [self startEnlargeAnimation];
 //        CGRect flashFrame = self.flashButton.frame;
-//        flashFrame.origin.y = VIEW_HEIGHT - flashFrame.size.height - 14;
+//        flashFrame.origin.y = VIEW_HEIGHT - flashFyasrame.size.height - 14;
 //        CGRect switchCamFrame = self.switchCameraButton.frame;
 //        switchCamFrame.origin.y = VIEW_HEIGHT - switchCamFrame.size.height - 10;
         [UIView animateWithDuration:0.2 delay:0.0 options:0 animations:^{
@@ -889,19 +884,6 @@ typedef enum {
 //        CGRect switchCamFrame = self.switchCameraButton.frame;
 //        switchCamFrame.origin.y = VIEW_HEIGHT/2 - switchCamFrame.size.height - 10;
 
-        [UIView animateWithDuration:0.2 animations:^{
-            self.view.frame = self.previousViewFrame;
-            [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
-            [self showCameraAccessories:YES];
-            [self showRecordingAccessories:0];
-//            self.flashButton.frame = flashFrame;
-//            self.switchCameraButton.frame = switchCamFrame;
-
-            self.recordButton.transform = CGAffineTransformIdentity;
-            self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
-         }];
-        self.largeCamera = NO;
-        
         [self.indicatorText setText:NSLocalizedString(@"RECORD_TIP", @"")];
         [self.indicator removeFromSuperview];
         // Do Whatever You want on End of Gesture
@@ -919,13 +901,37 @@ typedef enum {
         NSDate *recordingFinished = [NSDate date];
         NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
         
-        if(executionTime < 0.5){
+        if(executionTime < 0.5 || self.cancelledRecording){
             self.cancelledRecording = YES;
+            [self animateToOriginalCameraFrameWithDelay:0];
+        } else {
+            [self animateToOriginalCameraFrameWithDelay:0.5];
         }
         
         [self stopRecordingVideo];
     }
 
+}
+
+- (void)animateToOriginalCameraFrameWithDelay:(NSTimeInterval)delay {
+    [UIView animateWithDuration:0.2 delay:delay options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        self.view.frame = self.previousViewFrame;
+        [self.cameraView setFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+        [self showCameraAccessories:YES];
+        [self showRecordingAccessories:0];
+        self.recordButton.transform = CGAffineTransformIdentity;
+        self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
+    } completion:^(BOOL finished) {
+        self.largeCamera = NO;
+    }];
+}
+
+- (void)showVideoPage:(NSNotification*)notification {
+    YAVideo *video = (YAVideo *)notification.object;
+    if (video.createdAt && ([[NSDate date] timeIntervalSinceDate:video.createdAt] < 0.2)) {
+        
+    }
+    [self.delegate presentNewlyRecordedVideo:video];
 }
 
 - (void) startRecordingVideo {
@@ -936,7 +942,13 @@ typedef enum {
     __weak YACameraViewController *weakSelf = self;
     [[YACameraManager sharedManager] stopRecordingWithCompletion:^(NSURL *recordedURL) {
         if (!weakSelf.cancelledRecording) {
-            [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:recordedURL addToGroup:[YAUser currentUser].currentGroup];
+            if ([YAUser currentUser].currentGroup) {
+                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:recordedURL
+                                                                 addToGroup:[YAUser currentUser].currentGroup
+                                                isImmediatelyAfterRecording:YES];
+            } else {
+                [[YAAssetsCreator sharedCreator] createUnsentVideoFromRecodingURL:recordedURL];
+            }
         }
     }];
 }
