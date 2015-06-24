@@ -1285,7 +1285,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    NSLog(@"button index: %lu", buttonIndex);
+    NSLog(@"button index: %lu", (unsigned long)buttonIndex);
     switch (buttonIndex) {
         case 0: {
             // export and share
