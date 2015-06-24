@@ -15,19 +15,19 @@
 
 typedef void (^cameraCompletion)(void);
 
-@protocol YAGridViewControllerDelegate <NSObject>
+@protocol YAGridViewControllerDelegate <UIViewControllerTransitioningDelegate>
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion;
 - (void)enableRecording:(BOOL)enable;
 - (void)scrollViewDidScroll;
 - (void)updateCameraAccessories;
+- (void)setInitialAnimationFrame:(CGRect)initialFrame;
 @end
+
 
 @interface YAGridViewController : UIViewController <UIApplicationDelegate,
 YACameraViewControllerDelegate, YAGridViewControllerDelegate>
 
 @property (nonatomic, readonly) YACameraViewController *cameraViewController;
 @property (nonatomic, strong) YAGroupsNavigationController *groupsNavigationController;
-
-- (void)scrollViewDidScroll;
 
 @end

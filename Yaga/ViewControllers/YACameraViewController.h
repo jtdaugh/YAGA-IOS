@@ -13,6 +13,7 @@
 - (void)openGroupOptions;
 - (void)scrollToTop;
 - (void)backPressed;
+- (void)presentNewlyRecordedVideo:(YAVideo *)video;
 @end
 
 #define recordButtonWidth 60.0

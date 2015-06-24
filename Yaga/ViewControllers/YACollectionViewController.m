@@ -7,7 +7,6 @@
 //
 
 #import "YACollectionViewController.h"
-#import "YAAnimatedTransitioningController.h"
 
 #import "YAVideoCell.h"
 
@@ -37,7 +36,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
 
-@property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 
 @property (nonatomic, assign) NSUInteger paginationThreshold;
 
@@ -101,7 +99,6 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
     
     //transitions
-    self.animationController = [YAAnimatedTransitioningController new];
     
     [self setupPullToRefresh];
 }
@@ -530,9 +527,9 @@ static NSString *cellID = @"Cell";
     initialFrame.origin.y -= self.collectionView.contentOffset.y;
     initialFrame.origin.y += self.view.frame.origin.y;
     
-    self.animationController.initialFrame = initialFrame;
+    [self.delegate setInitialAnimationFrame:initialFrame];
     
-    swipingVC.transitioningDelegate = self;
+    swipingVC.transitioningDelegate = self.delegate;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
     
     [self presentViewController:swipingVC animated:YES completion:nil];
@@ -661,19 +658,6 @@ static NSString *cellID = @"Cell";
     }
     
     [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:visibleVideos invisibleVideos:invisibleVideos];
-}
-
-#pragma mark - Custom transitions
-- (id <UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
-    self.animationController.presentingMode = YES;
-    
-    return self.animationController;
-}
-
-- (id <UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
-    self.animationController.presentingMode = NO;
-    
-    return self.animationController;
 }
 
 #pragma mark - Paging
