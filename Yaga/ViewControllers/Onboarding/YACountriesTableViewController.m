@@ -131,7 +131,10 @@
         obj = [_dataRows objectAtIndex:indexPath.row];
     }
     [[YAUser currentUser] setDialCode:obj[DIAL_CODE]];
+    
+    [[NSUserDefaults standardUserDefaults] setObject:obj[COUNTRY_CODE] forKey:kCountryCode];
     [[YAUser currentUser] setCountryCode:obj[COUNTRY_CODE]];
+    
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
