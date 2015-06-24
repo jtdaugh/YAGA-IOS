@@ -13,6 +13,7 @@
 #import "YAUser.h"
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
+#import "NameGroupViewController.h"
 
 @interface YAFindGroupsViewConrtoller ()
 @property (nonatomic, strong) NSArray *groupsDataArray;
@@ -69,7 +70,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.groupsDataArray.count;
+    NSUInteger result = self.groupsDataArray.count;
+    if(!result)
+        result = 1;
+    return result;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
@@ -81,14 +85,41 @@ static NSString *CellIdentifier = @"GroupsCell";
     UITableViewCell *cell;
     
     cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    NSDictionary *groupData = [self.groupsDataArray objectAtIndex:indexPath.row];
     
-    cell.textLabel.text = groupData[YA_RESPONSE_NAME];
-    cell.detailTextLabel.text = groupData[YA_RESPONSE_MEMBERS];
+    cell.textLabel.textColor = [UIColor whiteColor];
+    cell.detailTextLabel.textColor = [UIColor whiteColor];
+    cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
     cell.textLabel.frame = CGRectMake(cell.textLabel.frame.origin.x, cell.textLabel.frame.origin.y, cell.textLabel.frame.size.width - 150, cell.textLabel.frame.size.height);
     
     cell.detailTextLabel.frame = CGRectMake(cell.detailTextLabel.frame.origin.x, cell.detailTextLabel.frame.origin.y, cell.detailTextLabel.frame.size.width - 150, cell.detailTextLabel.frame.size.height);
+    
+    if(!self.groupsDataArray.count) {
+        cell.textLabel.text = NSLocalizedString(@"Wow, you're early. Create a group to get your friends on Yaga", @"");
+        cell.textLabel.numberOfLines = 0;
+        cell.textLabel.font = [UIFont fontWithName:cell.textLabel.font.fontName size:18];
+        UIButton *createGroupButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        createGroupButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        createGroupButton.tag = indexPath.row;
+        createGroupButton.frame = CGRectMake(0, 0, 90, 30);
+        [createGroupButton addTarget:self action:@selector(createGroupButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [createGroupButton setTitle:NSLocalizedString(@"Create", @"") forState:UIControlStateNormal];
+        [createGroupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [createGroupButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
+        [createGroupButton setTintColor:[UIColor whiteColor]];
+        createGroupButton.layer.borderWidth = 2.0f;
+        createGroupButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        createGroupButton.layer.cornerRadius = 4;
+        cell.accessoryView = createGroupButton;
+        return cell;
+    }
+    
+    cell.textLabel.font = [UIFont fontWithName:cell.textLabel.font.fontName size:28];
+    
+    NSDictionary *groupData = [self.groupsDataArray objectAtIndex:indexPath.row];
+    
+    cell.textLabel.text = groupData[YA_RESPONSE_NAME];
+    cell.detailTextLabel.text = groupData[YA_RESPONSE_MEMBERS];
     
     if(indexPath.row == self.groupsDataArray.count - 1)
         cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, cell.bounds.size.width);
@@ -102,10 +133,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     if ([cell respondsToSelector:@selector(layoutMargins)]) {
         cell.layoutMargins = UIEdgeInsetsZero;
     }
-    
-    cell.textLabel.textColor = [UIColor whiteColor];
-    cell.detailTextLabel.textColor = [UIColor whiteColor];
-    cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
     UIButton *requestButton = [UIButton buttonWithType:UIButtonTypeCustom];
     requestButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
@@ -132,6 +159,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if(!self.groupsDataArray.count)
+        return 150;
+    
     NSDictionary *groupData = self.groupsDataArray[indexPath.row];
     
     NSDictionary *attributes = @{NSFontAttributeName:[GroupsTableViewCell defaultDetailedLabelFont]};
@@ -167,12 +197,20 @@ static NSString *CellIdentifier = @"GroupsCell";
     }];
 }
 
+- (void)createGroupButtonTapped:(UIButton*)sender {
+    __weak id presentingController = self.presentingViewController;
+    [self dismissViewControllerAnimated:YES completion:^{
+        [presentingController pushViewController:[NameGroupViewController new] animated:YES];
+    }];
+}
+
 - (void)setupPullToRefresh {
     //pull to refresh
     __weak typeof(self) weakSelf = self;
     
     [self.tableView addPullToRefreshWithActionHandler:^{
         if(![YAServer sharedServer].serverUp) {
+            [weakSelf.tableView.pullToRefreshView stopAnimating];
             [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
             return;
         }
