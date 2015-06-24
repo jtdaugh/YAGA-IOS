@@ -134,7 +134,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         YACollectionViewController *vc = [YACollectionViewController new];
         vc.delegate = self.delegate;
         self.forcePushGrid = YES;
-        [self.navigationController pushViewController:vc animated:NO];
+        [self.navigationController pushViewController:vc animated:YES];
         [self.delegate updateCameraAccessories];
     }
 
@@ -223,9 +223,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     YAGroup *group = self.groups[indexPath.item];
     [YAUser currentUser].currentGroup = group;
-    YACollectionViewController *vc = [YACollectionViewController new];
-    vc.delegate = self.delegate;
-    [self.navigationController pushViewController:vc animated:YES];
     [self.delegate updateCameraAccessories];
 }
 
