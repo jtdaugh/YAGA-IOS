@@ -43,12 +43,7 @@
         self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
         self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
         self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
-        
-        NSArray *ranges = self.videoCamera.inputCamera.activeFormat.videoSupportedFrameRateRanges;
-        
-        for(NSString *range in ranges){
-            NSLog(@"range: %@", range);
-        }
+
         self.isInitialized = NO;
     }
     return self;
