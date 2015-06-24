@@ -79,15 +79,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self updateState];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    NSLog(@"view WILL appear");
-
-}
-
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    NSLog(@"view DID appear");
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
         [self updateState];
     }];
