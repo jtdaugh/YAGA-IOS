@@ -33,7 +33,7 @@
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
 @property (nonatomic, strong) YAGroup *editingGroup;
 @property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
-
+@property (nonatomic) BOOL forcePushGrid;
 //needed to have pull down to refresh shown for at least 1 second
 @property (nonatomic, strong) NSDate *willRefreshDate;
 
@@ -76,6 +76,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     if([YAUser currentUser].currentGroup) {
         YACollectionViewController *vc = [YACollectionViewController new];
         vc.delegate = self.delegate;
+        self.forcePushGrid = YES;
         [self.navigationController pushViewController:vc animated:NO];
         [self.delegate updateCameraAccessories];
     }
@@ -143,8 +144,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
-    [YAUser currentUser].currentGroup = nil;
+    if (!self.forcePushGrid) {
+        [YAUser currentUser].currentGroup = nil;
+    }
+    self.forcePushGrid = NO;
     [self.delegate updateCameraAccessories];
 
     if(![YAUserPermissions pushPermissionsRequestedBefore])

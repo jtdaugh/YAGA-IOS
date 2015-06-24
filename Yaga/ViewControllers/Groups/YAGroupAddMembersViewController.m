@@ -427,7 +427,7 @@
                     [weakSelf popToGridViewController];
                 } else {
                     YAInviteViewController *nextVC = [YAInviteViewController new];
-                    nextVC.inCreateGroupFlow = NO;
+                    nextVC.inCreateGroupFlow = YES;
                     nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
                     [weakSelf.navigationController pushViewController:nextVC animated:YES];
                 }

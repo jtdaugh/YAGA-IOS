@@ -119,7 +119,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-//    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
@@ -375,14 +375,15 @@ static NSString *CellID = @"CellID";
             NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
             cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
             
-            [cell.textLabel setTextColor:[UIColor whiteColor]];
+            [cell.textLabel setTextColor:[UIColor blackColor]];
             
             [cell.detailTextLabel setTextColor:[UIColor blackColor]];
             
             cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
             UIButton *inviteButton = [UIButton buttonWithType:UIButtonTypeCustom];
             inviteButton.tag = indexPath.row;
-            [inviteButton setImage:[UIImage imageNamed:@"Envelope"] forState:UIControlStateNormal];
+            [inviteButton setImage:[[UIImage imageNamed:@"Envelope"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+            [inviteButton setTintColor:[UIColor blackColor]];
             [inviteButton setFrame:CGRectMake(0, 0, 36, 36)];
             cell.accessoryView = inviteButton;
             [inviteButton addTarget:self action:@selector(inviteTapped:) forControlEvents:UIControlEventTouchUpInside];
