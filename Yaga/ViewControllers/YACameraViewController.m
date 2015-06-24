@@ -1035,7 +1035,7 @@ typedef enum {
 
 - (void)updateUviewedViedeosBadge {
     BOOL hidden = ![YAUser currentUser].currentGroup || ![[YAUser currentUser] hasUnviewedVideosInGroups];
-    self.unviewedVideosBadge.alpha = hidden ? 0 : 1.0;
+    self.unviewedVideosBadge.hidden = hidden ? YES : NO;
     
     self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
 }
