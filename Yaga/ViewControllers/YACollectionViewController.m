@@ -104,8 +104,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)videoId:(NSString *)videoId eventCountUpdated:(NSUInteger)eventCount {
-    NSLog(@"Scrolling fast: %@", self.scrollingFast ? @"YES" :  @"NO");
-    if (self.scrollingFast) return;
+    if (self.scrolling) return; // dont update unless the collection view is still
     __weak YACollectionViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@", videoId];
