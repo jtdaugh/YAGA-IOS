@@ -1402,8 +1402,6 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
-
-
 - (void)shareButtonPressed:(id)sender {
     
     NSLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
