@@ -486,12 +486,6 @@
 
 - (void)searchGroupsWithCompletion:(responseBlock)completion
 {
-    if(![YAServer sharedServer].serverUp) {
-        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
-        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
-        return;
-    }
-    
     NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api = [NSString stringWithFormat:API_GROUPS_SEARCH_TEMPLATE, self.base_api];

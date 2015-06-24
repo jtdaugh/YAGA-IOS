@@ -57,4 +57,5 @@ typedef void (^confirmationBlock)(void);
 
 + (UIButton *)circleButtonWithImage:(NSString *)imageName diameter:(CGFloat)diameter center:(CGPoint)center;
 
++ (NSArray*)readableGroupsArrayFromResponse:(NSArray *)response;
 @end

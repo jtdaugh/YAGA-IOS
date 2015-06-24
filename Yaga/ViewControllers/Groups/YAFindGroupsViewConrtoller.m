@@ -14,8 +14,6 @@
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
 
-#define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"
-
 @interface YAFindGroupsViewConrtoller ()
 @property (nonatomic, strong) NSArray *groupsDataArray;
 @end
@@ -23,88 +21,6 @@
 static NSString *CellIdentifier = @"GroupsCell";
 
 @implementation YAFindGroupsViewConrtoller
-
-- (void)setGroupsDataArray:(NSArray *)groupsDataArray {
-    NSMutableArray *result = [NSMutableArray new];
-    for (NSDictionary *groupData in groupsDataArray) {
-        NSArray *members = groupData[YA_RESPONSE_MEMBERS];
-        NSString *membersString = [self membersStringFromMembersArray:members];
-        
-        BOOL isPending = [self alreadyRequestedAccessToGroup:groupData];
-        [result addObject:@{YA_RESPONSE_ID : groupData[YA_RESPONSE_ID], YA_RESPONSE_NAME : groupData[YA_RESPONSE_NAME], YA_RESPONSE_MEMBERS : membersString, YA_RESPONSE_PENDING_MEMBERS : [NSNumber numberWithBool:isPending]}];
-    }
-    _groupsDataArray = result;
-}
-
-- (BOOL)alreadyRequestedAccessToGroup:(NSDictionary*)groupData {
-    for (NSDictionary *pending_member in groupData[YA_RESPONSE_PENDING_MEMBERS]) {
-        NSString *phoneNumber = pending_member[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
-        if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
-            return YES;
-    }
-    return NO;
-}
-
-- (NSString*)contactDisplayNameFromDictionary:(NSDictionary*)contactDictionary {
-    NSString *phoneNumber = contactDictionary[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
-    NSString *name = contactDictionary[YA_RESPONSE_USER][YA_RESPONSE_NAME];
-    name = [name isKindOfClass:[NSNull class]] ? @"" : name;
-    
-    if(!name.length) {
-        if([[YAUser currentUser].phonebook objectForKey:phoneNumber]) {
-            name = [[YAUser currentUser].phonebook objectForKey:phoneNumber][nCompositeName];
-        }
-        else {
-            name = kDefaultUsername;
-        }
-    }
-    return name;
-}
-
-- (NSString*)membersStringFromMembersArray:(NSArray*)members {
-    if(!members.count) {
-        return NSLocalizedString(@"No members", @"");
-    }
-    
-    NSString *results = @"";
-    
-    NSUInteger andMoreCount = 0;
-    for(int i = 0; i < members.count; i++) {
-        NSDictionary *contatDictionary = [members objectAtIndex:i];
-        
-        NSString *displayName = [self contactDisplayNameFromDictionary:contatDictionary];
-        
-        if([displayName isEqualToString:kDefaultUsername] || ! displayName)
-            andMoreCount++;
-        else {
-            if(!results.length)
-                results = displayName;
-            else
-                results = [results stringByAppendingFormat:@", %@", displayName];
-        }
-        if (i >= kMaxUsersShownInList) {
-            andMoreCount += members.count - kMaxUsersShownInList;
-            break;
-        }
-    }
-    
-    if(andMoreCount == 1) {
-        if(results.length)
-            results = [results stringByAppendingString:NSLocalizedString(@" and 1 more", @"")];
-        else
-            results = NSLocalizedString(@"ONE_UNKOWN_USER", @"");
-    }
-    else if(andMoreCount > 1) {
-        if(!results.length) {
-            results = [results stringByAppendingFormat:NSLocalizedString(@"N_UNKOWN_USERS_TEMPLATE", @""), andMoreCount];
-        }
-        else {
-            results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), andMoreCount];
-        }
-        
-    }
-    return results;
-}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -256,17 +172,25 @@ static NSString *CellIdentifier = @"GroupsCell";
     __weak typeof(self) weakSelf = self;
     
     [self.tableView addPullToRefreshWithActionHandler:^{
+        if(![YAServer sharedServer].serverUp) {
+            [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+            return;
+        }
+        
         [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
             [weakSelf.tableView.pullToRefreshView stopAnimating];
             
             if(error) {
-                if(![error.domain isEqualToString:@"YANoConnection"])
-                    [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
+                [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
             }
             else {
-                weakSelf.groupsDataArray = (NSArray*)response;
-                [weakSelf.tableView reloadData];
-                [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    weakSelf.groupsDataArray = [YAUtils readableGroupsArrayFromResponse:response];
+                    [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.tableView reloadData];
+                    });
+                });
             }
         }];
     }];
