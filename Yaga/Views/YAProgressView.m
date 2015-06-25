@@ -37,4 +37,30 @@
     self.textLabel.textColor = self.textColor ?: self.tintColor;
 }
 
+- (void)setProgress:(CGFloat)progress animated:(BOOL)animated {
+    if(progress == 0) {
+        progress = 0.75;
+        [self enableIndeterminateMode:YES];
+        [super setProgress:progress animated:NO];
+    }
+    else {
+        [self enableIndeterminateMode:NO];
+        [super setProgress:progress animated:animated];
+    }
+}
+
+- (void)enableIndeterminateMode:(BOOL)enable {
+    if(enable) {
+        CABasicAnimation* animation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+        animation.fromValue = [NSNumber numberWithFloat:0.0f];
+        animation.toValue = [NSNumber numberWithFloat: 2*M_PI];
+        animation.duration = 3.0f;
+        animation.repeatCount = HUGE_VAL;
+        [self.backgroundView.layer addAnimation:animation forKey:@"Rotation"];
+    }
+    else {
+        [self.backgroundView.layer removeAllAnimations];
+    }
+}
+
 @end
