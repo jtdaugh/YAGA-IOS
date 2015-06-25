@@ -172,7 +172,7 @@ typedef enum {
         [self.view addSubview:self.groupButton];
 
         //record button
-        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - 1.0*recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
+        self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
         [self.recordButton setBackgroundColor:[UIColor redColor]];
         [self.recordButton.layer setCornerRadius:recordButtonWidth/2.0];
         [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
@@ -198,7 +198,7 @@ typedef enum {
     
         self.leftBottomButton = [[UIButton alloc] initWithFrame:CGRectMake(10, VIEW_HEIGHT/2 - 30, 100, 30)];
         self.leftBottomButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
+//        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
         self.leftBottomButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
         [self.leftBottomButton addTarget:self action:@selector(leftBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.cameraAccessories addObject:self.leftBottomButton];
@@ -386,6 +386,8 @@ typedef enum {
     if([YAUser currentUser].currentGroup) {
         [self.delegate backPressed];
         [self updateCameraAccessories];
+        self.leftBottomButton.hidden = YES;
+        self.unviewedVideosBadge.hidden = YES;
     }
     else {
         YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
@@ -1088,9 +1090,10 @@ typedef enum {
     if(![YAUser currentUser].currentGroup) {
         
         //left button
-        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
-        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
-        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
+        self.leftBottomButton.hidden = YES;
+//        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
+//        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
+//        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
         
         //right button
         [self.rightBottomButton setImage:nil forState:UIControlStateNormal];
@@ -1102,6 +1105,7 @@ typedef enum {
         UIImage *backImage = [UIImage imageNamed:@"Back"];
         backImage = [UIImage imageWithCGImage:[backImage CGImage] scale:(backImage.scale * 3) orientation:(backImage.imageOrientation)];
         
+        self.leftBottomButton.hidden = NO;
         [self.leftBottomButton setImage:backImage forState:UIControlStateNormal];
         self.leftBottomButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
         [self.leftBottomButton setTitle:NSLocalizedString(@"Groups", @"") forState:UIControlStateNormal];

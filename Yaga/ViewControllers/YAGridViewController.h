@@ -21,6 +21,11 @@ typedef void (^cameraCompletion)(void);
 - (void)scrollViewDidScroll;
 - (void)updateCameraAccessories;
 - (void)setInitialAnimationFrame:(CGRect)initialFrame;
+- (void)swapOutOfOnboardingState;
+- (void)showCreateGroup;
+- (void)showFindGroups;
+
+
 @end
 
 

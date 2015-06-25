@@ -88,7 +88,7 @@
 
 #define COMMENTS_FONT_SIZE 17.f
 
-#define kMaxUsersShownInList (8)
+#define kMaxUsersShownInList (5)
 
 #define kCountryCode        @"kCountryCode"
 
@@ -109,5 +109,7 @@
 #define COMMENTS_HEIGHT_PROPORTION 0.25f
 #define COMMENTS_TEXT_FIELD_HEIGHT 40.f
 #define COMMENTS_SEND_WIDTH 70.f
+
+#define recordButtonWidth 60.0f
 
 #endif
