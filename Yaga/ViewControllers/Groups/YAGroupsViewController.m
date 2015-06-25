@@ -28,7 +28,6 @@
 #import "YAFindGroupsViewConrtoller.h"
 #import "YACollectionViewController.h"
 
-#define HEADER_HEIGHT 40
 #define FOOTER_HEIGHT 200
 
 @interface YAGroupsViewController ()
@@ -70,9 +69,6 @@ static NSString *CellIdentifier = @"GroupsCell";
         self.collectionView.contentInset = UIEdgeInsetsMake([self.yInset floatValue], 0, 0, 0);
     }
     [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:CellIdentifier];
-    [self.collectionView registerClass:[UICollectionReusableView class]
-            forSupplementaryViewOfKind: UICollectionElementKindSectionHeader
-                   withReuseIdentifier:@"HeaderView"];
     [self.collectionView registerClass:[UICollectionReusableView class]
             forSupplementaryViewOfKind: UICollectionElementKindSectionFooter
                    withReuseIdentifier:@"FooterView"];
@@ -245,20 +241,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
            viewForSupplementaryElementOfKind:(NSString *)kind
                                  atIndexPath:(NSIndexPath *)indexPath {
-    if (kind == UICollectionElementKindSectionHeader) {
-        
-        UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
-        if (reusableview==nil) {
-            reusableview=[[UICollectionReusableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
-        }
-        CGFloat labelHeight = 36;
-        UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake(40, (HEADER_HEIGHT - labelHeight)/2, VIEW_WIDTH, labelHeight)];
-        label.text= @"My Groups";
-        [label setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-        label.textColor = [UIColor lightGrayColor];
-        [reusableview addSubview:label];
-        return reusableview;
-    } else if (kind == UICollectionElementKindSectionFooter) {
+    if (kind == UICollectionElementKindSectionFooter) {
         UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
         
         if (reusableview==nil) {
@@ -301,11 +284,6 @@ static NSString *CellIdentifier = @"GroupsCell";
         
     }
     return nil;
-}
-
-// Header size
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
-    return CGSizeMake(VIEW_WIDTH, HEADER_HEIGHT);
 }
 
 // Footer size

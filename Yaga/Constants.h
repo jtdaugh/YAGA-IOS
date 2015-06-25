@@ -88,7 +88,7 @@
 
 #define COMMENTS_FONT_SIZE 17.f
 
-#define kMaxUsersShownInList (8)
+#define kMaxUsersShownInList (5)
 
 #define kCountryCode        @"kCountryCode"
 

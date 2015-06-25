@@ -27,6 +27,7 @@
 //Swift headers
 //#import "Yaga-Swift.h"
 
+#define MY_GROUPS_HEADER_HEIGHT 40
 
 @interface YAGridViewController ()
 
@@ -35,6 +36,7 @@
 @property (strong, nonatomic) SloppySwiper *swiper;
 @property (nonatomic, strong) UIView *onboardingHeaderView;
 @property (nonatomic, strong) UILabel *onboardingLabel;
+@property (nonatomic, strong) UIView *myGroupsHeaderView;
 
 @property (nonatomic) BOOL onboarding;
 
@@ -85,7 +87,15 @@
 
     [self addChildViewController:_bottomNavigationController];
     [self.view addSubview:_bottomNavigationController.view];
-        
+    
+    self.myGroupsHeaderView =[[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, MY_GROUPS_HEADER_HEIGHT)];
+    self.myGroupsHeaderView.backgroundColor = [UIColor colorWithWhite:0.97 alpha:.97];
+    UILabel *myGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(40, 5, 200, MY_GROUPS_HEADER_HEIGHT-10)];
+    [myGroupsLabel setFont:[UIFont fontWithName:BOLD_FONT size:22]];
+    myGroupsLabel.textColor = [UIColor lightGrayColor];
+    myGroupsLabel.text = @"My Groups";
+    [self.myGroupsHeaderView addSubview:myGroupsLabel];
+    
     if (!self.onboarding) {
         groupsRootViewController.yInset = @(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN);
 
@@ -95,6 +105,10 @@
         _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
         [self addChildViewController:_cameraViewController];
         [self.view addSubview:_cameraViewController.view];
+        CGRect headerFrame = self.myGroupsHeaderView.frame;
+        headerFrame.origin.y = VIEW_HEIGHT/2;
+        self.myGroupsHeaderView.frame = headerFrame;
+        [self.view addSubview:self.myGroupsHeaderView];
         
     } else {
         self.onboardingHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/3)];
@@ -114,8 +128,12 @@
         self.onboardingLabel.numberOfLines = 2;
         self.onboardingLabel.text = @"Welcome!\nPick a group and enjoy!";
         [self.onboardingHeaderView addSubview:self.onboardingLabel];
-        
-        groupsRootViewController.yInset = @(VIEW_HEIGHT/3 - CAMERA_MARGIN);
+        CGRect headerFrame = self.myGroupsHeaderView.frame;
+        headerFrame.origin.y = VIEW_HEIGHT/3;
+        self.myGroupsHeaderView.frame = headerFrame;
+        [self.view addSubview:self.myGroupsHeaderView];
+
+        groupsRootViewController.yInset = @(VIEW_HEIGHT/3 - CAMERA_MARGIN + MY_GROUPS_HEADER_HEIGHT - 10);
     }
     [self.view setBackgroundColor:[UIColor whiteColor]];
 }
