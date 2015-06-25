@@ -101,12 +101,6 @@
     
     self.myGroupsHeaderView =[[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
     self.myGroupsHeaderView.backgroundColor = [UIColor colorWithWhite:0.97 alpha:.97];
-    // Add shadow to my groups view
-    self.myGroupsHeaderView.layer.masksToBounds = NO;
-    self.myGroupsHeaderView.layer.shadowOffset = CGSizeMake(0, 8);
-    self.myGroupsHeaderView.layer.shadowRadius = 3;
-    self.myGroupsHeaderView.layer.shadowOpacity = 0.f;
-    self.myGroupsHeaderView.layer.shadowColor = [UIColor blackColor].CGColor;
 
     UILabel *myGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(40, 5, 200, HEADER_HEIGHT-10)];
     [myGroupsLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
@@ -342,11 +336,9 @@
 
 - (void)toggleShadow:(BOOL)shadow {
     if ([[self.bottomNavigationController visibleViewController] isEqual:self.groupsViewController]) {
-        shadow ? [self addShadowBelowMyGroups] : [self removeShadowBelowMyGroups];
         [self removeShadowBelowCamera];
     } else {
         shadow ? [self addShadowBelowCamera] : [self removeShadowBelowCamera];
-        [self removeShadowBelowMyGroups];
     }
 }
 - (void)addShadowBelowCamera {
@@ -374,31 +366,4 @@
         self.cameraViewController.view.layer.shadowOpacity = 0.f;
     }
 }
-
-- (void)addShadowBelowMyGroups {
-    if (!self.myGroupsHeaderView) return;
-    if (self.myGroupsHeaderView.layer.shadowOpacity != 0.35f) {
-        CABasicAnimation *borderAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
-        borderAnimation.fromValue = @(0.f);
-        borderAnimation.toValue = @(0.35f);
-        borderAnimation.duration = 0.25f;
-        
-        [self.myGroupsHeaderView.layer addAnimation:borderAnimation forKey:@"shadowOpacity"];
-        self.myGroupsHeaderView.layer.shadowOpacity = 0.35f;
-    }
-}
-
-- (void)removeShadowBelowMyGroups {
-    if (!self.myGroupsHeaderView) return;
-    if (self.myGroupsHeaderView.layer.shadowOpacity != 0.f) {
-        CABasicAnimation *borderAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
-        borderAnimation.fromValue = @(self.myGroupsHeaderView.layer.shadowOpacity);
-        borderAnimation.toValue = @(0.f);
-        borderAnimation.duration = 0.25f;
-        
-        [self.myGroupsHeaderView.layer addAnimation:borderAnimation forKey:@"shadowOpacity"];
-        self.myGroupsHeaderView.layer.shadowOpacity = 0.f;
-    }
-}
-
 @end
