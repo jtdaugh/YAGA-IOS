@@ -841,15 +841,14 @@ static NSString *commentCellID = @"CommentCell";
         self.captionButton.hidden = YES;
         
         NSString *text = self.editableCaptionTextView.text;
-        CGFloat x = self.textFieldCenter.x / VIEW_WIDTH;
-        CGFloat y = self.textFieldCenter.y / VIEW_HEIGHT;
+        CGFloat x = ceil(self.textFieldCenter.x / VIEW_WIDTH * 10000.0) / 10000.0;
+        CGFloat y = ceil(self.textFieldCenter.y / VIEW_HEIGHT * 10000.0) / 10000.0;
         
         CGAffineTransform t = self.textFieldTransform;
         CGFloat scale = sqrt(t.a * t.a + t.c * t.c);
-//        CGFloat scale = t.a;
-        scale = scale / CAPTION_SCREEN_MULTIPLIER;
+        scale = ceil(scale / CAPTION_SCREEN_MULTIPLIER * 10000.0) / 10000.0;
         
-        CGFloat rotation = atan2f(t.b, t.a);
+        CGFloat rotation = ceil(atan2f(t.b, t.a) * 10000.0) / 10000.0;
         
         self.serverCaptionWrapperView = self.editableCaptionWrapperView;
         self.serverCaptionTextView = self.editableCaptionTextView;
