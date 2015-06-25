@@ -457,8 +457,7 @@
 }
 
 + (BOOL)hasVisitedGifGrid {
-    return NO;
-//    return [[NSUserDefaults standardUserDefaults] boolForKey:HAS_VISITED_GIF_GRID_KEY];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:HAS_VISITED_GIF_GRID_KEY];
 }
 
 + (void)setVisitedGifGrid {

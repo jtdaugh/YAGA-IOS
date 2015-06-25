@@ -10,13 +10,15 @@
 #import "YAGridViewController.h"
 
 @interface YAGroupsViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate>
+
+- (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset;
+- (void)changeTopInset:(CGFloat)newTopInset;
+
 @property (nonatomic, strong) UICollectionView *collectionView;
 
 @property (nonatomic, strong) UITapGestureRecognizer *cameraTapToClose;
 @property (nonatomic, strong) UITapGestureRecognizer *collectionTapToClose;
 
 @property (nonatomic, weak) id<YAGridViewControllerDelegate> delegate;
-
-@property (nonatomic) NSNumber *yInset;
 
 @end

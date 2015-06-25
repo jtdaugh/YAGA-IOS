@@ -21,13 +21,16 @@
 #import "YAGroupsViewController.h"
 #import "YACollectionViewController.h"
 #import "YAPostCaptureViewController.h"
+#import "YAFindGroupsViewConrtoller.h"
+#import "NameGroupViewController.h"
 
 #import "SloppySwiper.h"
 
 //Swift headers
 //#import "Yaga-Swift.h"
 
-#define MY_GROUPS_HEADER_HEIGHT 40
+#define HEADER_HEIGHT 32
+#define HEADER_SPACING 6
 
 @interface YAGridViewController ()
 
@@ -37,6 +40,7 @@
 @property (nonatomic, strong) UIView *onboardingHeaderView;
 @property (nonatomic, strong) UILabel *onboardingLabel;
 @property (nonatomic, strong) UIView *myGroupsHeaderView;
+@property (nonatomic, strong) YAGroupsViewController *groupsViewController;
 
 @property (nonatomic) BOOL onboarding;
 
@@ -76,9 +80,17 @@
 }
 
 - (void)setupView {
-    YAGroupsViewController *groupsRootViewController = [YAGroupsViewController new];
-    groupsRootViewController.delegate = self;
-    _bottomNavigationController = [[UINavigationController alloc] initWithRootViewController:groupsRootViewController];
+    CGFloat topInset;
+    if (!self.onboarding ) {
+        topInset = VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN + HEADER_HEIGHT - HEADER_SPACING;
+    } else  {
+        topInset = VIEW_HEIGHT/3 - CAMERA_MARGIN + HEADER_HEIGHT - HEADER_SPACING;
+    }
+
+    _groupsViewController = [[YAGroupsViewController alloc] initWithCollectionViewTopInset:topInset];;
+    
+        _groupsViewController.delegate = self;
+    _bottomNavigationController = [[UINavigationController alloc] initWithRootViewController:_groupsViewController];
     _bottomNavigationController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
     [_bottomNavigationController.view.layer setMasksToBounds:NO];
     _bottomNavigationController.interactivePopGestureRecognizer.enabled = NO;
@@ -88,16 +100,15 @@
     [self addChildViewController:_bottomNavigationController];
     [self.view addSubview:_bottomNavigationController.view];
     
-    self.myGroupsHeaderView =[[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, MY_GROUPS_HEADER_HEIGHT)];
+    self.myGroupsHeaderView =[[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
     self.myGroupsHeaderView.backgroundColor = [UIColor colorWithWhite:0.97 alpha:.97];
-    UILabel *myGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(40, 5, 200, MY_GROUPS_HEADER_HEIGHT-10)];
-    [myGroupsLabel setFont:[UIFont fontWithName:BOLD_FONT size:22]];
+    UILabel *myGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(40, 5, 200, HEADER_HEIGHT-10)];
+    [myGroupsLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
     myGroupsLabel.textColor = [UIColor lightGrayColor];
     myGroupsLabel.text = @"My Groups";
     [self.myGroupsHeaderView addSubview:myGroupsLabel];
     
     if (!self.onboarding) {
-        groupsRootViewController.yInset = @(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN);
 
         _cameraViewController = [YACameraViewController new];
         _cameraViewController.delegate = self;
@@ -106,9 +117,10 @@
         [self addChildViewController:_cameraViewController];
         [self.view addSubview:_cameraViewController.view];
         CGRect headerFrame = self.myGroupsHeaderView.frame;
-        headerFrame.origin.y = VIEW_HEIGHT/2;
+        headerFrame.origin.y = VIEW_HEIGHT/2 - CAMERA_MARGIN;
         self.myGroupsHeaderView.frame = headerFrame;
-        [self.view addSubview:self.myGroupsHeaderView];
+        [self.groupsViewController.view addSubview:self.myGroupsHeaderView];
+        
         
     } else {
         self.onboardingHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/3)];
@@ -129,13 +141,41 @@
         self.onboardingLabel.text = @"Welcome!\nPick a group and enjoy!";
         [self.onboardingHeaderView addSubview:self.onboardingLabel];
         CGRect headerFrame = self.myGroupsHeaderView.frame;
-        headerFrame.origin.y = VIEW_HEIGHT/3;
+        headerFrame.origin.y = VIEW_HEIGHT/3- CAMERA_MARGIN;
         self.myGroupsHeaderView.frame = headerFrame;
-        [self.view addSubview:self.myGroupsHeaderView];
+        [self.groupsViewController.view addSubview:self.myGroupsHeaderView];
 
-        groupsRootViewController.yInset = @(VIEW_HEIGHT/3 - CAMERA_MARGIN + MY_GROUPS_HEADER_HEIGHT - 10);
     }
     [self.view setBackgroundColor:[UIColor whiteColor]];
+}
+
+- (void)swapOutOfOnboardingState {
+    if (self.onboarding) {
+        self.onboarding = NO;
+        _cameraViewController = [YACameraViewController new];
+        _cameraViewController.delegate = self;
+        
+        _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
+        [self addChildViewController:_cameraViewController];
+        [self.view addSubview:_cameraViewController.view];
+        [self.onboardingHeaderView removeFromSuperview];
+        
+        CGRect headerFrame = self.myGroupsHeaderView.frame;
+        headerFrame.origin.y = VIEW_HEIGHT/2;
+        self.myGroupsHeaderView.frame = headerFrame;
+        [self.groupsViewController changeTopInset:VIEW_HEIGHT/2-CAMERA_MARGIN + HEADER_HEIGHT - HEADER_SPACING];
+        self.myGroupsHeaderView.layer.zPosition = 1000;
+    }
+}
+
+- (void)showCreateGroup {
+    [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
+}
+
+- (void)showFindGroups {
+    YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
+    [self presentViewController:navController animated:YES completion:nil];
+
 }
 
 - (UICollectionView *)getRelevantCollectionView {
@@ -188,8 +228,10 @@
 }
 
 - (void)scrollViewDidScroll {
+    if (self.onboarding) return;
     CGRect cameraFrame = self.cameraViewController.view.frame;
     CGRect gridFrame = self.bottomNavigationController.view.frame;
+    CGRect myGroupsFrame = self.myGroupsHeaderView.frame;
     
     UICollectionView *collectionView = [self getRelevantCollectionView];
     if (!collectionView) return;
@@ -204,7 +246,7 @@
         groupsCollectionView = [groupsVC collectionView];
     if (groupsCollectionView && ![collectionView isEqual:groupsCollectionView]) {
         CGPoint groupsOffset = groupsCollectionView.contentOffset;
-        groupsOffset.y = MIN(collectionView.contentOffset.y, 0);
+        groupsOffset.y = MIN(collectionView.contentOffset.y - HEADER_HEIGHT + HEADER_SPACING, -HEADER_HEIGHT + HEADER_SPACING);
         groupsCollectionView.contentOffset = groupsOffset;
     }
     
@@ -218,7 +260,8 @@
     }
     
     cameraFrame.origin.y = -offset;
-
+    myGroupsFrame.origin.y = VIEW_HEIGHT/2-CAMERA_MARGIN-offset;
+    self.myGroupsHeaderView.frame = myGroupsFrame;
     if (![self.cameraViewController.recording boolValue]) {
         self.cameraViewController.view.frame = cameraFrame;
     }
