@@ -16,7 +16,7 @@
 #import "NBNumberFormat.h"
 #import "YAServer.h"
 
-#define HAS_VISITED_GIF_GRID_KEY @"HAS_VISITED_GIF_GRID_KEY"
+#define HAS_VISITED_GIF_GRID_KEY @"gifsVisited"
 
 @interface YAUtils ()
 @property (copy) void (^acceptAction)();

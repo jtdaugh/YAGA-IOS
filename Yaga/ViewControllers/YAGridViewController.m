@@ -89,7 +89,7 @@
 
     _groupsViewController = [[YAGroupsViewController alloc] initWithCollectionViewTopInset:topInset];;
     
-        _groupsViewController.delegate = self;
+    _groupsViewController.delegate = self;
     _bottomNavigationController = [[UINavigationController alloc] initWithRootViewController:_groupsViewController];
     _bottomNavigationController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
     [_bottomNavigationController.view.layer setMasksToBounds:NO];

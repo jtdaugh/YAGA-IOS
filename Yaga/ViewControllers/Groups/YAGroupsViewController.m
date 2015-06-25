@@ -28,7 +28,7 @@
 #import "YAFindGroupsViewConrtoller.h"
 #import "YACollectionViewController.h"
 
-#define FOOTER_HEIGHT 200
+#define FOOTER_HEIGHT 170
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -271,8 +271,8 @@ static NSString *CellIdentifier = @"GroupsCell";
             reusableview=[[UICollectionReusableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, FOOTER_HEIGHT)];
         }
         
-        CGSize labelSize = CGSizeMake(VIEW_WIDTH*0.8, 100);
-        UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - labelSize.width)/2, 10, labelSize.width, labelSize.height)];
+        CGSize labelSize = CGSizeMake(VIEW_WIDTH*0.8, 70);
+        UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - labelSize.width)/2, 20, labelSize.width, labelSize.height)];
         label.numberOfLines = 3;
         label.font = [UIFont fontWithName:BIG_FONT size:16];
         label.textColor = [UIColor lightGrayColor];
