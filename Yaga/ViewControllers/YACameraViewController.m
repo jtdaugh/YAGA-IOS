@@ -390,7 +390,6 @@ typedef enum {
 - (void)leftBottomButtonPressed {
     if([YAUser currentUser].currentGroup) {
         [self.delegate backPressed];
-        [self updateCameraAccessories];
     }
     else {
         YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
@@ -1036,12 +1035,13 @@ typedef enum {
 #pragma mark -
 
 - (void)updateCurrentGroupName {
+    self.groupButton.alpha = [YAUser currentUser].currentGroup ? 1 : 0;
     [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
 }
 
 - (void)updateUviewedViedeosBadge {
     BOOL hidden = ![YAUser currentUser].currentGroup || ![[YAUser currentUser] hasUnviewedVideosInGroups];
-    self.unviewedVideosBadge.hidden = hidden ? YES : NO;
+    self.unviewedVideosBadge.alpha = hidden ? 0 : 1;
     
     self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
 }
@@ -1052,7 +1052,7 @@ typedef enum {
 }
 
 - (void)groupDidChange:(NSNotification*)notification {
-    [self updateCurrentGroupName];
+    [self updateCameraAccessories];
 }
 
 #pragma mark Settings
@@ -1127,17 +1127,24 @@ typedef enum {
 }
 
 - (void)updateCameraAccessories {
+    self.rightBottomButton.alpha = 0;
+    
     if(![YAUser currentUser].currentGroup) {
         
         //left button
-        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
-        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
-        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
+//        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
+//        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
+//        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
         
         //right button
         [self.rightBottomButton setImage:nil forState:UIControlStateNormal];
         self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - 110, VIEW_HEIGHT/2 - 35, 100, 30);
         [self.rightBottomButton setTitle:NSLocalizedString(@"Create Group", @"") forState:UIControlStateNormal];
+        
+        [UIView animateWithDuration:0.3 animations:^{
+            self.leftBottomButton.alpha = 0;
+            self.rightBottomButton.alpha = 1;
+        }];
     }
     else {
         //left button
@@ -1149,15 +1156,24 @@ typedef enum {
         [self.leftBottomButton setTitle:NSLocalizedString(@"Groups", @"") forState:UIControlStateNormal];
         self.leftBottomButton.frame = CGRectMake(5, VIEW_HEIGHT/2 - 35, 80, 30);
         
+
+        
         //right button
         self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, (VIEW_HEIGHT/2 - INFO_SIZE - INFO_PADDING*2) + 5, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
         [self.rightBottomButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.rightBottomButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.rightBottomButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        
+        [UIView animateWithDuration:0.3 animations:^{
+            self.rightBottomButton.alpha = 1;
+            self.leftBottomButton.alpha = 1;
+        }];
     }
     
-    [self updateUviewedViedeosBadge];
-    [self updateCurrentGroupName];
+    [UIView animateWithDuration:0.3 animations:^{
+        [self updateUviewedViedeosBadge];
+        [self updateCurrentGroupName];
+    }];
 }
 
 @end

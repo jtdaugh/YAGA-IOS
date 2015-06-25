@@ -83,8 +83,6 @@
 
 - (void)setMembersString:(NSString *)membersString {
     self.membersLabel.text = membersString;
-    NSLog(@"set string?");
-    
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
     CGRect rect = [membersString boundingRectWithSize:CGSizeMake([GroupsCollectionViewCell contentWidth], CGFLOAT_MAX)
                                        options:NSStringDrawingUsesLineFragmentOrigin

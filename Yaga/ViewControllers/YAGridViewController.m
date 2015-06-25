@@ -197,6 +197,7 @@
 }
 
 - (void)backPressed {
+    [YAUser currentUser].currentGroup = nil;
     [self.bottomNavigationController popViewControllerAnimated:YES];
 }
 
