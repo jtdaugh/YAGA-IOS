@@ -316,6 +316,12 @@ typedef enum {
                                                  selector:@selector(showVideoPage:)
                                                      name:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON
                                                    object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(openGroupOptions)
+                                                     name:OPEN_GROUP_OPTIONS_NOTIFICATION
+                                                   object:nil];
+        
         [self updateUviewedViedeosBadge];
         
         if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
@@ -441,6 +447,7 @@ typedef enum {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_CHANGE_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
 
 }
 
