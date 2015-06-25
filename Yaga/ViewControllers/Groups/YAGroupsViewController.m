@@ -28,6 +28,9 @@
 #import "YAFindGroupsViewConrtoller.h"
 #import "YACollectionViewController.h"
 
+#define HEADER_HEIGHT 40
+#define FOOTER_HEIGHT 200
+
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
@@ -63,10 +66,17 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
     self.collectionView.backgroundColor = [self.view.backgroundColor copy];
-    self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
-
+    if (self.yInset) {
+        self.collectionView.contentInset = UIEdgeInsetsMake([self.yInset floatValue], 0, 0, 0);
+    }
     [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:CellIdentifier];
-    
+    [self.collectionView registerClass:[UICollectionReusableView class]
+            forSupplementaryViewOfKind: UICollectionElementKindSectionHeader
+                   withReuseIdentifier:@"HeaderView"];
+    [self.collectionView registerClass:[UICollectionReusableView class]
+            forSupplementaryViewOfKind: UICollectionElementKindSectionFooter
+                   withReuseIdentifier:@"FooterView"];
+
     [self setupPullToRefresh];
     
     //notifications
@@ -230,5 +240,81 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     return [GroupsCollectionViewCell sizeForMembersString:membersString];
 }
+
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
+           viewForSupplementaryElementOfKind:(NSString *)kind
+                                 atIndexPath:(NSIndexPath *)indexPath {
+    if (kind == UICollectionElementKindSectionHeader) {
+        
+        UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
+        if (reusableview==nil) {
+            reusableview=[[UICollectionReusableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
+        }
+        CGFloat labelHeight = 36;
+        UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake(40, (HEADER_HEIGHT - labelHeight)/2, VIEW_WIDTH, labelHeight)];
+        label.text= @"My Groups";
+        [label setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+        label.textColor = [UIColor lightGrayColor];
+        [reusableview addSubview:label];
+        return reusableview;
+    } else if (kind == UICollectionElementKindSectionFooter) {
+        UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
+        
+        if (reusableview==nil) {
+            reusableview=[[UICollectionReusableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, FOOTER_HEIGHT)];
+        }
+        
+        CGSize labelSize = CGSizeMake(VIEW_WIDTH*0.8, 100);
+        UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - labelSize.width)/2, 10, labelSize.width, labelSize.height)];
+        label.numberOfLines = 3;
+        label.font = [UIFont fontWithName:BIG_FONT size:16];
+        label.textColor = [UIColor lightGrayColor];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.text=@"Looking for more?\nExplore groups your friends\nare in or create a new group!";
+        [reusableview addSubview:label];
+        
+        CGSize buttonSize = CGSizeMake(140, 50);
+        UIButton *findButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/4 - buttonSize.width/2 + 2, FOOTER_HEIGHT - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+        findButton.backgroundColor = [UIColor whiteColor];
+        [findButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        findButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
+        findButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+        findButton.layer.borderWidth = 3;
+        findButton.layer.cornerRadius = buttonSize.height/2;
+        findButton.layer.masksToBounds = YES;
+        [findButton setTitle:@"Find Groups" forState:UIControlStateNormal];
+        [reusableview addSubview:findButton];
+        
+        UIButton *createButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*3/4 - buttonSize.width/2 - 2, FOOTER_HEIGHT - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+        createButton.backgroundColor = PRIMARY_COLOR;
+        [createButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        createButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
+        createButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+        createButton.layer.borderWidth = 3;
+        createButton.layer.cornerRadius = buttonSize.height/2;
+        createButton.layer.masksToBounds = YES;
+        [createButton setTitle:@"Create Group" forState:UIControlStateNormal];
+        [reusableview addSubview:createButton];
+        
+        return reusableview;
+        
+    }
+    return nil;
+}
+
+// Header size
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
+    return CGSizeMake(VIEW_WIDTH, HEADER_HEIGHT);
+}
+
+// Footer size
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout*)collectionViewLayout
+referenceSizeForFooterInSection:(NSInteger)section {
+    return CGSizeMake(VIEW_WIDTH, FOOTER_HEIGHT);;
+}
+
+
 
 @end

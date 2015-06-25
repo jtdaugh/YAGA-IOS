@@ -17,4 +17,6 @@
 
 @property (nonatomic, weak) id<YAGridViewControllerDelegate> delegate;
 
+@property (nonatomic) NSNumber *yInset;
+
 @end

@@ -33,6 +33,10 @@
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 @property (nonatomic, strong) UINavigationController *bottomNavigationController;
 @property (strong, nonatomic) SloppySwiper *swiper;
+@property (nonatomic, strong) UIView *onboardingHeaderView;
+@property (nonatomic, strong) UILabel *onboardingLabel;
+
+@property (nonatomic) BOOL onboarding;
 
 @end
 
@@ -43,6 +47,8 @@
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES];
 //    [self.navigationController setNavigationBarHidden:YES animated:NO];
 //    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+    [self.navigationController setNavigationBarHidden:YES];
+    self.onboarding = ![YAUtils hasVisitedGifGrid];
     
     [self setupView];
     [[YACameraManager sharedManager] initCamera];
@@ -79,17 +85,39 @@
 
     [self addChildViewController:_bottomNavigationController];
     [self.view addSubview:_bottomNavigationController.view];
-    
-    _cameraViewController = [YACameraViewController new];
-    _cameraViewController.delegate = self;
-    
-    _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
-    [self addChildViewController:_cameraViewController];
-    [self.view addSubview:_cameraViewController.view];
-    
+        
+    if (!self.onboarding) {
+        groupsRootViewController.yInset = @(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN);
+
+        _cameraViewController = [YACameraViewController new];
+        _cameraViewController.delegate = self;
+        
+        _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
+        [self addChildViewController:_cameraViewController];
+        [self.view addSubview:_cameraViewController.view];
+        
+    } else {
+        self.onboardingHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/3)];
+        self.onboardingHeaderView.backgroundColor = PRIMARY_COLOR;
+        [self.view addSubview:self.onboardingHeaderView];
+        CGSize logoSize = CGSizeMake(120, 80);
+        UIImageView *logo = [[UIImageView alloc] initWithFrame:CGRectMake((VIEW_WIDTH - logoSize.width)/2, 20, logoSize.width, logoSize.height)];
+        logo.contentMode = UIViewContentModeScaleAspectFit;
+        logo.image = [UIImage imageNamed:@"Logo"];
+        [self.onboardingHeaderView addSubview:logo];
+        CGSize labelSize = CGSizeMake(VIEW_WIDTH*0.85, 60);
+        self.onboardingLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - labelSize.width)/2, self.onboardingHeaderView.frame.size.height - labelSize.height - 20, labelSize.width, labelSize.height)];
+        self.onboardingLabel.textAlignment = NSTextAlignmentCenter;
+        self.onboardingLabel.font = [UIFont fontWithName:BIG_FONT size:20];
+        self.onboardingLabel.textColor = [UIColor whiteColor];
+        self.onboardingLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        self.onboardingLabel.numberOfLines = 2;
+        self.onboardingLabel.text = @"Welcome!\nPick a group and enjoy!";
+        [self.onboardingHeaderView addSubview:self.onboardingLabel];
+        
+        groupsRootViewController.yInset = @(VIEW_HEIGHT/3 - CAMERA_MARGIN);
+    }
     [self.view setBackgroundColor:[UIColor whiteColor]];
-    
-    [self.navigationController setNavigationBarHidden:YES];
 }
 
 - (UICollectionView *)getRelevantCollectionView {

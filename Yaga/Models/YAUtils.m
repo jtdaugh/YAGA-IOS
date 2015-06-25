@@ -16,6 +16,8 @@
 #import "NBNumberFormat.h"
 #import "YAServer.h"
 
+#define HAS_VISITED_GIF_GRID_KEY @"HAS_VISITED_GIF_GRID_KEY"
+
 @interface YAUtils ()
 @property (copy) void (^acceptAction)();
 @property (copy) void (^dismissAction)();
@@ -454,5 +456,14 @@
     return results;
 }
 
++ (BOOL)hasVisitedGifGrid {
+    return NO;
+//    return [[NSUserDefaults standardUserDefaults] boolForKey:HAS_VISITED_GIF_GRID_KEY];
+}
+
++ (void)setVisitedGifGrid {
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HAS_VISITED_GIF_GRID_KEY];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
 
 @end

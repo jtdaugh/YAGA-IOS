@@ -121,6 +121,11 @@ static NSString *cellID = @"Cell";
     });
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+//    [YAUtils setVisitedGifGrid];
+}
+
 - (void)scrollToCell:(NSNotification *)notif
 {
     YAVideoCell *cell = notif.object;
