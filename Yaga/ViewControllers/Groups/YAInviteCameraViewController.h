@@ -15,7 +15,6 @@
 - (void)endedHold;
 @end
 
-#define recordButtonWidth 60.0
 @interface YAInviteCameraViewController : UIViewController<UIGestureRecognizerDelegate>
 
 @property (nonatomic) CGRect smallCameraFrame;
