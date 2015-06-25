@@ -1122,6 +1122,9 @@ typedef enum {
             self.groupButton.alpha = 0;
             self.unviewedVideosBadge.alpha = 0;
             self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
+        } completion:^(BOOL finished) {
+            self.unviewedVideosBadge.hidden = YES;
+            self.leftBottomButton.hidden = YES;
         }];
     }
     else {
@@ -1142,7 +1145,9 @@ typedef enum {
         [self.rightBottomButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.rightBottomButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.rightBottomButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        
+
+        self.leftBottomButton.hidden = NO;
+        self.unviewedVideosBadge.hidden = NO;
         [UIView animateWithDuration:0.2 animations:^{
             self.rightBottomButton.alpha = 1;
             self.leftBottomButton.alpha = 1;
