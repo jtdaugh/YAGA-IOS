@@ -15,8 +15,7 @@
 #import "NSString+Hash.h"
 #import "NBNumberFormat.h"
 #import "YAServer.h"
-
-#define HAS_VISITED_GIF_GRID_KEY @"gifsVisited"
+#import "Constants.h"
 
 @interface YAUtils ()
 @property (copy) void (^acceptAction)();
@@ -457,11 +456,11 @@
 }
 
 + (BOOL)hasVisitedGifGrid {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:HAS_VISITED_GIF_GRID_KEY];
+    return ![[NSUserDefaults standardUserDefaults] boolForKey:GIF_GRID_UNSEEN];
 }
 
 + (void)setVisitedGifGrid {
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HAS_VISITED_GIF_GRID_KEY];
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:GIF_GRID_UNSEEN];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 

@@ -124,6 +124,7 @@ static NSString *cellID = @"Cell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [YAUtils setVisitedGifGrid];
+    [self.delegate swapOutOfOnboardingState];
 }
 
 - (void)scrollToCell:(NSNotification *)notif
