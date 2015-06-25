@@ -88,7 +88,8 @@
     [topBar addSubview:self.groupNameButton];
     
     CGFloat addMembersButtonWidth = 100;
-    UIButton *addMembersButton = [UIButton buttonWithType:UIButtonTypeContactAdd];
+    UIButton *addMembersButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [addMembersButton setTitle:@"Add" forState:UIControlStateNormal];
     addMembersButton.frame = CGRectMake(VIEW_WIDTH - addMembersButtonWidth - 10, 31, addMembersButtonWidth, 28);
     addMembersButton.tintColor = [UIColor whiteColor];
     addMembersButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
