@@ -89,6 +89,7 @@
 
 - (void)setCameraView:(YACameraView *)cameraView {
     [cameraView setFillMode:kGPUImageFillModePreserveAspectRatioAndFill];
+    [cameraView setContentMode:UIViewContentModeScaleAspectFill];
     
     if (![cameraView isEqual:self.currentCameraView] && cameraView) {
         [self.videoCamera removeTarget:self.currentCameraView];
