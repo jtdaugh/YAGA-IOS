@@ -422,7 +422,8 @@ typedef enum {
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+    [[YACameraManager sharedManager] initCamera];
+
     dispatch_async(dispatch_get_main_queue(), ^{
         [YACameraManager sharedManager].delegate = self;
         [[YACameraManager sharedManager] setCameraView:self.cameraView];

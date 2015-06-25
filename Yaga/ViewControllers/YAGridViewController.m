@@ -55,9 +55,8 @@
 //    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
     [self.navigationController setNavigationBarHidden:YES];
     self.onboarding = ![YAUtils hasVisitedGifGrid];
-    
+
     [self setupView];
-    [[YACameraManager sharedManager] initCamera];
     self.animationController = [YAAnimatedTransitioningController new];
 
 }
