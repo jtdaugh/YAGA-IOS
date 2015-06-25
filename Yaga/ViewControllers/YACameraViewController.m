@@ -112,6 +112,7 @@ typedef enum {
         [self.cameraView setBackgroundColor:[UIColor blackColor]];
         [self.view addSubview:self.cameraView];
         [self.cameraView setUserInteractionEnabled:YES];
+        self.cameraView.clipsToBounds = YES;
         self.cameraView.autoresizingMask = UIViewAutoresizingNone;
         
         self.cameraAccessories = [@[] mutableCopy];
@@ -605,42 +606,6 @@ typedef enum {
     }
 }
 
-- (void) startEnlargeAnimation {
-    // ...
-    CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateEnlargeAnimation:)];
-    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
-    self.animationStartTime = -1.0f;
-    // ...
-}
-
-- (void) updateEnlargeAnimation:(CADisplayLink *)displayLink {
-    if((self.animationStartTime == -1.0f)){
-        self.animationStartTime = [displayLink timestamp];
-    }
-    
-    float currentTime = [displayLink timestamp];
-    
-    float totalTime = 0.2;
-    
-    float progress = (currentTime - self.animationStartTime)/totalTime;
-    
-    [self.cameraView setFrame:CGRectMake(-((float)VIEW_HEIGHT * 3.0f/4.0f - (float)VIEW_WIDTH)/2.0f * (float)progress, 0, (float)VIEW_WIDTH + (float)progress * ((float)VIEW_HEIGHT * 3.0f/4.0f - (float)VIEW_WIDTH), (float)VIEW_HEIGHT/2.0f + (float)VIEW_HEIGHT/2.0f * (float)progress)];
-    
-    NSLog(@"progress: %f", progress);
-    NSLog(@"last time: %f", self.animationStartTime);
-    NSLog(@"current time: %f", currentTime);
-    
-    if(progress >= 1.0){
-        [displayLink invalidate];
-    }
-//    self.cameraView
-//    double renderTime = currentTime - frameTimestamp;
-//    frameTimestamp = currentTime;
-    
-//    double speed = 10.0 * renderTime * 60.0;
-//    [myView moveWithSpeed: speed];
-}
-
 - (void)enlargeCamera:(UISwipeGestureRecognizer *)recognizer {
     if(!self.largeCamera){
         if(self.recordTooltipLabel){
@@ -657,7 +622,7 @@ typedef enum {
         [UIView animateWithDuration:0.2 delay:0.0 options:0 animations:^{
             //
             self.view.frame = CGRectMake(0, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
-            [self.cameraView setFrame:CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT)];
+            self.cameraView.frame = CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
             [self.rightBottomButton setAlpha:0.0];
 //            [self.groupButton setAlpha:0.0];
             [self.unviewedVideosBadge setAlpha:0.0];
