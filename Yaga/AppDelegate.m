@@ -83,6 +83,7 @@
     else
     {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:ALREADY_LAUNCHED_KEY];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:GIF_GRID_UNSEEN];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
         // This is the first launch ever

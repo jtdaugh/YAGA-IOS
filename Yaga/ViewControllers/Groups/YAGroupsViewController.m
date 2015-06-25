@@ -28,6 +28,8 @@
 #import "YAFindGroupsViewConrtoller.h"
 #import "YACollectionViewController.h"
 
+#define FOOTER_HEIGHT 170
+
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
@@ -36,6 +38,7 @@
 @property (nonatomic) BOOL animatePush;
 //needed to have pull down to refresh shown for at least 1 second
 @property (nonatomic, strong) NSDate *willRefreshDate;
+@property (nonatomic) CGFloat topInset;
 
 @end
 
@@ -43,13 +46,43 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 @implementation YAGroupsViewController
 
+- (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset {
+    self = [super init];
+    if (self) {
+        _topInset = topInset;
+    }
+    return self;
+}
+
+- (void)changeTopInset:(CGFloat)newTopInset {
+    if (self.topInset == newTopInset) {
+        return; // Nothing changed, so do nothing.
+    }
+    self.topInset = newTopInset;
+    [self setupCollectionView];
+}
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    [self setupCollectionView];
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     [self.navigationController setNavigationBarHidden:YES];
     
+    //notifications
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION    object:nil];
     
+    //force to open last selected group
+    self.animatePush = NO;
+    [self groupDidChange:nil];
+    [self updateState];
+}
+
+- (void)setupCollectionView {
+    if (self.collectionView) {
+        [self.collectionView removeFromSuperview];
+    }
     CGFloat origin = 0;
     CGFloat leftMargin = 0;
     
@@ -62,21 +95,16 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.view addSubview:self.collectionView];
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
+    self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.backgroundColor = [self.view.backgroundColor copy];
-    self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
-
+    self.collectionView.contentInset = UIEdgeInsetsMake(self.topInset, 0, 0, 0);
     [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:CellIdentifier];
+    [self.collectionView registerClass:[UICollectionReusableView class]
+            forSupplementaryViewOfKind: UICollectionElementKindSectionFooter
+                   withReuseIdentifier:@"FooterView"];
     
     [self setupPullToRefresh];
-    
-    //notifications
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION    object:nil];
-    
-    //force to open last selected group
-    self.animatePush = NO;
-    [self groupDidChange:nil];
-    [self updateState];
+
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -217,6 +245,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     YAGroup *group = self.groups[indexPath.item];
     [YAUser currentUser].currentGroup = group;
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
+    [self.delegate swapOutOfOnboardingState];
+    [self.delegate updateCameraAccessories];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -224,6 +254,73 @@ static NSString *CellIdentifier = @"GroupsCell";
     NSString *membersString = group.membersString;
     
     return [GroupsCollectionViewCell sizeForMembersString:membersString];
+}
+
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
+           viewForSupplementaryElementOfKind:(NSString *)kind
+                                 atIndexPath:(NSIndexPath *)indexPath {
+    if (kind == UICollectionElementKindSectionFooter) {
+        UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
+        
+        if (reusableview==nil) {
+            reusableview=[[UICollectionReusableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, FOOTER_HEIGHT)];
+        }
+        
+        CGSize labelSize = CGSizeMake(VIEW_WIDTH*0.8, 70);
+        UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - labelSize.width)/2, 20, labelSize.width, labelSize.height)];
+        label.numberOfLines = 3;
+        label.font = [UIFont fontWithName:BIG_FONT size:16];
+        label.textColor = [UIColor lightGrayColor];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.text=@"Looking for more?\nExplore groups your friends\nare in or create a new group!";
+        [reusableview addSubview:label];
+        
+        CGSize buttonSize = CGSizeMake(140, 50);
+        UIButton *findButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/4 - buttonSize.width/2 + 2, FOOTER_HEIGHT - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+        findButton.backgroundColor = [UIColor whiteColor];
+        [findButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        findButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
+        findButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+        findButton.layer.borderWidth = 3;
+        findButton.layer.cornerRadius = buttonSize.height/2;
+        findButton.layer.masksToBounds = YES;
+        [findButton setTitle:@"Find Groups" forState:UIControlStateNormal];
+        [findButton addTarget:self action:@selector(findCellPressed:) forControlEvents:UIControlEventTouchUpInside];
+
+        [reusableview addSubview:findButton];
+        
+        UIButton *createButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*3/4 - buttonSize.width/2 - 2, FOOTER_HEIGHT - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+        createButton.backgroundColor = PRIMARY_COLOR;
+        [createButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        createButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
+        createButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+        createButton.layer.borderWidth = 3;
+        createButton.layer.cornerRadius = buttonSize.height/2;
+        createButton.layer.masksToBounds = YES;
+        [createButton setTitle:@"Create Group" forState:UIControlStateNormal];
+        [createButton addTarget:self action:@selector(createCellPressed:) forControlEvents:UIControlEventTouchUpInside];
+        [reusableview addSubview:createButton];
+        
+        return reusableview;
+        
+    }
+    return nil;
+}
+
+// Footer size
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout*)collectionViewLayout
+referenceSizeForFooterInSection:(NSInteger)section {
+    return CGSizeMake(VIEW_WIDTH, FOOTER_HEIGHT);;
+}
+
+- (void)createCellPressed:(id)sender {
+    [self.delegate showCreateGroup];
+}
+
+- (void)findCellPressed:(id)sender {
+    [self.delegate showFindGroups];
 }
 
 @end

@@ -16,7 +16,6 @@
 - (void)presentNewlyRecordedVideo:(YAVideo *)video;
 @end
 
-#define recordButtonWidth 60.0
 @interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate>
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;

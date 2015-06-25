@@ -20,7 +20,7 @@
 #define ACCESSORY_SIZE 26
 #define LEFT_MARGIN 40
 #define RIGHT_MARGIN 10
-#define Y_MARGIN 25
+#define Y_MARGIN 20
 #define NAME_HEIGHT 30
 #define MEMBERS_HEIGHT 24
 #define BETWEEN_MARGIN 5
@@ -34,7 +34,7 @@
         self.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:self.bounds alpha:0.3];
 
         self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN, Y_MARGIN, [GroupsCollectionViewCell contentWidth], NAME_HEIGHT)];
-        [self.nameLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+        [self.nameLabel setFont:[UIFont fontWithName:BOLD_FONT size:26]];
         self.nameLabel.textColor = PRIMARY_COLOR;
         self.nameLabel.adjustsFontSizeToFitWidth = YES;
 
@@ -47,7 +47,6 @@
 //        self.membersLabel.adjustsFontSizeToFitWidth = YES;
         self.membersLabel.minimumScaleFactor = 0.7;
         [self.membersLabel setFont:[UIFont fontWithName:BIG_FONT size:14]];
-        [self.membersLabel setTextColor:PRIMARY_COLOR];
         [self.membersLabel setBackgroundColor:[UIColor clearColor]];
         self.membersLabel.layer.masksToBounds = NO;
         
@@ -104,7 +103,7 @@
 }
 
 - (void)setMuted:(BOOL)muted {
-    self.membersLabel.textColor = muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
+    self.membersLabel.textColor = muted ? [UIColor lightGrayColor] : [UIColor colorWithWhite:0.1 alpha:1];
     self.nameLabel.textColor = muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
 }
 

@@ -50,12 +50,13 @@ typedef void (^confirmationBlock)(void);
 
 + (UIColor *)UIColorFromUsernameString:(NSString *)username;
 
-// Camera State
-@property (nonatomic) BOOL cameraNeedsRefresh;
-
 + (NSString*)phoneNumberFromText:(NSString *)text numberFormat:(NBEPhoneNumberFormat)format;
 
 + (UIButton *)circleButtonWithImage:(NSString *)imageName diameter:(CGFloat)diameter center:(CGPoint)center;
 
 + (NSArray*)readableGroupsArrayFromResponse:(NSArray *)response;
+
++ (BOOL)hasVisitedGifGrid;
++ (void)setVisitedGifGrid;
+
 @end
