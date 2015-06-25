@@ -282,7 +282,12 @@
 - (void)scrollToTop {
     UICollectionView *collectionView = [self getRelevantCollectionView];
     if (!collectionView) return;
-    [collectionView setContentOffset:CGPointMake(0, -1 * (VIEW_HEIGHT/2 - CAMERA_MARGIN)) animated:YES];
+    if (self.onboarding) return;
+    if ([collectionView.superview isEqual:self.groupsViewController.view]) {
+        [collectionView setContentOffset:CGPointMake(0, -1 * (VIEW_HEIGHT/2 - CAMERA_MARGIN+ HEADER_HEIGHT - HEADER_SPACING)) animated:YES];
+    } else {
+        [collectionView setContentOffset:CGPointMake(0, -1 * (VIEW_HEIGHT/2 - CAMERA_MARGIN)) animated:YES];
+    }
 }
 
 - (void)backPressed {
