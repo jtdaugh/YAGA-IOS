@@ -1453,10 +1453,11 @@ static NSString *commentCellID = @"CommentCell";
 
     }];
     
-    self.crosspostTapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_HEIGHT * .6, VIEW_WIDTH)];
+    self.crosspostTapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH,  VIEW_HEIGHT * .6 - 60)];
     [self addSubview:self.crosspostTapOutView];
     SEL target = self.video.group ? @selector(doneCrosspostingTapOut:) : @selector(handleTap:);
     self.crosspostTapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:target];
+    self.crosspostTapOutGestureRecognizer.delegate = self;
     [self.crosspostTapOutView addGestureRecognizer:self.crosspostTapOutGestureRecognizer];
     
 //    sharingVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
@@ -1608,6 +1609,13 @@ static NSString *commentCellID = @"CommentCell";
             return NO; // ignore the touch
         }
     }
+    if (self.XButton.superview != nil) {
+        if ([touch.view isDescendantOfView:self.XButton]) {
+            // we touched our control surface
+            return NO; // ignore the touch
+        }
+    }
+
     return YES; // handle the touch
 }
 #pragma mark - KVO
