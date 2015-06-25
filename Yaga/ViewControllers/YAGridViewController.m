@@ -286,7 +286,8 @@
 }
 
 - (void)backPressed {
-    [YAUser currentUser].currentGroup = nil;
+    // Dont set current group to nil here or else the gif collection view
+    // reloads data and we see the loading monkey as it pops.
     [self.bottomNavigationController popViewControllerAnimated:YES];
 }
 

@@ -113,6 +113,12 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self updateState];
     }];
     
+    if (self.animatePush) {
+        // Need to set group to nil when we swipe back to this screen.
+        // The animate push hack is because sometimes -viewDidAppear was getting called
+        // even when we forced the gif collection view push in -viewDidLoad
+        [YAUser currentUser].currentGroup = nil;
+    }
     self.animatePush = YES;
         
     if(![YAUserPermissions pushPermissionsRequestedBefore])
@@ -179,7 +185,7 @@ static NSString *CellIdentifier = @"GroupsCell";
             [self.delegate updateCameraAccessories];
         }
     } else {
-        // Grid is already visible, let it push the VC
+        // Grid is already visible, let it reload
     }
     self.animatePush = YES;
 }
