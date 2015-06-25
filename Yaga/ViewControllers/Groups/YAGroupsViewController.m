@@ -283,7 +283,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         label.text=@"Looking for more?\nExplore groups your friends\nare in or create a new group!";
         [reusableview addSubview:label];
         
-        CGSize buttonSize = CGSizeMake(140, 50);
+        CGSize buttonSize = CGSizeMake(VIEW_WIDTH/2 - 30, 50);
         UIButton *findButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/4 - buttonSize.width/2 + 2, FOOTER_HEIGHT - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
         findButton.backgroundColor = [UIColor whiteColor];
         [findButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
