@@ -19,7 +19,7 @@ typedef void (^cameraCompletion)(void);
 - (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion;
 - (void)enableRecording:(BOOL)enable;
 - (void)scrollViewDidScroll;
-- (void)updateCameraAccessories;
+- (void)updateCameraAccessoriesWithViewIndex:(NSUInteger)index;
 - (void)setInitialAnimationFrame:(CGRect)initialFrame;
 - (void)swapOutOfOnboardingState;
 - (void)showCreateGroup;

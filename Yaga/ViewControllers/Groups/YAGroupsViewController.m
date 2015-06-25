@@ -118,6 +118,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         // The animate push hack is because sometimes -viewDidAppear was getting called
         // even when we forced the gif collection view push in -viewDidLoad
         [YAUser currentUser].currentGroup = nil;
+        [self.delegate updateCameraAccessoriesWithViewIndex:0];
     }
     self.animatePush = YES;
         
@@ -182,7 +183,7 @@ static NSString *CellIdentifier = @"GroupsCell";
             YACollectionViewController *vc = [YACollectionViewController new];
             vc.delegate = self.delegate;
             [self.navigationController pushViewController:vc animated:self.animatePush];
-            [self.delegate updateCameraAccessories];
+            [self.delegate updateCameraAccessoriesWithViewIndex:1];
         }
     } else {
         // Grid is already visible, let it reload
@@ -252,7 +253,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     [YAUser currentUser].currentGroup = group;
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
     [self.delegate swapOutOfOnboardingState];
-    [self.delegate updateCameraAccessories];
+    [self.delegate updateCameraAccessoriesWithViewIndex:1];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {

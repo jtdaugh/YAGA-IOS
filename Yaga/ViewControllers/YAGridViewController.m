@@ -268,8 +268,8 @@
     self.bottomNavigationController.view.frame = gridFrame;
 }
 
-- (void)updateCameraAccessories {
-    [self.cameraViewController updateCameraAccessories];
+- (void)updateCameraAccessoriesWithViewIndex:(NSUInteger)index {
+    [self.cameraViewController setCameraButtonMode:index ? YACameraButtonModeBackAndInfo : YACAmeraButtonModeFindAndCreate];
 }
 
 #pragma mark - YACameraViewControllerDelegate
@@ -288,6 +288,7 @@
 - (void)backPressed {
     // Dont set current group to nil here or else the gif collection view
     // reloads data and we see the loading monkey as it pops.
+    [self updateCameraAccessoriesWithViewIndex:0];
     [self.bottomNavigationController popViewControllerAnimated:YES];
 }
 
