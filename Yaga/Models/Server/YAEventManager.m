@@ -11,7 +11,7 @@
 #import "YAUser.h"
 
 #if (DEBUG && DEBUG_SERVER)
-#define FIREBASE_EVENTS_ROOT (@"https://yaga-dev.firebaseio.com/events")
+#define FIREBASE_EVENTS_ROOT (@"https://yagadev.firebaseio.com/events")
 #else
 #define FIREBASE_EVENTS_ROOT (@"https://yaga.firebaseio.com/events")
 #endif

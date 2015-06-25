@@ -115,4 +115,6 @@
 #define recordButtonWidth 60.0f
 #define GIF_GRID_UNSEEN @"gifsUnseen"
 
+#define DEBUG_SERVER 1
+
 #endif
