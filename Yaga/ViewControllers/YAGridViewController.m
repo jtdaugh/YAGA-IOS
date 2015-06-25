@@ -101,6 +101,13 @@
     
     self.myGroupsHeaderView =[[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
     self.myGroupsHeaderView.backgroundColor = [UIColor colorWithWhite:0.97 alpha:.97];
+    // Add shadow to my groups view
+    self.myGroupsHeaderView.layer.masksToBounds = NO;
+    self.myGroupsHeaderView.layer.shadowOffset = CGSizeMake(0, 8);
+    self.myGroupsHeaderView.layer.shadowRadius = 3;
+    self.myGroupsHeaderView.layer.shadowOpacity = 0.f;
+    self.myGroupsHeaderView.layer.shadowColor = [UIColor blackColor].CGColor;
+
     UILabel *myGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(40, 5, 200, HEADER_HEIGHT-10)];
     [myGroupsLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
     myGroupsLabel.textColor = [UIColor lightGrayColor];
@@ -108,13 +115,7 @@
     [self.myGroupsHeaderView addSubview:myGroupsLabel];
     
     if (!self.onboarding) {
-
-        _cameraViewController = [YACameraViewController new];
-        _cameraViewController.delegate = self;
-        
-        _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
-        [self addChildViewController:_cameraViewController];
-        [self.view addSubview:_cameraViewController.view];
+        [self setupCameraViewController];
         CGRect headerFrame = self.myGroupsHeaderView.frame;
         headerFrame.origin.y = VIEW_HEIGHT/2 - CAMERA_MARGIN;
         self.myGroupsHeaderView.frame = headerFrame;
@@ -148,15 +149,27 @@
     [self.view setBackgroundColor:[UIColor whiteColor]];
 }
 
+- (void)setupCameraViewController {
+    _cameraViewController = [YACameraViewController new];
+    _cameraViewController.delegate = self;
+    
+    // Add shadow to camera view
+    _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
+    _cameraViewController.view.layer.masksToBounds = NO;
+    _cameraViewController.view.layer.shadowOffset = CGSizeMake(0, 8);
+    _cameraViewController.view.layer.shadowRadius = 3;
+    _cameraViewController.view.layer.shadowOpacity = 0.f;
+    _cameraViewController.view.layer.shadowColor = [UIColor blackColor].CGColor;
+    
+    [self addChildViewController:_cameraViewController];
+    [self.view addSubview:_cameraViewController.view];
+
+}
+
 - (void)swapOutOfOnboardingState {
     if (self.onboarding) {
         self.onboarding = NO;
-        _cameraViewController = [YACameraViewController new];
-        _cameraViewController.delegate = self;
-        
-        _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
-        [self addChildViewController:_cameraViewController];
-        [self.view addSubview:_cameraViewController.view];
+        [self setupCameraViewController];
         [self.onboardingHeaderView removeFromSuperview];
         
         CGRect headerFrame = self.myGroupsHeaderView.frame;
@@ -253,9 +266,9 @@
         offset = 0;
     } else if(offset > VIEW_HEIGHT/2 - CAMERA_MARGIN) {
         offset = VIEW_HEIGHT/2 - CAMERA_MARGIN;
-        [self.cameraViewController showBottomShadow];
+        [self toggleShadow:YES];
     } else {
-        [self.cameraViewController removeBottomShadow];
+        [self toggleShadow:NO];
     }
     
     cameraFrame.origin.y = -offset;
@@ -325,6 +338,67 @@
     return self.animationController;
 }
 
+#pragma mark - shadow 
 
+- (void)toggleShadow:(BOOL)shadow {
+    if ([[self.bottomNavigationController visibleViewController] isEqual:self.groupsViewController]) {
+        shadow ? [self addShadowBelowMyGroups] : [self removeShadowBelowMyGroups];
+        [self removeShadowBelowCamera];
+    } else {
+        shadow ? [self addShadowBelowCamera] : [self removeShadowBelowCamera];
+        [self removeShadowBelowMyGroups];
+    }
+}
+- (void)addShadowBelowCamera {
+    if (!self.cameraViewController.view) return;
+    if (self.cameraViewController.view.layer.shadowOpacity != 0.35f) {
+        CABasicAnimation *borderAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+        borderAnimation.fromValue = @(0.f);
+        borderAnimation.toValue = @(0.35f);
+        borderAnimation.duration = 0.25f;
+        
+        [self.cameraViewController.view.layer addAnimation:borderAnimation forKey:@"shadowOpacity"];
+        self.cameraViewController.view.layer.shadowOpacity = 0.35f;
+    }
+}
+
+- (void)removeShadowBelowCamera {
+    if (!self.cameraViewController.view) return;
+    if (self.cameraViewController.view.layer.shadowOpacity != 0.f) {
+        CABasicAnimation *borderAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+        borderAnimation.fromValue = @(self.cameraViewController.view.layer.shadowOpacity);
+        borderAnimation.toValue = @(0.f);
+        borderAnimation.duration = 0.25f;
+        
+        [self.cameraViewController.view.layer addAnimation:borderAnimation forKey:@"shadowOpacity"];
+        self.cameraViewController.view.layer.shadowOpacity = 0.f;
+    }
+}
+
+- (void)addShadowBelowMyGroups {
+    if (!self.myGroupsHeaderView) return;
+    if (self.myGroupsHeaderView.layer.shadowOpacity != 0.35f) {
+        CABasicAnimation *borderAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+        borderAnimation.fromValue = @(0.f);
+        borderAnimation.toValue = @(0.35f);
+        borderAnimation.duration = 0.25f;
+        
+        [self.myGroupsHeaderView.layer addAnimation:borderAnimation forKey:@"shadowOpacity"];
+        self.myGroupsHeaderView.layer.shadowOpacity = 0.35f;
+    }
+}
+
+- (void)removeShadowBelowMyGroups {
+    if (!self.myGroupsHeaderView) return;
+    if (self.myGroupsHeaderView.layer.shadowOpacity != 0.f) {
+        CABasicAnimation *borderAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOpacity"];
+        borderAnimation.fromValue = @(self.myGroupsHeaderView.layer.shadowOpacity);
+        borderAnimation.toValue = @(0.f);
+        borderAnimation.duration = 0.25f;
+        
+        [self.myGroupsHeaderView.layer addAnimation:borderAnimation forKey:@"shadowOpacity"];
+        self.myGroupsHeaderView.layer.shadowOpacity = 0.f;
+    }
+}
 
 @end
