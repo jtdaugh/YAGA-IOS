@@ -18,6 +18,8 @@
 @property (nonatomic, strong) NSString *postIdToOpen;
 @end
 
+typedef void (^groupChangedCompletionBlock)(void);
+
 @implementation YAPushNotificationHandler
 
 + (instancetype)sharedHandler {
@@ -89,6 +91,9 @@
     else if([eventName isEqualToString:@"rename"]) {
         [self handleGroupRename];
     }
+    else if([eventName isEqualToString:@"request"]) {
+        [self handleGroupJoinRequest];
+    }
 }
 
 - (void)handlePostEvent {
@@ -147,9 +152,17 @@
     [self openGroupWithId:groupId refresh:YES];
 }
 
-#pragma mark - Utils
+- (void)handleGroupJoinRequest {
+    NSString *groupId = self.meta[@"group_id"];
+    [self openGroupWithId:groupId refresh:NO completion:^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
+        });
+    }];
+}
 
-- (void)openGroupWithId:(NSString*)groupId refresh:(BOOL)refresh {
+#pragma mark - Utils
+- (void)openGroupWithId:(NSString*)groupId refresh:(BOOL)refresh completion:(groupChangedCompletionBlock)completion {
     RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", groupId]];
     
     //no local group? load groups list from server
@@ -167,6 +180,8 @@
                 
                 //group found after refreshing list of groups
                 [self setCurrentGroup:groups[0] refresh:refresh];
+                if(completion)
+                    completion();
             }
             else {
                 //can't update from server by some reason
@@ -177,7 +192,13 @@
     else {
         //group exists? update current group and refresh if needed
         [self setCurrentGroup:groups[0] refresh:refresh];
+        if(completion)
+            completion();
     }
+}
+
+- (void)openGroupWithId:(NSString*)groupId refresh:(BOOL)refresh {
+    [self openGroupWithId:groupId refresh:refresh completion:nil];
 }
 
 - (void)setCurrentGroup:(YAGroup*)newGroup refresh:(BOOL)refresh {

@@ -84,13 +84,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
         [self updateState];
     }];
-    if (self.animatePush) {
-        [YAUser currentUser].currentGroup = nil;
-    }
+    
     self.animatePush = YES;
-    
-    [self.delegate updateCameraAccessories];
-    
+        
     if(![YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
     
@@ -221,7 +217,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     YAGroup *group = self.groups[indexPath.item];
     [YAUser currentUser].currentGroup = group;
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
-    [self.delegate updateCameraAccessories];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {

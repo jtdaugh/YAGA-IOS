@@ -57,9 +57,11 @@
 
 #define SCROLL_TO_CELL_INDEXPATH_NOTIFICATION   @"SCROLL_TO_CELL_INDEXPATH_NOTIFICATION"
 
-#define kVideoDownloadNotificationUserInfoKey   @"kVideoDownloadingNotificationName"
-
 #define VIDEO_DID_DOWNLOAD_PART_NOTIFICATION    @"VIDEO_DID_DOWNLOAD_PART_NOTIFICATION"
+
+#define OPEN_GROUP_OPTIONS_NOTIFICATION         @"OPEN_GROUP_OPTIONS_NOTIFICATION"
+
+#define kVideoDownloadNotificationUserInfoKey   @"kVideoDownloadingNotificationName"
 
 #define kDefaultUsername                        @"Unknown user"
 
