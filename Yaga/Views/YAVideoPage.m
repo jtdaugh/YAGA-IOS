@@ -83,8 +83,9 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic) CGAffineTransform textFieldTransform;
 @property (nonatomic) CGPoint textFieldCenter;
 
-@property (strong, nonatomic) UIView *tapOutView;
-@property (strong, nonatomic) UITapGestureRecognizer *tapOutGestureRecognizer;
+@property (strong, nonatomic) UIView *crosspostTapOutView;
+@property (strong, nonatomic) UITapGestureRecognizer *captionTapOutGestureRecognizer;
+@property (strong, nonatomic) UITapGestureRecognizer *crosspostTapOutGestureRecognizer;
 @property (strong, nonatomic) YAPanGestureRecognizer *panGestureRecognizer;
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (strong, nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
@@ -172,7 +173,7 @@ static NSString *commentCellID = @"CommentCell";
 #pragma mark - YAEventReceiver
 
 - (void)videoId:(NSString *)videoId didReceiveNewEvent:(YAEvent *)event {
-    if (![videoId isEqualToString:self.video.serverId]) {
+    if (!self.video.invalidated && ![videoId isEqualToString:self.video.serverId]) {
         return;
     }
     [self.events insertObject:event atIndex:0];
@@ -180,7 +181,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)videoId:(NSString *)videoId receivedInitialEvents:(NSArray *)events {
-    if (![videoId isEqualToString:self.video.serverId]) {
+    if (!self.video.invalidated && ![videoId isEqualToString:self.video.serverId]) {
         return;
     }
     if ([events count]) {
@@ -314,10 +315,7 @@ static NSString *commentCellID = @"CommentCell";
         [self addFullscreenJpgPreview];
     }
     
-    //uploading progress
-    BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
-    [self showUploadingProgress:uploadInProgress];
-
+    [self updateUploadingProgress];
 }
 
 - (void)prepareVideoForPlaying {
@@ -762,18 +760,39 @@ static NSString *commentCellID = @"CommentCell";
 //}
 
 - (void)setGesturesEnabled:(BOOL)enabled {
-    
-    self.hideGestureRecognizer.enabled = enabled;
-    self.captionTapRecognizer.enabled = enabled;
-    self.likeDoubleTapRecognizer.enabled = enabled;
-    if (enabled) {
-        [self.presentingVC restoreAllGestures:self];
+    if (!self.video.group) {
+        self.hideGestureRecognizer.enabled = enabled;
+        self.captionTapRecognizer.enabled = NO;
+        self.likeDoubleTapRecognizer.enabled = NO;
+        if (enabled) {
+            [self.presentingVC restoreAllGestures:self];
+        } else {
+            [self.presentingVC suspendAllGestures:self];
+        }
     } else {
-        [self.presentingVC suspendAllGestures:self];
+        self.hideGestureRecognizer.enabled = enabled;
+        self.captionTapRecognizer.enabled = enabled;
+        self.likeDoubleTapRecognizer.enabled = enabled;
+        if (enabled) {
+            [self.presentingVC restoreAllGestures:self];
+        } else {
+            [self.presentingVC suspendAllGestures:self];
+        }
     }
 }
 
 - (void)toggleEditingCaption:(BOOL)editing {
+    if (!self.video.group) {
+        self.crosspostTapOutView.hidden = editing;
+        // Toggle sharing view and caption editing for unposted video state
+        self.sharingView.hidden = NO;
+        [UIView animateWithDuration:0.2 animations:^{
+            self.sharingView.alpha = editing ? 0.0 : 1.0;
+        } completion:^(BOOL finished) {
+            self.sharingView.hidden = editing;
+        }];
+    }
+    
     self.editingCaption = editing;
     if (editing) {
         [self setGesturesEnabled:NO];
@@ -1083,8 +1102,8 @@ static NSString *commentCellID = @"CommentCell";
 
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-    self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
-    [self addGestureRecognizer:self.tapOutGestureRecognizer];
+    self.captionTapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
+    [self addGestureRecognizer:self.captionTapOutGestureRecognizer];
 }
 
 - (void)doneEditingTapOut:(id)sender {
@@ -1092,7 +1111,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)doneTypingCaption {
-    [self removeGestureRecognizer:self.tapOutGestureRecognizer];
+    [self removeGestureRecognizer:self.captionTapOutGestureRecognizer];
     
     [self.editableCaptionTextView resignFirstResponder];
     [self.captionBlurOverlay removeFromSuperview];
@@ -1109,7 +1128,8 @@ static NSString *commentCellID = @"CommentCell";
     if (self.editingCaption) return;
     if ([recognizer isEqual:self.likeDoubleTapRecognizer]) {
         [self addLike];
-    } else if ([recognizer isEqual:self.captionTapRecognizer]){
+    } else if ([recognizer isEqual:self.captionTapRecognizer] ||
+               [recognizer isEqual:self.crosspostTapOutGestureRecognizer]) {
         [self toggleEditingCaption:YES];
         CGPoint loc = [recognizer locationInView:self];
         
@@ -1280,6 +1300,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    NSLog(@"button index: %lu", buttonIndex);
     switch (buttonIndex) {
         case 0: {
             // export and share
@@ -1414,6 +1435,10 @@ static NSString *commentCellID = @"CommentCell";
     self.sharingView.video = self.video;
     self.sharingView.page = self;
     [self setGesturesEnabled:NO];
+    if (!self.video.group) {
+        [self.presentingVC restoreAllGestures:self];
+    }
+    
     [self addSubview:self.sharingView];
     
     [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
@@ -1429,10 +1454,11 @@ static NSString *commentCellID = @"CommentCell";
 
     }];
     
-    self.tapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_HEIGHT * .6, VIEW_WIDTH)];
-    [self addSubview:self.tapOutView];
-    self.tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneCrosspostingTapOut:)];
-    [self.tapOutView addGestureRecognizer:self.tapOutGestureRecognizer];
+    self.crosspostTapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_HEIGHT * .6, VIEW_WIDTH)];
+    [self addSubview:self.crosspostTapOutView];
+    SEL target = self.video.group ? @selector(doneCrosspostingTapOut:) : @selector(handleTap:);
+    self.crosspostTapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:target];
+    [self.crosspostTapOutView addGestureRecognizer:self.crosspostTapOutGestureRecognizer];
     
 //    sharingVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
 //    [(YASwipingViewController*)self.presentingVC presentViewController:sharingVC animated:YES completion:nil];
@@ -1457,9 +1483,8 @@ static NSString *commentCellID = @"CommentCell";
 
     }];
 
-    [self.tapOutView removeFromSuperview];
-    [self.tapOutView removeGestureRecognizer:self.tapOutGestureRecognizer];
-    
+    [self.crosspostTapOutView removeFromSuperview];
+    [self.crosspostTapOutView removeGestureRecognizer:self.crosspostTapOutGestureRecognizer];
 }
 
 - (void)doneCrosspostingTapOut:(UITapGestureRecognizer *)recognizer {
@@ -1536,27 +1561,26 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
-- (void)showUploadingProgress:(BOOL)show {
-    self.uploadInProgress = show;
-    
+- (void)updateUploadingProgress {
+    self.uploadInProgress = !self.video.uploadedToAmazon;
+
     YAEventCell *postCell = (YAEventCell *)[self.commentsTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[self.events count] - 1 inSection:0]];
     if (postCell) {
-        [postCell setUploadInProgress:show];
+        [postCell setUploadInProgress:self.uploadInProgress];
     }
 }
 
 - (void)videoChanged:(NSNotification*)notif {
-    if([notif.object isEqual:self.video] && !self.playerView.URL && self.shouldPreload && self.video.mp4Filename.length) {
+    if([notif.object isEqual:self.video] && self.shouldPreload && self.video.mp4Filename.length) {
         //setURL will remove playWhenReady flag, so saving it and using later
-        BOOL playWhenReady = self.playerView.playWhenReady;
-        [self prepareVideoForPlaying];
-        self.playerView.playWhenReady = playWhenReady;
-        
-        [self updateControls];
-        
-        //uploading progress
-        BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
-        [self showUploadingProgress:uploadInProgress];
+        if (!self.playerView.URL) {
+            BOOL playWhenReady = self.playerView.playWhenReady;
+            [self prepareVideoForPlaying];
+            self.playerView.playWhenReady = playWhenReady;
+            
+            [self updateControls];
+        }
+        [self updateUploadingProgress];
     }
 }
 

@@ -22,6 +22,8 @@
 #import "YACollectionViewController.h"
 #import "YAPostCaptureViewController.h"
 
+#import "SloppySwiper.h"
+
 //Swift headers
 //#import "Yaga-Swift.h"
 
@@ -29,6 +31,8 @@
 @interface YAGridViewController ()
 
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
+@property (nonatomic, strong) UINavigationController *bottomNavigationController;
+@property (strong, nonatomic) SloppySwiper *swiper;
 
 @end
 
@@ -37,8 +41,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
-    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+//    [self.navigationController setNavigationBarHidden:YES animated:NO];
+//    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
     
     [self setupView];
     [[YACameraManager sharedManager] initCamera];
@@ -66,12 +70,15 @@
 - (void)setupView {
     YAGroupsViewController *groupsRootViewController = [YAGroupsViewController new];
     groupsRootViewController.delegate = self;
-    _groupsNavigationController = [[YAGroupsNavigationController alloc] initWithRootViewController:groupsRootViewController];
-    _groupsNavigationController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
-    [_groupsNavigationController.view.layer setMasksToBounds:NO];
-    
-    [self addChildViewController:_groupsNavigationController];
-    [self.view addSubview:_groupsNavigationController.view];
+    _bottomNavigationController = [[UINavigationController alloc] initWithRootViewController:groupsRootViewController];
+    _bottomNavigationController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
+    [_bottomNavigationController.view.layer setMasksToBounds:NO];
+    _bottomNavigationController.interactivePopGestureRecognizer.enabled = NO;
+    self.swiper = [[SloppySwiper alloc] initWithNavigationController:_bottomNavigationController];
+    _bottomNavigationController.delegate = self.swiper;
+
+    [self addChildViewController:_bottomNavigationController];
+    [self.view addSubview:_bottomNavigationController.view];
     
     _cameraViewController = [YACameraViewController new];
     _cameraViewController.delegate = self;
@@ -86,7 +93,7 @@
 }
 
 - (UICollectionView *)getRelevantCollectionView {
-    NSArray *vcs = self.groupsNavigationController.viewControllers;
+    NSArray *vcs = self.bottomNavigationController.viewControllers;
     for (NSUInteger i = [vcs count] - 1;; i--) {
         id vc = vcs[i];
         if ([vc isKindOfClass:[YAGroupsViewController class]] ||
@@ -111,7 +118,7 @@
         }
         CGFloat origin = self.cameraViewController.view.frame.origin.y + self.cameraViewController.view.frame.size.height - recordButtonWidth / 2;
         CGFloat separator = show ? 2 : 0;
-        self.groupsNavigationController.view.frame = CGRectMake(0, origin + separator, self.groupsNavigationController.view.frame.size.width, VIEW_HEIGHT - origin - separator);
+        self.bottomNavigationController.view.frame = CGRectMake(0, origin + separator, self.bottomNavigationController.view.frame.size.width, VIEW_HEIGHT - origin - separator);
         
         [self.cameraViewController showCameraAccessories:(show && !showPart)];
     };
@@ -136,7 +143,7 @@
 
 - (void)scrollViewDidScroll {
     CGRect cameraFrame = self.cameraViewController.view.frame;
-    CGRect gridFrame = self.groupsNavigationController.view.frame;
+    CGRect gridFrame = self.bottomNavigationController.view.frame;
     
     UICollectionView *collectionView = [self getRelevantCollectionView];
     if (!collectionView) return;
@@ -145,7 +152,7 @@
     CGFloat offset = collectionView.contentInset.top + scrollOffset;
     
     // Update the groups table view to match the scrolling of the group table view.
-    id groupsVC = self.groupsNavigationController.viewControllers[0];
+    id groupsVC = self.bottomNavigationController.viewControllers[0];
     UICollectionView *groupsCollectionView;
     if ([groupsVC respondsToSelector:@selector(collectionView)])
         groupsCollectionView = [groupsVC collectionView];
@@ -169,7 +176,7 @@
     if (![self.cameraViewController.recording boolValue]) {
         self.cameraViewController.view.frame = cameraFrame;
     }
-    self.groupsNavigationController.view.frame = gridFrame;
+    self.bottomNavigationController.view.frame = gridFrame;
 }
 
 - (void)updateCameraAccessories {
@@ -190,8 +197,7 @@
 }
 
 - (void)backPressed {
-    [YAUser currentUser].currentGroup = nil;
-    [self.groupsNavigationController popViewControllerAnimated:YES];
+    [self.bottomNavigationController popViewControllerAnimated:YES];
 }
 
 -(BOOL)prefersStatusBarHidden {

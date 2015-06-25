@@ -36,7 +36,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
 
-
 @property (nonatomic, assign) NSUInteger paginationThreshold;
 
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
@@ -53,6 +52,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, strong) UILabel *noVideosLabel;
 
 @property (nonatomic) BOOL scrollingFast;
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -84,7 +84,10 @@ static NSString *cellID = @"Cell";
     self.collectionView.backgroundColor = [UIColor whiteColor];
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
+    self.collectionView.frame = self.view.bounds;
     
+    [self reload];
+
     [YAEventManager sharedManager].eventCountReceiver = self;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupWillRefresh:) name:GROUP_WILL_REFRESH_NOTIFICATION     object:nil];
@@ -97,8 +100,6 @@ static NSString *cellID = @"Cell";
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollToCell:)    name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
-    
-    //transitions
     
     [self setupPullToRefresh];
 }
@@ -156,14 +157,6 @@ static NSString *cellID = @"Cell";
 - (void)manualTriggerPullToRefresh {
     self.collectionView.contentOffset = CGPointMake(0, -(self.collectionView.contentInset.top + self.collectionView.pullToRefreshView.bounds.size.height));
     [self.collectionView triggerPullToRefresh];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    
-    self.collectionView.frame = self.view.bounds;
-    
-    [self reload];
 }
 
 - (void)didReceiveMemoryWarning {

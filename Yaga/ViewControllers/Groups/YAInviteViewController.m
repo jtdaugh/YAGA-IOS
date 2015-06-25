@@ -215,12 +215,6 @@
 }
 
 - (void)popToGridViewController {
-    if (self.inCreateGroupFlow) {
-        NSMutableArray *navStack = [[self.navigationController viewControllers] mutableCopy];
-        YAGridViewController *gridVC = [[YAGridViewController alloc] init];
-        [navStack replaceObjectAtIndex:0 withObject:gridVC];
-        [self.navigationController setViewControllers:navStack];
-    }
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
