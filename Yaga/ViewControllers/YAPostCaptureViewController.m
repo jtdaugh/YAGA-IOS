@@ -54,8 +54,8 @@
     if (self.destinationGroup) {
         // Only monitor comments if this is a video going straight to a group, not a multipost
         [YAEventManager sharedManager].eventReceiver = page;
-        [[YAEventManager sharedManager] beginMonitoringForNewEventsOnVideoId:page.video.serverId
-                                                                     inGroup:[[YAUser currentUser].currentGroup.serverId copy]];
+        [[YAEventManager sharedManager] setCurrentVideoServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+        [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId localId:self.video.localId inGroup:self.video.group.serverId withServerIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
     }
     [page setVideo:self.video shouldPreload:YES];
     page.playerView.playWhenReady = YES;

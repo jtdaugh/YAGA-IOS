@@ -9,8 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "YAEvent.h"
 
-#define kMaxEventsFetchedPerVideo 25
-
 @protocol YAEventReceiver <NSObject>
 
 - (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId didReceiveNewEvent:(YAEvent *)event;

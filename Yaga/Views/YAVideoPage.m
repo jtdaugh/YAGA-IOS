@@ -1235,7 +1235,7 @@ static NSString *commentCellID = @"CommentCell";
     self.moreButton.hidden = !self.myVideo;
     self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqualToString:@""];
     NSArray *events = [[YAEventManager sharedManager] getEventsForVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
-    [self refreshWholeTableWithEventsArray:events];
+    [self refreshWholeTableWithEventsArray:[events reversedArray]];
     [self initializeCaption];
     
     if (!self.video.group) {
@@ -1590,6 +1590,7 @@ static NSString *commentCellID = @"CommentCell";
         [self updateUploadingProgress];
         
         // Reload comments, which will initialize with firebase if serverID just became ready.
+        [[YAEventManager sharedManager] setCurrentVideoServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
         [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId
                                                                 localId:self.video.localId
                                                                 inGroup:self.video.group.serverId

@@ -92,6 +92,8 @@
 
 #define kMaxUsersShownInList (5)
 
+#define kMaxEventsFetchedPerVideo (25)
+
 #define kCountryCode        @"kCountryCode"
 
 #define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"

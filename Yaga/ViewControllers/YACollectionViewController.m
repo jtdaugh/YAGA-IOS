@@ -110,7 +110,7 @@ static NSString *cellID = @"Cell";
     if (self.scrolling) return; // dont update unless the collection view is still
     __weak YACollectionViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@ || localId == %@", serverId, localId];
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
         if (weakSelf.scrolling) return;
         if (index == NSNotFound) {
             return;
@@ -487,7 +487,7 @@ static NSString *cellID = @"Cell";
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
     NSString *serverId = [video.serverId copy];
-    NSString *localId = [video.serverId copy];
+    NSString *localId = [video.localId copy];
     YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:video];
     NSString *groupId = [[YAUser currentUser].currentGroup.serverId copy];
     
@@ -626,7 +626,8 @@ static NSString *cellID = @"Cell";
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
         YAVideo *vid = videoCell.video;
-        [videoCell setEventCount:[[YAEventManager sharedManager] getEventCountForVideoWithServerId:vid.serverId localId:vid.localId serverIdStatus:[YAVideo serverIdStatusForVideo:vid]]];
+        NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoWithServerId:vid.serverId localId:vid.localId serverIdStatus:[YAVideo serverIdStatusForVideo:vid]];
+        [videoCell setEventCount:eventCount];
     }
 }
 

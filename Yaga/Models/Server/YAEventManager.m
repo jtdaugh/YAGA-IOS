@@ -50,9 +50,9 @@
     if (self) {
         [Firebase defaultConfig].persistenceEnabled = YES;
         self.firebaseRoot = [[Firebase alloc] initWithUrl:FIREBASE_EVENTS_ROOT];
-        NSMutableDictionary *unsentEvents = [[[NSUserDefaults standardUserDefaults] dictionaryForKey:UNSENT_EVENTS_DEFAULTS_KEY] mutableCopy];
-        if (!unsentEvents) unsentEvents = [NSMutableDictionary dictionary];
-        self.unsentEventsByLocalVideoId = unsentEvents;
+//        NSMutableDictionary *unsentEvents = [[[NSUserDefaults standardUserDefaults] dictionaryForKey:UNSENT_EVENTS_DEFAULTS_KEY] mutableCopy];
+//        if (!unsentEvents) unsentEvents = [NSMutableDictionary dictionary];
+        self.unsentEventsByLocalVideoId = [NSMutableDictionary dictionary];
         [self groupChanged];
     }
     return self;
@@ -102,7 +102,7 @@
         if (locallyStoredEvents) {
             NSMutableDictionary *eventsToPrepend = [NSMutableDictionary dictionary];
             for (int i = 0; i < [locallyStoredEvents count]; i++) {
-                NSString *key = [NSString stringWithFormat:@"%d",i];
+                NSString *key = [NSString stringWithFormat:@"%d", i];
                 YAEvent *event = locallyStoredEvents[i];
                 eventsToPrepend[key] = [event toDictionary];
             }
@@ -163,7 +163,7 @@
         if ([self.currentVideoLocalId isEqualToString:localId]) {
             [self.eventReceiver videoWithServerId:serverId localId:localId didReceiveNewEvent:event];
         }
-        [[NSUserDefaults standardUserDefaults] setObject:self.unsentEventsByLocalVideoId forKey:UNSENT_EVENTS_DEFAULTS_KEY];
+//        [[NSUserDefaults standardUserDefaults] setObject:self.unsentEventsByLocalVideoId forKey:UNSENT_EVENTS_DEFAULTS_KEY];
     }
 }
 

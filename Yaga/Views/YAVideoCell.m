@@ -114,7 +114,10 @@
 }
 
 - (void)setEventCount:(NSUInteger)eventCount {
-    if (eventCount > 0) {
+    if (eventCount >= kMaxEventsFetchedPerVideo) {
+        self.eventCountLabel.text = [NSString stringWithFormat:@"%d+",kMaxEventsFetchedPerVideo];
+        self.commentIcon.hidden = NO;
+    } else if (eventCount > 0) {
         self.eventCountLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long) eventCount];
         self.commentIcon.hidden = NO;
     } else {
