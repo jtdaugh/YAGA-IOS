@@ -92,7 +92,7 @@
 
 #define kMaxUsersShownInList (5)
 
-#define kMaxEventsFetchedPerVideo (25)
+#define kMaxEventsFetchedPerVideo (99)
 
 #define kCountryCode        @"kCountryCode"
 
