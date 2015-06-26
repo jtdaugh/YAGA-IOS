@@ -16,8 +16,6 @@
 #define FIREBASE_EVENTS_ROOT (@"https://yaga.firebaseio.com/events")
 #endif
 
-#define UNSENT_EVENTS_DEFAULTS_KEY @"unsentEvents"
-
 @interface YAEventManager ()
 
 @property (strong, nonatomic) Firebase *firebaseRoot;
@@ -50,8 +48,6 @@
     if (self) {
         [Firebase defaultConfig].persistenceEnabled = YES;
         self.firebaseRoot = [[Firebase alloc] initWithUrl:FIREBASE_EVENTS_ROOT];
-//        NSMutableDictionary *unsentEvents = [[[NSUserDefaults standardUserDefaults] dictionaryForKey:UNSENT_EVENTS_DEFAULTS_KEY] mutableCopy];
-//        if (!unsentEvents) unsentEvents = [NSMutableDictionary dictionary];
         self.unsentEventsByLocalVideoId = [NSMutableDictionary dictionary];
         [self groupChanged];
     }
@@ -92,7 +88,7 @@
             return; // already observing this on firebase.
         }
         // If serverIdStatus is CONFIRMED:
-        //   Check for events in local storage and prepend them to firebase & remove locally
+        //   Check for local events in memory and prepend them to firebase & remove locally
         //   Then start childAdded firebase query for video by serverId
 
         Firebase *videoRef = [self.firebaseRoot childByAppendingPath:serverId];
@@ -137,14 +133,8 @@
             [weakSelf.eventCountReceiver videoWithServerId:serverId localId:localId eventCountUpdated:[eventsArray count]];
         }];
     } else {
-//        // If serverIdStatus is NIL or UNSTABLE:
-//        //   No new requests needed. Local events already loaded into @unsentVideosByLocalVideoId
-//        //   Just notify the delegates
-//        
-//        [self.eventCountReceiver videoWithServerId:serverId localId:localId eventCountUpdated:[self.unsentEventsByLocalVideoId[localId] count]];
-//        if ([self.currentVideoLocalId isEqualToString:localId]) {
-//            [self.eventReceiver videoWithServerId:serverId localId:localId receivedInitialEvents:self.unsentEventsByLocalVideoId[localId]];
-//        }
+        // If serverIdStatus is NIL or UNSTABLE:
+        //   No new requests needed. Local events already loaded into @unsentVideosByLocalVideoId
     }
 }
 
@@ -154,7 +144,7 @@
         // Just add the event to firebase. No need to notify since firebase block will
         [[[self.firebaseRoot childByAppendingPath:serverId] childByAutoId] setValue:[event toDictionary]];
     } else {
-        // Add the event to local store, and notify receivers
+        // Add the local event to memory, and notify receivers
         NSMutableArray *events = self.unsentEventsByLocalVideoId[localId];
         if (!events) events = [NSMutableArray array];
         [events addObject:event];
@@ -163,7 +153,6 @@
         if ([self.currentVideoLocalId isEqualToString:localId]) {
             [self.eventReceiver videoWithServerId:serverId localId:localId didReceiveNewEvent:event];
         }
-//        [[NSUserDefaults standardUserDefaults] setObject:self.unsentEventsByLocalVideoId forKey:UNSENT_EVENTS_DEFAULTS_KEY];
     }
 }
 
