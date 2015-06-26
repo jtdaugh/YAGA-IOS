@@ -92,7 +92,7 @@
         //   Then start childAdded firebase query for video by serverId
 
         Firebase *videoRef = [self.firebaseRoot childByAppendingPath:serverId];
-        self.queriesByVideoId[serverId] = videoRef;
+        [self.queriesByVideoId setObject:videoRef forKey:serverId];
         
         NSArray *locallyStoredEvents = [self.unsentEventsByLocalVideoId objectForKey:localId];
         if (locallyStoredEvents) {

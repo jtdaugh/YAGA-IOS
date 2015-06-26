@@ -18,7 +18,6 @@
 #import "YAServer+HostManagment.h"
 #import "MBProgressHUD.h"
 
-//uncomment for debug server
 #if (DEBUG && DEBUG_SERVER)
 #define HOST @"https://api-dev.yagaprivate.com"
 #else
