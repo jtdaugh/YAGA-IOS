@@ -251,7 +251,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     YAGroup *group = self.groups[indexPath.item];
     [YAUser currentUser].currentGroup = group;
-    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
     [self.delegate swapOutOfOnboardingState];
     [self.delegate updateCameraAccessoriesWithViewIndex:1];
 }

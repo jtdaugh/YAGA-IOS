@@ -128,6 +128,7 @@ static NSString *cellID = @"Cell";
     [super viewDidAppear:animated];
     [YAUtils setVisitedGifGrid];
     [self.delegate swapOutOfOnboardingState];
+    [self.delegate updateCameraAccessoriesWithViewIndex:1];
 }
 
 - (void)scrollToCell:(NSNotification *)notif
