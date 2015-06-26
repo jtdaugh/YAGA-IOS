@@ -72,11 +72,15 @@ static NSString *CellIdentifier = @"GroupsCell";
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION    object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateState)  name:GROUPS_REFRESHED_NOTIFICATION    object:nil];
     
     //force to open last selected group
     self.animatePush = NO;
     [self groupDidChange:nil];
     [self updateState];
+    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+        [self updateState];
+    }];
 }
 
 - (void)setupCollectionView {
@@ -109,9 +113,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-        [self updateState];
-    }];
     
     if (self.animatePush) {
         // Need to set group to nil when we swipe back to this screen.
@@ -249,6 +250,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
     YAGroup *group = self.groups[indexPath.item];
     [YAUser currentUser].currentGroup = group;
     [self.delegate swapOutOfOnboardingState];

@@ -221,8 +221,13 @@
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     NSLog(@"will enter foreground");
 //    [AnalyticsKit applicationWillEnterForeground];
-    if ([[YAUser currentUser] loggedIn] && [YAUtils hasVisitedGifGrid]) {
-        [[YACameraManager sharedManager] initCamera];
+    if ([[YAUser currentUser] loggedIn]) {
+        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:GROUPS_REFRESHED_NOTIFICATION object:nil];
+        }];
+        if ([YAUtils hasVisitedGifGrid]) {
+            [[YACameraManager sharedManager] initCamera];
+        }
     }
 }
 
