@@ -29,11 +29,11 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     self.title = NSLocalizedString(@"Join Groups", @"");
     
-    self.view.backgroundColor = PRIMARY_COLOR;
+    self.view.backgroundColor = [UIColor whiteColor];
     
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
-    
+    [self.tableView setAllowsSelection:NO];
     //    [self.tableView setSeparatorColor:PRIMARY_COLOR];
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
@@ -87,13 +87,14 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    cell.textLabel.textColor = [UIColor whiteColor];
-    cell.detailTextLabel.textColor = [UIColor whiteColor];
+    cell.textLabel.textColor = PRIMARY_COLOR;
+    cell.detailTextLabel.textColor = [UIColor colorWithWhite:0.1 alpha:1];
     cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
     cell.textLabel.frame = CGRectMake(cell.textLabel.frame.origin.x, cell.textLabel.frame.origin.y, cell.textLabel.frame.size.width - 150, cell.textLabel.frame.size.height);
     
     cell.detailTextLabel.frame = CGRectMake(cell.detailTextLabel.frame.origin.x, cell.detailTextLabel.frame.origin.y, cell.detailTextLabel.frame.size.width - 150, cell.detailTextLabel.frame.size.height);
+    [cell.textLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
     
     if(!self.groupsDataArray.count) {
         cell.textLabel.text = NSLocalizedString(@"Wow, you're early. Create a group to get your friends on Yaga", @"");
@@ -138,29 +139,30 @@ static NSString *CellIdentifier = @"GroupsCell";
     if([self.pendingRequestsInProgress containsObject:[NSNumber numberWithInteger:indexPath.row]]) {
         UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         activityView.frame = CGRectMake(0, 0, 90, 30);
+        activityView.color = PRIMARY_COLOR;
         cell.accessoryView = activityView;
         [activityView startAnimating];
     }
     else if([groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]) {
         UILabel *pendingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 90, 30)];
-        pendingLabel.textColor = [UIColor whiteColor];
-        pendingLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        pendingLabel.textColor = [UIColor lightGrayColor];
+        pendingLabel.font = [UIFont fontWithName:BIG_FONT size:18];
         pendingLabel.textAlignment = NSTextAlignmentCenter;
         pendingLabel.text = NSLocalizedString(@"Pending", @"");
         cell.accessoryView = pendingLabel;
     }
     else {
         UIButton *requestButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        requestButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        requestButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
         requestButton.tag = indexPath.row;
         requestButton.frame = CGRectMake(0, 0, 90, 30);
         [requestButton addTarget:self action:@selector(requestButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
         [requestButton setTitle:NSLocalizedString(@"Request", @"") forState:UIControlStateNormal];
-        [requestButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [requestButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
         [requestButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
-        [requestButton setTintColor:[UIColor whiteColor]];
-        requestButton.layer.borderWidth = 2.0f;
-        requestButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        [requestButton setTintColor:PRIMARY_COLOR];
+        requestButton.layer.borderWidth = 1.5f;
+        requestButton.layer.borderColor = [PRIMARY_COLOR CGColor];
         requestButton.layer.cornerRadius = 4;
         
         cell.accessoryView = requestButton;
