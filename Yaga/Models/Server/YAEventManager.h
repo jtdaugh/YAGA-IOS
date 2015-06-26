@@ -9,16 +9,20 @@
 #import <Foundation/Foundation.h>
 #import "YAEvent.h"
 
+#define kMaxEventsFetchedPerVideo 25
+
 @protocol YAEventReceiver <NSObject>
 
-- (void)videoId:(NSString *)videoId didReceiveNewEvent:(YAEvent *)event;
-- (void)videoId:(NSString *)video receivedInitialEvents:(NSArray *)events;
+- (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId didReceiveNewEvent:(YAEvent *)event;
+- (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId receivedInitialEvents:(NSArray *)events;
 
 @end
 
 @protocol YAEventCountReceiver <NSObject>
 
-- (void)videoId:(NSString *)videoId eventCountUpdated:(NSUInteger)eventCount;
+- (void)videoWithServerId:(NSString *)serverId
+                  localId:(NSString *)localId
+        eventCountUpdated:(NSUInteger)eventCount;
 
 @end
 
@@ -29,23 +33,36 @@
 @property (nonatomic, weak) id<YAEventReceiver> eventReceiver;
 @property (nonatomic, weak) id<YAEventCountReceiver> eventCountReceiver;
 
-// Returns an NSArray of YAEvents
-- (NSMutableArray *)getEventsForVideoId:(NSString *)videoId;
+// Call this when the video page video changes so event manager knows whether to notify
+- (void)setCurrentVideoServerId:(NSString *)serverId
+                        localId:(NSString *)localId
+                 serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
 
-- (NSUInteger)getEventCountForVideoId:(NSString *)videoId;
+// Returns an NSArray of YAEvents.
+- (NSMutableArray *)getEventsForVideoWithServerId:(NSString *)serverId
+                                          localId:(NSString *)localId
+                                   serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
+// Returns the count of events for the video.
+- (NSUInteger)getEventCountForVideoWithServerId:(NSString *)serverId
+                                        localId:(NSString *)localId
+                                 serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
 
-// Start monitoring childAdded
-- (void)beginMonitoringForNewEventsOnVideoId:(NSString *)videoId inGroup:(NSString *)groupId;
+// Asynchronous. If the serverIdStatus is NIL or UNSTABLE, saves comments locally.
+// If serverIdStatus is confirmed, Checks if there are any events at the local data store
+// for localId, which would only happen if these events were created before the serverIdStatus was confirmed.
+// If localId events are found, this method will prepend them to the existing events list for the new serverId on firebase.
+- (void)fetchEventsForVideoWithServerId:(NSString *)serverId
+                                localId:(NSString *)localId
+                                inGroup:(NSString *)groupId
+                     withServerIdStatus:(YAVideoServerIdStatus)serverIdStatus;
 
-// Observe value once then kill observer
-- (void)prefetchEventsForVideoId:(NSString *)videoId inGroup:(NSString *)groupId;
+// If serverIdStatus is NIL or UNSTABLE, the event will be written locally.
+// If serverIdStatus is CONFIRMED, event will be sent to firebase
+- (void)addEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId
+    serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
 
-// Stops the request for initial data on given video if it hasnt returned yet.
-- (void)killPrefetchForVideoId:(NSString *)videoId;
 
-// If group changed or first call, clears any memory and pulls events data for new group.
+// If group changed or first call, clears out any memory.
 - (void)groupChanged;
-
-- (void)addEvent:(YAEvent *)event toVideoId:(NSString *)videoId;
 
 @end

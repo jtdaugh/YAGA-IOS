@@ -172,22 +172,29 @@ static NSString *commentCellID = @"CommentCell";
 
 #pragma mark - YAEventReceiver
 
-- (void)videoId:(NSString *)videoId didReceiveNewEvent:(YAEvent *)event {
-    if (!self.video.invalidated && ![videoId isEqualToString:self.video.serverId]) {
-        return;
+- (void)videoWithServerId:(NSString *)serverId
+                  localId:(NSString *)localId
+       didReceiveNewEvent:(YAEvent *)event {
+    if (!self.video.invalidated) {
+        if ([serverId isEqualToString:self.video.serverId] || [localId isEqualToString:self.video.localId]) {
+            [self.events insertObject:event atIndex:0];
+            [self.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
+        }
     }
-    [self.events insertObject:event atIndex:0];
-    [self.commentsTableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationBottom];
 }
 
-- (void)videoId:(NSString *)videoId receivedInitialEvents:(NSArray *)events {
-    if (!self.video.invalidated && ![videoId isEqualToString:self.video.serverId]) {
-        return;
-    }
-    if ([events count]) {
-        [self refreshWholeTableWithEventsArray:[events reversedArray]];
+- (void)videoWithServerId:(NSString *)serverId
+                  localId:(NSString *)localId
+    receivedInitialEvents:(NSArray *)events {
+    if (!self.video.invalidated) {
+        if ([serverId isEqualToString:self.video.serverId] || [localId isEqualToString:self.video.localId]) {
+            if ([events count]) {
+                [self refreshWholeTableWithEventsArray:[events reversedArray]];
+            }
+        }
     }
 }
+
 
 - (void)refreshWholeTableWithEventsArray:(NSArray *)events {
     [self.events removeAllObjects];
@@ -603,7 +610,7 @@ static NSString *commentCellID = @"CommentCell";
         event.eventType = YAEventTypeComment;
         event.comment = text;
         event.username = [YAUser currentUser].username;
-        [[YAEventManager sharedManager] addEvent:event toVideoId:[self.video.serverId copy]];
+        [[YAEventManager sharedManager] addEvent:event toVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
         
         self.commentsTextField.text = @"";
         self.commentsSendButton.hidden = YES;
@@ -1164,7 +1171,7 @@ static NSString *commentCellID = @"CommentCell";
     YAEvent *event = [YAEvent new];
     event.eventType = YAEventTypeLike;
     event.username = [YAUser currentUser].username;
-    [[YAEventManager sharedManager] addEvent:event toVideoId:[self.video.serverId copy]];
+    [[YAEventManager sharedManager] addEvent:event toVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
@@ -1227,7 +1234,7 @@ static NSString *commentCellID = @"CommentCell";
     self.deleteButton.hidden = !self.myVideo;
     self.moreButton.hidden = !self.myVideo;
     self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqualToString:@""];
-    NSArray *events = [[[YAEventManager sharedManager] getEventsForVideoId:self.video.serverId] reversedArray];
+    NSArray *events = [[YAEventManager sharedManager] getEventsForVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
     [self refreshWholeTableWithEventsArray:events];
     [self initializeCaption];
     
@@ -1581,6 +1588,12 @@ static NSString *commentCellID = @"CommentCell";
             [self updateControls];
         }
         [self updateUploadingProgress];
+        
+        // Reload comments, which will initialize with firebase if serverID just became ready.
+        [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId
+                                                                localId:self.video.localId
+                                                                inGroup:self.video.group.serverId
+                                                     withServerIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
     }
 }
 

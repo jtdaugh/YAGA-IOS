@@ -14,7 +14,6 @@
 #import "YAActivityView.h"
 #import "AFURLConnectionOperation.h"
 #import "YAServerTransactionQueue.h"
-#import "YAEventManager.h"
 
 #define LIKE_HEART_SIDE 40.f
 
@@ -127,10 +126,6 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    
-    if (!self.video.invalidated) {
-        [[YAEventManager sharedManager] killPrefetchForVideoId:[self.video.serverId copy]];
-    }
     
     self.video = nil;
 

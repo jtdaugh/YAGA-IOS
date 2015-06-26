@@ -104,21 +104,24 @@ static NSString *cellID = @"Cell";
     [self setupPullToRefresh];
 }
 
-- (void)videoId:(NSString *)videoId eventCountUpdated:(NSUInteger)eventCount {
+- (void)videoWithServerId:(NSString *)serverId
+                  localId:(NSString *)localId
+        eventCountUpdated:(NSUInteger)eventCount {
     if (self.scrolling) return; // dont update unless the collection view is still
     __weak YACollectionViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@", videoId];
-        if (weakSelf.scrollingFast) return;
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"serverId == %@ || localId == %@", serverId, localId];
+        if (weakSelf.scrolling) return;
         if (index == NSNotFound) {
             return;
         }
         YAVideoCell *cell = (YAVideoCell *)[weakSelf.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
         if (cell) {
-            NSLog(@"Updating comment count for videoID: %@", videoId);
+            NSLog(@"Updating comment count for videoID: %@", serverId);
             [cell setEventCount:eventCount];
         }
     });
+
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -483,15 +486,19 @@ static NSString *cellID = @"Cell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [YAUser currentUser].currentGroup.videos[indexPath.row];
-    NSString *videoId = [video.serverId copy];
+    NSString *serverId = [video.serverId copy];
+    NSString *localId = [video.serverId copy];
+    YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:video];
     NSString *groupId = [[YAUser currentUser].currentGroup.serverId copy];
     
-    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoId:videoId];
+    NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoWithServerId:serverId localId:localId serverIdStatus:status];
     [cell setEventCount:eventCount];
     if (!eventCount) {
-        NSLog(@"Prefetching comment count for videoID: %@", videoId);
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-            [[YAEventManager sharedManager] prefetchEventsForVideoId:videoId inGroup:groupId];
+            [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:serverId
+                                                                    localId:localId
+                                                                    inGroup:groupId
+                                                         withServerIdStatus:status];
         });
     }
     
@@ -618,7 +625,8 @@ static NSString *cellID = @"Cell";
     
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
-        [videoCell setEventCount:[[YAEventManager sharedManager] getEventCountForVideoId:videoCell.video.serverId]];
+        YAVideo *vid = videoCell.video;
+        [videoCell setEventCount:[[YAEventManager sharedManager] getEventCountForVideoWithServerId:vid.serverId localId:vid.localId serverIdStatus:[YAVideo serverIdStatusForVideo:vid]]];
     }
 }
 

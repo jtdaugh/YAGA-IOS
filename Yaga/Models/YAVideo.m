@@ -174,4 +174,15 @@ float roundToFour(float num)
 {
     return @"";
 }
+
++ (YAVideoServerIdStatus)serverIdStatusForVideo:(YAVideo *)video {
+    if (![video.serverId length]) {
+        return YAVideoServerIdStatusNil;
+    }
+    if (![video.creator isEqualToString:[YAUser currentUser].username]) {
+        return YAVideoServerIdStatusConfirmed;
+    }
+    return video.uploadedToAmazon ? YAVideoServerIdStatusConfirmed : YAVideoServerIdStatusUnconfirmed;
+}
+
 @end
