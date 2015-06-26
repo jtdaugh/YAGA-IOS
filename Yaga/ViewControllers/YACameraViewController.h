@@ -32,9 +32,6 @@ typedef NS_ENUM(NSUInteger, YACameraButtonMode) {
 - (void)enableRecording:(BOOL)enable;
 - (void)enableScrollToTop:(BOOL)enable;
 
-- (void)showBottomShadow;
-- (void)removeBottomShadow;
-
 - (void)setCameraButtonMode:(YACameraButtonMode)mode;
 
 @end
