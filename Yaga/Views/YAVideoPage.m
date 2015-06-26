@@ -767,7 +767,7 @@ static NSString *commentCellID = @"CommentCell";
 //}
 
 - (void)setGesturesEnabled:(BOOL)enabled {
-    if (!self.video.group) {
+    if ([self.video isInvalidated] || !self.video.group) {
         self.hideGestureRecognizer.enabled = enabled;
         self.captionTapRecognizer.enabled = NO;
         self.likeDoubleTapRecognizer.enabled = NO;
