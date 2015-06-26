@@ -265,7 +265,7 @@
     if(show) {
         const CGFloat uploadingWith = 30;
         if (!self.uploadingView) {
-            self.uploadingView = [[FLAnimatedImageView alloc] initWithFrame:CGRectMake(self.bounds.size.width/2 - uploadingWith/2, self.bounds.size.height - 30, uploadingWith, uploadingWith)];
+            self.uploadingView = [[FLAnimatedImageView alloc] initWithFrame:CGRectMake(3, self.bounds.size.height - 30, uploadingWith, uploadingWith)];
             [self addSubview:self.uploadingView];
         }
         
