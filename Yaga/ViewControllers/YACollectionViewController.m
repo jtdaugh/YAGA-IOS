@@ -107,11 +107,11 @@ static NSString *cellID = @"Cell";
 - (void)videoWithServerId:(NSString *)serverId
                   localId:(NSString *)localId
         eventCountUpdated:(NSUInteger)eventCount {
-    if (self.scrolling) return; // dont update unless the collection view is still
+    if ((self.scrollingFast) || !eventCount) return; // dont update unless the collection view is still
     __weak YACollectionViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
-        if (weakSelf.scrolling) return;
+        if (weakSelf.scrollingFast) return;
         if (index == NSNotFound) {
             return;
         }

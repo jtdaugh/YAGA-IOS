@@ -170,8 +170,8 @@
 - (void)groupChanged {
     if (![[YAUser currentUser].currentGroup.serverId isEqualToString:self.groupId]) {
         self.eventsByServerVideoId = [NSMutableDictionary dictionary];
-        for (FQuery *query in [self.queriesByVideoId allValues]) {
-            [query removeAllObservers];
+        for (Firebase *ref in [self.queriesByVideoId allValues]) {
+            [ref removeAllObservers];
         }
         self.queriesByVideoId = [NSMutableDictionary dictionary];
         self.initialEventsLoadedForId = [NSMutableDictionary dictionary];
