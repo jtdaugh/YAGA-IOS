@@ -321,45 +321,52 @@ static NSString *cellID = @"Cell";
     if(![notification.object isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    //looking for updated and new index paths
-    NSArray *newVideos = notification.userInfo[kNewVideos];
-    NSArray *updatedVideos = notification.userInfo[kUpdatedVideos];
-    NSMutableArray *newIndexPaths = [NSMutableArray array];
-    NSMutableArray *updatedIndexPaths = [NSMutableArray array];
-    
-    for (YAVideo *video in updatedVideos) {
-        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-        [updatedIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
-    }
-    for (YAVideo *video in newVideos) {
-        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-        [newIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
-    }
+//    //looking for updated and new index paths
+//    NSArray *newVideos = notification.userInfo[kNewVideos];
+//    NSArray *updatedVideos = notification.userInfo[kUpdatedVideos];
+//    NSMutableArray *newIndexPaths = [NSMutableArray array];
+//    NSMutableArray *updatedIndexPaths = [NSMutableArray array];
+//    
+//    NSUInteger countBefore = [self collectionView:self.collectionView numberOfItemsInSection:0];
+//    
+//    for (YAVideo *video in updatedVideos) {
+//        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+//        [updatedIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
+//    }
+//    for (YAVideo *video in newVideos) {
+//        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+//        [newIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
+//    }
     
     [[YAEventManager sharedManager] groupChanged];
 
-    if(newIndexPaths.count || updatedIndexPaths.count) {
-        [self.collectionView performBatchUpdates:^{
-            if(newIndexPaths.count) {
-                //simple workaround to avoid manipulations with paginationThreshold
-                self.paginationThreshold += newVideos.count;
-                
-                [self.collectionView insertItemsAtIndexPaths:newIndexPaths];
-                
-                [self showCellTooltipIfNeeded];
-            }
-            else if(updatedIndexPaths.count) {
-                [self.collectionView reloadItemsAtIndexPaths:updatedIndexPaths];
-            }
-        } completion:^(BOOL finished) {
-            [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-            
-            if(newIndexPaths.count) {
-                [self playVisible:YES];//play new if they are visible immediately, otherwise scroll to the top, they will start playing automatically
-                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
-            }
-        }];
-    }
+//    if(newIndexPaths.count || updatedIndexPaths.count) {
+//        [self.collectionView performBatchUpdates:^{
+//            if(newIndexPaths.count) {
+//                [self.collectionView insertItemsAtIndexPaths:newIndexPaths];
+//                
+//                [self showCellTooltipIfNeeded];
+//            }
+//            
+//            if(updatedIndexPaths.count) {
+//                [self.collectionView reloadItemsAtIndexPaths:updatedIndexPaths];
+//            }
+//        } completion:^(BOOL finished) {
+//            [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+//            
+//            if(newIndexPaths.count) {
+//                [self playVisible:YES];//play new if they are visible immediately, otherwise scroll to the top, they will start playing automatically
+//                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+//            }
+//        }];
+//    }
+    
+    [self.collectionView reloadData];
+    [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+    if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+    [self playVisible:YES];
+    
     [self delayedHidePullToRefresh];
 }
 
