@@ -219,18 +219,17 @@
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
+    NSLog(@"will enter foreground");
 //    [AnalyticsKit applicationWillEnterForeground];
-    if ([[YAUser currentUser] loggedIn]) {
+    if ([[YAUser currentUser] loggedIn] && [YAUtils hasVisitedGifGrid]) {
         [[YACameraManager sharedManager] initCamera];
     }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
+    NSLog(@"did enter background");
 //    [AnalyticsKit applicationDidEnterBackground];
-    if ([[YAUser currentUser] loggedIn]) {
-        [[YACameraManager sharedManager] toggleFlash:NO];
-        [[YACameraManager sharedManager] closeCamera];
-    }
+    [[YACameraManager sharedManager] closeCamera];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

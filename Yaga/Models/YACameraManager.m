@@ -99,8 +99,13 @@
 }
 
 - (void)closeCamera {
-    self.isInitialized = NO;
-    [self.videoCamera stopCameraCapture];
+    if(self.isInitialized){
+        [[YACameraManager sharedManager] toggleFlash:NO];
+
+        self.isInitialized = NO;
+        
+        [self.videoCamera stopCameraCapture];
+    }
 }
 
 - (void)startRecording {
