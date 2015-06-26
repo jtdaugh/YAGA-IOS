@@ -176,6 +176,8 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)dealloc {
+    self.collectionView.delegate = nil;
+    self.collectionView.dataSource = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_WILL_REFRESH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_CHANGE_NOTIFICATION object:nil];
@@ -260,6 +262,8 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reloadVideo:(NSNotification*)notif {
+
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         YAVideo *video = notif.object;
         
@@ -272,17 +276,17 @@ static NSString *cellID = @"Cell";
         NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
         
         //the following line will ensure indexPathsForVisibleItems will return correct results
-        [self.collectionView layoutIfNeeded];
+        [weakSelf.collectionView layoutIfNeeded];
         
         //invisible? we do not reload then
-        if(![[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:index]]) {
+        if(![[weakSelf.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:index]]) {
             return;
         }
         
-        NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:0];
+        NSUInteger countOfItems = [weakSelf collectionView:weakSelf.collectionView numberOfItemsInSection:0];
         
         if(index != NSNotFound && index <= countOfItems) {
-            [self.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
+            [weakSelf.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]]];
         }
         else {
             [NSException raise:@"something is really wrong" format:@""];
@@ -376,66 +380,66 @@ static NSString *cellID = @"Cell";
     double hidePullToRefreshAfter = 1 - seconds;
     if(hidePullToRefreshAfter < 0)
         hidePullToRefreshAfter = 0;
-    
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self showActivityIndicator:NO];
-        [self.collectionView.pullToRefreshView stopAnimating];
-        [self playVisible:YES];
-        [self showNoVideosMessageIfNeeded];
+        [weakSelf showActivityIndicator:NO];
+        [weakSelf.collectionView.pullToRefreshView stopAnimating];
+        [weakSelf playVisible:YES];
+        [weakSelf showNoVideosMessageIfNeeded];
     });
 }
 
 - (void)showCellTooltipIfNeeded {
-    if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]
-       && [[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded] && !self.toolTipLabel) {
-        //first start tooltips
-        self.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2, VIEW_HEIGHT/4)];
-        self.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
-        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap to \nenlarge"
-                                                                     attributes:@{
-                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
-                                                                                  }];
-        
-        self.toolTipLabel.textAlignment = NSTextAlignmentCenter;
-        self.toolTipLabel.attributedText = string;
-        self.toolTipLabel.numberOfLines = 3;
-        self.toolTipLabel.textColor = PRIMARY_COLOR;
-        self.toolTipLabel.alpha = 0.0;
-        [self.collectionView addSubview:self.toolTipLabel];
-        //warning create varible for all screen sizes
-        
-        [UIView animateKeyframesWithDuration:0.6 delay:1.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
-            //
-            [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
-                //
-                self.toolTipLabel.alpha = 1.0;
-            }];
-            
-            for(float i = 0; i < 4; i++){
-                [UIView addKeyframeWithRelativeStartTime:i/5.0 relativeDuration:i/(5.0) animations:^{
-                    //
-                    self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6 + M_PI/36 + (int)i%2 * -1* M_PI/18);
-                }];
-                
-            }
-            
-            [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
-                self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
-            }];
-            
-            
-        } completion:^(BOOL finished) {
-            self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
-        }];
-        
-        [UIView animateWithDuration:0.3 delay:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-            //
-            self.toolTipLabel.alpha = 1.0;
-        } completion:^(BOOL finished) {
-            //
-        }];
-    }
+//    if(![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]
+//       && [[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded] && !self.toolTipLabel) {
+//        //first start tooltips
+//        self.toolTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2, VIEW_HEIGHT/4)];
+//        self.toolTipLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:26];
+//        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap to \nenlarge"
+//                                                                     attributes:@{
+//                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+//                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+//                                                                                  }];
+//        
+//        self.toolTipLabel.textAlignment = NSTextAlignmentCenter;
+//        self.toolTipLabel.attributedText = string;
+//        self.toolTipLabel.numberOfLines = 3;
+//        self.toolTipLabel.textColor = PRIMARY_COLOR;
+//        self.toolTipLabel.alpha = 0.0;
+//        [self.collectionView addSubview:self.toolTipLabel];
+//        //warning create varible for all screen sizes
+//        
+//        [UIView animateKeyframesWithDuration:0.6 delay:1.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+//            //
+//            [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.4 animations:^{
+//                //
+//                self.toolTipLabel.alpha = 1.0;
+//            }];
+//            
+//            for(float i = 0; i < 4; i++){
+//                [UIView addKeyframeWithRelativeStartTime:i/5.0 relativeDuration:i/(5.0) animations:^{
+//                    //
+//                    self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6 + M_PI/36 + (int)i%2 * -1* M_PI/18);
+//                }];
+//                
+//            }
+//            
+//            [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
+//                self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
+//            }];
+//            
+//            
+//        } completion:^(BOOL finished) {
+//            self.toolTipLabel.transform = CGAffineTransformMakeRotation(-M_PI / 6);
+//        }];
+//        
+//        [UIView animateWithDuration:0.3 delay:0.4 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+//            //
+//            self.toolTipLabel.alpha = 1.0;
+//        } completion:^(BOOL finished) {
+//            //
+//        }];
+//    }
 }
 
 - (void)showNoVideosMessageIfNeeded {
@@ -685,14 +689,15 @@ static NSString *cellID = @"Cell";
         self.paginationThreshold += kPaginationDefaultThreshold;
         
         //can't call reloadData methods when called from cellForRowAtIndexPath, using delay
+        __weak typeof(self) weakSelf = self;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.collectionView reloadData];
+            [weakSelf.collectionView reloadData];
 
             //datasource reloaded, do nothing on didDeleteVideo
-            [self.deleteDictionary removeAllObjects];
+            [weakSelf.deleteDictionary removeAllObjects];
 
             //enqueue new assets creation jobs
-            [self enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
+            [weakSelf enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
             
             DLog(@"Page %lu loaded", (unsigned long)self.paginationThreshold / kPaginationDefaultThreshold);
         });
@@ -716,15 +721,16 @@ static NSString *cellID = @"Cell";
         [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
         
         //even not animated scrollToItemAtIndexPath call takes some time, using hack
+        __weak typeof(self) weakSelf = self;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            self.collectionView.contentInset = tmp;
+            weakSelf.collectionView.contentInset = tmp;
             
-            [self.delegate scrollViewDidScroll];
+            [weakSelf.delegate scrollViewDidScroll];
             
-            [self playVisible:YES];
+            [weakSelf playVisible:YES];
             
-            [self prioritiseDownloadsForVisibleCells];
-            self.assetsPrioritisationHandled = YES;
+            [weakSelf prioritiseDownloadsForVisibleCells];
+            weakSelf.assetsPrioritisationHandled = YES;
         });
     }
 }

@@ -187,10 +187,11 @@
 - (UICollectionView *)getRelevantCollectionView {
     NSArray *vcs = self.bottomNavigationController.viewControllers;
     for (NSUInteger i = [vcs count] - 1;; i--) {
-        id vc = vcs[i];
-        if ([vc isKindOfClass:[YAGroupsViewController class]] ||
-            [vc isKindOfClass:[YACollectionViewController class]]) {
-            return [vc collectionView];
+        UIViewController *vc = vcs[i];
+        if ([vc isKindOfClass:[YAGroupsViewController class]]) {
+            return [((YAGroupsViewController *)vc) collectionView];
+        } else if ([vc isKindOfClass:[YACollectionViewController class]]) {
+            return [((YACollectionViewController *)vc) collectionView];
         }
         if (i == 0) break;
     }
