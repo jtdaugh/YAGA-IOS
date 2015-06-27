@@ -56,6 +56,7 @@ typedef enum {
 @property (strong, nonatomic) UIButton *switchCameraButton;
 @property (strong, nonatomic) UIImageView *unviewedVideosBadge;
 @property (strong, nonatomic) UIButton *groupButton;
+@property (strong, nonatomic) UIImageView *logo;
 
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
@@ -173,6 +174,13 @@ typedef enum {
         [self.cameraAccessories addObject:self.groupButton];
         [self.view addSubview:self.groupButton];
 
+        CGFloat logoWidth = VIEW_WIDTH/6;
+        CGFloat logoHeight = VIEW_HEIGHT/12;
+        self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, 8, logoWidth, logoHeight)];
+        [self.logo setContentMode:UIViewContentModeScaleAspectFit];
+        [self.logo setImage:[UIImage imageNamed:@"Logo"]];
+        [self.view addSubview:self.logo];
+        
         //record button
         self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
         [self.recordButton setBackgroundColor:[UIColor redColor]];
@@ -1090,6 +1098,7 @@ typedef enum {
             self.leftBottomButton.alpha = 0;
             self.rightBottomButton.alpha = 1;
             self.groupButton.alpha = 0;
+            self.logo.alpha = 1;
             self.unviewedVideosBadge.alpha = 0;
             self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
         }];
@@ -1104,17 +1113,26 @@ typedef enum {
         self.leftBottomButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
         [self.leftBottomButton setTitle:NSLocalizedString(@"Groups", @"") forState:UIControlStateNormal];
         self.leftBottomButton.frame = CGRectMake(5, VIEW_HEIGHT/2 - 35, 80, 30);
-        
+        self.leftBottomButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.leftBottomButton.layer.shadowRadius = 1.0f;
+        self.leftBottomButton.layer.shadowOpacity = 1.0;
+        self.leftBottomButton.layer.shadowOffset = CGSizeZero;
+
         //right button
         self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, (VIEW_HEIGHT/2 - INFO_SIZE - INFO_PADDING*2) + 5, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
         [self.rightBottomButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.rightBottomButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.rightBottomButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        self.rightBottomButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.rightBottomButton.layer.shadowRadius = 1.0f;
+        self.rightBottomButton.layer.shadowOpacity = 1.0;
+        self.rightBottomButton.layer.shadowOffset = CGSizeZero;
 
         [UIView animateWithDuration:0.2 animations:^{
             self.rightBottomButton.alpha = 1;
             self.leftBottomButton.alpha = 1;
             self.groupButton.alpha = 1;
+            self.logo.alpha = 0;
             [self updateUnviewedVideosBadge];
 
         }];
