@@ -312,7 +312,7 @@
     YAPostCaptureViewController *vc = [[YAPostCaptureViewController alloc] initWithVideo:video];
     vc.transitioningDelegate = self;
     vc.modalPresentationStyle = UIModalPresentationCustom;
-
+    [self setInitialAnimationFrame:CGRectMake(VIEW_WIDTH/4, VIEW_HEIGHT/4, VIEW_WIDTH/2, VIEW_HEIGHT/2)];
     [self presentViewController:vc animated:NO completion:nil];
 }
 

@@ -49,6 +49,9 @@
         [Firebase defaultConfig].persistenceEnabled = YES;
         self.firebaseRoot = [[Firebase alloc] initWithUrl:FIREBASE_EVENTS_ROOT];
         self.unsentEventsByLocalVideoId = [NSMutableDictionary dictionary];
+        self.eventsByServerVideoId = [NSMutableDictionary dictionary];
+        self.queriesByVideoId = [NSMutableDictionary dictionary];
+        self.initialEventsLoadedForId = [NSMutableDictionary dictionary];
         [self groupChanged];
     }
     return self;
@@ -159,15 +162,17 @@
 
 - (void)groupChanged {
     if (![[YAUser currentUser].currentGroup.serverId isEqualToString:self.groupId]) {
-        self.eventsByServerVideoId = [NSMutableDictionary dictionary];
-        for (id key in self.queriesByVideoId) {
-            if (self.queriesByVideoId[key]) {
-                Firebase *ref = self.queriesByVideoId[key];
-                [ref removeAllObservers];
+        [self.eventsByServerVideoId removeAllObjects];
+        if (self.queriesByVideoId) {
+            for (id key in self.queriesByVideoId) {
+                if (self.queriesByVideoId[key]) {
+                    Firebase *ref = self.queriesByVideoId[key];
+                    [ref removeAllObservers];
+                }
             }
         }
-        self.queriesByVideoId = [NSMutableDictionary dictionary];
-        self.initialEventsLoadedForId = [NSMutableDictionary dictionary];
+        [self.queriesByVideoId removeAllObjects];
+        [self.initialEventsLoadedForId removeAllObjects];
     }
     self.groupId = [YAUser currentUser].currentGroup.serverId;
 }
