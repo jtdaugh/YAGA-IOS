@@ -18,9 +18,6 @@
 #import "YAServer+HostManagment.h"
 #import "MBProgressHUD.h"
 
-//uncomment for debug server
-#define DEBUG_SERVER 1
-
 #if (DEBUG && DEBUG_SERVER)
 #define HOST @"https://api-dev.yagaprivate.com"
 #else
@@ -41,7 +38,11 @@
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
+#define API_GROUP_JOIN_TEMPLATE            @"%@/groups/%@/join/"
+
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
+
+#define API_GROUPS_SEARCH_TEMPLATE          @"%@/groups/discover/"
 
 #define API_GROUP_MEMBERS_TEMPLATE          @"%@/groups/%@/members/"
 
@@ -51,8 +52,13 @@
 #define API_GROUP_POST_LIKE                 @"%@/groups/%@/posts/%@/like/"
 #define API_GROUP_POST_LIKERS               @"%@/groups/%@/posts/%@/likers/"
 
+#define API_GROUP_POST_COPY                 @"%@/groups/%@/posts/%@/copy/"
+
 #define USER_PHONE  @"phone"
 #define ERROR_DATA  @"com.alamofire.serialization.response.error.data"
+
+
+#define kCrosspostData @"kCrosspostData"
 
 @interface YAServer ()
 
@@ -259,12 +265,9 @@
     [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
-    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Adding members", @"")];
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                               
-                               [hud hide:NO];
                                
                                if([(NSHTTPURLResponse*)response statusCode] == 200) {
                                    [YAUtils showHudWithText:NSLocalizedString(@"Members added", @"")];
@@ -475,6 +478,33 @@
     }];
 }
 
+- (void)searchGroupsWithCompletion:(responseBlock)completion
+{
+    NSAssert(self.authToken.length, @"auth token not set");
+    
+    NSString *api = [NSString stringWithFormat:API_GROUPS_SEARCH_TEMPLATE, self.base_api];
+    
+    [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+}
+
+- (void)joinGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion
+{
+    NSAssert(self.authToken.length, @"auth token not set");
+    
+    NSString *api = [NSString stringWithFormat:API_GROUP_JOIN_TEMPLATE, self.base_api, serverGroupId];
+    
+    [self.jsonOperationsManager PUT:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [YAUtils showHudWithText:NSLocalizedString(@"Failed to join group", @"")];
+        completion(nil, error);
+    }];
+}
+
 #pragma mark - Posts
 - (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
@@ -523,11 +553,12 @@
                                completion(videoLocalId, yaError);
                                return;
                            }
-                           
+
                            //empty server id in case of an error, transaction will be executed again
                            if(error) {
                                [video.realm beginWriteTransaction];
                                video.serverId = @"";
+                               video.uploadedToAmazon = NO;
                                [video.realm commitWriteTransaction];
                                
                                //show local notification if app is in background
@@ -539,8 +570,16 @@
                                    localNotification.applicationIconBadgeNumber = 1;
                                    [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
                                }
+                              
                            }
-                           
+                           else {
+                               [video.realm beginWriteTransaction];
+                               video.uploadedToAmazon = YES;
+                               [video.realm commitWriteTransaction];
+                               [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
+                               [self executePendingCopyForVideo:video];
+                           }
+
                            //call completion block when video is posted
                            completion(response, error);
                        }];
@@ -755,6 +794,88 @@
                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                        completion(nil, nil);
                    }];
+}
+
+// TODO: replace this method with a correct server call to post a video in (at the time) no groups into multiple groups
+- (void)postUngroupedVideo:(YAVideo *)video toGroups:(NSArray *)groups {
+    if (![groups count]) return;
+    YAGroup *firstGroup = groups[0];
+    NSDate *currentDate = [NSDate date];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        video.group = firstGroup;
+        [firstGroup.realm beginWriteTransaction];
+        firstGroup.updatedAt = currentDate;
+        [firstGroup.videos insertObject:video atIndex:0];
+        [firstGroup.realm commitWriteTransaction];
+        
+        //update local update time so the "new" badge isn't shown
+        NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+        [groupsUpdatedAt setObject:currentDate forKey:firstGroup.localId];
+        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+        
+        //start uploading while generating gif
+        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:firstGroup];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:firstGroup userInfo:@{kNewVideos:@[video]}];
+        
+        NSMutableArray *remainingGroupIds = [NSMutableArray array];
+        for (int i = 0; i < [groups count]; i++) {
+            YAGroup *group = groups[i];
+            [remainingGroupIds addObject:group.serverId];
+        }
+        if ([remainingGroupIds count]) {
+            [self copyVideo:video toGroupsWithIds:remainingGroupIds withCompletion:^(id response, NSError *error) {
+                // No confirmation or anything on completion
+            }];
+        }
+    });
+    
+}
+
+- (void)copyVideo:(YAVideo*)video toGroupsWithIds:(NSArray*)groupIdsToCopyTo withCompletion:(responseBlock)completion {
+    NSAssert(self.authToken.length, @"auth token not set");
+    
+    //execute copy video
+    if(video.uploadedToAmazon) {
+        NSString *api = [NSString stringWithFormat:API_GROUP_POST_COPY, self.base_api, video.group.serverId, video.serverId];
+        NSDictionary *parameters = @{
+                                     @"groups": groupIdsToCopyTo
+                                    };
+        
+        [self.jsonOperationsManager POST:api
+                             parameters:parameters
+                                success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                    completion(nil, nil);
+                                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                    NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+                                    completion([NSString stringFromHex:hex], error);
+                                }];
+    }
+    //otherwise save copy data for later execution when video is uploaded
+    else {
+        NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
+        NSMutableSet *groupIds = [NSMutableSet setWithSet:crosspostData[video.localId]];
+        [groupIds addObjectsFromArray:groupIdsToCopyTo];
+        
+        [crosspostData setObject:groupIds.allObjects forKey:video.localId];
+        [[NSUserDefaults standardUserDefaults] setObject:crosspostData forKey:kCrosspostData];
+        
+        completion(nil, nil);
+    }
+}
+
+- (void)executePendingCopyForVideo:(YAVideo*)video {
+    NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
+    NSArray *groupIds = [crosspostData[video.localId] allObjects];
+    
+    if(groupIds.count) {
+        [self copyVideo:video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
+            if(!error) {
+                [crosspostData removeObjectForKey:video.localId];
+                [[NSUserDefaults standardUserDefaults] setObject:crosspostData forKey:kCrosspostData];
+            }
+        }];
+    }
 }
 
 #pragma mark - Device token

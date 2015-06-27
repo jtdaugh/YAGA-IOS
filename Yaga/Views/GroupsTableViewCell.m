@@ -1,9 +1,9 @@
 //
-//  GroupListCell.m
-//  Pic6
+//  GroupsTableViewCell.m
+//  
 //
-//  Created by Raj Vir on 11/9/14.
-//  Copyright (c) 2014 Raj Vir. All rights reserved.
+//  Created by valentinkovalski on 6/22/15.
+//
 //
 
 #import "GroupsTableViewCell.h"
@@ -40,7 +40,7 @@
         self.detailTextLabel.numberOfLines = 0;
         [self.detailTextLabel setTextColor:PRIMARY_COLOR];
         [self.detailTextLabel setBackgroundColor:[UIColor clearColor]];
-
+        
         [self setBackgroundColor:[UIColor clearColor]];
         self.textLabel.adjustsFontSizeToFitWidth = YES;
         

@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YagaNavigationController : UINavigationController
+@interface YaOnboardingNavigationController : UINavigationController
 
 @end

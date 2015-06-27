@@ -11,7 +11,7 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 
-#import "GroupsTableViewCell.h"
+#import "GroupsCollectionViewCell.h"
 #import "YAServer.h"
 #import "UIImage+Color.h"
 #import "YAServer.h"
@@ -21,163 +21,108 @@
 
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
+#import "NameGroupViewController.h"
+#import "YAGridViewController.h"
 
 #import "YAUserPermissions.h"
+#import "YAFindGroupsViewConrtoller.h"
+#import "YACollectionViewController.h"
+
+#define FOOTER_HEIGHT 170
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
-@property (nonatomic, strong) UIButton *createGroupButton;
 @property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
 @property (nonatomic, strong) YAGroup *editingGroup;
+@property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
+@property (nonatomic) BOOL animatePush;
+//needed to have pull down to refresh shown for at least 1 second
+@property (nonatomic, strong) NSDate *willRefreshDate;
+@property (nonatomic) CGFloat topInset;
+
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
 
 @implementation YAGroupsViewController
 
+- (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset {
+    self = [super init];
+    if (self) {
+        _topInset = topInset;
+    }
+    return self;
+}
+
+- (void)changeTopInset:(CGFloat)newTopInset {
+    if (self.topInset == newTopInset) {
+        return; // Nothing changed, so do nothing.
+    }
+    self.topInset = newTopInset;
+    [self setupCollectionView];
+}
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    if(self.embeddedMode) {
-        UITapGestureRecognizer *tapToClose = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(close)];
-        tapToClose.delegate = self;
-        [self.view addGestureRecognizer:tapToClose];
-    }
-    
-    self.view.backgroundColor = self.embeddedMode ? [UIColor whiteColor] : PRIMARY_COLOR;
-    
-    CGFloat width = VIEW_WIDTH * 1.0;
-    
-    CGFloat origin = VIEW_HEIGHT * 0.1;
-    
-    CGFloat buttonHeight = ELEVATOR_MARGIN * 1.5;
-    
-    if(!self.embeddedMode) {
-        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2 + 15, origin, width - 30, VIEW_HEIGHT*.3)];
-        [titleLabel setText:NSLocalizedString(@"Looks like you're already a part of a group", @"")];
-        [titleLabel setNumberOfLines:4];
-        [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-        [titleLabel setTextAlignment:NSTextAlignmentCenter];
-        [titleLabel setTextColor:[UIColor whiteColor]];
-        [self.view addSubview:titleLabel];
-        origin = titleLabel.frame.origin.y + titleLabel.frame.size.height;
-    }
-    else {
-        origin = 0;
-    }
-    
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(22, origin, VIEW_WIDTH-22, self.view.bounds.size.height - (self.embeddedMode ? buttonHeight : origin + 10))];
-
-    self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    [self.view addSubview:self.tableView];
-    self.tableView.dataSource = self;
-    self.tableView.delegate = self;
-    self.tableView.backgroundColor = [self.view.backgroundColor copy];
-    
-    //    [self.tableView setSeparatorColor:PRIMARY_COLOR];
-    [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
-    [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
-    
-    // This will remove extra separators from tableview
-    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-    
-    //ios8 fix for separatorInset
-    if ([self.tableView respondsToSelector:@selector(layoutMargins)])
-        self.tableView.layoutMargins = UIEdgeInsetsZero;
-    
-    self.tableView.allowsMultipleSelectionDuringEditing = NO;
-    
-    if(self.embeddedMode) {
-        //create group button
-//        UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(0, self.tableView.frame.size.height+1, VIEW_WIDTH, 1)];
-//        separatorView.backgroundColor = [UIColor lightGrayColor];
-//        separatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-//        [self.view addSubview:separatorView];
-        
-        UIButton *createGroupButton = [[UIButton alloc] initWithFrame:
-                                       CGRectMake(0,
-                                                  self.tableView.frame.size.height,
-                                                  VIEW_WIDTH,
-                                                  VIEW_HEIGHT - self.tableView.frame.size.height)
-                                       ];
-        createGroupButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-        [createGroupButton setTitle:@"Create Group" forState:UIControlStateNormal];
-        [createGroupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-        [createGroupButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-        [createGroupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [createGroupButton setBackgroundColor:PRIMARY_COLOR];
-        createGroupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-        [createGroupButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
-        UIColor *bkgColor = self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor];
-        [createGroupButton setBackgroundImage:[YAUtils imageWithColor:[bkgColor colorWithAlphaComponent:0.3]] forState:UIControlStateHighlighted];
-        [self.view addSubview:createGroupButton];
-    }
-    
-    if(self.embeddedMode)
-        [self setupPullToRefresh];
+    [self setupCollectionView];
+//    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    [self.navigationController setNavigationBarHidden:YES];
     
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION    object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateState)  name:GROUPS_REFRESHED_NOTIFICATION    object:nil];
     
-    [self.navigationController setNavigationBarHidden:YES];
-    
+    //force to open last selected group
+    self.animatePush = NO;
+    [self groupDidChange:nil];
     [self updateState];
-    
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
         [self updateState];
     }];
 }
 
-- (void)setupPullToRefresh {
-    //pull to refresh
-    __weak typeof(self) weakSelf = self;
-    
-    [self.tableView addPullToRefreshWithActionHandler:^{
-        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-            [weakSelf updateState];
-            [weakSelf.tableView.pullToRefreshView stopAnimating];
-        }];
-    }];
-    
-    //    self.collectionView.pullToRefreshView.
-    
-    YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.tableView.pullToRefreshView.bounds.size.height)];
-    
-    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
-    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
-    [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
-}
-
-- (void)groupDidRefresh:(NSNotification*)notif {
-    [self updateState];
-}
-
-- (void)updateState {
-    
-    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
-    
-    self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
-
-    [self.tableView reloadData];
-
-    //size to fit table view
-    if(!self.embeddedMode) {
-        CGFloat rowHeight = [self tableView:self.tableView heightForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-        CGFloat rowsCount = [self tableView:self.tableView numberOfRowsInSection:0];
-        CGFloat contentHeight = rowHeight * rowsCount;
-        if(self.tableView.frame.size.height > contentHeight) {
-            self.tableView.frame = CGRectMake(self.tableView.frame.origin.x, self.tableView.frame.origin.y, self.tableView.frame.size.width, contentHeight);
-        }
+- (void)setupCollectionView {
+    if (self.collectionView) {
+        [self.collectionView removeFromSuperview];
     }
+    CGFloat origin = 0;
+    CGFloat leftMargin = 0;
+    
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumLineSpacing = 0;
+    layout.itemSize = CGSizeMake(VIEW_WIDTH, [GroupsCollectionViewCell cellHeight]);
+    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(leftMargin, origin, VIEW_WIDTH - leftMargin, self.view.bounds.size.height - origin) collectionViewLayout:layout];
+    
+    self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:self.collectionView];
+    self.collectionView.dataSource = self;
+    self.collectionView.delegate = self;
+    self.collectionView.showsVerticalScrollIndicator = NO;
+    self.collectionView.backgroundColor = [self.view.backgroundColor copy];
+    self.collectionView.contentInset = UIEdgeInsetsMake(self.topInset, 0, 0, 0);
+    [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:CellIdentifier];
+    [self.collectionView registerClass:[UICollectionReusableView class]
+            forSupplementaryViewOfKind: UICollectionElementKindSectionFooter
+                   withReuseIdentifier:@"FooterView"];
+    
+    [self setupPullToRefresh];
+
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    if (self.animatePush) {
+        // Need to set group to nil when we swipe back to this screen.
+        // The animate push hack is because sometimes -viewDidAppear was getting called
+        // even when we forced the gif collection view push in -viewDidLoad
+        [YAUser currentUser].currentGroup = nil;
+        [self.delegate updateCameraAccessoriesWithViewIndex:0];
+    }
+    self.animatePush = YES;
+        
     if(![YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
     
@@ -186,29 +131,85 @@ static NSString *CellIdentifier = @"GroupsCell";
         [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
             if (!error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.tableView reloadData];
+                    [self.collectionView reloadData];
                 });
             }
         } excludingPhoneNumbers:nil];
     }
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
+- (void)setupPullToRefresh {
+    //pull to refresh
+    __weak typeof(self) weakSelf = self;
     
-    //crash fixed
-    //http://stackoverflow.com/questions/19230446/tableviewcaneditrowatindexpath-crash-when-popping-viewcontroller
-    self.tableView.editing = NO;
+    [self.collectionView addPullToRefreshWithActionHandler:^{
+        weakSelf.willRefreshDate = [NSDate date];
+        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+//            [weakSelf updateState];
+            [weakSelf delayedHidePullToRefresh];
+//            [weakSelf.collectionView.pullToRefreshView stopAnimating];
+        }];
+    }];
+    
+    //    self.collectionView.pullToRefreshView.
+    
+    YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];
+    
+    [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
+    [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
+    [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
+}
+
+- (void)delayedHidePullToRefresh {
+    NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
+    
+    double hidePullToRefreshAfter = 1 - seconds;
+    if(hidePullToRefreshAfter < 0)
+        hidePullToRefreshAfter = 0;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.collectionView.pullToRefreshView stopAnimating];
+        [self updateState];
+    });
+}
+
+- (void)groupDidRefresh:(NSNotification*)notif {
+    [self updateState];
+}
+
+- (void)groupDidChange:(NSNotification*)notif {
+    if ([self.navigationController.visibleViewController isEqual:self]) {
+        //open current group if needed
+        if([YAUser currentUser].currentGroup) {
+            YACollectionViewController *vc = [YACollectionViewController new];
+            vc.delegate = self.delegate;
+            [self.navigationController pushViewController:vc animated:self.animatePush];
+            [self.delegate updateCameraAccessoriesWithViewIndex:1];
+        }
+    } else {
+        // Grid is already visible, let it reload
+    }
+    self.animatePush = YES;
+}
+
+- (void)updateState {
+    
+    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
+    
+    self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
+    
+    [self.collectionView reloadData];
+    
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    if([touch.view isKindOfClass:[UITableViewCell class]])
+    if([touch.view isKindOfClass:[UICollectionViewCell class]])
         return NO;
     // UITableViewCellContentView => UITableViewCell
-    if([touch.view.superview isKindOfClass:[UITableViewCell class]])
+    if([touch.view.superview isKindOfClass:[UICollectionViewCell class]])
         return NO;
     // UITableViewCellContentView => UITableViewCellScrollView => UITableViewCell
-    if([touch.view.superview.superview isKindOfClass:[UITableViewCell class]])
+    if([touch.view.superview.superview isKindOfClass:[UICollectionViewCell class]])
         return NO;
     
     if([touch.view isKindOfClass:[UIButton class]])
@@ -217,178 +218,117 @@ static NSString *CellIdentifier = @"GroupsCell";
     return YES;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+ 
+    [self.delegate scrollViewDidScroll];
+
+}
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return self.groups.count;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    // This will create a "invisible" footer
-    return 0.01f;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell;
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    GroupsCollectionViewCell *cell;
     
-    cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+    cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
+    YAGroup *group = [self.groups objectAtIndex:indexPath.item];
     
-    cell.textLabel.text = group.name;
-    cell.detailTextLabel.text = group.membersString;
+    cell.groupName = group.name;
+    cell.membersString = group.membersString;
     
-    if(indexPath.row == self.groups.count - 1)
-        cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, cell.bounds.size.width);
-    
-    __weak typeof(self) weakSelf = self;
-    ((GroupsTableViewCell*)cell).editBlock = ^{
-        [weakSelf tableView:weakSelf.tableView accessoryButtonTappedForRowWithIndexPath:indexPath];
-    };
-    
-    //ios8 fix
-    if ([cell respondsToSelector:@selector(layoutMargins)]) {
-        cell.layoutMargins = UIEdgeInsetsZero;
-    }
-    
-    if(!self.embeddedMode)
-        cell.accessoryView = nil;
-    
-    
-    cell.textLabel.textColor = group.muted ? [UIColor lightGrayColor] : (self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor]);
-    cell.detailTextLabel.textColor = group.muted ? [UIColor lightGrayColor] : (self.embeddedMode ? PRIMARY_COLOR : [UIColor whiteColor]);
-    cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
+    cell.muted = group.muted;
     
     NSDate *localGroupUpdateDate = [self.groupsUpdatedAt objectForKey:group.localId];
-    if(self.embeddedMode) {
-        if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
-            UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.3]];
-            cell.imageView.image = img;
-        }
-        else {
-            UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.0]];
-            cell.imageView.image = img;
-        }
+    if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+        cell.showUpdatedIndicator = YES;
+    }
+    else {
+        cell.showUpdatedIndicator = NO;
     }
     
     return cell;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(self.embeddedMode && indexPath.row == self.groups.count) {
-        return 60;
-    }
-    
-    YAGroup *group = self.groups[indexPath.row];
-    
-    NSDictionary *attributes = @{NSFontAttributeName:[GroupsTableViewCell defaultDetailedLabelFont]};
-    CGRect rect = [group.membersString boundingRectWithSize:CGSizeMake([GroupsTableViewCell contentWidth], CGFLOAT_MAX)
-                                                    options:NSStringDrawingUsesLineFragmentOrigin
-                                                 attributes:attributes
-                                                    context:nil];
-    
-    return rect.size.height + 80;
-}
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    YAGroup *group = self.groups[indexPath.row];
-    
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
+    YAGroup *group = self.groups[indexPath.item];
     [YAUser currentUser].currentGroup = group;
+    [self.delegate swapOutOfOnboardingState];
+    [self.delegate updateCameraAccessoriesWithViewIndex:1];
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    YAGroup *group = self.groups[indexPath.item];
+    NSString *membersString = group.membersString;
     
-    if(self.embeddedMode) {
-        [self close];
-    }
-    else
-        [self performSegueWithIdentifier:@"SelectExistingGroupAndCompleteOnboarding" sender:self];
-    
+    return [GroupsCollectionViewCell sizeForMembersString:membersString];
 }
 
-#pragma mark - Editing
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return self.embeddedMode;
-}
 
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [self leaveGroupAtIndexPath:indexPath];
-    }
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return @"Leave";
-}
-
-- (void)close {
-    [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
-}
-
-- (void)createGroup {
-    [self close];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self performSegueWithIdentifier:@"NameGroup" sender:self];
-    });
-
-}
-
-- (IBAction)unwindToGrid:(id)source {}
-
-- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {
-    self.editingGroup = self.groups[indexPath.row];
-
-    [self performSegueWithIdentifier:@"ShowGroupOptions" sender:self];
-//    [self close];    
-}
-
-#pragma mark - Segues
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
-        ((YAGroupAddMembersViewController*)segue.destinationViewController).embeddedMode = self.embeddedMode;
-    }
-    else if([segue.destinationViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
-        ((YAGroupOptionsViewController*)segue.destinationViewController).group = self.editingGroup;
-    }
-}
-
-- (void)leaveGroupAtIndexPath:(NSIndexPath*)indexPath {
-    YAGroup *group = self.groups[indexPath.row];
-    
-    NSString *muteTitle = [NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
-    NSString *muteMessage = [NSLocalizedString(@"Are you sure you would like to leave?", @"") stringByAppendingFormat:@" %@", group.name];
-    NSString *confirmTitle = [NSLocalizedString(@"Leave", @"") stringByAppendingFormat:@" %@", NSLocalizedString(@"Group", @"")];
-    
-    MSAlertController*alert = [MSAlertController alertControllerWithTitle:muteTitle message:muteMessage preferredStyle:MSAlertControllerStyleAlert];
-    
-    [alert addAction:[MSAlertAction actionWithTitle:confirmTitle style:MSAlertActionStyleDestructive handler:^(MSAlertAction *action) {
-        [self performSegueWithIdentifier:@"HideEmbeddedUserGroups" sender:self];
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
+           viewForSupplementaryElementOfKind:(NSString *)kind
+                                 atIndexPath:(NSIndexPath *)indexPath {
+    if (kind == UICollectionElementKindSectionFooter) {
+        UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
         
-        BOOL groupWasActive = [[YAUser currentUser].currentGroup isEqual:group];
+        if (reusableview==nil) {
+            reusableview=[[UICollectionReusableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, FOOTER_HEIGHT)];
+        }
         
-        [group leaveWithCompletion:^(NSError *error) {
-            if(!error) {
-                if(groupWasActive) {
-                    if(self.groups.count) {
-                        [YAUser currentUser].currentGroup = self.groups[0];
-                    }
-                    else
-                        [YAUser currentUser].currentGroup = nil;
-                    
-                    if(![YAUser currentUser].currentGroup) {
-                        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-                        UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"OnboardingNoGroupsNavigationController"];
-                        
-                        [UIView transitionWithView:[UIApplication sharedApplication].keyWindow
-                                          duration:0.4
-                                           options:UIViewAnimationOptionTransitionFlipFromLeft
-                                        animations:^{ [UIApplication sharedApplication].keyWindow.rootViewController = viewController; }
-                                        completion:nil];
-                    }
-                }
-            }
-        }];
+        CGSize labelSize = CGSizeMake(VIEW_WIDTH*0.8, 70);
+        UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - labelSize.width)/2, 20, labelSize.width, labelSize.height)];
+        label.numberOfLines = 3;
+        label.font = [UIFont fontWithName:BIG_FONT size:16];
+        label.textColor = [UIColor lightGrayColor];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.text=@"Looking for more?\nExplore groups your friends\nare in or create a new group!";
+        [reusableview addSubview:label];
         
-    }]];
-    
-    [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"") style:MSAlertActionStyleCancel handler:^(MSAlertAction *action) {
+        CGSize buttonSize = CGSizeMake(VIEW_WIDTH/2 - 30, 50);
+        UIButton *findButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/4 - buttonSize.width/2 + 2, FOOTER_HEIGHT - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+        findButton.backgroundColor = [UIColor whiteColor];
+        [findButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        findButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
+        findButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+        findButton.layer.borderWidth = 3;
+        findButton.layer.cornerRadius = buttonSize.height/2;
+        findButton.layer.masksToBounds = YES;
+        [findButton setTitle:@"Find Groups" forState:UIControlStateNormal];
+        [findButton addTarget:self action:@selector(findCellPressed:) forControlEvents:UIControlEventTouchUpInside];
+
+        [reusableview addSubview:findButton];
         
-    }]];
-    
-    [self presentViewController:alert animated:YES completion:nil];
+        UIButton *createButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*3/4 - buttonSize.width/2 - 2, FOOTER_HEIGHT - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+        createButton.backgroundColor = PRIMARY_COLOR;
+        [createButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        createButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
+        createButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+        createButton.layer.borderWidth = 3;
+        createButton.layer.cornerRadius = buttonSize.height/2;
+        createButton.layer.masksToBounds = YES;
+        [createButton setTitle:@"Create Group" forState:UIControlStateNormal];
+        [createButton addTarget:self action:@selector(createCellPressed:) forControlEvents:UIControlEventTouchUpInside];
+        [reusableview addSubview:createButton];
+        
+        return reusableview;
+        
+    }
+    return nil;
 }
+
+// Footer size
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout*)collectionViewLayout
+referenceSizeForFooterInSection:(NSInteger)section {
+    return CGSizeMake(VIEW_WIDTH, FOOTER_HEIGHT);;
+}
+
+- (void)createCellPressed:(id)sender {
+    [self.delegate showCreateGroup];
+}
+
+- (void)findCellPressed:(id)sender {
+    [self.delegate showFindGroups];
+}
+
 @end

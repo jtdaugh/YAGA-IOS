@@ -100,6 +100,7 @@
 
 "Video saved to the camera roll" = "Video saved to the camera roll";
 "Are you sure you want to delete this video from '%@'?" = "Are you sure you want to delete this video from '%@'?";
+"Are you sure you want to delete this video" = "Are you sure you want to delete this video";
 "Delete video" = "Delete video";
 
 //pushes
@@ -154,3 +155,18 @@
 "Things are a bit quiet in here. Hold the big red button to record a video." = "Things are a bit quiet in here. Hold the big red button to record a video.";
 
 "Video failed to upload" = "Video failed to upload";
+"Copying video to groups" = "Copying video to groups";
+"Copied successfully" = "Copied successfully";
+"Can not copy video to groups" = "Can not copy video to groups";
+
+"Find Groups" = "Find Groups";
+"Join Groups" = "Join Groups";
+"Request" = "Request";
+"Pending" = "Pending";
+"Searching groups" = "Searching groups";
+"Failed to search groups" = "Failed to search groups";
+"Requests" = "Requests";
+"Members" = "Members";
+"Requesting to join to group" = "Requesting to join to group";
+"Failed to join group" = "Failed to join group";
+"Wow, you're early. Create a group to get your friends on Yaga" = "Wow, you're early. Create a group to get your friends on Yaga";

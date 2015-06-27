@@ -56,7 +56,7 @@
 - (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer {
     void (^deleteBlock)(void) = ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
-        
+                
         YAGroup *group = self.group;
         
         NSString *videoId = self.localId;
@@ -174,4 +174,15 @@ float roundToFour(float num)
 {
     return @"";
 }
+
++ (YAVideoServerIdStatus)serverIdStatusForVideo:(YAVideo *)video {
+    if (![video.serverId length]) {
+        return YAVideoServerIdStatusNil;
+    }
+    if (![video.creator isEqualToString:[YAUser currentUser].username]) {
+        return YAVideoServerIdStatusConfirmed;
+    }
+    return video.uploadedToAmazon ? YAVideoServerIdStatusConfirmed : YAVideoServerIdStatusUnconfirmed;
+}
+
 @end

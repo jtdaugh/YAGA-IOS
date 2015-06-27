@@ -8,7 +8,7 @@
 
 #import "YAAnimatedTransitioningController.h"
 
-#define kDuration 0.1
+#define kDuration 0.3
 
 @implementation YAAnimatedTransitioningController
 
@@ -37,7 +37,13 @@
     toViewController.view.frame = self.initialFrame;
     toViewController.view.alpha = 0.5;
 //    [UIView animateWithDuration:kDuration delay:0.0f usingSpringWithDamping:0.4f initialSpringVelocity:6.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
-    [UIView animateWithDuration:kDuration delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+    [UIView animateWithDuration:kDuration delay:0.0 usingSpringWithDamping:0.8 initialSpringVelocity:0.6 options:0 animations:^{
+        //
+//    } completion:^(BOOL finished) {
+//        //
+//        [transitionContext completeTransition:YES];
+//    }];
+//    [UIView animateWithDuration:kDuration delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
         toViewController.view.alpha = 1;
         toViewController.view.frame = [UIApplication sharedApplication].keyWindow.bounds;
         

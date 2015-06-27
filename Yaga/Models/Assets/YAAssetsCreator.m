@@ -17,14 +17,12 @@
 #import "YAServerTransactionQueue.h"
 
 #import "YAGifCreationOperation.h"
-#import "YACreateRecordingOperation.h"
 #import "YADownloadManager.h"
 #import "UIImage+Resize.h"
 
 @interface YAAssetsCreator ()
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
 @property (nonatomic, strong) NSOperationQueue *jpgQueue;
-@property (nonatomic, strong) NSOperationQueue *recordingQueue;
 @end
 
 
@@ -46,9 +44,6 @@
         
         self.jpgQueue = [[NSOperationQueue alloc] init];
         self.jpgQueue.maxConcurrentOperationCount = 2;
-        
-        self.recordingQueue = [[NSOperationQueue alloc] init];
-        self.recordingQueue.maxConcurrentOperationCount = 1;
     }
     return self;
 }
@@ -154,42 +149,99 @@
 }
 
 #pragma mark - Queue operations
+
+- (void)createUnsentVideoFromRecodingURL:(NSURL*)recordingUrl {
+    YAVideo *video = [YAVideo video];
+    
+    NSString *hashStr = [YAUtils uniqueId];
+    NSString *mp4Filename = [hashStr stringByAppendingPathExtension:@"mp4"];
+    NSString *mp4Path = [[YAUtils cachesDirectory] stringByAppendingPathComponent:mp4Filename];
+    NSURL    *mp4Url = [NSURL fileURLWithPath:mp4Path];
+    
+    NSError *error;
+    [[NSFileManager defaultManager] moveItemAtURL:recordingUrl toURL:mp4Url error:&error];
+    if(error) {
+        DLog(@"Error in createVideoFromRecodingURL, can't move recording, %@", error);
+        return;
+    }
+    
+    NSDate *currentDate = [NSDate date];
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        video.creator = [[YAUser currentUser] username];
+        video.createdAt = currentDate;
+        video.mp4Filename = mp4Filename;
+        [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
+    });
+                      
+    [self enqueueJpgCreationForVideo:video];
+}
+
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
-                        addToGroup:(YAGroup*)group {
+                        addToGroup:(YAGroup*)group
+       isImmediatelyAfterRecording:(BOOL)isImmediatelyAfterRecording {
     
     YAVideo *video = [YAVideo video];
-    YACreateRecordingOperation *recordingOperation = [[YACreateRecordingOperation alloc] initRecordingURL:recordingUrl group:group video:video];
-    [self.recordingQueue addOperation:recordingOperation];
+
+    NSString *hashStr = [YAUtils uniqueId];
+    NSString *mp4Filename = [hashStr stringByAppendingPathExtension:@"mp4"];
+    NSString *mp4Path = [[YAUtils cachesDirectory] stringByAppendingPathComponent:mp4Filename];
+    NSURL    *mp4Url = [NSURL fileURLWithPath:mp4Path];
     
-    [self.recordingQueue addOperationWithBlock:^{
-        [self createJpgForVideo:video];
-    }];
+    NSError *error;
+    [[NSFileManager defaultManager] moveItemAtURL:recordingUrl toURL:mp4Url error:&error];
+    if(error) {
+        DLog(@"Error in createVideoFromRecodingURL, can't move recording, %@", error);
+        return;
+    }
+    
+    NSDate *currentDate = [NSDate date];
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        video.creator = [[YAUser currentUser] username];
+        video.createdAt = currentDate;
+        video.mp4Filename = mp4Filename;
+        video.group = group;
+        if (isImmediatelyAfterRecording)
+            [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
+
+        [group.realm beginWriteTransaction];
+        group.updatedAt = currentDate;
+        [group.videos insertObject:video atIndex:0];        
+        [group.realm commitWriteTransaction];
+        
+        //update local update time so the "new" badge isn't shown
+        NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+        [groupsUpdatedAt setObject:currentDate forKey:group.localId];
+        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+        
+        //start uploading while generating gif
+        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:group];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kNewVideos:@[video]}];
+      
+
+        [self enqueueJpgCreationForVideo:video];
+    });
     
     //no need to create gif here, recording operation will post GROUP_DID_REFRESH_NOTIFICATION and AssetsCreator will make sure gif is created for the new item
     //in case of two gif operations for the same video there will be the following issue:
     //one operation can create gif earlier and start uploading, second operation will clean up the file for saving new gif date and and that moment zero bytes are read for uploading.
 }
 
-- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs
-                        addToGroup:(YAGroup*)group {
-    NSURL *outputUrl = [YAUtils urlFromFileName:@"concatenated.mp4"];
-    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
-
-    [self concatenateAssetsAtURLs:videoURLs
-                    withOutputURL:outputUrl
-                    exportQuality:AVAssetExportPreset640x480
-                       completion:^(NSURL *filePath, NSError *error) {
-        if (!error) {
-            YAVideo *video = [YAVideo video];
-            YACreateRecordingOperation *recordingOperation = [[YACreateRecordingOperation alloc] initRecordingURL:filePath group:group video:video];
-            [self.recordingQueue addOperation:recordingOperation];
-            
-            [self.recordingQueue addOperationWithBlock:^{
-//                [self createJpgForVideo:video];
-            }];
-        }
-    }];
-}
+// Was used for stiching switch-cam videos. GPU image made this method unneeded for now
+//- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs
+//                        addToGroup:(YAGroup*)group {
+//    NSURL *outputUrl = [YAUtils urlFromFileName:@"concatenated.mp4"];
+//    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
+//
+//    [self concatenateAssetsAtURLs:videoURLs
+//                    withOutputURL:outputUrl
+//                    exportQuality:AVAssetExportPreset640x480
+//                       completion:^(NSURL *filePath, NSError *error) {
+//        if (!error) {
+//            [self createVideoFromRecodingURL:filePath addToGroup:[YAUser currentUser].currentGroup];
+//        }
+//    }];
+//}
 
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {
@@ -302,7 +354,7 @@
 
 - (void)waitForAllOperationsToFinish
 {
-    [self.recordingQueue waitUntilAllOperationsAreFinished];
+    [self.jpgQueue waitUntilAllOperationsAreFinished];
     [[YADownloadManager sharedManager] waitUntilAllJobsAreFinished];
     [self.gifQueue waitUntilAllOperationsAreFinished];
 }

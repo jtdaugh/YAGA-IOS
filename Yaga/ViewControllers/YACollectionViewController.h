@@ -8,23 +8,17 @@
 #import "YAVideoCell.h"
 #import "YASwipingViewController.h"
 #import "YAEventManager.h"
-
-typedef void (^cameraCompletion)(void);
-
-@protocol YACollectionViewControllerDelegate <NSObject>
-- (void)showCamera:(BOOL)show showPart:(BOOL)showPart animated:(BOOL)animated completion:(cameraCompletion)completion;
-- (void)enableRecording:(BOOL)enable;
-- (void)collectionViewDidScroll;
-@end
+#import "YAGridViewController.h"
 
 @interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate,
-    UIViewControllerTransitioningDelegate, UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver> {
+    UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver> {
     CGPoint lastOffset;
     NSTimeInterval lastOffsetCapture;
 }
 
 @property (strong, nonatomic) UICollectionView *collectionView;
-@property (weak, nonatomic) id<YACollectionViewControllerDelegate> delegate;
+@property (weak, nonatomic) id<YAGridViewControllerDelegate> delegate;
 @property (nonatomic) BOOL scrolling;
 - (void)reload;
+
 @end

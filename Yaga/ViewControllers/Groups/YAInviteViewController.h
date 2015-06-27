@@ -14,7 +14,7 @@
 @interface YAInviteViewController : UIViewController <YAInviteCameraViewControllerDelegate,
 MFMessageComposeViewControllerDelegate>
 
-@property (nonatomic) BOOL inOnboardingFlow;
+@property (nonatomic) BOOL inCreateGroupFlow;
 @property (strong, nonatomic) NSArray *contactsThatNeedInvite;
 @property (assign, nonatomic) BOOL canNavigateBack;
 
