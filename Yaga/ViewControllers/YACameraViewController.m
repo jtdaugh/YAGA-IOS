@@ -56,6 +56,7 @@ typedef enum {
 @property (strong, nonatomic) UIButton *switchCameraButton;
 @property (strong, nonatomic) UIImageView *unviewedVideosBadge;
 @property (strong, nonatomic) UIButton *groupButton;
+@property (strong, nonatomic) UIImageView *logo;
 
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
@@ -173,6 +174,13 @@ typedef enum {
         [self.cameraAccessories addObject:self.groupButton];
         [self.view addSubview:self.groupButton];
 
+        CGFloat logoWidth = VIEW_WIDTH/8;
+        CGFloat logoHeight = VIEW_HEIGHT/16;
+        self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, 10, logoWidth, logoHeight)];
+        [self.logo setContentMode:UIViewContentModeScaleAspectFit];
+        [self.logo setImage:[UIImage imageNamed:@"Logo"]];
+        [self.view addSubview:self.logo];
+        
         //record button
         self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
         [self.recordButton setBackgroundColor:[UIColor redColor]];
@@ -1090,6 +1098,7 @@ typedef enum {
             self.leftBottomButton.alpha = 0;
             self.rightBottomButton.alpha = 1;
             self.groupButton.alpha = 0;
+            self.logo.alpha = 1;
             self.unviewedVideosBadge.alpha = 0;
             self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
         }];
@@ -1123,7 +1132,7 @@ typedef enum {
             self.rightBottomButton.alpha = 1;
             self.leftBottomButton.alpha = 1;
             self.groupButton.alpha = 1;
-    
+            self.logo.alpha = 0;
             [self updateUnviewedVideosBadge];
 
         }];
