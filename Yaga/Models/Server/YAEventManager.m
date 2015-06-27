@@ -84,6 +84,7 @@
                                 inGroup:(NSString *)groupId
                      withServerIdStatus:(YAVideoServerIdStatus)serverIdStatus {
     if (serverIdStatus == YAVideoServerIdStatusConfirmed) {
+        if (![serverId length]) return;
         if (self.queriesByVideoId[serverId]) {
             return; // already observing this on firebase.
         }
@@ -159,8 +160,11 @@
 - (void)groupChanged {
     if (![[YAUser currentUser].currentGroup.serverId isEqualToString:self.groupId]) {
         self.eventsByServerVideoId = [NSMutableDictionary dictionary];
-        for (Firebase *ref in [self.queriesByVideoId allValues]) {
-            [ref removeAllObservers];
+        for (id key in self.queriesByVideoId) {
+            if (self.queriesByVideoId[key]) {
+                Firebase *ref = self.queriesByVideoId[key];
+                [ref removeAllObservers];
+            }
         }
         self.queriesByVideoId = [NSMutableDictionary dictionary];
         self.initialEventsLoadedForId = [NSMutableDictionary dictionary];
