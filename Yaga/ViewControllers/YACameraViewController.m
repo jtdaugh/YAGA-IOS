@@ -1104,17 +1104,26 @@ typedef enum {
         self.leftBottomButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
         [self.leftBottomButton setTitle:NSLocalizedString(@"Groups", @"") forState:UIControlStateNormal];
         self.leftBottomButton.frame = CGRectMake(5, VIEW_HEIGHT/2 - 35, 80, 30);
-        
+        self.leftBottomButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.leftBottomButton.layer.shadowRadius = 1.0f;
+        self.leftBottomButton.layer.shadowOpacity = 1.0;
+        self.leftBottomButton.layer.shadowOffset = CGSizeZero;
+
         //right button
         self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, (VIEW_HEIGHT/2 - INFO_SIZE - INFO_PADDING*2) + 5, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
         [self.rightBottomButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.rightBottomButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.rightBottomButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        self.rightBottomButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.rightBottomButton.layer.shadowRadius = 1.0f;
+        self.rightBottomButton.layer.shadowOpacity = 1.0;
+        self.rightBottomButton.layer.shadowOffset = CGSizeZero;
 
         [UIView animateWithDuration:0.2 animations:^{
             self.rightBottomButton.alpha = 1;
             self.leftBottomButton.alpha = 1;
             self.groupButton.alpha = 1;
+    
             [self updateUnviewedVideosBadge];
 
         }];
