@@ -174,9 +174,9 @@ typedef enum {
         [self.cameraAccessories addObject:self.groupButton];
         [self.view addSubview:self.groupButton];
 
-        CGFloat logoWidth = VIEW_WIDTH/8;
-        CGFloat logoHeight = VIEW_HEIGHT/16;
-        self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, 10, logoWidth, logoHeight)];
+        CGFloat logoWidth = VIEW_WIDTH/6;
+        CGFloat logoHeight = VIEW_HEIGHT/12;
+        self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, 8, logoWidth, logoHeight)];
         [self.logo setContentMode:UIViewContentModeScaleAspectFit];
         [self.logo setImage:[UIImage imageNamed:@"Logo"]];
         [self.view addSubview:self.logo];
