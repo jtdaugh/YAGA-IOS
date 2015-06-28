@@ -21,6 +21,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property BOOL muted;
 
 @property RLMArray<YAContact> *members;
+@property RLMArray<YAContact> *pending_members;
 @property RLMArray<YAVideo> *videos;
 
 - (NSString*)membersString;

@@ -7,7 +7,7 @@
 //
 
 #import <AVFoundation/AVFoundation.h>
-#import "AVCamPreviewView.h"
+#import "YACameraManager.h"
 
 @protocol YAInviteCameraViewControllerDelegate <NSObject>
 - (void)finishedRecordingVideoToURL:(NSURL *)videoURL;
@@ -15,19 +15,10 @@
 - (void)endedHold;
 @end
 
-#define recordButtonWidth 60.0
-@interface YAInviteCameraViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate>
+@interface YAInviteCameraViewController : UIViewController<UIGestureRecognizerDelegate>
 
-- (void)switchFlashMode:(id)sender;
-- (void)closeCamera;
-- (void)initCamera;
-
-@property (assign, nonatomic) BOOL flash;
 @property (nonatomic) CGRect smallCameraFrame;
-@property (strong, nonatomic) AVCamPreviewView *cameraView;
-
-@property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
-@property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
+@property (strong, nonatomic) YACameraView *cameraView;
 
 @property (nonatomic, weak)id<YAInviteCameraViewControllerDelegate> delegate;
 

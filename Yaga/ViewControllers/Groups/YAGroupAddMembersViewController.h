@@ -15,5 +15,6 @@
 @property (strong, nonatomic) YAGroup *existingGroup;
 @property (readonly, nonatomic) NSMutableArray *selectedContacts;
 
-@property (nonatomic, assign) BOOL embeddedMode;
+@property (nonatomic, assign) BOOL inCreateGroupFlow;
+
 @end

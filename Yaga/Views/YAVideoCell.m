@@ -14,7 +14,6 @@
 #import "YAActivityView.h"
 #import "AFURLConnectionOperation.h"
 #import "YAServerTransactionQueue.h"
-#import "YAEventManager.h"
 
 #define LIKE_HEART_SIDE 40.f
 
@@ -30,7 +29,7 @@
 @property (strong, nonatomic) UILabel *username;
 @property (strong, nonatomic) UILabel *eventCountLabel;
 @property (strong, nonatomic) UIImageView *commentIcon;
-@property (strong, nonatomic) UITextView *caption;
+@property (strong, nonatomic) UILabel *caption;
 @property (strong, nonatomic) UIView *captionWrapper;
 
 @property (strong, atomic) NSString *gifFilename;
@@ -82,11 +81,12 @@
         
         CGRect captionFrame = CGRectMake(0, 0, MAX_CAPTION_WIDTH, CGFLOAT_MAX);
         self.captionWrapper = [[UIView alloc] initWithFrame:captionFrame];
-        self.caption = [self textViewWithCaptionAttributes];
+        self.caption = [[UILabel alloc] init];
+        self.caption.numberOfLines = 0;
+        
         self.caption.backgroundColor = [UIColor clearColor];
         self.caption.userInteractionEnabled = NO;
-//        self.caption.backgroundColor = [UIColor redColor];
-//        self.captionWrapper.backgroundColor = [UIColor greenColor];
+        self.caption.textAlignment = NSTextAlignmentCenter;
         [self.captionWrapper addSubview:self.caption];
         [self.contentView addSubview:self.captionWrapper];
 
@@ -114,7 +114,10 @@
 }
 
 - (void)setEventCount:(NSUInteger)eventCount {
-    if (eventCount > 0) {
+    if (eventCount >= kMaxEventsFetchedPerVideo) {
+        self.eventCountLabel.text = [NSString stringWithFormat:@"%d+",kMaxEventsFetchedPerVideo];
+        self.commentIcon.hidden = NO;
+    } else if (eventCount > 0) {
         self.eventCountLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long) eventCount];
         self.commentIcon.hidden = NO;
     } else {
@@ -126,10 +129,6 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    
-    if (!self.video.invalidated) {
-        [[YAEventManager sharedManager] killPrefetchForVideoId:[self.video.serverId copy]];
-    }
     
     self.video = nil;
 
@@ -277,6 +276,8 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             self.uploadingView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:uploaderGifData];
             [self.uploadingView startAnimating];
+            self.commentIcon.alpha = 0;
+            self.eventCountLabel.alpha = 0;
         });
     }
     else {
@@ -284,6 +285,8 @@
             [self.uploadingView removeFromSuperview];
             self.uploadingView = nil;
         }
+        self.commentIcon.alpha = 1;
+        self.eventCountLabel.alpha = 1;
     }
 }
 
@@ -301,32 +304,43 @@
     self.captionWrapper.hidden = NO;
     
     if(caption.length) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSAttributedString *string = [[NSAttributedString alloc] initWithString:caption attributes:@{
+                                                                                                         NSStrokeColorAttributeName:[UIColor whiteColor],                                                            NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH],NSForegroundColorAttributeName:PRIMARY_COLOR,                                                    NSBackgroundColorAttributeName:[UIColor clearColor],
+                                                                                                          NSFontAttributeName:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]
+                                                                                                         }];
 
-        self.caption.text = caption;
-        
-        NSDictionary *commentAttributes = @{NSFontAttributeName:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE],
-                                            NSStrokeColorAttributeName:[UIColor whiteColor],
-                                            NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
-                                            };
 
-        CGSize capSize = [caption boundingRectWithSize:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)
-                                                    options:NSStringDrawingUsesLineFragmentOrigin
-                                                 attributes:commentAttributes
-                                                    context:nil].size;
+            
+            NSDictionary *commentAttributes = @{NSFontAttributeName:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE],
+                                                NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
+                                                };
+            
+            CGSize capSize = [caption boundingRectWithSize:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)
+                                                   options:NSStringDrawingUsesLineFragmentOrigin
+                                                attributes:commentAttributes
+                                                   context:nil].size;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.caption.attributedText = string;
+                CGSize cellSize = self.bounds.size;
+                
+                CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH * .88;
+                self.captionWrapper.transform = CGAffineTransformIdentity;
+                
+                self.captionWrapper.frame = CGRectMake(0, 0, capSize.width, capSize.height);
+                self.captionWrapper.center = CGPointMake(cellSize.width/2, cellSize.height/2);
+                self.caption.frame = CGRectMake(0, 0, capSize.width, capSize.height);
+                self.caption.center = CGPointMake(self.captionWrapper.frame.size.width/2.f, self.captionWrapper.frame.size.height/2.f);
+                
+                self.captionWrapper.transform = CGAffineTransformConcat(CGAffineTransformMakeRotation(self.video.caption_rotation), CGAffineTransformMakeScale(scale, scale));
+                
+                self.captionWrapper.hidden = NO;
 
-        CGSize cellSize = self.bounds.size;
+            });
+        });
 
-        CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH * .88;
-        self.captionWrapper.transform = CGAffineTransformIdentity;
-        
-        self.captionWrapper.frame = CGRectMake(0, 0, capSize.width, capSize.height);
-        self.captionWrapper.center = CGPointMake(cellSize.width/2, cellSize.height/2);
-        self.caption.frame = CGRectMake(0, 0, capSize.width, capSize.height);
-        self.caption.center = CGPointMake(self.captionWrapper.frame.size.width/2.f, self.captionWrapper.frame.size.height/2.f);
-        
-        self.captionWrapper.transform = CGAffineTransformConcat(CGAffineTransformMakeRotation(self.video.caption_rotation), CGAffineTransformMakeScale(scale, scale));
-
-        self.captionWrapper.hidden = NO;
     } else {
         self.caption.text = @"";
         self.captionWrapper.hidden = YES;
@@ -369,42 +383,6 @@
         self.captionField.enabled = YES;
         [self.captionField becomeFirstResponder];
     }
-}
-
-- (NSMutableAttributedString *)attributedStringFromString:(NSString *)input font:(UIFont*)font {
-    if (!input.length) return
-        [NSMutableAttributedString new];
-    
-    NSMutableAttributedString *result = [[NSMutableAttributedString alloc] initWithString:input];
-    
-    [result addAttribute:NSStrokeWidthAttributeName value:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH] range:NSMakeRange(0, result.length)];
-    [result addAttribute:NSStrokeColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, result.length)];
-    
-    if(font)
-        [result addAttribute:NSFontAttributeName value:font range:NSMakeRange(0, result.length)];
-    
-    return result;
-}
-
-- (UITextView *)textViewWithCaptionAttributes {
-    UITextView *textView = [UITextView new];
-    textView.alpha = 1;
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
-                                                                                              }];
-    [textView setAttributedText:string];
-    [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
-    [textView setTextColor:PRIMARY_COLOR];
-    [textView setFont:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]];
-    
-    [textView setTextAlignment:NSTextAlignmentCenter];
-    textView.editable = NO;
-    textView.userInteractionEnabled = NO;
-    textView.textContainer.lineFragmentPadding = 0;
-    textView.textContainerInset = UIEdgeInsetsZero;
-    
-    return textView;
 }
 
 @end

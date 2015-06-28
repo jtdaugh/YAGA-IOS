@@ -30,7 +30,11 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedUser = [[self alloc] init];
-        sharedUser.countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
+
+        sharedUser.countryCode = [[NSUserDefaults standardUserDefaults] objectForKey:kCountryCode];
+        if(!sharedUser.countryCode)
+            sharedUser.countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
+
         sharedUser->dateFormatter = [[NSDateFormatter alloc] init];
         sharedUser->timeFormatter = [[NSDateFormatter alloc] init];
         [sharedUser->dateFormatter setDateFormat:@"MM/dd"];
@@ -268,7 +272,6 @@
             NSError *error = [NSError errorWithDomain:@"YAGA" code:0 userInfo:nil];
             completion(error);
         }
-        
         return;
     }
     

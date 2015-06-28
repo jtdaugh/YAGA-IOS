@@ -10,7 +10,5 @@
 
 @interface NameGroupViewController : UIViewController
 @property (strong, nonatomic) NSMutableArray *membersDic;
-@property (nonatomic, assign) BOOL embeddedMode;
 
-- (IBAction)unwindToGrid:(UIStoryboardSegue *)segue;
 @end

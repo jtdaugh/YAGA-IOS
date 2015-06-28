@@ -47,6 +47,9 @@
 #define GROUP_WILL_REFRESH_NOTIFICATION         @"GROUP_WILL_REFRESH_NOTIFICATION"
 #define GROUP_DID_REFRESH_NOTIFICATION          @"GROUP_DID_REFRESH_NOTIFICATION"
 #define GROUP_DID_CHANGE_NOTIFICATION           @"GROUP_DID_CHANGE_NOTIFICATION"
+#define GROUPS_REFRESHED_NOTIFICATION           @"GROUPS_REFRESHED_NOTIFICATION"
+
+#define RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON @"RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON"
 
 #define VIDEO_CHANGED_NOTIFICATION              @"VIDEO_CHANGED_NOTIFICATION"
 #define VIDEO_WILL_DELETE_NOTIFICATION          @"VIDEO_WILL_DELETE_NOTIFICATION"
@@ -55,9 +58,11 @@
 
 #define SCROLL_TO_CELL_INDEXPATH_NOTIFICATION   @"SCROLL_TO_CELL_INDEXPATH_NOTIFICATION"
 
-#define kVideoDownloadNotificationUserInfoKey   @"kVideoDownloadingNotificationName"
-
 #define VIDEO_DID_DOWNLOAD_PART_NOTIFICATION    @"VIDEO_DID_DOWNLOAD_PART_NOTIFICATION"
+
+#define OPEN_GROUP_OPTIONS_NOTIFICATION         @"OPEN_GROUP_OPTIONS_NOTIFICATION"
+
+#define kVideoDownloadNotificationUserInfoKey   @"kVideoDownloadingNotificationName"
 
 #define kDefaultUsername                        @"Unknown user"
 
@@ -86,6 +91,14 @@
 
 #define COMMENTS_FONT_SIZE 17.f
 
+#define kMaxUsersShownInList (5)
+
+#define kMaxEventsFetchedPerVideo (99)
+
+#define kCountryCode        @"kCountryCode"
+
+#define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"
+
 // Captions
 #define STANDARDIZED_DEVICE_WIDTH 320.f
 #define STANDARDIZED_CAPTION_PADDING 5.f
@@ -101,5 +114,10 @@
 #define COMMENTS_HEIGHT_PROPORTION 0.25f
 #define COMMENTS_TEXT_FIELD_HEIGHT 40.f
 #define COMMENTS_SEND_WIDTH 70.f
+
+#define recordButtonWidth 60.0f
+#define GIF_GRID_UNSEEN @"gifsUnseen"
+
+#define DEBUG_SERVER 1
 
 #endif

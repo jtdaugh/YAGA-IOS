@@ -89,7 +89,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     
-    [self layoutControls:VIEW_HEIGHT];
+    [self layoutControls:VIEW_HEIGHT - self.navigationController.navigationBar.frame.size.height];
 }
 
 - (void)dealloc {
@@ -122,14 +122,14 @@
     CGRect rawFrame      = [value CGRectValue];
     CGRect keyboardFrame = [self.view convertRect:rawFrame fromView:nil];
     
-    CGFloat availableHeight = VIEW_HEIGHT - keyboardFrame.size.height;
+    CGFloat availableHeight = VIEW_HEIGHT - keyboardFrame.size.height - self.navigationController.navigationBar.frame.size.height;
     [self layoutControls:availableHeight];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    self.navigationController.navigationBarHidden = YES;
+    self.navigationController.navigationBarHidden = NO;
 
 //    CountryListDataSource *dataSource = [CountryListDataSource new];
 //    [dataSource countries]

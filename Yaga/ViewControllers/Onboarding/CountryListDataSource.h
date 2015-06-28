@@ -10,7 +10,6 @@
 
 #define kCountryName        @"name"
 #define kCountryCallingCode @"dial_code"
-#define kCountryCode        @"code"
 
 @interface CountryListDataSource : NSObject
 

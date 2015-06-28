@@ -10,32 +10,28 @@
 #import "AVCamPreviewView.h"
 
 @protocol YACameraViewControllerDelegate <NSObject>
-- (void)toggleGroups;
 - (void)openGroupOptions;
 - (void)scrollToTop;
+- (void)backPressed;
+- (void)presentNewlyRecordedVideo:(YAVideo *)video;
 @end
 
-#define recordButtonWidth 60.0
-@interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate, AVCaptureFileOutputRecordingDelegate>
+typedef NS_ENUM(NSUInteger, YACameraButtonMode) {
+    YACameraButtonModeNoButtons,
+    YACAmeraButtonModeFindAndCreate,
+    YACameraButtonModeBackAndInfo
+};
 
-- (void)switchFlashMode:(id)sender;
-- (void)closeCamera;
-- (void)initCamera;
-
-@property (assign, nonatomic) BOOL flash;
-@property (strong, nonatomic) AVCamPreviewView *cameraView;
-
-@property (strong, nonatomic) AVCaptureDeviceInput *videoInput;
-@property (strong, nonatomic) AVCaptureDeviceInput *audioInput;
+@interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate>
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
+@property (strong, nonatomic) NSNumber *recording;
 
 - (void)showCameraAccessories:(BOOL)show;
 
 - (void)enableRecording:(BOOL)enable;
-- (void)updateCurrentGroupName;
 - (void)enableScrollToTop:(BOOL)enable;
 
-- (void)showBottomShadow;
-- (void)removeBottomShadow;
+- (void)setCameraButtonMode:(YACameraButtonMode)mode;
+
 @end

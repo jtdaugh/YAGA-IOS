@@ -17,6 +17,7 @@
 #import "YAUtils.h"
 #import "YAServerTransactionQueue.h"
 #import "YAAssetsCreator.h"
+#import "YACameraManager.h"
 
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
@@ -30,7 +31,7 @@
 
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
-
+#import "Harpy.h"
 #import "YARealmMigrationManager.h"
 
 
@@ -82,6 +83,7 @@
     else
     {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:ALREADY_LAUNCHED_KEY];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:GIF_GRID_UNSEEN];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
         // This is the first launch ever
@@ -109,17 +111,11 @@
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
 #endif
         NSString *identifier;
-        if([[YAUser currentUser] loggedIn] && [YAUser currentUser].currentGroup) {
+        if([[YAUser currentUser] loggedIn]) {
             identifier = @"LoggedInUserNavigationController";
         }
-        else if(![[YAUser currentUser] loggedIn]) {
+        else {
             identifier = @"OnboardingNavigationController";
-        }
-        else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && ![YAGroup allObjects].count) {
-            identifier = @"OnboardingNoGroupsNavigationController";
-        }
-        else if([[YAUser currentUser] loggedIn] && ![YAUser currentUser].currentGroup && [YAGroup allObjects].count) {
-            identifier = @"OnboardingSelectGroupNavigationController";
         }
         
         UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
@@ -147,6 +143,24 @@
 #else
     [Mixpanel sharedInstanceWithToken:MIXPANEL_TOKEN];
 #endif
+
+    // Harpy
+    [[Harpy sharedInstance] setAppID:@"976285308"];
+    
+    // Set the UIViewController that will present an instance of UIAlertController
+    [[Harpy sharedInstance] setPresentingViewController:_window.rootViewController];
+    
+    // (Optional) The tintColor for the alertController
+    [[Harpy sharedInstance] setAlertControllerTintColor:PRIMARY_COLOR];
+    
+    // (Optional) Set the App Name for your app
+    [[Harpy sharedInstance] setAppName:@"Yaga"];
+    [[Harpy sharedInstance] setPatchUpdateAlertType:HarpyAlertTypeNone];
+    [[Harpy sharedInstance] setMinorUpdateAlertType:HarpyAlertTypeOption];
+    [[Harpy sharedInstance] setMajorUpdateAlertType:HarpyAlertTypeForce];
+
+    [[Harpy sharedInstance] checkVersion];
+
     
     if([[YAUser currentUser] loggedIn]){
         [[Mixpanel sharedInstance] identify:[YAUser currentUser].phoneNumber];
@@ -162,13 +176,15 @@
     if(pushInfo) {
         [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:@{@"meta":pushInfo[@"meta"]}];
     }
+
     return YES;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     [[Mixpanel sharedInstance] track:@"Opened app"];
 //    [AnalyticsKit logEvent:@"Opened app"];
-    
+    [[Harpy sharedInstance] checkVersionDaily];
+
     if(![[YAServer sharedServer] serverUp]) {
         [[YAServer sharedServer] startMonitoringInternetConnection:YES];
     }
@@ -203,11 +219,22 @@
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
+    NSLog(@"will enter foreground");
 //    [AnalyticsKit applicationWillEnterForeground];
+    if ([[YAUser currentUser] loggedIn]) {
+        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:GROUPS_REFRESHED_NOTIFICATION object:nil];
+        }];
+        if ([YAUtils hasVisitedGifGrid]) {
+            [[YACameraManager sharedManager] initCamera];
+        }
+    }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
+    NSLog(@"did enter background");
 //    [AnalyticsKit applicationDidEnterBackground];
+    [[YACameraManager sharedManager] closeCamera];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

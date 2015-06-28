@@ -1,9 +1,9 @@
 //
-//  GroupListCell.h
-//  Pic6
+//  GroupsTableViewCell.h
+//  
 //
-//  Created by Raj Vir on 11/9/14.
-//  Copyright (c) 2014 Raj Vir. All rights reserved.
+//  Created by valentinkovalski on 6/22/15.
+//
 //
 
 #import <UIKit/UIKit.h>

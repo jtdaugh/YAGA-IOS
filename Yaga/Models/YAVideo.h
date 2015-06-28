@@ -13,6 +13,12 @@ typedef enum {
     YAGifCreationHighQuality
 } YAGifCreationQuality;
 
+typedef NS_ENUM(NSUInteger, YAVideoServerIdStatus) {
+    YAVideoServerIdStatusNil,           // Server has not responded with a serverId for the video yet.
+    YAVideoServerIdStatusUnconfirmed,   // ServerId is set, but upload to Amazon is unfinished, so serverId still could change.
+    YAVideoServerIdStatusConfirmed      // ServerId is set and upload is finished. ServerId can't possibly change :)
+};
+
 @class YAGroup;
 @class YAVideo;
 
@@ -52,6 +58,7 @@ typedef void(^completionBlock)(NSError *error);
 @property NSString *url;
 @property NSString *gifUrl;
 @property YAGroup *group;
+@property BOOL uploadedToAmazon;
 
 + (YAVideo*)video;
 - (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer;
@@ -65,6 +72,9 @@ typedef void(^completionBlock)(NSError *error);
 - (void)updateLikersWithArray:(NSArray *)likers;
 
 - (void)purgeLocalAssets;
+
++ (YAVideoServerIdStatus)serverIdStatusForVideo:(YAVideo *)video;
+
 @end
 
 // This protocol enables typed collections. i.e.:

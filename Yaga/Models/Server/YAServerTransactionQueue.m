@@ -202,6 +202,7 @@
         
         self.transactionInProgress = NO;
         
+        #warning on iOS9 error code is -1009
         if(error && error.code == -1005) {
             DLog(@"Server is down or there is no internet connection.. Pausing transaction queue till it's up again.");
             return;

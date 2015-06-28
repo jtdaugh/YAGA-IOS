@@ -103,6 +103,12 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.navigationController.navigationBarHidden = NO;
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
@@ -188,10 +194,7 @@
                         //Get all groups for this user
                         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
                             if(!error) {
-                                if([YAGroup allObjects].count)
-                                    [self performSegueWithIdentifier:@"ShowExistingGroupsAfterAuthenitificatioon" sender:self];
-                                else
-                                    [self performSegueWithIdentifier:@"ShowNoGroupsForExistingUser" sender:self];
+                                [self performSegueWithIdentifier:@"ShowGroupsAfterAuthentication" sender:self];
                             }
                             else {
                                 [self.activityIndicator stopAnimating];
@@ -200,6 +203,16 @@
                                 [YAUtils showNotification:NSLocalizedString(@"Can't load user groups", @"") type:YANotificationTypeError];
                             }
                         }];
+                        
+                        [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+                            if(!error) {
+                                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                    NSArray *readableArray = [YAUtils readableGroupsArrayFromResponse:response];
+                                    [[NSUserDefaults standardUserDefaults] setObject:readableArray forKey:kFindGroupsCachedResponse];
+                                });
+                            }
+                        }];
+
                     }
                     else {
                         //new user

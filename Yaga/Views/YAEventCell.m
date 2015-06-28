@@ -79,13 +79,7 @@
         [self addSubview:self.timestampLabel];
         
 
-        // Trash Icon Delete button
-//        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
-//        self.deleteButton.backgroundColor = [UIColor clearColor];
-//        [self.deleteButton setImage:[[UIImage imageNamed:@"Delete"]imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-//        self.deleteButton.tintColor = [UIColor colorWithRed:240.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0];
-        
-//        // Text Delete button
+        // Text Delete button
         self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, initialHeight)];
         [self.deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE - 3.0f]];
         [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
@@ -217,7 +211,12 @@
 }
 
 - (void)deletePressed {
-    [YAUtils deleteVideo:self.containingVideoPage.video];
+    [YAUtils confirmDeleteVideo:self.containingVideoPage.video withConfirmationBlock:^{
+        if(self.containingVideoPage.video.realm)
+            [self.containingVideoPage.video removeFromCurrentGroupWithCompletion:nil removeFromServer:[YAUser currentUser].currentGroup != nil];
+        else
+            [self.containingVideoPage closeAnimated];
+    }];;
 }
 
 #pragma mark - Class methods
