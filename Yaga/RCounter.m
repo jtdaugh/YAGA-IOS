@@ -12,8 +12,7 @@
 
 #define kCounterDigitSpriteSpacing 23.0
 #define kCounterDigitXSpacing 12.0
-#define kChangeDigitAnimationDuration 2.f // long so we can test the jerkyness
-#define kShiftAnimationDuration 2.f
+#define kCounterAnimationDuration 0.15
 
 @interface RCounter ()
 
@@ -101,7 +100,7 @@
             imgChanged = YES;
         }
         if (imgChanged) {
-            [self updateFrame:img withValue:digitVal andImageCentre:imgCenter andImageFrame:imgFrame];
+            [self updateFrame:img withValue:digitVal andImageCentre:imgCenter];
         }
     }
 
@@ -110,20 +109,29 @@
 
 
 
-- (void)updateFrame:(UIImageView*)img withValue:(long)newValue andImageCentre:(CGPoint)imgCentre andImageFrame:(CGRect)frame {
-    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"position"];
-//    anim.fromValue = [NSValue valueWithCGPoint:img.center];
-    if (newValue == 0) {
-        imgCentre.y = self.imgCenterY - (11 * kCounterDigitSpriteSpacing);
-        anim.toValue = [NSValue valueWithCGPoint:imgCentre];
-    } else
-        anim.toValue = [NSValue valueWithCGPoint:imgCentre];
-    anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-    anim.duration = kChangeDigitAnimationDuration;
-    [img.layer addAnimation:anim forKey:@"rollLeft"];
-    img.frame = frame;
-}
+- (void)updateFrame:(UIImageView*)img withValue:(long)newValue andImageCentre:(CGPoint)imgCentre {
+    CALayer *presLayer = (CALayer *)img.layer.presentationLayer;
 
+    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"position"];
+    if (newValue == 0) {
+        // Jump instantly to first 9 and then animate to 0
+        CGPoint nine = imgCentre;
+        nine.y += kCounterDigitSpriteSpacing;
+        anim.fromValue = [NSValue valueWithCGPoint:nine];
+    } else {
+        anim.fromValue = [NSValue valueWithCGPoint:[presLayer position]];
+    }
+    anim.toValue = [NSValue valueWithCGPoint:imgCentre];
+    anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    anim.duration = kCounterAnimationDuration;
+    img.layer.position = [presLayer position];
+    if (newValue != 0) {
+        [img.layer removeAllAnimations];
+    }
+    [img.layer addAnimation:anim forKey:@"rollLeft"];
+
+    img.center = imgCentre;
+}
 
 // Will add/subtract digits from the front/left side of the counter, and shift existing digits accordingly.
 - (void)adjustForNumberOfDigits:(int)numDigits {
@@ -144,7 +152,7 @@
 //            anim.fromValue = [NSValue valueWithCGPoint:img.center];
             anim.toValue = [NSValue valueWithCGPoint:newCenter];
             anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-            anim.duration = kShiftAnimationDuration;
+            anim.duration = kCounterAnimationDuration;
             [img.layer addAnimation:anim forKey:@"shiftRight"];
             img.frame = newFrame;
         }
@@ -178,7 +186,7 @@
 //            anim.fromValue = [NSValue valueWithCGPoint:img.center];
             anim.toValue = [NSValue valueWithCGPoint:newCenter];
             anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-            anim.duration = kShiftAnimationDuration;
+            anim.duration = kCounterAnimationDuration;
             [img.layer addAnimation:anim forKey:@"shiftLeft"];
             img.frame = newFrame;
         }
