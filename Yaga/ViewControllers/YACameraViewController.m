@@ -179,6 +179,7 @@ typedef enum {
         self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, 8, logoWidth, logoHeight)];
         [self.logo setContentMode:UIViewContentModeScaleAspectFit];
         [self.logo setImage:[UIImage imageNamed:@"Logo"]];
+        [self.cameraAccessories addObject:self.logo];
         [self.view addSubview:self.logo];
         
         //record button
@@ -1093,7 +1094,8 @@ typedef enum {
         [self.rightBottomButton setImage:nil forState:UIControlStateNormal];
         self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - 110, VIEW_HEIGHT/2 - 35, 100, 30);
         [self.rightBottomButton setTitle:NSLocalizedString(@"Create Group", @"") forState:UIControlStateNormal];
-        
+        self.logo.hidden = NO;
+
         [UIView animateWithDuration:0.2 animations:^{
             self.leftBottomButton.alpha = 0;
             self.rightBottomButton.alpha = 1;
@@ -1101,6 +1103,10 @@ typedef enum {
             self.logo.alpha = 1;
             self.unviewedVideosBadge.alpha = 0;
             self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
+        } completion:^(BOOL finished) {
+            //
+            self.leftBottomButton.hidden = YES;
+            self.unviewedVideosBadge.hidden = YES;
         }];
     }
     else {
@@ -1128,6 +1134,9 @@ typedef enum {
         self.rightBottomButton.layer.shadowOpacity = 1.0;
         self.rightBottomButton.layer.shadowOffset = CGSizeZero;
 
+        self.leftBottomButton.hidden = NO;
+        self.unviewedVideosBadge.hidden = NO;
+
         [UIView animateWithDuration:0.2 animations:^{
             self.rightBottomButton.alpha = 1;
             self.leftBottomButton.alpha = 1;
@@ -1135,6 +1144,8 @@ typedef enum {
             self.logo.alpha = 0;
             [self updateUnviewedVideosBadge];
 
+        } completion:^(BOOL finished) {
+            self.logo.hidden = YES;
         }];
     }
 
