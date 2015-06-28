@@ -114,12 +114,16 @@
 		8830D8EA1B35E09A006F841D /* YAGroupsNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8830D8E91B35E09A006F841D /* YAGroupsNavigationController.m */; };
 		88461C051ADA23120099B523 /* bumper_rotated.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 88461C041ADA23090099B523 /* bumper_rotated.mp4 */; };
 		884C79DA1B372F6700E21583 /* YACameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 884C79D91B372F6700E21583 /* YACameraManager.m */; };
+		885F53661B3F826700D359DB /* RCounter.m in Sources */ = {isa = PBXBuildFile; fileRef = 885F53651B3F826700D359DB /* RCounter.m */; };
+		885F536B1B3F827400D359DB /* counter-numbers.png in Resources */ = {isa = PBXBuildFile; fileRef = 885F53671B3F827400D359DB /* counter-numbers.png */; };
+		885F536C1B3F827400D359DB /* counter-numbers@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 885F53681B3F827400D359DB /* counter-numbers@2x.png */; };
+		885F536D1B3F827400D359DB /* counter-shadow.png in Resources */ = {isa = PBXBuildFile; fileRef = 885F53691B3F827400D359DB /* counter-shadow.png */; };
+		885F536E1B3F827400D359DB /* counter-shadow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 885F536A1B3F827400D359DB /* counter-shadow@2x.png */; };
 		887AFD0C1AD8623500F00948 /* YAInviteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0B1AD8623500F00948 /* YAInviteViewController.m */; };
 		887AFD0F1AD8ADEA00F00948 /* YAInviteCameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887AFD0E1AD8ADEA00F00948 /* YAInviteCameraViewController.m */; };
 		8890451D1B18FF8700B3C4D7 /* YAEventCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8890451C1B18FF8700B3C4D7 /* YAEventCell.m */; };
 		88E3E21C1B2FBCE000BF5E83 /* YAViewCountManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */; };
 		88E3E21F1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */; };
-		88E3E2221B30B72B00BF5E83 /* ADTickerLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E2211B30B72B00BF5E83 /* ADTickerLabel.m */; };
 		88F906561B3A224400EE5527 /* YAPostCaptureViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F906551B3A224400EE5527 /* YAPostCaptureViewController.m */; };
 		88FB0A231B1D4F36002C213C /* YAEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A221B1D4F36002C213C /* YAEvent.m */; };
 		88FB0A261B1D5250002C213C /* YAEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A251B1D5250002C213C /* YAEventManager.m */; };
@@ -318,6 +322,12 @@
 		88461C041ADA23090099B523 /* bumper_rotated.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper_rotated.mp4; sourceTree = "<group>"; };
 		884C79D81B372F6700E21583 /* YACameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraManager.h; sourceTree = "<group>"; };
 		884C79D91B372F6700E21583 /* YACameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACameraManager.m; sourceTree = "<group>"; };
+		885F53641B3F826700D359DB /* RCounter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCounter.h; path = ../../RCounter.h; sourceTree = "<group>"; };
+		885F53651B3F826700D359DB /* RCounter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCounter.m; path = ../../RCounter.m; sourceTree = "<group>"; };
+		885F53671B3F827400D359DB /* counter-numbers.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "counter-numbers.png"; path = "../../counter-numbers.png"; sourceTree = "<group>"; };
+		885F53681B3F827400D359DB /* counter-numbers@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "counter-numbers@2x.png"; path = "../../counter-numbers@2x.png"; sourceTree = "<group>"; };
+		885F53691B3F827400D359DB /* counter-shadow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "counter-shadow.png"; path = "../../counter-shadow.png"; sourceTree = "<group>"; };
+		885F536A1B3F827400D359DB /* counter-shadow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "counter-shadow@2x.png"; path = "../../counter-shadow@2x.png"; sourceTree = "<group>"; };
 		887AFD0A1AD8623500F00948 /* YAInviteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAInviteViewController.h; sourceTree = "<group>"; };
 		887AFD0B1AD8623500F00948 /* YAInviteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAInviteViewController.m; sourceTree = "<group>"; };
 		887AFD0D1AD8ADEA00F00948 /* YAInviteCameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAInviteCameraViewController.h; sourceTree = "<group>"; };
@@ -328,8 +338,6 @@
 		88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAViewCountManager.m; sourceTree = "<group>"; };
 		88E3E21D1B2FE0CA00BF5E83 /* YAWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAWeakTimerTarget.h; sourceTree = "<group>"; };
 		88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAWeakTimerTarget.m; sourceTree = "<group>"; };
-		88E3E2201B30B72B00BF5E83 /* ADTickerLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADTickerLabel.h; sourceTree = "<group>"; };
-		88E3E2211B30B72B00BF5E83 /* ADTickerLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADTickerLabel.m; sourceTree = "<group>"; };
 		88F906541B3A224400EE5527 /* YAPostCaptureViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPostCaptureViewController.h; sourceTree = "<group>"; };
 		88F906551B3A224400EE5527 /* YAPostCaptureViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPostCaptureViewController.m; sourceTree = "<group>"; };
 		88FB0A211B1D4F36002C213C /* YAEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YAEvent.h; path = Server/YAEvent.h; sourceTree = "<group>"; };
@@ -401,6 +409,12 @@
 		6E1E209E1A6FAB500041DF54 /* Third party */ = {
 			isa = PBXGroup;
 			children = (
+				885F53641B3F826700D359DB /* RCounter.h */,
+				885F53651B3F826700D359DB /* RCounter.m */,
+				885F53671B3F827400D359DB /* counter-numbers.png */,
+				885F53681B3F827400D359DB /* counter-numbers@2x.png */,
+				885F53691B3F827400D359DB /* counter-shadow.png */,
+				885F536A1B3F827400D359DB /* counter-shadow@2x.png */,
 				6E1E209F1A6FAB500041DF54 /* objective-c-name-generator-master */,
 			);
 			path = "Third party";
@@ -744,8 +758,6 @@
 				882F082C1AEF6F12007FAA66 /* YAPanGestureRecognizer.m */,
 				88E3E21D1B2FE0CA00BF5E83 /* YAWeakTimerTarget.h */,
 				88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */,
-				88E3E2201B30B72B00BF5E83 /* ADTickerLabel.h */,
-				88E3E2211B30B72B00BF5E83 /* ADTickerLabel.m */,
 			);
 			name = UtilityClasses;
 			sourceTree = "<group>";
@@ -820,11 +832,15 @@
 				6EEDB8E21A8A10B7000BB909 /* push.m4a in Resources */,
 				6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */,
 				6EC1F08A1B27394E00297D0F /* uploading.gif in Resources */,
+				885F536E1B3F827400D359DB /* counter-shadow@2x.png in Resources */,
+				885F536C1B3F827400D359DB /* counter-numbers@2x.png in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
 				6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */,
 				412DAA1B1B26574900D92EB8 /* snoop.mp3 in Resources */,
 				86A1C66C1AB1E35100817F89 /* bumper.mp4 in Resources */,
+				885F536B1B3F827400D359DB /* counter-numbers.png in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
+				885F536D1B3F827400D359DB /* counter-shadow.png in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
 				8668D3F41ADE6A90002ADA45 /* Images.xcassets in Resources */,
 				88461C051ADA23120099B523 /* bumper_rotated.mp4 in Resources */,
@@ -905,7 +921,6 @@
 				884C79DA1B372F6700E21583 /* YACameraManager.m in Sources */,
 				6E7324E31AF109F7002CCFED /* YADownloadManager.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
-				88E3E2221B30B72B00BF5E83 /* ADTickerLabel.m in Sources */,
 				6EA942131A403E1D001803C5 /* YAContact.m in Sources */,
 				6E1E20A71A6FAB500041DF54 /* NameGenerator.m in Sources */,
 				86B642941A52E83400E095AD /* YASetNewRootVCSegue.m in Sources */,
@@ -914,6 +929,7 @@
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
 				88E3E21F1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m in Sources */,
 				861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailableError.m in Sources */,
+				885F53661B3F826700D359DB /* RCounter.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* YAGridViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
 				88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */,
