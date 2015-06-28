@@ -12,8 +12,8 @@
 
 #define kCounterDigitSpriteSpacing 23.0
 #define kCounterDigitXSpacing 12.0
-#define kChangeDigitAnimationDuration 0.2f
-#define kShiftAnimationDuration 0.2f
+#define kChangeDigitAnimationDuration 2.f // long so we can test the jerkyness
+#define kShiftAnimationDuration 2.f
 
 @interface RCounter ()
 
@@ -112,13 +112,13 @@
 
 - (void)updateFrame:(UIImageView*)img withValue:(long)newValue andImageCentre:(CGPoint)imgCentre andImageFrame:(CGRect)frame {
     CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"position"];
-    anim.fromValue = [NSValue valueWithCGPoint:img.center];
+//    anim.fromValue = [NSValue valueWithCGPoint:img.center];
     if (newValue == 0) {
         imgCentre.y = self.imgCenterY - (11 * kCounterDigitSpriteSpacing);
         anim.toValue = [NSValue valueWithCGPoint:imgCentre];
     } else
         anim.toValue = [NSValue valueWithCGPoint:imgCentre];
-    anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
     anim.duration = kChangeDigitAnimationDuration;
     [img.layer addAnimation:anim forKey:@"rollLeft"];
     img.frame = frame;
@@ -141,9 +141,9 @@
             newCenter.x += delta * kCounterDigitXSpacing;
             
             CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"position"];
-            anim.fromValue = [NSValue valueWithCGPoint:img.center];
+//            anim.fromValue = [NSValue valueWithCGPoint:img.center];
             anim.toValue = [NSValue valueWithCGPoint:newCenter];
-            anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
             anim.duration = kShiftAnimationDuration;
             [img.layer addAnimation:anim forKey:@"shiftRight"];
             img.frame = newFrame;
@@ -154,7 +154,6 @@
         for (int i = delta - 1; i >= 0; i--) {
             UIImageView *img = [[UIImageView alloc] initWithFrame:frame];
             [img setImage:[UIImage imageNamed:@"counter-numbers.png"]];
-            
             [self.imgArray insertObject:img atIndex:0];
             [self.counterCanvas addSubview:img];
             frame.origin.x -= kCounterDigitXSpacing;
@@ -176,9 +175,9 @@
             newCenter.x -= delta * kCounterDigitXSpacing;
             
             CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"position"];
-            anim.fromValue = [NSValue valueWithCGPoint:img.center];
+//            anim.fromValue = [NSValue valueWithCGPoint:img.center];
             anim.toValue = [NSValue valueWithCGPoint:newCenter];
-            anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
             anim.duration = kShiftAnimationDuration;
             [img.layer addAnimation:anim forKey:@"shiftLeft"];
             img.frame = newFrame;
