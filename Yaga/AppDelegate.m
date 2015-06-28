@@ -49,6 +49,7 @@
     [migrationsMaganaer executeMigrations];
     
     [Fabric with:@[CrashlyticsKit]];
+    [Firebase defaultConfig].persistenceEnabled = YES;
 
     //analytics
 //    NSString *mixPanelAppId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"YAMixPanelAppId"];
@@ -234,7 +235,9 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     NSLog(@"did enter background");
 //    [AnalyticsKit applicationDidEnterBackground];
-    [[YACameraManager sharedManager] closeCamera];
+    if ([[YAUser currentUser] loggedIn] && [YAUtils hasVisitedGifGrid]) {
+        [[YACameraManager sharedManager] closeCamera];
+    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

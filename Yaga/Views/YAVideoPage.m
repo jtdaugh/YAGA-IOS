@@ -12,7 +12,6 @@
 #import "YAAssetsCreator.h"
 #import "YAUtils.h"
 #import "YAServer.h"
-#import <Social/Social.h>
 #import "YAProgressView.h"
 #import "YASwipingViewController.h"
 #import "YACopyVideoToClipboardActivity.h"
@@ -26,6 +25,8 @@
 #import "NSArray+Reverse.h"
 #import "UIImage+Color.h"
 #import "Constants.h"
+#import "YAViewCountManager.h"
+#import "RCounter.h"
 
 #import "YASharingView.h"
 
@@ -50,6 +51,8 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UIButton *XButton;
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
+@property (nonatomic, strong) RCounter *viewCounter;
+@property (nonatomic, strong) UIImageView *viewCountImageView;
 @property BOOL likesShown;
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *likeButton;
@@ -206,6 +209,27 @@ static NSString *commentCellID = @"CommentCell";
         [indexArray addObject:[NSIndexPath indexPathForRow:i inSection:0]];
     }
     [self.commentsTableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationTop];
+}
+
+#pragma mark - YAViewCountDelegate
+
+- (void)updatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount {
+    if ((myViewCount + othersViewCount) > 0) {
+        if (self.viewCounter.hidden) {
+            self.viewCounter.alpha = 0;
+            self.viewCountImageView.alpha = 0;
+            self.viewCounter.hidden = NO;
+            self.viewCountImageView.hidden = NO;
+            [UIView animateWithDuration:0.5f animations:^{
+                self.viewCounter.alpha = 1;
+                self.viewCountImageView.alpha = 0.7;
+            }];
+        }
+        [self.viewCounter updateValue:(othersViewCount + myViewCount) animate:YES];
+    } else {
+        self.viewCounter.hidden = YES;
+        self.viewCountImageView.hidden = YES;
+    }
 }
 
 #pragma mark - keyboard
@@ -440,8 +464,29 @@ static NSString *commentCellID = @"CommentCell";
     self.timestampLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
 //    [self.overlay addSubview:self.timestampLabel];
     
+    CGSize viewCountSize = CGSizeMake(100, 23);
+    
+    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(VIEW_WIDTH/2 + 1, VIEW_HEIGHT - viewCountSize.height - 11)];
+                        
+    self.viewCounter.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.viewCounter.layer.shadowRadius = 0.0f;
+    self.viewCounter.layer.shadowOpacity = 1.0;
+    self.viewCounter.layer.shadowOffset = CGSizeMake(0.5, 0.5);
+    [self.overlay addSubview:self.viewCounter];
 
-//    CGFloat tSize = CAPTION_FONT_SIZE;
+    CGSize viewCountImgSize = CGSizeMake(25, 20);
+    self.viewCountImageView = [[UIImageView alloc]initWithFrame:CGRectMake(VIEW_WIDTH/2.f - 1 - viewCountImgSize.width,
+                                                                           VIEW_HEIGHT - viewCountImgSize.height - 12,
+                                                                           viewCountImgSize.width, viewCountImgSize.height)];
+    self.viewCountImageView.image = [UIImage imageNamed:@"Views"];
+    self.viewCountImageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.viewCountImageView.layer.shadowRadius = 0.0f;
+    self.viewCountImageView.layer.shadowOpacity = 1.0;
+    self.viewCountImageView.layer.shadowOffset = CGSizeMake(0.5, 0.5);
+
+    [self.overlay addSubview:self.viewCountImageView];
+    
+    //    CGFloat tSize = CAPTION_FONT_SIZE;
 
     self.XButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
     self.XButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
@@ -1236,7 +1281,10 @@ static NSString *commentCellID = @"CommentCell";
     self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqualToString:@""];
     NSArray *events = [[YAEventManager sharedManager] getEventsForVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
     [self refreshWholeTableWithEventsArray:[events reversedArray]];
+
     [self initializeCaption];
+    self.viewCounter.hidden = YES;
+    self.viewCountImageView.hidden = YES;
     
     if (!self.video.group) {
         // hacky delay to do this after you can see video.
@@ -1588,6 +1636,10 @@ static NSString *commentCellID = @"CommentCell";
         [self updateUploadingProgress];
         
         // Reload comments, which will initialize with firebase if serverID just became ready.
+        if ([YAVideo serverIdStatusForVideo:self.video] == YAVideoServerIdStatusConfirmed) {
+            [[YAViewCountManager sharedManager] switchVideoId:self.video.serverId];
+        }
+
         [[YAEventManager sharedManager] setCurrentVideoServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
         [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId
                                                                 localId:self.video.localId

@@ -46,7 +46,6 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        [Firebase defaultConfig].persistenceEnabled = YES;
         self.firebaseRoot = [[Firebase alloc] initWithUrl:FIREBASE_EVENTS_ROOT];
         self.unsentEventsByLocalVideoId = [NSMutableDictionary dictionary];
         self.eventsByServerVideoId = [NSMutableDictionary dictionary];

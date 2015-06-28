@@ -56,6 +56,12 @@
         [YAEventManager sharedManager].eventReceiver = page;
         [[YAEventManager sharedManager] setCurrentVideoServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
         [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId localId:self.video.localId inGroup:self.video.group.serverId withServerIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+    
+        [[YAViewCountManager sharedManager] switchVideoId:self.video.serverId];
+        [YAViewCountManager sharedManager].viewCountDelegate = page;
+
+    } else {
+        [[YAViewCountManager sharedManager] switchVideoId:nil];
     }
     [page setVideo:self.video shouldPreload:YES];
     page.playerView.playWhenReady = YES;
