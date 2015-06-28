@@ -12,12 +12,14 @@
 
 #define kCounterDigitSpriteSpacing 23.0
 #define kCounterDigitXSpacing 12.0
-#define kCounterAnimationDuration 0.15
+
+// Golden ratio wattup
+#define kCounterAnimationDuration 0.1618
 
 @interface RCounter ()
 
 @property (nonatomic) int digits;
-@property (nonatomic) CGFloat imgCenterY;
+@property (nonatomic) CGFloat topDigitCenterY;
 @property (nonatomic, strong) NSMutableArray *imgArray;
 @property (nonatomic, readwrite) int currentReading;
 @property (nonatomic, strong) UIView *counterCanvas;
@@ -44,8 +46,8 @@
         for (int i = 0; i < self.digits; i++) {
             UIImageView *img = [[UIImageView alloc] initWithFrame:frame];
             [img setImage:[UIImage imageNamed:@"counter-numbers.png"]];
-            self.imgCenterY = img.center.y;
-        
+            self.topDigitCenterY = img.center.y;
+
             [self.imgArray addObject:img];
             [self.counterCanvas addSubview:img];
             frame.origin.x += kCounterDigitXSpacing;
@@ -92,7 +94,7 @@
         int digitVal = (newValue % (digitMag * 10) / digitMag);
         
         imgFrame.origin.y = 0 - ((digitVal + 1) * kCounterDigitSpriteSpacing);
-        imgCenter.y = self.imgCenterY - ((digitVal + 1) * kCounterDigitSpriteSpacing);
+        imgCenter.y = self.topDigitCenterY - ((digitVal + 1) * kCounterDigitSpriteSpacing);
         
         BOOL imgChanged = NO;
         
@@ -162,6 +164,7 @@
         for (int i = delta - 1; i >= 0; i--) {
             UIImageView *img = [[UIImageView alloc] initWithFrame:frame];
             [img setImage:[UIImage imageNamed:@"counter-numbers.png"]];
+
             [self.imgArray insertObject:img atIndex:0];
             [self.counterCanvas addSubview:img];
             frame.origin.x -= kCounterDigitXSpacing;

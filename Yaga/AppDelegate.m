@@ -49,6 +49,7 @@
     [migrationsMaganaer executeMigrations];
     
     [Fabric with:@[CrashlyticsKit]];
+    [Firebase defaultConfig].persistenceEnabled = YES;
 
     //analytics
 //    NSString *mixPanelAppId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"YAMixPanelAppId"];

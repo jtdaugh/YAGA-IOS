@@ -51,10 +51,15 @@
 }
 
 - (void)switchVideoId:(NSString *)videoId {
-    if (![videoId length]) return;
+    if ([videoId isEqualToString:_videoId]) return; // Video id didnt change
+    _videoId = videoId;
     self.myViewCount = 0;
     self.othersViewCount = 0;
     [self.currentVideoRef removeAllObservers];
+    self.currentVideoRef = nil;
+    
+    if (![videoId length]) return;
+
     self.currentVideoRef = [self.viewCountRoot childByAppendingPath:videoId];
     __weak YAViewCountManager *weakSelf = self;
     [self.currentVideoRef observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
@@ -75,6 +80,7 @@
 }
 
 - (void)addViewToCurrentVideo {
+    if (!self.currentVideoRef) return;
     [[self.currentVideoRef childByAppendingPath:self.username]
         runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
         NSNumber *value = currentData.value;

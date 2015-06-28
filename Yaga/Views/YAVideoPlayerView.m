@@ -349,6 +349,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 - (void)play {
     [self.viewCountTimer invalidate];
     float singlePlayTime = CMTimeGetSeconds(self.playerItem.asset.duration) / (float) NUM_OF_COPIES;
+    [self incrementViewCount];
     self.viewCountTimer = [YAWeakTimerTarget scheduledTimerWithTimeInterval:singlePlayTime target:self selector:@selector(incrementViewCount) userInfo:nil repeats:YES];
     
     [self.player play];
