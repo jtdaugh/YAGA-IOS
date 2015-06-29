@@ -1360,7 +1360,7 @@ static NSString *commentCellID = @"CommentCell";
                                                              delegate:self
                                                     cancelButtonTitle:@"Cancel"
                                                destructiveButtonTitle:nil
-                                                    otherButtonTitles:@"Share", @"Post to other groups", @"Add Caption", @"Save to Camera Roll", @"Delete", nil];
+                                                    otherButtonTitles:@"Post to other groups", @"Share", @"Add Caption", @"Save to Camera Roll", @"Delete", nil];
     actionSheet.destructiveButtonIndex = 4;
     actionSheet.cancelButtonIndex = 5;
     [actionSheet showInView:self];
@@ -1370,12 +1370,12 @@ static NSString *commentCellID = @"CommentCell";
     NSLog(@"button index: %lu", buttonIndex);
     switch (buttonIndex) {
         case 0: {
-            // export and share
-            [self externalShareButtonPressed];
-            break;
-        } case 1: {
             // Post to other groups
             [self shareButtonPressed:nil];
+            break;
+        } case 1: {
+            // export and share
+            [self externalShareButtonPressed];
             break;
         } case 2: {
             // Add Caption
@@ -1511,6 +1511,8 @@ static NSString *commentCellID = @"CommentCell";
     gradientFrame.size.height = VIEW_HEIGHT / 3;
 
     [UIView animateWithDuration:0.2 animations:^{
+        self.viewCounter.alpha = 0.0;
+        self.viewCountImageView.alpha = 0.0;
         self.commentsGradient.frame = gradientFrame;
         self.commentsWrapperView.alpha = 0.0;
         self.commentButton.alpha = 0.0;
@@ -1538,6 +1540,8 @@ static NSString *commentCellID = @"CommentCell";
     gradientFrame.size.height = VIEW_HEIGHT * .5;
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
+        self.viewCounter.alpha = 1.0;
+        self.viewCountImageView.alpha = 1.0;
         self.commentsGradient.frame = gradientFrame;
         self.commentsWrapperView.alpha = 1.0;
         self.commentButton.alpha = 1.0;
