@@ -88,7 +88,8 @@
         exportSession.outputURL = [NSURL fileURLWithPath:mp4Path];
         exportSession.shouldOptimizeForNetworkUse = NO;
         exportSession.outputFileType = AVFileTypeMPEG4;
-        exportSession.canPerformMultiplePassesOverSourceMediaData = YES;
+        if([UIDevice currentDevice].systemVersion.floatValue >= 8)
+            exportSession.canPerformMultiplePassesOverSourceMediaData = YES;
         [exportSession exportAsynchronouslyWithCompletionHandler:^{
             
             switch ([exportSession status]) {

@@ -21,18 +21,28 @@
     //permission dialog was shown and user denied?
     BOOL iosDialogShown = [self pushPermissionsRequestedBefore];
     
-    if(iosDialogShown && [[UIApplication sharedApplication] currentUserNotificationSettings].types == UIUserNotificationTypeNone) {
+    BOOL notRegistered;
+    //ios8
+    if([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        notRegistered = [[UIApplication sharedApplication] currentUserNotificationSettings].types == UIUserNotificationTypeNone;
+    }
+    //ios7
+    else {
+        notRegistered = [[UIApplication sharedApplication] enabledRemoteNotificationTypes] == UIRemoteNotificationTypeNone;
+    }
+    
+    if(iosDialogShown && notRegistered) {
         NSDate *remindDialogDate = [[NSUserDefaults standardUserDefaults] objectForKey:kPushesPermissionsAlertNextTimeToShow];
         
         //remind dialog date is later than now or doesn't exist? show remind dialog
         if(!remindDialogDate || [remindDialogDate compare:[NSDate date]] == NSOrderedDescending) {
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Push notifications", @"") message:NSLocalizedString(@"Push notifications are disabled", @"") preferredStyle:UIAlertControllerStyleAlert];
+            MSAlertController*alert = [MSAlertController alertControllerWithTitle:NSLocalizedString(@"Push notifications", @"") message:NSLocalizedString(@"Push notifications are disabled", @"") preferredStyle:MSAlertControllerStyleAlert];
             
-            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Never show this again", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Never show this again", @"") style:MSAlertActionStyleDefault handler:^(MSAlertAction *action) {
                 [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSince1970:0] forKey:kPushesPermissionsAlertNextTimeToShow];
             }]];
              
-            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Remind me later", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Remind me later", @"") style:MSAlertActionStyleDefault handler:^(MSAlertAction *action) {
                 NSDate *date = [[NSDate date] dateByAddingTimeInterval:24 * 60 * 60 * 3];//remind in 3 days
                 [[NSUserDefaults standardUserDefaults] setObject:date forKey:kPushesPermissionsAlertNextTimeToShow];
             }]];
@@ -41,9 +51,14 @@
         }
     }
     else {
-        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
-        
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kPushesPermissionsRequestedBefore];
+        //ios8
+        if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+            [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge) categories:nil]];
+        }
+        //ios7
+        else {
+            [[UIApplication sharedApplication] registerForRemoteNotificationTypes: (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
+        }
     }
 }
 

@@ -16,6 +16,7 @@
 
 @interface YAGifCreationOperation ()
 @property (strong) NSString *filename;
+@property (strong, readwrite) NSString *videoUrl;
 @property YAGifCreationQuality quality;
 @end
 
@@ -25,7 +26,7 @@
     if (self = [super init]) {
         _video = video;
         _quality = quality;
-        self.name = video.url;
+        self.videoUrl = video.url;
     }
     return self;
 }

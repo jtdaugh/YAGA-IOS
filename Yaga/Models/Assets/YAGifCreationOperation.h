@@ -16,5 +16,6 @@
 - (instancetype)initWithVideo:(YAVideo*)video quality:(YAGifCreationQuality)quality;
 
 @property (nonatomic, readonly) YAVideo *video;
+@property (strong, readonly) NSString *videoUrl;
 
 @end

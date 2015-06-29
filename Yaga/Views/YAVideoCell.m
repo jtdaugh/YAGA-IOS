@@ -14,6 +14,7 @@
 #import "YAActivityView.h"
 #import "AFURLConnectionOperation.h"
 #import "YAServerTransactionQueue.h"
+#import "AFDownloadRequestOperation.h"
 
 #define LIKE_HEART_SIDE 40.f
 
@@ -55,7 +56,6 @@
         self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
         
         self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30)];
         [self.username setTextAlignment:NSTextAlignmentRight];
@@ -93,7 +93,8 @@
         self.contentView.layer.masksToBounds = YES;
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
-        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
+
         self.shouldPlayGifAutomatically = YES;
     }
     
@@ -139,6 +140,7 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingOperationDidStartNotification object:nil];
 }
 
 #pragma mark -
@@ -249,8 +251,9 @@
 
 #pragma mark - Download progress bar
 - (void)downloadStarted:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.gifUrl]) {
+    AFDownloadRequestOperation *op = notif.object;
+    
+    if(![self.video isInvalidated] && [op.request.URL.absoluteString isEqualToString:self.video.gifUrl]) {
         [self updateCaptionAndUsername];
     }
 }

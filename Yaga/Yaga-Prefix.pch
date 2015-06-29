@@ -16,6 +16,7 @@
     #import "Constants.h"
     #import "YAUtils.h"
     #import "Mixpanel.h"
+    #import "MSAlertController.h"
 #endif
 
 #if DEBUG

@@ -111,6 +111,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIView *commentsWrapperView;
 @property (nonatomic, strong) UITableView *commentsTableView;
 @property (nonatomic, strong) UITextField *commentsTextField;
+@property (nonatomic, strong) UIView *commentsTextBoxView;
 @property (nonatomic, strong) UIButton *commentsSendButton;
 @property (nonatomic, strong) UITapGestureRecognizer *commentsTapOutRecognizer;
 
@@ -296,9 +297,7 @@ static NSString *commentCellID = @"CommentCell";
                      animations:^{
                          self.commentsWrapperView.frame = wrapperFrame;
                          self.commentsGradient.frame = gradientFrame;
-                         self.commentsTextField.alpha = up ? 1.0 : 0.0;
-                         self.commentsSendButton.alpha = up ? 1.0 : 0.0;
-                         self.likeButton.alpha = up ? 1.0 : 0.0;
+                         self.commentsTextBoxView.alpha = up ? 1.0 : 0.0;
                      }
                      completion:^(BOOL finished){
                          if ([self.events count]) {
@@ -600,48 +599,62 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTableView.contentInset = UIEdgeInsetsMake(0, 0, 30, 0);
     self.commentsTableView.delegate = self;
     self.commentsTableView.dataSource = self;
-    self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH-COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
-    self.commentsTextField.autocorrectionType = UITextAutocorrectionTypeNo;
-    self.commentsTextField.leftViewMode = UITextFieldViewModeAlways;
-    self.commentsTextField.returnKeyType = UIReturnKeySend;
-    self.commentsTextField.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
-    UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(COMMENTS_SIDE_MARGIN, 0, VIEW_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    
+    UILabel *leftUsernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     leftUsernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
-    leftUsernameLabel.text = [NSString stringWithFormat:@"  %@ ", [YAUser currentUser].username];
+    leftUsernameLabel.text = [NSString stringWithFormat:@"%@", [YAUser currentUser].username];
     leftUsernameLabel.shadowColor = [UIColor colorWithWhite:0.0 alpha:0.7];
     leftUsernameLabel.shadowOffset = CGSizeMake(0.5, 0.5);
     leftUsernameLabel.userInteractionEnabled = NO;
-
-    [leftUsernameLabel sizeToFit];
     leftUsernameLabel.textColor = PRIMARY_COLOR;
-    self.commentsTextField.leftView = leftUsernameLabel;
+    [leftUsernameLabel sizeToFit];
+    CGRect usernameFrame = leftUsernameLabel.frame;
+    usernameFrame.origin.x = COMMENTS_SIDE_MARGIN;
+    usernameFrame.origin.y = (COMMENTS_TEXT_FIELD_HEIGHT - usernameFrame.size.height)/2;
+    leftUsernameLabel.frame = usernameFrame;
+
+    self.commentsTextBoxView = [[UIView alloc] initWithFrame:CGRectMake(0, height, VIEW_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    self.commentsTextBoxView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.3];
+    [self.commentsTextBoxView addSubview:leftUsernameLabel];
+    [self.commentsWrapperView addSubview:self.commentsTextBoxView];
+    
+    CGFloat textFieldLeftInset = 3;
+    
+    self.commentsTextField = [[UITextField alloc] initWithFrame:CGRectMake(leftUsernameLabel.frame.size.width + COMMENTS_SIDE_MARGIN + (COMMENTS_SPACE_AFTER_USERNAME - textFieldLeftInset),
+                                                                           0,
+                                                                           VIEW_WIDTH-COMMENTS_SEND_WIDTH - leftUsernameLabel.frame.size.width - (COMMENTS_SPACE_AFTER_USERNAME - textFieldLeftInset),
+                                                                           COMMENTS_TEXT_FIELD_HEIGHT)];
+    self.commentsTextField.autocorrectionType = UITextAutocorrectionTypeYes;
+    self.commentsTextField.returnKeyType = UIReturnKeySend;
+    self.commentsTextField.backgroundColor = [UIColor clearColor];
+    
     self.commentsTextField.textColor = [UIColor whiteColor];
     self.commentsTextField.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE];
     self.commentsTextField.layer.shadowColor = [UIColor blackColor].CGColor;
     self.commentsTextField.layer.shadowOffset = CGSizeMake(0.5, 0.5);
     self.commentsTextField.layer.shadowOpacity = 1.0;
     self.commentsTextField.layer.shadowRadius = 0.0f;
-
+    [self.commentsTextBoxView addSubview:self.commentsTextField];
     self.commentsTextField.delegate = self;
     
-    self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    self.commentsSendButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, 0, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     [self.commentsSendButton addTarget:self action:@selector(commentsSendPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.commentsSendButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.f]] forState:UIControlStateNormal];
     [self.commentsSendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.commentsSendButton setTitle:@"Send" forState:UIControlStateNormal];
     self.commentsSendButton.hidden = YES;
-    
-    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, height, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
+    [self.commentsTextBoxView addSubview:self.commentsSendButton];
+
+    self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, 0, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
     [self.likeButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.likeButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.likeButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.f]] forState:UIControlStateNormal];
     [self.likeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.likeButton setImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateNormal];
-    
+    [self.commentsTextBoxView addSubview:self.likeButton];
+
     [self.commentsWrapperView addSubview:self.commentsTableView];
-    [self.commentsWrapperView addSubview:self.commentsSendButton];
-    [self.commentsWrapperView addSubview:self.likeButton];
-    [self.commentsWrapperView addSubview:self.commentsTextField];
+    [self.commentsWrapperView addSubview:self.commentsTextBoxView];
     self.commentsWrapperView.layer.masksToBounds = YES;
     [self.overlay addSubview:self.commentsWrapperView];
     
@@ -1475,7 +1488,6 @@ static NSString *commentCellID = @"CommentCell";
     if (error) {
         NSString *message = @"Video Saving Failed";
         [YAUtils showHudWithText:message];
-        
     } else {
         NSString *message = @"Saved! ✌️";
         [YAUtils showHudWithText:message];
@@ -1483,7 +1495,6 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)shareButtonPressed:(id)sender {
-    
     NSLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
     self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT * .6, VIEW_WIDTH, VIEW_HEIGHT*.4)];
     self.sharingView.video = self.video;
@@ -1552,15 +1563,15 @@ static NSString *commentCellID = @"CommentCell";
 
 #pragma mark - YAProgressView
 - (void)downloadDidStart:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+    AFDownloadRequestOperation *op = notif.object;
+    if(![self.video isInvalidated] && [op.request.URL.absoluteString isEqualToString:self.video.url]) {
         [self showProgress:YES];
     }
 }
 
 - (void)downloadDidFinish:(NSNotification*)notif {
-    NSOperation *op = notif.object;
-    if(![self.video isInvalidated] && [op.name isEqualToString:self.video.url]) {
+    AFDownloadRequestOperation *op = notif.object;
+    if(![self.video isInvalidated] && [op.request.URL.absoluteString isEqualToString:self.video.url]) {
         [self showProgress:NO];
     }
 }

@@ -71,7 +71,8 @@
     session.outputURL = outputURL;
     session.outputFileType = AVFileTypeMPEG4;
     session.shouldOptimizeForNetworkUse = YES;
-    session.canPerformMultiplePassesOverSourceMediaData = YES;
+    if([UIDevice currentDevice].systemVersion.floatValue >= 8)
+        session.canPerformMultiplePassesOverSourceMediaData = YES;
     [session exportAsynchronouslyWithCompletionHandler:^(void ) {
         NSString *path = outputURL.path;
         if (path){
@@ -339,8 +340,8 @@
 }
 
 - (BOOL)gifOperationInProgressForUrl:(NSString*)url {
-    for(NSOperation *op in self.gifQueue.operations) {
-        if([op.name isEqualToString:url]) {
+    for(YAGifCreationOperation *op in self.gifQueue.operations) {
+        if([op.videoUrl isEqualToString:url]) {
             return YES;
         }
     }
