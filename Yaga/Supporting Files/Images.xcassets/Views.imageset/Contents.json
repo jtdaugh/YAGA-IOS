@@ -3,17 +3,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "Visible-100-2.png"
+      "filename" : "eye.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "Visible-100.png"
+      "filename" : "eye-1.png"
     },
     {
       "idiom" : "universal",
       "scale" : "3x",
-      "filename" : "Visible-100-1.png"
+      "filename" : "eye-2.png"
     }
   ],
   "info" : {
