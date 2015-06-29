@@ -10,7 +10,7 @@
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
 		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
 		413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
-		413BF3451B41FF8100DCEDF7 /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 413BF3441B41FF7900DCEDF7 /* bumper.mp4 */; };
+		413BF3471B42002700DCEDF7 /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 413BF3461B42002700DCEDF7 /* bumper.mp4 */; };
 		41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C71B162E76008553A8 /* Fabric.framework */; };
 		41BD42CA1B162E76008553A8 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C81B162E76008553A8 /* Crashlytics.framework */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
@@ -110,7 +110,6 @@
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
 		882F082D1AEF6F12007FAA66 /* YAPanGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 882F082C1AEF6F12007FAA66 /* YAPanGestureRecognizer.m */; };
 		8830D8EA1B35E09A006F841D /* YAGroupsNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8830D8E91B35E09A006F841D /* YAGroupsNavigationController.m */; };
-		88461C051ADA23120099B523 /* bumper_rotated.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 88461C041ADA23090099B523 /* bumper_rotated.mp4 */; };
 		884C79DA1B372F6700E21583 /* YACameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 884C79D91B372F6700E21583 /* YACameraManager.m */; };
 		885F53661B3F826700D359DB /* RCounter.m in Sources */ = {isa = PBXBuildFile; fileRef = 885F53651B3F826700D359DB /* RCounter.m */; };
 		885F536B1B3F827400D359DB /* counter-numbers.png in Resources */ = {isa = PBXBuildFile; fileRef = 885F53671B3F827400D359DB /* counter-numbers.png */; };
@@ -139,7 +138,7 @@
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		413734B91B1D070700ADE96F /* YACrosspostCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACrosspostCell.h; sourceTree = "<group>"; };
 		413734BA1B1D070700ADE96F /* YACrosspostCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACrosspostCell.m; sourceTree = "<group>"; };
-		413BF3441B41FF7900DCEDF7 /* bumper.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.mp4; sourceTree = "<group>"; };
+		413BF3461B42002700DCEDF7 /* bumper.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.mp4; sourceTree = "<group>"; };
 		41BD42C71B162E76008553A8 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		41BD42C81B162E76008553A8 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -315,7 +314,6 @@
 		882F082C1AEF6F12007FAA66 /* YAPanGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPanGestureRecognizer.m; sourceTree = "<group>"; };
 		8830D8E81B35E09A006F841D /* YAGroupsNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupsNavigationController.h; sourceTree = "<group>"; };
 		8830D8E91B35E09A006F841D /* YAGroupsNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupsNavigationController.m; sourceTree = "<group>"; };
-		88461C041ADA23090099B523 /* bumper_rotated.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper_rotated.mp4; sourceTree = "<group>"; };
 		884C79D81B372F6700E21583 /* YACameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraManager.h; sourceTree = "<group>"; };
 		884C79D91B372F6700E21583 /* YACameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACameraManager.m; sourceTree = "<group>"; };
 		885F53641B3F826700D359DB /* RCounter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCounter.h; path = ../../RCounter.h; sourceTree = "<group>"; };
@@ -577,9 +575,8 @@
 				412DAA191B26573600D92EB8 /* Filters */,
 				6EC1F0891B27394E00297D0F /* uploading.gif */,
 				6E9D87161B15DED600FA70EC /* loader.gif */,
+				413BF3461B42002700DCEDF7 /* bumper.mp4 */,
 				8668D3F31ADE6A90002ADA45 /* Images.xcassets */,
-				413BF3441B41FF7900DCEDF7 /* bumper.mp4 */,
-				88461C041ADA23090099B523 /* bumper_rotated.mp4 */,
 				6EEDB8E11A8A10B7000BB909 /* push.m4a */,
 				6E1E209E1A6FAB500041DF54 /* Third party */,
 				86B8649F1A43287C002256FF /* countries.json */,
@@ -829,14 +826,13 @@
 				885F536E1B3F827400D359DB /* counter-shadow@2x.png in Resources */,
 				885F536C1B3F827400D359DB /* counter-numbers@2x.png in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
+				413BF3471B42002700DCEDF7 /* bumper.mp4 in Resources */,
 				6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */,
 				885F536B1B3F827400D359DB /* counter-numbers.png in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				885F536D1B3F827400D359DB /* counter-shadow.png in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
 				8668D3F41ADE6A90002ADA45 /* Images.xcassets in Resources */,
-				413BF3451B41FF8100DCEDF7 /* bumper.mp4 in Resources */,
-				88461C051ADA23120099B523 /* bumper_rotated.mp4 in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
 				6E1E20A61A6FAB500041DF54 /* name.csv in Resources */,
 				6E9D87171B15DED600FA70EC /* loader.gif in Resources */,
