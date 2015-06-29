@@ -99,6 +99,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 {
     if ([self.URL.absoluteString isEqualToString:newURL.absoluteString])
         return;
+    [self.viewCountTimer invalidate];
     
     //DLog(@"%@ preparing to play", newURL.lastPathComponent);
     

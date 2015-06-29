@@ -237,7 +237,8 @@
         if(i == self.visibleTileIndex && preload) {
             [YAEventManager sharedManager].eventReceiver = page;
 
-            [[YAViewCountManager sharedManager] switchVideoId:page.video.serverId];
+            YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:page.video];
+            [[YAViewCountManager sharedManager] switchVideoId:(status == YAVideoServerIdStatusConfirmed) ? page.video.serverId : nil];
             [YAViewCountManager sharedManager].viewCountDelegate = page;
 
             [[YAEventManager sharedManager] setCurrentVideoServerId:page.video.serverId localId:page.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:page.video]];
