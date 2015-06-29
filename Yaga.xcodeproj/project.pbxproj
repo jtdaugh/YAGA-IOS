@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
 		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
-		412DAA1B1B26574900D92EB8 /* snoop.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 412DAA1A1B26574900D92EB8 /* snoop.mp3 */; };
 		413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
 		41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C71B162E76008553A8 /* Fabric.framework */; };
 		41BD42CA1B162E76008553A8 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C81B162E76008553A8 /* Crashlytics.framework */; };
@@ -139,7 +138,6 @@
 		0FDC3AF81B0E69C0003A688D /* UIWindow+YASnapshot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWindow+YASnapshot.h"; sourceTree = "<group>"; };
 		0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+YASnapshot.m"; sourceTree = "<group>"; };
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
-		412DAA1A1B26574900D92EB8 /* snoop.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = snoop.mp3; sourceTree = "<group>"; };
 		413734B91B1D070700ADE96F /* YACrosspostCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACrosspostCell.h; sourceTree = "<group>"; };
 		413734BA1B1D070700ADE96F /* YACrosspostCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACrosspostCell.m; sourceTree = "<group>"; };
 		41BD42C71B162E76008553A8 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
@@ -386,7 +384,6 @@
 		412DAA191B26573600D92EB8 /* Filters */ = {
 			isa = PBXGroup;
 			children = (
-				412DAA1A1B26574900D92EB8 /* snoop.mp3 */,
 			);
 			name = Filters;
 			sourceTree = "<group>";
@@ -836,7 +833,6 @@
 				885F536C1B3F827400D359DB /* counter-numbers@2x.png in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
 				6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */,
-				412DAA1B1B26574900D92EB8 /* snoop.mp3 in Resources */,
 				86A1C66C1AB1E35100817F89 /* bumper.mp4 in Resources */,
 				885F536B1B3F827400D359DB /* counter-numbers.png in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
