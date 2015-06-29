@@ -86,7 +86,7 @@
                                 inGroup:(NSString *)groupId
                      withServerIdStatus:(YAVideoServerIdStatus)serverIdStatus {
     if (serverIdStatus == YAVideoServerIdStatusConfirmed) {
-        if (![serverId length]) return;
+        if (!self.queriesByVideoId || ![serverId length]) return;
         if (self.queriesByVideoId[serverId]) {
             return; // already observing this on firebase.
         }

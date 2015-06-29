@@ -164,13 +164,13 @@
     CGFloat deleteWidth = self.deleteButton.frame.size.width;
 
     CGRect timestampFrame = self.timestampLabel.frame;
-    timestampFrame.origin.x = self.iconImageView.frame.origin.x + self.iconImageView.frame.size.width + 6.f;
+    timestampFrame.origin.x = self.iconImageView.frame.origin.x + self.iconImageView.frame.size.width + COMMENTS_SPACE_AFTER_USERNAME;
     timestampFrame.size.width = self.frame.size.width - timestampFrame.origin.x - deleteWidth;
     self.timestampLabel.frame = timestampFrame;
     [self.timestampLabel sizeToFit];
     
     CGRect deleteFrame = self.deleteButton.frame;
-    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + 6.f;
+    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + COMMENTS_SPACE_AFTER_USERNAME;
     deleteFrame.size.width = deleteWidth;
     self.deleteButton.frame = deleteFrame;
 }
@@ -252,7 +252,7 @@
 
 + (CGSize)sizeForCommentsCellWithUsername:(NSString *)username comment:(NSString *)comment {
     CGSize usernameSize = [[self class] frameForUsernameLabel:username].size;
-    CGFloat commentWidth = VIEW_WIDTH - (COMMENTS_SIDE_MARGIN*2) - (usernameSize.width + 6.0f);
+    CGFloat commentWidth = VIEW_WIDTH - (COMMENTS_SIDE_MARGIN*2) - (usernameSize.width + COMMENTS_SPACE_AFTER_USERNAME);
     
     NSDictionary *commentAttributes = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE]};
     CGRect commentsRect = [comment boundingRectWithSize:CGSizeMake(commentWidth, CGFLOAT_MAX)
