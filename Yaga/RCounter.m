@@ -11,7 +11,7 @@
 #import "RCounter.h"
 
 #define kCounterDigitSpriteSpacing 23.0
-#define kCounterDigitXSpacing 10.0
+#define kCounterDigitXSpacing 11.0
 
 // Golden ratio wattup
 #define kCounterAnimationDuration 0.1618
