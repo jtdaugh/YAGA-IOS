@@ -100,7 +100,7 @@
     [self.view addSubview:_bottomNavigationController.view];
     
     self.myGroupsHeaderView =[[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
-    self.myGroupsHeaderView.backgroundColor = [UIColor colorWithWhite:0.97 alpha:.97];
+    self.myGroupsHeaderView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
 
     UILabel *myGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(40, 5, 200, HEADER_HEIGHT-10)];
     [myGroupsLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
