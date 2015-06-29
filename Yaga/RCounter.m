@@ -42,6 +42,7 @@
         
         // Load the counters
         self.counterCanvas = [[UIView alloc] initWithFrame:self.bounds];
+        [self.counterCanvas setAlpha:0.7];
         CGRect frame = CGRectMake(0, 0, 17.0, 299.0);
         for (int i = 0; i < self.digits; i++) {
             UIImageView *img = [[UIImageView alloc] initWithFrame:frame];
