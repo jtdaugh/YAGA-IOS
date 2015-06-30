@@ -167,7 +167,7 @@
         [[Mixpanel sharedInstance] identify:[YAUser currentUser].phoneNumber];
         [[Mixpanel sharedInstance].people set:@{@"$phone":[YAUser currentUser].phoneNumber}];
         [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
-        NSLog(@"setting people... %@", [YAUser currentUser].username);
+        DLog(@"setting people... %@", [YAUser currentUser].username);
     }
     // Later, you can get your instance with
     // Mixpanel *mixpanel = [Mixpanel sharedInstance];
@@ -220,7 +220,7 @@
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    NSLog(@"will enter foreground");
+    DLog(@"will enter foreground");
 //    [AnalyticsKit applicationWillEnterForeground];
     if ([[YAUser currentUser] loggedIn]) {
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
@@ -233,7 +233,7 @@
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    NSLog(@"did enter background");
+    DLog(@"did enter background");
 //    [AnalyticsKit applicationDidEnterBackground];
     if ([[YAUser currentUser] loggedIn] && [YAUtils hasVisitedGifGrid]) {
         [[YACameraManager sharedManager] closeCamera];

@@ -120,7 +120,7 @@ static NSString *cellID = @"Cell";
         }
         YAVideoCell *cell = (YAVideoCell *)[weakSelf.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
         if (cell) {
-            NSLog(@"Updating comment count for videoID: %@", serverId);
+            DLog(@"Updating comment count for videoID: %@", serverId);
             [cell setEventCount:eventCount];
         }
     });
