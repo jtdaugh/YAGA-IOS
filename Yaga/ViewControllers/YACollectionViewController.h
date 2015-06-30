@@ -11,10 +11,7 @@
 #import "YAGridViewController.h"
 
 @interface YACollectionViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate,
-    UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver> {
-    CGPoint lastOffset;
-    NSTimeInterval lastOffsetCapture;
-}
+    UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver>
 
 @property (strong, nonatomic) UICollectionView *collectionView;
 @property (weak, nonatomic) id<YAGridViewControllerDelegate> delegate;

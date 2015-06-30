@@ -51,6 +51,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic, strong) UILabel *noVideosLabel;
 
+@property (nonatomic) CGPoint lastOffset;
 @property (nonatomic) BOOL scrollingFast;
 
 @end
@@ -85,6 +86,8 @@ static NSString *cellID = @"Cell";
     self.collectionView.contentInset = UIEdgeInsetsMake(VIEW_HEIGHT/2 + 2 - CAMERA_MARGIN, 0, 0, 0);
     [self.view addSubview:self.collectionView];
     self.collectionView.frame = self.view.bounds;
+    
+    self.lastOffset = self.collectionView.contentOffset;
     
     [self reload];
 
@@ -368,7 +371,7 @@ static NSString *cellID = @"Cell";
     [self.collectionView reloadData];
     [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
     [self playVisible:YES];
     
     [self delayedHidePullToRefresh];
@@ -570,15 +573,15 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - UIScrollView
 - (void)updateScrollingFast {
-    if(!self.collectionView.superview)
+    if(!self.collectionView.superview) {
+        self.scrollingFast = NO;
         return;
+    }
     
     CGPoint currentOffset = self.collectionView.contentOffset;
-    NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
-    
     _scrollingFast = NO;
     
-    CGFloat distance = currentOffset.y - lastOffset.y;
+    CGFloat distance = currentOffset.y - self.lastOffset.y;
     //The multiply by 10, / 1000 isn't really necessary.......
     CGFloat scrollSpeedNotAbs = (distance * 10) / 1000; //in pixels per millisecond
     
@@ -589,8 +592,7 @@ static NSString *cellID = @"Cell";
         _scrollingFast = NO;
     }
     
-    lastOffset = currentOffset;
-    lastOffsetCapture = currentTime;
+    self.lastOffset = currentOffset;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
