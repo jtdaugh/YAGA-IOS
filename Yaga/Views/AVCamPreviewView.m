@@ -138,7 +138,7 @@
             [self.captureDevice setVideoZoomFactor:[DefaultZoomFactor floatValue]];
             [self.captureDevice unlockForConfiguration];
         } else {
-            NSLog(@"%@", error);
+            DLog(@"%@", error);
         }
     }
 }

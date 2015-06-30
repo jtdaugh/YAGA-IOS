@@ -127,7 +127,7 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    NSLog(@"layout subviews?");
+    DLog(@"layout subviews?");
     
 }
 

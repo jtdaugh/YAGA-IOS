@@ -485,7 +485,7 @@ typedef enum {
 }
 
 - (void)swipedCameraRight:(UISwipeGestureRecognizer *)recognizer {
-    NSLog(@"swiped right");
+    DLog(@"swiped right");
     [self removeFilterAtIndex:self.filterIndex];
     
     self.filterIndex--;
@@ -500,7 +500,7 @@ typedef enum {
 }
 
 - (void)swipedCameraLeft:(UISwipeGestureRecognizer *)recognizer {
-    NSLog(@"swiped left");
+    DLog(@"swiped left");
     
     // remove filter at index: self.filterIndex
     
@@ -591,7 +591,7 @@ typedef enum {
     switch (index) {
         case 0: {
             // #nofilter
-            NSLog(@"case 0");
+            DLog(@"case 0");
             break;
             
         }
@@ -692,7 +692,7 @@ typedef enum {
                 [self switchCamera:nil];
             } else if(self.lastTouchDragState == YATouchDragStateInsideTrash){
                 // end hold?
-                NSLog(@"inside trash?");
+                DLog(@"inside trash?");
                 [self cancelRecording];
             }
         }
@@ -807,7 +807,7 @@ typedef enum {
     }];
 
     [self startRecordingVideo];
-    NSLog(@"starting something...");
+    DLog(@"starting something...");
     
 }
 
@@ -920,9 +920,9 @@ typedef enum {
 
 - (void) stopRecordingVideo {
     __weak YACameraViewController *weakSelf = self;
-    NSLog(@"yo 1");
+    DLog(@"yo 1");
     [[YACameraManager sharedManager] stopRecordingWithCompletion:^(NSURL *recordedURL) {
-        NSLog(@"got here");
+        DLog(@"got here");
         if (!weakSelf.cancelledRecording) {
             if ([YAUser currentUser].currentGroup) {
                 [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:recordedURL

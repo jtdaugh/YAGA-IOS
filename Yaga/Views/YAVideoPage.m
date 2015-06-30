@@ -1191,7 +1191,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
-    NSLog(@"tapped");
+    DLog(@"tapped");
     if (self.editingCaption) return;
     if ([recognizer isEqual:self.likeDoubleTapRecognizer]) {
         [self addLike];
@@ -1289,7 +1289,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)updateControls {
-    NSLog(@"update controls");
+    DLog(@"update controls");
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
@@ -1370,7 +1370,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    NSLog(@"button index: %lu", buttonIndex);
+    DLog(@"button index: %lu", buttonIndex);
     switch (buttonIndex) {
         case 0: {
             // Post to other groups
@@ -1399,7 +1399,7 @@ static NSString *commentCellID = @"CommentCell";
             
             break;
         } default: {
-            NSLog(@"no switch case for button with index: %lu", (unsigned long)buttonIndex);
+            DLog(@"no switch case for button with index: %lu", (unsigned long)buttonIndex);
         }
     }
 }
@@ -1472,7 +1472,7 @@ static NSString *commentCellID = @"CommentCell";
                                                         [hud hide:YES];
                                                         [self collapseCrosspost];
                                                         //Your code goes in here
-                                                        NSLog(@"Main Thread Code");
+                                                        DLog(@"Main Thread Code");
                                                         
                                                     }];
                                                     if (error) {
@@ -1498,7 +1498,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)shareButtonPressed:(id)sender {
-    NSLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
+    DLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
     self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT * .6, VIEW_WIDTH, VIEW_HEIGHT*.4)];
     self.sharingView.video = self.video;
     self.sharingView.page = self;
@@ -1536,7 +1536,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)collapseCrosspost {
-    NSLog(@"collapsing...");
+    DLog(@"collapsing...");
     [self setGesturesEnabled:YES];
     
     CGRect gradientFrame = self.commentsGradient.frame;
@@ -1561,7 +1561,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)doneCrosspostingTapOut:(UITapGestureRecognizer *)recognizer {
-    NSLog(@"rec");
+    DLog(@"rec");
     [self collapseCrosspost];
 }
 

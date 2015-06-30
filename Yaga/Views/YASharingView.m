@@ -190,7 +190,7 @@
                 [YAUtils showHudWithText:NSLocalizedString(@"Copied successfully", @"")];
             }
             else {
-                NSLog(@"%@", error);
+                DLog(@"%@", error);
                 [YAUtils showHudWithText:NSLocalizedString(@"Can not copy video to groups", @"")];
             }
         }];
@@ -203,7 +203,7 @@
 }
 
 - (void)collapseCrosspost {
-    NSLog(@"collapsing 1");
+    DLog(@"collapsing 1");
 }
 
 
@@ -271,7 +271,7 @@
                                                         [hud hide:YES];
                                                         [self collapseCrosspost];
                                                         //Your code goes in here
-                                                        NSLog(@"Main Thread Code");
+                                                        DLog(@"Main Thread Code");
                                                         
                                                     }];
                                                     if (error) {

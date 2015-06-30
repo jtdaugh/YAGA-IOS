@@ -150,14 +150,14 @@
     //    [self performSelector:@selector(gpuSwitchCamera) withObject:self afterDelay:3.0];
     
     
-    NSLog(@"start recording video?!?!?!");
+    DLog(@"start recording video?!?!?!");
 }
 
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion {
-    NSLog(@"Finish recording?");
+    DLog(@"Finish recording?");
     [self.movieWriter finishRecordingWithCompletionHandler:^{
-        NSLog(@"Finish recording 2?");
-        NSLog(@"recording path: %@ ?", self.currentlyRecordingUrl.path);
+        DLog(@"Finish recording 2?");
+        DLog(@"recording path: %@ ?", self.currentlyRecordingUrl.path);
         
         [self.videoCamera removeTarget:self.movieWriter];
         

@@ -132,17 +132,17 @@
 	CGSize dstSize;
 	
 	if ( !scale && (srcSize.width < boundingSize.width) && (srcSize.height < boundingSize.height) ) {
-		//NSLog(@"Image is smaller, and we asked not to scale it in this case (scaleIfSmaller:NO)");
+		//DLog(@"Image is smaller, and we asked not to scale it in this case (scaleIfSmaller:NO)");
 		dstSize = srcSize; // no resize (we could directly return 'self' here, but we draw the image anyway to take image orientation into account)
 	} else {		
 		CGFloat wRatio = boundingSize.width / srcSize.width;
 		CGFloat hRatio = boundingSize.height / srcSize.height;
 		
 		if (wRatio < hRatio) {
-			//NSLog(@"Width imposed, Height scaled ; ratio = %f",wRatio);
+			//DLog(@"Width imposed, Height scaled ; ratio = %f",wRatio);
 			dstSize = CGSizeMake(boundingSize.width, floorf(srcSize.height * wRatio));
 		} else {
-			//NSLog(@"Height imposed, Width scaled ; ratio = %f",hRatio);
+			//DLog(@"Height imposed, Width scaled ; ratio = %f",hRatio);
 			dstSize = CGSizeMake(floorf(srcSize.width * hRatio), boundingSize.height);
 		}
 	}
