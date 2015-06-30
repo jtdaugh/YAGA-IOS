@@ -40,10 +40,6 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
-        self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
-        self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
-
         self.isInitialized = NO;
     }
     return self;
@@ -53,7 +49,12 @@
     if (self.isInitialized) {
         return;
     }
+    self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
+    self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
+    self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
+    
     self.isInitialized = YES;
+    
     
     // only init camera if not simulator
     if(TARGET_IPHONE_SIMULATOR){
@@ -68,6 +69,7 @@
             }
         }
 
+        DLog(@"starting camera capture");
         [self.videoCamera startCameraCapture];
         
         NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
@@ -98,17 +100,29 @@
     self.currentCameraView = cameraView;
 }
 
-- (void)closeCamera {
-    if(self.isInitialized){
-        [[YACameraManager sharedManager] toggleFlash:NO];
-
-        self.isInitialized = NO;
-        
+- (void)pauseCamera {
+    if (self.isInitialized){
+        DLog(@"pausing camera capture");
+        [self.videoCamera pauseCameraCapture];
+        [self.delegate setFrontFacingFlash:NO];
         [self.videoCamera stopCameraCapture];
+        runSynchronouslyOnVideoProcessingQueue(^{
+            glFinish();
+        });
+    }
+}
+
+- (void)resumeCamera {
+    if (self.isInitialized) {
+        DLog(@"resuming camera capture");
+        [self.videoCamera resumeCameraCapture];
+        [self.videoCamera startCameraCapture];
     }
 }
 
 - (void)startRecording {
+    if (!self.isInitialized) return;
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         //Create temporary URL to record to
@@ -154,6 +168,7 @@
 }
 
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion {
+    if (!self.isInitialized) return;
     DLog(@"Finish recording?");
     [self.movieWriter finishRecordingWithCompletionHandler:^{
         DLog(@"Finish recording 2?");

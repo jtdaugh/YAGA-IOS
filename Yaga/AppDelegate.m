@@ -196,6 +196,8 @@
     [self endBackgroundTask];
     
     [self removeNotificationsBadge];
+
+    [[YACameraManager sharedManager] resumeCamera];
 }
 
 - (void)removeNotificationsBadge {
@@ -205,6 +207,9 @@
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
+    
+    [[YACameraManager sharedManager] pauseCamera];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [self beginBackgroundTask];
@@ -226,18 +231,13 @@
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
             [[NSNotificationCenter defaultCenter] postNotificationName:GROUPS_REFRESHED_NOTIFICATION object:nil];
         }];
-        if ([YAUtils hasVisitedGifGrid]) {
-            [[YACameraManager sharedManager] initCamera];
-        }
     }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     DLog(@"did enter background");
 //    [AnalyticsKit applicationDidEnterBackground];
-    if ([[YAUser currentUser] loggedIn] && [YAUtils hasVisitedGifGrid]) {
-        [[YACameraManager sharedManager] closeCamera];
-    }
+    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
