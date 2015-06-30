@@ -23,7 +23,6 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - APAddressBook (0.0.10)
-  - APAsyncDictionary (0.0.6)
   - Firebase (2.3.1)
   - FLAnimatedImage (1.0.8)
   - FrameAccessor (1.3.2)
@@ -50,7 +49,6 @@ DEPENDENCIES:
   - AFDownloadRequestOperation
   - AFNetworking (~> 2.0)
   - APAddressBook (~> 0.0.7)
-  - APAsyncDictionary
   - Firebase (>= 2.3.1)
   - FLAnimatedImage (from `https://github.com/yagainc/FLAnimatedImage.git`, commit
     `88349698c94dc52ed161d2a1f0c97b9b36d4e046`)
@@ -88,7 +86,6 @@ SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
   AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
   APAddressBook: 11582a756dc59228effdbba0faf6d4675bac6b77
-  APAsyncDictionary: f15c00be399fb3737743668d1f3216a83c01ea2f
   Firebase: 462795adf92029ddb97777660627f5dd4fd59876
   FLAnimatedImage: f9422f796135aff80d8c00b2afc48015bb746e24
   FrameAccessor: 0f7ba6ce37be9a5d0302a27c731dca70af8d438b
