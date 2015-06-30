@@ -513,8 +513,6 @@
     NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
     NSString *videoLocalId = [video.localId copy];
     
-    [self.jsonOperationsManager.requestSerializer setValue:@"YAGA IOS 1" forHTTPHeaderField:@"user-agent"];
-    
     [self.jsonOperationsManager POST:api
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
