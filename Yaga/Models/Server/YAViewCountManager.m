@@ -12,7 +12,11 @@
 
 #import "YAUser.h"
 
-#define FIREBASE_VC_ROOT (@"https://yaga-dev.firebaseio.com/view_counts")
+#if (DEBUG && DEBUG_SERVER)
+#define FIREBASE_VC_ROOT (@"https://yagadev.firebaseio.com/view_counts")
+#else
+#define FIREBASE_VC_ROOT (@"https://yaga.firebaseio.com/view_counts")
+#endif
 
 @interface YAViewCountManager ()
 

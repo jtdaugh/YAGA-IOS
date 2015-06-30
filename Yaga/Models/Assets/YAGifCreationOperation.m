@@ -115,9 +115,10 @@
                                     self.video.gifFilename = gifFilename;
                                 }
                                 [self.video.realm commitWriteTransaction];
+
+                                NSDictionary *notificationOptions = self.quality != YAGifCreationHighQuality ? @{kShouldReloadVideoCell:[NSNumber numberWithBool:YES]} : nil;
                                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
-                                                                                    object:self.video];
-                                
+                                                                                    object:self.video userInfo:notificationOptions];
 //                                //check whether we need to upload gif
 //                                [[YAServer sharedServer] uploadGIFForVideoWithServerId:self.video.serverId];
                             }

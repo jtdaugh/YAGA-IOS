@@ -19,6 +19,8 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property NSString *serverId;
 @property NSDate *updatedAt;
 @property BOOL muted;
+@property long deletedVideosCount;//we track count of all deleted in order refreshed method to work
+@property long remoteVideosCount;//set when groups list is refreshed
 
 @property RLMArray<YAContact> *members;
 @property RLMArray<YAContact> *pending_members;
@@ -38,6 +40,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 - (void)muteUnmuteWithCompletion:(completionBlock)completion;
 - (void)refresh;
 - (void)refresh:(BOOL)showPullDownToRefresh;
+- (BOOL)refreshed;
 @end
 
 // This protocol enables typed collections. i.e.:

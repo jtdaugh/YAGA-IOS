@@ -51,6 +51,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic, strong) UILabel *noVideosLabel;
 
+@property (nonatomic) CGPoint lastOffset;
 @property (nonatomic) BOOL scrollingFast;
 
 @end
@@ -86,6 +87,8 @@ static NSString *cellID = @"Cell";
     [self.view addSubview:self.collectionView];
     self.collectionView.frame = self.view.bounds;
     
+    self.lastOffset = self.collectionView.contentOffset;
+    
     [self reload];
 
     [YAEventManager sharedManager].eventCountReceiver = self;
@@ -94,7 +97,7 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoDidChange:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     
@@ -261,7 +264,7 @@ static NSString *cellID = @"Cell";
     [self.deleteDictionary removeObjectForKey:videoLocalId];
 }
 
-- (void)reloadVideo:(NSNotification*)notif {
+- (void)videoDidChange:(NSNotification*)notif {
 
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -271,6 +274,9 @@ static NSString *cellID = @"Cell";
             return;
         
         if(![video.group isEqual:[YAUser currentUser].currentGroup])
+            return;
+        
+        if(![notif.userInfo[kShouldReloadVideoCell] boolValue])
             return;
         
         NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
@@ -368,7 +374,7 @@ static NSString *cellID = @"Cell";
     [self.collectionView reloadData];
     [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
     [self playVisible:YES];
     
     [self delayedHidePullToRefresh];
@@ -514,7 +520,7 @@ static NSString *cellID = @"Cell";
         });
     }
     
-    cell.index = indexPath.item;
+    [self updateScrollingFast];
     cell.shouldPlayGifAutomatically = !self.scrollingFast;
     cell.video = video;
     
@@ -570,15 +576,15 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - UIScrollView
 - (void)updateScrollingFast {
-    if(!self.collectionView.superview)
+    if(!self.collectionView.superview) {
+        self.scrollingFast = NO;
         return;
+    }
     
     CGPoint currentOffset = self.collectionView.contentOffset;
-    NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
-    
     _scrollingFast = NO;
     
-    CGFloat distance = currentOffset.y - lastOffset.y;
+    CGFloat distance = currentOffset.y - self.lastOffset.y;
     //The multiply by 10, / 1000 isn't really necessary.......
     CGFloat scrollSpeedNotAbs = (distance * 10) / 1000; //in pixels per millisecond
     
@@ -589,8 +595,7 @@ static NSString *cellID = @"Cell";
         _scrollingFast = NO;
     }
     
-    lastOffset = currentOffset;
-    lastOffsetCapture = currentTime;
+    self.lastOffset = currentOffset;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {

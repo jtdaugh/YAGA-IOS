@@ -120,8 +120,8 @@ float roundToFour(float num)
     DLog(@"renaming... %@", [YAUser currentUser].username);
     
     [[RLMRealm defaultRealm] commitWriteTransaction];
-    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:self];
-    
+    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:self userInfo:@{kShouldReloadVideoCell:[NSNumber numberWithBool:YES]}];
+
     [[YAServerTransactionQueue sharedQueue] addUpdateVideoCaptionTransaction:self];
 }
 

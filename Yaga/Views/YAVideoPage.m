@@ -143,6 +143,9 @@ static NSString *commentCellID = @"CommentCell";
         _playerView = [YAVideoPlayerView new];
         [self addSubview:self.playerView];
         
+        // So captions dont spread between videos.
+        self.layer.masksToBounds = YES;
+        
         self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self addSubview:self.overlay];
         
@@ -226,7 +229,7 @@ static NSString *commentCellID = @"CommentCell";
                 self.viewCountImageView.alpha = 0.7;
             }];
         }
-        [self.viewCounter updateValue:(othersViewCount + myViewCount) animate:YES];
+        [self.viewCounter updateValue:(int)(othersViewCount + myViewCount) animate:YES];
     } else {
         self.viewCounter.hidden = YES;
         self.viewCountImageView.hidden = YES;
