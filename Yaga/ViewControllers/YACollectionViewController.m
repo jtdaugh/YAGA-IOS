@@ -94,7 +94,7 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadVideo:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoDidChange:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     
@@ -261,7 +261,7 @@ static NSString *cellID = @"Cell";
     [self.deleteDictionary removeObjectForKey:videoLocalId];
 }
 
-- (void)reloadVideo:(NSNotification*)notif {
+- (void)videoDidChange:(NSNotification*)notif {
 
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -514,7 +514,7 @@ static NSString *cellID = @"Cell";
         });
     }
     
-    cell.index = indexPath.item;
+    [self updateScrollingFast];
     cell.shouldPlayGifAutomatically = !self.scrollingFast;
     cell.video = video;
     
