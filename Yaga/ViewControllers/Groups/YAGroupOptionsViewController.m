@@ -260,7 +260,7 @@
     
     switch (section) {
         case 0:
-            return 1;
+            return self.membersPendingJoin.count;
             break;
         case 1:
             return self.sortedMembers.count;
@@ -284,15 +284,10 @@ static NSString *CellID = @"CellID";
     frame.origin.x = 0;
     [cell setFrame:frame];
     
-    YAContact *contact = self.sortedMembers[indexPath.row];
-    
     cell.indentationLevel = 0;
     cell.indentationWidth = 0.0f;
     
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
-    
-    NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
-    cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
     
     [cell.textLabel setTextColor:[UIColor blackColor]];
     
@@ -338,6 +333,10 @@ static NSString *CellID = @"CellID";
         cell.accessoryView = requestAccessoryView;
     }
     else {
+        YAContact *contact = self.sortedMembers[indexPath.row];
+        NSDictionary *userDict = [[YAUser currentUser].phonebook objectForKey:contact.number];
+        cell.textLabel.text = [userDict[@"composite_name"] length] ? userDict[@"composite_name"] : contact.number;
+        
         CGRect frame = cell.contentView.frame;
         frame.origin.x = 0;
         [cell setFrame:frame];
@@ -350,8 +349,6 @@ static NSString *CellID = @"CellID";
         [inviteButton setFrame:CGRectMake(0, 0, 36, 36)];
         cell.accessoryView = inviteButton;
         [inviteButton addTarget:self action:@selector(inviteTapped:) forControlEvents:UIControlEventTouchUpInside];
-        YAContact *contact = self.sortedMembers[indexPath.row];
-        
         cell.indentationLevel = 0;
         cell.indentationWidth = 0.0f;
         
