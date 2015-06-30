@@ -17,6 +17,7 @@
 @interface YAGroupAddMembersViewController ()
 @property (strong, nonatomic) UIView *topBar;
 @property (strong, nonatomic) UIButton *doneButton;
+@property (strong, nonatomic) UIActivityIndicatorView *activityView;
 @property (strong, nonatomic) VENTokenField *searchBar;
 @property (strong, nonatomic) UILabel *placeHolder;
 @property (strong, nonatomic) UITableView *membersTableview;
@@ -203,15 +204,16 @@
     
     NSMutableDictionary *contact = self.filteredContacts[indexPath.row];
 
-    //update some data from phonebook
-    NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact[nPhone]];
-    if(phonebookItem) {
-        if(phonebookItem[nYagaUser]) {
-            NSMutableDictionary *updatedContact = [contact mutableCopy];
-            [updatedContact setObject:phonebookItem[nYagaUser] forKey:nYagaUser];
-            [self.filteredContacts replaceObjectAtIndex:indexPath.row withObject:updatedContact];
-        }
-    }
+//val: do not delete this please
+//    //update some data from phonebook
+//    NSDictionary *phonebookItem = [YAUser currentUser].phonebook[contact[nPhone]];
+//    if(phonebookItem) {
+//        if(phonebookItem[nYagaUser]) {
+//            NSMutableDictionary *updatedContact = [contact mutableCopy];
+//            [updatedContact setObject:phonebookItem[nYagaUser] forKey:nYagaUser];
+//            [self.filteredContacts replaceObjectAtIndex:indexPath.row withObject:updatedContact];
+//        }
+//    }
     
     cell.indentationLevel = 0;
     cell.indentationWidth = 0.0f;
@@ -349,7 +351,7 @@
                 
                 NSArray *foundUsernames = [self.filteredContacts valueForKey:nUsername];
                 if(![foundUsernames containsObject:text]) {
-                    [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:NO], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+                    [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:YES], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
                 }
             }
         }
@@ -377,6 +379,19 @@
     return [self.selectedContacts count];
 }
 
+- (void)showActivity:(BOOL)show {
+    self.doneButton.hidden = show;
+    if(show) {
+        self.activityView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - 35, 30, 30, 30)];
+        [self.topBar addSubview:self.activityView];
+        [self.activityView startAnimating];
+    }
+    else {
+        [self.activityView removeFromSuperview];
+        self.activityView = nil;
+    }
+}
+
 #pragma mark - Navigation
 - (void)doneTapped {
     if(![self validateSelectedContacts])
@@ -396,7 +411,10 @@
     
     if(self.existingGroup && self.existingGroupDirty) {
         // Existing Group
+        [self showActivity:YES];
+        
         [self.existingGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
+            [weakSelf showActivity:NO];
             if(!error) {
                 [[Mixpanel sharedInstance] track:@"Group changed" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
                 
@@ -418,7 +436,9 @@
     }
     else {
         // New group
+        [self showActivity:YES];
         [[YAUser currentUser].currentGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
+            [weakSelf showActivity:NO];
             if(!error) {
                 [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
                 

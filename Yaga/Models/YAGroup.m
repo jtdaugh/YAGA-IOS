@@ -354,7 +354,18 @@
         else {
             [[RLMRealm defaultRealm] beginWriteTransaction];
             for(NSDictionary *contactDic in contacts) {
-                [self.members addObject:[YAContact contactFromDictionary:contactDic]];
+                NSString *phoneNumber = contactDic[nPhone];
+                NSPredicate *pred = [NSPredicate predicateWithFormat:@"number = %@", phoneNumber];
+                RLMResults *existingContacts = [YAContact objectsWithPredicate:pred];
+                YAContact *contactToAdd;
+                if(existingContacts.count) {
+                    contactToAdd = existingContacts.firstObject;
+                }
+                else {
+                    contactToAdd = [YAContact contactFromDictionary:contactDic];
+                }
+                if([self.members indexOfObject:contactToAdd] == NSNotFound)
+                    [self.members addObject:contactToAdd];
             }
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
