@@ -19,10 +19,11 @@
 @interface YAEventManager ()
 
 @property (strong, nonatomic) Firebase *firebaseRoot;
-@property (strong) NSMutableDictionary *initialEventsLoadedForId;
-@property (strong) NSMutableDictionary *unsentEventsByLocalVideoId; // To keep track events before serverId is set
-@property (strong) NSMutableDictionary *eventsByServerVideoId;
-@property (strong) NSMutableDictionary *queriesByVideoId;
+@property (strong) NSCache *initialEventsLoadedForId;
+@property (strong) NSCache *unsentEventsByLocalVideoId; // To keep track of events before serverId is set
+@property (strong) NSCache *eventsByServerVideoId;
+@property (strong) NSCache *queriesByVideoId;
+@property (strong) NSArray *allQueries; // Mirrors values of queriesByVideoId because NSCache is not iterable.
 @property (strong) NSString *groupId;
 @property (strong) NSString *currentVideoServerId;
 @property (strong) NSString *currentVideoLocalId;
@@ -47,10 +48,11 @@
     self = [super init];
     if (self) {
         self.firebaseRoot = [[Firebase alloc] initWithUrl:FIREBASE_EVENTS_ROOT];
-        self.unsentEventsByLocalVideoId = [NSMutableDictionary dictionary];
-        self.eventsByServerVideoId = [NSMutableDictionary dictionary];
-        self.queriesByVideoId = [NSMutableDictionary dictionary];
-        self.initialEventsLoadedForId = [NSMutableDictionary dictionary];
+        self.unsentEventsByLocalVideoId = [[NSCache alloc] init];
+        self.eventsByServerVideoId = [[NSCache alloc] init];
+        self.queriesByVideoId = [[NSCache alloc] init];
+        self.initialEventsLoadedForId = [[NSCache alloc] init];
+        self.allQueries = [NSArray array];
         [self groupChanged];
     }
     return self;
@@ -87,15 +89,16 @@
                      withServerIdStatus:(YAVideoServerIdStatus)serverIdStatus {
     if (serverIdStatus == YAVideoServerIdStatusConfirmed) {
         if (!self.queriesByVideoId || ![serverId length]) return;
-        if (self.queriesByVideoId[serverId]) {
+        if ([self.queriesByVideoId objectForKey:serverId]) {
             return; // already observing this on firebase.
         }
         // If serverIdStatus is CONFIRMED:
         //   Check for local events in memory and prepend them to firebase & remove locally
         //   Then start childAdded firebase query for video by serverId
-
+        
         Firebase *videoRef = [self.firebaseRoot childByAppendingPath:serverId];
         [self.queriesByVideoId setObject:videoRef forKey:serverId];
+        [self.allQueries = self.allQueries arrayByAddingObject:videoRef];
         
         NSArray *locallyStoredEvents = [self.unsentEventsByLocalVideoId objectForKey:localId];
         if (locallyStoredEvents) {
@@ -111,25 +114,26 @@
             }
         }
         __weak YAEventManager *weakSelf = self;
+        [videoRef removeAllObservers]; // incase this is reached due to a cache purge, and video ref already is being observed.
         [[videoRef queryLimitedToLast:kMaxEventsFetchedPerVideo] observeEventType:FEventTypeChildAdded
                                                                         withBlock:^(FDataSnapshot *snapshot) {
-            if (weakSelf.initialEventsLoadedForId[serverId]) {
-                YAEvent *newEvent = [YAEvent eventWithSnapshot:snapshot];
-                NSMutableArray *eventsArray = weakSelf.eventsByServerVideoId[serverId];
-                [eventsArray addObject:newEvent];
-                if ([weakSelf.currentVideoServerId isEqualToString:serverId]) {
-                    [weakSelf.eventReceiver videoWithServerId:serverId localId:localId didReceiveNewEvent:newEvent];
-                }
-                [weakSelf.eventCountReceiver videoWithServerId:serverId localId:localId eventCountUpdated:[eventsArray count]];
-            }
-        }];
+                                                                            if ([weakSelf.initialEventsLoadedForId objectForKey:serverId]) {
+                                                                                YAEvent *newEvent = [YAEvent eventWithSnapshot:snapshot];
+                                                                                NSMutableArray *eventsArray = [weakSelf.eventsByServerVideoId objectForKey:serverId];
+                                                                                [eventsArray addObject:newEvent];
+                                                                                if ([weakSelf.currentVideoServerId isEqualToString:serverId]) {
+                                                                                    [weakSelf.eventReceiver videoWithServerId:serverId localId:localId didReceiveNewEvent:newEvent];
+                                                                                }
+                                                                                [weakSelf.eventCountReceiver videoWithServerId:serverId localId:localId eventCountUpdated:[eventsArray count]];
+                                                                            }
+                                                                        }];
         [[videoRef queryLimitedToLast:kMaxEventsFetchedPerVideo] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-            weakSelf.initialEventsLoadedForId[serverId] = @(YES);
+            [weakSelf.initialEventsLoadedForId setObject:@(YES) forKey:serverId];
             NSMutableArray *eventsArray = [NSMutableArray array];
             for (FDataSnapshot *eventSnapshot in snapshot.children) {
                 [eventsArray addObject:[YAEvent eventWithSnapshot:eventSnapshot]];
             }
-            weakSelf.eventsByServerVideoId[serverId] = eventsArray;
+            [weakSelf.eventsByServerVideoId setObject:eventsArray forKey:serverId];
             if ([weakSelf.currentVideoServerId isEqualToString:serverId]) {
                 [weakSelf.eventReceiver videoWithServerId:serverId localId:localId receivedInitialEvents:eventsArray];
             }
@@ -148,10 +152,10 @@
         [[[self.firebaseRoot childByAppendingPath:serverId] childByAutoId] setValue:[event toDictionary]];
     } else {
         // Add the local event to memory, and notify receivers
-        NSMutableArray *events = self.unsentEventsByLocalVideoId[localId];
+        NSMutableArray *events = [self.unsentEventsByLocalVideoId objectForKey:localId];
         if (!events) events = [NSMutableArray array];
         [events addObject:event];
-        self.unsentEventsByLocalVideoId[localId] = events;
+        [self.unsentEventsByLocalVideoId setObject:events forKey:localId];
         [self.eventCountReceiver videoWithServerId:serverId localId:localId eventCountUpdated:[events count]];
         if ([self.currentVideoLocalId isEqualToString:localId]) {
             [self.eventReceiver videoWithServerId:serverId localId:localId didReceiveNewEvent:event];
@@ -162,14 +166,10 @@
 - (void)groupChanged {
     if (![[YAUser currentUser].currentGroup.serverId isEqualToString:self.groupId]) {
         [self.eventsByServerVideoId removeAllObjects];
-        if (self.queriesByVideoId) {
-            for (id key in self.queriesByVideoId) {
-                if (self.queriesByVideoId[key]) {
-                    Firebase *ref = self.queriesByVideoId[key];
-                    [ref removeAllObservers];
-                }
-            }
+        for (Firebase *ref in self.allQueries) {
+            [ref removeAllObservers];
         }
+        self.allQueries = [NSArray array];
         [self.queriesByVideoId removeAllObjects];
         [self.initialEventsLoadedForId removeAllObjects];
     }
