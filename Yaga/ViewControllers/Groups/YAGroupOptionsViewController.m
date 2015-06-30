@@ -467,7 +467,7 @@ static NSString *CellID = @"CellID";
         
         if(!error) {
             [self.membersPendingJoin removeObject:allowedContact];
-            [self.tableView reloadData];
+            [self.group refresh];
         }
         else {
             DLog(@"Can't add members");
