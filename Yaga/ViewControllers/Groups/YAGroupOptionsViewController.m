@@ -448,6 +448,7 @@ static NSString *CellID = @"CellID";
     NSMutableArray *cancelled = [NSMutableArray arrayWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
     YAContact *cancelledContact = self.membersPendingJoin[sender.tag];
     [cancelled addObject:cancelledContact.number];
+    [[NSUserDefaults standardUserDefaults] setObject:cancelled forKey:kCancelledJoins];
     
     [self.membersPendingJoin removeObject:cancelledContact];
     [self.tableView reloadData];
