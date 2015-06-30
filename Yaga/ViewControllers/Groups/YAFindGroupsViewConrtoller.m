@@ -46,10 +46,10 @@ static NSString *CellIdentifier = @"GroupsCell";
         self.tableView.layoutMargins = UIEdgeInsetsZero;
     
     _groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
-    [self.tableView reloadData];
     
     [self setupPullToRefresh];
     [self.tableView triggerPullToRefresh];
+    [self.tableView reloadData];
     
     UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(backButtonPressed:)];
     self.navigationItem.leftBarButtonItem = backButton;
@@ -72,7 +72,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSUInteger result = self.groupsDataArray.count;
-    if(!result)
+    if(!result && self.tableView.pullToRefreshView.state == SVPullToRefreshStateStopped)
         result = 1;
     return result;
 }
@@ -96,7 +96,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     cell.detailTextLabel.frame = CGRectMake(cell.detailTextLabel.frame.origin.x, cell.detailTextLabel.frame.origin.y, cell.detailTextLabel.frame.size.width - 150, cell.detailTextLabel.frame.size.height);
     [cell.textLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
     
-    if(!self.groupsDataArray.count) {
+    if(!self.groupsDataArray.count && self.tableView.pullToRefreshView.state == SVPullToRefreshStateStopped) {
         cell.textLabel.text = NSLocalizedString(@"Wow, you're early. Create a group to get your friends on Yaga", @"");
         cell.textLabel.numberOfLines = 0;
         cell.textLabel.font = [UIFont fontWithName:cell.textLabel.font.fontName size:18];
@@ -106,11 +106,11 @@ static NSString *CellIdentifier = @"GroupsCell";
         createGroupButton.frame = CGRectMake(0, 0, 90, 30);
         [createGroupButton addTarget:self action:@selector(createGroupButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
         [createGroupButton setTitle:NSLocalizedString(@"Create", @"") forState:UIControlStateNormal];
-        [createGroupButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [createGroupButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
-        [createGroupButton setTintColor:[UIColor whiteColor]];
+        [createGroupButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        [createGroupButton setTitleColor:PRIMARY_COLOR_ACCENT forState:UIControlStateHighlighted];
+        [createGroupButton setTintColor:PRIMARY_COLOR];
         createGroupButton.layer.borderWidth = 2.0f;
-        createGroupButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+        createGroupButton.layer.borderColor = [PRIMARY_COLOR CGColor];
         createGroupButton.layer.cornerRadius = 4;
         cell.accessoryView = createGroupButton;
         return cell;
@@ -244,6 +244,9 @@ static NSString *CellIdentifier = @"GroupsCell";
             [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
             return;
         }
+
+        if(!weakSelf.groupsDataArray.count)
+            [weakSelf.tableView reloadData];
         
         [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
             [weakSelf.tableView.pullToRefreshView stopAnimating];
