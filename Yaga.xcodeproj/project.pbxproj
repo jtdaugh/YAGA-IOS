@@ -109,6 +109,7 @@
 		86B864AC1A433343002256FF /* CountryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864AB1A433343002256FF /* CountryCell.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
 		882F082D1AEF6F12007FAA66 /* YAPanGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 882F082C1AEF6F12007FAA66 /* YAPanGestureRecognizer.m */; };
+		882FA9F61B43398100B5F408 /* NSMutableArray+NSCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 882FA9F51B43398100B5F408 /* NSMutableArray+NSCache.m */; };
 		8830D8EA1B35E09A006F841D /* YAGroupsNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8830D8E91B35E09A006F841D /* YAGroupsNavigationController.m */; };
 		884C79DA1B372F6700E21583 /* YACameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 884C79D91B372F6700E21583 /* YACameraManager.m */; };
 		885F53661B3F826700D359DB /* RCounter.m in Sources */ = {isa = PBXBuildFile; fileRef = 885F53651B3F826700D359DB /* RCounter.m */; };
@@ -312,6 +313,8 @@
 		86EF0B8E1A40592F00FF4E3C /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		882F082B1AEF6F12007FAA66 /* YAPanGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPanGestureRecognizer.h; sourceTree = "<group>"; };
 		882F082C1AEF6F12007FAA66 /* YAPanGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPanGestureRecognizer.m; sourceTree = "<group>"; };
+		882FA9F41B43398100B5F408 /* NSMutableArray+NSCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSMutableArray+NSCache.h"; path = "../NSMutableArray+NSCache.h"; sourceTree = "<group>"; };
+		882FA9F51B43398100B5F408 /* NSMutableArray+NSCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSMutableArray+NSCache.m"; path = "../NSMutableArray+NSCache.m"; sourceTree = "<group>"; };
 		8830D8E81B35E09A006F841D /* YAGroupsNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupsNavigationController.h; sourceTree = "<group>"; };
 		8830D8E91B35E09A006F841D /* YAGroupsNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupsNavigationController.m; sourceTree = "<group>"; };
 		884C79D81B372F6700E21583 /* YACameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraManager.h; sourceTree = "<group>"; };
@@ -509,6 +512,8 @@
 		6E9188741A3F3A5A0034AB63 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				882FA9F41B43398100B5F408 /* NSMutableArray+NSCache.h */,
+				882FA9F51B43398100B5F408 /* NSMutableArray+NSCache.m */,
 				0FDC3AF61B0E69C0003A688D /* UIImage+YABlur.h */,
 				0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */,
 				0FDC3AF81B0E69C0003A688D /* UIWindow+YASnapshot.h */,
@@ -959,6 +964,7 @@
 				0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */,
 				6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */,
 				6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */,
+				882FA9F61B43398100B5F408 /* NSMutableArray+NSCache.m in Sources */,
 				6E9188D01A3F3A5A0034AB63 /* UIImage+Resize.m in Sources */,
 				6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */,
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
