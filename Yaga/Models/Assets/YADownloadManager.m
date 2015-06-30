@@ -80,8 +80,9 @@
                 video.localCreatedAt = [NSDate date];
                 [video.realm commitWriteTransaction];
                 
+                NSDictionary *notificationOptions = gifJob ? @{kShouldReloadVideoCell:[NSNumber numberWithBool:YES]} : nil;
                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
-                                                                    object:video];
+                                                                    object:video userInfo:notificationOptions];
                 [self jobFinishedForUrl:stringUrl video:video gifJob:gifJob];
             }
             else {

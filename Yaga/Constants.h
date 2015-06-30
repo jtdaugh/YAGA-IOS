@@ -73,6 +73,8 @@
 #define kNewVideos                              @"newVideos"
 #define kUpdatedVideos                          @"updatedVideos"
 
+#define kShouldReloadVideoCell                  @"kShouldReloadVideoCell"
+
 //first start tooltips
 #define kFirstVideoRecorded                     @"kFirstVideoRecorded"
 #define kCellWasAlreadyTapped                   @"kCellWasAlreadyTapped"

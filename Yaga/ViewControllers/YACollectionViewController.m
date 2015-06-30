@@ -276,6 +276,9 @@ static NSString *cellID = @"Cell";
         if(![video.group isEqual:[YAUser currentUser].currentGroup])
             return;
         
+        if(![notif.userInfo[kShouldReloadVideoCell] boolValue])
+            return;
+        
         NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
         
         //the following line will ensure indexPathsForVisibleItems will return correct results

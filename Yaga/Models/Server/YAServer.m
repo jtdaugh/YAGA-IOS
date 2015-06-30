@@ -576,7 +576,8 @@
                                [video.realm beginWriteTransaction];
                                video.uploadedToAmazon = YES;
                                [video.realm commitWriteTransaction];
-                               [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
+                               [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video userInfo:@{kShouldReloadVideoCell:[NSNumber numberWithBool:YES]}];
+                               
                                [self executePendingCopyForVideo:video];
                            }
 
