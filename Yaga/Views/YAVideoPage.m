@@ -226,7 +226,7 @@ static NSString *commentCellID = @"CommentCell";
                 self.viewCountImageView.alpha = 0.7;
             }];
         }
-        [self.viewCounter updateValue:(othersViewCount + myViewCount) animate:YES];
+        [self.viewCounter updateValue:(int)(othersViewCount + myViewCount) animate:YES];
     } else {
         self.viewCounter.hidden = YES;
         self.viewCountImageView.hidden = YES;

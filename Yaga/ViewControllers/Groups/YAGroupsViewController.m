@@ -237,14 +237,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     cell.membersString = group.membersString;
     
     cell.muted = group.muted;
-    
-    NSDate *localGroupUpdateDate = [self.groupsUpdatedAt objectForKey:group.localId];
-    if(!localGroupUpdateDate || [group.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
-        cell.showUpdatedIndicator = YES;
-    }
-    else {
-        cell.showUpdatedIndicator = NO;
-    }
+
+    cell.showUpdatedIndicator = !group.refreshed;
     
     return cell;
 }

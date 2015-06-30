@@ -105,6 +105,10 @@
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     NSArray *pending_members = dictionary[YA_RESPONSE_PENDING_MEMBERS];
     
+    //refresh remote count in only case it's a groups list refresh call
+    if(![dictionary[YA_VIDEO_POSTS] isKindOfClass:[NSArray class]])
+        self.remoteVideosCount = [dictionary[YA_VIDEO_POSTS] intValue];
+    
     for(NSDictionary *memberDic in members){
         NSString *phoneNumber = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
         
@@ -508,6 +512,7 @@
                 BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue];
                 
                 if(deleted) {
+                    self.deletedVideosCount++;
                     [videosToDelete addObject:video];
                 }
                 else {
@@ -542,6 +547,7 @@
             
             //skip deleted vids
             if([videoDic[YA_VIDEO_DELETED] boolValue]) {
+                self.deletedVideosCount++;
                 DLog(@"skipping deleted videos");
                 continue;
             }
@@ -582,6 +588,7 @@
             [newVideos addObject:video];
         }
     }
+    
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
     for(YAVideo *video in [videosToDelete copy]) {
@@ -590,4 +597,9 @@
     
     return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos};
 }
+
+- (BOOL)refreshed {
+    return self.videos.count + self.deletedVideosCount == self.remoteVideosCount;
+}
+
 @end
