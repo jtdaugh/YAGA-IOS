@@ -50,6 +50,7 @@
     [self.view addSubview:self.countryButton];
 
     self.phoneTextField = [[UITextField alloc] initWithFrame:CGRectZero];
+    self.phoneTextField.layer.sublayerTransform = CATransform3DMakeTranslation(20, 0, 0);
     [self.phoneTextField setBackgroundColor:[UIColor whiteColor]];
     [self.phoneTextField setKeyboardType:UIKeyboardTypePhonePad];
     [self.phoneTextField setTextAlignment:NSTextAlignmentLeft];
@@ -61,10 +62,10 @@
     [self.phoneTextField addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
     [self.view addSubview:self.phoneTextField];
     
-    UIView *leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 24, self.phoneTextField.frame.size.height)];
-    leftView.backgroundColor = self.phoneTextField.backgroundColor;
-    self.phoneTextField.leftView = leftView;
-    self.phoneTextField.leftViewMode = UITextFieldViewModeAlways;
+//    UIView *leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 24, self.phoneTextField.frame.size.height)];
+//    leftView.backgroundColor = self.phoneTextField.backgroundColor;
+//    self.phoneTextField.leftView = leftView;
+//    self.phoneTextField.leftViewMode = UITextFieldViewModeAlways;
     
     self.nextButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [self.nextButton setBackgroundColor:[UIColor whiteColor]];

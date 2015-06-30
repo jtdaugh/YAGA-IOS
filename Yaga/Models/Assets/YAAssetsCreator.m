@@ -89,7 +89,7 @@
 
     NSMutableArray *assetURLsToConcatenate = [NSMutableArray arrayWithObject:videoURL];
 
-    NSString *bumperPath = [[NSBundle mainBundle] pathForResource:@"bumper_rotated" ofType:@"mp4"];
+    NSString *bumperPath = [[NSBundle mainBundle] pathForResource:@"bumper" ofType:@"mp4"];
     [assetURLsToConcatenate addObject:[NSURL fileURLWithPath:bumperPath]];
     
     [self concatenateAssetsAtURLs:assetURLsToConcatenate

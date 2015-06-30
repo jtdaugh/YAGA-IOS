@@ -82,6 +82,7 @@
     
     self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
 //    [self.shareBar setBackgroundColor:PRIMARY_COLOR];
+    [self.shareBar setUserInteractionEnabled:NO];
     [self.bgOverlay addSubview:self.shareBar];
     
 //    FBShimmeringView *shimmeringView = [[FBShimmeringView alloc] initWithFrame:self.shareBar.frame];
