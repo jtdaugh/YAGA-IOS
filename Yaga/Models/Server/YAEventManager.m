@@ -19,14 +19,14 @@
 @interface YAEventManager ()
 
 @property (strong, nonatomic) Firebase *firebaseRoot;
-@property (strong, nonatomic) NSMutableDictionary *initialEventsLoadedForId;
-@property (strong, nonatomic) NSMutableDictionary *unsentEventsByLocalVideoId; // To keep track events before serverId is set
-@property (strong, nonatomic) NSMutableDictionary *eventsByServerVideoId;
-@property (strong, nonatomic) NSMutableDictionary *queriesByVideoId;
-@property (strong, nonatomic) NSString *groupId;
-@property (strong, nonatomic) NSString *currentVideoServerId;
-@property (strong, nonatomic) NSString *currentVideoLocalId;
-@property (nonatomic) YAVideoServerIdStatus currentVideoServerIdStatus;
+@property (strong) NSMutableDictionary *initialEventsLoadedForId;
+@property (strong) NSMutableDictionary *unsentEventsByLocalVideoId; // To keep track events before serverId is set
+@property (strong) NSMutableDictionary *eventsByServerVideoId;
+@property (strong) NSMutableDictionary *queriesByVideoId;
+@property (strong) NSString *groupId;
+@property (strong) NSString *currentVideoServerId;
+@property (strong) NSString *currentVideoLocalId;
+@property YAVideoServerIdStatus currentVideoServerIdStatus;
 
 @property (strong, nonatomic) NSString *videoIdMonitoring;
 

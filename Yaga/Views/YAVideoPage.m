@@ -143,6 +143,9 @@ static NSString *commentCellID = @"CommentCell";
         _playerView = [YAVideoPlayerView new];
         [self addSubview:self.playerView];
         
+        // So captions dont spread between videos.
+        self.layer.masksToBounds = YES;
+        
         self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self addSubview:self.overlay];
         
