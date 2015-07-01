@@ -37,6 +37,7 @@
 @property (strong, nonatomic) UIButton *saveButton;
 @property (strong, nonatomic) UIButton *confirmCrosspost;
 @property (strong, nonatomic) UIButton *closeCrosspost;
+@property (strong, nonatomic) MBProgressHUD *hud;
 
 @property (strong, nonatomic) UIView *topBar;
 @end
@@ -183,16 +184,16 @@
     NSLog(@"%li", (long)sender.tag);
     
     NSURL *url = [YAUtils urlFromFileName:self.video.mp4Filename];
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self animated:YES];
-    hud.mode = MBProgressHUDModeIndeterminate;
-    hud.labelText = @"Exporting";
+    self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
+    self.hud.mode = MBProgressHUDModeIndeterminate;
+    self.hud.labelText = @"Exporting";
     
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:url completion:^(NSURL *filePath, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
                 DLog(@"error");
             } else {
-                [self shareVideoWithActionType:sender.tag url:filePath hud:hud];
+                [self shareVideoWithActionType:sender.tag url:filePath];
             }
         });
         
@@ -200,7 +201,7 @@
 
 }
 
-- (void)shareVideoWithActionType:(NSUInteger)type url:(NSURL *)url hud:(MBProgressHUD *)hud {
+- (void)shareVideoWithActionType:(NSUInteger)type url:(NSURL *)url {
     switch (type) {
         case 0: {
             //iMessage
@@ -217,7 +218,7 @@
             // Present message view controller on screen
             [(YASwipingViewController *) self.page.presentingVC presentViewController:messageController animated:YES completion:^{
                 //                [self.hud hide:NO];
-                [hud hide:YES];
+                [self showSuccessHud];
             }];
             
             break;
@@ -242,26 +243,26 @@
                                             delegate:nil];
             //            dialog.delegate = self;
             //            [dialog show];
-            [hud hide:YES];
+            [self showSuccessHud];
             
             break;
         } case 2: {
             // Twitter
-            [hud hide:YES];
+            [self.hud hide:YES];
 
             [self getTwitterAccount:^(ACAccount *account) {
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                     NSData *data = [NSData dataWithContentsOfURL: [NSURL URLWithString:self.video.mp4Filename]];
-                    [hud hide:NO];
-                    hud.labelText = @"Posting";
+                    [self.hud hide:NO];
+                    self.hud.labelText = @"Posting";
                     [SocialVideoHelper uploadTwitterVideo:data account:account withCompletion:^{
-                        [hud hide:YES];
+                        [self showSuccessHud];
 
                     }];
                 }];
                 
             }];
-            
+
             break;
         } case 3: {
             // save
@@ -273,8 +274,8 @@
                 else {
                     NSLog(@"URL: %@", assetURL);
                 }
-                [hud hide:YES];
-
+                
+                [self showSuccessHud];
             }];
             
             break;
@@ -282,6 +283,18 @@
             break;
     }
     
+}
+
+- (void)showSuccessHud {
+    self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
+    self.hud.mode = MBProgressHUDModeIndeterminate;
+    self.hud.labelText = @"Success!";
+    
+    [self performSelector:@selector(hideHud) withObject:self afterDelay:1.0];
+}
+
+- (void)hideHud {
+    [self.hud hide:YES];
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
