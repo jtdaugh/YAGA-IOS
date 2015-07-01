@@ -18,6 +18,10 @@
 
 #import "YASwipingViewController.h"
 
+#define kNewGroupCellId @"postToNewGroupCell"
+#define kCrosspostCellId @"crossPostCell"
+
+
 @interface YASharingView ()
 
 @property (strong, nonatomic) UIView *bgOverlay;
@@ -58,7 +62,8 @@
     
     self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, topPadding, VIEW_WIDTH, self.frame.size.height - topPadding)];
     [self.groupsList setBackgroundColor:[UIColor clearColor]];
-    [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:@"crossPostCell"];
+    [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:kCrosspostCellId];
+    [self.groupsList registerClass:[UITableViewCell class] forCellReuseIdentifier:kNewGroupCellId];
     self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.groupsList setContentInset:UIEdgeInsetsMake(0, 0, shareBarHeight, 0)];
     self.groupsList.allowsSelection = YES;
@@ -300,11 +305,25 @@
 
 #pragma mark - UITableViewDataSource / UITableViewDelegate
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    YACrosspostCell *cell = [tableView dequeueReusableCellWithIdentifier:@"crossPostCell" forIndexPath:indexPath];
-    YAGroup *group = [self.groups objectAtIndex:indexPath.row];
-    [cell setGroupTitle:group.name];
-    return cell;
+    if (indexPath.row == [self.groups count]) {
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kNewGroupCellId forIndexPath:indexPath];
+        cell.backgroundColor = [UIColor clearColor];
+        cell.textLabel.font = [UIFont fontWithName:BIG_FONT size:28];
+        cell.textLabel.textColor = [UIColor whiteColor];
+        
+        cell.textLabel.shadowColor = [UIColor blackColor];
+        cell.textLabel.shadowOffset = CGSizeMake(0.5, 0.5);
+        UIImageView *disclosure = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        disclosure.image = [UIImage imageNamed:@"Disclosure"];
+        cell.accessoryView = disclosure;
+        cell.textLabel.text = @" Post to new group";
+        return cell;
+    } else {
+        YACrosspostCell *cell = [tableView dequeueReusableCellWithIdentifier:kCrosspostCellId forIndexPath:indexPath];
+        YAGroup *group = [self.groups objectAtIndex:indexPath.row];
+        [cell setGroupTitle:group.name];
+        return cell;
+    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -312,14 +331,18 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.groups count];
+    return [self.groups count] + 1;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self renderButton:[[tableView indexPathsForSelectedRows] count]];
+    if (indexPath.row == [self.groups count]) {
+        
+    } else {
+        [self renderButton:[[tableView indexPathsForSelectedRows] count]];
+    }
 }
 
--(void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self renderButton:[[tableView indexPathsForSelectedRows] count]];
 }
 

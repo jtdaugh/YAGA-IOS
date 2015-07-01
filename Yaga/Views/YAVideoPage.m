@@ -468,7 +468,7 @@ static NSString *commentCellID = @"CommentCell";
     
     CGSize viewCountSize = CGSizeMake(100, 23);
     
-    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(VIEW_WIDTH/2 + 1, VIEW_HEIGHT - viewCountSize.height - 11)];
+    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(VIEW_WIDTH/2 + 1, VIEW_HEIGHT - viewCountSize.height - 10)];
                         
     self.viewCounter.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.viewCounter.layer.shadowRadius = 0.0f;
