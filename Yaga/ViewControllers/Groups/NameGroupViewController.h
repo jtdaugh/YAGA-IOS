@@ -11,4 +11,6 @@
 @interface NameGroupViewController : UIViewController
 @property (strong, nonatomic) NSMutableArray *membersDic;
 
+@property (nonatomic, strong) YAVideo *initialVideo;
+
 @end

@@ -13,6 +13,7 @@
 #import "APPhoneWithLabel.h"
 #import "NSString+Hash.h"
 #import "YAUtils.h"
+#import "YAServer.h"
 
 @interface YAGroupAddMembersViewController ()
 @property (strong, nonatomic) UIView *topBar;
@@ -442,7 +443,9 @@
             if(!error) {
                 YAGroup *newGroup = result;
                 [YAUser currentUser].currentGroup = newGroup;
-                
+                if (weakSelf.initialVideo ) {
+                    [weakSelf postInitialVideo];
+                }
                 //set current date as updatedAt for new group so unviewed badge isn't shown
                 NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
                 [groupsUpdatedAt setObject:[NSDate date] forKey:newGroup.localId];
@@ -469,6 +472,18 @@
         }];
 
     }
+}
+
+- (void)postInitialVideo {
+    // Always call this server method so video immediately appears in newly created group. Copy video currently waits on server stuff.
+    if (self.initialVideo.group) {
+        [[YAServer sharedServer] copyVideo:self.initialVideo toGroupsWithIds:@[[YAUser currentUser].currentGroup.serverId] withCompletion:^(id response, NSError *error) {
+            // Do nothing for now.
+        }];
+    } else {
+        [[YAServer sharedServer] postUngroupedVideo:self.initialVideo toGroups:@[[YAUser currentUser].currentGroup]];
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:self.initialVideo];
 }
 
 - (void)popToGridViewController {

@@ -36,6 +36,7 @@
     self.view.clipsToBounds = YES;
     self.view.backgroundColor = [UIColor blackColor];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dismissDueToNewGroup:)  name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
 
     [self initVideoPage];
 
@@ -44,6 +45,7 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
 }
 
 - (void)initVideoPage {
@@ -67,6 +69,11 @@
     [page setVideo:self.video shouldPreload:YES];
     page.playerView.playWhenReady = YES;
     self.videoPage = page;
+}
+
+- (void)dismissDueToNewGroup:(id)sender {
+    
+    [self dismissAnimated];
 }
 
 - (void)didDeleteVideo:(id)sender {

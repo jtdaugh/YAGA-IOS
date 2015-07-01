@@ -117,6 +117,7 @@
 - (void)nextScreen {
     YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
     vc.inCreateGroupFlow = YES;
+    vc.initialVideo = self.initialVideo;
     vc.groupName = self.groupNameTextField.text;
     [self.navigationController pushViewController:vc animated:YES];
 }

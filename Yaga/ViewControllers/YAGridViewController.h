@@ -22,7 +22,7 @@ typedef void (^cameraCompletion)(void);
 - (void)updateCameraAccessoriesWithViewIndex:(NSUInteger)index;
 - (void)setInitialAnimationFrame:(CGRect)initialFrame;
 - (void)swapOutOfOnboardingState;
-- (void)showCreateGroup;
+- (void)showCreateGroupWithInitialVideo:(YAVideo *)initialVideo;
 - (void)showFindGroups;
 
 

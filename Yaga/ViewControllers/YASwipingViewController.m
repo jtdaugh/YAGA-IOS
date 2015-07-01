@@ -68,9 +68,16 @@
     self.scrollView.pagingEnabled = YES;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dismissDueToNewGroup:)  name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION  object:nil];
     
     //show selected video fullscreen jpg preview
     [self showJpgPreview:YES];
+}
+
+
+- (void)dismissDueToNewGroup:(id)sender {
+    
+    [self dismissAnimated];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -105,6 +112,7 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
 }
 
 - (NSUInteger)tileIndexFromPageIndex:(NSUInteger)pageIndex {

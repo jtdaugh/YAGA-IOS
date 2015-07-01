@@ -63,10 +63,17 @@
                                              selector:@selector(openGroupOptions)
                                                  name:OPEN_GROUP_OPTIONS_NOTIFICATION
                                                object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(showCreateGroup:)
+                                                 name:BEGIN_CREATE_GROUP_FROM_VIDEO_NOTIFICATION
+                                               object:nil];
+
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:BEGIN_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -182,8 +189,21 @@
     }
 }
 
-- (void)showCreateGroup {
-    [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
+- (void)showCreateGroup:(NSNotification *)notif {
+    YAVideo *video = notif.object;
+    [self showCreateGroupWithInitialVideo:video];
+}
+
+- (void)showCreateGroupWithInitialVideo:(YAVideo *)initialVideo {
+    NameGroupViewController *vc = [NameGroupViewController new];
+    if (initialVideo) {
+        vc.initialVideo = initialVideo; // may be nil
+        [self.navigationController dismissViewControllerAnimated:NO completion:^{
+            [self.navigationController pushViewController:vc animated:NO];
+        }];
+    } else {
+        [self.navigationController pushViewController:vc animated:YES];
+    }
 }
 
 - (void)showFindGroups {
