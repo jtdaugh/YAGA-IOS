@@ -205,9 +205,10 @@
     switch (type) {
         case 0: {
             //iMessage
+            
             NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
             NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-            
+
             MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
             messageController.messageComposeDelegate = self;
             [messageController setBody:detailText];
@@ -264,7 +265,10 @@
                     self.hud.labelText = @"Posting";
                     self.hud.mode = MBProgressHUDModeIndeterminate;
                     
-                    [SocialVideoHelper uploadTwitterVideo:data account:account withCompletion:^{
+                    NSString *caption = ![self.video.caption isEqualToString:@""] ? [NSString stringWithFormat:@"%@ ", self.video.caption] : @"";
+                    NSString *detailText = [NSString stringWithFormat:@"%@#yaga http://getyaga.com", caption];
+
+                    [SocialVideoHelper uploadTwitterVideo:data account:account text:detailText withCompletion:^{
                         
                         [self showSuccessHud];
                         

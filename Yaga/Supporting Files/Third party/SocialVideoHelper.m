@@ -111,7 +111,7 @@
 
 
 
-+(void)uploadTwitterVideo:(NSData*)videoData account:(ACAccount*)account withCompletion:(dispatch_block_t)completion{
++(void)uploadTwitterVideo:(NSData*)videoData account:(ACAccount*)account text:(NSString *)text withCompletion:(dispatch_block_t)completion{
     
     NSURL *twitterPostURL = [[NSURL alloc] initWithString:@"https://upload.twitter.com/1.1/media/upload.json"];
     
@@ -131,14 +131,14 @@
             
             NSString *mediaID = [NSString stringWithFormat:@"%@", [returnedData valueForKey:@"media_id_string"]];
             
-            [SocialVideoHelper tweetVideoStage2:videoData mediaID:mediaID account:account withCompletion:completion];
+            [SocialVideoHelper tweetVideoStage2:videoData mediaID:mediaID account:account text:text withCompletion:completion];
             
             NSLog(@"stage one success, mediaID -> %@", mediaID);
         }
     }];
 }
 
-+(void)tweetVideoStage2:(NSData*)videoData mediaID:(NSString *)mediaID account:(ACAccount*)account withCompletion:(dispatch_block_t)completion{
++(void)tweetVideoStage2:(NSData*)videoData mediaID:(NSString *)mediaID account:(ACAccount*)account text:(NSString *)text withCompletion:(dispatch_block_t)completion{
     
     NSURL *twitterPostURL = [[NSURL alloc] initWithString:@"https://upload.twitter.com/1.1/media/upload.json"];
     NSDictionary *postParams = @{@"command": @"APPEND",
@@ -153,7 +153,7 @@
     [postRequest performRequestWithHandler:^(NSData *responseData, NSHTTPURLResponse *urlResponse, NSError *error) {
         NSLog(@"Stage2 HTTP Response: %li, %@", (long)[urlResponse statusCode], [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]);
         if (!error) {
-            [SocialVideoHelper tweetVideoStage3:videoData mediaID:mediaID account:account withCompletion:completion];
+            [SocialVideoHelper tweetVideoStage3:videoData mediaID:mediaID account:account text:text withCompletion:completion];
         }
         else {
             NSLog(@"Error stage 2 - %@", error);
@@ -161,7 +161,7 @@
     }];
 }
 
-+(void)tweetVideoStage3:(NSData*)videoData mediaID:(NSString *)mediaID account:(ACAccount*)account withCompletion:(dispatch_block_t)completion{
++(void)tweetVideoStage3:(NSData*)videoData mediaID:(NSString *)mediaID account:(ACAccount*)account text:(NSString *)text withCompletion:(dispatch_block_t)completion{
     
     NSURL *twitterPostURL = [[NSURL alloc] initWithString:@"https://upload.twitter.com/1.1/media/upload.json"];
     
@@ -177,15 +177,15 @@
         if (error) {
             NSLog(@"Error stage 3 - %@", error);
         } else {
-            [SocialVideoHelper tweetVideoStage4:videoData mediaID:mediaID account:account withCompletion:completion];
+            [SocialVideoHelper tweetVideoStage4:videoData mediaID:mediaID account:account text:text withCompletion:completion];
         }
     }];
 }
 
-+(void)tweetVideoStage4:(NSData*)videoData mediaID:(NSString *)mediaID account:(ACAccount*)account withCompletion:(dispatch_block_t)completion{
++(void)tweetVideoStage4:(NSData*)videoData mediaID:(NSString *)mediaID account:(ACAccount*)account text:(NSString *)text withCompletion:(dispatch_block_t)completion{
     NSURL *twitterPostURL = [[NSURL alloc] initWithString:@"https://api.twitter.com/1.1/statuses/update.json"];
-     NSString *statusContent = [NSString stringWithFormat:@"#SocialVideoHelper# https://github.com/liu044100/SocialVideoHelper"];
-
+    NSString *statusContent = text;
+    
     // Set the parameters for the third twitter video request.
     NSDictionary *postParams = @{@"status": statusContent,
                                @"media_ids" : @[mediaID]};

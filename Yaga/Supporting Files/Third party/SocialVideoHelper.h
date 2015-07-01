@@ -13,7 +13,7 @@
 
 @interface SocialVideoHelper : NSObject
 
-+(void)uploadTwitterVideo:(NSData*)videoData account:(ACAccount*)account withCompletion:(dispatch_block_t)completion;
++(void)uploadTwitterVideo:(NSData*)videoData account:(ACAccount*)account text:(NSString *)text withCompletion:(dispatch_block_t)completion;
 
 +(void)uploadFacebookVideo:(NSData*)videoData account:(ACAccount*)account withCompletion:(dispatch_block_t)completion;
 
