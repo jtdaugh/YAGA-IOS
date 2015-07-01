@@ -22,6 +22,9 @@
 
 #import "SocialVideoHelper.h"
 
+#import <AssetsLibrary/AssetsLibrary.h>
+#import "YAAssetsCreator.h"
+
 @interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate>
 
 @property (strong, nonatomic) UIView *bgOverlay;
@@ -67,12 +70,16 @@
     CGFloat count = 4;
     CGFloat buttonWidth = VIEW_WIDTH/count - VIEW_WIDTH/(count*2 + 1);
     
-    for(float i = 0.0f; i < count; i++){
+    NSArray *files = @[@"Message", @"FB", @"Twitter", @"CameraRoll"];
+    
+    for(float i = 0.0f; i < [files count]; i++){
         UIButton *externalShareButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, buttonWidth, buttonWidth)];
         CGFloat centerRatio = (i*2+1)/(count*2);
         externalShareButton.center = CGPointMake(centerRatio*VIEW_WIDTH, topBarHeight/2);
-        [externalShareButton setBackgroundColor:[UIColor greenColor]];
+        externalShareButton.alpha = 0.8;
+//        [externalShareButton setBackgroundColor:[UIColor greenColor]];
         externalShareButton.tag = (int)i;
+        [externalShareButton setImage:[UIImage imageNamed:files[(int)i]] forState:UIControlStateNormal];
         [externalShareButton addTarget:self action:@selector(externalShareAction:) forControlEvents:UIControlEventTouchUpInside];
         [self.topBar addSubview:externalShareButton];
     }
@@ -174,60 +181,82 @@
 
 - (void)externalShareAction:(UIButton *)sender {
     NSLog(@"%li", (long)sender.tag);
-    switch (sender.tag) {
+    
+    NSURL *url = [YAUtils urlFromFileName:self.video.mp4Filename];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self animated:YES];
+    hud.mode = MBProgressHUDModeIndeterminate;
+    hud.labelText = @"Exporting";
+    
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:url completion:^(NSURL *filePath, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error) {
+                DLog(@"error");
+            } else {
+                [self shareVideoWithActionType:sender.tag url:filePath hud:hud];
+            }
+        });
+        
+    }];
+
+}
+
+- (void)shareVideoWithActionType:(NSUInteger)type url:(NSURL *)url hud:(MBProgressHUD *)hud {
+    switch (type) {
         case 0: {
             //iMessage
             NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
             NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-            NSURL *videoURL = [NSURL URLWithString:self.video.url];
             
-            NSURL *url = [YAUtils urlFromFileName:self.video.mp4Filename];
-            
-            NSLog(@"self video url: %@", url.path);
-
             MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
             messageController.messageComposeDelegate = self;
             [messageController setBody:detailText];
             [messageController setSubject:@"Yaga"];
-            [messageController addAttachmentURL:videoURL withAlternateFilename:@"GET_YAGA.mov"];
-//            [messageController setSubject:@"Yaga"];
+            [messageController addAttachmentURL:url withAlternateFilename:@"GET_YAGA.mov"];
+            //            [messageController setSubject:@"Yaga"];
             
             // Present message view controller on screen
             [(YASwipingViewController *) self.page.presentingVC presentViewController:messageController animated:YES completion:^{
-//                [self.hud hide:NO];
+                //                [self.hud hide:NO];
+                [hud hide:YES];
             }];
-
+            
             break;
         } case 1: {
             // FB
-//            NSURL *url = [NSURL URLWithString:@"tel://1234567890x101"];
-            NSURL *videoURL = [NSURL URLWithString:self.video.mp4Filename];
+            //            NSURL *url = [NSURL URLWithString:@"tel://1234567890x101"];
+            NSURL *videoURL = [NSURL URLWithString:self.video.url];
             
             FBSDKShareVideo *video = [[FBSDKShareVideo alloc] init];
             video.videoURL = videoURL;
+            
             FBSDKShareVideoContent *content = [[FBSDKShareVideoContent alloc] init];
             content.video = video;
             
-//            FBSDKShareDialog *dialog = [[FBSDKShareDialog alloc] init];
-//            dialog.fromViewController = (YASwipingViewController *) self.page.presentingVC;
-//            dialog.shareContent = content;
-//            dialog.mode = FBSDKShareDialogModeShareSheet;
+            //            FBSDKShareDialog *dialog = [[FBSDKShareDialog alloc] init];
+            //            dialog.fromViewController = (YASwipingViewController *) self.page.presentingVC;
+            //            dialog.shareContent = content;
+            //            dialog.mode = FBSDKShareDialogModeShareSheet;
             
             [FBSDKShareDialog showFromViewController:(YASwipingViewController *) self.page.presentingVC
                                          withContent:content
                                             delegate:nil];
-//            dialog.delegate = self;
-//            [dialog show];
+            //            dialog.delegate = self;
+            //            [dialog show];
+            [hud hide:YES];
             
             break;
         } case 2: {
             // Twitter
-            
+            [hud hide:YES];
+
             [self getTwitterAccount:^(ACAccount *account) {
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                     NSData *data = [NSData dataWithContentsOfURL: [NSURL URLWithString:self.video.mp4Filename]];
+                    [hud hide:NO];
+                    hud.labelText = @"Posting";
                     [SocialVideoHelper uploadTwitterVideo:data account:account withCompletion:^{
-                        NSLog(@"yo");
+                        [hud hide:YES];
+
                     }];
                 }];
                 
@@ -236,10 +265,23 @@
             break;
         } case 3: {
             // save
+            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+            [library writeVideoAtPathToSavedPhotosAlbum:url completionBlock:^(NSURL *assetURL, NSError *error){
+                if(error) {
+                    NSLog(@"CameraViewController: Error on saving movie : %@ {imagePickerController}", error);
+                }
+                else {
+                    NSLog(@"URL: %@", assetURL);
+                }
+                [hud hide:YES];
+
+            }];
+            
             break;
         } default:
             break;
     }
+    
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
