@@ -54,7 +54,7 @@
     [self.view setBackgroundColor:PRIMARY_COLOR];
     
     //the following line is a fix for https://trello.com/c/CE6xEn15/703-search-icon-overlaps-text-in-country-search
-    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeUnlessEditing];
+    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeWhileEditing];
     
     self.searchBar.tintColor = PRIMARY_COLOR;
     self.searchBar.barTintColor = [UIColor whiteColor];
