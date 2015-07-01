@@ -225,8 +225,7 @@
         return;
     }
     
-    //    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), group.name];
-    NSString *message = NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @"");
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), [YAUser currentUser].currentGroup.name];
     NSMutableArray *phoneNumbers = [NSMutableArray new];
     
     for(NSDictionary *contact in self.contactsThatNeedInvite) {
@@ -252,8 +251,7 @@
         return;
     }
     
-    //    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), group.name];
-    NSString *message = NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @"");
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), [YAUser currentUser].currentGroup.name];
     
     MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
     messageController.messageComposeDelegate = self;
