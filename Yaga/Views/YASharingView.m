@@ -218,7 +218,8 @@
             // Present message view controller on screen
             [(YASwipingViewController *) self.page.presentingVC presentViewController:messageController animated:YES completion:^{
                 //                [self.hud hide:NO];
-                [self showSuccessHud];
+                [self.hud hide:YES];
+//                [self showSuccessHud];
             }];
             
             break;
@@ -243,7 +244,8 @@
                                             delegate:nil];
             //            dialog.delegate = self;
             //            [dialog show];
-            [self showSuccessHud];
+            [self.hud hide:YES];
+//            [self showSuccessHud];
             
             break;
         } case 2: {
@@ -251,15 +253,24 @@
             [self.hud hide:YES];
 
             [self getTwitterAccount:^(ACAccount *account) {
+                
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    NSData *data = [NSData dataWithContentsOfURL: [NSURL URLWithString:self.video.mp4Filename]];
-                    [self.hud hide:NO];
+                    //
+                    NSURL *videoUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
+//                    [NSURL URLWithString:self.video.mp4Filename];
+                    
+                    NSData *data = [NSData dataWithContentsOfURL: videoUrl];
+                    self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
                     self.hud.labelText = @"Posting";
+                    self.hud.mode = MBProgressHUDModeIndeterminate;
+                    
                     [SocialVideoHelper uploadTwitterVideo:data account:account withCompletion:^{
+                        
                         [self showSuccessHud];
-
+                        
                     }];
                 }];
+                
                 
             }];
 
@@ -286,11 +297,13 @@
 }
 
 - (void)showSuccessHud {
+    [self.hud hide:YES];
+    
     self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
-    self.hud.mode = MBProgressHUDModeIndeterminate;
+    self.hud.mode = MBProgressHUDModeText;
     self.hud.labelText = @"Success!";
     
-    [self performSelector:@selector(hideHud) withObject:self afterDelay:1.0];
+    [self.hud hide:YES afterDelay:1.0];
 }
 
 - (void)hideHud {
@@ -323,6 +336,8 @@
 }
 
 - (void)getTwitterAccount:(void (^)(ACAccount *account))block {
+    
+    
     ACAccountStore *accountStore = [[ACAccountStore alloc] init];
     ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
     
@@ -333,9 +348,11 @@
             
             // Check if the users has setup at least one Twitter account
             
-            if (accounts.count > 0)
-            {
+            if (accounts.count > 0){
+                
                 ACAccount *twitterAccount = [accounts objectAtIndex:0];
+                
+//                [twitterAccount username]
                 block(twitterAccount);
                 // Creating a request to get the info about a user on Twitter
             }
