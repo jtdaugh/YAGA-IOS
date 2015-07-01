@@ -46,6 +46,10 @@
     
     NSUInteger andMoreCount = 0;
     for(int i = 0; i < self.members.count; i++) {
+        if (i >= kMaxUsersShownInList) {
+            andMoreCount += self.members.count - kMaxUsersShownInList;
+            break;
+        }
         YAContact *contact = (YAContact*)[self.members objectAtIndex:i];
         
         if([[contact displayName] isEqualToString:kDefaultUsername] || ! [contact displayName])
@@ -55,10 +59,6 @@
                 results = [contact displayName];
             else
                 results = [results stringByAppendingFormat:@", %@", [contact displayName]];
-        }
-        if (i >= kMaxUsersShownInList) {
-            andMoreCount += self.members.count - kMaxUsersShownInList;
-            break;
         }
     }
     

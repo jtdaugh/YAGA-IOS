@@ -15,6 +15,7 @@
 #import "YACrosspostCell.h"
 #import "YAServer.h"
 #import "YAAssetsCreator.h"
+#import "UIImage+Color.h"
 
 #import "YASwipingViewController.h"
 
@@ -317,6 +318,7 @@
         disclosure.image = [UIImage imageNamed:@"Disclosure"];
         cell.accessoryView = disclosure;
         cell.textLabel.text = @" Post to new group";
+        cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:[UIImage imageWithColor:PRIMARY_COLOR]];
         return cell;
     } else {
         YACrosspostCell *cell = [tableView dequeueReusableCellWithIdentifier:kCrosspostCellId forIndexPath:indexPath];
