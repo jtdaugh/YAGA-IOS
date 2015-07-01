@@ -435,24 +435,39 @@
         }];
     }
     else {
-        // New group
+        // New group. Nested requests to create group and then add members
         [self showActivity:YES];
-        [[YAUser currentUser].currentGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
-            [weakSelf showActivity:NO];
+        
+        [YAGroup groupWithName:self.groupName withCompletion:^(NSError *error, id result) {
             if(!error) {
-                [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
+                YAGroup *newGroup = result;
+                [YAUser currentUser].currentGroup = newGroup;
                 
-                weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
-                if (![weakSelf.contactsThatNeedInvite count]) {
-                    [weakSelf popToGridViewController];
-                } else {
-                    YAInviteViewController *nextVC = [YAInviteViewController new];
-                    nextVC.inCreateGroupFlow = YES;
-                    nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
-                    [weakSelf.navigationController pushViewController:nextVC animated:YES];
-                }
+                //set current date as updatedAt for new group so unviewed badge isn't shown
+                NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
+                [groupsUpdatedAt setObject:[NSDate date] forKey:newGroup.localId];
+                [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
+                
+                [newGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
+                    [weakSelf showActivity:NO];
+                    if(!error) {
+                        [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
+                        
+                        weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
+                        if (![weakSelf.contactsThatNeedInvite count]) {
+                            [weakSelf popToGridViewController];
+                        } else {
+                            YAInviteViewController *nextVC = [YAInviteViewController new];
+                            nextVC.inCreateGroupFlow = YES;
+                            nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
+                            [weakSelf.navigationController pushViewController:nextVC animated:YES];
+                        }
+                    }
+                }];
+
             }
         }];
+
     }
 }
 
