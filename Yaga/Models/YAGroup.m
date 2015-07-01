@@ -610,7 +610,8 @@
 }
 
 - (BOOL)refreshed {
-    return self.videos.count + self.deletedVideosCount == self.remoteVideosCount;
+    NSUInteger uploadingCount = [[YAServerTransactionQueue sharedQueue] countOfPendingUploadTransactionForGroup:self];
+    return self.videos.count + self.deletedVideosCount == self.remoteVideosCount + uploadingCount;
 }
 
 @end
