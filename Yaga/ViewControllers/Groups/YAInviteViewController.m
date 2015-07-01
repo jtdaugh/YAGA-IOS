@@ -188,6 +188,11 @@
 }
 
 - (void)endedHold {
+    self.hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:self.hud];
+    self.hud.labelText = NSLocalizedString(@"Preparing Invite", nil);
+    [self.hud show:YES];
+
     self.suggestQuoteLabel.hidden = NO;
 }
 
@@ -219,14 +224,18 @@
 }
 
 - (void)sendTextOnlyInvites {
+    self.hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:self.hud];
+    self.hud.labelText = @"One sec...";
+    [self.hud show:YES];
+
     if(![MFMessageComposeViewController canSendText]) {
         [YAUtils showNotification:@"Error: Couldn't send Message" type:YANotificationTypeError];
         [self.hud hide:NO];
         return;
     }
     
-    //    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), group.name];
-    NSString *message = NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @"");
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), [YAUser currentUser].currentGroup.name];
     NSMutableArray *phoneNumbers = [NSMutableArray new];
     
     for(NSDictionary *contact in self.contactsThatNeedInvite) {
@@ -238,10 +247,11 @@
     messageController.messageComposeDelegate = self;
     [messageController setRecipients:phoneNumbers];
     [messageController setBody:message];
-    [messageController setSubject:@"Yaga"];
     
     // Present message view controller on screen
-    [self presentViewController:messageController animated:YES completion:nil];
+    [self presentViewController:messageController animated:YES completion:^{
+        [self.hud hide:NO];
+    }];
 }
 
 
@@ -252,15 +262,13 @@
         return;
     }
     
-    //    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), group.name];
-    NSString *message = NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @"");
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), [YAUser currentUser].currentGroup.name];
     
     MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
     messageController.messageComposeDelegate = self;
     [messageController setRecipients:phoneNumbers];
     [messageController setBody:message];
     [messageController addAttachmentURL:url withAlternateFilename:@"GET_YAGA.mov"];
-    [messageController setSubject:@"Yaga"];
     
     // Present message view controller on screen
     [self presentViewController:messageController animated:YES completion:^{
@@ -306,12 +314,6 @@
         if([YAUtils validatePhoneNumber:contact[nPhone]])
             [friendNumbers addObject:contact[nPhone]];
     }
-    
-    self.hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
-    [[UIApplication sharedApplication].keyWindow addSubview:self.hud];
-    self.hud.labelText = NSLocalizedString(@"Preparing Invite", nil);
-    [self.hud show:YES];
-
     
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:videoURL completion:^(NSURL *filePath, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
