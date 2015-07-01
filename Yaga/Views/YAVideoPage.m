@@ -38,6 +38,8 @@
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
+#define SHARING_VIEW_PROPORTION 0.6
+
 static NSString *commentCellID = @"CommentCell";
 
 
@@ -1404,6 +1406,7 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
+
 # pragma saving stuff
 - (void)externalShareButtonPressed {
     //    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
@@ -1499,7 +1502,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)shareButtonPressed:(id)sender {
     DLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
-    self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT * .6, VIEW_WIDTH, VIEW_HEIGHT*.4)];
+    self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT * (1.0f-SHARING_VIEW_PROPORTION), VIEW_WIDTH, VIEW_HEIGHT*SHARING_VIEW_PROPORTION)];
     self.sharingView.video = self.video;
     self.sharingView.page = self;
     [self setGesturesEnabled:NO];
@@ -1510,13 +1513,13 @@ static NSString *commentCellID = @"CommentCell";
     [self addSubview:self.sharingView];
     
     [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
-    CGRect gradientFrame = self.commentsGradient.frame;
-    gradientFrame.size.height = VIEW_HEIGHT / 3;
+//    CGRect gradientFrame = self.commentsGradient.frame;
+//    gradientFrame.size.height = VIEW_HEIGHT / 3;
 
     [UIView animateWithDuration:0.2 animations:^{
         self.viewCounter.alpha = 0.0;
         self.viewCountImageView.alpha = 0.0;
-        self.commentsGradient.frame = gradientFrame;
+//        self.commentsGradient.frame = gradientFrame;
         self.commentsWrapperView.alpha = 0.0;
         self.commentButton.alpha = 0.0;
         self.moreButton.alpha = 0.0;
@@ -1524,7 +1527,7 @@ static NSString *commentCellID = @"CommentCell";
 
     }];
     
-    self.crosspostTapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH,  VIEW_HEIGHT * .6 - 60)];
+    self.crosspostTapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH,  VIEW_HEIGHT * (1.0f-SHARING_VIEW_PROPORTION) - 60)];
     [self addSubview:self.crosspostTapOutView];
     SEL target = self.video.group ? @selector(doneCrosspostingTapOut:) : @selector(handleTap:);
     self.crosspostTapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:target];
@@ -1540,12 +1543,12 @@ static NSString *commentCellID = @"CommentCell";
     [self setGesturesEnabled:YES];
     
     CGRect gradientFrame = self.commentsGradient.frame;
-    gradientFrame.size.height = VIEW_HEIGHT * .5;
+//    gradientFrame.size.height = VIEW_HEIGHT * .5;
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
         self.viewCounter.alpha = 1.0;
         self.viewCountImageView.alpha = 1.0;
-        self.commentsGradient.frame = gradientFrame;
+//        self.commentsGradient.frame = gradientFrame;
         self.commentsWrapperView.alpha = 1.0;
         self.commentButton.alpha = 1.0;
         self.moreButton.alpha = 1.0;
