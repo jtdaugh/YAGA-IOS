@@ -301,6 +301,9 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)groupDidChange:(NSNotification*)notif {
+    if (![YAUser currentUser].currentGroup) {
+        [self.navigationController popViewControllerAnimated:NO];
+    }
     [self.noVideosLabel removeFromSuperview];
     self.noVideosLabel = nil;
     [self.toolTipLabel removeFromSuperview];
