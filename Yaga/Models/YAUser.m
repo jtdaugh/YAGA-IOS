@@ -281,7 +281,6 @@
     messageController.messageComposeDelegate = self;
     [messageController setRecipients:friendNumbers];
     [messageController setBody:message];
-    [messageController setSubject:@"Yaga"];
     
     // Present message view controller on screen
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:messageController animated:YES completion:^{

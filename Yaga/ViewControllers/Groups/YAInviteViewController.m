@@ -188,6 +188,11 @@
 }
 
 - (void)endedHold {
+    self.hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:self.hud];
+    self.hud.labelText = NSLocalizedString(@"Preparing Invite", nil);
+    [self.hud show:YES];
+
     self.suggestQuoteLabel.hidden = NO;
 }
 
@@ -219,6 +224,11 @@
 }
 
 - (void)sendTextOnlyInvites {
+    self.hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
+    [[UIApplication sharedApplication].keyWindow addSubview:self.hud];
+    self.hud.labelText = @"One sec...";
+    [self.hud show:YES];
+
     if(![MFMessageComposeViewController canSendText]) {
         [YAUtils showNotification:@"Error: Couldn't send Message" type:YANotificationTypeError];
         [self.hud hide:NO];
@@ -237,10 +247,11 @@
     messageController.messageComposeDelegate = self;
     [messageController setRecipients:phoneNumbers];
     [messageController setBody:message];
-    [messageController setSubject:@"Yaga"];
     
     // Present message view controller on screen
-    [self presentViewController:messageController animated:YES completion:nil];
+    [self presentViewController:messageController animated:YES completion:^{
+        [self.hud hide:NO];
+    }];
 }
 
 
@@ -258,7 +269,6 @@
     [messageController setRecipients:phoneNumbers];
     [messageController setBody:message];
     [messageController addAttachmentURL:url withAlternateFilename:@"GET_YAGA.mov"];
-    [messageController setSubject:@"Yaga"];
     
     // Present message view controller on screen
     [self presentViewController:messageController animated:YES completion:^{
@@ -304,12 +314,6 @@
         if([YAUtils validatePhoneNumber:contact[nPhone]])
             [friendNumbers addObject:contact[nPhone]];
     }
-    
-    self.hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
-    [[UIApplication sharedApplication].keyWindow addSubview:self.hud];
-    self.hud.labelText = NSLocalizedString(@"Preparing Invite", nil);
-    [self.hud show:YES];
-
     
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:videoURL completion:^(NSURL *filePath, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
