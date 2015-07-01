@@ -59,6 +59,14 @@
     [self setupView];
     self.animationController = [YAAnimatedTransitioningController new];
 
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(openGroupOptions)
+                                                 name:OPEN_GROUP_OPTIONS_NOTIFICATION
+                                               object:nil];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -281,6 +289,10 @@
 
 #pragma mark - YACameraViewControllerDelegate
 - (void)openGroupOptions {
+    if([self.navigationController.topViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
+        [self.navigationController popViewControllerAnimated:NO];
+    }
+    
     YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
     vc.group = [YAUser currentUser].currentGroup;
     [self.navigationController pushViewController:vc animated:YES];
