@@ -463,27 +463,31 @@ static NSString *commentCellID = @"CommentCell";
     self.timestampLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
 //    [self.overlay addSubview:self.timestampLabel];
     
-    CGSize viewCountSize = CGSizeMake(100, 23);
+    CGSize viewCountSize = CGSizeMake(200, 23);
     
-    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(VIEW_WIDTH/2 + 1, VIEW_HEIGHT - viewCountSize.height - 11)];
+    
+    UIView *viewCountView = [[UIView alloc] initWithFrame:CGRectMake((VIEW_WIDTH-viewCountSize.width)/2, VIEW_HEIGHT - viewCountSize.height - 11, viewCountSize.width, viewCountSize.height)];
+    viewCountView.backgroundColor = [UIColor clearColor];
+    [self.overlay addSubview:viewCountView];
+    
+    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(viewCountSize.width/2 + 1, 0)];
                         
     self.viewCounter.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.viewCounter.layer.shadowRadius = 0.0f;
     self.viewCounter.layer.shadowOpacity = 1.0;
     self.viewCounter.layer.shadowOffset = CGSizeMake(0.5, 0.5);
-    [self.overlay addSubview:self.viewCounter];
+    [viewCountView addSubview:self.viewCounter];
 
     CGSize viewCountImgSize = CGSizeMake(25, 20);
-    self.viewCountImageView = [[UIImageView alloc]initWithFrame:CGRectMake(VIEW_WIDTH/2.f - 1 - viewCountImgSize.width,
-                                                                           VIEW_HEIGHT - viewCountImgSize.height - 12,
+    self.viewCountImageView = [[UIImageView alloc]initWithFrame:CGRectMake(viewCountSize.width/2 - 1 - viewCountImgSize.width,
+                                                                           2,
                                                                            viewCountImgSize.width, viewCountImgSize.height)];
     self.viewCountImageView.image = [UIImage imageNamed:@"Views"];
     self.viewCountImageView.contentMode = UIViewContentModeScaleAspectFit;
     self.viewCountImageView.layer.shadowRadius = 0.0f;
     self.viewCountImageView.layer.shadowOpacity = 1.0;
     self.viewCountImageView.layer.shadowOffset = CGSizeMake(0.5, 0.5);
-
-    [self.overlay addSubview:self.viewCountImageView];
+    [viewCountView addSubview:self.viewCountImageView];
     
     //    CGFloat tSize = CAPTION_FONT_SIZE;
 
@@ -1512,8 +1516,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, VIEW_HEIGHT/2)];
 
     [UIView animateWithDuration:0.2 animations:^{
-        self.viewCounter.alpha = 0.0;
-        self.viewCountImageView.alpha = 0.0;
+        self.viewCounter.superview.alpha = 0.0;
         self.commentsWrapperView.alpha = 0.0;
         self.commentButton.alpha = 0.0;
         self.moreButton.alpha = 0.0;
@@ -1534,8 +1537,7 @@ static NSString *commentCellID = @"CommentCell";
 
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
-        self.viewCounter.alpha = 1.0;
-        self.viewCountImageView.alpha = 1.0;
+        self.viewCounter.superview.alpha = 1.0;
 //        self.commentsGradient.frame = gradientFrame;
         self.commentsWrapperView.alpha = 1.0;
         self.commentButton.alpha = 1.0;
