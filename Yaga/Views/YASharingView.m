@@ -68,9 +68,6 @@
     
     CGFloat topBarHeight = 80;
     self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, topBarHeight)];
-    if(!self.page.video.group){
-        self.topBar.hidden = YES;
-    }
     [self.bgOverlay addSubview:self.topBar];
     
     CGFloat count = 4;
@@ -183,6 +180,15 @@
     //    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
     
     return self;
+}
+
+- (void)setVideo:(YAVideo *)video {
+    if(!video.group){
+        NSLog(@"no group...?");
+        self.topBar.hidden = YES;
+    }
+    
+    _video = video;
 }
 
 - (void)externalShareAction:(UIButton *)sender {
