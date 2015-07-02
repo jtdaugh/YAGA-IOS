@@ -511,7 +511,8 @@ static NSString *commentCellID = @"CommentCell";
     
     self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, buttonRadius + padding)];
     [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.overlay addSubview:self.captionButton];
+    self.captionButton.alpha = 0.0;
+    [self.overlay addSubview:self.captionButton];
 
     
     self.commentButton = [YAUtils circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
@@ -1213,6 +1214,11 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)captionButtonPressed {
+//    if(self.video.group){
+//        
+//    }
+    
+    [self collapseCrosspost];
     [self toggleEditingCaption:YES];
     
     float randomX = ((float)rand() / RAND_MAX) * 100;
@@ -1519,6 +1525,8 @@ static NSString *commentCellID = @"CommentCell";
 //    CGRect gradientFrame = self.commentsGradient.frame;
 //    gradientFrame.size.height = VIEW_HEIGHT / 3;
 
+    self.captionButton.alpha = 0.0;
+
     [UIView animateWithDuration:0.2 animations:^{
         self.viewCounter.alpha = 0.0;
         self.viewCountImageView.alpha = 0.0;
@@ -1526,6 +1534,7 @@ static NSString *commentCellID = @"CommentCell";
         self.commentsWrapperView.alpha = 0.0;
         self.commentButton.alpha = 0.0;
         self.moreButton.alpha = 0.0;
+        self.captionButton.alpha = 1.0;
         [self.sharingView setTransform:CGAffineTransformIdentity];
 
     }];
@@ -1549,6 +1558,7 @@ static NSString *commentCellID = @"CommentCell";
 //    gradientFrame.size.height = VIEW_HEIGHT * .5;
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
+        self.captionButton.alpha = 0.0;
         self.viewCounter.alpha = 1.0;
         self.viewCountImageView.alpha = 1.0;
 //        self.commentsGradient.frame = gradientFrame;
@@ -1558,6 +1568,7 @@ static NSString *commentCellID = @"CommentCell";
         [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
     } completion:^(BOOL finished) {
         //
+//        self.captionButton.hidden = YES;
         [self.sharingView removeFromSuperview];
 
     }];

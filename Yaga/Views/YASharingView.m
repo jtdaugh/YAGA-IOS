@@ -68,6 +68,9 @@
     
     CGFloat topBarHeight = 80;
     self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, topBarHeight)];
+    if(!self.page.video.group){
+        self.topBar.hidden = YES;
+    }
     [self.bgOverlay addSubview:self.topBar];
     
     CGFloat count = 4;
