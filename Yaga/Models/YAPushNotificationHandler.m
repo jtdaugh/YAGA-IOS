@@ -154,6 +154,7 @@ typedef void (^groupChangedCompletionBlock)(void);
 
 - (void)handleGroupJoinRequest {
     NSString *groupId = self.meta[@"group_id"];
+
     [self openGroupWithId:groupId refresh:YES completion:^{
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
@@ -237,7 +238,7 @@ typedef void (^groupChangedCompletionBlock)(void);
     
     NSString *eventName = meta[@"event"];
     
-    if([eventName isEqualToString:@"kick"]) {
+    if([eventName isEqualToString:@"kick"] && [eventName isEqualToString:@"request"]) {
         return YES;
     }
     
