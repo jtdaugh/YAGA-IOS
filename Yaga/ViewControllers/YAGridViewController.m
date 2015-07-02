@@ -309,6 +309,9 @@
 
 #pragma mark - YACameraViewControllerDelegate
 - (void)openGroupOptions {
+    if(![YAUser currentUser].currentGroup)
+        return;
+    
     if([self.navigationController.topViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
         [self.navigationController popViewControllerAnimated:NO];
     }
