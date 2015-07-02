@@ -312,6 +312,27 @@
     return NO;
 }
 
+- (NSUInteger)countOfPendingUploadTransactionForGroup:(YAGroup *)group {
+    NSArray *pendingTransactions = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filepath]];
+    
+    NSUInteger result = 0;
+    for(NSDictionary *transactionData in pendingTransactions) {
+        YAServerTransaction *transaction = [[YAServerTransaction alloc] initWithDictionary:transactionData];
+        
+        NSString *type = transaction.data[YA_TRANSACTION_TYPE];
+        
+        if(![type isEqualToString:YA_TRANSACTION_TYPE_UPLOAD_VIDEO])
+            continue;
+        
+        NSString *localGroupId = transaction.data[YA_GROUP_ID];
+        if([localGroupId isEqualToString:group.localId])
+            result++;
+        
+    }
+    return result;
+}
+
+
 - (void)waitForAllTransactionsToFinish {
     while (self.transactionsData.count) {
         [NSThread sleepForTimeInterval:1.0];

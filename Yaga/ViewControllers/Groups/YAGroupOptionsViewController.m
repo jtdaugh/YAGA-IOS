@@ -243,7 +243,7 @@
     }
     
     UIView *headerView = [UIView.alloc initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 40)];
-    headerView.backgroundColor = [UIColor clearColor];
+    headerView.backgroundColor = tableView.backgroundColor;
     
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.frame.size.width - 10, 40)];
     label.text = name;
@@ -294,39 +294,44 @@ static NSString *CellID = @"CellID";
     if(indexPath.section == 0 && self.membersPendingJoin.count) {
         NSDictionary *pendingMember = self.membersPendingJoin[indexPath.row];
         cell.textLabel.text = pendingMember[@"username"];
-        UIView *requestAccessoryView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 50)];
+        UIView *requestAccessoryView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 110, 50)];
         
         if( [self.pendingMembersInProgress containsObject:[NSNumber numberWithInteger:indexPath.row]]) {
             UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-            activityView.center = CGPointMake(requestAccessoryView.center.x + 20, requestAccessoryView.center.y);
+            activityView.center = CGPointMake(requestAccessoryView.center.x + 30, requestAccessoryView.center.y);
             [requestAccessoryView addSubview:activityView];
             [activityView startAnimating];
         }
         else {
             UIButton *cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
             cancelButton.tag = indexPath.row;
-            cancelButton.frame = CGRectMake(15, 5, 40, 40);
-            cancelButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-            cancelButton.layer.borderWidth = 2;
-            cancelButton.layer.cornerRadius = cancelButton.frame.size.height/2;
+            cancelButton.frame = CGRectMake(0, 8, 50, 34);
+            cancelButton.layer.borderWidth = 1.5f;
+            cancelButton.layer.borderColor = [[UIColor lightGrayColor] CGColor];
+            cancelButton.layer.cornerRadius = 4;
             [cancelButton setTintColor:[UIColor whiteColor]];
-            [cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-            [cancelButton setTitle:@"X" forState:UIControlStateNormal];
+            [cancelButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+            [cancelButton setTitle:@"x" forState:UIControlStateNormal];
+            cancelButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:26];
             [cancelButton addTarget:self action:@selector(cancelJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-            cancelButton.backgroundColor = [UIColor colorWithWhite:0.2 alpha:0.2];
+            cancelButton.backgroundColor = [UIColor clearColor];
+            cancelButton.titleEdgeInsets = UIEdgeInsetsMake(-2, 0, 0, 0);
+
             [requestAccessoryView addSubview:cancelButton];
             
             UIButton *allowButton = [UIButton buttonWithType:UIButtonTypeCustom];
             allowButton.tag = indexPath.row;
-            allowButton.backgroundColor = [UIColor colorWithRed:55.0/255.0 green:177/255.0 blue:48/255.0 alpha:1.0];
-            allowButton.frame = CGRectMake(60, 5, 40, 40);
-            allowButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-            allowButton.layer.borderWidth = 2;
-            allowButton.layer.cornerRadius = cancelButton.frame.size.height/2;
-            [allowButton setTintColor:[UIColor whiteColor]];
-            [allowButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            allowButton.backgroundColor = [UIColor clearColor];
+            allowButton.frame = CGRectMake(60, 8, 50, 34);
+            allowButton.layer.borderWidth = 1.5f;
+            allowButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+            allowButton.layer.cornerRadius = 4;
+            allowButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:26];
+            [allowButton setTintColor:PRIMARY_COLOR];
+            [allowButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
             [allowButton setTitle:@"✓" forState:UIControlStateNormal];
             [allowButton addTarget:self action:@selector(allowJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+            allowButton.titleEdgeInsets = UIEdgeInsetsMake(6, 0, 0, 0);
             
             [requestAccessoryView addSubview:allowButton];
         }

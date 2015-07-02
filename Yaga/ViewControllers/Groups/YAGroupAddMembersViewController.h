@@ -16,5 +16,6 @@
 @property (readonly, nonatomic) NSMutableArray *selectedContacts;
 
 @property (nonatomic, assign) BOOL inCreateGroupFlow;
+@property (nonatomic, copy) NSString *groupName;
 
 @end

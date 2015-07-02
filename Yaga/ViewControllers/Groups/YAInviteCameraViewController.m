@@ -114,7 +114,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+    [[YACameraManager sharedManager] initCamera];
     [YACameraManager sharedManager].delegate = self;
     [[YACameraManager sharedManager] forceFrontFacingCamera];
     [[YACameraManager sharedManager] setCameraView:self.cameraView];
@@ -174,7 +174,7 @@
     //        [self.session commitConfiguration];
     //    }
     self.recording = [NSNumber numberWithBool:YES];
-    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT / 32.f)];
+    self.indicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT / 20)];
     [self.indicator setBackgroundColor:PRIMARY_COLOR];
     [self.indicator setUserInteractionEnabled:NO];
     [self.indicatorText setText:@"Recording..."];

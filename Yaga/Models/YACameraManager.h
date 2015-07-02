@@ -27,13 +27,16 @@ typedef void (^YARecordingCompletionBlock)(NSURL *recordedURL);
 
 @property (nonatomic, weak) id<YACameraManagerDelegate> delegate;
 
-- (void)closeCamera;
 - (void)initCamera;
+- (void)pauseCamera;
+- (void)resumeCamera;
 - (void)startRecording;
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion;
 - (void)switchCamera;
 - (void)forceFrontFacingCamera; // probably only used by inviteVC right meow
 - (void)toggleFlash:(BOOL)flashOn;
+
+- (void)multiplyZoomByFactor:(CGFloat)zoomAdjustment; // <1 to zoom out.  >1 to zoom in.
 
 - (void)setCameraView:(YACameraView *)cameraView;
 

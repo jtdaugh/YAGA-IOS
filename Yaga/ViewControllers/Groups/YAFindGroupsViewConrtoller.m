@@ -94,12 +94,11 @@ static NSString *CellIdentifier = @"GroupsCell";
     cell.textLabel.frame = CGRectMake(cell.textLabel.frame.origin.x, cell.textLabel.frame.origin.y, cell.textLabel.frame.size.width - 150, cell.textLabel.frame.size.height);
     
     cell.detailTextLabel.frame = CGRectMake(cell.detailTextLabel.frame.origin.x, cell.detailTextLabel.frame.origin.y, cell.detailTextLabel.frame.size.width - 150, cell.detailTextLabel.frame.size.height);
-    [cell.textLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
     
     if(!self.groupsDataArray.count && self.tableView.pullToRefreshView.state == SVPullToRefreshStateStopped) {
         cell.textLabel.text = NSLocalizedString(@"Wow, you're early. Create a group to get your friends on Yaga", @"");
         cell.textLabel.numberOfLines = 0;
-        cell.textLabel.font = [UIFont fontWithName:cell.textLabel.font.fontName size:18];
+        cell.textLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
         UIButton *createGroupButton = [UIButton buttonWithType:UIButtonTypeCustom];
         createGroupButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
         createGroupButton.tag = indexPath.row;
@@ -116,7 +115,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         return cell;
     }
     
-    cell.textLabel.font = [UIFont fontWithName:cell.textLabel.font.fontName size:28];
+    cell.textLabel.font = [UIFont fontWithName:BOLD_FONT size:26];
     
     NSDictionary *groupData = [self.groupsDataArray objectAtIndex:indexPath.row];
     

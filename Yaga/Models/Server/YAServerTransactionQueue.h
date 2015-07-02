@@ -38,6 +38,7 @@
 - (BOOL)hasPendingAddTransactionForContact:(YAContact*)contact;
 - (BOOL)hasPendingAddTransactionForGroup:(YAGroup*)group;
 - (BOOL)hasPendingUploadTransactionForVideo:(YAVideo *)video;
+- (NSUInteger)countOfPendingUploadTransactionForGroup:(YAGroup *)group;
 
 - (void)waitForAllTransactionsToFinish;
 @end

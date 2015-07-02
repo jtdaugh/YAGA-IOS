@@ -59,7 +59,7 @@
 "CHANGE_GROUP_TITLE" = "Change group name";
 "CHANGE_GROUP_PLACEHOLDER" = "can not be empty";
 
-"iMESSAGE_COME_JOIN_ME_TEXT" = "Get on Yaga, I added you to a group - http://getyaga.com";
+"iMESSAGE_COME_JOIN_ME_TEXT" = "I added you to the %@ group on Yaga. Get it now on the App Store!\nhttp://getyaga.com";
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
 

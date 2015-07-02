@@ -9,6 +9,7 @@
 #import "YAEventManager.h"
 #import <Firebase/Firebase.h>
 #import "YAUser.h"
+#import "NSMutableArray+NSCache.h"
 
 #if (DEBUG && DEBUG_SERVER)
 #define FIREBASE_EVENTS_ROOT (@"https://yagadev.firebaseio.com/events")
@@ -49,9 +50,16 @@
     if (self) {
         self.firebaseRoot = [[Firebase alloc] initWithUrl:FIREBASE_EVENTS_ROOT];
         self.unsentEventsByLocalVideoId = [[NSCache alloc] init];
+        self.unsentEventsByLocalVideoId.evictsObjectsWithDiscardedContent = NO;
+        self.unsentEventsByLocalVideoId.countLimit = 10000;
+
         self.eventsByServerVideoId = [[NSCache alloc] init];
+        self.eventsByServerVideoId.evictsObjectsWithDiscardedContent = NO;
+        self.eventsByServerVideoId.countLimit = 10000;
+
         self.queriesByVideoId = [[NSCache alloc] init];
         self.initialEventsLoadedForId = [[NSCache alloc] init];
+
         self.allQueries = [NSArray array];
         [self groupChanged];
     }
