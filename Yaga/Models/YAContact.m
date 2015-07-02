@@ -31,7 +31,10 @@
 + (YAContact*)contactFromDictionary:(NSDictionary*)dictionary {
     NSString *phoneNumber = dictionary[nPhone];
     NSString *username = dictionary[nUsername];
-    NSString *predicate = [NSString stringWithFormat:@"number = '%@' OR username = '%@'", phoneNumber, username];
+    
+    NSString *predicate = phoneNumber.length ?  [NSString stringWithFormat:@"number = '%@' OR username = '%@'", phoneNumber, username] :
+                                                [NSString stringWithFormat:@"username = '%@'", username];
+    
     RLMResults *existingContacts = [YAContact objectsWhere:predicate];
     
     YAContact *contact;
@@ -53,8 +56,13 @@
     contact.lastName  = dictionary[nLastname]   ? dictionary[nLastname]  : @"";
     contact.number = dictionary[nPhone];
     contact.registered = NO;
+    
     if([dictionary[nUsername] length]) {
         contact.username = dictionary[nUsername];
+        if(!contact.name.length) {
+            contact.name = contact.username;
+        }
+        contact.registered = YES;
     }
 
     return contact;
@@ -86,7 +94,7 @@
 }
 
 - (NSDictionary*)dictionaryRepresentation {
-    NSDictionary *result = @{nCompositeName:self.name, nFirstname:self.firstName, nLastname:self.lastName, nPhone:self.number, nRegistered:[NSNumber numberWithBool:self.registered], nUsername:self.username};
+    NSDictionary *result = @{nCompositeName:self.name, nFirstname:self.firstName, nLastname:self.lastName, nPhone:self.number, nYagaUser:[NSNumber numberWithBool:self.registered], nUsername:self.username};
     return result;
 }
 

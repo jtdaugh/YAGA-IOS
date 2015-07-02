@@ -185,7 +185,7 @@
                                            nPhone:num,
                                            nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
                                            nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
-                                           nRegistered:[NSNumber numberWithBool:NO],
+                                           nYagaUser:[NSNumber numberWithBool:NO],
                                            nYagaUser : [NSNumber numberWithBool:registeredUser]}];
                     
                     if(![excludePhonesSet containsObject:num])

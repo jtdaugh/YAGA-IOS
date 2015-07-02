@@ -247,14 +247,19 @@
         [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
         cell.accessoryView = accessoryView;
         
-        
-        NSPredicate *pred = [NSPredicate predicateWithFormat:@"number = %@", contact[nPhone]];
+        NSPredicate *pred;
+        NSString *phoneNumber = contact[nPhone];
+        if(phoneNumber.length)
+            pred = [NSPredicate predicateWithFormat:@"number = %@", contact[nPhone]];
+        else
+            pred = [NSPredicate predicateWithFormat:@"username = %@", contact[nUsername]];
         YAContact *ya_contact = [[YAContact objectsWithPredicate:pred] firstObject];
         if (!ya_contact) {
             ya_contact = [YAContact contactFromDictionary:contact];
         }
         
-        cell.detailTextLabel.text = ya_contact.username;
+        if(![ya_contact.username isEqualToString:ya_contact.name])
+            cell.detailTextLabel.text = ya_contact.username;
         
     } else {
         [cell.textLabel       setTextColor:[UIColor whiteColor]];
@@ -329,7 +334,7 @@
         if([YAUtils validatePhoneNumber:text]) {
             NSString *phone = [YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatE164];
             if(phone) {
-                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nRegistered:[NSNumber numberWithBool:NO], nUsername:[YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatNATIONAL],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
+                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nYagaUser:[NSNumber numberWithBool:NO], nUsername:[YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatNATIONAL],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
             }
         }
         //add by username
@@ -352,7 +357,7 @@
                 
                 NSArray *foundUsernames = [self.filteredContacts valueForKey:nUsername];
                 if(![foundUsernames containsObject:text]) {
-                    [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:@"", nRegistered:[NSNumber numberWithBool:YES], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+                    [self.filteredContacts addObject:@{nCompositeName:text, nFirstname:@"", nLastname:@"", nPhone:@"", nYagaUser:[NSNumber numberWithBool:YES], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
                 }
             }
         }
@@ -561,7 +566,7 @@
                                nPhone:memberPhone,
                                nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
                                nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
-                               nRegistered:[NSNumber numberWithBool:contact.registered]};
+                               nYagaUser:[NSNumber numberWithBool:contact.registered]};
         [self.selectedContacts addObject:item];
         [memberPhones addObject:memberPhone];
     }

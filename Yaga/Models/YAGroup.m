@@ -355,7 +355,14 @@
             [[RLMRealm defaultRealm] beginWriteTransaction];
             for(NSDictionary *contactDic in contacts) {
                 NSString *phoneNumber = contactDic[nPhone];
-                NSPredicate *pred = [NSPredicate predicateWithFormat:@"number = %@", phoneNumber];
+                NSString *username = contactDic[nUsername];
+                
+                NSPredicate *pred;
+                if(phoneNumber.length)
+                    pred = [NSPredicate predicateWithFormat:@"number = %@", phoneNumber];
+                else
+                    pred = [NSPredicate predicateWithFormat:@"username = %@", username];
+                
                 RLMResults *existingContacts = [YAContact objectsWithPredicate:pred];
                 YAContact *contactToAdd;
                 if(existingContacts.count) {

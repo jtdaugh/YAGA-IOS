@@ -17,7 +17,6 @@
 #define nName           @"name"
 #define nFirstname      @"firstname"
 #define nLastname       @"lastname"
-#define nRegistered     @"joined_at"
 #define nYagaUser       @"yagaUser"
 
 #define DIAL_CODE @"dial_code"
