@@ -204,7 +204,7 @@
             if (error) {
                 DLog(@"error");
             } else {
-                [self shareVideoWithActionType:sender.tag url:filePath];
+                [self shareVideoWithActionType:sender.tag fileUrl:filePath];
             }
         });
         
@@ -212,7 +212,7 @@
 
 }
 
-- (void)shareVideoWithActionType:(NSUInteger)type url:(NSURL *)url {
+- (void)shareVideoWithActionType:(NSUInteger)type fileUrl:(NSURL *)fileUrl {
     switch (type) {
         case 0: {
             //iMessage
@@ -224,7 +224,7 @@
             messageController.messageComposeDelegate = self;
             [messageController setBody:detailText];
             [messageController setSubject:@"Yaga"];
-            [messageController addAttachmentURL:url withAlternateFilename:@"GET_YAGA.mov"];
+            [messageController addAttachmentURL:fileUrl withAlternateFilename:@"GET_YAGA.mov"];
             //            [messageController setSubject:@"Yaga"];
             
             // Present message view controller on screen
@@ -236,27 +236,36 @@
             
             break;
         } case 1: {
-            // FB
-            //            NSURL *url = [NSURL URLWithString:@"tel://1234567890x101"];
-            NSURL *videoURL = [NSURL URLWithString:self.video.url];
             
-            FBSDKShareVideo *video = [[FBSDKShareVideo alloc] init];
-            video.videoURL = videoURL;
+            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+            ALAssetsLibraryWriteVideoCompletionBlock videoWriteCompletionBlock =
+            ^(NSURL *newURL, NSError *error) {
+                if (error) {
+                    [self.hud hide:YES];
+                } else {
+                    FBSDKShareVideo *video = [[FBSDKShareVideo alloc] init];
+                    [video setVideoURL:newURL];
+                    
+                    FBSDKShareVideoContent *content = [[FBSDKShareVideoContent alloc] init];
+                    content.video = video;
+                    
+                    [FBSDKShareDialog showFromViewController:(YASwipingViewController *) self.page.presentingVC
+                                                 withContent:content
+                                                    delegate:self];
+                    [self.hud hide:YES];
+
+
+                }
+            };
             
-            FBSDKShareVideoContent *content = [[FBSDKShareVideoContent alloc] init];
-            content.video = video;
+            if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:fileUrl])
+            {
+                [library writeVideoAtPathToSavedPhotosAlbum:fileUrl
+                                            completionBlock:videoWriteCompletionBlock];
+            }
             
-            //            FBSDKShareDialog *dialog = [[FBSDKShareDialog alloc] init];
-            //            dialog.fromViewController = (YASwipingViewController *) self.page.presentingVC;
-            //            dialog.shareContent = content;
-            //            dialog.mode = FBSDKShareDialogModeShareSheet;
-            
-            [FBSDKShareDialog showFromViewController:(YASwipingViewController *) self.page.presentingVC
-                                         withContent:content
-                                            delegate:nil];
-            //            dialog.delegate = self;
-            //            [dialog show];
-            [self.hud hide:YES];
+//            dialog.delegate = self;
+//            [dialog show];
 //            [self showSuccessHud];
             
             break;
@@ -269,7 +278,6 @@
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                     //
                     NSURL *videoUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
-//                    [NSURL URLWithString:self.video.mp4Filename];
                     
                     NSData *data = [NSData dataWithContentsOfURL: videoUrl];
                     self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
@@ -293,7 +301,7 @@
         } case 3: {
             // save
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-            [library writeVideoAtPathToSavedPhotosAlbum:url completionBlock:^(NSURL *assetURL, NSError *error){
+            [library writeVideoAtPathToSavedPhotosAlbum:fileUrl completionBlock:^(NSURL *assetURL, NSError *error){
                 if(error) {
                     NSLog(@"CameraViewController: Error on saving movie : %@ {imagePickerController}", error);
                 }
