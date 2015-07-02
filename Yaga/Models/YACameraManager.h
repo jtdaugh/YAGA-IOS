@@ -36,6 +36,8 @@ typedef void (^YARecordingCompletionBlock)(NSURL *recordedURL);
 - (void)forceFrontFacingCamera; // probably only used by inviteVC right meow
 - (void)toggleFlash:(BOOL)flashOn;
 
+- (void)multiplyZoomByFactor:(CGFloat)zoomAdjustment; // <1 to zoom out.  >1 to zoom in.
+
 - (void)setCameraView:(YACameraView *)cameraView;
 
 @end
