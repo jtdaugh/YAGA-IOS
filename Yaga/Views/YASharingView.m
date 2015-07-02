@@ -60,7 +60,7 @@
     CGFloat topBarHeight = 80;
 
     
-    CGFloat totalRowsHeight = XPCellHeight * MAX([self.groups count], 2);
+    CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
     CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
     if (![self.groups count]) tableHeight = 0;
     
