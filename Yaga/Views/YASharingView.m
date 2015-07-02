@@ -19,13 +19,18 @@
 
 #import "YASwipingViewController.h"
 
+#import "FBSDKShareKit.h"
+
+#import "SocialVideoHelper.h"
+
+#import <AssetsLibrary/AssetsLibrary.h>
+#import "YAAssetsCreator.h"
+
+#define SHARING_VIEW_PROPORTION 0.5
 #define kNewGroupCellId @"postToNewGroupCell"
 #define kCrosspostCellId @"crossPostCell"
 
-
-@interface YASharingView ()
-
-@property (strong, nonatomic) UIView *bgOverlay;
+@interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate, UIActionSheetDelegate>
 
 @property (nonatomic, strong) RLMResults *groups;
 @property (strong, nonatomic) UITableView *groupsList;
@@ -34,62 +39,91 @@
 @property (strong, nonatomic) UIButton *externalShareButton;
 @property (strong, nonatomic) UIButton *saveButton;
 @property (strong, nonatomic) UIButton *confirmCrosspost;
-@property (strong, nonatomic) UIButton *closeCrosspost;
+@property (strong, nonatomic) UIButton *collapseCrosspostButton;
+@property (strong, nonatomic) UIButton *captionButton;
+@property (strong, nonatomic) MBProgressHUD *hud;
+
+@property (nonatomic, copy) void (^completionBlock)(ACAccount *account);
+@property (nonatomic, strong) NSArray *accounts;
+@property (strong, nonatomic) UIView *topBar;
 @end
 
 @implementation YASharingView
 
 - (id) initWithFrame:(CGRect)frame {
-//    [super init];
-//    [super viewDidLoad];
     
     self = [super initWithFrame:frame];
     
-//    [self setUserInteractionEnabled:NO];
-    
-    self.bgOverlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-    
-    //    [self.bgOverlay setAlpha:0.0];
-    [self addSubview:self.bgOverlay];
-    
-    CGFloat topPadding = 10;
-    CGFloat shareBarHeight = 60;
-    
-    CGFloat borderWidth = 4;
-    
-    //exclude current group
     NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", [YAUser currentUser].currentGroup.localId];
     self.groups = [[YAGroup objectsWhere:predicate] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
+
+    CGFloat topGap = 20;
+    CGFloat shareBarHeight = 60;
+    CGFloat borderWidth = 4;
+    CGFloat topBarHeight = 80;
+
     
-    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, topPadding, VIEW_WIDTH, self.frame.size.height - topPadding)];
+    CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
+    CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
+    
+    CGFloat tableOrigin = frame.size.height - tableHeight;
+    self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, tableOrigin - topBarHeight - topGap, VIEW_WIDTH, topBarHeight)];
+    [self addSubview:self.topBar];
+    
+    CGFloat count = 4;
+    CGFloat buttonWidth = VIEW_WIDTH/count - VIEW_WIDTH/(count*2 + 1);
+    
+    NSArray *files = @[@"Message", @"FB", @"Twitter", @"CameraRoll"];
+    
+    UIView *tapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH, VIEW_HEIGHT - tableHeight - topBarHeight - topGap - 60)];
+    tapOutView.backgroundColor = [UIColor clearColor];
+    [self addSubview:tapOutView];
+    self.crosspostTapOutRecognizer = [[UITapGestureRecognizer alloc] init];
+    [tapOutView addGestureRecognizer:self.crosspostTapOutRecognizer];
+    
+    for(float i = 0.0f; i < [files count]; i++){
+        UIButton *externalShareButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, buttonWidth, buttonWidth)];
+        CGFloat centerRatio = (i*2+1)/(count*2);
+        externalShareButton.center = CGPointMake(centerRatio*VIEW_WIDTH, topBarHeight/2);
+        externalShareButton.alpha = 0.8;
+//        [externalShareButton setBackgroundColor:[UIColor greenColor]];
+        externalShareButton.tag = (int)i;
+        [externalShareButton setImage:[UIImage imageNamed:files[(int)i]] forState:UIControlStateNormal];
+        [externalShareButton addTarget:self action:@selector(externalShareAction:) forControlEvents:UIControlEventTouchUpInside];
+        [self.topBar addSubview:externalShareButton];
+    }
+    
+    //exclude current group
+    
+    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, tableOrigin, VIEW_WIDTH, tableHeight)];
     [self.groupsList setBackgroundColor:[UIColor clearColor]];
     [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:kCrosspostCellId];
     [self.groupsList registerClass:[UITableViewCell class] forCellReuseIdentifier:kNewGroupCellId];
     self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
-    [self.groupsList setContentInset:UIEdgeInsetsMake(0, 0, shareBarHeight, 0)];
+    [self.groupsList setContentInset:UIEdgeInsetsMake(0, 0, [self.groups count] ? shareBarHeight : 0, 0)]; // No need for content inset if no groups.
     self.groupsList.allowsSelection = YES;
     self.groupsList.allowsMultipleSelection = YES;
     
     self.groupsList.delegate = self;
     self.groupsList.dataSource = self;
-    [self.bgOverlay addSubview:self.groupsList];
+    [self addSubview:self.groupsList];
     
-    self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, topPadding - 24, VIEW_WIDTH-24, 24)];
+    self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, tableOrigin - topGap, VIEW_WIDTH-24, 24)];
     self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
     self.crossPostPrompt.textColor = [UIColor whiteColor];
-    self.crossPostPrompt.text = @"Post to groups";
+    self.crossPostPrompt.text = [self.groups count] ? @"Post to groups" : @"This is your only group";
     self.crossPostPrompt.layer.shadowRadius = 0.5f;
     self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
     self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.5f, 0.5f);
     self.crossPostPrompt.layer.shadowOpacity = 1.0;
     self.crossPostPrompt.layer.masksToBounds = NO;
-    [self.bgOverlay addSubview:self.crossPostPrompt];
     
+    [self addSubview:self.crossPostPrompt];
     
     self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
 //    [self.shareBar setBackgroundColor:PRIMARY_COLOR];
     [self.shareBar setUserInteractionEnabled:NO];
-    [self.bgOverlay addSubview:self.shareBar];
+    [self addSubview:self.shareBar];
     
 //    FBShimmeringView *shimmeringView = [[FBShimmeringView alloc] initWithFrame:self.shareBar.frame];
     
@@ -111,16 +145,21 @@
     [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
     [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
     [self.confirmCrosspost addTarget:self action:@selector(confirmCrosspost:) forControlEvents:UIControlEventTouchUpInside];
-    [self.bgOverlay addSubview:self.confirmCrosspost];
+    [self addSubview:self.confirmCrosspost];
 //    shimmeringView.contentView = self.confirmCrosspost;
 //    [self.confirmCrosspost addSubview:shimmeringView];
 
 
-    
     CGFloat buttonRadius = 22.f, padding = 4.f;
-    self.closeCrosspost = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
-    [self.closeCrosspost addTarget:self action:@selector(collapseCrosspost) forControlEvents:UIControlEventTouchUpInside];
-//    [self.bgOverlay addSubview:self.closeCrosspost];
+    self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, padding + buttonRadius)];
+    [self.captionButton addTarget:self action:@selector(captionPressed) forControlEvents:UIControlEventTouchUpInside];
+    self.captionButton.alpha = 0.0;
+    [self addSubview:self.captionButton];
+    
+    self.collapseCrosspostButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    [self.collapseCrosspostButton addTarget:self action:@selector(collapseCrosspost) forControlEvents:UIControlEventTouchUpInside];
+    self.collapseCrosspostButton.alpha = 0.0;
+    [self addSubview:self.collapseCrosspostButton];
     
     UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
     [separator setBackgroundColor:[UIColor whiteColor]];
@@ -151,6 +190,277 @@
     //    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
     
     return self;
+}
+
+- (void)setTopButtonsHidden:(BOOL)hidden animated:(BOOL)animated {
+    [UIView animateWithDuration:animated ? 0.2 : 0.0 animations:^{
+        self.captionButton.alpha = hidden ? 0.0 : 1.0;
+        self.collapseCrosspostButton.alpha = hidden ? 0.0 : 1.0;
+    }];
+}
+
+- (void)captionPressed {
+    [self.page captionButtonPressed];
+}
+
+- (void)collapseCrosspost {
+    if (self.video.group) {
+        [self.page collapseCrosspost];
+    } else {
+        [self.page.presentingVC dismissAnimated];
+    }
+}
+
+- (void)setVideo:(YAVideo *)video {
+    if(!video.group){
+        NSLog(@"no group...?");
+        self.topBar.hidden = YES;
+    }
+    self.captionButton.hidden = [video.caption length] > 0;
+    
+    _video = video;
+}
+
+- (void)externalShareAction:(UIButton *)sender {
+    NSLog(@"%li", (long)sender.tag);
+    
+    NSURL *url = [YAUtils urlFromFileName:self.video.mp4Filename];
+    self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
+    self.hud.mode = MBProgressHUDModeIndeterminate;
+    self.hud.labelText = @"Exporting";
+    
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:url completion:^(NSURL *filePath, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error) {
+                DLog(@"error");
+            } else {
+                [self shareVideoWithActionType:sender.tag fileUrl:filePath];
+            }
+        });
+        
+    }];
+
+}
+
+- (void)shareVideoWithActionType:(NSUInteger)type fileUrl:(NSURL *)fileUrl {
+    switch (type) {
+        case 0: {
+            //iMessage
+            
+            NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
+            NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
+
+            MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
+            messageController.messageComposeDelegate = self;
+            [messageController setBody:detailText];
+            [messageController setSubject:@"Yaga"];
+            [messageController addAttachmentURL:fileUrl withAlternateFilename:@"GET_YAGA.mov"];
+            //            [messageController setSubject:@"Yaga"];
+            
+            // Present message view controller on screen
+            [(YASwipingViewController *) self.page.presentingVC presentViewController:messageController animated:YES completion:^{
+                //                [self.hud hide:NO];
+                [self.hud hide:YES];
+//                [self showSuccessHud];
+            }];
+            
+            break;
+        } case 1: {
+            
+            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+            ALAssetsLibraryWriteVideoCompletionBlock videoWriteCompletionBlock =
+            ^(NSURL *newURL, NSError *error) {
+                if (error) {
+                    [self.hud hide:YES];
+                } else {
+                    FBSDKShareVideo *video = [[FBSDKShareVideo alloc] init];
+                    [video setVideoURL:newURL];
+                    
+                    FBSDKShareVideoContent *content = [[FBSDKShareVideoContent alloc] init];
+                    content.video = video;
+                    
+                    [FBSDKShareDialog showFromViewController:(YASwipingViewController *) self.page.presentingVC
+                                                 withContent:content
+                                                    delegate:self];
+                    [self.hud hide:YES];
+
+
+                }
+            };
+            
+            if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:fileUrl])
+            {
+                [library writeVideoAtPathToSavedPhotosAlbum:fileUrl
+                                            completionBlock:videoWriteCompletionBlock];
+            }
+            
+//            dialog.delegate = self;
+//            [dialog show];
+//            [self showSuccessHud];
+            
+            break;
+        } case 2: {
+            // Twitter
+            [self.hud hide:YES];
+
+            [self getTwitterAccount:^(ACAccount *account) {
+                
+                if (account) {
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        //
+                        NSURL *videoUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
+    //                    [NSURL URLWithString:self.video.mp4Filename];
+                        
+                        NSData *data = [NSData dataWithContentsOfURL: videoUrl];
+                        self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
+                        self.hud.labelText = @"Posting";
+                        self.hud.mode = MBProgressHUDModeIndeterminate;
+                        
+                        NSString *caption = ![self.video.caption isEqualToString:@""] ? [NSString stringWithFormat:@"%@ ", self.video.caption] : @"";
+                        NSString *detailText = [NSString stringWithFormat:@"%@#yaga http://getyaga.com", caption];
+
+                        [SocialVideoHelper uploadTwitterVideo:data account:account text:detailText withCompletion:^{
+                            
+                            [self showSuccessHud];
+                            
+                        }];
+                    }];
+                }
+                
+            }];
+
+            break;
+        } case 3: {
+            // save
+            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+            [library writeVideoAtPathToSavedPhotosAlbum:fileUrl completionBlock:^(NSURL *assetURL, NSError *error){
+                if(error) {
+                    NSLog(@"CameraViewController: Error on saving movie : %@ {imagePickerController}", error);
+                }
+                else {
+                    NSLog(@"URL: %@", assetURL);
+                }
+                
+                [self showSuccessHud];
+            }];
+            
+            break;
+        } default:
+            break;
+    }
+    
+}
+
+- (void)showSuccessHud {
+    [self.hud hide:YES];
+    
+    self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
+    self.hud.mode = MBProgressHUDModeText;
+    self.hud.labelText = @"Success!";
+    
+    [self.hud hide:YES afterDelay:1.0];
+}
+
+- (void)hideHud {
+    [self.hud hide:YES];
+}
+
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
+{
+    [(YASwipingViewController *)self.page.presentingVC dismissViewControllerAnimated:YES completion:nil];
+    switch (result) {
+        case MessageComposeResultCancelled: {
+            [[Mixpanel sharedInstance] track:@"iMessage cancelled"];
+            break;
+        }
+        case MessageComposeResultFailed:
+        {
+            [[Mixpanel sharedInstance] track:@"iMessage failed"];
+            [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
+//            [self popToGridViewController];
+            break;
+        }
+            
+        case MessageComposeResultSent:
+            [[Mixpanel sharedInstance] track:@"iMessage sent"];
+            //            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
+//            [self popToGridViewController];
+            
+            break;
+    }
+}
+
+- (void)getTwitterAccount:(void (^)(ACAccount *account))block {
+    
+    
+    ACAccountStore *accountStore = [[ACAccountStore alloc] init];
+    ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
+    
+    [accountStore requestAccessToAccountsWithType:accountType options:nil completion:^(BOOL granted, NSError *error){
+        if (granted) {
+            
+            NSArray *accounts = [accountStore accountsWithAccountType:accountType];
+            
+            // Check if the users has setup at least one Twitter account
+            
+            if (accounts.count > 0){
+                
+                if(accounts.count > 1){
+                
+                    [self accountSelector:accounts withBlock:block];
+                } else {
+                    ACAccount *twitterAccount = [accounts objectAtIndex:0];
+                    //                [twitterAccount username]
+                    block(twitterAccount);
+                }
+            
+                
+                // Creating a request to get the info about a user on Twitter
+            }
+        } else {
+            NSLog(@"No access granted");
+        }
+    }];
+}
+
+- (void) accountSelector:(NSArray *)accounts withBlock:(void (^)(ACAccount *account))block {
+    
+    self.accounts = accounts;
+    self.completionBlock = block;
+    
+    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:@"Select Account" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:nil];
+    
+    for(ACAccount *account in accounts){
+        [sheet addButtonWithTitle:[NSString stringWithFormat:@"@%@", account.username]];
+    }
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [sheet showInView:self.page];
+    }];
+    
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    if (buttonIndex == 0)  {
+        // Cancel pressed
+        self.completionBlock(nil);
+        return;
+    }
+    ACAccount *twitterAccount = [self.accounts objectAtIndex:buttonIndex-1];
+    self.completionBlock(twitterAccount);
+}
+
+#pragma mark - FBSDKSharingDelegate
+- (void)sharer:(id<FBSDKSharing>)sharer didCompleteWithResults :(NSDictionary *)results {
+    NSLog(@"FB: SHARE RESULTS=%@\n",[results debugDescription]);
+}
+
+- (void)sharer:(id<FBSDKSharing>)sharer didFailWithError:(NSError *)error {
+    NSLog(@"FB: ERROR=%@\n",[error debugDescription]);
+}
+
+- (void)sharerDidCancel:(id<FBSDKSharing>)sharer {
+    NSLog(@"FB: CANCELED SHARER=%@\n",[sharer debugDescription]);
 }
 
 - (void)renderButton:(NSUInteger) count {
@@ -207,11 +517,6 @@
     }
 
 }
-
-- (void)collapseCrosspost {
-    DLog(@"collapsing 1");
-}
-
 
 - (void)externalShareButtonPressed {
     //    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
@@ -275,7 +580,7 @@
                                                     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
                                                         
                                                         [hud hide:YES];
-                                                        [self collapseCrosspost];
+                                                        [self.page collapseCrosspost];
                                                         //Your code goes in here
                                                         DLog(@"Main Thread Code");
                                                         

@@ -13,4 +13,8 @@
 @interface YASharingView : UIView<UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, strong) YAVideo *video;
 @property (weak, nonatomic) YAVideoPage *page;
+@property (nonatomic, strong) UITapGestureRecognizer *crosspostTapOutRecognizer;
+
+- (void)setTopButtonsHidden:(BOOL)hidden animated:(BOOL)animated;
+
 @end

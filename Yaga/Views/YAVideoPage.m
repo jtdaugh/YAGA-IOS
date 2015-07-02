@@ -54,7 +54,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) RCounter *viewCounter;
 @property (nonatomic, strong) UIImageView *viewCountImageView;
 @property BOOL likesShown;
-@property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *likeButton;
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *moreButton;
@@ -86,9 +85,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic) CGAffineTransform textFieldTransform;
 @property (nonatomic) CGPoint textFieldCenter;
 
-@property (strong, nonatomic) UIView *crosspostTapOutView;
 @property (strong, nonatomic) UITapGestureRecognizer *captionTapOutGestureRecognizer;
-@property (strong, nonatomic) UITapGestureRecognizer *crosspostTapOutGestureRecognizer;
 @property (strong, nonatomic) YAPanGestureRecognizer *panGestureRecognizer;
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (strong, nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
@@ -466,27 +463,31 @@ static NSString *commentCellID = @"CommentCell";
     self.timestampLabel.layer.shadowOffset = CGSizeMake(0.5, 0.5);
 //    [self.overlay addSubview:self.timestampLabel];
     
-    CGSize viewCountSize = CGSizeMake(100, 23);
+    CGSize viewCountSize = CGSizeMake(200, 23);
     
-    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(VIEW_WIDTH/2 + 1, VIEW_HEIGHT - viewCountSize.height - 10)];
+    
+    UIView *viewCountView = [[UIView alloc] initWithFrame:CGRectMake((VIEW_WIDTH-viewCountSize.width)/2, VIEW_HEIGHT - viewCountSize.height - 11, viewCountSize.width, viewCountSize.height)];
+    viewCountView.backgroundColor = [UIColor clearColor];
+    [self.overlay addSubview:viewCountView];
+    
+    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(viewCountSize.width/2 + 1, 0)];
                         
     self.viewCounter.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.viewCounter.layer.shadowRadius = 0.0f;
     self.viewCounter.layer.shadowOpacity = 1.0;
     self.viewCounter.layer.shadowOffset = CGSizeMake(0.5, 0.5);
-    [self.overlay addSubview:self.viewCounter];
+    [viewCountView addSubview:self.viewCounter];
 
     CGSize viewCountImgSize = CGSizeMake(25, 20);
-    self.viewCountImageView = [[UIImageView alloc]initWithFrame:CGRectMake(VIEW_WIDTH/2.f - 1 - viewCountImgSize.width,
-                                                                           VIEW_HEIGHT - viewCountImgSize.height - 12,
+    self.viewCountImageView = [[UIImageView alloc]initWithFrame:CGRectMake(viewCountSize.width/2 - 1 - viewCountImgSize.width,
+                                                                           2,
                                                                            viewCountImgSize.width, viewCountImgSize.height)];
     self.viewCountImageView.image = [UIImage imageNamed:@"Views"];
     self.viewCountImageView.contentMode = UIViewContentModeScaleAspectFit;
     self.viewCountImageView.layer.shadowRadius = 0.0f;
     self.viewCountImageView.layer.shadowOpacity = 1.0;
     self.viewCountImageView.layer.shadowOffset = CGSizeMake(0.5, 0.5);
-
-    [self.overlay addSubview:self.viewCountImageView];
+    [viewCountView addSubview:self.viewCountImageView];
     
     //    CGFloat tSize = CAPTION_FONT_SIZE;
 
@@ -496,7 +497,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.XButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
     
-    self.moreButton = [YAUtils circleButtonWithImage:@"More" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
+    self.moreButton = [YAUtils circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
     [self.moreButton addTarget:self action:@selector(moreButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.moreButton];
@@ -506,11 +507,6 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
 //    [self.overlay addSubview:self.deleteButton];
 //    self.deleteButton.layer.zPosition = 100;
-    
-    self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, buttonRadius + padding)];
-    [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.overlay addSubview:self.captionButton];
-
     
     self.commentButton = [YAUtils circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -817,7 +813,6 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)doneButtonPressed:(id)sender {
     // Send caption data to firebase
-    self.captionButton.hidden = YES;
     [self toggleEditingCaption:NO];
     [self commitCurrentCaption];
 }
@@ -851,7 +846,6 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)toggleEditingCaption:(BOOL)editing {
     if (!self.video.group) {
-        self.crosspostTapOutView.hidden = editing;
         // Toggle sharing view and caption editing for unposted video state
         self.sharingView.hidden = NO;
         [UIView animateWithDuration:0.2 animations:^{
@@ -872,7 +866,8 @@ static NSString *commentCellID = @"CommentCell";
         self.commentsWrapperView.hidden = YES;
         self.XButton.hidden = YES;
         self.commentButton.hidden = YES;
-        self.captionButton.hidden = YES;
+        self.viewCounter.alpha = 0.0;
+        self.viewCountImageView.alpha = 0.0;
     } else {
         [self setGesturesEnabled:YES];
         
@@ -887,7 +882,8 @@ static NSString *commentCellID = @"CommentCell";
         self.XButton.hidden = NO;
         
         self.commentButton.hidden = NO;
-        self.captionButton.hidden = NO;
+        self.viewCounter.alpha = 1.0;
+        self.viewCountImageView.alpha = 1.0;
     }
 }
 
@@ -906,7 +902,6 @@ static NSString *commentCellID = @"CommentCell";
         [self.editableCaptionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
         [self.editableCaptionTextView removeGestureRecognizer:self.captionTapRecognizer];
         [self removeGestureRecognizer:self.captionTapRecognizer];
-        self.captionButton.hidden = YES;
         
         NSString *text = self.editableCaptionTextView.text;
         CGFloat x = ceil(self.textFieldCenter.x / VIEW_WIDTH * 10000.0) / 10000.0;
@@ -1196,7 +1191,7 @@ static NSString *commentCellID = @"CommentCell";
     if ([recognizer isEqual:self.likeDoubleTapRecognizer]) {
         [self addLike];
     } else if ([recognizer isEqual:self.captionTapRecognizer] ||
-               [recognizer isEqual:self.crosspostTapOutGestureRecognizer]) {
+               [recognizer isEqual:self.sharingView.crosspostTapOutRecognizer]) {
         [self toggleEditingCaption:YES];
         CGPoint loc = [recognizer locationInView:self];
         
@@ -1211,6 +1206,13 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)captionButtonPressed {
+//    if(self.video.group){
+//        
+//    }
+    if (self.video.group) {
+        [self collapseCrosspost];
+    }
+    
     [self toggleEditingCaption:YES];
     
     float randomX = ((float)rand() / RAND_MAX) * 100;
@@ -1294,7 +1296,6 @@ static NSString *commentCellID = @"CommentCell";
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
     self.moreButton.hidden = !self.myVideo;
-    self.captionButton.hidden = !self.myVideo || ![self.video.caption isEqualToString:@""];
     NSArray *events = [[YAEventManager sharedManager] getEventsForVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
     [self refreshWholeTableWithEventsArray:[events reversedArray]];
 
@@ -1342,7 +1343,6 @@ static NSString *commentCellID = @"CommentCell";
     self.captionTapRecognizer.enabled = mp4Downloaded;
     self.likeDoubleTapRecognizer.enabled = mp4Downloaded;
     self.commentButton.enabled = mp4Downloaded;
-    self.captionButton.enabled = mp4Downloaded;
     self.moreButton.enabled = mp4Downloaded;
 
     [self showProgress:!mp4Downloaded];
@@ -1359,14 +1359,17 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)moreButtonPressed:(id)sender {
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"✌🏾"
-                                                             delegate:self
-                                                    cancelButtonTitle:@"Cancel"
-                                               destructiveButtonTitle:nil
-                                                    otherButtonTitles:@"Post to other groups", @"Share", @"Add Caption", @"Save to Camera Roll", @"Delete", nil];
-    actionSheet.destructiveButtonIndex = 4;
-    actionSheet.cancelButtonIndex = 5;
-    [actionSheet showInView:self];
+    
+    [self shareButtonPressed:nil];
+    
+//    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"✌🏾"
+//                                                             delegate:self
+//                                                    cancelButtonTitle:@"Cancel"
+//                                               destructiveButtonTitle:nil
+//                                                    otherButtonTitles:@"Post to other groups", @"Share", @"Add Caption", @"Save to Camera Roll", @"Delete", nil];
+//    actionSheet.destructiveButtonIndex = 4;
+//    actionSheet.cancelButtonIndex = 5;
+//    [actionSheet showInView:self];
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
@@ -1403,6 +1406,7 @@ static NSString *commentCellID = @"CommentCell";
         }
     }
 }
+
 
 # pragma saving stuff
 - (void)externalShareButtonPressed {
@@ -1499,7 +1503,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)shareButtonPressed:(id)sender {
     DLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
-    self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT * .6, VIEW_WIDTH, VIEW_HEIGHT*.4)];
+    self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     self.sharingView.video = self.video;
     self.sharingView.page = self;
     [self setGesturesEnabled:NO];
@@ -1509,55 +1513,43 @@ static NSString *commentCellID = @"CommentCell";
     
     [self addSubview:self.sharingView];
     
-    [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
-    CGRect gradientFrame = self.commentsGradient.frame;
-    gradientFrame.size.height = VIEW_HEIGHT / 3;
+    [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, VIEW_HEIGHT/2)];
 
     [UIView animateWithDuration:0.2 animations:^{
-        self.viewCounter.alpha = 0.0;
-        self.viewCountImageView.alpha = 0.0;
-        self.commentsGradient.frame = gradientFrame;
+        self.viewCounter.superview.alpha = 0.0;
         self.commentsWrapperView.alpha = 0.0;
         self.commentButton.alpha = 0.0;
         self.moreButton.alpha = 0.0;
+        self.XButton.alpha = 0.0;
         [self.sharingView setTransform:CGAffineTransformIdentity];
-
+    } completion:^(BOOL finished) {
+        [self.sharingView setTopButtonsHidden:NO animated:YES];
     }];
     
-    self.crosspostTapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH,  VIEW_HEIGHT * .6 - 60)];
-    [self addSubview:self.crosspostTapOutView];
     SEL target = self.video.group ? @selector(doneCrosspostingTapOut:) : @selector(handleTap:);
-    self.crosspostTapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:target];
-    self.crosspostTapOutGestureRecognizer.delegate = self;
-    [self.crosspostTapOutView addGestureRecognizer:self.crosspostTapOutGestureRecognizer];
-    
-//    sharingVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-//    [(YASwipingViewController*)self.presentingVC presentViewController:sharingVC animated:YES completion:nil];
+    [self.sharingView.crosspostTapOutRecognizer addTarget:self action:target];
 }
 
 - (void)collapseCrosspost {
     DLog(@"collapsing...");
     [self setGesturesEnabled:YES];
-    
-    CGRect gradientFrame = self.commentsGradient.frame;
-    gradientFrame.size.height = VIEW_HEIGHT * .5;
+    [self.sharingView setTopButtonsHidden:YES animated:NO];
+
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
-        self.viewCounter.alpha = 1.0;
-        self.viewCountImageView.alpha = 1.0;
-        self.commentsGradient.frame = gradientFrame;
+        self.viewCounter.superview.alpha = 1.0;
+//        self.commentsGradient.frame = gradientFrame;
         self.commentsWrapperView.alpha = 1.0;
         self.commentButton.alpha = 1.0;
         self.moreButton.alpha = 1.0;
+        self.XButton.alpha = 1.0;
         [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
     } completion:^(BOOL finished) {
         //
         [self.sharingView removeFromSuperview];
+        self.sharingView = nil;
 
     }];
-
-    [self.crosspostTapOutView removeFromSuperview];
-    [self.crosspostTapOutView removeGestureRecognizer:self.crosspostTapOutGestureRecognizer];
 }
 
 - (void)doneCrosspostingTapOut:(UITapGestureRecognizer *)recognizer {
