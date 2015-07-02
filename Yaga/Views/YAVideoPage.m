@@ -498,7 +498,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.XButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
     
-    self.moreButton = [YAUtils circleButtonWithImage:@"More" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
+    self.moreButton = [YAUtils circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
     [self.moreButton addTarget:self action:@selector(moreButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.moreButton];
@@ -1361,14 +1361,17 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)moreButtonPressed:(id)sender {
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"✌🏾"
-                                                             delegate:self
-                                                    cancelButtonTitle:@"Cancel"
-                                               destructiveButtonTitle:nil
-                                                    otherButtonTitles:@"Post to other groups", @"Share", @"Add Caption", @"Save to Camera Roll", @"Delete", nil];
-    actionSheet.destructiveButtonIndex = 4;
-    actionSheet.cancelButtonIndex = 5;
-    [actionSheet showInView:self];
+    
+    [self shareButtonPressed:nil];
+    
+//    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"✌🏾"
+//                                                             delegate:self
+//                                                    cancelButtonTitle:@"Cancel"
+//                                               destructiveButtonTitle:nil
+//                                                    otherButtonTitles:@"Post to other groups", @"Share", @"Add Caption", @"Save to Camera Roll", @"Delete", nil];
+//    actionSheet.destructiveButtonIndex = 4;
+//    actionSheet.cancelButtonIndex = 5;
+//    [actionSheet showInView:self];
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
