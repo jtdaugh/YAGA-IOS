@@ -392,7 +392,7 @@
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    ACAccount *twitterAccount = [self.accounts objectAtIndex:buttonIndex];
+    ACAccount *twitterAccount = [self.accounts objectAtIndex:buttonIndex-1];
     self.completionBlock(twitterAccount);
 }
 
