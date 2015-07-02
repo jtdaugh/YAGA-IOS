@@ -21,8 +21,6 @@
 
 #define kContactsAccessWasRequested @"kContactsAccessWasRequested"
 
-#define kLastYagaUsersRequestDate @"kLastYagaUsersRequestDate"
-
 @implementation YAUser
 
 + (YAUser*)currentUser {

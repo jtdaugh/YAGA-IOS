@@ -103,6 +103,8 @@
 
 #define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"
 
+#define kLastYagaUsersRequestDate @"kLastYagaUsersRequestDate"
+
 // Captions
 #define STANDARDIZED_DEVICE_WIDTH 320.f
 #define STANDARDIZED_CAPTION_PADDING 5.f

@@ -247,22 +247,36 @@ static NSString *CellIdentifier = @"GroupsCell";
         if(!weakSelf.groupsDataArray.count)
             [weakSelf.tableView reloadData];
         
-        [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
-            [weakSelf.tableView.pullToRefreshView stopAnimating];
-            
-            if(error) {
-                [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
-            }
-            else {
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    weakSelf.groupsDataArray = [YAUtils readableGroupsArrayFromResponse:response];
-                    [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [weakSelf.tableView reloadData];
+        void (^searchGroupsBlock)(void) = ^{
+            [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+                [weakSelf.tableView.pullToRefreshView stopAnimating];
+                
+                if(error) {
+                    [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
+                }
+                else {
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                        weakSelf.groupsDataArray = [YAUtils readableGroupsArrayFromResponse:response];
+                        [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf.tableView reloadData];
+                        });
                     });
-                });
-            }
-        }];
+                }
+            }];
+        };
+        
+        NSDate *lastYagaUsersRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
+        if(!lastYagaUsersRequested) {
+            //force upload phone contacts in case there is no information on server yet otherwise searchGroups will return nothgin
+            [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts) {
+                searchGroupsBlock();
+            } excludingPhoneNumbers:nil];
+        }
+        else {
+            searchGroupsBlock();
+        }
+        
     }];
     
     YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.tableView.pullToRefreshView.bounds.size.height)];
