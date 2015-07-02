@@ -8,10 +8,10 @@
 
 #import "UsernameViewController.h"
 #import "YAUser.h"
-//#import "Yaga-Swift.h"
 #import "YAGroupsViewController.h"
 #import "YAServer.h"
 #import "YAUtils.h"
+#import "NSDictionary+ResponseObject.h"
 
 @interface UsernameViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
@@ -117,13 +117,17 @@
     //
     __weak typeof(self) weakSelf = self;
     [[YAServer sharedServer] registerUsername:self.usernameTextField.text
-                                             withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
+                                             withCompletion:^(id response, NSError *error) {
                                                  if(error) {
-                                                     
                                                      [weakSelf.activityIndicator stopAnimating];
                                                      self.nextButton.enabled = YES;
-                                                     
-                                                     [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
+                                                     NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:response withError:nil];
+                                                     if(dict && dict[nName]) {
+                                                         NSString *serverError = [dict[nName] componentsJoinedByString:@"\n"];
+                                                         [YAUtils showNotification:serverError type:YANotificationTypeError];
+                                                     }
+                                                     else
+                                                         [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
                                                  }
                                                  else {
                                                      [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];

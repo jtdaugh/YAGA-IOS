@@ -166,8 +166,7 @@
               success:^(AFHTTPRequestOperation *operation, id responseObject) {
                   completion(nil, nil);
               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                  NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
-                  completion([NSString stringFromHex:hex], error);
+                  completion(error.userInfo[ERROR_DATA], error);
               }];
     
 }
