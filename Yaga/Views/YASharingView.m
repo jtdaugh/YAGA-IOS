@@ -100,7 +100,6 @@
     [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:kCrosspostCellId];
     [self.groupsList registerClass:[UITableViewCell class] forCellReuseIdentifier:kNewGroupCellId];
     self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
-    [self.groupsList setContentInset:UIEdgeInsetsMake(0, 0, [self.groups count] ? shareBarHeight : 0, 0)]; // No need for content inset if no groups.
     self.groupsList.allowsSelection = YES;
     self.groupsList.allowsMultipleSelection = YES;
     
