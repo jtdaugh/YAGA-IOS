@@ -25,9 +25,9 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "YAAssetsCreator.h"
 
-@interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate, UIActionSheetDelegate>
+#define SHARING_VIEW_PROPORTION 0.5
 
-@property (strong, nonatomic) UIView *bgOverlay;
+@interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate, UIActionSheetDelegate>
 
 @property (nonatomic, strong) RLMResults *groups;
 @property (strong, nonatomic) UITableView *groupsList;
@@ -36,7 +36,8 @@
 @property (strong, nonatomic) UIButton *externalShareButton;
 @property (strong, nonatomic) UIButton *saveButton;
 @property (strong, nonatomic) UIButton *confirmCrosspost;
-@property (strong, nonatomic) UIButton *closeCrosspost;
+@property (strong, nonatomic) UIButton *collapseCrosspostButton;
+@property (strong, nonatomic) UIButton *captionButton;
 @property (strong, nonatomic) MBProgressHUD *hud;
 
 @property (nonatomic, copy) void (^completionBlock)(ACAccount *account);
@@ -47,33 +48,36 @@
 @implementation YASharingView
 
 - (id) initWithFrame:(CGRect)frame {
-//    [super init];
-//    [super viewDidLoad];
     
     self = [super initWithFrame:frame];
     
-//    [self setUserInteractionEnabled:NO];
-    
-    self.bgOverlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-    
-    //    [self.bgOverlay setAlpha:0.0];
-    [self addSubview:self.bgOverlay];
-    
-    
-    CGFloat topPadding = 10;
+    NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", [YAUser currentUser].currentGroup.localId];
+    self.groups = [[YAGroup objectsWhere:predicate] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
+
     CGFloat topGap = 20;
     CGFloat shareBarHeight = 60;
-    
     CGFloat borderWidth = 4;
-    
     CGFloat topBarHeight = 80;
-    self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, topBarHeight)];
-    [self.bgOverlay addSubview:self.topBar];
+
+    
+    CGFloat totalRowsHeight = XPCellHeight * MAX([self.groups count], 2);
+    CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
+    if (![self.groups count]) tableHeight = 0;
+    
+    CGFloat tableOrigin = frame.size.height - tableHeight;
+    self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, tableOrigin - topBarHeight - topGap, VIEW_WIDTH, topBarHeight)];
+    [self addSubview:self.topBar];
     
     CGFloat count = 4;
     CGFloat buttonWidth = VIEW_WIDTH/count - VIEW_WIDTH/(count*2 + 1);
     
     NSArray *files = @[@"Message", @"FB", @"Twitter", @"CameraRoll"];
+    
+    UIView *tapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH, VIEW_HEIGHT - tableHeight - topBarHeight - topGap - 60)];
+    tapOutView.backgroundColor = [UIColor clearColor];
+    [self addSubview:tapOutView];
+    self.crosspostTapOutRecognizer = [[UITapGestureRecognizer alloc] init];
+    [tapOutView addGestureRecognizer:self.crosspostTapOutRecognizer];
     
     for(float i = 0.0f; i < [files count]; i++){
         UIButton *externalShareButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, buttonWidth, buttonWidth)];
@@ -88,10 +92,8 @@
     }
     
     //exclude current group
-    NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", [YAUser currentUser].currentGroup.localId];
-    self.groups = [[YAGroup objectsWhere:predicate] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
-    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, topPadding + topGap + topBarHeight, VIEW_WIDTH, self.frame.size.height - topPadding - topGap - topBarHeight)];
+    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, tableOrigin, VIEW_WIDTH, tableHeight)];
     [self.groupsList setBackgroundColor:[UIColor clearColor]];
     [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:@"crossPostCell"];
     self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -101,9 +103,9 @@
     
     self.groupsList.delegate = self;
     self.groupsList.dataSource = self;
-    [self.bgOverlay addSubview:self.groupsList];
+    [self addSubview:self.groupsList];
     
-    self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, topPadding + topBarHeight, VIEW_WIDTH-24, 24)];
+    self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, tableOrigin - topGap, VIEW_WIDTH-24, 24)];
     self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
     self.crossPostPrompt.textColor = [UIColor whiteColor];
     self.crossPostPrompt.text = @"Post to groups";
@@ -112,13 +114,15 @@
     self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.5f, 0.5f);
     self.crossPostPrompt.layer.shadowOpacity = 1.0;
     self.crossPostPrompt.layer.masksToBounds = NO;
-    [self.bgOverlay addSubview:self.crossPostPrompt];
     
+    if ([self.groups count]) {
+        [self addSubview:self.crossPostPrompt];
+    }
     
     self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
 //    [self.shareBar setBackgroundColor:PRIMARY_COLOR];
     [self.shareBar setUserInteractionEnabled:NO];
-    [self.bgOverlay addSubview:self.shareBar];
+    [self addSubview:self.shareBar];
     
 //    FBShimmeringView *shimmeringView = [[FBShimmeringView alloc] initWithFrame:self.shareBar.frame];
     
@@ -140,16 +144,21 @@
     [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
     [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
     [self.confirmCrosspost addTarget:self action:@selector(confirmCrosspost:) forControlEvents:UIControlEventTouchUpInside];
-    [self.bgOverlay addSubview:self.confirmCrosspost];
+    [self addSubview:self.confirmCrosspost];
 //    shimmeringView.contentView = self.confirmCrosspost;
 //    [self.confirmCrosspost addSubview:shimmeringView];
 
 
-    
     CGFloat buttonRadius = 22.f, padding = 4.f;
-    self.closeCrosspost = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
-    [self.closeCrosspost addTarget:self action:@selector(collapseCrosspost) forControlEvents:UIControlEventTouchUpInside];
-//    [self.bgOverlay addSubview:self.closeCrosspost];
+    self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, padding + buttonRadius)];
+    [self.captionButton addTarget:self action:@selector(captionPressed) forControlEvents:UIControlEventTouchUpInside];
+    self.captionButton.alpha = 0.0;
+    [self addSubview:self.captionButton];
+    
+    self.collapseCrosspostButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    [self.collapseCrosspostButton addTarget:self action:@selector(collapseCrosspost) forControlEvents:UIControlEventTouchUpInside];
+    self.collapseCrosspostButton.alpha = 0.0;
+    [self addSubview:self.collapseCrosspostButton];
     
     UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
     [separator setBackgroundColor:[UIColor whiteColor]];
@@ -182,11 +191,31 @@
     return self;
 }
 
+- (void)setTopButtonsHidden:(BOOL)hidden animated:(BOOL)animated {
+    [UIView animateWithDuration:animated ? 0.2 : 0.0 animations:^{
+        self.captionButton.alpha = hidden ? 0.0 : 1.0;
+        self.collapseCrosspostButton.alpha = hidden ? 0.0 : 1.0;
+    }];
+}
+
+- (void)captionPressed {
+    [self.page captionButtonPressed];
+}
+
+- (void)collapseCrosspost {
+    if (self.video.group) {
+        [self.page collapseCrosspost];
+    } else {
+        [self.page.presentingVC dismissAnimated];
+    }
+}
+
 - (void)setVideo:(YAVideo *)video {
     if(!video.group){
         NSLog(@"no group...?");
         self.topBar.hidden = YES;
     }
+    self.captionButton.hidden = [video.caption length] > 0;
     
     _video = video;
 }
@@ -266,26 +295,27 @@
 
             [self getTwitterAccount:^(ACAccount *account) {
                 
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    //
-                    NSURL *videoUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
-//                    [NSURL URLWithString:self.video.mp4Filename];
-                    
-                    NSData *data = [NSData dataWithContentsOfURL: videoUrl];
-                    self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
-                    self.hud.labelText = @"Posting";
-                    self.hud.mode = MBProgressHUDModeIndeterminate;
-                    
-                    NSString *caption = ![self.video.caption isEqualToString:@""] ? [NSString stringWithFormat:@"%@ ", self.video.caption] : @"";
-                    NSString *detailText = [NSString stringWithFormat:@"%@#yaga http://getyaga.com", caption];
+                if (account) {
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        //
+                        NSURL *videoUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
+    //                    [NSURL URLWithString:self.video.mp4Filename];
+                        
+                        NSData *data = [NSData dataWithContentsOfURL: videoUrl];
+                        self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
+                        self.hud.labelText = @"Posting";
+                        self.hud.mode = MBProgressHUDModeIndeterminate;
+                        
+                        NSString *caption = ![self.video.caption isEqualToString:@""] ? [NSString stringWithFormat:@"%@ ", self.video.caption] : @"";
+                        NSString *detailText = [NSString stringWithFormat:@"%@#yaga http://getyaga.com", caption];
 
-                    [SocialVideoHelper uploadTwitterVideo:data account:account text:detailText withCompletion:^{
-                        
-                        [self showSuccessHud];
-                        
+                        [SocialVideoHelper uploadTwitterVideo:data account:account text:detailText withCompletion:^{
+                            
+                            [self showSuccessHud];
+                            
+                        }];
                     }];
-                }];
-                
+                }
                 
             }];
 
@@ -401,6 +431,11 @@
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    if (buttonIndex == 0)  {
+        // Cancel pressed
+        self.completionBlock(nil);
+        return;
+    }
     ACAccount *twitterAccount = [self.accounts objectAtIndex:buttonIndex-1];
     self.completionBlock(twitterAccount);
 }
@@ -473,11 +508,6 @@
 
 }
 
-- (void)collapseCrosspost {
-    DLog(@"collapsing 1");
-}
-
-
 - (void)externalShareButtonPressed {
     //    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
     NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
@@ -540,7 +570,7 @@
                                                     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
                                                         
                                                         [hud hide:YES];
-                                                        [self collapseCrosspost];
+                                                        [self.page collapseCrosspost];
                                                         //Your code goes in here
                                                         DLog(@"Main Thread Code");
                                                         
