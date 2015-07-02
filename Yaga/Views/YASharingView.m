@@ -25,7 +25,7 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "YAAssetsCreator.h"
 
-@interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate>
+@interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate, UIActionSheetDelegate>
 
 @property (strong, nonatomic) UIView *bgOverlay;
 
@@ -39,6 +39,8 @@
 @property (strong, nonatomic) UIButton *closeCrosspost;
 @property (strong, nonatomic) MBProgressHUD *hud;
 
+@property (nonatomic, copy) void (^completionBlock)(ACAccount *account);
+@property (nonatomic, strong) NSArray *accounts;
 @property (strong, nonatomic) UIView *topBar;
 @end
 
@@ -354,16 +356,44 @@
             
             if (accounts.count > 0){
                 
-                ACAccount *twitterAccount = [accounts objectAtIndex:0];
+                if(accounts.count > 1){
                 
-//                [twitterAccount username]
-                block(twitterAccount);
+                    [self accountSelector:accounts withBlock:block];
+                } else {
+                    ACAccount *twitterAccount = [accounts objectAtIndex:0];
+                    //                [twitterAccount username]
+                    block(twitterAccount);
+                }
+            
+                
                 // Creating a request to get the info about a user on Twitter
             }
         } else {
             NSLog(@"No access granted");
         }
     }];
+}
+
+- (void) accountSelector:(NSArray *)accounts withBlock:(void (^)(ACAccount *account))block {
+    
+    self.accounts = accounts;
+    self.completionBlock = block;
+    
+    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:@"Select Account" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:nil];
+    
+    for(ACAccount *account in accounts){
+        [sheet addButtonWithTitle:[NSString stringWithFormat:@"@%@", account.username]];
+    }
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [sheet showInView:self.page];
+    }];
+    
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    ACAccount *twitterAccount = [self.accounts objectAtIndex:buttonIndex];
+    self.completionBlock(twitterAccount);
 }
 
 #pragma mark - FBSDKSharingDelegate
