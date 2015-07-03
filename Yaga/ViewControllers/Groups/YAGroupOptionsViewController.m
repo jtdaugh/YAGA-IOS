@@ -24,6 +24,7 @@
 @property (nonatomic, strong) NSMutableSet *pendingMembersInProgress;
 
 @property (nonatomic, strong) UIButton *groupNameButton;
+@property (nonatomic, strong) YANotificationView *notificationView;
 @end
 
 #define kCancelledJoins @"kCancelledJoins"
@@ -74,6 +75,15 @@
     self.tableView.delegate = self;
 
     [self updateMembersPendingJoin];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(groupDidRefresh:)
+                                                 name:GROUP_DID_REFRESH_NOTIFICATION
+                                               object:nil];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
 }
 
 - (void)addNavBarView {
@@ -395,7 +405,12 @@ static NSString *CellID = @"CellID";
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
+    if (indexPath.section == 0 && self.membersPendingJoin.count) {
+        return NO;
+    }
+    else {
+        return YES;
+    }
 }
 
 // Override to support editing the table view.
@@ -478,6 +493,11 @@ static NSString *CellID = @"CellID";
             DLog(@"Can't add members");
         }
     }];
+}
+
+#pragma mark Group Notifications
+- (void)groupDidRefresh:(NSNotification*)notification {
+    [self.tableView reloadData];
 }
 
 #pragma mark - Segues
