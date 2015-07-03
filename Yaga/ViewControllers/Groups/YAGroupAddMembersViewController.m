@@ -445,6 +445,7 @@
         [self showActivity:YES];
         
         [YAGroup groupWithName:self.groupName withCompletion:^(NSError *error, id result) {
+            [weakSelf showActivity:NO];
             if(!error) {
                 YAGroup *newGroup = result;
                 [YAUser currentUser].currentGroup = newGroup;

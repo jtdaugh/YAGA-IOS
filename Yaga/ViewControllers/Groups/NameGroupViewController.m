@@ -55,6 +55,7 @@
     
     CGFloat formWidth = VIEW_WIDTH *.8;
     self.groupNameTextField = [[UITextField alloc] initWithFrame:CGRectMake((VIEW_WIDTH-formWidth)/2, origin, formWidth, VIEW_HEIGHT*.08)];
+    self.groupNameTextField.delegate = self;
     [self.groupNameTextField setBackgroundColor:[UIColor clearColor]];
     [self.groupNameTextField setKeyboardType:UIKeyboardTypeAlphabet];
     [self.groupNameTextField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
@@ -120,6 +121,22 @@
     vc.initialVideo = self.initialVideo;
     vc.groupName = self.groupNameTextField.text;
     [self.navigationController pushViewController:vc animated:YES];
+}
+
+
+#define MAXLENGTH 32
+
+- (BOOL)textField:(UITextField *) textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    
+    NSUInteger oldLength = [textField.text length];
+    NSUInteger replacementLength = [string length];
+    NSUInteger rangeLength = range.length;
+    
+    NSUInteger newLength = oldLength - rangeLength + replacementLength;
+    
+    BOOL returnKey = [string rangeOfString: @"\n"].location != NSNotFound;
+    
+    return newLength <= MAXLENGTH || returnKey;
 }
 
 @end
