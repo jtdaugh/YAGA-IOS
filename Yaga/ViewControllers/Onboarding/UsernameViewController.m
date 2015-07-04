@@ -79,6 +79,7 @@
     self.activityIndicator.color = PRIMARY_COLOR;
     [self.view addSubview:self.activityIndicator];
     
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
 - (CGFloat) getNewOrigin:(UIView *) anchor {
