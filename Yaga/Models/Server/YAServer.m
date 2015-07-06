@@ -581,7 +581,6 @@
                            else {
                                [video.realm beginWriteTransaction];
                                video.uploadedToAmazon = YES;
-                               video.group.remoteVideosCount++;
                                [video.realm commitWriteTransaction];
                                [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video userInfo:@{kShouldReloadVideoCell:[NSNumber numberWithBool:YES]}];
                                
@@ -808,18 +807,11 @@
 - (void)postUngroupedVideo:(YAVideo *)video toGroups:(NSArray *)groups {
     if (![groups count]) return;
     YAGroup *firstGroup = groups[0];
-    NSDate *currentDate = [NSDate date];
     dispatch_async(dispatch_get_main_queue(), ^{
         video.group = firstGroup;
         [firstGroup.realm beginWriteTransaction];
-        firstGroup.updatedAt = currentDate;
         [firstGroup.videos insertObject:video atIndex:0];
         [firstGroup.realm commitWriteTransaction];
-        
-        //update local update time so the "new" badge isn't shown
-        NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
-        [groupsUpdatedAt setObject:currentDate forKey:firstGroup.localId];
-        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
         
         //start uploading while generating gif
         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:firstGroup];
@@ -995,9 +987,7 @@
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
                 
                 //current group never updated or updatedAt is older than local?
-                NSDictionary *groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
-                NSDate *localGroupUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
-                if(!localGroupUpdateDate || [[YAUser currentUser].currentGroup.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+                if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
                     [[[YAUser currentUser] currentGroup] refresh];
                 }
 

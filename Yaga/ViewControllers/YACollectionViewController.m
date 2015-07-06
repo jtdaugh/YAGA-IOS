@@ -132,6 +132,10 @@ static NSString *cellID = @"Cell";
     [YAUtils setVisitedGifGrid];
     [self.delegate swapOutOfOnboardingState];
     [self.delegate updateCameraAccessoriesWithViewIndex:1];
+    
+    [[YAUser currentUser].currentGroup.realm beginWriteTransaction];
+    [YAUser currentUser].currentGroup.viewedAt = [YAUser currentUser].currentGroup.refreshedAt;
+    [[YAUser currentUser].currentGroup.realm commitWriteTransaction];
 }
 
 - (void)scrollToCell:(NSNotification *)notif
@@ -200,9 +204,7 @@ static NSString *cellID = @"Cell";
     if(![YAUser currentUser].currentGroup.videos.count)
         needRefresh = YES;
     
-    NSDictionary *groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
-    NSDate *localGroupUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
-    if(!localGroupUpdateDate || [[YAUser currentUser].currentGroup.updatedAt compare:localGroupUpdateDate] == NSOrderedDescending) {
+    if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
         needRefresh = YES;
     }
     
@@ -334,45 +336,9 @@ static NSString *cellID = @"Cell";
     if(![notification.object isEqual:[YAUser currentUser].currentGroup])
         return;
     
-//    //looking for updated and new index paths
-//    NSArray *newVideos = notification.userInfo[kNewVideos];
-//    NSArray *updatedVideos = notification.userInfo[kUpdatedVideos];
-//    NSMutableArray *newIndexPaths = [NSMutableArray array];
-//    NSMutableArray *updatedIndexPaths = [NSMutableArray array];
-//    
-//    NSUInteger countBefore = [self collectionView:self.collectionView numberOfItemsInSection:0];
-//    
-//    for (YAVideo *video in updatedVideos) {
-//        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-//        [updatedIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
-//    }
-//    for (YAVideo *video in newVideos) {
-//        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-//        [newIndexPaths addObject:[NSIndexPath indexPathForRow:index inSection:0]];
-//    }
-    
-    [[YAEventManager sharedManager] groupChanged];
-
-//    if(newIndexPaths.count || updatedIndexPaths.count) {
-//        [self.collectionView performBatchUpdates:^{
-//            if(newIndexPaths.count) {
-//                [self.collectionView insertItemsAtIndexPaths:newIndexPaths];
-//                
-//                [self showCellTooltipIfNeeded];
-//            }
-//            
-//            if(updatedIndexPaths.count) {
-//                [self.collectionView reloadItemsAtIndexPaths:updatedIndexPaths];
-//            }
-//        } completion:^(BOOL finished) {
-//            [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-//            
-//            if(newIndexPaths.count) {
-//                [self playVisible:YES];//play new if they are visible immediately, otherwise scroll to the top, they will start playing automatically
-//                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
-//            }
-//        }];
-//    }
+    [[YAUser currentUser].currentGroup.realm beginWriteTransaction];
+    [YAUser currentUser].currentGroup.viewedAt = [YAUser currentUser].currentGroup.refreshedAt;
+    [[YAUser currentUser].currentGroup.realm commitWriteTransaction];
     
     [self.collectionView reloadData];
     [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];

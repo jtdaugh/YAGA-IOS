@@ -125,10 +125,4 @@
     return CGSizeMake(VIEW_WIDTH, rect.size.height + 2*Y_MARGIN + NAME_HEIGHT + BETWEEN_MARGIN);
 }
 
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    DLog(@"layout subviews?");
-    
-}
-
 @end

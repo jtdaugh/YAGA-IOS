@@ -70,8 +70,6 @@
 
 #define YA_DEVICE_TOKEN                         @"YAGA_DEVICE_TOKEN"
 
-#define YA_GROUPS_UPDATED_AT                    @"YA_GROUPS_UPDATED_AT"
-
 #define kNewVideos                              @"newVideos"
 #define kUpdatedVideos                          @"updatedVideos"
 
