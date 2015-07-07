@@ -224,16 +224,6 @@
     });
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application {
-    DLog(@"will enter foreground");
-//    [AnalyticsKit applicationWillEnterForeground];
-    if ([[YAUser currentUser] loggedIn]) {
-        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:GROUPS_REFRESHED_NOTIFICATION object:nil];
-        }];
-    }
-}
-
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     DLog(@"did enter background");
 //    [AnalyticsKit applicationDidEnterBackground];

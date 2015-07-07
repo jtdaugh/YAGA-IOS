@@ -37,8 +37,9 @@
 #define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
+#define API_PUBLIC_GROUPS_TEMPLATE          @"%@/groups/public/"
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
-#define API_GROUP_JOIN_TEMPLATE            @"%@/groups/%@/join/"
+#define API_GROUP_JOIN_TEMPLATE             @"%@/groups/%@/join/"
 
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
 
@@ -468,15 +469,19 @@
     }];
 }
 
-- (void)getGroupsWithCompletion:(responseBlock)completion
+- (void)getGroupsWithCompletion:(responseBlock)completion publicGroups:(BOOL)publicGroups
 {
     NSAssert(self.authToken.length, @"auth token not set");
     
-    NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
+    NSString *api = [NSString stringWithFormat:publicGroups ? API_PUBLIC_GROUPS_TEMPLATE : API_GROUPS_TEMPLATE, self.base_api];
+    
+    DLog(@"updating groups from server... public: %@", publicGroups ? @"Yes" : @"No");
     
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
+        DLog(@"updated");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        DLog(@"can't fetch remote groups, error: %@", error.localizedDescription);
         completion(nil, error);
     }];
 }
@@ -970,6 +975,7 @@
         }];
     }
 }
+
 - (void)sync {
     DLog(@"YAServer:sync, serverUp: %@", self.serverUp ? @"Yes" : @"No");
     
@@ -990,13 +996,11 @@
                 if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
                     [[[YAUser currentUser] currentGroup] refresh];
                 }
-
             }
             else {
                 DLog(@"unable to read groups from server");
             }
         }];
-        
     }
     
     [[YAUser currentUser] purgeOldVideos];

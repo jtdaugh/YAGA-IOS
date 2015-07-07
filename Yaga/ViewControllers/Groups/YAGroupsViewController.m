@@ -76,10 +76,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     //force to open last selected group
     self.animatePush = NO;
     [self groupDidChange:nil];
+    
     [self updateState];
-    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-        [self updateState];
-    }];
 }
 
 - (void)setupCollectionView {
@@ -144,13 +142,10 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.collectionView addPullToRefreshWithActionHandler:^{
         weakSelf.willRefreshDate = [NSDate date];
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-//            [weakSelf updateState];
             [weakSelf delayedHidePullToRefresh];
-//            [weakSelf.collectionView.pullToRefreshView stopAnimating];
         }];
     }];
     
-    //    self.collectionView.pullToRefreshView.
     
     YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];
     
@@ -192,7 +187,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)updateState {
-    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"refreshedAt" ascending:NO];
+    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
     [self.collectionView reloadData];
 }
