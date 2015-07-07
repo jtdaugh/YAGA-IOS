@@ -187,7 +187,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)updateState {
-    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"refreshedAt" ascending:NO];
+    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
     [self.collectionView reloadData];
 }
