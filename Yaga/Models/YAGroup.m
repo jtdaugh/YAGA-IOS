@@ -39,6 +39,10 @@
 
 - (NSString*)membersString {
     if(self.publicGroup) {
+        if([self.name isEqualToString:@"Humanity"]){
+            return @"All Yaga Users";
+        }
+
         return @"Public group";
     }
     
