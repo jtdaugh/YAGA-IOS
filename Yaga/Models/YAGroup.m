@@ -38,6 +38,10 @@
 }
 
 - (NSString*)membersString {
+    if(self.publicGroup) {
+        return @"Public group";
+    }
+    
     if(!self.members.count) {
         return NSLocalizedString(@"No members", @"");
     }
@@ -102,6 +106,12 @@
     
     NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
+    
+    //public groups: always act like the group was updated 48 hours ago.
+    //https://trello.com/c/dEp97M7W/736-humanity-group-client-side-implementation
+    if(self.publicGroup)
+        self.updatedAt = [self.updatedAt dateByAddingTimeInterval: -48 * 60 * 60];
+    
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     NSArray *pending_members = dictionary[YA_RESPONSE_PENDING_MEMBERS];
     
@@ -188,94 +198,125 @@
 }
 
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {
-    DLog(@"updating groups from server...");
-    
-    [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
-        if(error) {
-            DLog(@"can't fetch remote groups, error: %@", error.localizedDescription);
+    void (^successBlock)(id, BOOL) = ^void(id response, BOOL publicGroups) {
+        NSAssert([response isKindOfClass:[NSArray class]], @"unexpected server result");
+        
+        [[RLMRealm defaultRealm] beginWriteTransaction];
+        
+        NSArray *groups = (NSArray*)response;
+        
+        for (id d in groups) {
             
-            if(block)
-                block(error);
+            NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:d withError:nil];
             
-            return;
+            NSString *serverGroupId = dict[YA_RESPONSE_ID];
+            NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", serverGroupId];
+            RLMResults *existingGroups = [YAGroup objectsWhere:predicate];
             
+            YAGroup *group;
+            if(existingGroups.count) {
+                group = existingGroups[0];
+            }
+            else {
+                group = [YAGroup group];
+            }
+            
+            group.publicGroup = publicGroups;
+            
+            [group updateFromServerResponeDictionarty:dict];
+            
+            if(!existingGroups.count)
+                [[RLMRealm defaultRealm] addObject:group];
         }
-        else {
-            DLog(@"updated.");
-            NSAssert([response isKindOfClass:[NSArray class]], @"unexpected server result");
-            
-            [[RLMRealm defaultRealm] beginWriteTransaction];
-            
-            NSArray *groups = (NSArray*)response;
-            
-            for (id d in groups) {
+        //delete local contacts which do not exist on server anymore
+        NSArray *serverGroupIds = [groups valueForKey:@"id"];
+        NSMutableSet *groupsToDelete = [NSMutableSet set];
+        
+        NSString *predicate = [NSString stringWithFormat:@"publicGroup = %d", publicGroups];
+        
+        for (YAGroup *group in [[YAGroup allObjects] objectsWhere:predicate]) {
+            if(![serverGroupIds containsObject:group.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group]) {
+                BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
                 
-                NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:d withError:nil];
+                NSMutableArray *videosToRemove = [NSMutableArray new];
                 
-                NSString *serverGroupId = dict[YA_RESPONSE_ID];
-                NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", serverGroupId];
-                RLMResults *existingGroups = [YAGroup objectsWhere:predicate];
+                for(YAVideo *videoToRemove in group.videos)
+                    [videosToRemove addObject:videoToRemove];
                 
-                YAGroup *group;
-                if(existingGroups.count) {
-                    group = existingGroups[0];
-                }
-                else {
-                    group = [YAGroup group];
+                for(YAVideo *videoToRemove in [videosToRemove copy]) {
+                    [videoToRemove purgeLocalAssets];
+                    [[RLMRealm defaultRealm] deleteObject:videoToRemove];
                 }
                 
-                [group updateFromServerResponeDictionarty:dict];
+                [groupsToDelete addObject:group];
                 
-                if(!existingGroups.count)
-                    [[RLMRealm defaultRealm] addObject:group];
-            }
-            
-            //delete local contacts which do not exist on server anymore
-            NSArray *serverGroupIds = [groups valueForKey:@"id"];
-            NSMutableSet *groupsToDelete = [NSMutableSet set];
-            
-            for (YAGroup *group in [YAGroup allObjects]) {
-                if(![serverGroupIds containsObject:group.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group]) {
-                    BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
-                    
-                    NSMutableArray *videosToRemove = [NSMutableArray new];
-                    
-                    for(YAVideo *videoToRemove in group.videos)
-                        [videosToRemove addObject:videoToRemove];
-                    
-                    for(YAVideo *videoToRemove in [videosToRemove copy]) {
-                        [videoToRemove purgeLocalAssets];
-                        [[RLMRealm defaultRealm] deleteObject:videoToRemove];
-                    }
-                    
-                    [groupsToDelete addObject:group];
-                    
-                    if(currentGroupToRemove) {
-                        [YAUser currentUser].currentGroup = [[YAGroup allObjects] firstObject];
-                    }
+                if(currentGroupToRemove) {
+                    [YAUser currentUser].currentGroup = [[YAGroup allObjects] firstObject];
                 }
             }
-
-            BOOL deletedGroupWasActive = NO;
-            for(YAGroup *group in [groupsToDelete copy]) {
-                if([group isEqual:[YAUser currentUser].currentGroup])
-                    deletedGroupWasActive = YES;
-                [[RLMRealm defaultRealm] deleteObject:group];
-            }
-            
-            [[RLMRealm defaultRealm] commitWriteTransaction];
-            
-            if(deletedGroupWasActive) {
-                if([YAGroup allObjects].count)
-                    [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
-                else
-                    [YAUser currentUser].currentGroup = nil;
-            }
-            
+        }
+        
+        BOOL deletedGroupWasActive = NO;
+        for(YAGroup *group in [groupsToDelete copy]) {
+            if([group isEqual:[YAUser currentUser].currentGroup])
+                deletedGroupWasActive = YES;
+            [[RLMRealm defaultRealm] deleteObject:group];
+        }
+        
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
+        if(deletedGroupWasActive) {
+            if([YAGroup allObjects].count)
+                [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
+            else
+                [YAUser currentUser].currentGroup = nil;
+        }
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUPS_REFRESHED_NOTIFICATION object:nil];
+        
+        //do not call completion block for public groups request
+        if(!publicGroups) {
             if(block)
                 block(nil);
         }
-    }];
+    };
+
+    [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
+        if(error) {
+            if(block)
+                block(error);
+            return;
+        }
+        else {
+            successBlock(response, NO);
+            
+            //shall we request publc groups
+            NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastPublicGroupsRequestDate];
+            
+            //request yaga users once per 6 hours
+            if(lastRequested && [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60*6]] == NSOrderedAscending) {
+                DLog(@"6 hours hasn't passed yet, exiting");
+                block(nil);
+                return;
+            }
+            else {
+                [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
+                    [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastPublicGroupsRequestDate];
+                    
+                    if(error) {
+                        if(block)
+                            block(error);
+                        
+                        return;
+                    }
+                    else {
+                        successBlock(response, YES);
+                    }
+                } publicGroups:YES];
+            }
+            
+        }
+    } publicGroups:NO];
 }
 
 #pragma mark - Server synchronisation: send updates to server
@@ -464,7 +505,7 @@
         }
         else {
             [self.realm beginWriteTransaction];
-            self.refreshedAt = [NSDate dateWithTimeIntervalSince1970:[response[@"updated_at"] intValue]];
+            self.refreshedAt = self.updatedAt;
             [self updateFromServerResponeDictionarty:response];
             [self.realm commitWriteTransaction];
             

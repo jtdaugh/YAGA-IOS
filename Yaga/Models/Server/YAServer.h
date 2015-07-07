@@ -53,7 +53,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 //groups and memebers
 - (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion;
-- (void)getGroupsWithCompletion:(responseBlock)completion;
+- (void)getGroupsWithCompletion:(responseBlock)completion publicGroups:(BOOL)publicGroups;
 - (void)searchGroupsWithCompletion:(responseBlock)completion;
 - (void)joinGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
