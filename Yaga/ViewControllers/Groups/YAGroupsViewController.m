@@ -32,7 +32,6 @@
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
-@property (nonatomic, strong) NSDictionary *groupsUpdatedAt;
 @property (nonatomic, strong) YAGroup *editingGroup;
 @property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
 @property (nonatomic) BOOL animatePush;
@@ -193,13 +192,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)updateState {
-    
-    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
-    
-    self.groupsUpdatedAt = [[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT];
+    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"refreshedAt" ascending:NO];
     
     [self.collectionView reloadData];
-    
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -238,7 +233,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     cell.muted = group.muted;
 
-    cell.showUpdatedIndicator = !group.refreshed;
+    cell.showUpdatedIndicator = group.unviewed;
     
     return cell;
 }

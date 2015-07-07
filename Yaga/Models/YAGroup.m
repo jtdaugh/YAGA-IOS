@@ -34,7 +34,7 @@
 
 + (NSDictionary *)defaultPropertyValues
 {
-    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0]};
+    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0], @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0], @"viewedAt":[NSDate dateWithTimeIntervalSince1970:0]};
 }
 
 - (NSString*)membersString {
@@ -104,10 +104,6 @@
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     NSArray *pending_members = dictionary[YA_RESPONSE_PENDING_MEMBERS];
-    
-    //refresh remote count in only case it's a groups list refresh call
-    if(![dictionary[YA_VIDEO_POSTS] isKindOfClass:[NSArray class]])
-        self.remoteVideosCount = [dictionary[YA_VIDEO_POSTS] intValue];
     
     for(NSDictionary *memberDic in members){
         NSString *phoneNumber = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
@@ -451,17 +447,12 @@
     self.videosUpdateInProgress = YES;
     
     //since
-    NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
-    NSDate *lastUpdateDate = nil;
-    if([groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId]) {
-        lastUpdateDate = [groupsUpdatedAt objectForKey:[YAUser currentUser].currentGroup.localId];
-    }
-    
     NSDictionary *userInfo = @{kShowPullDownToRefreshWhileRefreshingGroup:[NSNumber numberWithBool:showPullDownToRefresh]};
 
     [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:userInfo];
     
-    [[YAServer sharedServer] groupInfoWithId:self.serverId since:lastUpdateDate withCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] groupInfoWithId:self.serverId since:self.refreshedAt
+                              withCompletion:^(id response, NSError *error) {
         if(self.isInvalidated)
             return;
         
@@ -472,11 +463,8 @@
             return;
         }
         else {
-            NSDate *updatedAt = [NSDate dateWithTimeIntervalSince1970:[response[@"updated_at"] intValue]];
-            [groupsUpdatedAt setObject:updatedAt forKey:self.localId];
-            [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
-            
             [self.realm beginWriteTransaction];
+            self.refreshedAt = [NSDate dateWithTimeIntervalSince1970:[response[@"updated_at"] intValue]];
             [self updateFromServerResponeDictionarty:response];
             [self.realm commitWriteTransaction];
             
@@ -530,7 +518,6 @@
                 BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue];
                 
                 if(deleted) {
-                    self.deletedVideosCount++;
                     [videosToDelete addObject:video];
                 }
                 else {
@@ -565,7 +552,6 @@
             
             //skip deleted vids
             if([videoDic[YA_VIDEO_DELETED] boolValue]) {
-                self.deletedVideosCount++;
                 DLog(@"skipping deleted videos");
                 continue;
             }
@@ -616,9 +602,20 @@
     return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos};
 }
 
-- (BOOL)refreshed {
-    NSUInteger uploadingCount = [[YAServerTransactionQueue sharedQueue] countOfPendingUploadTransactionForGroup:self];
-    return self.videos.count + self.deletedVideosCount == self.remoteVideosCount + uploadingCount;
+- (BOOL)unviewed {
+    BOOL dataRefreshed = NO;
+    if([self.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame)
+        dataRefreshed = [self.refreshedAt compare:self.updatedAt] == NSOrderedSame;
+    
+    if(dataRefreshed) {
+        if([self.viewedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] == NSOrderedSame)
+            return YES;
+        
+        if ([self.viewedAt compare:self.refreshedAt] == NSOrderedSame)
+            return NO;
+    }
+
+    return YES;
 }
 
 @end

@@ -452,10 +452,6 @@
                 if (weakSelf.initialVideo ) {
                     [weakSelf postInitialVideo];
                 }
-                //set current date as updatedAt for new group so unviewed badge isn't shown
-                NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
-                [groupsUpdatedAt setObject:[NSDate date] forKey:newGroup.localId];
-                [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
                 
                 [newGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
                     [weakSelf showActivity:NO];

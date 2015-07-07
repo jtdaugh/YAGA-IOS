@@ -204,14 +204,8 @@
             [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
 
         [group.realm beginWriteTransaction];
-        group.updatedAt = currentDate;
         [group.videos insertObject:video atIndex:0];        
         [group.realm commitWriteTransaction];
-        
-        //update local update time so the "new" badge isn't shown
-        NSMutableDictionary *groupsUpdatedAt = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:YA_GROUPS_UPDATED_AT]];
-        [groupsUpdatedAt setObject:currentDate forKey:group.localId];
-        [[NSUserDefaults standardUserDefaults] setObject:groupsUpdatedAt forKey:YA_GROUPS_UPDATED_AT];
         
         //start uploading while generating gif
         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:group];

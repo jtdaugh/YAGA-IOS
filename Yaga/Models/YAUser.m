@@ -375,7 +375,7 @@
 #pragma mark -
 - (BOOL)hasUnviewedVideosInGroups {
     for(YAGroup *group in [YAGroup allObjects]) {
-        if(!group.refreshed)
+        if(group.unviewed)
             return YES;
     }
     return NO;

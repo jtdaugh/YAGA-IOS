@@ -497,7 +497,10 @@ static NSString *CellID = @"CellID";
 
 #pragma mark Group Notifications
 - (void)groupDidRefresh:(NSNotification*)notification {
-    [self.tableView reloadData];
+    if([self.group isEqual:notification.object]) {
+        [self updateMembersPendingJoin];
+        [self.tableView reloadData];
+    }
 }
 
 #pragma mark - Segues
