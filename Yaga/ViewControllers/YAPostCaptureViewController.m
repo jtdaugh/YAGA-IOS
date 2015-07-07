@@ -65,6 +65,7 @@
 
     } else {
         [[YAViewCountManager sharedManager] switchVideoId:nil];
+        [YAViewCountManager sharedManager].viewCountDelegate = page;
     }
     [page setVideo:self.video shouldPreload:YES];
     page.playerView.playWhenReady = YES;
