@@ -23,7 +23,6 @@
 @property (nonatomic, readonly) NSUInteger othersViewCount;
 
 - (void)switchVideoId:(NSString *)videoId;
-- (void)addViewToCurrentVideo;
 - (void)killMonitoring;
 
 - (void)didBeginWatchingVideoWithInterval:(NSTimeInterval)interval;

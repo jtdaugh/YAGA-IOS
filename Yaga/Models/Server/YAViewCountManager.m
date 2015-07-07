@@ -88,7 +88,8 @@
 
 - (void)didBeginWatchingVideoWithInterval:(NSTimeInterval)interval {
     [self.addViewTimer invalidate];
-    if ([self.videoId length] && (interval > 0.1)) {
+    if (interval > 0.1) {
+        [self addViewToCurrentVideo];
         self.addViewTimer = [YAWeakTimerTarget scheduledTimerWithTimeInterval:interval target:self selector:@selector(addViewToCurrentVideo) userInfo:nil repeats:YES];
     }
 }
@@ -98,7 +99,7 @@
 }
 
 - (void)addViewToCurrentVideo {
-    if (!self.currentVideoRef) return;
+    if (!self.currentVideoRef || ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground)) return;
     [[self.currentVideoRef childByAppendingPath:self.username]
         runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
         NSNumber *value = currentData.value;

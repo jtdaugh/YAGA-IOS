@@ -109,6 +109,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
         [self.player replaceCurrentItemWithPlayerItem:nil];
     }
     
+    self.readyToPlay = NO;
     self.playWhenReady = NO;
     
     if(!self.URL)
@@ -304,7 +305,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
                  [playerItem status] == AVPlayerItemStatusReadyToPlay,
                  its duration can be fetched from the item. */
                 
-                
                 self.readyToPlay = YES;
             }
                 break;
@@ -362,9 +362,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     [self.player pause];
 }
 
-- (void)incrementViewCount {
-    [[YAViewCountManager sharedManager] addViewToCurrentVideo];
-}
 
 @end
 

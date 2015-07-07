@@ -238,28 +238,23 @@
     for(NSUInteger i = 0; i < 3; i++) {
         YAVideoPage *page = self.pages[i];
 
-        //prioritise mp4 download for visible page if needed
-        if(preload && !page.video.mp4Filename.length && i == self.visibleTileIndex)
-            [[YADownloadManager sharedManager] exclusivelyDownloadMp4ForVideo:page.video];
-        
-        if(i == self.visibleTileIndex && preload) {
-            [YAEventManager sharedManager].eventReceiver = page;
-
+        if (i == self.visibleTileIndex && preload) {
+            if (!page.video.mp4Filename.length) {
+                // stop view count and prioritise mp4 download if download not finished.
+                [[YAViewCountManager sharedManager] stoppedWatchingVideo];
+                [[YADownloadManager sharedManager] exclusivelyDownloadMp4ForVideo:page.video];
+            }
             YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:page.video];
-            [[YAViewCountManager sharedManager] switchVideoId:(status == YAVideoServerIdStatusConfirmed) ? page.video.serverId : nil];
+            [YAEventManager sharedManager].eventReceiver = page;
+            [[YAEventManager sharedManager] setCurrentVideoServerId:page.video.serverId localId:page.video.localId serverIdStatus:status];
+            [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:page.video.serverId localId:page.video.localId inGroup:page.video.group.serverId withServerIdStatus:status];
+            
             [YAViewCountManager sharedManager].viewCountDelegate = page;
-
-            [[YAEventManager sharedManager] setCurrentVideoServerId:page.video.serverId localId:page.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:page.video]];
-            [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:page.video.serverId localId:page.video.localId inGroup:page.video.group.serverId withServerIdStatus:[YAVideo serverIdStatusForVideo:page.video]];
+            [[YAViewCountManager sharedManager] switchVideoId:(status == YAVideoServerIdStatusConfirmed) ? page.video.serverId : nil];
 
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
-        }
-        else {
-            // 🔽 Ideally this would be called but its crashing stuff
-//            if (i != self.visibleTileIndex && preload) {
-//                [[YAEventManager sharedManager] prefetchEventsForVideo:page.video];
-//            }
+        } else {
             page.playerView.playWhenReady = NO;
             [page.playerView pause];
         }
