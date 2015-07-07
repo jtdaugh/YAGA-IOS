@@ -26,4 +26,7 @@
 - (void)addViewToCurrentVideo;
 - (void)killMonitoring;
 
+- (void)didBeginWatchingVideoWithInterval:(NSTimeInterval)interval;
+- (void)stoppedWatchingVideo;
+
 @end

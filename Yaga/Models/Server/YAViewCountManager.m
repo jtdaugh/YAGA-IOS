@@ -11,6 +11,7 @@
 #import <Firebase/Firebase.h>
 
 #import "YAUser.h"
+#import "YAWeakTimerTarget.h"
 
 #if (DEBUG && DEBUG_SERVER)
 #define FIREBASE_VC_ROOT (@"https://yagadev.firebaseio.com/view_counts")
@@ -28,6 +29,8 @@
 
 @property (nonatomic, strong) Firebase *viewCountRoot;
 @property (nonatomic, strong) Firebase *currentVideoRef;
+
+@property (nonatomic, strong) NSTimer *addViewTimer;
 
 @end
 
@@ -81,6 +84,17 @@
         [weakSelf.viewCountDelegate updatedWithMyViewCount:weakSelf.myViewCount
                                             otherViewCount:weakSelf.othersViewCount];
     }];
+}
+
+- (void)didBeginWatchingVideoWithInterval:(NSTimeInterval)interval {
+    [self.addViewTimer invalidate];
+    if ([self.videoId length] && (interval > 0.1)) {
+        self.addViewTimer = [YAWeakTimerTarget scheduledTimerWithTimeInterval:interval target:self selector:@selector(addViewToCurrentVideo) userInfo:nil repeats:YES];
+    }
+}
+
+- (void)stoppedWatchingVideo {
+    [self.addViewTimer invalidate];
 }
 
 - (void)addViewToCurrentVideo {
