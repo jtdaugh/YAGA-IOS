@@ -38,4 +38,6 @@ typedef void (^YARecordingCompletionBlock)(NSURL *recordedURL);
 
 - (void)setCameraView:(YACameraView *)cameraView;
 
+@property (nonatomic, strong) UIImage *capturePreviewImage;
+
 @end

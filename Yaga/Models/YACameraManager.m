@@ -7,8 +7,6 @@
 //
 
 #import "YACameraManager.h"
-
-#import "YAAssetsCreator.h"
 #import "YAUser.h"
 
 #define MAX_ZOOM_SCALE 4.f
@@ -199,6 +197,13 @@
         
         [self.videoCamera addTarget:self.movieWriter];
         [self.movieWriter startRecording];
+        
+        self.capturePreviewImage = nil;
+        GPUImageFilter *imgFilter = [GPUImageFilter new];
+        [self.videoCamera addTarget:imgFilter];
+        
+        [imgFilter useNextFrameForImageCapture];
+        self.capturePreviewImage = [imgFilter imageFromCurrentFramebufferWithOrientation:UIImageOrientationUp];
     });
     
     

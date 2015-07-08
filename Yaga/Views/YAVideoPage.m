@@ -338,11 +338,10 @@ static NSString *commentCellID = @"CommentCell";
     
     self.shouldPreload = shouldPreload;
     
+    [self addFullscreenJpgPreview];
+    
     if(shouldPreload) {
         [self prepareVideoForPlaying];
-    }
-    else {
-        [self addFullscreenJpgPreview];
     }
     
     [self updateUploadingProgress];
