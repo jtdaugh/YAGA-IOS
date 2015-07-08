@@ -349,7 +349,6 @@
         self.captionWrapper.hidden = YES;
     }
     self.username.textAlignment = NSTextAlignmentRight;
-    self.username.text = self.video.pending ? @"not approved" : self.video.creator;
 }
 
 #pragma mark - UITapGestureRecognizer actions
