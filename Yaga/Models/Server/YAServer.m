@@ -814,6 +814,8 @@
     YAGroup *firstGroup = groups[0];
     dispatch_async(dispatch_get_main_queue(), ^{
         video.group = firstGroup;
+        video.pending = firstGroup.publicGroup;
+
         [firstGroup.realm beginWriteTransaction];
         [firstGroup.videos insertObject:video atIndex:0];
         [firstGroup.realm commitWriteTransaction];

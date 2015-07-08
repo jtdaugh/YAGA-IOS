@@ -200,6 +200,8 @@
         video.createdAt = currentDate;
         video.mp4Filename = mp4Filename;
         video.group = group;
+        video.pending = group.publicGroup;
+        
         if (isImmediatelyAfterRecording)
             [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
 

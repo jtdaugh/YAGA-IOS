@@ -10,6 +10,12 @@
 
 #import "YAVideoPage.h"
 
+typedef NS_ENUM(NSUInteger, YAEventCellVideoState) {
+    YAEventCellVideoStateUploading,
+    YAEventCellVideoStateUnapproved,
+    YAEventCellVideoStateApproved
+};
+
 @interface YAEventCell : UITableViewCell
 
 @property (nonatomic, weak) YAVideoPage *containingVideoPage;
@@ -18,6 +24,6 @@
 
 - (void)configureCellWithEvent:(YAEvent *)event;
 
-- (void)setUploadInProgress:(BOOL)uploadInProgress;
+- (void)setVideoState:(YAEventCellVideoState)state;
 
 @end

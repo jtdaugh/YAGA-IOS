@@ -692,7 +692,7 @@ static NSString *commentCellID = @"CommentCell";
     [cell configureCellWithEvent:event];
 
     if (event.eventType == YAEventTypePost) {
-        [cell setUploadInProgress:self.uploadInProgress];
+        [cell setVideoState:self.uploadInProgress ? YAEventCellVideoStateUploading : (self.video.pending ? YAEventCellVideoStateUnapproved : YAEventCellVideoStateApproved)];
     }
     
     return cell;
@@ -1631,7 +1631,7 @@ static NSString *commentCellID = @"CommentCell";
 
     YAEventCell *postCell = (YAEventCell *)[self.commentsTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[self.events count] - 1 inSection:0]];
     if (postCell) {
-        [postCell setUploadInProgress:self.uploadInProgress];
+        [postCell setVideoState:self.uploadInProgress ? YAEventCellVideoStateUploading : (self.video.pending ? YAEventCellVideoStateUnapproved : YAEventCellVideoStateApproved)];
     }
 }
 

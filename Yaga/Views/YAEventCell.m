@@ -175,16 +175,22 @@
     self.deleteButton.frame = deleteFrame;
 }
 
-- (void)setUploadInProgress:(BOOL)uploadInProgress {
-    if (uploadInProgress) {
-        self.timestampLabel.text = @"Uploading...";
-        [self.deleteButton setTitle:@"Cancel" forState:UIControlStateNormal];
-        [self layoutPostViews];
-    } else {
-        self.timestampLabel.text = self.timestamp;
-        [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
-        [self layoutPostViews];
+- (void)setVideoState:(YAEventCellVideoState)state{
+    switch (state) {
+        case YAEventCellVideoStateUploading:
+            self.timestampLabel.text = @"Uploading...";
+            [self.deleteButton setTitle:@"Cancel" forState:UIControlStateNormal];
+            break;
+        case YAEventCellVideoStateUnapproved:
+            self.timestampLabel.text = @"Pending...";
+            [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+            break;
+        case YAEventCellVideoStateApproved:
+            self.timestampLabel.text = self.timestamp;
+            [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+            break;
     }
+    [self layoutPostViews];
 }
 
 - (void)setCellType:(YAEventType)cellType {
