@@ -24,6 +24,8 @@
 @interface YAAssetsCreator ()
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
 @property (nonatomic, strong) NSOperationQueue *jpgQueue;
+
+@property (nonatomic, strong) UIImage *capturePreviewImage;
 @end
 
 
@@ -183,11 +185,12 @@
         }
 
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
-        
         if(previewImage == nil)
             [self enqueueJpgCreationForVideo:video];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
     });
+
 }
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
@@ -220,6 +223,7 @@
         
         UIImage *previewImage = [YACameraManager sharedManager].capturePreviewImage;
         if(previewImage != nil) {
+            previewImage = [self deviceSpecificFullscreenImageFromImage:previewImage];
             if([UIImageJPEGRepresentation(previewImage, 0.6) writeToFile:jpgPath atomically:NO]) {
                 video.jpgFullscreenFilename = jpgFilename;
             }
@@ -227,7 +231,7 @@
         
         if (isImmediatelyAfterRecording)
             [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
-                
+
         [group.realm beginWriteTransaction];
         [group.videos insertObject:video atIndex:0];        
         [group.realm commitWriteTransaction];
@@ -237,6 +241,7 @@
         
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kNewVideos:@[video]}];
       
+
         if(previewImage == nil)
             [self enqueueJpgCreationForVideo:video];
     });
