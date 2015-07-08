@@ -21,6 +21,8 @@
 #import "YAFindGroupsViewConrtoller.h"
 #import "NameGroupViewController.h"
 
+#import "YAPopoverView.h"
+
 #define BUTTON_SIZE (VIEW_WIDTH / 7)
 #define HEADER_HEIGHT 60.f
 
@@ -101,6 +103,8 @@ typedef enum {
 @property (strong, nonatomic) UILabel *filterLabel;
 @property (strong, nonatomic) NSArray *filters;
 @property (strong, nonatomic) AVAudioPlayer *audioPlayer;
+
+@property (strong, nonatomic) YAPopoverView *popover;
 
 @end
 
@@ -394,14 +398,19 @@ typedef enum {
         [self.delegate backPressed];
     }
     else {
-        YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
-        [self presentViewController:navController animated:YES completion:nil];
+//        YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
+//        [self presentViewController:navController animated:YES completion:nil];
     }
 }
 
 - (void)rightBottomButtonPressed {
     if([YAUser currentUser].currentGroup) {
-        [self openGroupOptions];
+        if([YAUser currentUser].currentGroup.publicGroup &&
+           [[YAUser currentUser].currentGroup.name isEqualToString:@"Humanity"]){
+                [self showHumanityTooltip];
+        } else {
+            [self openGroupOptions];
+        }
     }
     else {
         [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
@@ -475,6 +484,14 @@ typedef enum {
 //    [UIView animateWithDuration:0.2 animations:^{
 //        self.recordButton.transforgm = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
 //    }];
+}
+
+- (void)showHumanityTooltip {
+    NSLog(@"tooltip");
+    
+    [[[YAPopoverView alloc] initWithTitle:@"Humanity" bodyText:@"Humanity is the biggest group on Yaga - it contains every Yaga user in the world! \n\n Anyone can post into Humanity, but posts don't show up to everyone until they get approved. \n\n We go through every single post and feature only the best of the best - so be sure to bring your A game. \n\n Good Luck! " dismissText:@"Got it" addToView:self.parentViewController.view] show];
+//    [self.popover show];
+
 }
 
 - (void)swipedCameraRight:(UISwipeGestureRecognizer *)recognizer {

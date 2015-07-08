@@ -10,6 +10,7 @@
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
 		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
 		4120E70B1B43624500627359 /* SocialVideoHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4120E70A1B43624500627359 /* SocialVideoHelper.m */; };
+		41235F1A1B4C93E400B08ED5 /* YAPopoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41235F191B4C93E400B08ED5 /* YAPopoverView.m */; };
 		413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
 		413BF3471B42002700DCEDF7 /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 413BF3461B42002700DCEDF7 /* bumper.mp4 */; };
 		41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C71B162E76008553A8 /* Fabric.framework */; };
@@ -140,6 +141,8 @@
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		4120E7091B43624500627359 /* SocialVideoHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocialVideoHelper.h; sourceTree = "<group>"; };
 		4120E70A1B43624500627359 /* SocialVideoHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocialVideoHelper.m; sourceTree = "<group>"; };
+		41235F181B4C93E400B08ED5 /* YAPopoverView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPopoverView.h; sourceTree = "<group>"; };
+		41235F191B4C93E400B08ED5 /* YAPopoverView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPopoverView.m; sourceTree = "<group>"; };
 		413734B91B1D070700ADE96F /* YACrosspostCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACrosspostCell.h; sourceTree = "<group>"; };
 		413734BA1B1D070700ADE96F /* YACrosspostCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACrosspostCell.m; sourceTree = "<group>"; };
 		413BF3461B42002700DCEDF7 /* bumper.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.mp4; sourceTree = "<group>"; };
@@ -683,6 +686,8 @@
 				8890451C1B18FF8700B3C4D7 /* YAEventCell.m */,
 				41D53FEE1B1FB4A4004DB886 /* YACenterImageButton.h */,
 				41D53FEF1B1FB4A4004DB886 /* YACenterImageButton.m */,
+				41235F181B4C93E400B08ED5 /* YAPopoverView.h */,
+				41235F191B4C93E400B08ED5 /* YAPopoverView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -916,6 +921,7 @@
 				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
 				6E5C991A1A5EAFAA00A9F586 /* YAActivityView.m in Sources */,
 				86B8649E1A41D332002256FF /* GroupsCollectionViewCell.m in Sources */,
+				41235F1A1B4C93E400B08ED5 /* YAPopoverView.m in Sources */,
 				884C79DA1B372F6700E21583 /* YACameraManager.m in Sources */,
 				6E7324E31AF109F7002CCFED /* YADownloadManager.m in Sources */,
 				6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */,
