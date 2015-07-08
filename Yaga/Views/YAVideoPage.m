@@ -1308,7 +1308,7 @@ static NSString *commentCellID = @"CommentCell";
         [self performSelector:@selector(shareButtonPressed:) withObject:nil afterDelay:0.25];
     }
     
-    BOOL mp4Downloaded = self.video.mp4Filename.length;
+    BOOL mp4Downloaded = [self.video.mp4Filename length] > 0;
 
 //    NSAttributedString *string = [[NSAttributedString alloc] initWithString:self.video.creator attributes:@{
 //                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
