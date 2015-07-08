@@ -12,6 +12,7 @@
 @interface YANotificationView ()
 @property (nonatomic, copy) actionHandlerBlock actionHandler;
 @property (nonatomic, strong) UIView *messageView;
+@property (nonatomic, assign) BOOL hidesStatusBar;
 @end
 
 #define kHeight 80
@@ -22,12 +23,14 @@
 
     UIView *messageView = [[UIView alloc] initWithFrame:CGRectMake(0, -kHeight, VIEW_WIDTH, kHeight)];
     
+    self.hidesStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    
     switch (type) {
         case YANotificationTypeSuccess:
-            messageView.backgroundColor = PRIMARY_COLOR;
+            messageView.backgroundColor = self.hidesStatusBar ? SECONDARY_COLOR : PRIMARY_COLOR;
             break;
         case YANotificationTypeMessage:
-            messageView.backgroundColor = PRIMARY_COLOR;
+            messageView.backgroundColor = self.hidesStatusBar ? SECONDARY_COLOR : PRIMARY_COLOR;
             break;
         case YANotificationTypeError:
             messageView.backgroundColor = [UIColor redColor];
@@ -48,8 +51,13 @@
     [label sizeToFit];
     messageView.frame = CGRectMake(0, messageView.frame.origin.y, VIEW_WIDTH, label.frame.size.height + 10);
     [messageView addSubview:label];
-    
     [[UIApplication sharedApplication].keyWindow addSubview:messageView];
+    
+    self.hidesStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    
+    if(self.hidesStatusBar) {
+        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+    }
     
     if(actionHandler) {
         self.actionHandler = actionHandler;
@@ -80,6 +88,9 @@
 
 - (void)removeViewAnimated:(UIView*)messageView {
     if(messageView) {
+        if(self.hidesStatusBar)
+            [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+        
         [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
             messageView.center = CGPointMake(messageView.center.x, -messageView.frame.size.height/2);
         } completion:^(BOOL finished) {
