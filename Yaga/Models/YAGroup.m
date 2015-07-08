@@ -576,7 +576,8 @@
                         video.caption_scale = ![videoDic[YA_RESPONSE_SCALE] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_SCALE] floatValue] : 1;
                         video.caption_rotation = ![videoDic[YA_RESPONSE_ROTATION] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_ROTATION] floatValue] : 0;
                     }
-                    video.pending = ![videoDic[YA_RESPONSE_APPROVED] integerValue];
+                    
+                    video.pending = ![videoDic[YA_RESPONSE_APPROVED] boolValue];
                     
                     NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
                     if (likers.count) {
@@ -633,7 +634,7 @@
             video.caption_y = ![videoDic[YA_RESPONSE_NAME_Y] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_Y] floatValue] : 0.25;
             video.caption_scale = ![videoDic[YA_RESPONSE_SCALE] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_SCALE] floatValue] : 1;
             video.caption_rotation = ![videoDic[YA_RESPONSE_ROTATION] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_ROTATION] floatValue] : 0;
-            video.pending = ![videoDic[YA_RESPONSE_APPROVED] integerValue];
+            video.pending = ![videoDic[YA_RESPONSE_APPROVED] boolValue];
 
             [self.videos insertObject:video atIndex:0];
             
