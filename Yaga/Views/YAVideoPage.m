@@ -1305,7 +1305,7 @@ static NSString *commentCellID = @"CommentCell";
     
     if (!self.video.group) {
         // hacky delay to do this after you can see video.
-        [self performSelector:@selector(shareButtonPressed:) withObject:nil afterDelay:0.4];
+        [self performSelector:@selector(shareButtonPressed:) withObject:nil afterDelay:0.25];
     }
     
     BOOL mp4Downloaded = self.video.mp4Filename.length;
@@ -1503,8 +1503,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)shareButtonPressed:(id)sender {
     DLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
-    self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    self.sharingView.video = self.video;
+    self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) video:self.video];
     self.sharingView.page = self;
     [self setGesturesEnabled:NO];
     if (!self.video.group) {

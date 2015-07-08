@@ -26,11 +26,13 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "YAAssetsCreator.h"
 
-#define SHARING_VIEW_PROPORTION 0.5
+#define SHARING_VIEW_PROPORTION 0.55
 #define kNewGroupCellId @"postToNewGroupCell"
 #define kCrosspostCellId @"crossPostCell"
 
 @interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate, UIActionSheetDelegate>
+
+@property (nonatomic, strong) YAVideo *video;
 
 @property (nonatomic, strong) RLMResults *groups;
 @property (strong, nonatomic) UITableView *groupsList;
@@ -50,146 +52,152 @@
 
 @implementation YASharingView
 
-- (id) initWithFrame:(CGRect)frame {
+- (id)initWithFrame:(CGRect)frame video:(YAVideo *)video {
     
     self = [super initWithFrame:frame];
-    
-    NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", [YAUser currentUser].currentGroup.localId];
-    self.groups = [[YAGroup objectsWhere:predicate] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
+    if (self) {
+        _video = video;
+        NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", [YAUser currentUser].currentGroup.localId];
+        self.groups = [[YAGroup objectsWhere:predicate] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
+        
+        CGFloat topGap = 20;
+        CGFloat shareBarHeight = 60;
+        CGFloat borderWidth = 4;
+        CGFloat topBarHeight = 80;
+        
+        
+        CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
+        if (![self.groups count]) totalRowsHeight = 0;
+        
+        CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
+        
+        CGFloat tableOrigin = frame.size.height - tableHeight;
+        self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, tableOrigin - topBarHeight - topGap, VIEW_WIDTH, topBarHeight)];
+        [self addSubview:self.topBar];
+        
+        CGFloat count = 4;
+        CGFloat buttonWidth = VIEW_WIDTH/count - VIEW_WIDTH/(count*2 + 1);
+        
+        NSArray *files = @[@"Message", @"FB", @"Twitter", @"CameraRoll"];
+        
+        UIView *tapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH, VIEW_HEIGHT - tableHeight - topBarHeight - topGap - 60)];
+        tapOutView.backgroundColor = [UIColor clearColor];
+        [self addSubview:tapOutView];
+        self.crosspostTapOutRecognizer = [[UITapGestureRecognizer alloc] init];
+        [tapOutView addGestureRecognizer:self.crosspostTapOutRecognizer];
+        
+        for(float i = 0.0f; i < [files count]; i++){
+            UIButton *externalShareButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, buttonWidth, buttonWidth)];
+            CGFloat centerRatio = (i*2+1)/(count*2);
+            externalShareButton.center = CGPointMake(centerRatio*VIEW_WIDTH, topBarHeight/2);
+            externalShareButton.alpha = 0.8;
+            //        [externalShareButton setBackgroundColor:[UIColor greenColor]];
+            externalShareButton.tag = (int)i;
+            [externalShareButton setImage:[UIImage imageNamed:files[(int)i]] forState:UIControlStateNormal];
+            [externalShareButton addTarget:self action:@selector(externalShareAction:) forControlEvents:UIControlEventTouchUpInside];
+            [self.topBar addSubview:externalShareButton];
+        }
+        if(!video.group){
+            self.topBar.hidden = YES;
+        }
+        
+        self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, tableOrigin, VIEW_WIDTH, tableHeight)];
+        [self.groupsList setBackgroundColor:[UIColor clearColor]];
+        [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:kCrosspostCellId];
+        [self.groupsList registerClass:[UITableViewCell class] forCellReuseIdentifier:kNewGroupCellId];
+        self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
+        self.groupsList.allowsSelection = YES;
+        self.groupsList.allowsMultipleSelection = YES;
+        self.groupsList.delegate = self;
+        self.groupsList.dataSource = self;
+        [self addSubview:self.groupsList];
+        self.groupsList.contentInset = UIEdgeInsetsMake(0, 0, video.group ? XPCellHeight : 0, 0);
 
-    CGFloat topGap = 20;
-    CGFloat shareBarHeight = 60;
-    CGFloat borderWidth = 4;
-    CGFloat topBarHeight = 80;
+        self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, tableOrigin - topGap, VIEW_WIDTH-24, 24)];
+        self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
+        self.crossPostPrompt.textColor = [UIColor whiteColor];
+        self.crossPostPrompt.text = [self.groups count] ? @"Share to other groups" : @"";
+        self.crossPostPrompt.layer.shadowRadius = 0.5f;
+        self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
+        self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.5f, 0.5f);
+        self.crossPostPrompt.layer.shadowOpacity = 1.0;
+        self.crossPostPrompt.layer.masksToBounds = NO;
+        
+        [self addSubview:self.crossPostPrompt];
+        
+        self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
+        //    [self.shareBar setBackgroundColor:PRIMARY_COLOR];
+        [self.shareBar setUserInteractionEnabled:NO];
+        [self addSubview:self.shareBar];
+        
+        //    FBShimmeringView *shimmeringView = [[FBShimmeringView alloc] initWithFrame:self.shareBar.frame];
+        
+        
+        // Start shimmering.
+        //    shimmeringView.shimmering = YES;
+        
+        self.confirmCrosspost = [[UIButton alloc] initWithFrame:self.shareBar.frame];
+        self.confirmCrosspost.backgroundColor = SECONDARY_COLOR;
+        self.confirmCrosspost.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
+        self.confirmCrosspost.titleLabel.textColor = [UIColor whiteColor];
+        [self.confirmCrosspost setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+        [self.confirmCrosspost setImage:[UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
+        self.confirmCrosspost.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        //    [self.confirmCrosspost.imageView setBackgroundColor:[UIColor greenColor]];
+        //    [self.confirmCrosspost.titleLabel setBackgroundColor:[UIColor purpleColor]];
+        [self.confirmCrosspost setContentEdgeInsets:UIEdgeInsetsZero];
+        [self.confirmCrosspost setImageEdgeInsets:UIEdgeInsetsMake(0, self.confirmCrosspost.frame.size.width - 48 - 16, 0, 48)];
+        [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
+        [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
+        [self.confirmCrosspost addTarget:self action:@selector(confirmCrosspost:) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:self.confirmCrosspost];
+        //    shimmeringView.contentView = self.confirmCrosspost;
+        //    [self.confirmCrosspost addSubview:shimmeringView];
+        
+        
+        CGFloat buttonRadius = 22.f, padding = 4.f;
+        self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, padding + buttonRadius)];
+        [self.captionButton addTarget:self action:@selector(captionPressed) forControlEvents:UIControlEventTouchUpInside];
+        self.captionButton.alpha = 0.0;
+        [self addSubview:self.captionButton];
+        self.captionButton.hidden = [video.caption length] > 0;
 
-    
-    CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
-    CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
-    
-    CGFloat tableOrigin = frame.size.height - tableHeight;
-    self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, tableOrigin - topBarHeight - topGap, VIEW_WIDTH, topBarHeight)];
-    [self addSubview:self.topBar];
-    
-    CGFloat count = 4;
-    CGFloat buttonWidth = VIEW_WIDTH/count - VIEW_WIDTH/(count*2 + 1);
-    
-    NSArray *files = @[@"Message", @"FB", @"Twitter", @"CameraRoll"];
-    
-    UIView *tapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH, VIEW_HEIGHT - tableHeight - topBarHeight - topGap - 60)];
-    tapOutView.backgroundColor = [UIColor clearColor];
-    [self addSubview:tapOutView];
-    self.crosspostTapOutRecognizer = [[UITapGestureRecognizer alloc] init];
-    [tapOutView addGestureRecognizer:self.crosspostTapOutRecognizer];
-    
-    for(float i = 0.0f; i < [files count]; i++){
-        UIButton *externalShareButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, buttonWidth, buttonWidth)];
-        CGFloat centerRatio = (i*2+1)/(count*2);
-        externalShareButton.center = CGPointMake(centerRatio*VIEW_WIDTH, topBarHeight/2);
-        externalShareButton.alpha = 0.8;
-//        [externalShareButton setBackgroundColor:[UIColor greenColor]];
-        externalShareButton.tag = (int)i;
-        [externalShareButton setImage:[UIImage imageNamed:files[(int)i]] forState:UIControlStateNormal];
-        [externalShareButton addTarget:self action:@selector(externalShareAction:) forControlEvents:UIControlEventTouchUpInside];
-        [self.topBar addSubview:externalShareButton];
+        self.collapseCrosspostButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+        [self.collapseCrosspostButton addTarget:self action:@selector(collapseCrosspost) forControlEvents:UIControlEventTouchUpInside];
+        self.collapseCrosspostButton.alpha = 0.0;
+        [self addSubview:self.collapseCrosspostButton];
+        
+        UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
+        [separator setBackgroundColor:[UIColor whiteColor]];
+        //    [self.bgOverlay addSubview:separator];
+        
+        self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
+        [self.saveButton setImage:[UIImage imageNamed:@"Download"] forState:UIControlStateNormal];
+        [self.saveButton setTitle:@"Save" forState:UIControlStateNormal];
+        [self.saveButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
+        [self.saveButton addTarget:self action:@selector(saveToCameraRollPressed) forControlEvents:UIControlEventTouchUpInside];
+        //    [self.saveButton setBackgroundColor:PRIMARY_COLOR];
+        //    [self.shareBar addSubview:self.saveButton];
+        
+        self.externalShareButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
+        [self.externalShareButton setImage:[UIImage imageNamed:@"External_Share"] forState:UIControlStateNormal];
+        [self.externalShareButton setTitle:@"Share" forState:UIControlStateNormal];
+        [self.externalShareButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
+        [self.externalShareButton addTarget:self action:@selector(externalShareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.externalShareButton setBackgroundColor:PRIMARY_COLOR];
+        //    [self.shareBar addSubview:self.externalShareButton];
+        
+        UIView *vSeparator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - borderWidth/2, 0, borderWidth, self.shareBar.frame.size.height)];
+        [vSeparator setBackgroundColor:[UIColor whiteColor]];
+        //    [self.shareBar addSubview:vSeparator];
+        
+        //    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
+        //    [self.overlay insertSubview:self.bgOverlay belowSubview:self.editableCaptionWrapperView];
+        //    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
     }
-    
-    //exclude current group
-    
-    self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, tableOrigin, VIEW_WIDTH, tableHeight)];
-    [self.groupsList setBackgroundColor:[UIColor clearColor]];
-    [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:kCrosspostCellId];
-    [self.groupsList registerClass:[UITableViewCell class] forCellReuseIdentifier:kNewGroupCellId];
-    self.groupsList.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.groupsList.allowsSelection = YES;
-    self.groupsList.allowsMultipleSelection = YES;
-    
-    self.groupsList.delegate = self;
-    self.groupsList.dataSource = self;
-    [self addSubview:self.groupsList];
-    
-    self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, tableOrigin - topGap, VIEW_WIDTH-24, 24)];
-    self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
-    self.crossPostPrompt.textColor = [UIColor whiteColor];
-    self.crossPostPrompt.text = [self.groups count] ? @"Post to groups" : @"This is your only group";
-    self.crossPostPrompt.layer.shadowRadius = 0.5f;
-    self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
-    self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.5f, 0.5f);
-    self.crossPostPrompt.layer.shadowOpacity = 1.0;
-    self.crossPostPrompt.layer.masksToBounds = NO;
-    
-    [self addSubview:self.crossPostPrompt];
-    
-    self.shareBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
-//    [self.shareBar setBackgroundColor:PRIMARY_COLOR];
-    [self.shareBar setUserInteractionEnabled:NO];
-    [self addSubview:self.shareBar];
-    
-//    FBShimmeringView *shimmeringView = [[FBShimmeringView alloc] initWithFrame:self.shareBar.frame];
-    
-    
-    // Start shimmering.
-//    shimmeringView.shimmering = YES;
-    
-    self.confirmCrosspost = [[UIButton alloc] initWithFrame:self.shareBar.frame];
-    self.confirmCrosspost.backgroundColor = SECONDARY_COLOR;
-    self.confirmCrosspost.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
-    self.confirmCrosspost.titleLabel.textColor = [UIColor whiteColor];
-    [self.confirmCrosspost setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-    [self.confirmCrosspost setImage:[UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
-    self.confirmCrosspost.imageView.contentMode = UIViewContentModeScaleAspectFit;
-    //    [self.confirmCrosspost.imageView setBackgroundColor:[UIColor greenColor]];
-    //    [self.confirmCrosspost.titleLabel setBackgroundColor:[UIColor purpleColor]];
-    [self.confirmCrosspost setContentEdgeInsets:UIEdgeInsetsZero];
-    [self.confirmCrosspost setImageEdgeInsets:UIEdgeInsetsMake(0, self.confirmCrosspost.frame.size.width - 48 - 16, 0, 48)];
-    [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
-    [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
-    [self.confirmCrosspost addTarget:self action:@selector(confirmCrosspost:) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.confirmCrosspost];
-//    shimmeringView.contentView = self.confirmCrosspost;
-//    [self.confirmCrosspost addSubview:shimmeringView];
-
-
-    CGFloat buttonRadius = 22.f, padding = 4.f;
-    self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, padding + buttonRadius)];
-    [self.captionButton addTarget:self action:@selector(captionPressed) forControlEvents:UIControlEventTouchUpInside];
-    self.captionButton.alpha = 0.0;
-    [self addSubview:self.captionButton];
-    
-    self.collapseCrosspostButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
-    [self.collapseCrosspostButton addTarget:self action:@selector(collapseCrosspost) forControlEvents:UIControlEventTouchUpInside];
-    self.collapseCrosspostButton.alpha = 0.0;
-    [self addSubview:self.collapseCrosspostButton];
-    
-    UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
-    [separator setBackgroundColor:[UIColor whiteColor]];
-//    [self.bgOverlay addSubview:separator];
-    
-    self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
-    [self.saveButton setImage:[UIImage imageNamed:@"Download"] forState:UIControlStateNormal];
-    [self.saveButton setTitle:@"Save" forState:UIControlStateNormal];
-    [self.saveButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
-    [self.saveButton addTarget:self action:@selector(saveToCameraRollPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.saveButton setBackgroundColor:PRIMARY_COLOR];
-//    [self.shareBar addSubview:self.saveButton];
-    
-    self.externalShareButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
-    [self.externalShareButton setImage:[UIImage imageNamed:@"External_Share"] forState:UIControlStateNormal];
-    [self.externalShareButton setTitle:@"Share" forState:UIControlStateNormal];
-    [self.externalShareButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
-    [self.externalShareButton addTarget:self action:@selector(externalShareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.externalShareButton setBackgroundColor:PRIMARY_COLOR];
-//    [self.shareBar addSubview:self.externalShareButton];
-    
-    UIView *vSeparator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - borderWidth/2, 0, borderWidth, self.shareBar.frame.size.height)];
-    [vSeparator setBackgroundColor:[UIColor whiteColor]];
-//    [self.shareBar addSubview:vSeparator];
-    
-    //    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
-    //    [self.overlay insertSubview:self.bgOverlay belowSubview:self.editableCaptionWrapperView];
-    //    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
-    
     return self;
 }
+
 
 - (void)setTopButtonsHidden:(BOOL)hidden animated:(BOOL)animated {
     [UIView animateWithDuration:animated ? 0.2 : 0.0 animations:^{
@@ -208,16 +216,6 @@
     } else {
         [self.page.presentingVC dismissAnimated];
     }
-}
-
-- (void)setVideo:(YAVideo *)video {
-    if(!video.group){
-        NSLog(@"no group...?");
-        self.topBar.hidden = YES;
-    }
-    self.captionButton.hidden = [video.caption length] > 0;
-    
-    _video = video;
 }
 
 - (void)externalShareAction:(UIButton *)sender {
@@ -607,7 +605,6 @@
     }
 }
 
-
 #pragma mark - UITableViewDataSource / UITableViewDelegate
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == [self.groups count]) {
@@ -621,7 +618,7 @@
         UIImageView *disclosure = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
         disclosure.image = [UIImage imageNamed:@"Disclosure"];
         cell.accessoryView = disclosure;
-        cell.textLabel.text = @" Post to new group";
+        cell.textLabel.text = @" Create new group";
         cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:[UIImage imageWithColor:PRIMARY_COLOR]];
         return cell;
     } else {
@@ -637,7 +634,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.groups count] + 1;
+    return [self.groups count] + (self.video.group ? 0 : 1);
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

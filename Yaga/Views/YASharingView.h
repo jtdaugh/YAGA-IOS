@@ -11,9 +11,10 @@
 #import "YAVideoPage.h"
 
 @interface YASharingView : UIView<UITableViewDataSource, UITableViewDelegate>
-@property (nonatomic, strong) YAVideo *video;
 @property (weak, nonatomic) YAVideoPage *page;
 @property (nonatomic, strong) UITapGestureRecognizer *crosspostTapOutRecognizer;
+
+- (id)initWithFrame:(CGRect)frame video:(YAVideo *)video;
 
 - (void)setTopButtonsHidden:(BOOL)hidden animated:(BOOL)animated;
 
