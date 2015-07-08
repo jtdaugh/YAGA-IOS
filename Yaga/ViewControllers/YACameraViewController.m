@@ -489,11 +489,9 @@ typedef enum {
 - (void)showHumanityTooltip {
     NSLog(@"tooltip");
     
-    self.popover = [[YAPopoverView alloc] initWithTitle:@"Humanity" bodyText:@"Humanity is the biggest group on Yaga - it contains every Yaga user in the world! \n\n Anyone can post into Humanity, but posts don't show up to everyone until they get approved. \n\n We go through every single post and feature only the best of the best - so be sure to bring your A game. \n\n Good Luck! " dismissText:@"Got it" addToView:self.parentViewController.view];
-    [self.popover show];
-    
-//    self.popover = [YAPopoverView alloc] initWithFrame:CGRectMake(<#CGFloat x#>, <#CGFloat y#>, <#CGFloat width#>, <#CGFloat height#>)
-    
+    [[[YAPopoverView alloc] initWithTitle:@"Humanity" bodyText:@"Humanity is the biggest group on Yaga - it contains every Yaga user in the world! \n\n Anyone can post into Humanity, but posts don't show up to everyone until they get approved. \n\n We go through every single post and feature only the best of the best - so be sure to bring your A game. \n\n Good Luck! " dismissText:@"Got it" addToView:self.parentViewController.view] show];
+//    [self.popover show];
+
 }
 
 - (void)swipedCameraRight:(UISwipeGestureRecognizer *)recognizer {
