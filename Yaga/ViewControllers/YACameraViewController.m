@@ -405,12 +405,7 @@ typedef enum {
 
 - (void)rightBottomButtonPressed {
     if([YAUser currentUser].currentGroup) {
-        if([YAUser currentUser].currentGroup.publicGroup &&
-           [[YAUser currentUser].currentGroup.name isEqualToString:@"Humanity"]){
-                [self showHumanityTooltip];
-        } else {
-            [self openGroupOptions];
-        }
+        [self openGroupOptions];
     }
     else {
         [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
@@ -1014,7 +1009,12 @@ typedef enum {
 }
 
 - (void)openGroupOptions {
-    [self.delegate openGroupOptions];
+    if([YAUser currentUser].currentGroup.publicGroup &&
+       [[YAUser currentUser].currentGroup.name isEqualToString:@"Humanity"]){
+        [self showHumanityTooltip];
+    } else {
+        [self.delegate openGroupOptions];
+    }
 }
 
 #pragma mark -
