@@ -11,6 +11,7 @@
 #import <Firebase/Firebase.h>
 
 #import "YAUser.h"
+#import "YAWeakTimerTarget.h"
 
 #if (DEBUG && DEBUG_SERVER)
 #define FIREBASE_VC_ROOT (@"https://yagadev.firebaseio.com/view_counts")
@@ -28,6 +29,8 @@
 
 @property (nonatomic, strong) Firebase *viewCountRoot;
 @property (nonatomic, strong) Firebase *currentVideoRef;
+
+@property (nonatomic, strong) NSTimer *addViewTimer;
 
 @end
 
@@ -83,8 +86,20 @@
     }];
 }
 
+- (void)didBeginWatchingVideoWithInterval:(NSTimeInterval)interval {
+    [self.addViewTimer invalidate];
+    if (interval > 0.1) {
+        [self addViewToCurrentVideo];
+        self.addViewTimer = [YAWeakTimerTarget scheduledTimerWithTimeInterval:interval target:self selector:@selector(addViewToCurrentVideo) userInfo:nil repeats:YES];
+    }
+}
+
+- (void)stoppedWatchingVideo {
+    [self.addViewTimer invalidate];
+}
+
 - (void)addViewToCurrentVideo {
-    if (!self.currentVideoRef) return;
+    if (!self.currentVideoRef || ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground)) return;
     [[self.currentVideoRef childByAppendingPath:self.username]
         runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
         NSNumber *value = currentData.value;

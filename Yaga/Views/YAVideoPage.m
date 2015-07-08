@@ -1647,13 +1647,14 @@ static NSString *commentCellID = @"CommentCell";
         }
         [self updateUploadingProgress];
         
-        // Reload comments, which will initialize with firebase if serverID just became ready.
+        
         if ([YAVideo serverIdStatusForVideo:self.video] == YAVideoServerIdStatusConfirmed) {
             [[YAViewCountManager sharedManager] switchVideoId:self.video.serverId];
         } else {
             [[YAViewCountManager sharedManager] switchVideoId:nil];
         }
 
+        // Reload comments, which will initialize with firebase if serverID just became ready.
         [[YAEventManager sharedManager] setCurrentVideoServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
         [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId
                                                                 localId:self.video.localId

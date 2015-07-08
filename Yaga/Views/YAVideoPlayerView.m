@@ -99,7 +99,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 {
     if ([self.URL.absoluteString isEqualToString:newURL.absoluteString])
         return;
-    [self.viewCountTimer invalidate];
     
     //DLog(@"%@ preparing to play", newURL.lastPathComponent);
     
@@ -110,6 +109,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
         [self.player replaceCurrentItemWithPlayerItem:nil];
     }
     
+    self.readyToPlay = NO;
     self.playWhenReady = NO;
     
     if(!self.URL)
@@ -140,7 +140,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 #pragma mark
 - (void)dealloc
 {
-    [self.viewCountTimer invalidate];
+    [[YAViewCountManager sharedManager] stoppedWatchingVideo];
     [self.player removeObserver:self forKeyPath:@"currentItem"];
     [self.player removeObserver:self forKeyPath:@"rate"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
@@ -201,7 +201,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     if (self.playerItem)
     {
         /* Remove existing player item key value observers and notifications. */
-        [self.viewCountTimer invalidate];
         [self.playerItem removeObserver:self forKeyPath:@"status"];
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
         //        [[NSNotificationCenter defaultCenter] removeObserver:self
@@ -250,7 +249,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
             /* Make our new AVPlayerItem the AVPlayer's current item. */
             if (self.player.currentItem != self.playerItem)
             {
-                [self.viewCountTimer invalidate];
                 /* Replace the player item with a new player item. The item replacement occurs
                  asynchronously; observe the currentItem property to find out when the
                  replacement will/did occur
@@ -307,7 +305,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
                  [playerItem status] == AVPlayerItemStatusReadyToPlay,
                  its duration can be fetched from the item. */
                 
-                
                 self.readyToPlay = YES;
             }
                 break;
@@ -348,10 +345,8 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)play {
-    [self.viewCountTimer invalidate];
     float singlePlayTime = CMTimeGetSeconds(self.playerItem.asset.duration) / (float) NUM_OF_COPIES;
-    [self incrementViewCount];
-    self.viewCountTimer = [YAWeakTimerTarget scheduledTimerWithTimeInterval:singlePlayTime target:self selector:@selector(incrementViewCount) userInfo:nil repeats:YES];
+    [[YAViewCountManager sharedManager] didBeginWatchingVideoWithInterval:singlePlayTime];
     
     [self.player play];
     
@@ -364,13 +359,9 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)pause {
-    [self.viewCountTimer invalidate];
     [self.player pause];
 }
 
-- (void)incrementViewCount {
-    [[YAViewCountManager sharedManager] addViewToCurrentVideo];
-}
 
 @end
 

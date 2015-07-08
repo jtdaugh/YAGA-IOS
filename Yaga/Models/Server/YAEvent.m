@@ -13,7 +13,8 @@
 
 + (YAEvent *)eventWithSnapshot:(FDataSnapshot *)snapshot {
     YAEvent *event = [YAEvent new];
-    if (![snapshot.key length]) {
+    if (![snapshot.key length] || ![snapshot.value isKindOfClass:[NSDictionary class]]) {
+        // Discard any poorly formed snapshots.
         return nil;
     }
     event.key = snapshot.key;
