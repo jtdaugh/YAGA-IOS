@@ -29,6 +29,7 @@
 #define YA_RESPONSE_RESULT              @"result"
 #define YA_RESPONSE_USER                @"user"
 #define YA_RESPONSE_TOKEN               @"token"
+#define YA_RESPONSE_APPROVED            @"approved"
 
 #define YA_VIDEO_POST                   @"post"
 #define YA_VIDEO_POSTS                  @"posts"
