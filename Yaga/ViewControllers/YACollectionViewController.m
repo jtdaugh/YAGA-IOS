@@ -583,9 +583,13 @@ static NSString *cellID = @"Cell";
     
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
         [videoCell animateGifView:playValue];
-        YAVideo *vid = videoCell.video;
-        NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoWithServerId:vid.serverId localId:vid.localId serverIdStatus:[YAVideo serverIdStatusForVideo:vid]];
-        [videoCell setEventCount:eventCount];
+
+        if (playValue) {
+            // Only set event count if gifs should be playing
+            YAVideo *vid = videoCell.video;
+            NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoWithServerId:vid.serverId localId:vid.localId serverIdStatus:[YAVideo serverIdStatusForVideo:vid]];
+            [videoCell setEventCount:eventCount];
+        }
     }
 }
 
