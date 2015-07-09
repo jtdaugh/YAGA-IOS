@@ -41,12 +41,13 @@
     UIFont *bodyFont = [UIFont fontWithName:BIG_FONT size:16];
     
     CGSize maximumLabelSize = CGSizeMake(width - padding*2, CGFLOAT_MAX);
+    
     CGRect textRect = [bodyText boundingRectWithSize:maximumLabelSize
                                              options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
                                           attributes:@{NSFontAttributeName:bodyFont}
                                              context:nil];
     
-    CGFloat height = MAX(textRect.size.height, 100.0f) + accessoryHeight*2 + padding*3;
+    CGFloat height = MAX(textRect.size.height, 100.0f) + accessoryHeight*2 + padding*5;
     
     NSLog(@"generated width? %f", width);
     NSLog(@"generated height? %f", textRect.size.height);
