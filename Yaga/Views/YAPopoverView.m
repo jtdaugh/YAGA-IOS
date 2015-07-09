@@ -24,7 +24,11 @@
 
 - (id)initWithTitle:(NSString *)title bodyText:(NSString *)bodyText dismissText:(NSString *)dismissText addToView:(UIView *)view {
     
-    CGFloat x = .8, y = .6;
+    self = [super initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    self.alpha = 0.0;
+    self.tapOutView = [[UIView alloc] initWithFrame:self.frame];
+    
+    CGFloat x = .8;
     
     CGFloat padding = 12;
     CGFloat accessoryHeight = 54;
@@ -33,20 +37,21 @@
     CGFloat fullHeight = self.frame.size.height;
     
     CGFloat width = MAX(x*self.frame.size.width, 280);
-
+    
     UIFont *bodyFont = [UIFont fontWithName:BIG_FONT size:16];
     
-    CGSize maximumLabelSize = CGSizeMake(width, CGFLOAT_MAX);
+    CGSize maximumLabelSize = CGSizeMake(width - padding*2, CGFLOAT_MAX);
     CGRect textRect = [bodyText boundingRectWithSize:maximumLabelSize
                                              options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
                                           attributes:@{NSFontAttributeName:bodyFont}
                                              context:nil];
     
-    CGFloat height = MAX(textRect.size.height, 100.0f) + accessoryHeight*2 + padding*2;
+    CGFloat height = MAX(textRect.size.height, 100.0f) + accessoryHeight*2 + padding;
     
-    self = [super initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    self.alpha = 0.0;
-    self.tapOutView = [[UIView alloc] initWithFrame:self.frame];
+    NSLog(@"generated width? %f", width);
+    NSLog(@"generated height? %f", textRect.size.height);
+    NSLog(@"generated height? %f", height);
+
     
     [self setBackgroundColor:[UIColor colorWithWhite:0.0 alpha:0.75]];
     
@@ -54,6 +59,7 @@
     [self.tapOutView addGestureRecognizer:dismiss];
     
     [self addSubview:self.tapOutView];
+    
     
     
     self.contentArea = [[UIView alloc] initWithFrame:CGRectMake((fullWidth-width)/2, (fullHeight - height)/2, width, height)];
@@ -81,10 +87,10 @@
     self.dismissButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
     [self.contentArea addSubview:self.dismissButton];
     
-    self.bodyTextView = [[UITextView alloc] initWithFrame:CGRectMake(padding, accessoryHeight + padding, self.contentArea.frame.size.width - padding*2, self.contentArea.frame.size.height - accessoryHeight*2 - padding)];
+    self.bodyTextView = [[UITextView alloc] initWithFrame:CGRectMake(padding, accessoryHeight + padding, self.contentArea.frame.size.width - padding*2, textRect.size.height)];
 //    [self.bodyTextView setContentInset:UIEdgeInsetsMake(padding, padding, padding, padding)];
     [self.bodyTextView setTextAlignment:NSTextAlignmentCenter];
-    [self.bodyTextView setFont:[UIFont fontWithName:BIG_FONT size:16]];
+    [self.bodyTextView setFont:bodyFont];
     [self.bodyTextView setText:bodyText];
     [self.contentArea addSubview:self.bodyTextView];
 //    [self.bodyTextView setBackgroundColor:[UIColor greenColor]];
