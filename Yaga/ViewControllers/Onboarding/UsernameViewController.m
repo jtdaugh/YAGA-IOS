@@ -144,7 +144,9 @@
                                                              else {
                                                                  [[Mixpanel sharedInstance] track:@"Onboarding user doesn't have any groups"];
                                                              }
-                                                             [self performSegueWithIdentifier:@"MyGroupsFromUsername" sender:self];
+                                                             UIStoryboard *sb = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+                                                             UINavigationController *rootViewController = [sb instantiateViewControllerWithIdentifier:@"LoggedInUserNavigationController"];
+                                                             [[UIApplication sharedApplication].keyWindow setRootViewController:rootViewController];
                                                          }
                                                          else {
                                                              [weakSelf.activityIndicator stopAnimating];

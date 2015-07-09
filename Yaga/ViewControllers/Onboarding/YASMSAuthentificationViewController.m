@@ -194,7 +194,9 @@
                         //Get all groups for this user
                         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
                             if(!error) {
-                                [self performSegueWithIdentifier:@"ShowGroupsAfterAuthentication" sender:self];
+                                UIStoryboard *sb = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+                                UINavigationController *rootViewController = [sb instantiateViewControllerWithIdentifier:@"LoggedInUserNavigationController"];
+                                [[UIApplication sharedApplication].keyWindow setRootViewController:rootViewController];
                             }
                             else {
                                 [self.activityIndicator stopAnimating];
