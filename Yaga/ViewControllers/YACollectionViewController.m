@@ -582,12 +582,10 @@ static NSString *cellID = @"Cell";
     [self.collectionView layoutIfNeeded];
     
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
-        if (!videoCell.video.invalidated) {
-            [videoCell animateGifView:playValue];
-            YAVideo *vid = videoCell.video;
-            NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoWithServerId:vid.serverId localId:vid.localId serverIdStatus:[YAVideo serverIdStatusForVideo:vid]];
-            [videoCell setEventCount:eventCount];
-        }
+        [videoCell animateGifView:playValue];
+        YAVideo *vid = videoCell.video;
+        NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoWithServerId:vid.serverId localId:vid.localId serverIdStatus:[YAVideo serverIdStatusForVideo:vid]];
+        [videoCell setEventCount:eventCount];
     }
 }
 
