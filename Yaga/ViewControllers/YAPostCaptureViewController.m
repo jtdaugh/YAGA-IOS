@@ -9,6 +9,8 @@
 #import "YAPostCaptureViewController.h"
 #import "YAVideoPage.h"
 #import "YAUser.h"
+#import "YAUtils.h"
+#import "YAPopoverView.h"
 
 @interface YAPostCaptureViewController ()
 
@@ -41,6 +43,20 @@
     [self initVideoPage];
 
     // Do any additional setup after loading the view.
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    if (self.video.group) {
+        if (![YAUtils hasRecordedVideo]) {
+            [self showFirstVideoTooltip];
+            [YAUtils setRecordedVideo];
+        }
+    } else {
+        if (![YAUtils hasRecordedUngroupedVideo]) {
+            [self showFirstUngroupedVideoTooltip];
+            [YAUtils setRecordedUngroupedVideo];
+        }
+    }
 }
 
 - (void)dealloc {
@@ -95,5 +111,16 @@
         self.panGesture.enabled = YES;
     }
 }
+
+#pragma mark - tooltips
+
+- (void)showFirstVideoTooltip {
+    [[[YAPopoverView alloc] initWithTitle:@"Woohoo" bodyText:@"NICE VIDEO BRO " dismissText:@"Got it" addToView:self.videoPage] show];
+}
+
+- (void)showFirstUngroupedVideoTooltip {
+    [[[YAPopoverView alloc] initWithTitle:@"Woohoo" bodyText:@"NICE UNGROUPED VIDEO." dismissText:@"Got it" addToView:self.videoPage] show];
+}
+
 
 @end

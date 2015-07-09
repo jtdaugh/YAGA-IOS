@@ -23,6 +23,7 @@
 #import "YANotificationView.h"
 
 #import "YAEventManager.h"
+#import "YAPopoverView.h"
 
 @protocol GridViewControllerDelegate;
 
@@ -126,6 +127,19 @@ static NSString *cellID = @"Cell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [YAUtils setVisitedGifGrid];
+    if([YAUser currentUser].currentGroup.publicGroup) {
+        if ([[YAUser currentUser].currentGroup.name isEqualToString:@"Humanity"] && ![YAUtils hasVisitedHumanity]) {
+            [self showHumanityTooltip];
+            [YAUtils setVisitedHumanity];
+        }
+    } else {
+        if (![YAUtils hasVisitedPrivateGroup]) {
+            [self showPrivateGroupTooltip];
+            [YAUtils setVisitedPrivateGroup];
+        }
+    }
+
+    
     [self.delegate swapOutOfOnboardingState];
     [self.delegate updateCameraAccessoriesWithViewIndex:1];
     
@@ -653,5 +667,20 @@ static NSString *cellID = @"Cell";
         });
     }
 }
+
+#pragma mark - tooltips
+
+
+- (void)showPrivateGroupTooltip {
+    [[[YAPopoverView alloc] initWithTitle:[YAUser currentUser].currentGroup.name bodyText:@"TOOLTIP TEXT " dismissText:@"Got it" addToView:self.parentViewController.parentViewController.view] show];
+    
+}
+
+
+- (void)showHumanityTooltip {
+    [[[YAPopoverView alloc] initWithTitle:@"Humanity" bodyText:@"Humanity is the biggest group on Yaga - it contains every Yaga user in the world! \n\n Anyone can post into Humanity, but posts don't show up to everyone until they get approved. \n\n We go through every single post and feature only the best of the best - so be sure to bring your A game. \n\n Good Luck! " dismissText:@"Got it" addToView:self.parentViewController.parentViewController.view] show];
+    
+}
+
 
 @end

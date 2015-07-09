@@ -56,7 +56,17 @@ typedef void (^confirmationBlock)(void);
 
 + (NSArray*)readableGroupsArrayFromResponse:(NSArray *)response;
 
+// Tooltip/defaults helpers
 + (BOOL)hasVisitedGifGrid;
 + (void)setVisitedGifGrid;
+
++ (BOOL)hasVisitedHumanity;
++ (void)setVisitedHumanity;
++ (BOOL)hasVisitedPrivateGroup;
++ (void)setVisitedPrivateGroup;
++ (BOOL)hasRecordedVideo;
++ (void)setRecordedVideo;
++ (BOOL)hasRecordedUngroupedVideo;
++ (void)setRecordedUngroupedVideo;
 
 @end
