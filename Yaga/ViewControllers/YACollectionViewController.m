@@ -34,8 +34,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
-@property (strong, nonatomic) NSMutableDictionary *deleteDictionary;
-
 @property (nonatomic, assign) NSUInteger paginationThreshold;
 
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
@@ -98,8 +96,6 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoDidChange:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willDeleteVideo:) name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollToCell:)    name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
@@ -190,8 +186,6 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_CHANGE_NOTIFICATION object:nil];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_WILL_DELETE_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_VIDEO_NOTIFICATION object:nil];
@@ -207,11 +201,8 @@ static NSString *cellID = @"Cell";
     if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
         needRefresh = YES;
     }
-    
-    [self.collectionView reloadData];
 
-    //datasource reloaded, do nothing on didDeleteVideo
-    [self.deleteDictionary removeAllObjects];
+    [self.collectionView reloadData];
     
     if(needRefresh) {
         [self refreshCurrentGroup];
@@ -220,50 +211,6 @@ static NSString *cellID = @"Cell";
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         [self playVisible:YES];
     }
-}
-
--  (void)willDeleteVideo:(NSNotification*)notif {
-    YAVideo *video = notif.object;
-    
-    if(!video.group || [video.group isInvalidated])
-        return;
-    
-    if(![video.group isEqual:[YAUser currentUser].currentGroup])
-        return;
-    
-    NSUInteger videoIndex = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-    
-    if(!self.deleteDictionary)
-        self.deleteDictionary = [NSMutableDictionary new];
-    
-    [self.deleteDictionary setObject:[NSNumber numberWithInteger:videoIndex] forKey:video.localId];
-}
-
-- (void)didDeleteVideo:(NSNotification*)notif {
-    
-    NSString *videoLocalId = notif.object;
-    YAGroup *group = notif.userInfo[@"group"];
-    
-    if(!group || [group isInvalidated])
-        return;
-    
-    if(![group isEqual:[YAUser currentUser].currentGroup])
-        return;
-    
-    if(![self.deleteDictionary objectForKey:videoLocalId])
-        return;
-    
-    NSUInteger videoIndex = [[self.deleteDictionary objectForKey:videoLocalId] integerValue];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:videoIndex inSection:0];
-    
-    if(self.paginationThreshold > videoIndex) {
-        
-        self.paginationThreshold--;
-        
-        [self.collectionView deleteItemsAtIndexPaths:@[indexPath]];
-    }
-    
-    [self.deleteDictionary removeObjectForKey:videoLocalId];
 }
 
 - (void)videoDidChange:(NSNotification*)notif {
@@ -339,8 +286,9 @@ static NSString *cellID = @"Cell";
     [[YAUser currentUser].currentGroup.realm beginWriteTransaction];
     [YAUser currentUser].currentGroup.viewedAt = [YAUser currentUser].currentGroup.refreshedAt;
     [[YAUser currentUser].currentGroup.realm commitWriteTransaction];
-    
+
     [self.collectionView reloadData];
+
     [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
         [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
@@ -666,10 +614,7 @@ static NSString *cellID = @"Cell";
         __weak typeof(self) weakSelf = self;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [weakSelf.collectionView reloadData];
-
-            //datasource reloaded, do nothing on didDeleteVideo
-            [weakSelf.deleteDictionary removeAllObjects];
-
+            
             //enqueue new assets creation jobs
             [weakSelf enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
             
