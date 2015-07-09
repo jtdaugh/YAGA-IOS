@@ -182,7 +182,7 @@
             [self.deleteButton setTitle:@"Cancel" forState:UIControlStateNormal];
             break;
         case YAEventCellVideoStateUnapproved:
-            self.timestampLabel.text = @"Pending...";
+            self.timestampLabel.text = @"Pending Approval";
             [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
             break;
         case YAEventCellVideoStateApproved:
