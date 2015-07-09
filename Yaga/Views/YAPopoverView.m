@@ -24,6 +24,26 @@
 
 - (id)initWithTitle:(NSString *)title bodyText:(NSString *)bodyText dismissText:(NSString *)dismissText addToView:(UIView *)view {
     
+    CGFloat x = .8, y = .6;
+    
+    CGFloat padding = 12;
+    CGFloat accessoryHeight = 54;
+    
+    CGFloat fullWidth = self.frame.size.width;
+    CGFloat fullHeight = self.frame.size.height;
+    
+    CGFloat width = MAX(x*self.frame.size.width, 280);
+
+    UIFont *bodyFont = [UIFont fontWithName:BIG_FONT size:16];
+    
+    CGSize maximumLabelSize = CGSizeMake(width, CGFLOAT_MAX);
+    CGRect textRect = [bodyText boundingRectWithSize:maximumLabelSize
+                                             options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
+                                          attributes:@{NSFontAttributeName:bodyFont}
+                                             context:nil];
+    
+    CGFloat height = MAX(textRect.size.height, 100.0f) + accessoryHeight*2 + padding*2;
+    
     self = [super initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     self.alpha = 0.0;
     self.tapOutView = [[UIView alloc] initWithFrame:self.frame];
@@ -35,13 +55,6 @@
     
     [self addSubview:self.tapOutView];
     
-    CGFloat x = .8, y = .6;
-    
-    CGFloat fullWidth = self.frame.size.width;
-    CGFloat fullHeight = self.frame.size.height;
-    
-    CGFloat width = MAX(x*self.frame.size.width, 280);
-    CGFloat height = y*self.frame.size.height;
     
     self.contentArea = [[UIView alloc] initWithFrame:CGRectMake((fullWidth-width)/2, (fullHeight - height)/2, width, height)];
     [self.contentArea setBackgroundColor:[UIColor whiteColor]];
@@ -50,9 +63,6 @@
     self.contentArea.layer.cornerRadius = 16.0f;
     
     [self addSubview:self.contentArea];
-    
-    CGFloat padding = 12;
-    CGFloat accessoryHeight = 54;
     
     self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, padding, self.contentArea.frame.size.width - padding * 2, accessoryHeight)];
     [self.titleLabel setText:title];
