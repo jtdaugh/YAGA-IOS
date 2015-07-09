@@ -647,7 +647,7 @@
         [video removeFromCurrentGroupWithCompletion:nil removeFromServer:NO];
     }
     
-    return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos};
+    return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos, kDeletedVideos:videosToDelete};
 }
 
 - (BOOL)unviewed {

@@ -90,6 +90,8 @@ static NSString *cellID = @"Cell";
     
     self.lastOffset = self.collectionView.contentOffset;
     
+    self.sortedVideos = [[YAUser currentUser].currentGroup.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
+    
     [self reload];
 
     [YAEventManager sharedManager].eventCountReceiver = self;
@@ -207,10 +209,6 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_VIDEO_NOTIFICATION object:nil];
 }
 
-- (void)updateDataSource {
-   self.sortedVideos = [[YAUser currentUser].currentGroup.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
-}
-
 - (void)reload {
     self.paginationThreshold = kPaginationDefaultThreshold;
     
@@ -221,8 +219,6 @@ static NSString *cellID = @"Cell";
     if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
         needRefresh = YES;
     }
-
-    [self updateDataSource];
     
     [self.collectionView reloadData];
     
@@ -311,20 +307,42 @@ static NSString *cellID = @"Cell";
 
     NSArray *newVideos = notification.userInfo[kNewVideos];
     NSArray *updatedVideos = notification.userInfo[kUpdatedVideos];
+    NSArray *deletedVideos = notification.userInfo[kDeletedVideos];
     
-    if ([newVideos count] || [updatedVideos count]) {
-        [self updateDataSource];
+    void (^refreshBlock)(void) = ^ {
+        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
+        if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
+            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+        [self playVisible:YES];
+        
+        [self delayedHidePullToRefresh];
+    };
+    
+    if (newVideos.count || deletedVideos.count) {
         [self.collectionView reloadData];
+        refreshBlock();
     }
-
-    [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-    if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-    [self playVisible:YES];
-    
-    [self delayedHidePullToRefresh];
+    else if(updatedVideos.count) {
+        NSMutableArray *indexPathsToReload = [NSMutableArray new];
+        
+        for (YAVideo *video in updatedVideos) {
+            NSUInteger index = [self.sortedVideos indexOfObject:video];
+            if(index != NSNotFound) {
+                [indexPathsToReload addObject:[NSIndexPath indexPathForRow:index inSection:0]];
+            }
+        }
+        if(indexPathsToReload.count) {
+            [self.collectionView performBatchUpdates:^{
+                [self.collectionView reloadItemsAtIndexPaths:indexPathsToReload];
+            } completion:^(BOOL finished) {
+                refreshBlock();
+            }];
+        }
+    }
+    else {
+        [self delayedHidePullToRefresh];
+    }
 }
-
 - (void)delayedHidePullToRefresh {
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
     
