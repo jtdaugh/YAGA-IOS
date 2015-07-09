@@ -154,7 +154,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
-                        <segue destination="54o-Be-McY" kind="showDetail" identifier="MyGroupsFromUsername" id="MZQ-Tr-DTg"/>
+                        <segue destination="54o-Be-McY" kind="custom" identifier="MyGroupsFromUsername" customClass="YASetNewRootVCSegue" id="MZQ-Tr-DTg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lgf-Jx-pmq" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -178,7 +178,7 @@
                     <navigationItem key="navigationItem" id="KmW-Ag-nmx"/>
                     <connections>
                         <segue destination="Xo8-xg-cRY" kind="show" identifier="UserNameViewController" id="2A8-ou-e1j"/>
-                        <segue destination="54o-Be-McY" kind="showDetail" identifier="ShowGroupsAfterAuthentication" id="deN-oa-0rJ"/>
+                        <segue destination="54o-Be-McY" kind="custom" identifier="ShowGroupsAfterAuthentication" customClass="YASetNewRootVCSegue" id="deN-oa-0rJ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dTj-X0-Iz4" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -208,6 +208,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="MZQ-Tr-DTg"/>
+        <segue reference="deN-oa-0rJ"/>
     </inferredMetricsTieBreakers>
 </document>
