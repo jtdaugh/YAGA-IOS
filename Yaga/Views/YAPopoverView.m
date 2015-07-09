@@ -46,7 +46,7 @@
                                           attributes:@{NSFontAttributeName:bodyFont}
                                              context:nil];
     
-    CGFloat height = MAX(textRect.size.height, 100.0f) + accessoryHeight*2 + padding;
+    CGFloat height = MAX(textRect.size.height, 100.0f) + accessoryHeight*2 + padding*3;
     
     NSLog(@"generated width? %f", width);
     NSLog(@"generated height? %f", textRect.size.height);
@@ -59,8 +59,6 @@
     [self.tapOutView addGestureRecognizer:dismiss];
     
     [self addSubview:self.tapOutView];
-    
-    
     
     self.contentArea = [[UIView alloc] initWithFrame:CGRectMake((fullWidth-width)/2, (fullHeight - height)/2, width, height)];
     [self.contentArea setBackgroundColor:[UIColor whiteColor]];
@@ -87,7 +85,7 @@
     self.dismissButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
     [self.contentArea addSubview:self.dismissButton];
     
-    self.bodyTextView = [[UITextView alloc] initWithFrame:CGRectMake(padding, accessoryHeight + padding, self.contentArea.frame.size.width - padding*2, textRect.size.height)];
+    self.bodyTextView = [[UITextView alloc] initWithFrame:CGRectMake(padding, accessoryHeight + padding, self.contentArea.frame.size.width - padding*2, self.contentArea.frame.size.height - accessoryHeight*2 - padding)];
 //    [self.bodyTextView setContentInset:UIEdgeInsetsMake(padding, padding, padding, padding)];
     [self.bodyTextView setTextAlignment:NSTextAlignmentCenter];
     [self.bodyTextView setFont:bodyFont];
