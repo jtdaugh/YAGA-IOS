@@ -309,8 +309,12 @@ static NSString *cellID = @"Cell";
     [YAUser currentUser].currentGroup.viewedAt = [YAUser currentUser].currentGroup.refreshedAt;
     [[YAUser currentUser].currentGroup.realm commitWriteTransaction];
 
-    [self updateDataSource];
-    [self.collectionView reloadData];
+    NSArray *newVideos = notification.userInfo[kNewVideos];
+    NSArray *updatedVideos = notification.userInfo[kUpdatedVideos];
+    if ([newVideos count] || [updatedVideos count]) {
+        [self updateDataSource];
+        [self.collectionView reloadData];
+    }
 
     [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
