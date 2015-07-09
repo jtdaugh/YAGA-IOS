@@ -255,7 +255,7 @@
             //            [messageController setSubject:@"Yaga"];
             
             // Present message view controller on screen
-            [(YASwipingViewController *) self.page.presentingVC presentViewController:messageController animated:YES completion:^{
+            [(UIViewController *) self.page.presentingVC presentViewController:messageController animated:YES completion:^{
                 //                [self.hud hide:NO];
                 [self.hud hide:YES];
 //                [self showSuccessHud];
@@ -276,7 +276,7 @@
                     FBSDKShareVideoContent *content = [[FBSDKShareVideoContent alloc] init];
                     content.video = video;
                     
-                    [FBSDKShareDialog showFromViewController:(YASwipingViewController *) self.page.presentingVC
+                    [FBSDKShareDialog showFromViewController:(UIViewController *) self.page.presentingVC
                                                  withContent:content
                                                     delegate:self];
                     [self.hud hide:YES];
@@ -364,7 +364,7 @@
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
 {
-    [(YASwipingViewController *)self.page.presentingVC dismissViewControllerAnimated:YES completion:nil];
+    [(UIViewController *)self.page.presentingVC dismissViewControllerAnimated:YES completion:nil];
     switch (result) {
         case MessageComposeResultCancelled: {
             [[Mixpanel sharedInstance] track:@"iMessage cancelled"];
@@ -536,7 +536,7 @@
                                                         [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
                                                                                           applicationActivities:@[]];
                                                         
-                                                        YASwipingViewController *presentingVC = (YASwipingViewController *) self.page.presentingVC;
+                                                        UIViewController *presentingVC = (UIViewController *) self.page.presentingVC;
                                                         [presentingVC presentViewController:activityViewController
                                                                                                                    animated:YES
                                                                                                                  completion:^{
