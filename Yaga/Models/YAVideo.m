@@ -69,7 +69,7 @@
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId userInfo:@{@"group":group}];
-        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group];
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kDeletedVideos:@[self]}];
         DLog(@"video with id:%@ deleted successfully", videoId);
     };
     
