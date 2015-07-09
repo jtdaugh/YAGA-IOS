@@ -62,16 +62,16 @@
 "iMESSAGE_COME_JOIN_ME_TEXT" = "I added you to the %@ group on Yaga. Get it now on the App Store!\nhttp://getyaga.com";
 
 "FIRST_HUMANITY_VISIT_TITLE" = "Humanity";
-"FIRST_HUMANITY_VISIT_BODY" = "Humanity is the biggest group on Yaga - containing every Yaga user in the world. \n\n We go through every single post and approve only the best of the best - so be sure to bring your A game. Good Luck!";
+"FIRST_HUMANITY_VISIT_BODY" = "Humanity is the biggest group on Yaga - containing every Yaga user in the world. \n\n We go through every single post and approve only the best of the best (so don't be confused when your video says pending). Be sure to bring your A game. Good Luck!";
 
 "FIRST_GROUP_VISIT_TITLE" = "Welcome";
-"FIRST_GROUP_VISIT_BODY" = "This is \"%@\", containing %i members. Tap the red button to record a video, which will be visible to everyone in the group. \n\n Videos will never expire, so go back and surf through old videos.";
+"FIRST_GROUP_VISIT_BODY" = "This is \"%@\", containing %i members. Hold the red button to record a video, which will be visible to everyone in the group. \n\n Videos will never expire, so go back and surf through old videos.";
 
 "FIRST_GROUP_POST_TITLE" = "That was easy";
 "FIRST_GROUP_POST_BODY" = "Your video is now sending to \"%@\". \n\n Tap the video to caption, or swipe it down to go back to the camera.";
 
 "FIRST_NOGROUP_POST_TITLE" = "Pick groups";
-"FIRST_NOGROUP_POST_BODY" = "Pick which groups you'd like to send this video to. \n\n Or, swipe it away to delete it forever";
+"FIRST_NOGROUP_POST_BODY" = "You weren't inside a group when you took this video.\n\nSo, pick which groups you'd like to send it to. \n\n Or swipe the video away to delete it forever";
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
 
