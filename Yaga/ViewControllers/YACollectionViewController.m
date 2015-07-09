@@ -311,7 +311,12 @@ static NSString *cellID = @"Cell";
 
     NSArray *newVideos = notification.userInfo[kNewVideos];
     NSArray *updatedVideos = notification.userInfo[kUpdatedVideos];
-    if ([newVideos count] || [updatedVideos count]) {
+    
+    YAVideo *firstUpdated = [updatedVideos firstObject];
+    YAVideo *firstVid = [self.sortedVideos firstObject];
+    BOOL fakeUpdate = firstVid && firstUpdated && [firstVid.createdAt isEqual:firstUpdated.createdAt];;
+    
+    if ([newVideos count] || [updatedVideos count] > 1 || ([updatedVideos count] >= 1 && !fakeUpdate)) {
         [self updateDataSource];
         [self.collectionView reloadData];
     }
