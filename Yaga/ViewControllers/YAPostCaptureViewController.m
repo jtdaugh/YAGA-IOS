@@ -115,11 +115,11 @@
 #pragma mark - tooltips
 
 - (void)showFirstVideoTooltip {
-    [[[YAPopoverView alloc] initWithTitle:@"Woohoo" bodyText:@"NICE VIDEO BRO " dismissText:@"Got it" addToView:self.videoPage] show];
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_GROUP_POST_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_GROUP_POST_BODY", @""), [YAUser currentUser].currentGroup.name] dismissText:@"Got it" addToView:self.parentViewController.view] show]; 
 }
 
 - (void)showFirstUngroupedVideoTooltip {
-    [[[YAPopoverView alloc] initWithTitle:@"Woohoo" bodyText:@"NICE UNGROUPED VIDEO." dismissText:@"Got it" addToView:self.videoPage] show];
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_NOGROUP_POST_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_NOGROUP_POST_BODY", @"") dismissText:@"Got it" addToView:self.parentViewController.view] show];
 }
 
 
