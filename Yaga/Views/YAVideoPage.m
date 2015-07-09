@@ -867,7 +867,7 @@ static NSString *commentCellID = @"CommentCell";
         self.commentsWrapperView.hidden = YES;
         self.XButton.hidden = YES;
         self.commentButton.hidden = YES;
-        self.viewCounter.alpha = 0.0;
+        self.viewCounter.superview.alpha = 0.0;
         self.viewCountImageView.alpha = 0.0;
     } else {
         [self setGesturesEnabled:YES];
@@ -883,7 +883,7 @@ static NSString *commentCellID = @"CommentCell";
         self.XButton.hidden = NO;
         
         self.commentButton.hidden = NO;
-        self.viewCounter.alpha = 1.0;
+        self.viewCounter.superview.alpha = 1.0;
         self.viewCountImageView.alpha = 1.0;
     }
 }
