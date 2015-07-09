@@ -127,16 +127,16 @@
     }
 }
 
-- (void)prepareForReuse
-{
-    [super prepareForReuse];
-    
-    self.video = nil;
-
-    [self updateState];
-    
-    self.eventCountLabel.text = @"";
-}
+//- (void)prepareForReuse
+//{
+//    [super prepareForReuse];
+//    
+//    self.video = nil;
+//
+//    [self updateState];
+//    
+//    self.eventCountLabel.text = @"";
+//}
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];

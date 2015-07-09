@@ -566,11 +566,6 @@
                     [videosToDelete addObject:video];
                 }
                 else {
-                    NSTimeInterval timeInterval = [videoDic[YA_GROUP_UPDATED_AT] integerValue];
-                    NSDate *videoUpdatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
-                    if([self.refreshedAt compare:videoUpdatedAt] == NSOrderedSame)
-                        continue;
-                        
                     if (![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
                         video.caption = videoDic[YA_RESPONSE_NAME];
                         video.font = (videoDic[YA_RESPONSE_FONT] == [NSNull null]) ? 0 : [videoDic[YA_RESPONSE_FONT] integerValue];
@@ -652,7 +647,7 @@
         [video removeFromCurrentGroupWithCompletion:nil removeFromServer:NO];
     }
     
-    return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos};
+    return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos, kDeletedVideos:videosToDelete};
 }
 
 - (BOOL)unviewed {

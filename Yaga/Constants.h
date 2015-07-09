@@ -72,6 +72,7 @@
 
 #define kNewVideos                              @"newVideos"
 #define kUpdatedVideos                          @"updatedVideos"
+#define kDeletedVideos                          @"deletedVideos"
 
 #define kShouldReloadVideoCell                  @"kShouldReloadVideoCell"
 
