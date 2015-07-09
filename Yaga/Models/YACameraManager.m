@@ -75,23 +75,22 @@
         }
 
         DLog(@"starting camera capture");
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
-            [self.videoCamera startCameraCapture];
-            
-            NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
-            [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
-            [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
-            [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
-            
-            NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
-            self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
-            unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
-            
-            self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
-            //[self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
-            self.videoCamera.audioEncodingTarget = self.movieWriter;
-        });
+        [self.videoCamera startCameraCapture];
+        
+        NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
+        [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
+        [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
+        [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
+        
+        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
+        self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
+        unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
+        
+//        [GPUImageMovieWriter alloc] initWith
+        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
+        //        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
+        self.videoCamera.audioEncodingTarget = self.movieWriter;
+        
     }
 }
 
