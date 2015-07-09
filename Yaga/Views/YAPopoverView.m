@@ -40,7 +40,7 @@
     CGFloat fullWidth = self.frame.size.width;
     CGFloat fullHeight = self.frame.size.height;
     
-    CGFloat width = x*self.frame.size.width;
+    CGFloat width = MAX(x*self.frame.size.width, 280);
     CGFloat height = y*self.frame.size.height;
     
     self.contentArea = [[UIView alloc] initWithFrame:CGRectMake((fullWidth-width)/2, (fullHeight - height)/2, width, height)];
