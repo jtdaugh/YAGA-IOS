@@ -91,6 +91,12 @@
         //        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
         self.videoCamera.audioEncodingTarget = self.movieWriter;
         
+        [self startRecording];
+        YARecordingCompletionBlock comp = ^(NSURL *recordedURL) {
+            DLog(@"Recorded and discarded video to kill laggy cam");
+        };
+        [self performSelector:@selector(stopRecordingWithCompletion:) withObject:comp afterDelay:0.05];
+        
     }
 }
 
