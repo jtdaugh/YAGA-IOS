@@ -212,7 +212,7 @@ static NSString *cellID = @"Cell";
     self.paginationThreshold = kPaginationDefaultThreshold;
     
     BOOL needRefresh = NO;
-    if(![self.sortedVideos count])
+    if(!self.sortedVideos || ![self.sortedVideos count])
         needRefresh = YES;
     
     if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
@@ -269,6 +269,7 @@ static NSString *cellID = @"Cell";
 - (void)groupDidChange:(NSNotification*)notif {
     if (![YAUser currentUser].currentGroup) {
         [self.navigationController popViewControllerAnimated:NO];
+        return;
     }
     [self.noVideosLabel removeFromSuperview];
     self.noVideosLabel = nil;
