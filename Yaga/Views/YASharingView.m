@@ -228,6 +228,8 @@
     
     [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:url completion:^(NSURL *filePath, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
+            [self.hud hide:NO];
+            
             if (error) {
                 DLog(@"error");
             } else {
