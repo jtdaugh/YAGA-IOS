@@ -84,9 +84,11 @@
     [super viewDidAppear:animated];
     
     //hide selected video fullscreen jpg preview
-    [self showJpgPreview:NO];
-    
-    [self initPages];
+    if(animated){
+        [self showJpgPreview:NO];
+        
+        [self initPages];        
+    }
 }
 
 - (void)showJpgPreview:(BOOL)show {
