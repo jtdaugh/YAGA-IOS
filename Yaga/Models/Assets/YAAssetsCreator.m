@@ -26,6 +26,8 @@
 @property (nonatomic, strong) NSOperationQueue *jpgQueue;
 
 @property (nonatomic, strong) UIImage *capturePreviewImage;
+
+@property (nonatomic, strong) AVAssetExportSession *exportSession;
 @end
 
 
@@ -47,6 +49,8 @@
         
         self.jpgQueue = [[NSOperationQueue alloc] init];
         self.jpgQueue.maxConcurrentOperationCount = 2;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
     }
     return self;
 }
@@ -64,41 +68,43 @@
                   withOutputURL:(NSURL *)outputURL
                   exportQuality:(NSString *)exportQuality
                      completion:(videoConcatenationCompletion)completion {
-   
     AVMutableComposition *combinedVideoComposition = [self buildVideoSequenceCompositionFromURLS:assetURLs];
     if (!exportQuality) exportQuality = AVAssetExportPresetMediumQuality;
     
-    AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:combinedVideoComposition
-                                                                     presetName:exportQuality];
+    self.exportSession = [[AVAssetExportSession alloc] initWithAsset:combinedVideoComposition
+                                                          presetName:exportQuality];
     
-    session.outputURL = outputURL;
-    session.outputFileType = AVFileTypeMPEG4;
-    session.shouldOptimizeForNetworkUse = YES;
+    self.exportSession.outputURL = outputURL;
+    self.exportSession.outputFileType = AVFileTypeMPEG4;
+    self.exportSession.shouldOptimizeForNetworkUse = YES;
     if([UIDevice currentDevice].systemVersion.floatValue >= 8)
-        session.canPerformMultiplePassesOverSourceMediaData = YES;
-    [session exportAsynchronouslyWithCompletionHandler:^(void ) {
-        NSString *path = outputURL.path;
-        if (path){
-            completion(session.outputURL, nil);
+        self.exportSession.canPerformMultiplePassesOverSourceMediaData = YES;
+    
+    __weak __typeof(self)weakSelf = self;
+    [self.exportSession exportAsynchronouslyWithCompletionHandler:^(void ) {
+        if (weakSelf.exportSession.status == AVAssetExportSessionStatusCompleted){
+            completion(weakSelf.exportSession.outputURL, nil);
         } else {
             completion(nil, [NSError new]);
         }
+        weakSelf.exportSession = nil;
     }];
 }
 
 - (void)addBumberToVideoAtURL:(NSURL *)videoURL completion:(videoConcatenationCompletion)completion {
     NSURL *outputUrl = [YAUtils urlFromFileName:@"YAGA.mp4"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
-
     NSMutableArray *assetURLsToConcatenate = [NSMutableArray arrayWithObject:videoURL];
-
     NSString *bumperPath = [[NSBundle mainBundle] pathForResource:@"bumper" ofType:@"mp4"];
     [assetURLsToConcatenate addObject:[NSURL fileURLWithPath:bumperPath]];
     
     [self concatenateAssetsAtURLs:assetURLsToConcatenate
                     withOutputURL:outputUrl
                     exportQuality:AVAssetExportPresetMediumQuality
-                       completion:completion];
+                       completion:^(NSURL *filePath, NSError *error) {
+                           if(completion)
+                               completion(filePath, error);
+                       }];
 }
 
 
@@ -111,7 +117,6 @@
     DLog(@"vidsize x: %f, y: %f", vidsize.width, vidsize.height);
     
     AVMutableComposition *mixComposition = [[AVMutableComposition alloc] init];
-   
     AVMutableCompositionTrack *compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo
                                                                                    preferredTrackID:kCMPersistentTrackID_Invalid];
     AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio
@@ -121,14 +126,14 @@
     if (firstVideoTrack && compositionVideoTrack) {
         [compositionVideoTrack setPreferredTransform:firstVideoTrack.preferredTransform]; // Rotate the video
     }
-
+    
     CMTime vidLength = CMTimeMake(0, firstAsset.duration.timescale);
     
     for (int i = 0; i < [assetURLs count]; i++) {
         AVAsset *currentAsset = [AVAsset assetWithURL:assetURLs[i]];
         AVAssetTrack *videoTrack = [[currentAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
         AVAssetTrack *audioTrack = [[currentAsset tracksWithMediaType:AVMediaTypeAudio] firstObject];
-
+        
         CMTime assetDuration = currentAsset.duration;
         CMTime blipDuration = CMTimeMakeWithSeconds(0.066f, assetDuration.timescale);
         if ((CMTimeCompare(assetDuration, blipDuration) > 0) && (i < [assetURLs count] - 1)) {
@@ -147,7 +152,7 @@
         
         vidLength.value += assetDuration.value;
     }
-
+    
     return mixComposition;
 }
 
@@ -183,14 +188,14 @@
                 video.jpgFullscreenFilename = jpgFilename;
             }
         }
-
+        
         
         if(previewImage == nil)
             [self enqueueJpgCreationForVideo:video];
         
         [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
     });
-
+    
 }
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
@@ -198,7 +203,7 @@
        isImmediatelyAfterRecording:(BOOL)isImmediatelyAfterRecording {
     
     YAVideo *video = [YAVideo video];
-
+    
     NSString *hashStr = [YAUtils uniqueId];
     NSString *mp4Filename = [hashStr stringByAppendingPathExtension:@"mp4"];
     NSString *jpgFilename = [hashStr stringByAppendingPathExtension:@"jpg"];
@@ -231,17 +236,17 @@
         
         if (isImmediatelyAfterRecording)
             [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
-
+        
         [group.realm beginWriteTransaction];
-        [group.videos insertObject:video atIndex:0];        
+        [group.videos insertObject:video atIndex:0];
         [group.realm commitWriteTransaction];
         
         //start uploading while generating gif
         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:group];
         
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kNewVideos:@[video]}];
-      
-
+        
+        
         if(previewImage == nil)
             [self enqueueJpgCreationForVideo:video];
     });
@@ -272,7 +277,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [[YADownloadManager sharedManager] cancelAllJobs];
         [self.gifQueue cancelAllOperations];
-    
+        
         
         [[YADownloadManager sharedManager] waitUntilAllJobsAreFinished];
         [self.gifQueue waitUntilAllOperationsAreFinished];
@@ -287,7 +292,7 @@
 
 //GIF jobs should always go first
 - (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos {
-
+    
     [[YADownloadManager sharedManager] pauseExecutingJobs];
     
     NSArray *orderedUrlsToDownload = [self orderedDownloadUrlsFromVideos:visibleVideos invisibleVideos:invisibleVideos];
@@ -394,7 +399,7 @@
         NSString *jpgFullscreenFilename = [[filename  stringByAppendingString:@"_fullscreen"] stringByAppendingPathExtension:@"jpg"];
         NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
         NSString *jpgFullscreenPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFullscreenFilename];
-        BOOL hasGif = video.gifFilename.length;
+        BOOL hasGif = video.gifFilename.length != 0;
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:movURL options:nil];
@@ -444,7 +449,7 @@
     //make resized fullscreen image
     CGFloat f = [UIScreen mainScreen].bounds.size.height/image.size.height;
     CGSize fullscreenSize = CGSizeMake(image.size.width * f, image.size.height *f);
-
+    
     image = [image resizedImageToFitInSize:fullscreenSize scaleIfSmaller:YES];
     
     image = [self croppedImageFromImage:image cropSize:[UIScreen mainScreen].bounds.size];
@@ -492,8 +497,6 @@
     }
     
     [video.realm commitWriteTransaction];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION object:video];
 }
 
 #pragma mark -
@@ -501,4 +504,11 @@
     if(!video.gifFilename.length)
         [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
 }
+
+#pragma mark - Application events
+- (void)applicationWillResignActive:(NSNotification*)notif {
+    [self.exportSession cancelExport];
+    self.exportSession = nil;
+}
+
 @end
