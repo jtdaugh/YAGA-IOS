@@ -69,7 +69,8 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dismissDueToNewGroup:)  name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION  object:nil];
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+
     //show selected video fullscreen jpg preview
     [self showJpgPreview:YES];
 }
@@ -90,6 +91,19 @@
         [self initPages];        
     }
 }
+
+
+- (void)willEnterForeground:(NSNotification *)notif {
+    YAVideoPage *visiblePage = self.pages[self.visibleTileIndex];
+    YAVideo *visibleVideo = visiblePage ? visiblePage.video : nil;
+    if (!visibleVideo || [visibleVideo isInvalidated]) return;
+    [[YAEventManager sharedManager] setCurrentVideoServerId:visibleVideo.serverId localId:visibleVideo.localId serverIdStatus:[YAVideo serverIdStatusForVideo:visibleVideo]];
+    [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:visibleVideo.serverId
+                                                            localId:visibleVideo.localId
+                                                            inGroup:visibleVideo.group.serverId
+                                                 withServerIdStatus:[YAVideo serverIdStatusForVideo:visibleVideo]];
+}
+
 
 - (void)showJpgPreview:(BOOL)show {
     if(show) {
@@ -115,6 +129,8 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+
 }
 
 - (NSUInteger)tileIndexFromPageIndex:(NSUInteger)pageIndex {
@@ -345,5 +361,7 @@
         self.scrollView.scrollEnabled = YES;
     }
 }
+
+
 
 @end

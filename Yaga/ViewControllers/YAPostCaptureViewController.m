@@ -39,6 +39,7 @@
     self.view.backgroundColor = [UIColor blackColor];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dismissDueToNewGroup:)  name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 
     [self initVideoPage];
 
@@ -64,7 +65,20 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 }
+
+
+- (void)willEnterForeground:(NSNotification *)notif {
+    if (!self.video || [self.video isInvalidated]) return;
+    [[YAEventManager sharedManager] setCurrentVideoServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+    [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId
+                                                            localId:self.video.localId
+                                                            inGroup:self.video.group.serverId
+                                                 withServerIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+}
+
+
 
 - (void)initVideoPage {
     YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:self.view.bounds];
