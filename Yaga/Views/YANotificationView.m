@@ -15,7 +15,7 @@
 @property (nonatomic, assign) BOOL hidesStatusBar;
 @end
 
-#define kHeight 80
+#define kHeight 64
 
 @implementation YANotificationView
 
@@ -23,14 +23,18 @@
 
     UIView *messageView = [[UIView alloc] initWithFrame:CGRectMake(0, -kHeight, VIEW_WIDTH, kHeight)];
     
-    self.hidesStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    CALayer *lowerBorder = [CALayer layer];
+    lowerBorder.backgroundColor = [[UIColor whiteColor] CGColor];
+    lowerBorder.frame = CGRectMake(0, kHeight-2.0f, VIEW_WIDTH, 2.0f);
+    
+    [messageView.layer addSublayer:lowerBorder];
     
     switch (type) {
         case YANotificationTypeSuccess:
-            messageView.backgroundColor = self.hidesStatusBar ? SECONDARY_COLOR : PRIMARY_COLOR;
+            messageView.backgroundColor = SECONDARY_COLOR;
             break;
         case YANotificationTypeMessage:
-            messageView.backgroundColor = self.hidesStatusBar ? SECONDARY_COLOR : PRIMARY_COLOR;
+            messageView.backgroundColor = SECONDARY_COLOR;
             break;
         case YANotificationTypeError:
             messageView.backgroundColor = [UIColor redColor];
@@ -39,7 +43,7 @@
             break;
     }
     
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(5, 5, messageView.frame.size.width - 10, messageView.frame.size.height - 10)];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, messageView.frame.size.width - 10, messageView.frame.size.height - 10)];
     label.textColor = [UIColor whiteColor];
     label.text = message;
     if(actionHandler) {
@@ -47,17 +51,14 @@
     }
     
     label.numberOfLines = 0;
-    label.font = [UIFont fontWithName:BIG_FONT size:14];
+    label.font = [UIFont fontWithName:BIG_FONT size:16];
     [label sizeToFit];
-    messageView.frame = CGRectMake(0, messageView.frame.origin.y, VIEW_WIDTH, label.frame.size.height + 10);
+    
+    CGRect frame = label.frame;
+    frame.origin.y = (kHeight - label.frame.size.height)/2;
+    label.frame = frame;
     [messageView addSubview:label];
     [[UIApplication sharedApplication].keyWindow addSubview:messageView];
-    
-    self.hidesStatusBar = ![UIApplication sharedApplication].statusBarHidden;
-    
-    if(self.hidesStatusBar) {
-        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
-    }
     
     if(actionHandler) {
         self.actionHandler = actionHandler;

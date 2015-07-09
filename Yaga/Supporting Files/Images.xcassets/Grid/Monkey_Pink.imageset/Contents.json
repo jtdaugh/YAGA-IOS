@@ -3,17 +3,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "monkey-pink.png"
+      "filename" : "monkey_wink_pink.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "monkey-pink-1.png"
+      "filename" : "monkey_wink_pink-1.png"
     },
     {
       "idiom" : "universal",
       "scale" : "3x",
-      "filename" : "monkey-pink-2.png"
+      "filename" : "monkey_wink_pink-2.png"
     }
   ],
   "info" : {
