@@ -131,6 +131,9 @@ static NSString *cellID = @"Cell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [YAUtils setVisitedGifGrid];
+    [self.delegate swapOutOfOnboardingState];
+    [self.delegate updateCameraAccessoriesWithViewIndex:1];
+
     if([YAUser currentUser].currentGroup.publicGroup) {
         if ([[YAUser currentUser].currentGroup.name isEqualToString:@"Humanity"] && ![YAUtils hasVisitedHumanity]) {
             [self showHumanityTooltip];
@@ -143,10 +146,6 @@ static NSString *cellID = @"Cell";
         }
     }
 
-    
-    [self.delegate swapOutOfOnboardingState];
-    [self.delegate updateCameraAccessoriesWithViewIndex:1];
-    
     [[YAUser currentUser].currentGroup.realm beginWriteTransaction];
     [YAUser currentUser].currentGroup.viewedAt = [YAUser currentUser].currentGroup.refreshedAt;
     [[YAUser currentUser].currentGroup.realm commitWriteTransaction];
@@ -213,7 +212,7 @@ static NSString *cellID = @"Cell";
     self.paginationThreshold = kPaginationDefaultThreshold;
     
     BOOL needRefresh = NO;
-    if(!self.sortedVideos)
+    if(![self.sortedVideos count])
         needRefresh = YES;
     
     if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {

@@ -46,6 +46,8 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (self.video.invalidated) return;
     if (self.video.group) {
         if (![YAUtils hasRecordedVideo]) {
             [self showFirstVideoTooltip];

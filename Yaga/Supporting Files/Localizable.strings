@@ -65,7 +65,7 @@
 "FIRST_HUMANITY_VISIT_BODY" = "Humanity is the biggest group on Yaga - containing every Yaga user in the world. \n\n We go through every post and approve only the best. \n\nGo bananas!";
 
 "FIRST_GROUP_VISIT_TITLE" = "Welcome";
-"FIRST_GROUP_VISIT_BODY" = "This is \"%@\", a group with %i members. Hold the red button to record a video, which will be visible to everyone in the group. \n\n Videos will never expire, so go back and surf through old videos.";
+"FIRST_GROUP_VISIT_BODY" = "This is \"%@\", a group with %i other members. Hold the red button to record a video, which will be visible to everyone in the group. \n\n Videos will never expire, so go back and surf through old videos.";
 
 "FIRST_GROUP_POST_TITLE" = "That was easy";
 "FIRST_GROUP_POST_BODY" = "Your video is now sending to \"%@\". \n\n Tap the video to caption, or swipe it down to go back to the camera.";
