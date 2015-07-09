@@ -312,11 +312,7 @@ static NSString *cellID = @"Cell";
     NSArray *newVideos = notification.userInfo[kNewVideos];
     NSArray *updatedVideos = notification.userInfo[kUpdatedVideos];
     
-    YAVideo *firstUpdated = [updatedVideos firstObject];
-    YAVideo *firstVid = [self.sortedVideos firstObject];
-    BOOL fakeUpdate = firstVid && firstUpdated && [firstVid.createdAt isEqual:firstUpdated.createdAt];;
-    
-    if ([newVideos count] || [updatedVideos count] > 1 || ([updatedVideos count] >= 1 && !fakeUpdate)) {
+    if ([newVideos count] || [updatedVideos count]) {
         [self updateDataSource];
         [self.collectionView reloadData];
     }
@@ -596,6 +592,8 @@ static NSString *cellID = @"Cell";
         if (playValue) {
             // Only set event count if gifs should be playing
             YAVideo *vid = videoCell.video;
+            if(vid.invalidated)
+                continue;
             NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoWithServerId:vid.serverId localId:vid.localId serverIdStatus:[YAVideo serverIdStatusForVideo:vid]];
             [videoCell setEventCount:eventCount];
         }
