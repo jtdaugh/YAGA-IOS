@@ -330,49 +330,7 @@ typedef enum {
         
         [self updateUnviewedVideosBadge];
         
-        if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
-            //first start tooltips
-            
-            CGFloat tooltipPadding = recordButtonWidth / 2 * 3 / 2;
-            
-            self.recordTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - 108, 0, 120, VIEW_HEIGHT/2 - tooltipPadding)];
-            NSString *fontName = @"AvenirNext-HeavyItalic";
-            CGFloat fontSize = 26;
-
-            self.recordTooltipLabel.font = [UIFont fontWithName:fontName size:fontSize];
-            NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap and hold to record\n \u2B07\U0000FE0E"
-                                                                         attributes:@{
-                                                                                      NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                      NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
-                                                                                      }];
-            
-            self.recordTooltipLabel.textAlignment = NSTextAlignmentRight;
-            self.recordTooltipLabel.attributedText = string;
-            self.recordTooltipLabel.numberOfLines = 4;
-            self.recordTooltipLabel.textColor = PRIMARY_COLOR;
-            [self.view addSubview:self.recordTooltipLabel];
-            
-            
-            NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
-            
-            NSString *text = self.recordTooltipLabel.text;
-            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
-            
-            CGRect rect = [text boundingRectWithSize:CGSizeMake(self.recordTooltipLabel.frame.size.width, CGFLOAT_MAX)
-                                             options:option
-                                          attributes:attributes
-                                             context:nil];
-
-            CGRect frame = self.recordTooltipLabel.frame;
-            frame.origin.y = VIEW_HEIGHT/2 - rect.size.height - tooltipPadding;
-            frame.size.height = rect.size.height;
-            self.recordTooltipLabel.frame = frame;
-            //warning create varible for all screen sizes
-//            CGPoint center = self.view.center;
-//            center.x -= 47.f;
-//            center.y += 65.f;
-//            self.recordTooltipLabel.center = center;
-        }
+        [self showTooltipIfNeeded];
         
         self.filters = @[@"#nofilter"];
         self.filterIndex = 0;
@@ -392,6 +350,55 @@ typedef enum {
     
     return self;
 }
+
+- (void)showTooltipIfNeeded {
+    if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
+        //first start tooltips
+        
+        CGFloat tooltipPadding = recordButtonWidth / 2 * 3 / 2;
+        
+        self.recordTooltipLabel = [[UILabel alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - 108, 0, 120, VIEW_HEIGHT/2 - tooltipPadding)];
+        NSString *fontName = @"AvenirNext-HeavyItalic";
+        CGFloat fontSize = 26;
+        
+        self.recordTooltipLabel.font = [UIFont fontWithName:fontName size:fontSize];
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Tap and hold to record\n \u2B07\U0000FE0E"
+                                                                     attributes:@{
+                                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]
+                                                                                  }];
+        
+        self.recordTooltipLabel.textAlignment = NSTextAlignmentRight;
+        self.recordTooltipLabel.attributedText = string;
+        self.recordTooltipLabel.numberOfLines = 4;
+        self.recordTooltipLabel.textColor = PRIMARY_COLOR;
+        [self.view addSubview:self.recordTooltipLabel];
+        
+        
+        NSStringDrawingOptions option = NSStringDrawingUsesLineFragmentOrigin;
+        
+        NSString *text = self.recordTooltipLabel.text;
+        
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSDictionary *attributes = @{NSFontAttributeName: [UIFont fontWithName:fontName size:fontSize]};
+            CGRect rect = [text boundingRectWithSize:CGSizeMake(self.recordTooltipLabel.frame.size.width, CGFLOAT_MAX)
+                                             options:option
+                                          attributes:attributes
+                                             context:nil];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                CGRect frame = self.recordTooltipLabel.frame;
+                frame.origin.y = VIEW_HEIGHT/2 - rect.size.height - tooltipPadding;
+                frame.size.height = rect.size.height;
+                [UIView animateWithDuration:0.3 animations:^{
+                    self.recordTooltipLabel.frame = frame;
+                }];
+            });
+        });
+    }
+}
+
 
 - (void)leftBottomButtonPressed {
     if([YAUser currentUser].currentGroup) {
