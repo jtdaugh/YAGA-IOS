@@ -126,11 +126,6 @@
         self.hasUnviewedVideos = NO;
     }
     
-    //public groups: always act like the group was updated 48 hours ago.
-    //https://trello.com/c/dEp97M7W/736-humanity-group-client-side-implementation
-    if(self.publicGroup)
-        self.updatedAt = [self.updatedAt dateByAddingTimeInterval: -48 * 60 * 60];
-    
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     NSArray *pending_members = dictionary[YA_RESPONSE_PENDING_MEMBERS];
     
