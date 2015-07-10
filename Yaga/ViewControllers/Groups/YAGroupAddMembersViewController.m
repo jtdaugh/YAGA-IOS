@@ -339,7 +339,7 @@
         }
         //add by username
         else if([text rangeOfString:@" "].location == NSNotFound) {
-            if(text.length > 2) {
+            if(text.length > 0) {
                 
                 NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
                 RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
