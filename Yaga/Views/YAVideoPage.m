@@ -335,6 +335,8 @@ static NSString *commentCellID = @"CommentCell";
             self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
+        self.viewCounter.hidden = YES;
+        self.viewCountImageView.hidden = YES;
         NSArray *events = [[YAEventManager sharedManager] getEventsForVideoWithServerId:video.serverId localId:video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:video]];
         [self refreshWholeTableWithEventsArray:[events reversedArray]];
     }
@@ -1299,7 +1301,9 @@ static NSString *commentCellID = @"CommentCell";
     if ([self.video.caption length]) {
          [self insertCaption];
     } else if (self.myVideo) {
-        [self addGestureRecognizer:self.captionTapRecognizer];
+        if (![self.captionTapRecognizer.view isEqual:self]) {
+            [self addGestureRecognizer:self.captionTapRecognizer];
+        }
     }
 }
 
@@ -1311,8 +1315,6 @@ static NSString *commentCellID = @"CommentCell";
 //    self.moreButton.hidden = !self.myVideo;
 
     [self initializeCaption];
-    self.viewCounter.hidden = YES;
-    self.viewCountImageView.hidden = YES;
     
     if (!self.video.group) {
         // hacky delay to do this after you can see video.
