@@ -334,7 +334,7 @@
         if([YAUtils validatePhoneNumber:text]) {
             NSString *phone = [YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatE164];
             if(phone) {
-                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nYagaUser:[NSNumber numberWithBool:NO], nUsername:[YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatNATIONAL],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
+                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nYagaUser:[NSNumber numberWithBool:NO], nUsername:[YAUtils readableNumberFromString:text],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
             }
         }
         //add by username
