@@ -1306,7 +1306,7 @@ static NSString *commentCellID = @"CommentCell";
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
-    self.moreButton.hidden = !self.myVideo;
+//    self.moreButton.hidden = !self.myVideo;
     NSArray *events = [[YAEventManager sharedManager] getEventsForVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
     [self refreshWholeTableWithEventsArray:[events reversedArray]];
 
