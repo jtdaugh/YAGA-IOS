@@ -19,7 +19,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property NSString *serverId;
 @property NSDate *updatedAt;
 @property NSDate *refreshedAt;
-@property NSDate *viewedAt;
+@property BOOL hasUnviewedVideos;
 @property BOOL muted;
 
 @property BOOL publicGroup;
@@ -42,7 +42,6 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 - (void)muteUnmuteWithCompletion:(completionBlock)completion;
 - (void)refresh;
 - (void)refresh:(BOOL)showPullDownToRefresh;
-- (BOOL)unviewed;
 @end
 
 // This protocol enables typed collections. i.e.:

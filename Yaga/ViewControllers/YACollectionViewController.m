@@ -142,10 +142,6 @@ static NSString *cellID = @"Cell";
             [YAUtils setVisitedPrivateGroup];
         }
     }
-
-    [[YAUser currentUser].currentGroup.realm beginWriteTransaction];
-    [YAUser currentUser].currentGroup.viewedAt = [YAUser currentUser].currentGroup.refreshedAt;
-    [[YAUser currentUser].currentGroup.realm commitWriteTransaction];
 }
 
 - (void)scrollToCell:(NSNotification *)notif
@@ -298,10 +294,6 @@ static NSString *cellID = @"Cell";
     if(![notification.object isEqual:[YAUser currentUser].currentGroup])
         return;
     
-    [[YAUser currentUser].currentGroup.realm beginWriteTransaction];
-    [YAUser currentUser].currentGroup.viewedAt = [YAUser currentUser].currentGroup.refreshedAt;
-    [[YAUser currentUser].currentGroup.realm commitWriteTransaction];
-
     NSArray *newVideos = notification.userInfo[kNewVideos];
     NSArray *updatedVideos = notification.userInfo[kUpdatedVideos];
     NSArray *deletedVideos = notification.userInfo[kDeletedVideos];

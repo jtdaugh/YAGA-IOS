@@ -233,7 +233,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
     cell.publicGroup = group.publicGroup;
     
-    cell.showUpdatedIndicator = group.unviewed;
+    cell.showUpdatedIndicator = group.hasUnviewedVideos;
     
     return cell;
 }
