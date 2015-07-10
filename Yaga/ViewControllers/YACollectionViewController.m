@@ -53,8 +53,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic) CGPoint lastOffset;
 @property (nonatomic) BOOL scrollingFast;
 
-@property (nonatomic, strong) RLMResults *sortedVideos;
-
 @end
 
 static NSString *cellID = @"Cell";
@@ -90,7 +88,6 @@ static NSString *cellID = @"Cell";
     
     self.lastOffset = self.collectionView.contentOffset;
     
-    self.sortedVideos = [[YAUser currentUser].currentGroup.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
     
     [self reload];
 
@@ -114,7 +111,7 @@ static NSString *cellID = @"Cell";
     if ((self.scrollingFast) || !eventCount) return; // dont update unless the collection view is still
     __weak YACollectionViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSUInteger index = [self.sortedVideos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
+        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
         if (weakSelf.scrollingFast) return;
         if (index == NSNotFound) {
             return;
@@ -212,7 +209,7 @@ static NSString *cellID = @"Cell";
     self.paginationThreshold = kPaginationDefaultThreshold;
     
     BOOL needRefresh = NO;
-    if(!self.sortedVideos || ![self.sortedVideos count])
+    if(![YAUser currentUser].currentGroup.videos || ![[YAUser currentUser].currentGroup.videos count])
         needRefresh = YES;
     
     if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
@@ -245,7 +242,7 @@ static NSString *cellID = @"Cell";
         if(![notif.userInfo[kShouldReloadVideoCell] boolValue])
             return;
         
-        NSUInteger index =[self.sortedVideos indexOfObject:video];
+        NSUInteger index =[[YAUser currentUser].currentGroup.videos indexOfObject:video];
         
         //the following line will ensure indexPathsForVisibleItems will return correct results
         [weakSelf.collectionView layoutIfNeeded];
@@ -326,7 +323,7 @@ static NSString *cellID = @"Cell";
         NSMutableArray *indexPathsToReload = [NSMutableArray new];
         
         for (YAVideo *video in updatedVideos) {
-            NSUInteger index = [self.sortedVideos indexOfObject:video];
+            NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
             if(index != NSNotFound) {
                 [indexPathsToReload addObject:[NSIndexPath indexPathForRow:index inSection:0]];
             }
@@ -412,7 +409,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)showNoVideosMessageIfNeeded {
-    if(!self.sortedVideos.count) {
+    if(![YAUser currentUser].currentGroup.videos.count) {
         if(!self.noVideosLabel) {
             self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
             self.noVideosLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:24];
@@ -439,7 +436,7 @@ static NSString *cellID = @"Cell";
         
         const CGFloat monkeyWidth  = 50;
         [self.activityView removeFromSuperview];
-        if(!self.sortedVideos.count) {
+        if(![YAUser currentUser].currentGroup.videos.count) {
             self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
             [self.collectionView addSubview:self.activityView];
             [self.activityView startAnimating];
@@ -459,7 +456,7 @@ static NSString *cellID = @"Cell";
 #pragma mark - UICollectionView
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    NSUInteger videosCount = self.sortedVideos.count;
+    NSUInteger videosCount = [YAUser currentUser].currentGroup.videos.count;
     
     NSUInteger result = videosCount < self.paginationThreshold ? videosCount : self.paginationThreshold;
     return result;
@@ -467,7 +464,7 @@ static NSString *cellID = @"Cell";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    YAVideo *video = [self.sortedVideos objectAtIndex:indexPath.row];
+    YAVideo *video = [[YAUser currentUser].currentGroup.videos objectAtIndex:indexPath.row];
     NSString *serverId = [video.serverId copy];
     NSString *localId = [video.localId copy];
     YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:video];
@@ -527,7 +524,7 @@ static NSString *cellID = @"Cell";
 
 - (void)openVideo:(NSNotification*)notif {
     YAVideo *video = notif.userInfo[@"video"];
-    NSUInteger videoIndex = [self.sortedVideos indexOfObject:video];
+    NSUInteger videoIndex = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
     
     if(videoIndex == NSNotFound) {
         DLog(@"can't find video index in current group");
@@ -628,7 +625,7 @@ static NSString *cellID = @"Cell";
     }];
     NSMutableArray *videos = [NSMutableArray new];
     for(NSNumber *visibleVideoIndex in visibleVideoIndexes) {
-        [videos addObject:[self.sortedVideos objectAtIndex:[visibleVideoIndex integerValue]]];
+        [videos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:[visibleVideoIndex integerValue]]];
     }
     
     [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:videos invisibleVideos:nil];
@@ -636,8 +633,8 @@ static NSString *cellID = @"Cell";
 
 - (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
     NSUInteger maxCount = self.paginationThreshold;
-    if(maxCount > self.sortedVideos.count)
-        maxCount = self.sortedVideos.count;
+    if(maxCount > [YAUser currentUser].currentGroup.videos.count)
+        maxCount = [YAUser currentUser].currentGroup.videos.count;
     
     //the following line will ensure indexPathsForVisibleItems will return correct results
     [self.collectionView layoutIfNeeded];
@@ -646,10 +643,10 @@ static NSString *cellID = @"Cell";
     NSMutableArray *invisibleVideos = [NSMutableArray new];
     for(NSUInteger videoIndex = initialIndex; videoIndex < maxCount; videoIndex++) {
         if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
-            [visibleVideos addObject:[self.sortedVideos objectAtIndex:videoIndex]];
+            [visibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
         }
         else {
-            [invisibleVideos addObject:[self.sortedVideos objectAtIndex:videoIndex]];
+            [invisibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
         }
         
     }
