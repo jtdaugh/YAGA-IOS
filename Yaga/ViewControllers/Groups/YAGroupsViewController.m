@@ -226,10 +226,13 @@ static NSString *CellIdentifier = @"GroupsCell";
     YAGroup *group = [self.groups objectAtIndex:indexPath.item];
     
     cell.groupName = group.name;
+    
     cell.membersString = group.membersString;
     
     cell.muted = group.muted;
 
+    cell.publicGroup = group.publicGroup;
+    
     cell.showUpdatedIndicator = group.unviewed;
     
     return cell;

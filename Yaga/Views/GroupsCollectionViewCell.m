@@ -80,6 +80,16 @@
 
 }
 
+- (void)setPublicGroup:(BOOL)publicGroup {
+    if(publicGroup){
+        self.nameLabel.textColor = SECONDARY_COLOR;
+        self.disclosureImageView.tintColor = SECONDARY_COLOR;
+    } else {
+        self.nameLabel.textColor = PRIMARY_COLOR;
+        self.disclosureImageView.tintColor = PRIMARY_COLOR;
+    }
+}
+
 - (void)setMembersString:(NSString *)membersString {
     self.membersLabel.text = membersString;
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
