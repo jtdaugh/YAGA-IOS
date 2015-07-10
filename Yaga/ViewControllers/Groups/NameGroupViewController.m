@@ -57,7 +57,7 @@
     self.groupNameTextField = [[UITextField alloc] initWithFrame:CGRectMake((VIEW_WIDTH-formWidth)/2, origin, formWidth, VIEW_HEIGHT*.08)];
     self.groupNameTextField.delegate = self;
     [self.groupNameTextField setBackgroundColor:[UIColor clearColor]];
-    [self.groupNameTextField setKeyboardType:UIKeyboardTypeAlphabet];
+    [self.groupNameTextField setKeyboardType:UIKeyboardTypeDefault];
     [self.groupNameTextField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
     [self.groupNameTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.groupNameTextField setTextAlignment:NSTextAlignmentCenter];
