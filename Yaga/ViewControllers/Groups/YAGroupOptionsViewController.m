@@ -151,7 +151,7 @@
     [changeTitleAlert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
         textField.placeholder = NSLocalizedString(@"CHANGE_GROUP_PLACEHOLDER", @"");
         textField.text = self.group.name;
-        [textField setKeyboardType:UIKeyboardTypeAlphabet];
+        [textField setKeyboardType:UIKeyboardTypeDefault];
         [textField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
         [textField setAutocorrectionType:UITextAutocorrectionTypeNo];
     }];
