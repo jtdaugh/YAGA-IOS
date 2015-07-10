@@ -169,7 +169,7 @@
 }
 
 - (void)showFirstPublicVideoTooltip {
-    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_PUBLIC_POST_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_PUBLIC_POST_BODY", @""), [YAUser currentUser].currentGroup.name] dismissText:@"Got it" addToView:self.videoPage] show];
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_HUMANITY_POST_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_HUMANITY_POST_BODY", @""), [YAUser currentUser].currentGroup.name] dismissText:@"Got it" addToView:self.videoPage] show];
 }
 
 - (void)showFirstUngroupedVideoTooltip {

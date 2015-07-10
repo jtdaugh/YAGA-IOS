@@ -81,13 +81,24 @@
 }
 
 - (void)setPublicGroup:(BOOL)publicGroup {
+    CGFloat indicatorSize = 10;
+    UIImage *img;
     if(publicGroup){
+
         self.nameLabel.textColor = SECONDARY_COLOR;
         self.disclosureImageView.tintColor = SECONDARY_COLOR;
+        
+        img = [YAUtils imageWithColor:[SECONDARY_COLOR colorWithAlphaComponent:1.0]];
+
     } else {
         self.nameLabel.textColor = PRIMARY_COLOR;
         self.disclosureImageView.tintColor = PRIMARY_COLOR;
+        img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.0]];
     }
+    
+    self.updatedIndicator.image = img;
+    self.updatedIndicator.layer.cornerRadius = indicatorSize/2.f;
+    self.updatedIndicator.layer.masksToBounds = YES;
 }
 
 - (void)setMembersString:(NSString *)membersString {
