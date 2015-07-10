@@ -64,8 +64,10 @@ typedef void (^confirmationBlock)(void);
 + (void)setVisitedHumanity;
 + (BOOL)hasVisitedPrivateGroup;
 + (void)setVisitedPrivateGroup;
-+ (BOOL)hasRecordedVideo;
-+ (void)setRecordedVideo;
++ (BOOL)hasRecordedPrivateVideo;
++ (void)setRecordedPrivateVideo;
++ (BOOL)hasRecordedPublicVideo;
++ (void)setRecordedPublicVideo;
 + (BOOL)hasRecordedUngroupedVideo;
 + (void)setRecordedUngroupedVideo;
 
