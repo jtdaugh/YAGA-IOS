@@ -71,7 +71,7 @@
     
     self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, padding, self.contentArea.frame.size.width - padding * 2, accessoryHeight)];
     [self.titleLabel setText:title];
-    [self.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:36]];
+    [self.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:30]];
     [self.titleLabel setTextColor:[UIColor blackColor]];
     [self.titleLabel setTextAlignment:NSTextAlignmentCenter];
     [self.contentArea addSubview:self.titleLabel];
