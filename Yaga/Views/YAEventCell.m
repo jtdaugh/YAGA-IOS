@@ -144,8 +144,6 @@
     [self layoutUsername:username];
     self.timestampLabel.text = timestamp;
     self.deleteButton.hidden = !isOwnVideo;
-    self.iconImageView.image = [UIImage imageNamed:@"Movie"];
-    [self layoutImageViewWithYOffset:-3.f];
     [self layoutPostViews];
 }
 
@@ -164,7 +162,7 @@
     CGFloat deleteWidth = self.deleteButton.frame.size.width;
 
     CGRect timestampFrame = self.timestampLabel.frame;
-    timestampFrame.origin.x = self.iconImageView.frame.origin.x + self.iconImageView.frame.size.width + COMMENTS_SPACE_AFTER_USERNAME;
+    timestampFrame.origin.x = self.usernameLabel.frame.origin.x + self.usernameLabel.frame.size.width + COMMENTS_SPACE_AFTER_USERNAME;
     timestampFrame.size.width = self.frame.size.width - timestampFrame.origin.x - deleteWidth;
     self.timestampLabel.frame = timestampFrame;
     [self.timestampLabel sizeToFit];
@@ -186,7 +184,7 @@
             [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
             break;
         case YAEventCellVideoStateApproved:
-            self.timestampLabel.text = self.timestamp;
+            self.timestampLabel.text = [NSString stringWithFormat:@"%@", self.timestamp];
             [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
             break;
     }
@@ -203,7 +201,7 @@
             break;
         case YAEventTypePost:
             self.commentsTextView.hidden = YES;
-            self.iconImageView.hidden = NO;
+            self.iconImageView.hidden = YES;
             self.timestampLabel.hidden = NO;
             self.deleteButton.hidden = NO;
             break;
