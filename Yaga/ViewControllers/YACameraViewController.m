@@ -391,9 +391,7 @@ typedef enum {
                 CGRect frame = self.recordTooltipLabel.frame;
                 frame.origin.y = VIEW_HEIGHT/2 - rect.size.height - tooltipPadding;
                 frame.size.height = rect.size.height;
-                [UIView animateWithDuration:0.3 animations:^{
-                    self.recordTooltipLabel.frame = frame;
-                }];
+                self.recordTooltipLabel.frame = frame;
             });
         });
     }
