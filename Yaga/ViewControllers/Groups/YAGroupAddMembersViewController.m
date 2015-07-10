@@ -259,7 +259,7 @@
         }
         
         if(![ya_contact.username isEqualToString:ya_contact.name])
-            cell.detailTextLabel.text = ya_contact.username;
+            cell.detailTextLabel.text = [contact[kSearchedByUsername] boolValue] ? ya_contact.name : ya_contact.username;
         
     } else {
         [cell.textLabel       setTextColor:[UIColor whiteColor]];
