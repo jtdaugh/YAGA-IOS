@@ -62,22 +62,19 @@
 "iMESSAGE_COME_JOIN_ME_TEXT" = "I added you to the %@ group on Yaga. Get it now on the App Store!\nhttp://getyaga.com";
 
 "FIRST_HUMANITY_VISIT_TITLE" = "Humanity";
-"FIRST_HUMANITY_VISIT_BODY" = "Humanity is the biggest group on Yaga - containing every Yaga user in the world. \n\n We go through every post and approve only the best. \n\nGo bananas!";
+"FIRST_HUMANITY_VISIT_BODY" = "Humanity contains every Yaga user in the world. \n\n We go through all posts and only approve the best.";
 
 "FIRST_GROUP_VISIT_TITLE" = "Welcome";
-"FIRST_GROUP_VISIT_BODY" = "This is \"%@\", a group with %i other members. Hold the red button to record a video, which will be visible to everyone in the group. \n\n Videos will never expire, so go back and surf through old videos.";
+"FIRST_GROUP_VISIT_BODY" = "\"%@\" is a closed group with %i other members.\n\nVideos to the group are private and you'll never lose them";
 
 "FIRST_GROUP_POST_TITLE" = "That was easy";
-"FIRST_GROUP_POST_BODY" = "Your video is now sending to \"%@\". \n\n Tap the video to caption, or swipe it down to go back to the camera.";
-
-"FIRST_PUBLIC_POST_TITLE" = "Almost famous";
-"FIRST_PUBLIC_POST_BODY" = "BLAH BLAH BLAH.";
+"FIRST_GROUP_POST_BODY" = "Your video is now sending to \"%@\".\n\nTap the video to caption, or swipe it down to return to the camera.";
 
 "FIRST_NOGROUP_POST_TITLE" = "Pick groups";
-"FIRST_NOGROUP_POST_BODY" = "You weren't inside a group when you took this video.\n\nSo, pick which groups you'd like to send it to. \n\n Or swipe the video away to delete it forever";
+"FIRST_NOGROUP_POST_BODY" = "You weren't inside a group when you took this video.\n\nSo, pick which groups you'd like to send it to.\n\nOr swipe the video away to delete it forever";
 
-"FIRST_HUMANITY_POST_TITLE" = "Almost Famous";
-"FIRST_HUMANITY_POST_BODY" = "Your video is now uploading to Humanity.\n\nWe go through *every* post - if we like yours, we'll feature it to everyone on Yaga.";
+"FIRST_HUMANITY_POST_TITLE" = "Pending approval";
+"FIRST_HUMANITY_POST_BODY" = "Only the best videos get featured in Humanity.\n\nWe'll notify you if yours is approved.";
 
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";

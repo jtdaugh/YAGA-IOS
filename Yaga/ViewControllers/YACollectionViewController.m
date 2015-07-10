@@ -132,7 +132,7 @@ static NSString *cellID = @"Cell";
     [self.delegate updateCameraAccessoriesWithViewIndex:1];
 
     if([YAUser currentUser].currentGroup.publicGroup) {
-        if ([[YAUser currentUser].currentGroup.name isEqualToString:@"Humanity"] && ![YAUtils hasVisitedHumanity]) {
+        if (![YAUtils hasVisitedHumanity]) {
             [self showHumanityTooltip];
             [YAUtils setVisitedHumanity];
         }
