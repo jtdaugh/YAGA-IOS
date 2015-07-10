@@ -351,20 +351,15 @@
     [page setVideo:video shouldPreload:shouldPlay];
 }
 
-#pragma mark - YAVideoPageDelegate
 - (void)didDeleteVideo:(id)sender {
-    if(![YAUser currentUser].currentGroup.videos.count) {
+    // Need to dismiss the alert delete confirmation first.
+    if ([self presentedViewController]) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            [self dismissAnimated];
+        }];
+    } else {
         [self dismissAnimated];
-        return;
     }
-    
-    for(UIView *page in [self.scrollView.subviews copy]) {
-        [page removeFromSuperview];
-    }
-    
-    self.initialIndex = self.currentPageIndex;
-    
-    [self initPages];
 }
 
 #pragma mark - YASuspendableGestureDelegate
