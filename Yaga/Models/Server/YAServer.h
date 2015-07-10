@@ -38,6 +38,7 @@
 #define YA_VIDEO_READY_AT               @"ready_at"
 #define YA_VIDEO_DELETED                @"deleted"
 #define YA_GROUP_UPDATED_AT             @"updated_at"
+#define YA_GROUP_LAST_FOREIGN_POST_ID   @"last_foreign_post_id"
 
 #define YA_LAST_DEVICE_TOKEN_SYNC_DATE @"lastTokenSyncDate"
 

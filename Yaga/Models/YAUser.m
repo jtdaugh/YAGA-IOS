@@ -144,9 +144,8 @@
     
     addressBook.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]];
     
-    //keep registered value in a backup so the value can be restored after phonebook is recreated
-    NSArray *registeredUsers = [[self.phonebook allValues] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(yagaUser == %@)", [NSNumber numberWithBool:YES]]];
-    NSSet *registeredPhonesSet = [NSSet setWithArray:[registeredUsers valueForKey:nPhone]];
+    //using last requested yaga users
+    NSDictionary *yagaUsersData = [[NSUserDefaults standardUserDefaults] objectForKey:kYagaUsersRequested];
     
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
@@ -176,16 +175,19 @@
                     if(!num.length && aError)
                         continue;
                     
-                    BOOL registeredUser = [registeredPhonesSet containsObject:num];
+                    NSDictionary *yagaUserData = yagaUsersData[num];
                     
                     NSMutableDictionary *item = [NSMutableDictionary dictionaryWithDictionary:
-                                            @{nCompositeName:[NSString stringWithFormat:@"%@", contact.compositeName],
-                                           nPhone:num,
-                                           nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
-                                           nLastname:  [NSString stringWithFormat:@"%@", contact.lastName],
-                                           nYagaUser:[NSNumber numberWithBool:NO],
-                                           nYagaUser : [NSNumber numberWithBool:registeredUser]}];
-                    
+                                                 @{nCompositeName:[NSString stringWithFormat:@"%@", contact.compositeName],
+                                                   nPhone    : num,
+                                                   nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
+                                                   nLastname : [NSString stringWithFormat:@"%@", contact.lastName],
+                                                   nYagaUser : [NSNumber numberWithBool:yagaUserData != nil]}];
+                                                   
+                    if(yagaUserData && yagaUserData[nName] != [NSNull null]) {
+                        [item setObject:yagaUserData[nName] forKey:nUsername];
+                    }
+
                     if(![excludePhonesSet containsObject:num])
                     {
                         [result addObject:item];
@@ -204,14 +206,31 @@
                 //request yaga users once per hour
                 if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60]] == NSOrderedDescending) {
                     [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
+                        NSMutableDictionary *yagaUserDictionary = [NSMutableDictionary new];
+                        
+                        for(NSDictionary *yagaUserDic in response) {
+                            NSString *phone = yagaUserDic[nPhone];
+                            
+                            if(!phone.length)
+                                continue;
+                            
+                            NSMutableDictionary *phonebookItem = [self.phonebook objectForKey:phone];
+                            
+                            if(phonebookItem) {
+                                [phonebookItem setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];
+                                NSString *username = yagaUserDic[nName];
+                                if([username isKindOfClass:[NSString class]] && username.length != 0)
+                                    [phonebookItem setObject:username forKey:nUsername];
+                                
+                                [self.phonebook setObject:phonebookItem forKey:phone];
+                            }
+                            
+                            [yagaUserDictionary setObject:yagaUserDic forKey:phone];
+                        }
                         
                         [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastYagaUsersRequestDate];
-                        NSArray *registeredPhones = [response valueForKey:nPhone];
-                        for(NSString *phone in registeredPhones) {
-                            NSMutableDictionary *phonebookItem = [self.phonebook objectForKey:phone];
-                            [phonebookItem setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];
-                            [self.phonebook setObject:phonebookItem forKey:phone];
-                        }
+                        [[NSUserDefaults standardUserDefaults] setObject:yagaUserDictionary forKey:kYagaUsersRequested];
+                        
                         completion(nil, result);
                     }];
                 }
@@ -375,7 +394,7 @@
 #pragma mark -
 - (BOOL)hasUnviewedVideosInGroups {
     for(YAGroup *group in [YAGroup allObjects]) {
-        if(group.unviewed)
+        if(group.hasUnviewedVideos)
             return YES;
     }
     return NO;

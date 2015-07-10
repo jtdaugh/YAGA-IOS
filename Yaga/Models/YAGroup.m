@@ -34,7 +34,7 @@
 
 + (NSDictionary *)defaultPropertyValues
 {
-    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0], @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0], @"viewedAt":[NSDate dateWithTimeIntervalSince1970:0]};
+    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0], @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0], @"hasUnviewedVideos" : [NSNumber numberWithBool:NO]};
 }
 
 - (NSString*)membersString {
@@ -106,6 +106,25 @@
     
     NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
+    
+    BOOL hasPendingChanges = YES;
+    
+    if([self.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame)
+        hasPendingChanges = [self.refreshedAt compare:self.updatedAt] != NSOrderedSame;
+    
+    if(hasPendingChanges) {
+        if(dictionary[YA_GROUP_LAST_FOREIGN_POST_ID] != [NSNull null]) {
+            NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", dictionary[YA_GROUP_LAST_FOREIGN_POST_ID]];
+            
+            RLMResults *newVideosLocally = [YAVideo objectsWhere:predicate];
+            
+            //new videos do not exist locally? set needsRefresh to YES
+            self.hasUnviewedVideos = newVideosLocally.count == 0;
+        }
+    }
+    else {
+        self.hasUnviewedVideos = NO;
+    }
     
     //public groups: always act like the group was updated 48 hours ago.
     //https://trello.com/c/dEp97M7W/736-humanity-group-client-side-implementation
@@ -644,22 +663,6 @@
     }
     
     return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos, kDeletedVideos:videosToDelete};
-}
-
-- (BOOL)unviewed {
-    BOOL dataRefreshed = NO;
-    if([self.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame)
-        dataRefreshed = [self.refreshedAt compare:self.updatedAt] == NSOrderedSame;
-    
-    if(dataRefreshed) {
-        if([self.viewedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] == NSOrderedSame)
-            return YES;
-        
-        if ([self.viewedAt compare:self.refreshedAt] == NSOrderedSame)
-            return NO;
-    }
-
-    return YES;
 }
 
 @end

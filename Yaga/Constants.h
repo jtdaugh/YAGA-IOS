@@ -102,7 +102,8 @@
 
 #define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"
 
-#define kLastYagaUsersRequestDate @"kLastYagaUsersRequestDate"
+#define kLastYagaUsersRequestDate   @"kLastYagaUsersRequestDate"
+#define kYagaUsersRequested         @"kYagaUsersRequested"
 
 #define kLastPublicGroupsRequestDate @"kLastPublicGroupsRequestDate"
 
