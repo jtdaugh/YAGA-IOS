@@ -514,7 +514,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
 
-    self.heartButton = [YAUtils circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(buttonRadius*2 + padding*2, VIEW_HEIGHT - buttonRadius - padding)];
+    self.heartButton = [YAUtils circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(buttonRadius*3 + padding*2, VIEW_HEIGHT - buttonRadius - padding)];
     [self.heartButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.heartButton];
     
