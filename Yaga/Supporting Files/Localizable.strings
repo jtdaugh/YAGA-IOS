@@ -65,16 +65,16 @@
 "FIRST_HUMANITY_VISIT_BODY" = "Humanity contains every Yaga user in the world. \n\n We go through all posts and only approve the best.";
 
 "FIRST_GROUP_VISIT_TITLE" = "Welcome";
-"FIRST_GROUP_VISIT_BODY" = "\"%@\" is a closed group with %i other members.\n\nVideos to the group are private and you'll never lose them";
+"FIRST_GROUP_VISIT_BODY" = "\"%@\" is a closed group with %i other members.\n\nVideos to the group are private and you'll never lose them.";
 
 "FIRST_GROUP_POST_TITLE" = "That was easy";
-"FIRST_GROUP_POST_BODY" = "Your video is now sending to \"%@\".\n\nTap the video to caption, or swipe it down to return to the camera.";
+"FIRST_GROUP_POST_BODY" = "Your video is now sending to \"%@\".\n\nTap the video to caption.\n\nSwipe it down to return to the camera.";
 
 "FIRST_NOGROUP_POST_TITLE" = "Pick groups";
-"FIRST_NOGROUP_POST_BODY" = "You weren't inside a group when you took this video.\n\nSo, pick which groups you'd like to send it to.\n\nOr swipe the video away to delete it forever";
+"FIRST_NOGROUP_POST_BODY" = "You weren't inside a group when you took this video.\n\nSo, pick which groups you'd like to send it to.\n\nOr swipe the video away to delete it forever.";
 
 "FIRST_HUMANITY_POST_TITLE" = "Pending approval";
-"FIRST_HUMANITY_POST_BODY" = "Only the best videos get featured in Humanity.\n\nWe'll notify you if yours is approved.";
+"FIRST_HUMANITY_POST_BODY" = "Only the best videos are featured in Humanity.\n\nWe'll notify you if yours gets approved.";
 
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
