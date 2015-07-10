@@ -138,7 +138,7 @@
 }
 
 - (void)didDeleteVideo:(id)sender {
-//    [self dismissAnimated];
+    // Need to dismiss the alert delete confirmation first.
     if ([self presentedViewController]) {
         [self dismissViewControllerAnimated:NO completion:^{
             [self dismissAnimated];
@@ -148,7 +148,7 @@
     }
 }
 
-- (void)suspendAllGestures:(id)sender {g
+- (void)suspendAllGestures:(id)sender {
     // prevent non-visible pages from sending stray calls
     if ([sender isEqual:self.videoPage]) {
         self.panGesture.enabled = NO;
