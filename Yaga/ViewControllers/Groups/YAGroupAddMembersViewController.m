@@ -445,8 +445,9 @@
         [self showActivity:YES];
         
         [YAGroup groupWithName:self.groupName withCompletion:^(NSError *error, id result) {
-            [weakSelf showActivity:NO];
-            if(!error) {
+            if(error) {
+                [weakSelf showActivity:NO];
+            } else {
                 YAGroup *newGroup = result;
                 [YAUser currentUser].currentGroup = newGroup;
                 if (weakSelf.initialVideo ) {
