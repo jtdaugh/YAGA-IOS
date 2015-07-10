@@ -11,6 +11,7 @@
 #import "YAUser.h"
 #import "YAUtils.h"
 #import "YAPopoverView.h"
+#import "MSAlertController.h"
 
 @interface YAPostCaptureViewController ()
 
@@ -139,9 +140,10 @@
 
 - (void)didDeleteVideo:(id)sender {
     // Need to dismiss the alert delete confirmation first.
-    if ([self presentedViewController]) {
+    if ([[self presentedViewController] isKindOfClass:[MSAlertController class]]) {
+        __weak YAPostCaptureViewController *weakSelf = self;
         [self dismissViewControllerAnimated:NO completion:^{
-            [self dismissAnimated];
+            [weakSelf dismissAnimated];
         }];
     } else {
         [self dismissAnimated];

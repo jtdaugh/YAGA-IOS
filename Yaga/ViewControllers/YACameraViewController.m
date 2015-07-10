@@ -1006,8 +1006,7 @@ typedef enum {
 }
 
 - (void)openGroupOptions {
-    if([YAUser currentUser].currentGroup.publicGroup &&
-       [[YAUser currentUser].currentGroup.name isEqualToString:@"Humanity"]){
+    if([YAUser currentUser].currentGroup.publicGroup) {
         [self showHumanityTooltip];
     } else {
         [self.delegate openGroupOptions];
