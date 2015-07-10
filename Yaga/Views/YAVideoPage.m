@@ -686,7 +686,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     NSString *replaced = [textField.text stringByReplacingCharactersInRange:range withString:string];
-    self.commentsSendButton.enabled = ![replaced length];
+    self.commentsSendButton.enabled = [replaced length];
 //    self.commentsSendButton.hidden = ![replaced length];
 //    self.likeButton.hidden = [replaced length];
     return YES;
