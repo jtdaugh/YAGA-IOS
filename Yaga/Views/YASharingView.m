@@ -66,12 +66,37 @@
         CGFloat topBarHeight = 80;
         
         
+        
         CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
         if (![self.groups count]) totalRowsHeight = 0;
         BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
         if (!myVideo) totalRowsHeight = 0;
         
         CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
+        
+        CGFloat gradientHeight = tableHeight + topBarHeight;
+        UIView *bgGradient = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - gradientHeight, VIEW_WIDTH, gradientHeight)];
+        //    self.commentsGradient.backgroundColor = [UIColor redColor];
+        CAGradientLayer *gradient = [CAGradientLayer layer];
+        gradient.frame = bgGradient.bounds;
+        ;
+        gradient.colors = [NSArray arrayWithObjects:
+                           (id)[[UIColor colorWithWhite:0.0 alpha:.0] CGColor],
+                           (id)[[UIColor colorWithWhite:0.0 alpha:.6] CGColor],
+                           (id)[[UIColor colorWithWhite:0.0 alpha:.7] CGColor],
+                           (id)[[UIColor colorWithWhite:0.0 alpha:.7] CGColor],
+                           (id)[[UIColor colorWithWhite:0.0 alpha:.8] CGColor],
+                           //                       (id)[[UIColor colorWithWhite:0.0 alpha:.6] CGColor],
+                           nil];
+        //    gradient.locations = [NSArray arrayWithObjects:
+        //                          [NSNumber numberWithInt:1.0],
+        //                          [NSNumber numberWithInt:0.75],
+        ////                          [NSNumber numberWithInt:0.0],
+        //                          nil];
+        
+        [bgGradient.layer insertSublayer:gradient atIndex:0];
+        [self addSubview:bgGradient];
+
         
         CGFloat tableOrigin = frame.size.height - tableHeight;
         self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, tableOrigin - topBarHeight - topGap, VIEW_WIDTH, topBarHeight)];
