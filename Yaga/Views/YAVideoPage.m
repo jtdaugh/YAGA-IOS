@@ -55,6 +55,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIImageView *viewCountImageView;
 @property BOOL likesShown;
 @property (nonatomic, strong) UIButton *likeButton;
+@property (nonatomic, strong) UIButton *heartButton;
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *moreButton;
 @property (nonatomic, strong) UIButton *deleteButton;
@@ -513,6 +514,11 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
 
+    self.heartButton = [YAUtils circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(buttonRadius*2 + padding*2, VIEW_HEIGHT - buttonRadius - padding)];
+    [self.heartButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.heartButton];
+    
+
     self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
     [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
     [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
@@ -563,6 +569,7 @@ static NSString *commentCellID = @"CommentCell";
     [self setupCaptionGestureRecognizers];
     [self.overlay bringSubviewToFront:self.moreButton];
     [self.overlay bringSubviewToFront:self.commentButton];
+    [self.overlay bringSubviewToFront:self.heartButton];
     
     [self.overlay setAlpha:0.0];
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
@@ -642,7 +649,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentsSendButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.f]] forState:UIControlStateNormal];
     [self.commentsSendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.commentsSendButton setTitle:@"Send" forState:UIControlStateNormal];
-    self.commentsSendButton.hidden = YES;
+    self.commentsSendButton.enabled = NO;
     [self.commentsTextBoxView addSubview:self.commentsSendButton];
 
     self.likeButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - COMMENTS_SEND_WIDTH, 0, COMMENTS_SEND_WIDTH, COMMENTS_TEXT_FIELD_HEIGHT)];
@@ -651,8 +658,8 @@ static NSString *commentCellID = @"CommentCell";
     [self.likeButton setBackgroundImage:[UIImage imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.f]] forState:UIControlStateNormal];
     [self.likeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.likeButton setImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateNormal];
-    [self.commentsTextBoxView addSubview:self.likeButton];
-
+//    [self.commentsTextBoxView addSubview:self.likeButton];
+    
     [self.commentsWrapperView addSubview:self.commentsTableView];
     [self.commentsWrapperView addSubview:self.commentsTextBoxView];
     self.commentsWrapperView.layer.masksToBounds = YES;
@@ -671,16 +678,17 @@ static NSString *commentCellID = @"CommentCell";
         [[YAEventManager sharedManager] addEvent:event toVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
         
         self.commentsTextField.text = @"";
-        self.commentsSendButton.hidden = YES;
-        self.likeButton.hidden = NO;
+//        self.commentsSendButton.hidden = YES;
+//        self.likeButton.hidden = NO;
 //        [self.commentsTextField resignFirstResponder]; // do we want to hide the keyboard after each comment?
     }
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     NSString *replaced = [textField.text stringByReplacingCharactersInRange:range withString:string];
-    self.commentsSendButton.hidden = ![replaced length];
-    self.likeButton.hidden = [replaced length];
+    self.commentsSendButton.enabled = ![replaced length];
+//    self.commentsSendButton.hidden = ![replaced length];
+//    self.likeButton.hidden = [replaced length];
     return YES;
 }
 
@@ -867,6 +875,7 @@ static NSString *commentCellID = @"CommentCell";
         self.commentsWrapperView.hidden = YES;
         self.XButton.hidden = YES;
         self.commentButton.hidden = YES;
+        self.heartButton.hidden = YES;
         self.viewCounter.superview.alpha = 0.0;
         self.viewCountImageView.alpha = 0.0;
     } else {
@@ -883,6 +892,7 @@ static NSString *commentCellID = @"CommentCell";
         self.XButton.hidden = NO;
         
         self.commentButton.hidden = NO;
+        self.heartButton.hidden = NO;
         self.viewCounter.superview.alpha = 1.0;
         self.viewCountImageView.alpha = 1.0;
     }
@@ -1344,6 +1354,7 @@ static NSString *commentCellID = @"CommentCell";
     self.captionTapRecognizer.enabled = mp4Downloaded;
     self.likeDoubleTapRecognizer.enabled = mp4Downloaded;
     self.commentButton.enabled = mp4Downloaded;
+    self.heartButton.enabled = mp4Downloaded;
     self.moreButton.enabled = mp4Downloaded;
 
     [self showProgress:!mp4Downloaded];
@@ -1519,6 +1530,7 @@ static NSString *commentCellID = @"CommentCell";
         self.viewCounter.superview.alpha = 0.0;
         self.commentsWrapperView.alpha = 0.0;
         self.commentButton.alpha = 0.0;
+        self.heartButton.alpha = 0.0;
         self.moreButton.alpha = 0.0;
         self.XButton.alpha = 0.0;
         [self.sharingView setTransform:CGAffineTransformIdentity];
@@ -1541,6 +1553,7 @@ static NSString *commentCellID = @"CommentCell";
 //        self.commentsGradient.frame = gradientFrame;
         self.commentsWrapperView.alpha = 1.0;
         self.commentButton.alpha = 1.0;
+        self.heartButton.alpha = 1.0;
         self.moreButton.alpha = 1.0;
         self.XButton.alpha = 1.0;
         [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
