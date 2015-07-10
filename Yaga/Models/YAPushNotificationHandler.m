@@ -246,7 +246,7 @@ typedef void (^groupChangedCompletionBlock)(void);
     
     NSString *eventName = meta[@"event"];
     
-    if([eventName isEqualToString:@"kick"] && [eventName isEqualToString:@"request"]) {
+    if([eventName isEqualToString:@"kick"] || [eventName isEqualToString:@"request"]) {
         return YES;
     }
     
