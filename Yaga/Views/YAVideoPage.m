@@ -334,6 +334,8 @@ static NSString *commentCellID = @"CommentCell";
             self.playerView.frame = CGRectZero;
             [self showLoading:YES];
         }
+        NSArray *events = [[YAEventManager sharedManager] getEventsForVideoWithServerId:video.serverId localId:video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:video]];
+        [self refreshWholeTableWithEventsArray:[events reversedArray]];
     }
     
     self.shouldPreload = shouldPreload;
@@ -1297,8 +1299,6 @@ static NSString *commentCellID = @"CommentCell";
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
     self.moreButton.hidden = !self.myVideo;
-    NSArray *events = [[YAEventManager sharedManager] getEventsForVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
-    [self refreshWholeTableWithEventsArray:[events reversedArray]];
 
     [self initializeCaption];
     self.viewCounter.hidden = YES;
@@ -1637,6 +1637,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)videoChanged:(NSNotification*)notif {
     if([notif.object isEqual:self.video] && self.shouldPreload && self.video.mp4Filename.length) {
+        DLog(@"Video changed recd for correct video on YAVideoPage");
         //setURL will remove playWhenReady flag, so saving it and using later
         if (!self.playerView.URL) {
             BOOL playWhenReady = self.playerView.playWhenReady;
@@ -1647,19 +1648,6 @@ static NSString *commentCellID = @"CommentCell";
         }
         [self updateUploadingProgress];
         
-        
-        if ([YAVideo serverIdStatusForVideo:self.video] == YAVideoServerIdStatusConfirmed) {
-            [[YAViewCountManager sharedManager] switchVideoId:self.video.serverId];
-        } else {
-            [[YAViewCountManager sharedManager] switchVideoId:nil];
-        }
-
-        // Reload comments, which will initialize with firebase if serverID just became ready.
-        [[YAEventManager sharedManager] setCurrentVideoServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
-        [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId
-                                                                localId:self.video.localId
-                                                                inGroup:self.video.group.serverId
-                                                     withServerIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
     }
 }
 

@@ -59,6 +59,7 @@
 
 - (void)switchVideoId:(NSString *)videoId {
     if ([videoId isEqualToString:_videoId]) return; // Video id didnt change
+    DLog(@"view count Switched video id");
     _videoId = videoId;
     self.myViewCount = 0;
     self.othersViewCount = 0;

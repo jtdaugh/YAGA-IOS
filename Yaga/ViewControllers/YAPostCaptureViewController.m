@@ -40,6 +40,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dismissDueToNewGroup:)  name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoDidChange:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
 
     [self initVideoPage];
 
@@ -65,6 +66,7 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
@@ -78,7 +80,26 @@
                                                  withServerIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
 }
 
-
+- (void)videoDidChange:(NSNotification *)notification {
+    // Only act if this notification is for video on visible page
+    if (!self.video || [self.video isInvalidated]) return;
+    
+    if([notification.object isEqual:self.video] && self.destinationGroup) {
+        if ([YAVideo serverIdStatusForVideo:self.video] == YAVideoServerIdStatusConfirmed) {
+            [[YAViewCountManager sharedManager] switchVideoId:self.video.serverId];
+        } else {
+            [[YAViewCountManager sharedManager] switchVideoId:nil];
+        }
+        
+        // Reload comments, which will initialize with firebase if serverID just became ready.
+        [[YAEventManager sharedManager] setCurrentVideoServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+        [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId
+                                                                localId:self.video.localId
+                                                                inGroup:self.video.group.serverId
+                                                     withServerIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+        
+    }
+}
 
 - (void)initVideoPage {
     YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:self.view.bounds];

@@ -70,6 +70,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dismissDueToNewGroup:)  name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION  object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoDidChange:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
 
     //show selected video fullscreen jpg preview
     [self showJpgPreview:YES];
@@ -92,6 +93,27 @@
     }
 }
 
+- (void)videoDidChange:(NSNotification *)notification {
+    // Only act if this notification is for video on visible page
+    YAVideoPage *visiblePage = self.pages[self.visibleTileIndex];
+    YAVideo *visibleVideo = visiblePage ? visiblePage.video : nil;
+
+    if([notification.object isEqual:visibleVideo]) {
+        if ([YAVideo serverIdStatusForVideo:visibleVideo] == YAVideoServerIdStatusConfirmed) {
+            [[YAViewCountManager sharedManager] switchVideoId:visibleVideo.serverId];
+        } else {
+            [[YAViewCountManager sharedManager] switchVideoId:nil];
+        }
+        
+        // Reload comments, which will initialize with firebase if serverID just became ready.
+        [[YAEventManager sharedManager] setCurrentVideoServerId:visibleVideo.serverId localId:visibleVideo.localId serverIdStatus:[YAVideo serverIdStatusForVideo:visibleVideo]];
+        [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:visibleVideo.serverId
+                                                                localId:visibleVideo.localId
+                                                                inGroup:visibleVideo.group.serverId
+                                                     withServerIdStatus:[YAVideo serverIdStatusForVideo:visibleVideo]];
+
+    }
+}
 
 - (void)willEnterForeground:(NSNotification *)notif {
     YAVideoPage *visiblePage = self.pages[self.visibleTileIndex];
@@ -130,6 +152,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION      object:nil];
 
 }
 
