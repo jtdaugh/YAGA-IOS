@@ -58,14 +58,13 @@
     if (self) {
         _video = video;
         NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", [YAUser currentUser].currentGroup.localId];
-        self.groups = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+        
+        self.groups = [[[YAGroup allObjects] objectsWhere:predicate] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
         
         CGFloat topGap = 20;
         CGFloat shareBarHeight = 60;
         CGFloat borderWidth = 4;
         CGFloat topBarHeight = 80;
-        
-        
         
         CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
         if (![self.groups count]) totalRowsHeight = 0;
@@ -74,7 +73,7 @@
         
         CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
         
-        CGFloat gradientHeight = tableHeight + topBarHeight;
+        CGFloat gradientHeight = tableHeight + topBarHeight + topGap;
         UIView *bgGradient = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - gradientHeight, VIEW_WIDTH, gradientHeight)];
         //    self.commentsGradient.backgroundColor = [UIColor redColor];
         CAGradientLayer *gradient = [CAGradientLayer layer];
@@ -99,7 +98,7 @@
 
         
         CGFloat tableOrigin = frame.size.height - tableHeight;
-        self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, tableOrigin - topBarHeight - topGap, VIEW_WIDTH, topBarHeight)];
+        self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, tableOrigin - topBarHeight - (myVideo && [self.groups count] ? topGap : 0), VIEW_WIDTH, topBarHeight)];
         [self addSubview:self.topBar];
         
         CGFloat count = 4;
@@ -145,7 +144,8 @@
         self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, tableOrigin - topGap, VIEW_WIDTH-24, 24)];
         self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
         self.crossPostPrompt.textColor = [UIColor whiteColor];
-        self.crossPostPrompt.text = [self.groups count] ? @"Share to other groups" : @"";
+        NSString *title = video.group ? ([self.groups count] ? @"Share to other groups" : @"") : @"Post to Groups";
+        self.crossPostPrompt.text = title;
         self.crossPostPrompt.hidden = !myVideo;
         self.crossPostPrompt.layer.shadowRadius = 0.5f;
         self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;

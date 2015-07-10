@@ -139,9 +139,10 @@
 
     // Initialize the library with your
     // Mixpanel project token, MIXPANEL_TOKEN
-#ifdef DEBUG
+#if (DEBUG && DEBUG_SERVER)
     [Mixpanel sharedInstanceWithToken:MIXPANEL_DEBUG_TOKEN];
 #else
+    NSLog(@"prod token?");
     [Mixpanel sharedInstanceWithToken:MIXPANEL_TOKEN];
 #endif
 
@@ -255,6 +256,8 @@
     DLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", deviceToken);
     
     [[NSUserDefaults standardUserDefaults] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
+    Mixpanel *mixpanel = [Mixpanel sharedInstance];
+    [mixpanel.people addPushDeviceToken:deviceToken];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
