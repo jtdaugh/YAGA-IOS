@@ -68,6 +68,8 @@
         
         CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
         if (![self.groups count]) totalRowsHeight = 0;
+        BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
+        if (!myVideo) totalRowsHeight = 0;
         
         CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
         
@@ -97,6 +99,7 @@
             [externalShareButton addTarget:self action:@selector(externalShareAction:) forControlEvents:UIControlEventTouchUpInside];
             [self.topBar addSubview:externalShareButton];
         }
+        
         if(!video.group){
             self.topBar.hidden = YES;
         }
@@ -110,6 +113,7 @@
         self.groupsList.allowsMultipleSelection = YES;
         self.groupsList.delegate = self;
         self.groupsList.dataSource = self;
+        self.groupsList.hidden = !myVideo;
         [self addSubview:self.groupsList];
         self.groupsList.contentInset = UIEdgeInsetsMake(0, 0, video.group ? XPCellHeight : 0, 0);
 
@@ -117,6 +121,7 @@
         self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
         self.crossPostPrompt.textColor = [UIColor whiteColor];
         self.crossPostPrompt.text = [self.groups count] ? @"Share to other groups" : @"";
+        self.crossPostPrompt.hidden = !myVideo;
         self.crossPostPrompt.layer.shadowRadius = 0.5f;
         self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
         self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.5f, 0.5f);
@@ -159,6 +164,7 @@
         self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, padding + buttonRadius)];
         [self.captionButton addTarget:self action:@selector(captionPressed) forControlEvents:UIControlEventTouchUpInside];
         self.captionButton.alpha = 0.0;
+        self.captionButton.hidden = !myVideo;
         [self addSubview:self.captionButton];
         self.captionButton.hidden = [video.caption length] > 0;
 
@@ -167,29 +173,6 @@
         self.collapseCrosspostButton.alpha = 0.0;
         [self addSubview:self.collapseCrosspostButton];
         
-        UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - shareBarHeight - borderWidth, VIEW_WIDTH, borderWidth)];
-        [separator setBackgroundColor:[UIColor whiteColor]];
-        //    [self.bgOverlay addSubview:separator];
-        
-        self.saveButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + borderWidth/2, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
-        [self.saveButton setImage:[UIImage imageNamed:@"Download"] forState:UIControlStateNormal];
-        [self.saveButton setTitle:@"Save" forState:UIControlStateNormal];
-        [self.saveButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
-        [self.saveButton addTarget:self action:@selector(saveToCameraRollPressed) forControlEvents:UIControlEventTouchUpInside];
-        //    [self.saveButton setBackgroundColor:PRIMARY_COLOR];
-        //    [self.shareBar addSubview:self.saveButton];
-        
-        self.externalShareButton = [[YACenterImageButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2 - borderWidth/2, self.shareBar.frame.size.height)];
-        [self.externalShareButton setImage:[UIImage imageNamed:@"External_Share"] forState:UIControlStateNormal];
-        [self.externalShareButton setTitle:@"Share" forState:UIControlStateNormal];
-        [self.externalShareButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:18]];
-        [self.externalShareButton addTarget:self action:@selector(externalShareButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.externalShareButton setBackgroundColor:PRIMARY_COLOR];
-        //    [self.shareBar addSubview:self.externalShareButton];
-        
-        UIView *vSeparator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - borderWidth/2, 0, borderWidth, self.shareBar.frame.size.height)];
-        [vSeparator setBackgroundColor:[UIColor whiteColor]];
-        //    [self.shareBar addSubview:vSeparator];
         
         //    [self.groupsList setFrame:CGRectMake(0, VIEW_HEIGHT - shareBarHeight, VIEW_WIDTH, 0)];
         //    [self.overlay insertSubview:self.bgOverlay belowSubview:self.editableCaptionWrapperView];
