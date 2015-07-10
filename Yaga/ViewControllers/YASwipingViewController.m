@@ -14,6 +14,7 @@
 #import "YAUser.h"
 #import "YADownloadManager.h"
 #import "YAViewCountManager.h"
+#import "MSAlertController.h"
 
 @interface YASwipingViewController ()
 
@@ -26,6 +27,9 @@
 @property (nonatomic, assign) NSUInteger initialIndex;
 
 @property (nonatomic, strong) UIImageView *jpgImageView;
+
+@property (nonatomic) BOOL alreadyAppeared;
+
 @end
 
 #define kSeparator 2
@@ -86,11 +90,12 @@
     [super viewDidAppear:animated];
     
     //hide selected video fullscreen jpg preview
-    if(animated){
+    if(animated && !self.alreadyAppeared){
         [self showJpgPreview:NO];
         
         [self initPages];        
     }
+    self.alreadyAppeared = YES;
 }
 
 - (void)videoDidChange:(NSNotification *)notification {
@@ -353,9 +358,10 @@
 
 - (void)didDeleteVideo:(id)sender {
     // Need to dismiss the alert delete confirmation first.
-    if ([self presentedViewController]) {
+    __weak YASwipingViewController *weakSelf = self;
+    if ([[self presentedViewController] isKindOfClass:[MSAlertController class]]) {
         [self dismissViewControllerAnimated:NO completion:^{
-            [self dismissAnimated];
+            [weakSelf dismissAnimated];
         }];
     } else {
         [self dismissAnimated];
