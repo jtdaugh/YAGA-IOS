@@ -50,10 +50,17 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     if (self.video.invalidated) return;
-    if (self.video.group) {
-        if (![YAUtils hasRecordedVideo]) {
-            [self showFirstVideoTooltip];
-            [YAUtils setRecordedVideo];
+    if (self.destinationGroup) {
+        if (self.destinationGroup.publicGroup) {
+            if (![YAUtils hasRecordedPublicVideo]) {
+                [self showFirstPublicVideoTooltip];
+                [YAUtils setRecordedPublicVideo];
+            }
+        } else {
+            if (![YAUtils hasRecordedPrivateVideo]) {
+                [self showFirstPrivateVideoTooltip];
+                [YAUtils setRecordedPrivateVideo];
+            }
         }
     } else {
         if (![YAUtils hasRecordedUngroupedVideo]) {
@@ -151,8 +158,12 @@
 
 #pragma mark - tooltips
 
-- (void)showFirstVideoTooltip {
+- (void)showFirstPrivateVideoTooltip {
     [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_GROUP_POST_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_GROUP_POST_BODY", @""), [YAUser currentUser].currentGroup.name] dismissText:@"Got it" addToView:self.videoPage] show];
+}
+
+- (void)showFirstPublicVideoTooltip {
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_PUBLIC_POST_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_PUBLIC_POST_BODY", @""), [YAUser currentUser].currentGroup.name] dismissText:@"Got it" addToView:self.videoPage] show];
 }
 
 - (void)showFirstUngroupedVideoTooltip {
