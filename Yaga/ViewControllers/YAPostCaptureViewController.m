@@ -138,11 +138,17 @@
 }
 
 - (void)didDeleteVideo:(id)sender {
-    [self dismissAnimated];
+//    [self dismissAnimated];
+    if ([self presentedViewController]) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            [self dismissAnimated];
+        }];
+    } else {
+        [self dismissAnimated];
+    }
 }
 
-
-- (void)suspendAllGestures:(id)sender {
+- (void)suspendAllGestures:(id)sender {g
     // prevent non-visible pages from sending stray calls
     if ([sender isEqual:self.videoPage]) {
         self.panGesture.enabled = NO;

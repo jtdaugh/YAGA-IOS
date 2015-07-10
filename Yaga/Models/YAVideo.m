@@ -75,6 +75,8 @@
     
     if(!removeFromServer) {
         deleteBlock();
+        if(completion)
+            completion(nil);
         return;
     }
         

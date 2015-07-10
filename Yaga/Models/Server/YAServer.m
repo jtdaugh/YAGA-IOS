@@ -684,6 +684,7 @@
     NSAssert(serverGroupId, @"groupId is a required parameter");
     
     if (!serverVideoId.length) {
+        [YAUtils showHudWithText:NSLocalizedString(@"Video deleted", @"")];
         completion(nil, nil);
         return;
     }
