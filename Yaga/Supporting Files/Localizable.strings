@@ -77,7 +77,7 @@
 "FIRST_NOGROUP_POST_BODY" = "You weren't inside a group when you took this video.\n\nSo, pick which groups you'd like to send it to. \n\n Or swipe the video away to delete it forever";
 
 "FIRST_HUMANITY_POST_TITLE" = "Almost Famous";
-"FIRST_HUMANITY_POST_BODY" = "Your video is now uploading to Humanity.\n\nWe go through *every* post - if we like yours, we'll feature it to everyone on Yaga."
+"FIRST_HUMANITY_POST_BODY" = "Your video is now uploading to Humanity.\n\nWe go through *every* post - if we like yours, we'll feature it to everyone on Yaga.";
 
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
@@ -189,5 +189,3 @@
 "Requesting to join to group" = "Requesting to join to group";
 "Failed to join group" = "Failed to join group";
 "Wow, you're early. Create a group to get your friends on Yaga" = "Wow, you're early. Create a group to get your friends on Yaga";
-
-"
