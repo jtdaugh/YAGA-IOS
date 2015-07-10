@@ -91,6 +91,7 @@
     [self.bodyTextView setTextAlignment:NSTextAlignmentCenter];
     [self.bodyTextView setFont:bodyFont];
     [self.bodyTextView setText:bodyText];
+    self.bodyTextView.editable = NO;
     [self.contentArea addSubview:self.bodyTextView];
 //    [self.bodyTextView setBackgroundColor:[UIColor greenColor]];
     
