@@ -579,7 +579,11 @@
                     if (![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
                         video.caption = videoDic[YA_RESPONSE_NAME];
                         video.font = (videoDic[YA_RESPONSE_FONT] == [NSNull null]) ? 0 : [videoDic[YA_RESPONSE_FONT] integerValue];
-                        video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
+                        if(![videoDic[YA_RESPONSE_NAMER] isKindOfClass:[NSNull class]] && ![videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME] isKindOfClass:[NSNull class]]){
+                            video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
+                        } else {
+                            video.namer = @"";
+                        }
                         video.caption_x = ![videoDic[YA_RESPONSE_NAME_X] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_X] floatValue] : 0.5;
                         video.caption_y = ![videoDic[YA_RESPONSE_NAME_Y] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_Y] floatValue] : 0.25;
                         video.caption_scale = ![videoDic[YA_RESPONSE_SCALE] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_SCALE] floatValue] : 1;
