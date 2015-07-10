@@ -324,7 +324,7 @@ static NSString *cellID = @"Cell";
         
         for (YAVideo *video in updatedVideos) {
             NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-            if(index != NSNotFound) {
+            if(index != NSNotFound && index < [self.collectionView numberOfItemsInSection:0]) {
                 [indexPathsToReload addObject:[NSIndexPath indexPathForRow:index inSection:0]];
             }
         }
