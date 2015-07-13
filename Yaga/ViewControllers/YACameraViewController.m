@@ -29,7 +29,7 @@
 
 
 #define INFO_PADDING 10.f
-#define INFO_SIZE 30.f
+#define INFO_SIZE 36.f
 
 #define kUnviwedBadgeWidth 10
 

@@ -476,7 +476,7 @@ static NSString *commentCellID = @"CommentCell";
     viewCountView.backgroundColor = [UIColor clearColor];
     [self.overlay addSubview:viewCountView];
     
-    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(viewCountSize.width/2 + 1, 0)];
+    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(viewCountSize.width/2, 0)];
                         
     self.viewCounter.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.viewCounter.layer.shadowRadius = 0.0f;
@@ -486,7 +486,7 @@ static NSString *commentCellID = @"CommentCell";
 
     CGSize viewCountImgSize = CGSizeMake(25, 20);
     self.viewCountImageView = [[UIImageView alloc]initWithFrame:CGRectMake(viewCountSize.width/2 - 1 - viewCountImgSize.width,
-                                                                           2,
+                                                                           1,
                                                                            viewCountImgSize.width, viewCountImgSize.height)];
     self.viewCountImageView.image = [UIImage imageNamed:@"Views"];
     self.viewCountImageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -518,7 +518,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
 
-    self.heartButton = [YAUtils circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(buttonRadius*3 + padding*2, VIEW_HEIGHT - buttonRadius - padding)];
+    self.heartButton = [YAUtils circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(buttonRadius*3 + padding*3, VIEW_HEIGHT - buttonRadius - padding)];
     [self.heartButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.heartButton];
     
