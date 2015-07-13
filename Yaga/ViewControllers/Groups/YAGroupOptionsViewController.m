@@ -457,7 +457,13 @@ static NSString *CellID = @"CellID";
     NSSet *cancelledJoins = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
     self.membersPendingJoin = [NSMutableArray new];
     
+    if([self.group isInvalidated])
+        return;
+    
     for(YAContact *member in self.group.pending_members) {
+        if([member isInvalidated])
+            continue;
+        
         if(![cancelledJoins containsObject:member.number])
             [self.membersPendingJoin addObject:member];
     }
