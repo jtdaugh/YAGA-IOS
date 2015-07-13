@@ -52,6 +52,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic) CGPoint lastOffset;
 @property (nonatomic) BOOL scrollingFast;
+@property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
 @end
 
@@ -470,19 +471,17 @@ static NSString *cellID = @"Cell";
     }
     
     CGPoint currentOffset = self.collectionView.contentOffset;
+    NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
+
+    NSTimeInterval timeDiff = currentTime - self.lastScrollingSpeedTime;
+    CGFloat pointsTravelled = currentOffset.y - self.lastOffset.y;
     
-    CGFloat distance = currentOffset.y - self.lastOffset.y;
-    //The multiply by 10, / 1000 isn't really necessary.......
-    CGFloat scrollSpeedNotAbs = (distance * 10) / 1000; //in pixels per millisecond
+    CGFloat pointsPerSecond = fabs(pointsTravelled / timeDiff);
     
-    CGFloat scrollSpeed = fabs(scrollSpeedNotAbs);
-    if (scrollSpeed > 0.06) {
-        self.lastOffset = currentOffset;
-        return YES;
-    } else {
-        self.lastOffset = currentOffset;
-        return NO;
-    }
+    self.lastOffset = currentOffset;
+    self.lastScrollingSpeedTime = currentTime;
+    
+    return (pointsPerSecond > 1000);
     
 }
 

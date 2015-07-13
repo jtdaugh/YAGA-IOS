@@ -305,7 +305,8 @@
                 self.captionWrapper.transform = CGAffineTransformConcat(CGAffineTransformMakeRotation(self.video.caption_rotation), CGAffineTransformMakeScale(scale, scale));
                 
                 self.captionWrapper.hidden = NO;
-
+//                self.captionWrapper.layer.shouldRasterize = YES;
+//                self.captionWrapper.layer.rasterizationScale = [UIScreen mainScreen].scale;
             });
         });
 
