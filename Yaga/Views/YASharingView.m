@@ -28,7 +28,7 @@
 
 #define kNewGroupCellId @"postToNewGroupCell"
 #define kCrosspostCellId @"crossPostCell"
-#define VIEW_HEIGHT_PROPORTION 0.6f
+#define VIEW_HEIGHT_PROPORTION 0.7f
 
 @interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate, UIActionSheetDelegate>
 
