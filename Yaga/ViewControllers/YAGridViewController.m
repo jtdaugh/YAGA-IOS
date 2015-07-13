@@ -346,6 +346,7 @@
 
 - (void)presentNewlyRecordedVideo:(YAVideo *)video {
     YAPostCaptureViewController *vc = [[YAPostCaptureViewController alloc] initWithVideo:video];
+    vc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve; // For dismissal
     [self.navigationController presentViewController:vc animated:NO completion:nil];
 }
 
