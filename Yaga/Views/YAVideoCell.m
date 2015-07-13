@@ -134,7 +134,7 @@
     [super prepareForReuse];
     
     self.video = nil;
-    self.gifView.image = nil;
+    self.gifView.animatedImage = nil;
     self.eventCountLabel.text = @"";
     self.username.text = @"";
     self.captionWrapper.hidden = YES;
@@ -150,6 +150,7 @@
 
 // Things that you only want shown when scrolling is slow.
 - (void)renderLightweightContent {
+//    DLog(@"Rendering LIGHT cell content");
     if (!self.lightWeightContentRendered) {
         self.lightWeightContentRendered = YES;
         [self loadAndShowAppropriateGif];
@@ -160,6 +161,7 @@
 
 // Things that you only want shown when scrolling is stopped.
 - (void)renderHeavyWeightContent {
+//    DLog(@"Rendering HEAVY cell content");
     if (self.heavyWeightContentRendered) return;
     self.heavyWeightContentRendered = YES;
     
@@ -196,6 +198,7 @@
     
     if (self.video) {
         [self renderUsername];
+        DLog(@"Rendering INITIAL cell content");
     }
 }
 
