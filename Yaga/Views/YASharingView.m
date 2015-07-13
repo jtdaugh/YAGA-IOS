@@ -26,7 +26,6 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "YAAssetsCreator.h"
 
-#define SHARING_VIEW_PROPORTION 0.55
 #define kNewGroupCellId @"postToNewGroupCell"
 #define kCrosspostCellId @"crossPostCell"
 
@@ -63,7 +62,6 @@
         
         CGFloat topGap = 20;
         CGFloat shareBarHeight = 60;
-        CGFloat borderWidth = 4;
         CGFloat topBarHeight = 80;
         
         CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
@@ -71,7 +69,12 @@
         BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
         if (!myVideo) totalRowsHeight = 0;
         
-        CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
+        CGFloat maxTableViewHeight = frame.size.height - topGap - XPCellHeight;
+        if (video.group) {
+            maxTableViewHeight -= topBarHeight;
+        }
+        
+        CGFloat tableHeight = MIN(maxTableViewHeight, totalRowsHeight);
         
         CGFloat gradientHeight = tableHeight + topBarHeight + topGap;
         UIView *bgGradient = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - gradientHeight, VIEW_WIDTH, gradientHeight)];
@@ -650,6 +653,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == [self.groups count]) {
         [[NSNotificationCenter defaultCenter] postNotificationName:BEGIN_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:self.video];
+        [tableView deselectRowAtIndexPath:indexPath animated:NO];
     } else {
         [self renderButton:[[tableView indexPathsForSelectedRows] count]];
     }

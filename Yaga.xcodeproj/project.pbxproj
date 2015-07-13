@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
 		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
+		0FE7A6B41B53542C00B35DCD /* YACreateGroupNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FE7A6B31B53542C00B35DCD /* YACreateGroupNavigationController.m */; };
 		4120E70B1B43624500627359 /* SocialVideoHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4120E70A1B43624500627359 /* SocialVideoHelper.m */; };
 		41235F1A1B4C93E400B08ED5 /* YAPopoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41235F191B4C93E400B08ED5 /* YAPopoverView.m */; };
 		413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
@@ -138,6 +139,8 @@
 		0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+YABlur.m"; sourceTree = "<group>"; };
 		0FDC3AF81B0E69C0003A688D /* UIWindow+YASnapshot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWindow+YASnapshot.h"; sourceTree = "<group>"; };
 		0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+YASnapshot.m"; sourceTree = "<group>"; };
+		0FE7A6B21B53542C00B35DCD /* YACreateGroupNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YACreateGroupNavigationController.h; path = Groups/YACreateGroupNavigationController.h; sourceTree = "<group>"; };
+		0FE7A6B31B53542C00B35DCD /* YACreateGroupNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YACreateGroupNavigationController.m; path = Groups/YACreateGroupNavigationController.m; sourceTree = "<group>"; };
 		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		4120E7091B43624500627359 /* SocialVideoHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocialVideoHelper.h; sourceTree = "<group>"; };
 		4120E70A1B43624500627359 /* SocialVideoHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocialVideoHelper.m; sourceTree = "<group>"; };
@@ -605,6 +608,8 @@
 				6E73F41B1A432FAC000B3A14 /* Groups */,
 				6E9188A41A3F3A5A0034AB63 /* Onboarding */,
 				6E5E667A1A424E3300B58E49 /* Segues */,
+				0FE7A6B21B53542C00B35DCD /* YACreateGroupNavigationController.h */,
+				0FE7A6B31B53542C00B35DCD /* YACreateGroupNavigationController.m */,
 				6E73F4251A43337D000B3A14 /* YACollectionViewController.h */,
 				6E73F4261A43337D000B3A14 /* YACollectionViewController.m */,
 				6E91889A1A3F3A5A0034AB63 /* YAGridViewController.h */,
@@ -964,6 +969,7 @@
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				41D53FF01B1FB4A4004DB886 /* YACenterImageButton.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
+				0FE7A6B41B53542C00B35DCD /* YACreateGroupNavigationController.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,
 				6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */,
 				86B8649C1A41CA74002256FF /* NSDictionary+ResponseObject.m in Sources */,

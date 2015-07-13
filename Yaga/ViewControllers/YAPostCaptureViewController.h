@@ -9,9 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "YASwipingViewController.h"
 #import "YASwipeToDismissViewController.h"
+#import "YACameraViewController.h"
 
 @interface YAPostCaptureViewController : YASwipeToDismissViewController <YASuspendableGesturesDelegate>
 
-- (id)initWithVideo:(YAVideo *)video;
+- (id)initWithVideo:(YAVideo *)video cameraViewController:(YACameraViewController *)cameraViewController;
 
 @end

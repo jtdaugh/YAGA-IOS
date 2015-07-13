@@ -9,6 +9,7 @@
 #import "YAInviteViewController.h"
 
 #import "YAInviteCameraViewController.h"
+#import "YAPostCaptureViewController.h"
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import "MBProgressHUD.h"
@@ -216,11 +217,13 @@
 }
 
 - (void)skipButtonPressed:(id)sender {
-    [self popToGridViewController];
-}
-
-- (void)popToGridViewController {
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    // If we presented the create group flow on top of the post-capture screen, dimisss that as well.
+    if (self.presentingViewController.presentingViewController) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    } else {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 - (void)sendTextOnlyInvites {
@@ -289,14 +292,14 @@
         {
             [[Mixpanel sharedInstance] track:@"iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
-            [self popToGridViewController];
+            [self dismissViewControllerAnimated:YES completion:nil];
             break;
         }
             
         case MessageComposeResultSent:
             [[Mixpanel sharedInstance] track:@"iMessage sent"];
 //            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
-            [self popToGridViewController];
+            [self dismissViewControllerAnimated:YES completion:nil];
             
             break;
     }

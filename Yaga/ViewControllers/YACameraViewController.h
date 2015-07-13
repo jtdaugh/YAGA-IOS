@@ -27,6 +27,8 @@ typedef NS_ENUM(NSUInteger, YACameraButtonMode) {
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 @property (strong, nonatomic) NSNumber *recording;
 
+- (void)initCamera;
+
 - (void)showCameraAccessories:(BOOL)show;
 
 - (void)enableRecording:(BOOL)enable;
