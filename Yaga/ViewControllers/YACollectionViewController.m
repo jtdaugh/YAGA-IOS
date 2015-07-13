@@ -381,6 +381,10 @@ static NSString *cellID = @"Cell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
     YAVideo *video = [[YAUser currentUser].currentGroup.videos objectAtIndex:indexPath.item];
+    CGFloat randomAlpha = indexPath.row * 13 % 10;
+    UIColor *shadeOfPinkBasedOnIndex = [PRIMARY_COLOR colorWithAlphaComponent:(.2 + randomAlpha*.05)];
+    [cell setBackgroundColor:shadeOfPinkBasedOnIndex];
+
     cell.video = video;
     [self setupEventCountForCell:cell];
     
