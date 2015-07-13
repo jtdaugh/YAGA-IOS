@@ -12,6 +12,8 @@
 #import "YAUtils.h"
 #import "YAPopoverView.h"
 #import "MSAlertController.h"
+#import "NameGroupViewController.h"
+#import "YACreateGroupNavigationController.h"
 
 @interface YAPostCaptureViewController ()
 
@@ -39,13 +41,27 @@
     self.view.clipsToBounds = YES;
     self.view.backgroundColor = [UIColor blackColor];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didDeleteVideo:)  name:VIDEO_DID_DELETE_NOTIFICATION  object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dismissDueToNewGroup:)  name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoDidChange:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(showCreateGroup:)
+                                                 name:BEGIN_CREATE_GROUP_FROM_VIDEO_NOTIFICATION
+                                               object:nil];
 
     [self initVideoPage];
 
     // Do any additional setup after loading the view.
+}
+
+- (void)showCreateGroup:(NSNotification *)notification {
+    YAVideo *video = notification.object;
+    
+    NameGroupViewController *vc = [NameGroupViewController new];
+    YACreateGroupNavigationController *createGroupNavController = [[YACreateGroupNavigationController alloc] initWithRootViewController:vc];
+    
+    vc.initialVideo = video;
+    
+    [self presentViewController:createGroupNavController animated:YES completion:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -131,11 +147,6 @@
     [page setVideo:self.video shouldPreload:YES];
     page.playerView.playWhenReady = YES;
     self.videoPage = page;
-}
-
-- (void)dismissDueToNewGroup:(id)sender {
-    
-    [self dismissAnimated];
 }
 
 - (void)didDeleteVideo:(id)sender {
