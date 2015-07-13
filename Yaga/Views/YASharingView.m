@@ -62,7 +62,6 @@
         
         CGFloat topGap = 20;
         CGFloat shareBarHeight = 60;
-        CGFloat borderWidth = 4;
         CGFloat topBarHeight = 80;
         
         CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
@@ -70,7 +69,12 @@
         BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
         if (!myVideo) totalRowsHeight = 0;
         
-        CGFloat tableHeight = MIN(frame.size.height - topBarHeight - topGap - XPCellHeight, totalRowsHeight);
+        CGFloat maxTableViewHeight = frame.size.height - topGap - XPCellHeight;
+        if (video.group) {
+            maxTableViewHeight -= topBarHeight;
+        }
+        
+        CGFloat tableHeight = MIN(maxTableViewHeight, totalRowsHeight);
         
         CGFloat gradientHeight = tableHeight + topBarHeight + topGap;
         UIView *bgGradient = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - gradientHeight, VIEW_WIDTH, gradientHeight)];
