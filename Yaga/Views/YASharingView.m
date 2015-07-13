@@ -191,7 +191,7 @@
         self.captionButton.alpha = 0.0;
         self.captionButton.hidden = !myVideo;
         [self addSubview:self.captionButton];
-        self.captionButton.hidden = [video.caption length] > 0;
+        self.captionButton.hidden = ([video.caption length] > 0) || !myVideo;
 
         self.collapseCrosspostButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
         [self.collapseCrosspostButton addTarget:self action:@selector(collapseCrosspost) forControlEvents:UIControlEventTouchUpInside];
