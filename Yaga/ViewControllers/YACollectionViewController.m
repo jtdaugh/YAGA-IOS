@@ -283,7 +283,7 @@ static NSString *cellID = @"Cell";
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
             [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-        
+            self.scrolling = NO;
         [self delayedHidePullToRefresh];
     };
     
@@ -481,20 +481,22 @@ static NSString *cellID = @"Cell";
     self.lastOffset = currentOffset;
     self.lastScrollingSpeedTime = currentTime;
     
-    return (pointsPerSecond > 1000);
+    return (pointsPerSecond > VIEW_HEIGHT);
     
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self.delegate scrollViewDidScroll];
     
+    if (scrollView.contentSize.height == 0) return;
+    if(self.disableScrollHandling) {
+        return;
+    }
+
     [[YAAssetsCreator sharedCreator] cancelGifOperations];
     
     self.assetsPrioritisationHandled = NO;
     
-    if(self.disableScrollHandling) {
-        return;
-    }
     
     BOOL fast = [self calculateScrollingFast];
     if (self.scrollingFast && !fast) {

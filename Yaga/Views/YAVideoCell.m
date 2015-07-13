@@ -38,6 +38,9 @@
 @property (strong, nonatomic) FLAnimatedImageView *uploadingView;
 
 @property (nonatomic, assign) BOOL gifWasPaused;
+
+@property (nonatomic, assign) BOOL lightWeightContentRendered;
+@property (nonatomic, assign) BOOL heavyWeightContentRendered;
 @end
 
 @implementation YAVideoCell
@@ -93,6 +96,8 @@
         self.contentView.layer.masksToBounds = YES;
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
+        self.lightWeightContentRendered = NO;
+        self.heavyWeightContentRendered = NO;
     }
     
     return self;
@@ -132,19 +137,33 @@
     self.gifView.image = nil;
     self.eventCountLabel.text = @"";
     self.username.text = @"";
-    self.caption.text = @"";
+    self.captionWrapper.hidden = YES;
+    self.lightWeightContentRendered = NO;
+    self.heavyWeightContentRendered = NO;
     [self updateState];
-    
+
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
 }
 
+// Things that you only want shown when scrolling is slow.
 - (void)renderLightweightContent {
-    
-    [self loadAndShowAppropriateGif];
+    if (!self.lightWeightContentRendered) {
+        self.lightWeightContentRendered = YES;
+        [self loadAndShowAppropriateGif];
+        [self renderCaption];
 
+    }
+}
+
+// Things that you only want shown when scrolling is stopped.
+- (void)renderHeavyWeightContent {
+    if (self.heavyWeightContentRendered) return;
+    self.heavyWeightContentRendered = YES;
+    
+    
     //uploading progress
     if (self.video) {
         BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
@@ -152,10 +171,6 @@
     } else {
         [self showUploadingProgress:NO];
     }
-}
-
-- (void)renderHeavyWeightContent {
-    [self renderCaption];
 }
 
 #pragma mark -
@@ -272,6 +287,7 @@
     NSString *caption = self.video.caption;
     
     if(caption.length) {
+        NSString *videoId = [self.video.localId copy];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSAttributedString *string = [[NSAttributedString alloc] initWithString:caption attributes:@{
                                                                                                          NSStrokeColorAttributeName:[UIColor whiteColor],                                                            NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH],NSForegroundColorAttributeName:PRIMARY_COLOR,                                                    NSBackgroundColorAttributeName:[UIColor clearColor],
@@ -290,23 +306,26 @@
                                                 attributes:commentAttributes
                                                    context:nil].size;
             
+            
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.caption.attributedText = string;
-                CGSize cellSize = self.bounds.size;
-                
-                CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH * .88;
-                self.captionWrapper.transform = CGAffineTransformIdentity;
-                
-                self.captionWrapper.frame = CGRectMake(0, 0, capSize.width, capSize.height);
-                self.captionWrapper.center = CGPointMake(cellSize.width/2, cellSize.height/2);
-                self.caption.frame = CGRectMake(0, 0, capSize.width, capSize.height);
-                self.caption.center = CGPointMake(self.captionWrapper.frame.size.width/2.f, self.captionWrapper.frame.size.height/2.f);
-                
-                self.captionWrapper.transform = CGAffineTransformConcat(CGAffineTransformMakeRotation(self.video.caption_rotation), CGAffineTransformMakeScale(scale, scale));
-                
-                self.captionWrapper.hidden = NO;
-//                self.captionWrapper.layer.shouldRasterize = YES;
-//                self.captionWrapper.layer.rasterizationScale = [UIScreen mainScreen].scale;
+                if (self.video && !self.video.invalidated && [self.video.localId isEqualToString:videoId]) {
+                    self.caption.attributedText = string;
+                    CGSize cellSize = self.bounds.size;
+                    
+                    CGFloat scale = self.bounds.size.width / STANDARDIZED_DEVICE_WIDTH * .88;
+                    self.captionWrapper.transform = CGAffineTransformIdentity;
+                    
+                    self.captionWrapper.frame = CGRectMake(0, 0, capSize.width, capSize.height);
+                    self.captionWrapper.center = CGPointMake(cellSize.width/2, cellSize.height/2);
+                    self.caption.frame = CGRectMake(0, 0, capSize.width, capSize.height);
+                    self.caption.center = CGPointMake(self.captionWrapper.frame.size.width/2.f, self.captionWrapper.frame.size.height/2.f);
+                    
+                    self.captionWrapper.transform = CGAffineTransformConcat(CGAffineTransformMakeRotation(self.video.caption_rotation), CGAffineTransformMakeScale(scale, scale));
+                    
+                    self.captionWrapper.hidden = NO;
+                    self.captionWrapper.layer.shouldRasterize = YES;
+                    self.captionWrapper.layer.rasterizationScale = [UIScreen mainScreen].scale;
+                }
             });
         });
 
