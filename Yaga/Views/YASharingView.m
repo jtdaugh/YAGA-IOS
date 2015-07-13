@@ -28,6 +28,7 @@
 
 #define kNewGroupCellId @"postToNewGroupCell"
 #define kCrosspostCellId @"crossPostCell"
+#define VIEW_HEIGHT_PROPORTION 0.6f
 
 @interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate, UIActionSheetDelegate>
 
@@ -69,7 +70,7 @@
         BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
         if (!myVideo) totalRowsHeight = 0;
         
-        CGFloat maxTableViewHeight = frame.size.height - topGap - XPCellHeight;
+        CGFloat maxTableViewHeight = (frame.size.height * VIEW_HEIGHT_PROPORTION) - topGap - XPCellHeight;
         if (video.group) {
             maxTableViewHeight -= topBarHeight;
         }
