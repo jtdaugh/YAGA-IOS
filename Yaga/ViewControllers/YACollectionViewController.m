@@ -567,7 +567,7 @@ static NSString *cellID = @"Cell";
     NSMutableArray *invisibleVideos = [NSMutableArray new];
     
     NSUInteger beginIndex = initialIndex;
-    if (initialIndex >= kNumberOfItemsBelowToDownload) beginIndex -= kNumberOfItemsBelowToDownload;
+    if (initialIndex >= kNumberOfItemsBelowToDownload) beginIndex -= kNumberOfItemsBelowToDownload; // Cant always subtract cuz overflow
     NSUInteger endIndex = MIN([YAUser currentUser].currentGroup.videos.count, initialIndex + kNumberOfItemsBelowToDownload);
     
     for(NSUInteger videoIndex = beginIndex; videoIndex < endIndex; videoIndex++) {

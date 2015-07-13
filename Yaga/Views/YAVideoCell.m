@@ -148,24 +148,30 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
 }
 
-// Things that you only want shown when scrolling is slow.
-- (void)renderLightweightContent {
-//    DLog(@"Rendering LIGHT cell content");
-    if (!self.lightWeightContentRendered) {
-        self.lightWeightContentRendered = YES;
-        [self loadAndShowAppropriateGif];
-        [self renderCaption];
-
-    }
+// This will get called right when the cell is re-used. Dont clog things up.
+- (void)renderInitialContent {
+//    DLog(@"Rendering INITIAL cell content");
+    [self renderUsername];
+    [self loadAndShowPreviewGifIfReady];
 }
 
-// Things that you only want shown when scrolling is stopped.
+// This will get called when scrolling slows down. Render things that are expensive but critical. (like captions)
+- (void)renderLightweightContent {
+//    DLog(@"Rendering LIGHT cell content");
+    if (self.lightWeightContentRendered) return;
+    self.lightWeightContentRendered = YES;
+    
+    [self showLoaderGifIfNeeded];
+    [self renderCaption];
+}
+
+// This will get called when scrolling stops. Render things that aren't critical to the UI
 - (void)renderHeavyWeightContent {
 //    DLog(@"Rendering HEAVY cell content");
     if (self.heavyWeightContentRendered) return;
     self.heavyWeightContentRendered = YES;
     
-    
+
     //uploading progress
     if (self.video) {
         BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
@@ -197,8 +203,8 @@
         self.state = YAVideoCellStateLoading;
     
     if (self.video) {
-        [self renderUsername];
-        DLog(@"Rendering INITIAL cell content");
+        // RENDER INITIAL CONTENT HERE
+        [self renderInitialContent];
     }
 }
 
@@ -338,33 +344,14 @@
     }
 }
 
-
-- (void)loadAndShowAppropriateGif {
-    BOOL showLoader = NO;
-    switch (self.state) {
-        case YAVideoCellStateLoading: {
-            showLoader = self.video != nil;
-            break;
-        }
-        case YAVideoCellStateJPEGPreview: {
-            showLoader = self.video != nil;
-            
-            //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
-            //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
-            break;
-        }
-        case YAVideoCellStateGIFPreview: {
-            //loading is removed when gif is shown in showImageAsyncFromFilename
-            [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
-            showLoader = NO;
-            break;
-        }
-        default: {
-            break;
-        }
+- (void)loadAndShowPreviewGifIfReady {
+    if (self.state == YAVideoCellStateGIFPreview) {
+        [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
     }
-    
-    if(showLoader && !self.gifView.isAnimating) {
+}
+
+- (void)showLoaderGifIfNeeded {
+    if ((self.state == YAVideoCellStateLoading) && !self.gifView.isAnimating) {
         static NSData* loaderData = nil;
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
