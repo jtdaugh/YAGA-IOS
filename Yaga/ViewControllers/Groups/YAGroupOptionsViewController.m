@@ -84,6 +84,9 @@
 }
 
 - (void)dealloc {
+    [self.group.realm removeNotification:self.notificationToken];
+    self.notificationToken = nil;
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
 }
 
@@ -525,8 +528,8 @@ static NSString *CellID = @"CellID";
     __weak typeof(self) weakSelf = self;
     self.notificationToken = [self.group.realm addNotificationBlock:^(NSString *notification, RLMRealm *realm) {
         if(weakSelf.group.isInvalidated) {
-            [self.navigationController popToRootViewControllerAnimated:YES];
-            self.notificationToken = nil;
+            [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            weakSelf.notificationToken = nil;
         }
         else {
             [weakSelf.tableView reloadData];
