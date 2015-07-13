@@ -356,7 +356,7 @@
                 }
                 
                 NSArray *foundUsernames = [self.filteredContacts valueForKey:nUsername];
-                if(![foundUsernames containsObject:text]) {
+                if(![foundUsernames containsObject:[text lowercaseString]]) {
                     [self.filteredContacts addObject:@{nCompositeName:text, nFirstname:@"", nLastname:@"", nPhone:@"", nYagaUser:[NSNumber numberWithBool:YES], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
                 }
             }
