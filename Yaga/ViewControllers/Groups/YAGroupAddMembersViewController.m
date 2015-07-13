@@ -428,7 +428,7 @@
                 if (![weakSelf.contactsThatNeedInvite count]) {
                     NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), weakSelf.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
                     [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-                    [weakSelf dismissCreateGroup];
+                    [weakSelf dismissAddMembers];
                 } else {
                     // Push the invite screen
                     YAInviteViewController *nextVC = [YAInviteViewController new];
@@ -461,7 +461,7 @@
                         
                         weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
                         if (![weakSelf.contactsThatNeedInvite count]) {
-                            [weakSelf dismissCreateGroup];
+                            [weakSelf dismissAddMembers];
                         } else {
                             YAInviteViewController *nextVC = [YAInviteViewController new];
                             nextVC.inCreateGroupFlow = YES;
@@ -477,14 +477,22 @@
     }
 }
 
-- (void)dismissCreateGroup {
+- (void)dismissAddMembers {
     // If we presented the create group flow on top of the post-capture screen, dimisss that as well.
-    if (self.presentingViewController.presentingViewController) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-        [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+    if (self.inCreateGroupFlow) {
+        if (self.presentingViewController.presentingViewController) {
+            [self dismissViewControllerAnimated:YES completion:nil];
+            [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+        } else {
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
     } else {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [self popToGridViewController];
     }
+}
+
+- (void)popToGridViewController {
+    [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 - (void)postInitialVideo {
