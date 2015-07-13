@@ -291,10 +291,13 @@
 }
 
 //GIF jobs should always go first
-- (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos {
+- (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos killExistingJobs:(BOOL)killExisting {
     
-    [[YADownloadManager sharedManager] pauseExecutingJobs];
-    
+    if (killExisting) {
+        [[YADownloadManager sharedManager] cancelAllJobs];
+    } else {
+        [[YADownloadManager sharedManager] pauseExecutingJobs];
+    }
     NSArray *orderedUrlsToDownload = [self orderedDownloadUrlsFromVideos:visibleVideos invisibleVideos:invisibleVideos];
     
     [[YADownloadManager sharedManager] reorderJobs:orderedUrlsToDownload];

@@ -35,9 +35,8 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
-@property (nonatomic, assign) NSUInteger paginationThreshold;
-
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
+@property (nonatomic, assign) NSUInteger lastDownloadPrioritizationIndex;
 
 @property (strong, nonatomic) UILabel *toolTipLabel;
 
@@ -54,11 +53,14 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic) BOOL scrollingFast;
 @property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
+
+
 @end
 
 static NSString *cellID = @"Cell";
 
-#define kPaginationItemsCountToStartLoadingNextPage 5
+#define kNumberOfItemsAboveToDownload 4
+#define kNumberOfItemsBelowToDownload 16
 
 @implementation YACollectionViewController
 
@@ -89,7 +91,7 @@ static NSString *cellID = @"Cell";
     
     self.lastOffset = self.collectionView.contentOffset;
     
-    
+    self.lastDownloadPrioritizationIndex = 0;
     [self reload];
 
     [YAEventManager sharedManager].eventCountReceiver = self;
@@ -184,8 +186,6 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reload {
-    self.paginationThreshold = kPaginationDefaultThreshold;
-    
     BOOL needRefresh = NO;
     if(![YAUser currentUser].currentGroup.videos || ![[YAUser currentUser].currentGroup.videos count])
         needRefresh = YES;
@@ -296,8 +296,10 @@ static NSString *cellID = @"Cell";
         
         for (YAVideo *video in updatedVideos) {
             NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-            if(index != NSNotFound && index < [self.collectionView numberOfItemsInSection:0] && index < self.paginationThreshold) {
-                [indexPathsToReload addObject:[NSIndexPath indexPathForItem:index inSection:0]];
+            if (index != NSNotFound) {
+                if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:index]]) {
+                    [indexPathsToReload addObject:[NSIndexPath indexPathForItem:index inSection:0]];
+                }
             }
         }
         if(indexPathsToReload.count) {
@@ -396,8 +398,6 @@ static NSString *cellID = @"Cell";
             [cell renderLightweightContent];
         }
     }
-    
-    [self handlePagingForIndexPath:indexPath];
     
     return cell;
 }
@@ -553,53 +553,33 @@ static NSString *cellID = @"Cell";
 
 #pragma mark - Assets creation
 
-//- (void)prioritiseDownloadsForVisibleCells {
-//    
-//    //sort them fist
-//    NSArray *visibleVideoIndexes = [[[self.collectionView indexPathsForVisibleItems] valueForKey:@"item"] sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-//        return [obj1 compare:obj2];
-//    }];
-//    NSMutableArray *videos = [NSMutableArray new];
-//    for(NSNumber *visibleVideoIndex in visibleVideoIndexes) {
-//        [videos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:[visibleVideoIndex integerValue]]];
-//    }
-//    
-//    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:videos invisibleVideos:nil];
-//}
-//
-
 - (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
-    NSUInteger maxCount = self.paginationThreshold;
-    if(maxCount > [YAUser currentUser].currentGroup.videos.count)
-        maxCount = [YAUser currentUser].currentGroup.videos.count;
+    BOOL killExisting = NO;
+    if (ABS(self.lastDownloadPrioritizationIndex - initialIndex) > kNumberOfItemsBelowToDownload) {
+        killExisting = YES;
+    }
+    self.lastDownloadPrioritizationIndex = initialIndex;
     
     //the following line will ensure indexPathsForVisibleItems will return correct results
     [self.collectionView layoutIfNeeded];
     
     NSMutableArray *visibleVideos = [NSMutableArray new];
     NSMutableArray *invisibleVideos = [NSMutableArray new];
-    for(NSUInteger videoIndex = initialIndex; videoIndex < maxCount; videoIndex++) {
+    
+    NSUInteger beginIndex = initialIndex;
+    if (initialIndex >= kNumberOfItemsBelowToDownload) beginIndex -= kNumberOfItemsBelowToDownload;
+    NSUInteger endIndex = MIN([YAUser currentUser].currentGroup.videos.count, initialIndex + kNumberOfItemsBelowToDownload);
+    
+    for(NSUInteger videoIndex = beginIndex; videoIndex < endIndex; videoIndex++) {
         if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
             [visibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
         }
         else {
             [invisibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
         }
-        
     }
     
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:visibleVideos invisibleVideos:invisibleVideos];
-}
-
-#pragma mark - Paging
-- (void)handlePagingForIndexPath:(NSIndexPath*)indexPath {
-    if(indexPath.item > self.paginationThreshold - kPaginationItemsCountToStartLoadingNextPage) {
-        NSUInteger oldPaginationThreshold = self.paginationThreshold;
-        self.paginationThreshold += kPaginationDefaultThreshold;
-        
-        
-        DLog(@"Page %lu loaded", (unsigned long)self.paginationThreshold / kPaginationDefaultThreshold);
-    }
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:visibleVideos invisibleVideos:invisibleVideos killExistingJobs:killExisting];
 }
 
 #pragma mark - YASwipingControllerDelegate

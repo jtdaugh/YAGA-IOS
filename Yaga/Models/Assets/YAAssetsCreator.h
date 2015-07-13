@@ -31,7 +31,7 @@ typedef void (^jpgCompletion)(void);
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl addToGroup:(YAGroup*)group isImmediatelyAfterRecording:(BOOL)isImmediatelyAfterRecording;
 
 //- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs addToGroup:(YAGroup*)group;
-- (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos;
+- (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos killExistingJobs:(BOOL)killExisting;
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion;
 
