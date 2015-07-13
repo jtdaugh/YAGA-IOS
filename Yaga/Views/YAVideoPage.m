@@ -1369,6 +1369,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)closeAnimated {
+    [self.commentsTextField resignFirstResponder];
     [self.presentingVC dismissAnimated];
 }
 
