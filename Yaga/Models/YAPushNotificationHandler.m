@@ -219,6 +219,12 @@ typedef void (^groupChangedCompletionBlock)(void);
     if(refresh) {
         [newGroup refresh:YES];
     }
+    
+    //close all presented view controllers from grid
+    UIViewController *gridVC = [(UINavigationController*)[UIApplication sharedApplication].keyWindow.rootViewController topViewController];
+    if([gridVC presentedViewController]) {
+        [gridVC dismissViewControllerAnimated:NO completion:nil];
+    }
 }
 
 - (void)groupDidRefresh:(NSNotification*)notification {
