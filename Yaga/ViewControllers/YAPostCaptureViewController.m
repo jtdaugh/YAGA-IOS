@@ -20,17 +20,19 @@
 @property (nonatomic, strong) YAVideoPage *videoPage;
 @property (nonatomic, strong) YAVideo *video;
 @property (nonatomic, strong) YAGroup *destinationGroup;
+@property (nonatomic, weak) YACameraViewController *cameraViewController;
 
 @end
 
 
 @implementation YAPostCaptureViewController
 
-- (id)initWithVideo:(YAVideo *)video {
+- (id)initWithVideo:(YAVideo *)video cameraViewController:(YACameraViewController *)cameraViewController {
     self = [super init];
     if (self) {
         _video = video;
         _destinationGroup = video.group;
+        _cameraViewController = cameraViewController;
     }
     return self;
 }
@@ -58,6 +60,7 @@
     
     NameGroupViewController *vc = [NameGroupViewController new];
     YACreateGroupNavigationController *createGroupNavController = [[YACreateGroupNavigationController alloc] initWithRootViewController:vc];
+    createGroupNavController.cameraViewController = self.cameraViewController;
     
     vc.initialVideo = video;
     

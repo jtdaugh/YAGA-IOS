@@ -198,6 +198,7 @@
 - (void)showCreateGroupWithInitialVideo:(YAVideo *)initialVideo {
     NameGroupViewController *vc = [NameGroupViewController new];
     YACreateGroupNavigationController *createGroupNavController = [[YACreateGroupNavigationController alloc] initWithRootViewController:vc];
+    createGroupNavController.cameraViewController = self.cameraViewController;
 
     if (initialVideo) {
         vc.initialVideo = initialVideo; // may be nil
@@ -345,9 +346,14 @@
 }
 
 - (void)presentNewlyRecordedVideo:(YAVideo *)video {
-    YAPostCaptureViewController *vc = [[YAPostCaptureViewController alloc] initWithVideo:video];
-    vc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve; // For dismissal
-    [self.navigationController presentViewController:vc animated:NO completion:nil];
+    YAPostCaptureViewController *vc = [[YAPostCaptureViewController alloc] initWithVideo:video cameraViewController:self.cameraViewController];
+    vc.transitioningDelegate = self;
+    vc.modalPresentationStyle = UIModalPresentationCustom;
+    
+    [self setInitialAnimationFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
+    // So set the initial frame to the end frame.
+    [self presentViewController:vc animated:YES completion:nil];
 }
 
 - (void)setInitialAnimationFrame:(CGRect)initialFrame {

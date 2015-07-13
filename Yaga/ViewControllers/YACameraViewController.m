@@ -352,6 +352,17 @@ typedef enum {
     return self;
 }
 
+- (void)initCamera {
+    [[YACameraManager sharedManager] initCamera];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [YACameraManager sharedManager].delegate = self;
+        [[YACameraManager sharedManager] setCameraView:self.cameraView];
+        
+        [self enableRecording:YES];
+    });
+}
+
 - (void)showTooltipIfNeeded {
     if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
         //first start tooltips
@@ -415,6 +426,7 @@ typedef enum {
     }
     else {
         YACreateGroupNavigationController *createGroupNavController = [[YACreateGroupNavigationController alloc] initWithRootViewController:[NameGroupViewController new]];
+        createGroupNavController.cameraViewController = self;
         [self presentViewController:createGroupNavController animated:YES completion:nil];
     }
 }
@@ -430,14 +442,7 @@ typedef enum {
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [[YACameraManager sharedManager] initCamera];
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [YACameraManager sharedManager].delegate = self;
-        [[YACameraManager sharedManager] setCameraView:self.cameraView];
-        
-        [self enableRecording:YES];
-    });
+    [self initCamera];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {

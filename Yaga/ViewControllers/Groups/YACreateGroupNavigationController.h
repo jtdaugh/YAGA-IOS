@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "YACameraViewController.h"
 
 @interface YACreateGroupNavigationController : UINavigationController
+
+@property (nonatomic, weak) YACameraViewController *cameraViewController;
 
 @end

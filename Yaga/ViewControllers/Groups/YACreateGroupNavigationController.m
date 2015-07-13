@@ -25,6 +25,8 @@
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     
     [self.view endEditing:YES];
+    
+    [self.cameraViewController initCamera];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
