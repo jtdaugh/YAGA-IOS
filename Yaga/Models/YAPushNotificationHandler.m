@@ -168,7 +168,10 @@ typedef void (^groupChangedCompletionBlock)(void);
     
     //no local group? load groups list from server
     if(groups.count != 1) {
+        __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Please wait...", @"")];
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+            [hud hide:YES];
+            
             if(!error) {
                 RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", groupId]];
                 
