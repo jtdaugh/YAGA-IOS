@@ -428,7 +428,7 @@
                 if (![weakSelf.contactsThatNeedInvite count]) {
                     NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), weakSelf.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
                     [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-                    [weakSelf popToGridViewController];
+                    [weakSelf dismissCreateGroup];
                 } else {
                     // Push the invite screen
                     YAInviteViewController *nextVC = [YAInviteViewController new];
@@ -461,7 +461,7 @@
                         
                         weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
                         if (![weakSelf.contactsThatNeedInvite count]) {
-                            [weakSelf popToGridViewController];
+                            [weakSelf dismissCreateGroup];
                         } else {
                             YAInviteViewController *nextVC = [YAInviteViewController new];
                             nextVC.inCreateGroupFlow = YES;
@@ -477,6 +477,15 @@
     }
 }
 
+- (void)dismissCreateGroup {
+    // If we presented the create group flow on top of the post-capture screen, dimisss that as well.
+    if (self.presentingViewController.presentingViewController) {
+        [self.presentingViewController.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+    } else {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
 - (void)postInitialVideo {
     // Always call this server method so video immediately appears in newly created group. Copy video currently waits on server stuff.
     if (self.initialVideo.group) {
@@ -487,10 +496,6 @@
         [[YAServer sharedServer] postUngroupedVideo:self.initialVideo toGroups:@[[YAUser currentUser].currentGroup]];
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:self.initialVideo];
-}
-
-- (void)popToGridViewController {
-    [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 - (NSArray *)filterContactsToInvite {

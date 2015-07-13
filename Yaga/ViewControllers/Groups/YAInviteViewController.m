@@ -216,11 +216,7 @@
 }
 
 - (void)skipButtonPressed:(id)sender {
-    [self popToGridViewController];
-}
-
-- (void)popToGridViewController {
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)sendTextOnlyInvites {
@@ -289,14 +285,14 @@
         {
             [[Mixpanel sharedInstance] track:@"iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
-            [self popToGridViewController];
+            [self dismissViewControllerAnimated:YES completion:nil];
             break;
         }
             
         case MessageComposeResultSent:
             [[Mixpanel sharedInstance] track:@"iMessage sent"];
 //            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
-            [self popToGridViewController];
+            [self dismissViewControllerAnimated:YES completion:nil];
             
             break;
     }

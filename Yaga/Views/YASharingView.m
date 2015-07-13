@@ -26,7 +26,6 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "YAAssetsCreator.h"
 
-#define SHARING_VIEW_PROPORTION 0.55
 #define kNewGroupCellId @"postToNewGroupCell"
 #define kCrosspostCellId @"crossPostCell"
 
@@ -71,7 +70,7 @@
         BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
         if (!myVideo) totalRowsHeight = 0;
         
-        CGFloat tableHeight = MIN((frame.size.height*SHARING_VIEW_PROPORTION) - topBarHeight - topGap, totalRowsHeight);
+        CGFloat tableHeight = MIN(frame.size.height - topBarHeight - topGap - XPCellHeight, totalRowsHeight);
         
         CGFloat gradientHeight = tableHeight + topBarHeight + topGap;
         UIView *bgGradient = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - gradientHeight, VIEW_WIDTH, gradientHeight)];
@@ -653,6 +652,7 @@
     } else {
         [self renderButton:[[tableView indexPathsForSelectedRows] count]];
     }
+    [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {

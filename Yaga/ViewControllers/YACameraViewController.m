@@ -19,6 +19,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "YAGroupsNavigationController.h"
 #import "YAFindGroupsViewConrtoller.h"
+#import "YACreateGroupNavigationController.h"
 #import "NameGroupViewController.h"
 
 #import "YAPopoverView.h"
@@ -413,7 +414,8 @@ typedef enum {
         [self openGroupOptions];
     }
     else {
-        [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
+        YACreateGroupNavigationController *createGroupNavController = [[YACreateGroupNavigationController alloc] initWithRootViewController:[NameGroupViewController new]];
+        [self presentViewController:createGroupNavController animated:YES completion:nil];
     }
 }
 
