@@ -965,7 +965,7 @@
             [self startMonitoringInternetConnection:YES];
             // Return YES to possibly let the user make the request with no internet and wait behind a spinner.
             // Return NO to show a false "No internet" message (but only once).
-            // Going with YES for now. 
+            // Going with YES for now.
             return YES;
         }
         return [self.reachability isReachable];
