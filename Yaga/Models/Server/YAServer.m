@@ -862,7 +862,7 @@
     //otherwise save copy data for later execution when video is uploaded
     else {
         NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
-        NSMutableSet *groupIds = [NSMutableSet setWithSet:crosspostData[video.localId]];
+        NSMutableSet *groupIds = [NSMutableSet setWithArray:crosspostData[video.localId]];
         [groupIds addObjectsFromArray:groupIdsToCopyTo];
         
         [crosspostData setObject:groupIds.allObjects forKey:video.localId];
@@ -874,7 +874,7 @@
 
 - (void)executePendingCopyForVideo:(YAVideo*)video {
     NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
-    NSArray *groupIds = [crosspostData[video.localId] allObjects];
+    NSArray *groupIds = crosspostData[video.localId];
     
     if(groupIds.count) {
         [self copyVideo:video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
