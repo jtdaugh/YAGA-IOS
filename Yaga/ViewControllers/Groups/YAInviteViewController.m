@@ -216,7 +216,12 @@
 }
 
 - (void)skipButtonPressed:(id)sender {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    // If we presented the create group flow on top of the post-capture screen, dimisss that as well.
+    if (self.presentingViewController.presentingViewController) {
+        [self.presentingViewController.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+    } else {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 - (void)sendTextOnlyInvites {
