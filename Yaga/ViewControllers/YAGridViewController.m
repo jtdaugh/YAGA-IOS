@@ -12,6 +12,7 @@
 #import "YAPhoneNumberViewController.h"
 #import "YAGroupAddMembersViewController.h"
 #import "YAAnimatedTransitioningController.h"
+#import "YACreateGroupNavigationController.h"
 
 #import "YAUtils.h"
 #import "YAGroupOptionsViewController.h"
@@ -196,13 +197,14 @@
 
 - (void)showCreateGroupWithInitialVideo:(YAVideo *)initialVideo {
     NameGroupViewController *vc = [NameGroupViewController new];
+    YACreateGroupNavigationController *createGroupNavController = [[YACreateGroupNavigationController alloc] initWithRootViewController:vc];
+    createGroupNavController.cameraViewController = self.cameraViewController;
+
     if (initialVideo) {
         vc.initialVideo = initialVideo; // may be nil
-        [self.navigationController dismissViewControllerAnimated:NO completion:^{
-            [self.navigationController pushViewController:vc animated:NO];
-        }];
+        [self.presentedViewController presentViewController:createGroupNavController animated:YES completion:nil];
     } else {
-        [self.navigationController pushViewController:vc animated:YES];
+        [self presentViewController:createGroupNavController animated:YES completion:nil];
     }
 }
 
@@ -344,7 +346,7 @@
 }
 
 - (void)presentNewlyRecordedVideo:(YAVideo *)video {
-    YAPostCaptureViewController *vc = [[YAPostCaptureViewController alloc] initWithVideo:video];
+    YAPostCaptureViewController *vc = [[YAPostCaptureViewController alloc] initWithVideo:video cameraViewController:self.cameraViewController];
     vc.transitioningDelegate = self;
     vc.modalPresentationStyle = UIModalPresentationCustom;
     

@@ -172,7 +172,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)groupDidChange:(NSNotification*)notif {
-    if ([self.navigationController.visibleViewController isEqual:self]) {
+    if ([self.navigationController.topViewController isEqual:self]) {
         //open current group if needed
         if([YAUser currentUser].currentGroup) {
             YACollectionViewController *vc = [YACollectionViewController new];

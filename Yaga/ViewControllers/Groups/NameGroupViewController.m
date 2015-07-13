@@ -29,13 +29,13 @@
     
     [self.view setBackgroundColor:PRIMARY_COLOR];
 
-    UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
-    backButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    [backButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    backButton.tintColor = [UIColor whiteColor];
-    [backButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [backButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:backButton];
+    UIButton *closeButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
+    closeButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+    [closeButton setImage:[[UIImage imageNamed:@"X"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    closeButton.tintColor = [UIColor whiteColor];
+    [closeButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    [closeButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:closeButton];
 
     CGFloat width = VIEW_WIDTH * .8;
     
@@ -94,12 +94,18 @@
     [self.groupNameTextField becomeFirstResponder];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    [self.view endEditing:YES];
+}
+
 - (CGFloat)getNewOrigin:(UIView *) anchor {
     return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
 }
 
-- (void)backButtonPressed:(id)sender {
-    [self.navigationController popViewControllerAnimated:YES];
+- (void)closeButtonPressed:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)editingChanged {
