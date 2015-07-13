@@ -81,10 +81,16 @@
                                              selector:@selector(groupDidRefresh:)
                                                  name:GROUP_DID_REFRESH_NOTIFICATION
                                                object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(groupsDidRefresh:)
+                                                 name:GROUPS_REFRESHED_NOTIFICATION
+                                               object:nil];
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUPS_REFRESHED_NOTIFICATION object:nil];
 }
 
 - (void)addNavBarView {
@@ -508,6 +514,12 @@ static NSString *CellID = @"CellID";
         [self.tableView reloadData];
     }
 }
+
+- (void)groupsDidRefresh:(NSNotification*)notification {
+    [self updateMembersPendingJoin];
+    [self.tableView reloadData];
+}
+
 
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
