@@ -93,9 +93,6 @@
         self.contentView.layer.masksToBounds = YES;
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadStarted:) name:AFNetworkingOperationDidStartNotification object:nil];
-
-        self.shouldPlayGifAutomatically = YES;
     }
     
     return self;
@@ -127,20 +124,38 @@
     }
 }
 
-//- (void)prepareForReuse
-//{
-//    [super prepareForReuse];
-//    
-//    self.video = nil;
-//
-//    [self updateState];
-//    
-//    self.eventCountLabel.text = @"";
-//}
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    
+    self.video = nil;
+    self.gifView.image = nil;
+    self.eventCountLabel.text = @"";
+    self.username.text = @"";
+    self.caption.text = @"";
+    [self updateState];
+    
+}
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingOperationDidStartNotification object:nil];
+}
+
+- (void)renderLightweightContent {
+    
+    [self loadAndShowAppropriateGif];
+
+    //uploading progress
+    if (self.video) {
+        BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
+        [self showUploadingProgress:uploadInProgress];
+    } else {
+        [self showUploadingProgress:NO];
+    }
+}
+
+- (void)renderHeavyWeightContent {
+    [self renderCaption];
 }
 
 #pragma mark -
@@ -164,54 +179,11 @@
     else
         self.state = YAVideoCellStateLoading;
     
-    
-    [self updateCell];
+    if (self.video) {
+        [self renderUsername];
+    }
 }
 
-- (void)updateCell {
-    [self updateCaptionAndUsername];
-    
-    BOOL showLoader = NO;
-    switch (self.state) {
-        case YAVideoCellStateLoading: {
-            showLoader = self.video != nil;
-            break;
-        }
-        case YAVideoCellStateJPEGPreview: {
-            showLoader = self.video != nil;
-            
-            //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
-            //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
-            break;
-        }
-        case YAVideoCellStateGIFPreview: {
-            //loading is removed when gif is shown in showImageAsyncFromFilename
-            [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
-            showLoader = NO;
-            break;
-        }
-        default: {
-            break;
-        }
-    }
-    
-    if(showLoader) {
-        static NSData* loaderData = nil;
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
-        });
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.gifView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
-            [self.gifView startAnimating];
-        });
-    }
-    
-    //uploading progress
-    BOOL uploadInProgress = [[YAServerTransactionQueue sharedQueue] hasPendingUploadTransactionForVideo:self.video];
-    [self showUploadingProgress:uploadInProgress];
-}
 
 - (void)showImageAsyncFromFilename:(NSString*)fileName animatedImage:(BOOL)animatedImage {
     if(!fileName.length)
@@ -242,19 +214,10 @@
 
 - (void)showCachedImage:(id)image animatedImage:(BOOL)animatedImage {
     if(animatedImage) {
-        self.gifView.shouldPlayGifAutomatically = self.shouldPlayGifAutomatically;
+        self.gifView.shouldPlayGifAutomatically = YES;
         self.gifView.animatedImage = image;
     } else{
         self.gifView.image = image;
-    }
-}
-
-#pragma mark - Download progress bar
-- (void)downloadStarted:(NSNotification*)notif {
-    AFDownloadRequestOperation *op = notif.object;
-    
-    if(![self.video isInvalidated] && [op.request.URL.absoluteString isEqualToString:self.video.gifUrl]) {
-        [self updateCaptionAndUsername];
     }
 }
 
@@ -301,10 +264,12 @@
     }
 }
 
-- (void)updateCaptionAndUsername {
+- (void)renderUsername {
+    self.username.text = self.video.pending ? @"Pending" : self.video.creator;
+}
+
+- (void)renderCaption {
     NSString *caption = self.video.caption;
-    
-    self.captionWrapper.hidden = NO;
     
     if(caption.length) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -348,43 +313,45 @@
         self.caption.text = @"";
         self.captionWrapper.hidden = YES;
     }
-    self.username.textAlignment = NSTextAlignmentRight;
-    self.username.text = self.video.pending ? @"Pending" : self.video.creator;
 }
 
-#pragma mark - UITapGestureRecognizer actions
 
-- (void)doubleTap:(UIGestureRecognizer *)sender {
-    BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
-    if (!myVideo) {
-        if (!self.video.like) {
-            [[YAServer sharedServer] likeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-
-            }];
-        } else {
-            [[YAServer sharedServer] unLikeVideo:self.video withCompletion:^(NSNumber* response, NSError *error) {
-            }];
+- (void)loadAndShowAppropriateGif {
+    BOOL showLoader = NO;
+    switch (self.state) {
+        case YAVideoCellStateLoading: {
+            showLoader = self.video != nil;
+            break;
         }
+        case YAVideoCellStateJPEGPreview: {
+            showLoader = self.video != nil;
+            
+            //a quick workaround for https://trello.com/c/AohUflf8/454-loader-doesn-t-show-up-on-your-own-recorded-videos
+            //[self showImageAsyncFromFilename:self.video.jpgFilename animatedImage:NO];
+            break;
+        }
+        case YAVideoCellStateGIFPreview: {
+            //loading is removed when gif is shown in showImageAsyncFromFilename
+            [self showImageAsyncFromFilename:self.video.gifFilename animatedImage:YES];
+            showLoader = NO;
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    
+    if(showLoader && !self.gifView.isAnimating) {
+        static NSData* loaderData = nil;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            loaderData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"loader" withExtension:@"gif"]];
+        });
         
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        self.video.like = !self.video.like;
-        [[RLMRealm defaultRealm] commitWriteTransaction];
-        
-        UIImage *likeImage = self.video.like ? [UIImage imageNamed:@"Liked"] : [UIImage imageNamed:@"Like"];
-        self.likeImageView.image = likeImage;
-
-        CABasicAnimation *theAnimation;
-        theAnimation=[CABasicAnimation animationWithKeyPath:@"opacity"];
-        theAnimation.duration=0.4;
-        theAnimation.autoreverses = YES;
-        theAnimation.fromValue=[NSNumber numberWithFloat:0.0];
-        theAnimation.toValue=[NSNumber numberWithFloat:1.0];
-        
-        [self.likeImageView.layer addAnimation:theAnimation forKey:@"animateOpacity"];
-    } else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SCROLL_TO_CELL_INDEXPATH_NOTIFICATION object:self];
-        self.captionField.enabled = YES;
-        [self.captionField becomeFirstResponder];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.gifView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
+            [self.gifView startAnimating];
+        });
     }
 }
 

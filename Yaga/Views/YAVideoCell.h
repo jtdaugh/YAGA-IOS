@@ -20,9 +20,11 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 @interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
-@property (nonatomic, assign) BOOL shouldPlayGifAutomatically;
 
 - (void)animateGifView:(BOOL)animate;
+
+- (void)renderLightweightContent;
+- (void)renderHeavyWeightContent;
 
 - (void)setEventCount:(NSUInteger)eventCount;
 
