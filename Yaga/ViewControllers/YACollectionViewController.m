@@ -333,7 +333,6 @@ static NSString *cellID = @"Cell";
         hidePullToRefreshAfter = 0;
     __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [weakSelf showActivityIndicator:NO];
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
         [weakSelf playVisible:YES];
         [weakSelf showNoVideosMessageIfNeeded];
@@ -395,19 +394,29 @@ static NSString *cellID = @"Cell";
 
 - (void)showNoVideosMessageIfNeeded {
     if(![YAUser currentUser].currentGroup.videos.count) {
-        if(!self.noVideosLabel) {
-            self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
-            self.noVideosLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:24];
-            NSAttributedString *string = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Things are a bit quiet in here. Hold the big red button to record a video.", @"") attributes:@{NSStrokeColorAttributeName:[UIColor whiteColor],NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]}];
-            
-            self.noVideosLabel.textAlignment = NSTextAlignmentCenter;
-            self.noVideosLabel.attributedText = string;
-            self.noVideosLabel.numberOfLines = 3;
-            self.noVideosLabel.textColor = PRIMARY_COLOR;
-            [self.collectionView addSubview:self.noVideosLabel];
+        //group was sucessfully refreshed
+        if([[YAUser currentUser].currentGroup.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame) {
+            //hide spinning monkey and show "no videos" label
+            [self showActivityIndicator:NO];
+
+            if(!self.noVideosLabel) {
+                self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+                self.noVideosLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:24];
+                NSAttributedString *string = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Things are a bit quiet in here. Hold the big red button to record a video.", @"") attributes:@{NSStrokeColorAttributeName:[UIColor whiteColor],NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]}];
+                
+                self.noVideosLabel.textAlignment = NSTextAlignmentCenter;
+                self.noVideosLabel.attributedText = string;
+                self.noVideosLabel.numberOfLines = 3;
+                self.noVideosLabel.textColor = PRIMARY_COLOR;
+                [self.collectionView addSubview:self.noVideosLabel];
+            }
+        }
+        else {
+            [self showActivityIndicator:YES];
         }
     }
     else {
+        [self showActivityIndicator:NO];
         [self.noVideosLabel removeFromSuperview];
         self.noVideosLabel = nil;
     }
@@ -415,9 +424,15 @@ static NSString *cellID = @"Cell";
 
 - (void)showActivityIndicator:(BOOL)show {
     if(show) {
+        [self.noVideosLabel removeFromSuperview];
+        self.noVideosLabel = nil;
+        
         //don't show spinning monkey if pull down to refresh is shown
-        if(self.collectionView.pullToRefreshView.state != SVPullToRefreshStateStopped)
+        if(self.collectionView.pullToRefreshView.state != SVPullToRefreshStateStopped) {
+            [self.activityView removeFromSuperview];
+            self.activityView = nil;
             return;
+        }
         
         const CGFloat monkeyWidth  = 50;
         [self.activityView removeFromSuperview];
