@@ -990,9 +990,6 @@
     DLog(@"YAServer:sync, serverUp: %@", self.serverUp ? @"Yes" : @"No");
     
     if([[YAUser currentUser] loggedIn] && self.authToken.length && self.serverUp) {
-        
-        [self registerDeviceTokenIfNeeded];
-        
         //read updates from server
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
             if(!error) {
