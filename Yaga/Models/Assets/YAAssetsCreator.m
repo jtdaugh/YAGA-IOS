@@ -311,7 +311,8 @@
     NSMutableArray *mp4UrlsForVisible = [NSMutableArray new];
     NSMutableArray *gifUrlsForInvisible = [NSMutableArray new];
     NSMutableArray *mp4UrlsForInvisible = [NSMutableArray new];
-    
+    NSUInteger localGifCreationVisibleCount = 0;
+    NSUInteger localGifCreationInvisibleCount = 0;
     for(YAVideo *video in visibleVideos) {
         
         BOOL hasRemoteMOVButNoLocal = video.url.length && !video.mp4Filename.length;
@@ -324,6 +325,7 @@
         
         if(hasLocalMOVButNoGIF) {
             [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
+            localGifCreationVisibleCount++;
         }
         
         if(hasRemoteGIFButNoLocal) {
@@ -343,6 +345,7 @@
         
         if(hasLocalMOVButNoGIF) {
             [self addGifCreationOperationForVideo:video quality:YAGifCreationNormalQuality];
+            localGifCreationInvisibleCount++;
         }
         
         if(hasRemoteGIFButNoLocal) {
@@ -351,6 +354,7 @@
     }
     
     DLog(@"orderedDownloadUrlsFromVideos: gif_visible:%lu, gif_invisible:%lu, mp4_visible:%lu, mp4_invisible:%lu", (unsigned long)gifUrlsForVisible.count, (unsigned long)gifUrlsForInvisible.count, (unsigned long)mp4UrlsForVisible.count, (unsigned long)mp4UrlsForInvisible.count);
+    DLog(@"localGifCreationsFromPriorMP4Downloads: visible:%lu, invisible:%lu", localGifCreationVisibleCount, localGifCreationInvisibleCount);
     
     NSMutableArray *result = [NSMutableArray arrayWithArray:gifUrlsForVisible];
     [result addObjectsFromArray:mp4UrlsForVisible];
