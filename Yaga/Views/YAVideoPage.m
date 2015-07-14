@@ -1157,7 +1157,7 @@ static NSString *commentCellID = @"CommentCell";
                                     size.width + (2*CAPTION_WRAPPER_INSET),
                                     size.height + (2*CAPTION_WRAPPER_INSET));
     
-    CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, size.width, size.height);
+    CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, 0, size.width, size.height);
     
     if (animated) {
         [UIView animateWithDuration:0.2f animations:^{
@@ -1369,6 +1369,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)closeAnimated {
+    [self.commentsTextField resignFirstResponder];
     [self.presentingVC dismissAnimated];
 }
 

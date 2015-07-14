@@ -173,15 +173,6 @@
             [[Mixpanel sharedInstance] track:@"Verification code entered correctly"];
             [[Mixpanel sharedInstance] identify:[YAUser currentUser].phoneNumber];
             [[Mixpanel sharedInstance].people set:@{@"$phone":[YAUser currentUser].phoneNumber}];
-
-            //register device token
-            if([YAUser currentUser].deviceToken.length) {
-                [[YAServer sharedServer] registerDeviceTokenWithCompletion:^(id response, NSError *error) {
-                    if(error) {
-                        DLog(@"YASMSAuthentificationViewControlller error: %@", [NSString stringWithFormat:@"Can't register device token. %@", error.localizedDescription]);
-                    }
-                }];
-            }
             
             [[YAServer sharedServer] getInfoForCurrentUserWithCompletion:^(id response, NSError *error) {
                 //old user

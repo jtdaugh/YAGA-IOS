@@ -81,10 +81,19 @@
                                              selector:@selector(groupDidRefresh:)
                                                  name:GROUP_DID_REFRESH_NOTIFICATION
                                                object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(groupsDidRefresh:)
+                                                 name:GROUPS_REFRESHED_NOTIFICATION
+                                               object:nil];
 }
 
 - (void)dealloc {
+    [self.group.realm removeNotification:self.notificationToken];
+    self.notificationToken = nil;
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUPS_REFRESHED_NOTIFICATION object:nil];
 }
 
 - (void)addNavBarView {
@@ -461,7 +470,13 @@ static NSString *CellID = @"CellID";
     NSSet *cancelledJoins = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
     self.membersPendingJoin = [NSMutableArray new];
     
+    if([self.group isInvalidated])
+        return;
+    
     for(YAContact *member in self.group.pending_members) {
+        if([member isInvalidated])
+            continue;
+        
         if(![cancelledJoins containsObject:member.number])
             [self.membersPendingJoin addObject:member];
     }
@@ -509,6 +524,12 @@ static NSString *CellID = @"CellID";
     }
 }
 
+- (void)groupsDidRefresh:(NSNotification*)notification {
+    [self updateMembersPendingJoin];
+    [self.tableView reloadData];
+}
+
+
 #pragma mark - Segues
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if([segue.destinationViewController isKindOfClass:[YAGroupAddMembersViewController class]]) {
@@ -525,8 +546,8 @@ static NSString *CellID = @"CellID";
     __weak typeof(self) weakSelf = self;
     self.notificationToken = [self.group.realm addNotificationBlock:^(NSString *notification, RLMRealm *realm) {
         if(weakSelf.group.isInvalidated) {
-            [self.navigationController popToRootViewControllerAnimated:YES];
-            self.notificationToken = nil;
+            [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            weakSelf.notificationToken = nil;
         }
         else {
             [weakSelf.tableView reloadData];

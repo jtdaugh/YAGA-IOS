@@ -153,7 +153,7 @@
             
             __block NSMutableArray *result = [NSMutableArray new];
             NSMutableArray *phoneResults = [NSMutableArray new];
-            _phonebook = [NSMutableDictionary new];
+            self->_phonebook = [NSMutableDictionary new];
             
             NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
             

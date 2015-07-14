@@ -89,4 +89,6 @@ typedef void(^responseBlock)(id response, NSError* error);
 //- (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId;
 
 - (BOOL)hasAuthToken;
+
+- (void)registerDeviceTokenIfNeeded;
 @end

@@ -217,6 +217,10 @@
 }
 
 - (void)skipButtonPressed:(id)sender {
+    [self dismiss];
+}
+
+- (void)dismiss {
     // If we presented the create group flow on top of the post-capture screen, dimisss that as well.
     if (self.inCreateGroupFlow) {
         if (self.presentingViewController.presentingViewController) {
@@ -290,7 +294,7 @@
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [controller dismissViewControllerAnimated:YES completion:nil];
     switch (result) {
         case MessageComposeResultCancelled: {
             [[Mixpanel sharedInstance] track:@"iMessage cancelled"];
@@ -300,14 +304,14 @@
         {
             [[Mixpanel sharedInstance] track:@"iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
-            [self dismissViewControllerAnimated:YES completion:nil];
+            [self dismiss];
             break;
         }
             
         case MessageComposeResultSent:
             [[Mixpanel sharedInstance] track:@"iMessage sent"];
 //            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
-            [self dismissViewControllerAnimated:YES completion:nil];
+            [self dismiss];
             
             break;
     }

@@ -213,7 +213,7 @@ static NSString *CellIdentifier = @"GroupsCell";
             [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
             NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.groupsDataArray];
             [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
-            _groupsDataArray = upatedDataArray;
+            self->_groupsDataArray = upatedDataArray;
             
         }
         else {

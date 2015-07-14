@@ -307,10 +307,9 @@
             //shall we request publc groups
             NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastPublicGroupsRequestDate];
             
-            //request yaga users once per 6 hours
+            //request public groups 6 hours
             if(lastRequested && [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60*6]] == NSOrderedAscending) {
-                DLog(@"6 hours hasn't passed yet, exiting");
-                block(nil);
+                DLog(@"Public groups request: 6 hours hasn't passed yet, exiting");
                 return;
             }
             else {
