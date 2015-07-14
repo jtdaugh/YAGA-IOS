@@ -1299,7 +1299,9 @@ static NSString *commentCellID = @"CommentCell";
 #pragma mark - ETC
 
 - (void)commentButtonPressed {
+    // Set the content offset to make the table view frame animation less glitchy
     [self.commentsTableView setContentOffset:CGPointMake(0, self.commentsTableView.contentSize.height) animated:NO];
+    
     [self.commentsTextField becomeFirstResponder];
 }
 
