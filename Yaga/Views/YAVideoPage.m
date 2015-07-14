@@ -73,6 +73,8 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UITapGestureRecognizer *captionTapRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
+@property (strong, nonatomic) CAGradientLayer *commentsViewMask;
+
 @property (strong, nonatomic) UIView *overlay;
 
 @property (strong, nonatomic) UIView *serverCaptionWrapperView;
@@ -101,6 +103,8 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic) BOOL editingCaption;
 
 @property (nonatomic, strong) UIView *captionButtonContainer;
+
+@property (nonatomic, strong) UIVisualEffectView *commentsBlurOverlay;
 
 @property (nonatomic) CGFloat keyboardHeight;
 @property (nonatomic) BOOL previousKeyboardLocation;
@@ -245,6 +249,7 @@ static NSString *commentCellID = @"CommentCell";
     // Don't move stuff if its the caption keyboard. Only for the comments one.
     if (self.editingCaption) return;
     [self setGesturesEnabled:NO];
+    self.playerView.player.volume = PLAYER_TURNED_DOWN_AUDIO;
     self.commentsTapOutRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(commentsTapOut:)];
     [self addGestureRecognizer:self.commentsTapOutRecognizer];
     [self moveControls:notification up:YES];
@@ -255,6 +260,8 @@ static NSString *commentCellID = @"CommentCell";
     if (self.editingCaption) return;
 
     [self setGesturesEnabled:YES];
+    
+    self.playerView.player.volume = 1.0;
 
     [self removeGestureRecognizer:self.commentsTapOutRecognizer];
     // Don't move stuff if its the caption keyboard. Only for the comments one.
@@ -269,16 +276,24 @@ static NSString *commentCellID = @"CommentCell";
     self.keyboardHeight = kbHeight;
     CGRect wrapperFrame = self.commentsWrapperView.frame;
     CGRect gradientFrame = self.commentsGradient.frame;
+    CGRect commentsFrame = self.commentsTableView.frame;
+    CGRect commentsTextBoxFrame = self.commentsTextBoxView.frame;
+    
+    self.commentsBlurOverlay.hidden = !up;
     
     if (up) {
-        wrapperFrame.size.height = VIEW_HEIGHT * COMMENTS_HEIGHT_PROPORTION + COMMENTS_TEXT_FIELD_HEIGHT;;
-        wrapperFrame.origin.y -= self.previousKeyboardLocation ? delta : (kbHeight + COMMENTS_TEXT_FIELD_HEIGHT-COMMENTS_BOTTOM_MARGIN);
+        wrapperFrame.size.height = VIEW_HEIGHT - kbHeight;
+        wrapperFrame.origin.y = 0;
+        commentsFrame.size.height = VIEW_HEIGHT - kbHeight - commentsTextBoxFrame.size.height;
+        commentsTextBoxFrame.origin.y = CGRectGetHeight(commentsFrame);
         gradientFrame.origin.y -= self.previousKeyboardLocation ? delta : kbHeight;
     } else {
         // just set the view back to the bottom
         wrapperFrame.size.height = VIEW_HEIGHT*COMMENTS_HEIGHT_PROPORTION;
         wrapperFrame.origin.y = VIEW_HEIGHT - COMMENTS_BOTTOM_MARGIN - wrapperFrame.size.height;
         gradientFrame.origin.y = VIEW_HEIGHT - gradientFrame.size.height;
+        commentsFrame.size.height = VIEW_HEIGHT*COMMENTS_HEIGHT_PROPORTION;
+        commentsTextBoxFrame.origin.y =  VIEW_HEIGHT*COMMENTS_HEIGHT_PROPORTION;
     }
     
 //    if (!self.previousKeyboardLocation && up) {
@@ -292,16 +307,23 @@ static NSString *commentCellID = @"CommentCell";
     NSTimeInterval duration = [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationCurve animationCurve = [[userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] integerValue];
     
+    self.commentsWrapperView.layer.mask = up ? nil : self.commentsViewMask;
+    
     [UIView animateWithDuration:duration
                           delay:0
                         options:(animationCurve << 16)
                      animations:^{
                          self.commentsWrapperView.frame = wrapperFrame;
+                         self.commentsTextBoxView.frame = commentsTextBoxFrame;
+                         self.commentsTableView.frame = commentsFrame;
                          self.commentsGradient.frame = gradientFrame;
                          self.commentsTextBoxView.alpha = up ? 1.0 : 0.0;
+                         if (up) {
+                             self.commentsTableView.contentOffset = CGPointZero;
+                         }
                      }
                      completion:^(BOOL finished){
-                         if ([self.events count]) {
+                         if ([self.events count] && !up) {
                              [self.commentsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
                          }
                      }];
@@ -440,6 +462,14 @@ static NSString *commentCellID = @"CommentCell";
     
     [self.commentsGradient.layer insertSublayer:gradient atIndex:0];
     [self.overlay addSubview:self.commentsGradient];
+    
+    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    
+    _commentsBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    
+    self.commentsBlurOverlay.frame = self.bounds;
+    self.commentsBlurOverlay.hidden = YES;
+    [self.overlay addSubview:self.commentsBlurOverlay];
     
     CGFloat height = 24;
     self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(buttonRadius*2 + padding*2, 10, 200, height)];
@@ -595,14 +625,14 @@ static NSString *commentCellID = @"CommentCell";
     self.commentsTableView.backgroundColor = [UIColor clearColor];
     [self.commentsTableView registerClass:[YAEventCell class] forCellReuseIdentifier:commentCellID];
     
-    CAGradientLayer *commentsViewMask = [CAGradientLayer layer];
+    _commentsViewMask = [CAGradientLayer layer];
     CGRect maskFrame = self.commentsWrapperView.bounds;
     maskFrame.size.height += COMMENTS_TEXT_FIELD_HEIGHT;
-    commentsViewMask.frame = maskFrame;
-    commentsViewMask.colors = [NSArray arrayWithObjects:(id)[UIColor clearColor].CGColor, (id)[UIColor whiteColor].CGColor, nil];
-    commentsViewMask.startPoint = CGPointMake(0.5f, 0.0f);
-    commentsViewMask.endPoint = CGPointMake(0.5f, 0.22f);
-    self.commentsWrapperView.layer.mask = commentsViewMask;
+    self.commentsViewMask.frame = maskFrame;
+    self.commentsViewMask.colors = [NSArray arrayWithObjects:(id)[UIColor clearColor].CGColor, (id)[UIColor whiteColor].CGColor, nil];
+    self.commentsViewMask.startPoint = CGPointMake(0.5f, 0.0f);
+    self.commentsViewMask.endPoint = CGPointMake(0.5f, 0.22f);
+    self.commentsWrapperView.layer.mask = self.commentsViewMask;
     
     self.commentsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.commentsTableView.allowsSelection = NO;
@@ -1269,6 +1299,7 @@ static NSString *commentCellID = @"CommentCell";
 #pragma mark - ETC
 
 - (void)commentButtonPressed {
+    [self.commentsTableView setContentOffset:CGPointMake(0, self.commentsTableView.contentSize.height) animated:NO];
     [self.commentsTextField becomeFirstResponder];
 }
 
