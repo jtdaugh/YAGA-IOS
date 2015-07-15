@@ -135,6 +135,21 @@
                                                                                 [weakSelf.eventCountReceiver videoWithServerId:serverId localId:localId eventCountUpdated:[eventsArray count]];
                                                                             }
                                                                         }];
+        
+        [[videoRef queryLimitedToLast:kMaxEventsFetchedPerVideo] observeEventType:FEventTypeChildRemoved withBlock:^(FDataSnapshot *snapshot) {
+            if ([weakSelf.initialEventsLoadedForId objectForKey:serverId]) {
+                if ([weakSelf.initialEventsLoadedForId objectForKey:serverId]) {
+                    YAEvent *removedEvent = [YAEvent eventWithSnapshot:snapshot];
+                    NSMutableArray *eventsArray = [weakSelf.eventsByServerVideoId objectForKey:serverId];
+                    [weakSelf removeEventWithKey:removedEvent.key fromEventsArray:eventsArray];
+                    if ([weakSelf.currentVideoServerId isEqualToString:serverId]) {
+                        [weakSelf.eventReceiver videoWithServerId:serverId localId:localId didRemoveEvent:removedEvent];
+                    }
+                    [weakSelf.eventCountReceiver videoWithServerId:serverId localId:localId eventCountUpdated:[eventsArray count]];
+                }
+            }
+        }];
+        
         [[videoRef queryLimitedToLast:kMaxEventsFetchedPerVideo] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
             [weakSelf.initialEventsLoadedForId setObject:@(YES) forKey:serverId];
             NSMutableArray *eventsArray = [NSMutableArray array];
@@ -171,6 +186,14 @@
     }
 }
 
+- (void)updateEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId serverIdStatus:(YAVideoServerIdStatus)serverIdStatus {
+    [[[self.firebaseRoot childByAppendingPath:serverId] childByAppendingPath:event.key] setValue:[event toDictionary]];
+}
+
+- (void)removeEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId serverIdStatus:(YAVideoServerIdStatus)serverIdStatus {
+    [[[self.firebaseRoot childByAppendingPath:serverId] childByAppendingPath:event.key] removeValue];
+}
+
 - (void)groupChanged {
     if (![[YAUser currentUser].currentGroup.serverId isEqualToString:self.groupId]) {
         [self.eventsByServerVideoId removeAllObjects];
@@ -182,6 +205,14 @@
         [self.initialEventsLoadedForId removeAllObjects];
     }
     self.groupId = [YAUser currentUser].currentGroup.serverId;
+}
+
+- (void)removeEventWithKey:(NSString *)key fromEventsArray:(NSMutableArray *)eventsArray {
+    [eventsArray enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(YAEvent *event, NSUInteger index, BOOL *stop) {
+        if ([event.key isEqualToString:key]) {
+            [eventsArray removeObjectAtIndex:index];
+        }
+    }];
 }
 
 @end

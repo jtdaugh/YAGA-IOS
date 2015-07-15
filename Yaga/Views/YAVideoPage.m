@@ -192,6 +192,26 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
+- (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId didRemoveEvent:(YAEvent *)event {
+    if (!self.video.invalidated) {
+        if ([serverId isEqualToString:self.video.serverId] || [localId isEqualToString:self.video.localId]) {
+            YAEvent *eventToRemove;
+            NSInteger eventIndex = 0;
+            for (YAEvent *videoEvent in self.events) {
+                if ([videoEvent.key isEqualToString:event.key]) {
+                    eventToRemove = videoEvent;
+                    break;
+                }
+                eventIndex++;
+            }
+            if (eventToRemove) {
+                [self.events removeObject:eventToRemove];
+                [self.commentsTableView deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:eventIndex inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
+            }
+        }
+    }
+}
+
 - (void)videoWithServerId:(NSString *)serverId
                   localId:(NSString *)localId
     receivedInitialEvents:(NSArray *)events {
@@ -1278,7 +1298,20 @@ static NSString *commentCellID = @"CommentCell";
 
     YAEvent *event = [YAEvent new];
     event.eventType = YAEventTypeLike;
+    event.likeCount = @(1);
     event.username = [YAUser currentUser].username;
+    
+    BOOL userHasLiked = NO;
+    for (YAEvent *videoEvent in self.events) {
+        if ([videoEvent.username isEqualToString:[YAUser currentUser].username] && videoEvent.eventType == YAEventTypeLike) {
+            userHasLiked = YES;
+            [[YAEventManager sharedManager] removeEvent:videoEvent toVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+            event = videoEvent;
+            event.likeCount = @([event.likeCount integerValue] + 1);
+            break;
+        }
+    }
+    
     [[YAEventManager sharedManager] addEvent:event toVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
 }
 
