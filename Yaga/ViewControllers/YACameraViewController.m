@@ -646,7 +646,7 @@ typedef enum {
 //        switchCamFrame.origin.y = VIEW_HEIGHT - switchCamFrame.size.height - 10;
         [UIView animateWithDuration:0.2 delay:0.0 options:0 animations:^{
             //
-            self.view.frame = CGRectMake(0, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
+            self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
             self.cameraView.frame = CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
             [self.rightBottomButton setAlpha:0.0];
 //            [self.groupButton setAlpha:0.0];
@@ -774,7 +774,9 @@ typedef enum {
     [self.view bringSubviewToFront:self.white];
     [self.view bringSubviewToFront:self.indicator];
     
-    [self.countdown invalidate];
+    if(self.countdown){
+        [self.countdown invalidate];
+    }
     self.countdown = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(countdownTick:) userInfo:nil repeats:YES];
     self.count = 0;
     
@@ -849,7 +851,7 @@ typedef enum {
                 self.countdownLabel.alpha = 0.0;
             }];
         } completion:^(BOOL finished) {
-
+            self.countdownLabel.alpha = 0.0;
         }];
         
     } else if(remaining == 0) {
