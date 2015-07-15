@@ -142,7 +142,7 @@
     [self layoutUsername:username];
     self.iconImageView.image = [UIImage imageNamed:@"Liked"];
     [self layoutImageViewWithYOffset:-1.f];
-    
+    [self layoutLikeCountLabelWithYOffset:-1.f];
     if (likeCount > 1) {
         self.likeCountLabel.text = [NSString stringWithFormat:@"x %ld", likeCount];
     }
@@ -169,6 +169,13 @@
     imageFrame.origin.x = self.usernameLabel.frame.size.width + 4.f;
     imageFrame.origin.y = yOffset;
     self.iconImageView.frame = imageFrame;
+}
+
+- (void)layoutLikeCountLabelWithYOffset:(CGFloat)yOffset {
+    CGRect likeCountLabelFrame = self.likeCountLabel.frame;
+    likeCountLabelFrame.origin.x = CGRectGetMaxX(self.iconImageView.frame);
+    likeCountLabelFrame.origin.y = yOffset;
+    self.likeCountLabel.frame = likeCountLabelFrame;
 }
 
 - (void)layoutPostViews {
