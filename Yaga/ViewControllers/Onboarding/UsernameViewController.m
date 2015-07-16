@@ -150,7 +150,17 @@
                                                                        [weakSelf performSegueWithIdentifier:@"ShowFindGroupsAfterUsername" sender:weakSelf];
                                                                    }
                                                                    else {
-                                                                       [weakSelf performSegueWithIdentifier:@"MyGroupsFromUsername" sender:weakSelf];
+                                                                       [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+                                                                           if(!error) {
+                                                                               [weakSelf performSegueWithIdentifier:@"MyGroupsFromUsername" sender:weakSelf];
+                                                                           }
+                                                                           else {
+                                                                               [weakSelf.activityIndicator stopAnimating];
+                                                                               weakSelf.nextButton.enabled = YES;
+                                                                               
+                                                                               [YAUtils showNotification:NSLocalizedString(@"Can't get groups list", @"") type:YANotificationTypeError];
+                                                                           }
+                                                                       }];
                                                                    }
                                                                });
                                                            });

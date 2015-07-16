@@ -203,7 +203,17 @@
                                                         [weakSelf performSegueWithIdentifier:@"ShowFindGroupsAfterAuthentication" sender:weakSelf];
                                                     }
                                                     else {
-                                                        [weakSelf performSegueWithIdentifier:@"ShowGroupsAfterAuthentication" sender:weakSelf];
+                                                        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+                                                            if(!error) {
+                                                                [weakSelf performSegueWithIdentifier:@"ShowGroupsAfterAuthentication" sender:weakSelf];
+                                                            }
+                                                            else {
+                                                                [weakSelf.activityIndicator stopAnimating];
+                                                                weakSelf.nextButton.enabled = YES;
+                                                                
+                                                                [YAUtils showNotification:NSLocalizedString(@"Can't get groups list", @"") type:YANotificationTypeError];
+                                                            }
+                                                        }];
                                                     }
                                                 });
                                             });
