@@ -144,6 +144,7 @@
 }
 
 - (void)resumeJobs {
+    DLog(@"Resume jobs called");
     if([self nextUrl]) {
         //fill in the executing queue to the max capacity
         while (self.executingUrls.count < self.maxConcurentJobs && [self nextUrl]) {
@@ -196,7 +197,9 @@
     
     self.waiting_semaphore = dispatch_semaphore_create(0);
     
+    DLog(@"Waiting Until All Jobs Are Finished");
     dispatch_semaphore_wait(self.waiting_semaphore, DISPATCH_TIME_FOREVER);
+    DLog(@"Done waiting for jobs to Finish");
 }
 
 - (void)cancelAllJobs {
