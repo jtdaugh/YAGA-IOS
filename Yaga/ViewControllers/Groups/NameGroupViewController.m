@@ -109,7 +109,7 @@
 }
 
 - (void)editingChanged {
-    if([self.groupNameTextField.text length] > 1){
+    if([self.groupNameTextField.text length] > 0){
         [UIView animateWithDuration:0.3 animations:^{
             [self.nextButton setAlpha:1.0];
         }];
