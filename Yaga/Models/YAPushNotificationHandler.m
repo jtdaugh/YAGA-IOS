@@ -126,8 +126,7 @@ typedef void (^groupChangedCompletionBlock)(void);
 }
 
 - (void)handleRegistration {
-    NSString *groupId = self.meta[@"group_id"];
-    [self openGroupWithId:groupId refresh:YES];
+    //don't do anything on registration event, there will be no group id
 }
 
 - (void)handleLike {
@@ -252,6 +251,23 @@ typedef void (^groupChangedCompletionBlock)(void);
     }
     
     return NO;
+}
+
+- (BOOL)shouldHandlePushEvent:(NSDictionary*)userInfo {
+    NSDictionary *meta = userInfo[@"meta"];
+    
+    if(!meta.allKeys.count)
+        return NO;
+    
+    NSString *eventName = meta[@"event"];
+    if(eventName.length == 0)
+        return NO;
+    
+    if([eventName isEqualToString:@"registration"]) {
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end
