@@ -15,7 +15,6 @@
 #import "YAServer.h"
 
 #import "UIScrollView+SVPullToRefresh.h"
-#import "YAActivityView.h"
 #import "YAAssetsCreator.h"
 
 #import "YAPullToRefreshLoadingView.h"
@@ -40,7 +39,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (strong, nonatomic) UILabel *toolTipLabel;
 
-@property (nonatomic, strong) YAActivityView *activityView;
+@property (nonatomic, strong) UIActivityIndicatorView *activityView;
 
 @property (nonatomic) BOOL hasToolTipOnOneOfTheCells;
 
@@ -122,6 +121,7 @@ static NSString *cellID = @"Cell";
         if (cell) {
             DLog(@"Updating comment count for videoID: %@", serverId);
             [cell setEventCount:eventCount];
+            
         }
     });
 
@@ -373,10 +373,12 @@ static NSString *cellID = @"Cell";
             return;
         }
         
-        const CGFloat monkeyWidth  = 50;
+        const CGFloat indicatorWidth  = 50;
         [self.activityView removeFromSuperview];
         if(![YAUser currentUser].currentGroup.videos.count) {
-            self.activityView = [[YAActivityView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2-monkeyWidth/2, VIEW_HEIGHT/5, monkeyWidth, monkeyWidth)];
+            self.activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+            self.activityView.color = PRIMARY_COLOR;
+            self.activityView.frame = CGRectMake(VIEW_WIDTH/2-indicatorWidth/2, VIEW_HEIGHT/5, indicatorWidth, indicatorWidth);
             [self.collectionView addSubview:self.activityView];
             [self.activityView startAnimating];
             
