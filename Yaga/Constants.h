@@ -127,4 +127,49 @@
 
 #define DEBUG_SERVER 1
 
+// Sharing
+#define kNewGroupCellId @"postToNewGroupCell"
+#define kCrosspostCellId @"crossPostCell"
+#define VIEW_HEIGHT_PROPORTION 0.7f
+
+// Server
+
+#define PORT @"443"
+#define PORTNUM 443
+#define API_ENDPOINT @"/yaga/api/v1"
+
+#if (DEBUG && DEBUG_SERVER)
+#define HOST @"https://api-dev.yagaprivate.com"
+#else
+#define HOST @"https://api.yagaprivate.com"
+#endif
+
+#define YA_RESPONSE_ID                  @"id"
+#define YA_RESPONSE_NAME                @"name"
+#define YA_RESPONSE_NAMER               @"namer"
+#define YA_RESPONSE_FONT                @"font"
+#define YA_RESPONSE_NAME_X              @"name_x"
+#define YA_RESPONSE_NAME_Y              @"name_y"
+#define YA_RESPONSE_SCALE               @"scale"
+#define YA_RESPONSE_ROTATION            @"rotation"
+#define YA_RESPONSE_LIKES               @"likes"
+#define YA_RESPONSE_LIKERS              @"likers"
+#define YA_RESPONSE_MEMBERS             @"members"
+#define YA_RESPONSE_PENDING_MEMBERS     @"pending_members"
+#define YA_RESPONSE_MEMBER_PHONE        @"phone"
+#define YA_RESPONSE_MEMBER_JOINED_AT    @"joined_at"
+#define YA_RESPONSE_RESULT              @"result"
+#define YA_RESPONSE_USER                @"user"
+#define YA_RESPONSE_TOKEN               @"token"
+#define YA_RESPONSE_APPROVED            @"approved"
+
+#define YA_VIDEO_POST                   @"post"
+#define YA_VIDEO_POSTS                  @"posts"
+#define YA_VIDEO_ATTACHMENT             @"attachment"
+#define YA_VIDEO_ATTACHMENT_PREVIEW     @"attachment_preview"
+#define YA_VIDEO_READY_AT               @"ready_at"
+#define YA_VIDEO_DELETED                @"deleted"
+#define YA_GROUP_UPDATED_AT             @"updated_at"
+#define YA_GROUP_LAST_FOREIGN_POST_ID   @"last_foreign_post_id"
+
 #endif

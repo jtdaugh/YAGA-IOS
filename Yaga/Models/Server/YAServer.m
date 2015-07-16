@@ -18,16 +18,6 @@
 #import "YAServer+HostManagment.h"
 #import "MBProgressHUD.h"
 
-#if (DEBUG && DEBUG_SERVER)
-#define HOST @"https://api-dev.yagaprivate.com"
-#else
-#define HOST @"https://api.yagaprivate.com"
-#endif
-
-#define PORT @"443"
-#define PORTNUM 443
-#define API_ENDPOINT @"/yaga/api/v1"
-
 #define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
 #define API_USER_DEVICE_TEMPLATE            @"%@/user/device/"
 

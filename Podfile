@@ -27,6 +27,7 @@ end
 target 'YAVideoShareExtension', :exclusive => true do
   	pod 'Realm', '~> 0.93.2'
 	pod 'Firebase', '>= 2.3.1'
+	pod 'AFNetworking', '~> 2.0'
 end
 
 
