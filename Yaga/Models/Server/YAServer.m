@@ -479,7 +479,7 @@
     
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
-        DLog(@"updated");
+        DLog(@"%@ updated", publicGroups ? @"Public groups" : @"User groups");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         DLog(@"can't fetch remote groups, error: %@", error.localizedDescription);
         completion(nil, error);

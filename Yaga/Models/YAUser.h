@@ -13,7 +13,7 @@
 
 @class YAUser;
 
-typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
+typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts, BOOL sentToServer);
 
 @protocol CNetworkingDelegate <NSObject>
 @optional

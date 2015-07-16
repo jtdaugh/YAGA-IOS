@@ -48,16 +48,28 @@ static NSString *CellIdentifier = @"GroupsCell";
     _groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
     
     [self setupPullToRefresh];
-    [self.tableView triggerPullToRefresh];
-    [self.tableView reloadData];
     
-    UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(backButtonPressed:)];
-    self.navigationItem.leftBarButtonItem = backButton;
+    if(self.onboardingMode) {
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Skip", @"") style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
+        
+        [self.navigationItem setHidesBackButton:YES];
+    }
+    else {
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonPressed:)];
+        
+        [self.tableView triggerPullToRefresh];
+        [self.tableView reloadData];
+    }
+    
     [[UIBarButtonItem appearance] setTintColor:[UIColor whiteColor]];
 }
 
-- (void)backButtonPressed:(id)sender {
-    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+- (void)doneButtonPressed:(id)sender {
+    if(self.onboardingMode) {
+        [self performSegueWithIdentifier:@"ShowGroupsAfterFindGroups" sender:self];
+    }
+    else
+        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -215,6 +227,11 @@ static NSString *CellIdentifier = @"GroupsCell";
             [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
             self->_groupsDataArray = upatedDataArray;
             
+            if(self.onboardingMode) {
+                UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonPressed:)];
+                [self.navigationItem setRightBarButtonItem:doneButton animated:YES];
+            }
+            
         }
         else {
             DLog(@"Can't send request to join group");
@@ -269,7 +286,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         NSDate *lastYagaUsersRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
         if(!lastYagaUsersRequested) {
             //force upload phone contacts in case there is no information on server yet otherwise searchGroups will return nothgin
-            [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts) {
+            [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts, BOOL sentToServer) {
                 searchGroupsBlock();
             } excludingPhoneNumbers:nil];
         }
@@ -285,6 +302,5 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
     [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
 }
-
 
 @end

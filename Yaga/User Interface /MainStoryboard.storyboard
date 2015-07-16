@@ -1,10 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="15A216g" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
+        <!--Find Groups View Conrtoller-->
+        <scene sceneID="D7t-Jz-xye">
+            <objects>
+                <tableViewController id="tG0-DY-j3p" customClass="YAFindGroupsViewConrtoller" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="eOS-c1-Yby">
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <animations/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="I2x-Rx-zyA">
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="I2x-Rx-zyA" id="CrX-o2-FUV">
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
+                                </tableViewCellContentView>
+                                <animations/>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="tG0-DY-j3p" id="CrA-iP-vaV"/>
+                            <outlet property="delegate" destination="tG0-DY-j3p" id="gki-lr-8cN"/>
+                        </connections>
+                    </tableView>
+                    <connections>
+                        <segue destination="54o-Be-McY" kind="custom" identifier="ShowGroupsAfterFindGroups" customClass="YASetNewRootVCSegue" id="ojC-gZ-yDW"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="uBD-qv-GUK" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="180" y="-130.5"/>
+        </scene>
         <!--Groups Navigation Controller-->
         <scene sceneID="5Hh-1e-NmB">
             <objects>
@@ -155,6 +186,7 @@
                     </view>
                     <connections>
                         <segue destination="54o-Be-McY" kind="custom" identifier="MyGroupsFromUsername" customClass="YASetNewRootVCSegue" id="MZQ-Tr-DTg"/>
+                        <segue destination="tG0-DY-j3p" kind="show" identifier="ShowFindGroupsAfterUsername" id="7fc-hI-rIo"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lgf-Jx-pmq" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -179,6 +211,7 @@
                     <connections>
                         <segue destination="Xo8-xg-cRY" kind="show" identifier="UserNameViewController" id="2A8-ou-e1j"/>
                         <segue destination="54o-Be-McY" kind="custom" identifier="ShowGroupsAfterAuthentication" customClass="YASetNewRootVCSegue" id="deN-oa-0rJ"/>
+                        <segue destination="tG0-DY-j3p" kind="show" identifier="ShowFindGroupsAfterAuthentication" id="xo6-aF-vE0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dTj-X0-Iz4" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -208,6 +241,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="deN-oa-0rJ"/>
+        <segue reference="ojC-gZ-yDW"/>
+        <segue reference="7fc-hI-rIo"/>
     </inferredMetricsTieBreakers>
 </document>

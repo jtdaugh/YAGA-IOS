@@ -125,7 +125,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     //load phonebook if it wasn't done before
     if(![YAUser currentUser].phonebook.count) {
-        [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
+        [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts, BOOL sentToServer) {
             if (!error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.collectionView reloadData];
