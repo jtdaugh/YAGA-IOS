@@ -14,7 +14,9 @@
 {
     if(self.target)
     {
-        [self.target performSelector:self.selector withObject:nil];
+        IMP imp = [self.target methodForSelector:self.selector];
+        void (*func)(id, SEL) = (void *)imp;
+        func(self.target, self.selector);
     }
     else
     {

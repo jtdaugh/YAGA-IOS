@@ -32,7 +32,6 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 @property (nonatomic, copy) NSString *dialCode;
 @property (nonatomic, copy) NSString *countryCode;
 
-@property (nonatomic,assign)  id delegate;
 @property (strong, nonatomic) NSMutableDictionary *userData;
 @property (strong, nonatomic) NSMutableDictionary *messages;
 
