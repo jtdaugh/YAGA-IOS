@@ -1000,7 +1000,7 @@
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
                 
                 //current group never updated or updatedAt is older than local?
-                if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
+                if([[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
                     [[[YAUser currentUser] currentGroup] refresh];
                 }
             }
