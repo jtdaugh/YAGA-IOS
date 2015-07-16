@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		02ECEDBC4621CBE0CB14A3D4 /* libPods-YAVideoShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F365E23CEB3BDF63467042B1 /* libPods-YAVideoShareExtension.a */; };
+		0FA340991B57B6C000624C1F /* YAVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E583B731A6535C400639BE5 /* YAVideoPlayerView.m */; };
+		0FD720EA1B57970000BCF17F /* YAShareVideoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FD720E91B57970000BCF17F /* YAShareVideoViewController.m */; };
 		0FD720EC1B57970000BCF17F /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0FD720EB1B57970000BCF17F /* MainInterface.storyboard */; };
 		0FD720EF1B57970000BCF17F /* YAVideoShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 0FD720E41B57970000BCF17F /* YAVideoShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
@@ -132,7 +134,9 @@
 		88FB0A231B1D4F36002C213C /* YAEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A221B1D4F36002C213C /* YAEvent.m */; };
 		88FB0A261B1D5250002C213C /* YAEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A251B1D5250002C213C /* YAEventManager.m */; };
 		88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A2B1B1D6D78002C213C /* NSArray+Reverse.m */; };
+		BA5997220C664579F5CB7238 /* libPods-Yaga.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B8DB16454F57F65456424710 /* libPods-Yaga.a */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
+		E5EC7E9521430FF9402F63C5 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -161,10 +165,16 @@
 
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		06298255B668038D8C0EB4ED /* Pods-YAVideoShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YAVideoShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-YAVideoShareExtension/Pods-YAVideoShareExtension.release.xcconfig"; sourceTree = "<group>"; };
 		0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		0FA3409A1B57BA1300624C1F /* YAVideoShareExtension-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "YAVideoShareExtension-Prefix.pch"; sourceTree = "<group>"; };
 		0FD720E41B57970000BCF17F /* YAVideoShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = YAVideoShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FD720E71B57970000BCF17F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0FD720E81B57970000BCF17F /* YAShareVideoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YAShareVideoViewController.h; sourceTree = "<group>"; };
+		0FD720E91B57970000BCF17F /* YAShareVideoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YAShareVideoViewController.m; sourceTree = "<group>"; };
 		0FD720EB1B57970000BCF17F /* MainInterface.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainInterface.storyboard; sourceTree = "<group>"; };
+		0FD720F61B57AC8B00BCF17F /* libPods.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPods.a; path = "Pods/../build/Debug-iphoneos/libPods.a"; sourceTree = "<group>"; };
+		0FD720F81B57ACE700BCF17F /* libPods.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPods.a; path = "Pods/../build/Debug-iphoneos/libPods.a"; sourceTree = "<group>"; };
 		0FDC3AF61B0E69C0003A688D /* UIImage+YABlur.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+YABlur.h"; sourceTree = "<group>"; };
 		0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+YABlur.m"; sourceTree = "<group>"; };
 		0FDC3AF81B0E69C0003A688D /* UIWindow+YASnapshot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWindow+YASnapshot.h"; sourceTree = "<group>"; };
@@ -324,6 +334,7 @@
 		71D0F5A7190DCE3D00C7DEE0 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		71D0F5A9190DCE4300C7DEE0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		71D0F5AB190DCE4B00C7DEE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		8394ED2916D646D04322332B /* Pods-Yaga.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaga.release.xcconfig"; path = "Pods/Target Support Files/Pods-Yaga/Pods-Yaga.release.xcconfig"; sourceTree = "<group>"; };
 		861A90BD1A4AE77C00CAD2E3 /* NSData+Hex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Hex.h"; sourceTree = "<group>"; };
 		861A90BE1A4AE77C00CAD2E3 /* NSData+Hex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Hex.m"; sourceTree = "<group>"; };
 		861AF4171A5976E000F125C3 /* YAServer+HostManagment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "YAServer+HostManagment.h"; sourceTree = "<group>"; };
@@ -382,6 +393,10 @@
 		88FB0A251B1D5250002C213C /* YAEventManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAEventManager.m; sourceTree = "<group>"; };
 		88FB0A2A1B1D6D78002C213C /* NSArray+Reverse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Reverse.h"; sourceTree = "<group>"; };
 		88FB0A2B1B1D6D78002C213C /* NSArray+Reverse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Reverse.m"; sourceTree = "<group>"; };
+		B8DB16454F57F65456424710 /* libPods-Yaga.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Yaga.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7B11E1CE397737CD4EB4D4B /* Pods-Yaga.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaga.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Yaga/Pods-Yaga.debug.xcconfig"; sourceTree = "<group>"; };
+		CDDE97FAA18F5668E2DC66B7 /* Pods-YAVideoShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YAVideoShareExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YAVideoShareExtension/Pods-YAVideoShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		F365E23CEB3BDF63467042B1 /* libPods-YAVideoShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-YAVideoShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -389,6 +404,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5EC7E9521430FF9402F63C5 /* libPods.a in Frameworks */,
+				02ECEDBC4621CBE0CB14A3D4 /* libPods-YAVideoShareExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,6 +428,7 @@
 				71D0F570190D998000C7DEE0 /* UIKit.framework in Frameworks */,
 				71D0F56C190D998000C7DEE0 /* Foundation.framework in Frameworks */,
 				C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */,
+				BA5997220C664579F5CB7238 /* libPods-Yaga.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -420,8 +438,11 @@
 		0FD720E51B57970000BCF17F /* YAVideoShareExtension */ = {
 			isa = PBXGroup;
 			children = (
+				0FD720E81B57970000BCF17F /* YAShareVideoViewController.h */,
+				0FD720E91B57970000BCF17F /* YAShareVideoViewController.m */,
 				0FD720EB1B57970000BCF17F /* MainInterface.storyboard */,
 				0FD720E61B57970000BCF17F /* Supporting Files */,
+				0FA3409A1B57BA1300624C1F /* YAVideoShareExtension-Prefix.pch */,
 			);
 			path = YAVideoShareExtension;
 			sourceTree = "<group>";
@@ -439,6 +460,10 @@
 			children = (
 				1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */,
 				0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */,
+				CDDE97FAA18F5668E2DC66B7 /* Pods-YAVideoShareExtension.debug.xcconfig */,
+				06298255B668038D8C0EB4ED /* Pods-YAVideoShareExtension.release.xcconfig */,
+				C7B11E1CE397737CD4EB4D4B /* Pods-Yaga.debug.xcconfig */,
+				8394ED2916D646D04322332B /* Pods-Yaga.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -788,6 +813,8 @@
 		71D0F56A190D998000C7DEE0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0FD720F81B57ACE700BCF17F /* libPods.a */,
+				0FD720F61B57AC8B00BCF17F /* libPods.a */,
 				41BD42C71B162E76008553A8 /* Fabric.framework */,
 				41BD42C81B162E76008553A8 /* Crashlytics.framework */,
 				6E18EC481AD5731500D4FA3C /* CoreTelephony.framework */,
@@ -803,6 +830,8 @@
 				71D0F56D190D998000C7DEE0 /* CoreGraphics.framework */,
 				71D0F56F190D998000C7DEE0 /* UIKit.framework */,
 				06099F2997CD40A8B4FA1754 /* libPods.a */,
+				F365E23CEB3BDF63467042B1 /* libPods-YAVideoShareExtension.a */,
+				B8DB16454F57F65456424710 /* libPods-Yaga.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -836,9 +865,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0FD720F21B57970000BCF17F /* Build configuration list for PBXNativeTarget "YAVideoShareExtension" */;
 			buildPhases = (
+				ACCE6A0C5DAEB4D074C1CC9B /* Check Pods Manifest.lock */,
 				0FD720E01B57970000BCF17F /* Sources */,
 				0FD720E11B57970000BCF17F /* Frameworks */,
 				0FD720E21B57970000BCF17F /* Resources */,
+				B5A6361E28C95C05E16D28D6 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -882,10 +913,10 @@
 				TargetAttributes = {
 					0FD720E31B57970000BCF17F = {
 						CreatedOnToolsVersion = 6.3.2;
-						DevelopmentTeam = QWZRQYKU9P;
 						DevelopmentTeam = CRQMUWXT26;
 					};
 					71D0F567190D998000C7DEE0 = {
+						DevelopmentTeam = CRQMUWXT26;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -975,6 +1006,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Yaga/Pods-Yaga-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		915B11AD40DF490E8902CE6F /* Check Pods Manifest.lock */ = {
@@ -992,8 +1024,36 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
+		ACCE6A0C5DAEB4D074C1CC9B /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
+			inputPaths = (
 			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		B5A6361E28C95C05E16D28D6 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-YAVideoShareExtension/Pods-YAVideoShareExtension-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1001,6 +1061,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0FD720EA1B57970000BCF17F /* YAShareVideoViewController.m in Sources */,
+				0FA340991B57B6C000624C1F /* YAVideoPlayerView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1125,21 +1187,30 @@
 /* Begin XCBuildConfiguration section */
 		0FD720F01B57970000BCF17F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CDDE97FAA18F5668E2DC66B7 /* Pods-YAVideoShareExtension.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "YAVideoShareExtension/YAVideoShareExtension-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"YAGA_SHARE_EXTENSION=1",
 				);
 				INFOPLIST_FILE = YAVideoShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1148,18 +1219,31 @@
 		};
 		0FD720F11B57970000BCF17F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 06298255B668038D8C0EB4ED /* Pods-YAVideoShareExtension.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "YAVideoShareExtension/YAVideoShareExtension-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"YAGA_SHARE_EXTENSION=1",
+				);
 				INFOPLIST_FILE = YAVideoShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1238,11 +1322,13 @@
 		};
 		71D0F59B190D998000C7DEE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C7B11E1CE397737CD4EB4D4B /* Pods-Yaga.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1250,6 +1336,11 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Yaga/Yaga-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"YAGA_APP=1",
+				);
 				INFOPLIST_FILE = "Yaga/Yaga-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1264,11 +1355,13 @@
 		};
 		71D0F59C190D998000C7DEE0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8394ED2916D646D04322332B /* Pods-Yaga.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1276,6 +1369,11 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Yaga/Yaga-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"YAGA_APP=1",
+				);
 				INFOPLIST_FILE = "Yaga/Yaga-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1297,6 +1395,7 @@
 				0FD720F11B57970000BCF17F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		71D0F563190D998000C7DEE0 /* Build configuration list for PBXProject "Yaga" */ = {
 			isa = XCConfigurationList;
