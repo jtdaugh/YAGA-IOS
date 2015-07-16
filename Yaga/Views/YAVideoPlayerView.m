@@ -8,7 +8,9 @@
 
 #import "YAVideoPlayerView.h"
 
+#ifdef YAGA_APP
 #import "YAViewCountManager.h"
+#endif
 #import "YAWeakTimerTarget.h"
 
 #define NUM_OF_COPIES 100
@@ -140,7 +142,9 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 #pragma mark
 - (void)dealloc
 {
+#ifdef YAGA_APP
     [[YAViewCountManager sharedManager] stoppedWatchingVideo];
+#endif
     [self.player removeObserver:self forKeyPath:@"currentItem"];
     [self.player removeObserver:self forKeyPath:@"rate"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
@@ -345,8 +349,10 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)play {
+#ifdef YAGA_APP
     float singlePlayTime = CMTimeGetSeconds(self.playerItem.asset.duration) / (float) NUM_OF_COPIES;
     [[YAViewCountManager sharedManager] didBeginWatchingVideoWithInterval:singlePlayTime];
+#endif
     
     [self.player play];
     
