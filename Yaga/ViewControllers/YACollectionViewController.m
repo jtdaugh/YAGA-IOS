@@ -201,7 +201,7 @@ static NSString *cellID = @"Cell";
     if(![YAUser currentUser].currentGroup.videos || ![[YAUser currentUser].currentGroup.videos count])
         needRefresh = YES;
     
-    if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
+    if([[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
         needRefresh = YES;
     }
     
