@@ -1313,6 +1313,9 @@ static NSString *commentCellID = @"CommentCell";
     }
     
     [[YAEventManager sharedManager] addEvent:event toVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+    
+    // Scroll to bottom
+    [self.commentsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
