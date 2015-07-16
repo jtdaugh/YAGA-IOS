@@ -311,6 +311,11 @@
                 YAGroup *group = [YAGroup group];
                 group.name = name;
                 group.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
+
+                //will fix the spinning monkey issue for new groups https://trello.com/c/aMDEodm9/792-monkey-is-spinning-all-the-time-after-group-creation
+                group.updatedAt = [NSDate dateWithTimeIntervalSince1970:1];
+                group.refreshedAt = [NSDate dateWithTimeIntervalSince1970:1];
+                
                 [[RLMRealm defaultRealm] addObject:group];
                 
                 [[RLMRealm defaultRealm] commitWriteTransaction];
