@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0FD720EA1B57970000BCF17F /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FD720E91B57970000BCF17F /* ShareViewController.m */; };
+		0FD720EC1B57970000BCF17F /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0FD720EB1B57970000BCF17F /* MainInterface.storyboard */; };
+		0FD720EF1B57970000BCF17F /* YAVideoShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 0FD720E41B57970000BCF17F /* YAVideoShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
 		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
 		0FE7A6B41B53542C00B35DCD /* YACreateGroupNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FE7A6B31B53542C00B35DCD /* YACreateGroupNavigationController.m */; };
@@ -132,9 +135,38 @@
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		0FD720ED1B57970000BCF17F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 71D0F560190D998000C7DEE0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0FD720E31B57970000BCF17F;
+			remoteInfo = YAVideoShareExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0FD720F31B57970000BCF17F /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0FD720EF1B57970000BCF17F /* YAVideoShareExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		0FD720E41B57970000BCF17F /* YAVideoShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = YAVideoShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0FD720E71B57970000BCF17F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0FD720E81B57970000BCF17F /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
+		0FD720E91B57970000BCF17F /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
+		0FD720EB1B57970000BCF17F /* MainInterface.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainInterface.storyboard; sourceTree = "<group>"; };
 		0FDC3AF61B0E69C0003A688D /* UIImage+YABlur.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+YABlur.h"; sourceTree = "<group>"; };
 		0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+YABlur.m"; sourceTree = "<group>"; };
 		0FDC3AF81B0E69C0003A688D /* UIWindow+YASnapshot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWindow+YASnapshot.h"; sourceTree = "<group>"; };
@@ -355,6 +387,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0FD720E11B57970000BCF17F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		71D0F565190D998000C7DEE0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -380,6 +419,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0FD720E51B57970000BCF17F /* YAVideoShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				0FD720E81B57970000BCF17F /* ShareViewController.h */,
+				0FD720E91B57970000BCF17F /* ShareViewController.m */,
+				0FD720EB1B57970000BCF17F /* MainInterface.storyboard */,
+				0FD720E61B57970000BCF17F /* Supporting Files */,
+			);
+			path = YAVideoShareExtension;
+			sourceTree = "<group>";
+		};
+		0FD720E61B57970000BCF17F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0FD720E71B57970000BCF17F /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		1BBA4B12A846B58A5DE9BE9C /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -715,6 +773,7 @@
 			isa = PBXGroup;
 			children = (
 				6E9187611A3F2C270034AB63 /* Yaga */,
+				0FD720E51B57970000BCF17F /* YAVideoShareExtension */,
 				71D0F56A190D998000C7DEE0 /* Frameworks */,
 				71D0F569190D998000C7DEE0 /* Products */,
 				1BBA4B12A846B58A5DE9BE9C /* Pods */,
@@ -725,6 +784,7 @@
 			isa = PBXGroup;
 			children = (
 				71D0F568190D998000C7DEE0 /* Yaga.app */,
+				0FD720E41B57970000BCF17F /* YAVideoShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -776,6 +836,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0FD720E31B57970000BCF17F /* YAVideoShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0FD720F21B57970000BCF17F /* Build configuration list for PBXNativeTarget "YAVideoShareExtension" */;
+			buildPhases = (
+				0FD720E01B57970000BCF17F /* Sources */,
+				0FD720E11B57970000BCF17F /* Frameworks */,
+				0FD720E21B57970000BCF17F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = YAVideoShareExtension;
+			productName = YAVideoShareExtension;
+			productReference = 0FD720E41B57970000BCF17F /* YAVideoShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		71D0F567190D998000C7DEE0 /* Yaga */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 71D0F59A190D998000C7DEE0 /* Build configuration list for PBXNativeTarget "Yaga" */;
@@ -786,10 +863,12 @@
 				71D0F566190D998000C7DEE0 /* Resources */,
 				472AD31EEDE6499FB84BB130 /* Copy Pods Resources */,
 				41BD42C61B162E19008553A8 /* ShellScript */,
+				0FD720F31B57970000BCF17F /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0FD720EE1B57970000BCF17F /* PBXTargetDependency */,
 			);
 			name = Yaga;
 			productName = Pic6;
@@ -805,6 +884,10 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Raj Vir";
 				TargetAttributes = {
+					0FD720E31B57970000BCF17F = {
+						CreatedOnToolsVersion = 6.3.2;
+						DevelopmentTeam = QWZRQYKU9P;
+					};
 					71D0F567190D998000C7DEE0 = {
 						DevelopmentTeam = QWZRQYKU9P;
 						SystemCapabilities = {
@@ -829,11 +912,20 @@
 			projectRoot = "";
 			targets = (
 				71D0F567190D998000C7DEE0 /* Yaga */,
+				0FD720E31B57970000BCF17F /* YAVideoShareExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0FD720E21B57970000BCF17F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0FD720EC1B57970000BCF17F /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		71D0F566190D998000C7DEE0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -908,6 +1000,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0FD720E01B57970000BCF17F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0FD720EA1B57970000BCF17F /* ShareViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		71D0F564190D998000C7DEE0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1007,6 +1107,14 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		0FD720EE1B57970000BCF17F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0FD720E31B57970000BCF17F /* YAVideoShareExtension */;
+			targetProxy = 0FD720ED1B57970000BCF17F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
 		6E9187771A3F2C270034AB63 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
@@ -1019,6 +1127,51 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		0FD720F01B57970000BCF17F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = YAVideoShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		0FD720F11B57970000BCF17F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = YAVideoShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 		71D0F598190D998000C7DEE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1147,6 +1300,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0FD720F21B57970000BCF17F /* Build configuration list for PBXNativeTarget "YAVideoShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0FD720F01B57970000BCF17F /* Debug */,
+				0FD720F11B57970000BCF17F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		71D0F563190D998000C7DEE0 /* Build configuration list for PBXProject "Yaga" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
