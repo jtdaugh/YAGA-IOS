@@ -309,6 +309,9 @@ static NSString *cellID = @"Cell";
                 refreshBlock();
             }];
         }
+        else {
+            [self delayedHidePullToRefresh];
+        }
     }
     else {
         [self delayedHidePullToRefresh];
