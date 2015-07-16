@@ -199,7 +199,7 @@
                             if(!error) {
                                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                                     NSArray *readableArray = [YAUtils readableGroupsArrayFromResponse:response];
-                                    [[NSUserDefaults standardUserDefaults] setObject:readableArray forKey:kFindGroupsCachedResponse];
+                                    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:readableArray forKey:kFindGroupsCachedResponse];
                                 });
                             }
                         }];

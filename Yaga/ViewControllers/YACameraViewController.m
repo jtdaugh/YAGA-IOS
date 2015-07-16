@@ -364,7 +364,7 @@ typedef enum {
 }
 
 - (void)showTooltipIfNeeded {
-    if(![[NSUserDefaults standardUserDefaults] boolForKey:kFirstVideoRecorded]) {
+    if(![[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:kFirstVideoRecorded]) {
         //first start tooltips
         
         CGFloat tooltipPadding = recordButtonWidth / 2 * 3 / 2;
@@ -781,7 +781,7 @@ typedef enum {
     self.count = 0;
     
     if(self.recordTooltipLabel) {
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFirstVideoRecorded];
+        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:kFirstVideoRecorded];
         
         [UIView animateWithDuration:0.2 animations:^{
             self.recordTooltipLabel.alpha = 0.0;

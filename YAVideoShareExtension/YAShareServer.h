@@ -13,4 +13,6 @@
  */
 @interface YAShareServer : NSObject
 
++ (YAShareServer *)sharedServer;
+
 @end

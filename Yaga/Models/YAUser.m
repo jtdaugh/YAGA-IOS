@@ -29,7 +29,7 @@
     dispatch_once(&onceToken, ^{
         sharedUser = [[self alloc] init];
 
-        sharedUser.countryCode = [[NSUserDefaults standardUserDefaults] objectForKey:kCountryCode];
+        sharedUser.countryCode = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kCountryCode];
         if(!sharedUser.countryCode)
             sharedUser.countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
 
@@ -48,14 +48,14 @@
     if(self) {
         _userData = [NSMutableDictionary new];
         
-        NSString *selectedGroupId = [[NSUserDefaults standardUserDefaults] objectForKey:YA_CURRENT_GROUP_ID];
+        NSString *selectedGroupId = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:YA_CURRENT_GROUP_ID];
         if(selectedGroupId) {
             self.currentGroup = [YAGroup objectInRealm:[RLMRealm defaultRealm] forPrimaryKey:selectedGroupId];
         }
         
         //request an access to the contacts first time in Groups list(because we need to show correct member names)
         //next times phonebook is loaded on app start
-        if([[NSUserDefaults standardUserDefaults] boolForKey:kContactsAccessWasRequested]) {
+        if([[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:kContactsAccessWasRequested]) {
             [self importContactsWithCompletion:nil excludingPhoneNumbers:nil];
         }
     }
@@ -63,7 +63,7 @@
 }
 
 - (void)setCurrentGroup:(YAGroup *)group {
-    [[NSUserDefaults standardUserDefaults] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];
     
     YAGroup *groupBefore = [self currentGroup];
     
@@ -84,17 +84,17 @@
 }
 
 - (void)logout {
-    [[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
     [self.userData removeAllObjects];
 }
 
 - (void)saveObject:(NSObject *)value forKey:(NSString *)key {
-    [[NSUserDefaults standardUserDefaults] setObject:value forKey:key];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:value forKey:key];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
 - (id)objectForKey:(NSString*)key {
-    return [[NSUserDefaults standardUserDefaults] objectForKey:key];
+    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:key];
 }
 
 - (NSString *)humanName {
@@ -145,11 +145,11 @@
     addressBook.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]];
     
     //using last requested yaga users
-    NSDictionary *yagaUsersData = [[NSUserDefaults standardUserDefaults] objectForKey:kYagaUsersRequested];
+    NSDictionary *yagaUsersData = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kYagaUsersRequested];
     
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kContactsAccessWasRequested];
+            [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:kContactsAccessWasRequested];
             
             __block NSMutableArray *result = [NSMutableArray new];
             NSMutableArray *phoneResults = [NSMutableArray new];
@@ -201,7 +201,7 @@
             {
                 completion(nil, result);
                 
-                NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
+                NSDate *lastRequested = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kLastYagaUsersRequestDate];
                 
                 //request yaga users once per hour
                 if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60]] == NSOrderedDescending) {
@@ -228,8 +228,8 @@
                             [yagaUserDictionary setObject:yagaUserDic forKey:phone];
                         }
                         
-                        [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastYagaUsersRequestDate];
-                        [[NSUserDefaults standardUserDefaults] setObject:yagaUserDictionary forKey:kYagaUsersRequested];
+                        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[NSDate date] forKey:kLastYagaUsersRequestDate];
+                        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:yagaUserDictionary forKey:kYagaUsersRequested];
                         
                         completion(nil, result);
                     }];

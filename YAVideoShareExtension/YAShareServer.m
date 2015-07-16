@@ -20,7 +20,20 @@
 
 @end
 
+static YAShareServer *_sharedServer = nil;
+
 @implementation YAShareServer
+
+#pragma mark - Singleton
+
++ (YAShareServer *)sharedServer {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedServer = [[YAShareServer alloc] init];
+    });
+    
+    return _sharedServer;
+}
 
 #pragma mark - Initializers
 
@@ -32,7 +45,7 @@
         _jsonOperationsManager = [AFHTTPRequestOperationManager manager];
         _jsonOperationsManager.requestSerializer = [AFJSONRequestSerializer serializer];
         
-        _authToken = [[NSUserDefaults standardUserDefaults] objectForKey:YA_RESPONSE_TOKEN];
+        _authToken = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:YA_RESPONSE_TOKEN];
         
         if(self.authToken.length) {
             NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.authToken];

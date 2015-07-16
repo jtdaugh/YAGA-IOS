@@ -8,6 +8,7 @@
 
 #import "YAInitialShareViewController.h"
 #import "YAShareVideoViewController.h"
+#import "YAShareServer.h"
 
 @interface YAInitialShareViewController ()
 
@@ -20,7 +21,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [YAShareServer sharedServer];
+    
     [self performSegueWithIdentifier:@"initialToShare" sender:self];
+    
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
 - (void)didReceiveMemoryWarning {

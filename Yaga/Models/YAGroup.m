@@ -305,7 +305,7 @@
             successBlock(response, NO);
             
             //shall we request publc groups
-            NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastPublicGroupsRequestDate];
+            NSDate *lastRequested = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kLastPublicGroupsRequestDate];
             
             //request public groups 6 hours
             if(lastRequested && [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60*6]] == NSOrderedAscending) {
@@ -314,7 +314,7 @@
             }
             else {
                 [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
-                    [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastPublicGroupsRequestDate];
+                    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[NSDate date] forKey:kLastPublicGroupsRequestDate];
                     
                     if(error) {
                         if(block)

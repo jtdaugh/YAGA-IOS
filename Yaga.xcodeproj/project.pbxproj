@@ -174,6 +174,8 @@
 		0F46B6D61B585F90008E9808 /* YAInitialShareViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAInitialShareViewController.m; sourceTree = "<group>"; };
 		0F46B6D91B586E38008E9808 /* YAShareServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAShareServer.h; sourceTree = "<group>"; };
 		0F46B6DA1B586E38008E9808 /* YAShareServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAShareServer.m; sourceTree = "<group>"; };
+		0F46B6DC1B587597008E9808 /* Yaga.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Yaga.entitlements; sourceTree = "<group>"; };
+		0F46B6DD1B58797B008E9808 /* YAVideoShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = YAVideoShareExtension.entitlements; sourceTree = "<group>"; };
 		0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		0FA3409A1B57BA1300624C1F /* YAVideoShareExtension-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "YAVideoShareExtension-Prefix.pch"; sourceTree = "<group>"; };
 		0FD720E41B57970000BCF17F /* YAVideoShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = YAVideoShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -446,6 +448,7 @@
 		0FD720E51B57970000BCF17F /* YAVideoShareExtension */ = {
 			isa = PBXGroup;
 			children = (
+				0F46B6DD1B58797B008E9808 /* YAVideoShareExtension.entitlements */,
 				0FD720E81B57970000BCF17F /* YAShareVideoViewController.h */,
 				0FD720E91B57970000BCF17F /* YAShareVideoViewController.m */,
 				0F46B6D51B585F90008E9808 /* YAInitialShareViewController.h */,
@@ -585,6 +588,7 @@
 		6E9187611A3F2C270034AB63 /* Yaga */ = {
 			isa = PBXGroup;
 			children = (
+				0F46B6DC1B587597008E9808 /* Yaga.entitlements */,
 				6E9188741A3F3A5A0034AB63 /* Categories */,
 				6E9188831A3F3A5A0034AB63 /* Models */,
 				6E9188951A3F3A5A0034AB63 /* ViewControllers */,
@@ -925,11 +929,19 @@
 				TargetAttributes = {
 					0FD720E31B57970000BCF17F = {
 						CreatedOnToolsVersion = 6.3.2;
-						DevelopmentTeam = CRQMUWXT26;
+						DevelopmentTeam = QWZRQYKU9P;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 					71D0F567190D998000C7DEE0 = {
-						DevelopmentTeam = CRQMUWXT26;
+						DevelopmentTeam = QWZRQYKU9P;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
 							com.apple.BackgroundModes = {
 								enabled = 1;
 							};
@@ -1208,6 +1220,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = YAVideoShareExtension/YAVideoShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1230,6 +1243,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -1241,6 +1255,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_ENTITLEMENTS = YAVideoShareExtension/YAVideoShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -1264,6 +1279,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -1346,6 +1362,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CODE_SIGN_ENTITLEMENTS = Yaga/Yaga.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1379,6 +1396,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CODE_SIGN_ENTITLEMENTS = Yaga/Yaga.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
