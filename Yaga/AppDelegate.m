@@ -175,7 +175,7 @@
     
     //handle push for case when app wasn't in background
     NSDictionary *pushInfo = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
-    if(pushInfo) {
+    if(pushInfo && pushInfo[@"meta"]) {
         [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:@{@"meta":pushInfo[@"meta"]}];
     }
 
