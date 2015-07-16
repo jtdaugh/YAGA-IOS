@@ -72,7 +72,7 @@ static NSString *CellIdentifier = @"GroupsCell";
             }
         }];
         
-        [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_JOIN_GROUPS_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_JOIN_GROUPS_BODY", @"") dismissText:@"Got it" addToView:self.view] show];
+        [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_JOIN_GROUPS_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_JOIN_GROUPS_BODY", @"") dismissText:@"Got it" addToView:self.parentViewController.view] show];
         
     }
     else {
