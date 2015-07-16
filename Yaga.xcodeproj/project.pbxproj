@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		02ECEDBC4621CBE0CB14A3D4 /* libPods-YAVideoShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F365E23CEB3BDF63467042B1 /* libPods-YAVideoShareExtension.a */; };
+		0F46B6D41B585A63008E9808 /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41999D3A1B57568D0054881F /* bumper.mp4 */; };
 		0FA340991B57B6C000624C1F /* YAVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E583B731A6535C400639BE5 /* YAVideoPlayerView.m */; };
 		0FD720EA1B57970000BCF17F /* YAShareVideoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FD720E91B57970000BCF17F /* YAShareVideoViewController.m */; };
 		0FD720EC1B57970000BCF17F /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0FD720EB1B57970000BCF17F /* MainInterface.storyboard */; };
@@ -949,6 +950,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F46B6D41B585A63008E9808 /* bumper.mp4 in Resources */,
 				0FD720EC1B57970000BCF17F /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

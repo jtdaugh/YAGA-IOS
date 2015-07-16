@@ -16,14 +16,21 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Helloooo" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7uW-Pk-DIX">
-                                <rect key="frame" x="275" y="234" width="82" height="38"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xq4-ZB-It9" customClass="YAVideoPlayerView">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="Xq4-ZB-It9" firstAttribute="height" secondItem="wbc-yd-nQP" secondAttribute="height" id="3iB-wV-REY"/>
+                            <constraint firstAttribute="centerX" secondItem="Xq4-ZB-It9" secondAttribute="centerX" id="Un9-tU-OIx"/>
+                            <constraint firstItem="Xq4-ZB-It9" firstAttribute="width" secondItem="wbc-yd-nQP" secondAttribute="width" id="Wc3-Mr-dgE"/>
+                            <constraint firstAttribute="centerY" secondItem="Xq4-ZB-It9" secondAttribute="centerY" id="u9d-uO-uI1"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="playerView" destination="Xq4-ZB-It9" id="TIT-Ki-dyo"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CEy-Cv-SGf" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
