@@ -52,6 +52,9 @@
     
     NSString *stringUrl = gifJob ? video.gifUrl : video.url;
     
+    if(!stringUrl.length)
+        return nil;
+    
     //do nothing if job is enqueued already
     if([self.downloadJobs.allKeys containsObject:stringUrl])
         return self.downloadJobs[stringUrl];
@@ -171,9 +174,11 @@
                         YAVideo *video = results[0];
                         
                         nextJob = [self createJobForVideo:video gifJob:gifJob];
-                        [self.downloadJobs setObject:nextJob forKey:waitingUrl];
-                        
-                        [nextJob start];
+                        if(nextJob) {
+                            [self.downloadJobs setObject:nextJob forKey:waitingUrl];
+                            
+                            [nextJob start];
+                        }
                     }
                 });
             }
@@ -240,6 +245,9 @@
     [self pauseExecutingJobs];
     
     AFDownloadRequestOperation *nextJob = [self createJobForVideo:video gifJob:NO];
+    if(!nextJob)
+        return;
+    
     [self.downloadJobs setObject:nextJob forKey:video.url];
     if(nextJob.isPaused)
         [nextJob resume];
