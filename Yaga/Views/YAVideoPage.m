@@ -1387,7 +1387,6 @@ static NSString *commentCellID = @"CommentCell";
     // Scroll to bottom
     [self.commentsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
     [[Mixpanel sharedInstance] track:@"Liked Video"];
-    
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
