@@ -52,7 +52,24 @@ static NSString *CellIdentifier = @"GroupsCell";
     if(self.onboardingMode) {
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Skip", @"") style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
         
-        [self.navigationItem setHidesBackButton:YES];
+        self.navigationItem.hidesBackButton = YES;
+        self.navigationItem.rightBarButtonItem.enabled = NO;
+        
+        __weak typeof(self) weakSelf = self;
+        //load groups first time here
+        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+            if(!error) {
+                // TODO: Adjust mixpanel for humanity
+                if([YAGroup allObjects].count) {
+                    [[Mixpanel sharedInstance] track:@"Onboarding user already a part of some groups"];
+                }
+                else {
+                    [[Mixpanel sharedInstance] track:@"Onboarding user doesn't have any groups"];
+                }
+
+                weakSelf.navigationItem.rightBarButtonItem.enabled = YES;
+            }
+        }];
     }
     else {
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonPressed:)];
@@ -228,7 +245,9 @@ static NSString *CellIdentifier = @"GroupsCell";
             self->_groupsDataArray = upatedDataArray;
             
             if(self.onboardingMode) {
+                BOOL wasEnabled = self.navigationItem.rightBarButtonItem.enabled;
                 UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonPressed:)];
+                doneButton.enabled = wasEnabled;
                 [self.navigationItem setRightBarButtonItem:doneButton animated:YES];
             }
             
