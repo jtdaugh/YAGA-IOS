@@ -14,6 +14,7 @@
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
 #import "NameGroupViewController.h"
+#import "YAPopoverView.h"
 
 @interface YAFindGroupsViewConrtoller ()
 @property (nonatomic, strong) NSArray *groupsDataArray;
@@ -70,6 +71,9 @@ static NSString *CellIdentifier = @"GroupsCell";
                 weakSelf.navigationItem.rightBarButtonItem.enabled = YES;
             }
         }];
+        
+        [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_JOIN_GROUPS_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_JOIN_GROUPS_BODY", @"") dismissText:@"Got it" addToView:self.view] show];
+        
     }
     else {
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonPressed:)];
