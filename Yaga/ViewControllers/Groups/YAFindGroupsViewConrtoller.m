@@ -189,7 +189,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         requestButton.tag = indexPath.row;
         requestButton.frame = CGRectMake(0, 0, 90, 30);
         [requestButton addTarget:self action:@selector(requestButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-        [requestButton setTitle:NSLocalizedString(@"Request", @"") forState:UIControlStateNormal];
+        [requestButton setTitle:NSLocalizedString(@"Join", @"") forState:UIControlStateNormal];
         [requestButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
         [requestButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
         [requestButton setTintColor:PRIMARY_COLOR];

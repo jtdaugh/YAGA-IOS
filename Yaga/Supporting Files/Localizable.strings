@@ -77,8 +77,8 @@
 "FIRST_HUMANITY_POST_TITLE" = "Pending approval";
 "FIRST_HUMANITY_POST_BODY" = "Only the best videos are featured in Humanity.\n\nWe'll notify you if yours gets approved.";
 
-"FIRST_JOIN_GROUPS_TITLE" = "Join Groups"
-"FIRST_JOIN_GROUPS_BODY" = "Looks like some of your friends are using Yaga. \n\n Request to join groups that they are in."
+"FIRST_JOIN_GROUPS_TITLE" = "Join Groups";
+"FIRST_JOIN_GROUPS_BODY" = "Looks like some of your friends are using Yaga. \n\n Request to join groups that they are in.";
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
 
@@ -181,6 +181,7 @@
 "Find Groups" = "Find Groups";
 "Join Groups" = "Join Groups";
 "Request" = "Request";
+"Join" = "Join"
 "Pending" = "Pending";
 "Searching groups" = "Searching groups";
 "Failed to search groups" = "Failed to search groups";
