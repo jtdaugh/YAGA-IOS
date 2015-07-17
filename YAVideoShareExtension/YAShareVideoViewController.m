@@ -279,7 +279,11 @@
         self.serverCaptionTextView.editable = NO;
         [self.view insertSubview:self.serverCaptionWrapperView aboveSubview:self.playerView];
         [self toggleEditingCaption:NO];
-        [self.captionButton removeFromSuperview];
+        
+        if (completed) {
+            [self.captionButton removeFromSuperview];
+        }
+        
         [weakApplyCaptionView removeFromSuperview];
     };
     

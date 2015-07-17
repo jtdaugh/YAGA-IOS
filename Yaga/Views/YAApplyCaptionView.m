@@ -25,6 +25,7 @@
 @property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (strong, nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *captionTapOutGestureRecognizer;
+@property (nonatomic, strong) UIButton *cancelWhileTypingButton;
 
 @end
 
@@ -42,6 +43,7 @@
     if (self) {
         [self setupCaptionButtonContainer];
         [self setupCaptionGestureRecognizers];
+        [self setupCancelCaptionButton];
         [self beginEditableCaptionAtPoint:captionPoint initalText:initialText initalTransform:initialTransform];
     }
     
@@ -78,6 +80,12 @@
     
     self.pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
     self.pinchGestureRecognizer.delegate = self;
+}
+
+- (void)setupCancelCaptionButton {
+    self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
+    [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
+    [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 #pragma mark - UI helpers
@@ -245,6 +253,10 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
     [self commitCurrentCaption];
 }
 
+- (void)captionCancelPressedWhileTyping:(id)sender {
+    self.completionHandler(NO, nil, nil, nil, 0, 0, 0, 0);
+}
+
 - (void)cancelButtonPressed:(id)sender {
     self.completionHandler(NO, nil, nil, nil, 0, 0, 0, 0);
 }
@@ -319,7 +331,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
     
     self.captionBlurOverlay.frame = self.bounds;
     [self insertSubview:self.captionBlurOverlay belowSubview:self.editableCaptionWrapperView];
-    //    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
+    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
     
     if (self.editableCaptionTextView) {
         [self positionTextViewAboveKeyboard];
