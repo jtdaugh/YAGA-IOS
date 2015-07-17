@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAShareVideoViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
+@interface YAShareVideoViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NSItemProvider *itemProvider;
 

@@ -74,6 +74,13 @@
 
 #define kShouldReloadVideoCell                  @"kShouldReloadVideoCell"
 
+//video page
+#define CAPTION_DEFAULT_SCALE 0.75f
+#define CAPTION_WRAPPER_INSET 100.f
+
+#define CAPTION_BUTTON_HEIGHT 80.f
+#define CAPTION_DONE_PROPORTION 0.5
+
 //first start tooltips
 #define kFirstVideoRecorded                     @"kFirstVideoRecorded"
 #define kCellWasAlreadyTapped                   @"kCellWasAlreadyTapped"

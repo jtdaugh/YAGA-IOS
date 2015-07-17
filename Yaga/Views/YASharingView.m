@@ -89,7 +89,7 @@
         
         [bgGradient.layer insertSublayer:gradient atIndex:0];
         [self addSubview:bgGradient];
-
+        
         CGFloat tableOrigin = frame.size.height - tableHeight;
         self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, tableOrigin - topBarHeight - (myVideo && [self.groups count] ? topGap : 0), VIEW_WIDTH, topBarHeight)];
         [self addSubview:self.topBar];

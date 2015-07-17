@@ -30,12 +30,6 @@
 
 #import "YASharingView.h"
 
-#define CAPTION_DEFAULT_SCALE 0.75f
-#define CAPTION_WRAPPER_INSET 100.f
-
-#define CAPTION_BUTTON_HEIGHT 80.f
-#define CAPTION_DONE_PROPORTION 0.5
-
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
 
 static NSString *commentCellID = @"CommentCell";

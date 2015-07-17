@@ -15,6 +15,9 @@
 		0F46B6E01B587FA0008E9808 /* YAShareGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F46B6DF1B587FA0008E9808 /* YAShareGroup.m */; };
 		0F46B6E11B588176008E9808 /* NSDictionary+ResponseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B8649B1A41CA74002256FF /* NSDictionary+ResponseObject.m */; };
 		0F46B6E21B58B91D008E9808 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8668D3F31ADE6A90002ADA45 /* Images.xcassets */; };
+		0F46B6E31B58C9EC008E9808 /* YAPanGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 882F082C1AEF6F12007FAA66 /* YAPanGestureRecognizer.m */; };
+		0F46B6E61B58D8FE008E9808 /* YAApplyCaptionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F46B6E51B58D8FE008E9808 /* YAApplyCaptionView.m */; };
+		0F46B6E71B58DC43008E9808 /* YAApplyCaptionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F46B6E51B58D8FE008E9808 /* YAApplyCaptionView.m */; };
 		0FA340991B57B6C000624C1F /* YAVideoPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E583B731A6535C400639BE5 /* YAVideoPlayerView.m */; };
 		0FD720EA1B57970000BCF17F /* YAShareVideoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FD720E91B57970000BCF17F /* YAShareVideoViewController.m */; };
 		0FD720EC1B57970000BCF17F /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0FD720EB1B57970000BCF17F /* MainInterface.storyboard */; };
@@ -181,6 +184,8 @@
 		0F46B6DD1B58797B008E9808 /* YAVideoShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = YAVideoShareExtension.entitlements; sourceTree = "<group>"; };
 		0F46B6DE1B587FA0008E9808 /* YAShareGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAShareGroup.h; sourceTree = "<group>"; };
 		0F46B6DF1B587FA0008E9808 /* YAShareGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAShareGroup.m; sourceTree = "<group>"; };
+		0F46B6E41B58D8FE008E9808 /* YAApplyCaptionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAApplyCaptionView.h; sourceTree = "<group>"; };
+		0F46B6E51B58D8FE008E9808 /* YAApplyCaptionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAApplyCaptionView.m; sourceTree = "<group>"; };
 		0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		0FA3409A1B57BA1300624C1F /* YAVideoShareExtension-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "YAVideoShareExtension-Prefix.pch"; sourceTree = "<group>"; };
 		0FD720E41B57970000BCF17F /* YAVideoShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = YAVideoShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -795,6 +800,8 @@
 				41D53FEF1B1FB4A4004DB886 /* YACenterImageButton.m */,
 				41235F181B4C93E400B08ED5 /* YAPopoverView.h */,
 				41235F191B4C93E400B08ED5 /* YAPopoverView.m */,
+				0F46B6E41B58D8FE008E9808 /* YAApplyCaptionView.h */,
+				0F46B6E51B58D8FE008E9808 /* YAApplyCaptionView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1096,7 +1103,9 @@
 			files = (
 				0F46B6D71B585F90008E9808 /* YAInitialShareViewController.m in Sources */,
 				0F46B6E11B588176008E9808 /* NSDictionary+ResponseObject.m in Sources */,
+				0F46B6E71B58DC43008E9808 /* YAApplyCaptionView.m in Sources */,
 				0FD720EA1B57970000BCF17F /* YAShareVideoViewController.m in Sources */,
+				0F46B6E31B58C9EC008E9808 /* YAPanGestureRecognizer.m in Sources */,
 				0F46B6DB1B586E38008E9808 /* YAShareServer.m in Sources */,
 				0F46B6E01B587FA0008E9808 /* YAShareGroup.m in Sources */,
 				0F46B6D81B58676A008E9808 /* YACrosspostCell.m in Sources */,
@@ -1120,6 +1129,7 @@
 				6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */,
 				6E1E20991A6EF2E90041DF54 /* YAAssetsCreator.m in Sources */,
 				6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */,
+				0F46B6E61B58D8FE008E9808 /* YAApplyCaptionView.m in Sources */,
 				6E5C991A1A5EAFAA00A9F586 /* YAActivityView.m in Sources */,
 				86B8649E1A41D332002256FF /* GroupsCollectionViewCell.m in Sources */,
 				41235F1A1B4C93E400B08ED5 /* YAPopoverView.m in Sources */,
