@@ -8,11 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
+typedef void(^responseBlock)(id response, NSError* error);
+
 /*!
  *  Lightweight server object based on \c YAServer that is just used for getting a user's groups
  */
 @interface YAShareServer : NSObject
 
 + (YAShareServer *)sharedServer;
+
+- (void)getGroupsWithCompletion:(responseBlock)completion publicGroups:(BOOL)publicGroups;
+
+- (void)uploadVideo:(NSData *)movieData toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
 @end

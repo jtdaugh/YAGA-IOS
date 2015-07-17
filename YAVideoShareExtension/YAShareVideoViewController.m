@@ -11,6 +11,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "YACrosspostCell.h"
 #import "Constants.h"
+#import "YAShareServer.h"
 
 @interface YAShareVideoViewController ()
 
@@ -73,6 +74,14 @@
     self.groupsList.delegate = self;
     self.groupsList.dataSource = self;
     [self.view addSubview:self.groupsList];
+    
+    [[YAShareServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error){
+        if (error) {
+            
+        } else {
+            NSLog(@"Response is %@", response);
+        }
+    } publicGroups:NO];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -82,11 +91,17 @@
 #pragma mark - Extensions
 
 - (void)loadExtensionItem {
-    if ([self.itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeMovie]) {
-        [self.itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeMovie options:nil completionHandler:^(NSURL *movieURL, NSError *error) {
+    if ([self.itemProvider hasItemConformingToTypeIdentifier:@"public.movie"]) {
+        [self.itemProvider loadItemForTypeIdentifier:@"public.movie" options:nil completionHandler:^(id response, NSError *error) {
+            NSURL *movieURL = (NSURL *)response;
+            NSData *videoData = [NSData dataWithContentsOfURL:movieURL];
             
             if (movieURL) {
                 [self prepareVideoForPlaying:movieURL];
+                
+                [[YAShareServer sharedServer] uploadVideo:videoData toGroupWithId:@"7eb8cfb8-bb34-4a6c-a8a8-1bffc7fac3ac" withCompletion:^(id response, NSError *error){
+
+                }];
                 
                 self.playerView.playWhenReady = YES;
             }

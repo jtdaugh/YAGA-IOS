@@ -18,33 +18,6 @@
 #import "YAServer+HostManagment.h"
 #import "MBProgressHUD.h"
 
-#define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
-#define API_USER_DEVICE_TEMPLATE            @"%@/user/device/"
-
-#define API_USER_SEARCH_TEMPLATE            @"%@/user/search/"
-
-#define API_AUTH_TOKEN_TEMPLATE             @"%@/auth/obtain/"
-#define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
-
-#define API_GROUPS_TEMPLATE                 @"%@/groups/"
-#define API_PUBLIC_GROUPS_TEMPLATE          @"%@/groups/public/"
-#define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
-#define API_GROUP_JOIN_TEMPLATE             @"%@/groups/%@/join/"
-
-#define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
-
-#define API_GROUPS_SEARCH_TEMPLATE          @"%@/groups/discover/"
-
-#define API_GROUP_MEMBERS_TEMPLATE          @"%@/groups/%@/members/"
-
-#define API_GROUP_POSTS_TEMPLATE            @"%@/groups/%@/posts/"
-#define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/%@/"
-
-#define API_GROUP_POST_LIKE                 @"%@/groups/%@/posts/%@/like/"
-#define API_GROUP_POST_LIKERS               @"%@/groups/%@/posts/%@/likers/"
-
-#define API_GROUP_POST_COPY                 @"%@/groups/%@/posts/%@/copy/"
-
 #define USER_PHONE  @"phone"
 #define ERROR_DATA  @"com.alamofire.serialization.response.error.data"
 
