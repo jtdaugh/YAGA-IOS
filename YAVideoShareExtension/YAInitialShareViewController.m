@@ -9,6 +9,7 @@
 #import "YAInitialShareViewController.h"
 #import "YAShareVideoViewController.h"
 #import "YAShareServer.h"
+#import "YAShareGroup.h"
 
 @interface YAInitialShareViewController ()
 
@@ -23,14 +24,17 @@
     
     [YAShareServer sharedServer];
     
-    [self performSegueWithIdentifier:@"initialToShare" sender:self];
-    
     [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
-}
+    
+    [[YAShareServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error){
+        if (error) {
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self performSegueWithIdentifier:@"initialToShare" sender:response];
+            });
+        }
+    } publicGroups:NO];
 }
 
 #pragma mark - Segues
@@ -41,7 +45,20 @@
         NSExtensionItem *item = self.extensionContext.inputItems[0];
         NSItemProvider *itemProvider = item.attachments[0];
         shareVC.itemProvider = itemProvider;
+        shareVC.groups = [self shareGroupsFromResponse:sender];
     }
+}
+
+- (NSArray *)shareGroupsFromResponse:(id)response {
+    NSArray *responseArray = (NSArray *)response;
+    NSMutableArray *shareGroupsMutable = [NSMutableArray array];
+    for (NSDictionary *group in responseArray) {
+        YAShareGroup *shareGroup = [YAShareGroup new];
+        shareGroup.name = group[@"name"];
+        shareGroup.serverId = group[@"id"];
+        [shareGroupsMutable addObject:shareGroup];
+    }
+    return [NSArray arrayWithArray:shareGroupsMutable];
 }
 
 @end

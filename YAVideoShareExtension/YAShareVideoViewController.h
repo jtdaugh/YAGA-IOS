@@ -12,4 +12,6 @@
 
 @property (nonatomic, strong) NSItemProvider *itemProvider;
 
+@property (nonatomic, strong) NSArray *groups;
+
 @end

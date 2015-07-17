@@ -85,18 +85,11 @@
                            (id)[[UIColor colorWithWhite:0.0 alpha:.7] CGColor],
                            (id)[[UIColor colorWithWhite:0.0 alpha:.7] CGColor],
                            (id)[[UIColor colorWithWhite:0.0 alpha:.8] CGColor],
-                           //                       (id)[[UIColor colorWithWhite:0.0 alpha:.6] CGColor],
                            nil];
-        //    gradient.locations = [NSArray arrayWithObjects:
-        //                          [NSNumber numberWithInt:1.0],
-        //                          [NSNumber numberWithInt:0.75],
-        ////                          [NSNumber numberWithInt:0.0],
-        //                          nil];
         
         [bgGradient.layer insertSublayer:gradient atIndex:0];
         [self addSubview:bgGradient];
 
-        
         CGFloat tableOrigin = frame.size.height - tableHeight;
         self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, tableOrigin - topBarHeight - (myVideo && [self.groups count] ? topGap : 0), VIEW_WIDTH, topBarHeight)];
         [self addSubview:self.topBar];

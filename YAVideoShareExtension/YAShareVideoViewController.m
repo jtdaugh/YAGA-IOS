@@ -12,12 +12,14 @@
 #import "YACrosspostCell.h"
 #import "Constants.h"
 #import "YAShareServer.h"
+#import "YAShareGroup.h"
 
 @interface YAShareVideoViewController ()
 
 @property (nonatomic, weak) IBOutlet YAVideoPlayerView *playerView;
-@property (nonatomic, strong) NSMutableArray *groups;
 @property (nonatomic, strong) UITableView *groupsList;
+@property (nonatomic, strong) UIButton *confirmCrosspost;
+@property (nonatomic, strong) UILabel *crossPostPrompt;
 
 @end
 
@@ -29,8 +31,6 @@
     [super viewDidLoad];
     
     [self loadExtensionItem];
-    
-    _groups = [NSMutableArray array];
     
     CGFloat topGap = 20;
     CGFloat shareBarHeight = 60;
@@ -75,13 +75,32 @@
     self.groupsList.dataSource = self;
     [self.view addSubview:self.groupsList];
     
-    [[YAShareServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error){
-        if (error) {
-            
-        } else {
-            NSLog(@"Response is %@", response);
-        }
-    } publicGroups:NO];
+    self.confirmCrosspost = [[UIButton alloc] initWithFrame:CGRectMake(0, frame.size.height - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
+    self.confirmCrosspost.backgroundColor = SECONDARY_COLOR;
+    self.confirmCrosspost.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
+    self.confirmCrosspost.titleLabel.textColor = [UIColor whiteColor];
+    [self.confirmCrosspost setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    [self.confirmCrosspost setImage:[UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
+    self.confirmCrosspost.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    [self.confirmCrosspost setContentEdgeInsets:UIEdgeInsetsZero];
+    [self.confirmCrosspost setImageEdgeInsets:UIEdgeInsetsMake(0, self.confirmCrosspost.frame.size.width - 48 - 16, 0, 48)];
+    [self.confirmCrosspost setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
+    [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
+    [self.confirmCrosspost addTarget:self action:@selector(confirmCrosspost:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.confirmCrosspost];
+    
+    self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, tableOrigin - topGap, VIEW_WIDTH-24, 24)];
+    self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
+    self.crossPostPrompt.textColor = [UIColor whiteColor];
+    NSString *title = @"Post to Groups";
+    self.crossPostPrompt.text = title;
+    self.crossPostPrompt.layer.shadowRadius = 0.5f;
+    self.crossPostPrompt.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.crossPostPrompt.layer.shadowOffset = CGSizeMake(0.5f, 0.5f);
+    self.crossPostPrompt.layer.shadowOpacity = 1.0;
+    self.crossPostPrompt.layer.masksToBounds = NO;
+    
+    [self.view addSubview:self.crossPostPrompt];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -99,10 +118,6 @@
             if (movieURL) {
                 [self prepareVideoForPlaying:movieURL];
                 
-                [[YAShareServer sharedServer] uploadVideo:videoData toGroupWithId:@"7eb8cfb8-bb34-4a6c-a8a8-1bffc7fac3ac" withCompletion:^(id response, NSError *error){
-
-                }];
-                
                 self.playerView.playWhenReady = YES;
             }
         }];
@@ -119,8 +134,8 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     YACrosspostCell *cell = [tableView dequeueReusableCellWithIdentifier:kCrosspostCellId forIndexPath:indexPath];
-    //YAGroup *group = [self.groups objectAtIndex:indexPath.row];
-    //[cell setGroupTitle:group.name];
+    YAShareGroup *group = [self.groups objectAtIndex:indexPath.row];
+    [cell setGroupTitle:group.name];
     return cell;
 }
 
@@ -152,19 +167,25 @@
         } else {
             title = [NSString stringWithFormat:@"Post to %lu groups", (unsigned long)count];
         }
-//        [self.confirmCrosspost setTitle:title forState:UIControlStateNormal];
-//        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-//            [self.confirmCrosspost setTransform:CGAffineTransformIdentity];
-//        } completion:^(BOOL finished) {
-            //
-//        }];
+        [self.confirmCrosspost setTitle:title forState:UIControlStateNormal];
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+            [self.confirmCrosspost setTransform:CGAffineTransformIdentity];
+        } completion:^(BOOL finished) {
+            
+        }];
     } else {
-//        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-//            [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
-//        } completion:^(BOOL finished) {
-            //
-//        }];
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+            [self.confirmCrosspost setTransform:CGAffineTransformMakeTranslation(0, self.confirmCrosspost.frame.size.height)];
+        } completion:^(BOOL finished) {
+            
+        }];
     }
+}
+
+#pragma mark - Actions
+
+- (void)confirmCrosspost:(id)sender {
+    
 }
 
 @end
