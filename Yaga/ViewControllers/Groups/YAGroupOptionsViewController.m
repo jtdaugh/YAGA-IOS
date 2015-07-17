@@ -28,8 +28,6 @@
 @property (nonatomic, strong) UIButton *addMembersButton;
 @end
 
-#define kCancelledJoins @"kCancelledJoins"
-
 @implementation YAGroupOptionsViewController
 
 - (void)viewDidLoad {
