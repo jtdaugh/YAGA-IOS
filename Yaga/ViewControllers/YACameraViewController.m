@@ -161,11 +161,17 @@ typedef enum {
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         self.rightBottomButton.imageEdgeInsets = UIEdgeInsetsMake(INFO_PADDING, INFO_PADDING, INFO_PADDING, INFO_PADDING);
         [self.rightBottomButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.rightBottomButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.rightBottomButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
         self.rightBottomButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
         [self.cameraAccessories addObject:self.rightBottomButton];
         [self.view addSubview:self.rightBottomButton];
+
+        self.leftBottomButton = [[UIButton alloc] initWithFrame:CGRectMake(10, VIEW_HEIGHT/2 - 30, 100, 30)];
+        self.leftBottomButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        self.leftBottomButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
+        [self.leftBottomButton addTarget:self action:@selector(leftBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.cameraAccessories addObject:self.leftBottomButton];
+        [self.view addSubview:self.leftBottomButton];
 
         //current group
         self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 0, 200, HEADER_HEIGHT)];
@@ -212,13 +218,6 @@ typedef enum {
         [self.countdownLabel setTextColor:PRIMARY_COLOR];
         [self.view addSubview:self.countdownLabel];
     
-        self.leftBottomButton = [[UIButton alloc] initWithFrame:CGRectMake(10, VIEW_HEIGHT/2 - 30, 100, 30)];
-        self.leftBottomButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-//        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
-        self.leftBottomButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-        [self.leftBottomButton addTarget:self action:@selector(leftBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.cameraAccessories addObject:self.leftBottomButton];
-        [self.view addSubview:self.leftBottomButton];
         
         self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f, kUnviwedBadgeWidth, kUnviwedBadgeWidth)];
         self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5]];
@@ -415,6 +414,7 @@ typedef enum {
         [self.delegate backPressed];
     }
     else {
+        
 //        YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
 //        [self presentViewController:navController animated:YES completion:nil];
     }
@@ -1099,11 +1099,10 @@ typedef enum {
     self.rightBottomButton.alpha = 0;
     
     if(mode == YACAmeraButtonModeFindAndCreate) {
-        
-        //left button
-//        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
-//        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
-//        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
+        // left button
+        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
+        [self.leftBottomButton setTitle:NSLocalizedString(@"Upload", @"") forState:UIControlStateNormal];
+        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
         
         //right button
         [self.rightBottomButton setImage:nil forState:UIControlStateNormal];
@@ -1129,7 +1128,6 @@ typedef enum {
         UIImage *backImage = [UIImage imageNamed:@"Back"];
         backImage = [UIImage imageWithCGImage:[backImage CGImage] scale:(backImage.scale * 3) orientation:(backImage.imageOrientation)];
         
-        self.leftBottomButton.hidden = NO;
         [self.leftBottomButton setImage:backImage forState:UIControlStateNormal];
         self.leftBottomButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
         [self.leftBottomButton setTitle:NSLocalizedString(@"Groups", @"") forState:UIControlStateNormal];
@@ -1141,7 +1139,6 @@ typedef enum {
 
         //right button
         self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, (VIEW_HEIGHT/2 - INFO_SIZE - INFO_PADDING*2) + 5, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
-        [self.rightBottomButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.rightBottomButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.rightBottomButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
         self.rightBottomButton.layer.shadowColor = [[UIColor blackColor] CGColor];
@@ -1149,7 +1146,6 @@ typedef enum {
         self.rightBottomButton.layer.shadowOpacity = 1.0;
         self.rightBottomButton.layer.shadowOffset = CGSizeZero;
 
-        self.leftBottomButton.hidden = NO;
         self.unviewedVideosBadge.hidden = NO;
 
         [UIView animateWithDuration:0.2 animations:^{
