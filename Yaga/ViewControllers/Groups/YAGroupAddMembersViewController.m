@@ -344,16 +344,16 @@
                 NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
                 RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
                 
-                NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];
-                for(YAContact *contact in contactsByUsername) {
-                    if(![selectedUsernames containsObject:contact.username]) {
-                        NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
-                        contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
-                        contactDicMutable[nYagaUser] = [NSNumber numberWithBool:YES];
-                        [self.filteredContacts addObject:contactDicMutable];
-                    }
-                    
-                }
+//                NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];
+//                for(YAContact *contact in contactsByUsername) {
+//                    if(![selectedUsernames containsObject:contact.username]) {
+//                        NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
+//                        contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
+//                        contactDicMutable[nYagaUser] = [NSNumber numberWithBool:YES];
+//                        [self.filteredContacts addObject:contactDicMutable];
+//                    }
+//                    
+//                }
                 
                 NSArray *foundUsernames = [self.filteredContacts valueForKey:nUsername];
                 if(![foundUsernames containsObject:[text lowercaseString]]) {
