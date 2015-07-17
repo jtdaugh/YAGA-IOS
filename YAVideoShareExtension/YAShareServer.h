@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 typedef void(^responseBlock)(id response, NSError* error);
+typedef void(^YAUploadVideoResponseBlock)(id response, NSString *videoServerID, NSError *error);
 
 /*!
  *  Lightweight server object based on \c YAServer that is just used for getting a user's groups
@@ -19,6 +20,6 @@ typedef void(^responseBlock)(id response, NSError* error);
 
 - (void)getGroupsWithCompletion:(responseBlock)completion publicGroups:(BOOL)publicGroups;
 
-- (void)uploadVideo:(NSData *)movieData toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)uploadVideo:(NSData *)movieData toGroupWithId:(NSString*)serverGroupId withCompletion:(YAUploadVideoResponseBlock)completion;
 
 @end

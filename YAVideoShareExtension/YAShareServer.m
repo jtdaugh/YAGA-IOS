@@ -11,6 +11,8 @@
 #import "YAShareServer.h"
 #import "Constants.h"
 #import "NSDictionary+ResponseObject.h"
+#import "NSData+Hex.h"
+#import "NSString+Hash.h"
 
 @interface YAShareServer ()
 
@@ -85,7 +87,53 @@ static YAShareServer *_sharedServer = nil;
     }];
 }
 
-- (void)uploadVideo:(NSData *)movieData toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+- (void)uploadVideoCaptionWithId:(NSString*)serverVideoId toGroupServerId:(NSString *)groupServerId caption:(NSString *)caption x:(CGFloat)x y:(CGFloat)y rotation:(CGFloat)rotation scale:(CGFloat)scale front:(NSInteger)font withCompletion:(responseBlock)completion {
+    if (!self.authToken.length)
+        return;
+    
+    NSAssert(serverVideoId, @"videoId is a required parameter");
+    
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, groupServerId, serverVideoId];
+    
+    // match yavideo variables with server fields.
+    NSDictionary *parameters = @{
+                                 @"name": caption,
+                                 @"name_x": [NSNumber numberWithFloat:x],
+                                 @"name_y": [NSNumber numberWithFloat:y],
+                                 @"rotation": [NSNumber numberWithFloat:rotation],
+                                 @"scale": [NSNumber numberWithFloat:scale],
+                                 @"font": [NSNumber numberWithInteger:font]
+                                 };
+    
+    id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
+    
+    NSURL *url = [NSURL URLWithString:api];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"PUT"];
+    
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    
+    [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
+    [request setHTTPBody:json];
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               if([(NSHTTPURLResponse*)response statusCode] == 200)
+                                   completion(nil, nil);
+                               else {
+                                   NSString *str = [data hexRepresentationWithSpaces_AS:NO];
+                                   if(response)
+                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
+                                   else
+                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
+                               }
+                               
+                           }];
+}
+
+- (void)uploadVideo:(NSData *)movieData toGroupWithId:(NSString*)serverGroupId withCompletion:(YAUploadVideoResponseBlock)completion {
     if (!self.authToken.length)
         return;
     
@@ -102,6 +150,7 @@ static YAShareServer *_sharedServer = nil;
                                  DLog(@"uploadVideoData, recieved params for S3 upload. Making multipart upload...");
                                  
                                  NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+                                 NSString *videoServerId = dict[YA_RESPONSE_ID];
 //                                 dispatch_async(dispatch_get_main_queue(), ^{
                                  
 //                                     [video.realm beginWriteTransaction];
@@ -165,12 +214,12 @@ static YAShareServer *_sharedServer = nil;
 //                                         }
                                          
                                          //call completion block when video is posted
-                                         completion(response, error);
+                                         completion(response, videoServerId, error);
                                      }];
 //                                 });
                                  
                              } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                                 completion(nil, error);
+                                 completion(nil, @"", error);
                              }];
 }
 

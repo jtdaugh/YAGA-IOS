@@ -19,6 +19,20 @@
 #import <Firebase/Firebase.h>
 #import <MBProgressHUD/MBProgressHUD.h>
 
+@interface YAShareVideoCaption : NSObject
+
+@property (nonatomic, strong) NSString *text;
+@property (nonatomic, assign) CGFloat x;
+@property (nonatomic, assign) CGFloat y;
+@property (nonatomic, assign) CGFloat scale;
+@property (nonatomic, assign) CGFloat rotation;
+
+@end
+
+@implementation YAShareVideoCaption
+
+@end
+
 @interface YAShareVideoViewController ()
 
 @property (nonatomic) BOOL editingCaption;
@@ -35,6 +49,7 @@
 @property (strong, nonatomic) UIView *serverCaptionWrapperView;
 @property (strong, nonatomic) UITextView *serverCaptionTextView;
 @property (strong, nonatomic) FDataSnapshot *currentCaptionSnapshot;
+@property (strong, nonatomic) YAShareVideoCaption *videoCaption;
 
 @end
 
@@ -281,7 +296,7 @@
 #pragma mark - Actions
 
 - (void)confirmCrosspost:(id)sender {
-    
+    // Upload video and on completion handler upload caption
 }
 
 - (void)closeButtonPressed:(id)sender {
@@ -322,6 +337,12 @@
         
         if (completed) {
             [self.captionButton removeFromSuperview];
+            self.videoCaption = [YAShareVideoCaption new];
+            self.videoCaption.text = text;
+            self.videoCaption.x = x;
+            self.videoCaption.y = y;
+            self.videoCaption.scale = scale;
+            self.videoCaption.rotation = rotation;
         }
         
         [weakApplyCaptionView removeFromSuperview];
@@ -334,5 +355,7 @@
     [self dismissViewControllerAnimated:YES completion:nil];
     [self.extensionContext completeRequestReturningItems:nil completionHandler:nil];
 }
+
+#pragma mark - Requests
 
 @end

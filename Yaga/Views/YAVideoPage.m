@@ -862,7 +862,9 @@ static NSString *commentCellID = @"CommentCell";
         [self.overlay addSubview:self.serverCaptionWrapperView];
         [self toggleEditingCaption:NO];
         
-        [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
+        if (completed) {
+            [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
+        }
         
         [weakApplyCaptionView removeFromSuperview];
     };
