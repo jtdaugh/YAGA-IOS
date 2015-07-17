@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		02ECEDBC4621CBE0CB14A3D4 /* libPods-YAVideoShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F365E23CEB3BDF63467042B1 /* libPods-YAVideoShareExtension.a */; };
 		0F46B6D41B585A63008E9808 /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41999D3A1B57568D0054881F /* bumper.mp4 */; };
-		0F46B6D71B585F90008E9808 /* YAInitialShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F46B6D61B585F90008E9808 /* YAInitialShareViewController.m */; };
 		0F46B6D81B58676A008E9808 /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
 		0F46B6DB1B586E38008E9808 /* YAShareServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F46B6DA1B586E38008E9808 /* YAShareServer.m */; };
 		0F46B6E01B587FA0008E9808 /* YAShareGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F46B6DF1B587FA0008E9808 /* YAShareGroup.m */; };
@@ -176,8 +175,6 @@
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		06298255B668038D8C0EB4ED /* Pods-YAVideoShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YAVideoShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-YAVideoShareExtension/Pods-YAVideoShareExtension.release.xcconfig"; sourceTree = "<group>"; };
-		0F46B6D51B585F90008E9808 /* YAInitialShareViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAInitialShareViewController.h; sourceTree = "<group>"; };
-		0F46B6D61B585F90008E9808 /* YAInitialShareViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAInitialShareViewController.m; sourceTree = "<group>"; };
 		0F46B6D91B586E38008E9808 /* YAShareServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAShareServer.h; sourceTree = "<group>"; };
 		0F46B6DA1B586E38008E9808 /* YAShareServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAShareServer.m; sourceTree = "<group>"; };
 		0F46B6DC1B587597008E9808 /* Yaga.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Yaga.entitlements; sourceTree = "<group>"; };
@@ -461,8 +458,6 @@
 				0F46B6DD1B58797B008E9808 /* YAVideoShareExtension.entitlements */,
 				0FD720E81B57970000BCF17F /* YAShareVideoViewController.h */,
 				0FD720E91B57970000BCF17F /* YAShareVideoViewController.m */,
-				0F46B6D51B585F90008E9808 /* YAInitialShareViewController.h */,
-				0F46B6D61B585F90008E9808 /* YAInitialShareViewController.m */,
 				0F46B6D91B586E38008E9808 /* YAShareServer.h */,
 				0F46B6DA1B586E38008E9808 /* YAShareServer.m */,
 				0F46B6DE1B587FA0008E9808 /* YAShareGroup.h */,
@@ -1101,7 +1096,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0F46B6D71B585F90008E9808 /* YAInitialShareViewController.m in Sources */,
 				0F46B6E11B588176008E9808 /* NSDictionary+ResponseObject.m in Sources */,
 				0F46B6E71B58DC43008E9808 /* YAApplyCaptionView.m in Sources */,
 				0FD720EA1B57970000BCF17F /* YAShareVideoViewController.m in Sources */,

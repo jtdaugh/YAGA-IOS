@@ -17,6 +17,7 @@
 #import "YAApplyCaptionView.h"
 
 #import <Firebase/Firebase.h>
+#import <MBProgressHUD/MBProgressHUD.h>
 
 @interface YAShareVideoViewController ()
 
@@ -44,8 +45,33 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self loadExtensionItem];
+    [YAShareServer sharedServer];
     
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
+    
+    NSExtensionItem *item = self.extensionContext.inputItems[0];
+    NSItemProvider *itemProvider = item.attachments[0];
+    self.itemProvider = itemProvider;
+    
+    __block MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    hud.labelText = @"Loading...";
+    
+    [[YAShareServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [hud hide:NO];
+        });
+        if (error) {
+            
+        } else {
+            self.groups = [self shareGroupsFromResponse:response];
+            [self.groupsList reloadData];
+            [self setupExtensionViews];
+            [self loadExtensionItem];
+        }
+    } publicGroups:NO];
+}
+
+- (void)setupExtensionViews {
     CGFloat topGap = 20;
     CGFloat shareBarHeight = 60;
     CGFloat topBarHeight = 80;
@@ -81,7 +107,7 @@
     
     self.captionTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     [tapCaptionTarget addGestureRecognizer:self.captionTapRecognizer];
-
+    
     CGFloat tableOrigin = frame.size.height - tableHeight;
     
     self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, tableOrigin, VIEW_WIDTH, tableHeight)];
@@ -142,6 +168,20 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+}
+
+#pragma mark - Model
+
+- (NSArray *)shareGroupsFromResponse:(id)response {
+    NSArray *responseArray = (NSArray *)response;
+    NSMutableArray *shareGroupsMutable = [NSMutableArray array];
+    for (NSDictionary *group in responseArray) {
+        YAShareGroup *shareGroup = [YAShareGroup new];
+        shareGroup.name = group[@"name"];
+        shareGroup.serverId = group[@"id"];
+        [shareGroupsMutable addObject:shareGroup];
+    }
+    return [NSArray arrayWithArray:shareGroupsMutable];
 }
 
 #pragma mark - Extensions
@@ -245,7 +285,8 @@
 }
 
 - (void)closeButtonPressed:(id)sender {
-    
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [self.extensionContext completeRequestReturningItems:nil completionHandler:nil];
 }
 
 - (void)captionButtonPressed:(id)sender {
@@ -288,6 +329,10 @@
     };
     
     [self.view addSubview:applyCaptionView];
+}
+
+- (void)dismissExtension {
+    
 }
 
 @end

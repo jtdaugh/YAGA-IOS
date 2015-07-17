@@ -1,8 +1,8 @@
 xcodeproj 'Yaga.xcodeproj'
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '7.0'
 
 target 'Yaga', :exclusive => true do
+	platform :ios, '7.0'
 	pod 'Realm', '~> 0.93.2'
 	pod 'AFNetworking', '~> 2.0'
 	pod 'APAddressBook', '~> 0.0.7'
@@ -25,9 +25,21 @@ target 'Yaga', :exclusive => true do
 end
 
 target 'YAVideoShareExtension', :exclusive => true do
-  	pod 'Realm', '~> 0.93.2'
+	platform :ios, '8.0'
 	pod 'Firebase', '>= 2.3.1'
 	pod 'AFNetworking', '~> 2.0'
+	pod 'MBProgressHUD', '~> 0.8'
 end
+
+post_install do |installer_representation|
+    installer_representation.project.targets.each do |target|
+        if target.name == "Pods-YAVideoShareExtension-AFNetworking"
+            target.build_configurations.each do |config|
+                    config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'AF_APP_EXTENSIONS=1']
+            end
+        end
+    end
+end
+
 
 

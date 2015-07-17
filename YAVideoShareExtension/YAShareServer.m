@@ -69,7 +69,8 @@ static YAShareServer *_sharedServer = nil;
 
 - (void)getGroupsWithCompletion:(responseBlock)completion publicGroups:(BOOL)publicGroups
 {
-    NSAssert(self.authToken.length, @"auth token not set");
+    if (!self.authToken.length)
+        return;
     
     NSString *api = [NSString stringWithFormat:publicGroups ? API_PUBLIC_GROUPS_TEMPLATE : API_GROUPS_TEMPLATE, self.base_api];
     
@@ -85,7 +86,9 @@ static YAShareServer *_sharedServer = nil;
 }
 
 - (void)uploadVideo:(NSData *)movieData toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
-    NSAssert(self.authToken.length, @"auth token not set");
+    if (!self.authToken.length)
+        return;
+    
     NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
     NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
