@@ -19,6 +19,8 @@
 @property (nonatomic, weak) IBOutlet YAVideoPlayerView *playerView;
 @property (nonatomic, strong) UITableView *groupsList;
 @property (nonatomic, strong) UIButton *confirmCrosspost;
+@property (nonatomic, strong) UIButton *XButton;
+@property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UILabel *crossPostPrompt;
 
 @end
@@ -35,6 +37,7 @@
     CGFloat topGap = 20;
     CGFloat shareBarHeight = 60;
     CGFloat topBarHeight = 80;
+    CGFloat buttonRadius = 22.f, padding = 15.f;
     
     CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
     if (![self.groups count]) totalRowsHeight = 0;
@@ -73,6 +76,7 @@
     self.groupsList.allowsMultipleSelection = YES;
     self.groupsList.delegate = self;
     self.groupsList.dataSource = self;
+    self.groupsList.contentInset = UIEdgeInsetsMake(0, 0, XPCellHeight, 0);
     [self.view addSubview:self.groupsList];
     
     self.confirmCrosspost = [[UIButton alloc] initWithFrame:CGRectMake(0, frame.size.height - shareBarHeight, VIEW_WIDTH, shareBarHeight)];
@@ -101,6 +105,20 @@
     self.crossPostPrompt.layer.masksToBounds = NO;
     
     [self.view addSubview:self.crossPostPrompt];
+    
+    self.XButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, buttonRadius*2, buttonRadius*2)];
+    self.XButton.center = CGPointMake(frame.size.width - buttonRadius - padding, padding + buttonRadius);
+    [self.XButton setBackgroundImage:[UIImage imageNamed:@"X"] forState:UIControlStateNormal];
+    self.XButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
+    self.XButton.alpha = 0.7;
+    [self.XButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.XButton];
+    
+    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, buttonRadius * 2, buttonRadius * 2)];
+    [self.captionButton setBackgroundImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
+    self.captionButton.center = CGPointMake(buttonRadius + padding, padding + buttonRadius);
+    [self.captionButton addTarget:self action:@selector(captionButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.captionButton];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -185,6 +203,14 @@
 #pragma mark - Actions
 
 - (void)confirmCrosspost:(id)sender {
+    
+}
+
+- (void)closeButtonPressed:(id)sender {
+    
+}
+
+- (void)captionButtonPressed:(id)sender {
     
 }
 
