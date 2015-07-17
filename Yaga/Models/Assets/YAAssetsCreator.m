@@ -67,7 +67,7 @@
 - (void)concatenateAssetsAtURLs:(NSArray *)assetURLs
                   withOutputURL:(NSURL *)outputURL
                   exportQuality:(NSString *)exportQuality
-                     completion:(videoConcatenationCompletion)completion {
+                     completion:(videoProcessingCompletion)completion {
     AVMutableComposition *combinedVideoComposition = [self buildVideoSequenceCompositionFromURLS:assetURLs];
     if (!exportQuality) exportQuality = AVAssetExportPresetMediumQuality;
     
@@ -91,7 +91,7 @@
     }];
 }
 
-- (void)addBumberToVideoAtURL:(NSURL *)videoURL completion:(videoConcatenationCompletion)completion {
+- (void)addBumberToVideoAtURL:(NSURL *)videoURL completion:(videoProcessingCompletion)completion {
     NSURL *outputUrl = [YAUtils urlFromFileName:@"YAGA.mp4"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
     NSMutableArray *assetURLsToConcatenate = [NSMutableArray arrayWithObject:videoURL];
@@ -157,6 +157,135 @@
 }
 
 #pragma mark - Queue operations
+
++ (UIInterfaceOrientation)orientationForTrack:(AVAsset *)asset
+{
+    AVAssetTrack *videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+    CGSize size = [videoTrack naturalSize];
+    CGAffineTransform txf = [videoTrack preferredTransform];
+    
+    if (size.width == txf.tx && size.height == txf.ty)
+        return UIInterfaceOrientationLandscapeRight;
+    else if (txf.tx == 0 && txf.ty == 0)
+        return UIInterfaceOrientationLandscapeLeft;
+    else if (txf.tx == 0 && txf.ty == size.width)
+        return UIInterfaceOrientationPortraitUpsideDown;
+    else
+        return UIInterfaceOrientationPortrait;
+}
+
+
++ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoProcessingCompletion)completion {
+    
+    AVAsset *asset = [AVAsset assetWithURL:videoUrl];
+    CGSize vidSize = ((AVAssetTrack *)([asset tracksWithMediaType:AVMediaTypeVideo][0])).naturalSize;
+    CGSize correctSize = CGSizeMake(480.0, 640.0);
+    
+    GPUImageMovie *movieFile;
+    GPUImageOutput<GPUImageInput> *filter;
+    GPUImageMovieWriter *movieWriter;
+    
+    movieFile = [[GPUImageMovie alloc] initWithAsset:asset];
+    movieFile.runBenchmark = YES;
+    movieFile.playAtActualSpeed = NO;
+
+//    UIInterfaceOrientation orientation = [self orientationForTrack:asset];
+    
+    CGFloat xMultiple = vidSize.width / correctSize.width;
+    CGFloat yMultiple = vidSize.height / correctSize.height;
+    
+    CGRect cropRegion;
+    if (xMultiple > yMultiple) {
+        // The video needs to trim off the sides
+        CGFloat croppedWidth = correctSize.width * yMultiple;
+        cropRegion = CGRectMake(((vidSize.width - croppedWidth)/vidSize.width) / 2, 0, croppedWidth / vidSize.width, 1);
+    } else {
+        // Need to trim off the top and bottom
+        CGFloat croppedHeight = correctSize.height * xMultiple;
+        cropRegion = CGRectMake(0, ((vidSize.height - croppedHeight)/vidSize.height) / 2, 1, croppedHeight / vidSize.height);
+
+    }
+    
+    filter = [[GPUImageCropFilter alloc] initWithCropRegion:cropRegion];
+    
+    // This might fuck stuff up IDK
+//    switch (orientation)
+//    {
+//        case UIInterfaceOrientationLandscapeLeft:
+//            [filter setInputRotation:kGPUImageNoRotation atIndex:0];
+//            
+//            break;
+//        case UIInterfaceOrientationLandscapeRight:
+//            [filter setInputRotation:kGPUImageRotate180 atIndex:0];
+//            
+//            break;
+//        case UIInterfaceOrientationPortraitUpsideDown:
+//            [filter setInputRotation:kGPUImageRotateLeft atIndex:0];
+//            
+//            break;
+//        default:
+//            [filter setInputRotation:kGPUImageRotateRight atIndex:0];
+//            
+//    };
+    
+    [movieFile addTarget:filter];
+    
+    NSString *pathToMovie = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ProcessedMovie.m4v"];
+    unlink([pathToMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
+    NSURL *movieURL = [NSURL fileURLWithPath:pathToMovie];
+    
+    NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
+    [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
+    [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
+    [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
+
+    movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:movieURL size:correctSize fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
+    [filter addTarget:movieWriter];
+    
+//    AudioChannelLayout channelLayout;
+//    memset(&channelLayout, 0, sizeof(AudioChannelLayout));
+//    channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
+//    
+//            NSDictionary *audioSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+//                                           [ NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
+//                                           [ NSNumber numberWithInt: 2 ], AVNumberOfChannelsKey,
+//                                           [ NSNumber numberWithFloat: 16000.0 ], AVSampleRateKey,
+//                                           [ NSData dataWithBytes:&channelLayout length: sizeof( AudioChannelLayout ) ], AVChannelLayoutKey,
+//                                           [ NSNumber numberWithInt: 32000 ], AVEncoderBitRateKey,
+//                                           nil];
+    
+
+    
+//    movieFile.audioEncodingTarget = movieWriter;
+    [movieFile enableSynchronizedEncodingUsingMovieWriter:movieWriter];
+//    movieWriter.shouldPassthroughAudio = NO; // default YES
+    movieWriter.assetWriter.movieFragmentInterval = kCMTimeInvalid;
+//    [movieWriter setHasAudioTrack:YES audioSettings:audioSettings];
+
+//    __weak GPUImageMovieWriter * weakWriter = movieWriter;
+//
+//    [movieWriter setCompletionBlock:^{
+//        NSLog(@"Completed Successfully");
+//        [weakWriter finishRecording];
+//        [filter removeTarget:weakWriter];
+//        completion(movieURL, nil);
+//    }];
+    
+    [movieWriter startRecording];
+    [movieFile startProcessing];
+
+    //FIXME:
+    __block BOOL finished = NO;
+    [movieWriter setCompletionBlock:^{
+        NSLog(@"Completed Successfully");
+        [movieWriter finishRecording];
+        [filter removeTarget:movieWriter];
+        finished = YES;
+    }];
+    while (!finished);
+    completion(movieURL, nil);
+}
+
 
 - (void)createUnsentVideoFromRecodingURL:(NSURL*)recordingUrl {
     YAVideo *video = [YAVideo video];

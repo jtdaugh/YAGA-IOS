@@ -1189,7 +1189,9 @@ typedef enum {
         if ([mediaType isEqualToString:(NSString *)kUTTypeMovie])
         {
             NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
-            [[YAAssetsCreator sharedCreator] createUnsentVideoFromRecodingURL:videoURL];
+            [YAAssetsCreator reformatExternalVideoAtUrl:videoURL withCompletion:^(NSURL *filePath, NSError *error) {
+                [[YAAssetsCreator sharedCreator] createUnsentVideoFromRecodingURL:filePath];
+            }];
         }
     }];
 }
