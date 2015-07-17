@@ -242,11 +242,11 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
 #pragma mark - UI Actions
 
 - (void)doneButtonPressed:(id)sender {
-    
+    [self commitCurrentCaption];
 }
 
 - (void)cancelButtonPressed:(id)sender {
-    
+    self.completionHandler(NO, nil, nil, nil, 0, 0, 0, 0);
 }
 
 - (void)handlePan:(UIPanGestureRecognizer *)recognizer {
@@ -285,8 +285,6 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
         [self.editableCaptionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
         [self.editableCaptionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
         [self.editableCaptionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
-//        [self.editableCaptionTextView removeGestureRecognizer:self.captionTapRecognizer];
-//        [self removeGestureRecognizer:self.captionTapRecognizer];
         
         NSString *text = self.editableCaptionTextView.text;
         CGFloat x = ceil(self.textFieldCenter.x / self.frame.size.width * 10000.0) / 10000.0;
@@ -298,15 +296,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
         
         CGFloat rotation = ceil(atan2f(t.b, t.a) * 10000.0) / 10000.0;
         
-//        self.serverCaptionWrapperView = self.editableCaptionWrapperView;
-//        self.serverCaptionTextView = self.editableCaptionTextView;
-        self.editableCaptionWrapperView = nil;
-        self.editableCaptionTextView = nil;
-//        self.serverCaptionTextView.editable = NO;
-//        [self.view insertSubview:self.serverCaptionWrapperView aboveSubview:self.playerView];
-//        [self.captionButtonContainer removeFromSuperview];
-//        [self.captionButton removeFromSuperview];
-        //        [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
+        self.completionHandler(YES, self.editableCaptionWrapperView, self.editableCaptionTextView, text, x, y, scale, rotation);
     }
 }
 

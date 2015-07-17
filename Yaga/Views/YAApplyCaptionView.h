@@ -8,10 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-typedef void (^YACaptionViewDoneCompletionHandler)(UITextView *textView);
+typedef void (^YACaptionViewCompletionHandler)(BOOL completed, UIView *captionView, UITextView *captionTextView, NSString *text, CGFloat x, CGFloat y, CGFloat scale, CGFloat rotation);
 
 @interface YAApplyCaptionView : UIView
 
 - (instancetype)initWithFrame:(CGRect)frame captionPoint:(CGPoint)captionPoint initialText:(NSString *)initialText initialTransform:(CGAffineTransform)initialTransform;
+
+@property (nonatomic, copy) YACaptionViewCompletionHandler completionHandler;
 
 @end
