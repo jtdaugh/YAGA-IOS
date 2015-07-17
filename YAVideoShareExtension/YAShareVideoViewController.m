@@ -285,8 +285,7 @@
 }
 
 - (void)closeButtonPressed:(id)sender {
-    [self dismissViewControllerAnimated:YES completion:nil];
-    [self.extensionContext completeRequestReturningItems:nil completionHandler:nil];
+    [self dismissExtension];
 }
 
 - (void)captionButtonPressed:(id)sender {
@@ -332,7 +331,8 @@
 }
 
 - (void)dismissExtension {
-    
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [self.extensionContext completeRequestReturningItems:nil completionHandler:nil];
 }
 
 @end
