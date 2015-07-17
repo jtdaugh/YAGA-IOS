@@ -72,16 +72,31 @@
     hud.labelText = @"Loading...";
     
     [[YAShareServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error){
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [hud hide:NO];
-        });
         if (error) {
-            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [hud hide:NO];
+            });
         } else {
-            self.groups = [self shareGroupsFromResponse:response];
-            [self.groupsList reloadData];
-            [self setupExtensionViews];
-            [self loadExtensionItem];
+            NSMutableArray *privateGroups = [NSMutableArray arrayWithArray:[self shareGroupsFromResponse:response]];
+            
+            [[YAShareServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
+                [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[NSDate date] forKey:kLastPublicGroupsRequestDate];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [hud hide:NO];
+                });
+                
+                if(error) {
+                    
+                }
+                else {
+                    NSArray *publicGroups = [self shareGroupsFromResponse:response];
+                    NSMutableArray *mutableGroups = [NSMutableArray arrayWithArray:publicGroups];
+                    [mutableGroups addObjectsFromArray:privateGroups];
+                    self.groups = [NSArray arrayWithArray:mutableGroups];
+                    [self.groupsList reloadData];
+                    [self loadExtensionItem];
+                }
+            } publicGroups:YES];
         }
     } publicGroups:NO];
 }
@@ -202,6 +217,7 @@
 #pragma mark - Extensions
 
 - (void)loadExtensionItem {
+    self.view.alpha = 0.0;
     if ([self.itemProvider hasItemConformingToTypeIdentifier:@"public.movie"]) {
         [self.itemProvider loadItemForTypeIdentifier:@"public.movie" options:nil completionHandler:^(id response, NSError *error) {
             NSURL *movieURL = (NSURL *)response;
@@ -211,6 +227,17 @@
                 [self prepareVideoForPlaying:movieURL];
                 
                 self.playerView.playWhenReady = YES;
+                
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self setupExtensionViews];
+                    
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        [UIView animateWithDuration:0.3f animations:^{
+                            self.view.alpha = 1.f;
+                        }];
+                    });
+                });
             }
         }];
     }
