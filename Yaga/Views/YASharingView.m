@@ -195,7 +195,7 @@
         self.captionButton.alpha = 0.0;
         [self addSubview:self.captionButton];
         
-#if DEBUG && CAPTION_OVERWRITING_ALLOWED
+#if (DEBUG && CAPTION_OVERWRITING_ALLOWED)
         self.captionButton.hidden = NO;
 #else
         self.captionButton.hidden = ([video.caption length] > 0) || !myVideo;

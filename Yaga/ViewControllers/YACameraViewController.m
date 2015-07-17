@@ -15,6 +15,7 @@
 
 #import <CoreTelephony/CTCall.h>
 #import <CoreTelephony/CTCallCenter.h>
+#import <MobileCoreServices/UTCoreTypes.h>
 
 #import <QuartzCore/QuartzCore.h>
 #import "YAGroupsNavigationController.h"
@@ -39,7 +40,8 @@ typedef enum {
     YATouchDragStateOutside
 } YATouchDragState;
 
-@interface YACameraViewController () <YACameraManagerDelegate>
+@interface YACameraViewController () <YACameraManagerDelegate, UIImagePickerControllerDelegate,
+    UINavigationControllerDelegate> // Last one so ImagePicker delegate doesnt complain
 
 @property (nonatomic, strong) YACameraView *cameraView;
 
@@ -414,7 +416,7 @@ typedef enum {
         [self.delegate backPressed];
     }
     else {
-        
+        [self chooseFromCameraRoll];
 //        YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
 //        [self presentViewController:navController animated:YES completion:nil];
     }
@@ -918,10 +920,8 @@ typedef enum {
 }
 
 - (void)showVideoPage:(NSNotification*)notification {
+    DLog(@"show video page");
     YAVideo *video = (YAVideo *)notification.object;
-    if (video.createdAt && ([[NSDate date] timeIntervalSinceDate:video.createdAt] < 0.2)) {
-        
-    }
     [self.delegate presentNewlyRecordedVideo:video];
 }
 
@@ -1102,7 +1102,7 @@ typedef enum {
         // left button
         [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
         [self.leftBottomButton setTitle:NSLocalizedString(@"Upload", @"") forState:UIControlStateNormal];
-        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
+        self.leftBottomButton.frame = CGRectMake(0, VIEW_HEIGHT/2 - 35, 80, 30);
         
         //right button
         [self.rightBottomButton setImage:nil forState:UIControlStateNormal];
@@ -1111,7 +1111,6 @@ typedef enum {
         self.logo.hidden = NO;
 
         [UIView animateWithDuration:0.2 animations:^{
-            self.leftBottomButton.alpha = 0;
             self.rightBottomButton.alpha = 1;
             self.groupButton.alpha = 0;
             self.logo.alpha = 1;
@@ -1119,7 +1118,6 @@ typedef enum {
             self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
         } completion:^(BOOL finished) {
             //
-            self.leftBottomButton.hidden = YES;
             self.unviewedVideosBadge.hidden = YES;
         }];
     }
@@ -1163,11 +1161,42 @@ typedef enum {
     
 }
 
-
 - (void)showHumanityTooltip {
     [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_HUMANITY_VISIT_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_HUMANITY_VISIT_BODY", @"") dismissText:@"Got it" addToView:self.parentViewController.view] show];
 }
 
+#pragma mark - camera roll upload
 
+- (void)chooseFromCameraRoll {
+    DLog(@"Upload from camera roll pressed");
+    MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"One sec..."];
+    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+    picker.delegate = self;
+    picker.allowsEditing = YES;
+    picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    [picker setMediaTypes: [NSArray arrayWithObject:(NSString *)kUTTypeMovie]];
+    [self presentViewController:picker animated:YES completion:^{
+        [hud hide:NO];
+    }];
+    
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    DLog(@"Did pick video from camera roll");
+
+    [picker dismissViewControllerAnimated:YES completion:^{
+        NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+        if ([mediaType isEqualToString:(NSString *)kUTTypeMovie])
+        {
+            NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
+            [[YAAssetsCreator sharedCreator] createUnsentVideoFromRecodingURL:videoURL];
+        }
+    }];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    DLog(@"Cancelled picking video from camera roll");
+    [picker dismissViewControllerAnimated:YES completion:NULL];
+}
 
 @end
