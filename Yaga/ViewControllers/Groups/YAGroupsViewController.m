@@ -172,6 +172,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)groupDidChange:(NSNotification*)notif {
+    [self.collectionView.pullToRefreshView stopAnimating];
+    
     if ([self.navigationController.topViewController isEqual:self]) {
         //open current group if needed
         if([YAUser currentUser].currentGroup) {

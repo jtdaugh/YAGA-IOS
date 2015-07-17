@@ -341,9 +341,9 @@
         else if([text rangeOfString:@" "].location == NSNotFound) {
             if(text.length > 0) {
                 
-                NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
-                RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
-                
+//                NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
+//                RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
+//                
 //                NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];
 //                for(YAContact *contact in contactsByUsername) {
 //                    if(![selectedUsernames containsObject:contact.username]) {
