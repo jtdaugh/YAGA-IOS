@@ -114,7 +114,7 @@
             [self configureCommentCellWithUsername:event.username comment:event.comment];
             break;
         case YAEventTypeLike:
-            [self configureLikeCellWithUsername:event.username likeCount:event.likeCount.integerValue];
+            [self configureLikeCellWithUsername:event.username likeCount:event.likeCount ? event.likeCount.integerValue : 0];
             break;
         case YAEventTypePost:
             [self configurePostCellWithUsername:event.username
@@ -145,6 +145,8 @@
     [self layoutLikeCountLabelWithYOffset:-1.f];
     if (likeCount > 1) {
         self.likeCountLabel.text = [NSString stringWithFormat:@"x %ld", likeCount];
+    } else {
+        self.likeCountLabel.text = @"";
     }
 }
 
