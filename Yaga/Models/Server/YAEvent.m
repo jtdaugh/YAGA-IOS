@@ -26,6 +26,7 @@
         event.comment = snapshot.value[@"comment"];
     } else if ([type isEqualToString:@"like"]) {
         event.eventType = YAEventTypeLike;
+        event.likeCount = snapshot.value[@"likeCount"];
     } else if ([type isEqualToString:@"post"]) {
         event.eventType = YAEventTypePost;
         event.timestamp = snapshot.value[@"timestamp"];
@@ -53,6 +54,7 @@
             break;
         case YAEventTypeLike:
             dict[@"type"] = @"like";
+            dict[@"likeCount"] = self.likeCount;
             break;
         case YAEventTypePost:
             dict[@"type"] = @"post";
