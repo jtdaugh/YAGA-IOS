@@ -159,6 +159,7 @@
     self.timestampLabel.text = timestamp;
     self.deleteButton.hidden = !isOwnVideo;
     self.commentsTextView.text = @"";
+    self.likeCountLabel.text = @"";
     [self layoutPostViews];
 }
 
