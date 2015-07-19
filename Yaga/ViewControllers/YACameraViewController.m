@@ -194,7 +194,8 @@ typedef enum {
         [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
         [self.recordButton.layer setBorderWidth:4.0f];
         [self.cameraAccessories addObject:self.recordButton];
-        [self.view addSubview:self.recordButton];
+        
+//        [self.view addSubview:self.recordButton];
         
         
         CGFloat labelWidth = 96;
