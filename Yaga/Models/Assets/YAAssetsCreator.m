@@ -186,28 +186,43 @@
     GPUImageMovieWriter *movieWriter;
     
     movieFile = [[GPUImageMovie alloc] initWithAsset:asset];
-    movieFile.runBenchmark = YES;
+//    movieFile.runBenchmark = YES;
     movieFile.playAtActualSpeed = NO;
 
 //    UIInterfaceOrientation orientation = [self orientationForTrack:asset];
+   
     
+    NSString *pathToMovie = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/PreProcessedMovie.m4v"];
+    unlink([pathToMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
+    NSURL *movieURL = [NSURL fileURLWithPath:pathToMovie];
+    
+    NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
+    [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
+    [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
+    [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
+    
+    movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:movieURL size:correctSize fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
+
     CGFloat xMultiple = vidSize.width / correctSize.width;
     CGFloat yMultiple = vidSize.height / correctSize.height;
     
-    CGRect cropRegion;
     if (xMultiple > yMultiple) {
         // The video needs to trim off the sides
         CGFloat croppedWidth = correctSize.width * yMultiple;
-        cropRegion = CGRectMake(((vidSize.width - croppedWidth)/vidSize.width) / 2, 0, croppedWidth / vidSize.width, 1);
-    } else {
-        // Need to trim off the top and bottom
-        CGFloat croppedHeight = correctSize.height * xMultiple;
-        cropRegion = CGRectMake(0, ((vidSize.height - croppedHeight)/vidSize.height) / 2, 1, croppedHeight / vidSize.height);
+        CGRect cropRegion = CGRectMake(((vidSize.width - croppedWidth)/vidSize.width) / 2, 0, croppedWidth / vidSize.width, 1);
+        filter = [[GPUImageCropFilter alloc] initWithCropRegion:cropRegion];
+        [movieFile addTarget:filter];
+        [filter addTarget:movieWriter];
 
+    } else {
+        // The video is skinnier than 3:4. Most likely a snapchat. Convert to 3:4 & Leave black bars on the sides.
+        filter = [[GPUImageCropFilter alloc] initWithCropRegion:CGRectMake(0, 0, 1, 1)];
+        [filter forceProcessingAtSizeRespectingAspectRatio:correctSize];
+        [movieFile addTarget:filter];
+        [filter addTarget:movieWriter];
     }
     
-    filter = [[GPUImageCropFilter alloc] initWithCropRegion:cropRegion];
-    
+
     // This might fuck stuff up IDK
 //    switch (orientation)
 //    {
@@ -228,62 +243,59 @@
 //            
 //    };
     
-    [movieFile addTarget:filter];
     
-    NSString *pathToMovie = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ProcessedMovie.m4v"];
-    unlink([pathToMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
-    NSURL *movieURL = [NSURL fileURLWithPath:pathToMovie];
+    AudioChannelLayout channelLayout;
+    memset(&channelLayout, 0, sizeof(AudioChannelLayout));
+    channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
     
-    NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
-    [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
-    [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
-    [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
+    NSDictionary *audioSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [ NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
+                                   [ NSNumber numberWithInt: 2 ], AVNumberOfChannelsKey,
+                                   [ NSNumber numberWithFloat: 16000.0 ], AVSampleRateKey,
+                                   [ NSData dataWithBytes:&channelLayout length: sizeof( AudioChannelLayout ) ], AVChannelLayoutKey,
+                                   [ NSNumber numberWithInt: 32000 ], AVEncoderBitRateKey,
+                                   nil];
+    
+    movieWriter.shouldPassthroughAudio = YES; // default YES
+//    if ([[asset tracksWithMediaType:AVMediaTypeAudio] count] > 0){
+////        [movieWriter setHasAudioTrack:YES audioSettings:audioSettings];
+//        [movieWriter setHasAudioTrack:YES audioSettings:nil];
+//        movieFile.audioEncodingTarget = movieWriter;
+//    } else {//no audio
+        [movieWriter setHasAudioTrack:NO];
+        movieFile.audioEncodingTarget = nil;
+//    }
 
-    movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:movieURL size:correctSize fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
-    [filter addTarget:movieWriter];
-    
-//    AudioChannelLayout channelLayout;
-//    memset(&channelLayout, 0, sizeof(AudioChannelLayout));
-//    channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
-//    
-//            NSDictionary *audioSettings = [NSDictionary dictionaryWithObjectsAndKeys:
-//                                           [ NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
-//                                           [ NSNumber numberWithInt: 2 ], AVNumberOfChannelsKey,
-//                                           [ NSNumber numberWithFloat: 16000.0 ], AVSampleRateKey,
-//                                           [ NSData dataWithBytes:&channelLayout length: sizeof( AudioChannelLayout ) ], AVChannelLayoutKey,
-//                                           [ NSNumber numberWithInt: 32000 ], AVEncoderBitRateKey,
-//                                           nil];
-    
-
-    
-//    movieFile.audioEncodingTarget = movieWriter;
     [movieFile enableSynchronizedEncodingUsingMovieWriter:movieWriter];
-//    movieWriter.shouldPassthroughAudio = NO; // default YES
-    movieWriter.assetWriter.movieFragmentInterval = kCMTimeInvalid;
-//    [movieWriter setHasAudioTrack:YES audioSettings:audioSettings];
-
-//    __weak GPUImageMovieWriter * weakWriter = movieWriter;
-//
-//    [movieWriter setCompletionBlock:^{
-//        NSLog(@"Completed Successfully");
-//        [weakWriter finishRecording];
-//        [filter removeTarget:weakWriter];
-//        completion(movieURL, nil);
-//    }];
     
     [movieWriter startRecording];
     [movieFile startProcessing];
 
-    //FIXME:
-    __block BOOL finished = NO;
+    __weak typeof(movieWriter) weakMovieWriter = movieWriter;
     [movieWriter setCompletionBlock:^{
         NSLog(@"Completed Successfully");
-        [movieWriter finishRecording];
-        [filter removeTarget:movieWriter];
-        finished = YES;
+        [movieFile removeTarget:filter];
+        [filter removeTarget:weakMovieWriter];
+        [weakMovieWriter finishRecording];
+        [movieFile description]; // just so it gets retained :)
+        [videoSettings description]; // just so it gets retained :)
+        [movieURL description]; // just so it gets retained :)
+        [asset description]; // just 9so it gets retained :)
+//        [audioSettings description]; // just so it gets retained :)
+        completion(movieURL, nil);
     }];
-    while (!finished);
-    completion(movieURL, nil);
+    
+//    [movieWriter setFailureBlock:^(NSError *error) {
+//        NSLog(@"Completed Successfully");
+//        [filter removeTarget:weakMovieWriter];
+//        [weakMovieWriter finishRecording];
+//        [movieFile description]; // just so it gets retained :)
+//        [videoSettings description]; // just so it gets retained :)
+//        [movieURL description]; // just so it gets retained :)
+//        [asset description]; // just 9so it gets retained :)
+//        //        [audioSettings description]; // just so it gets retained :)
+//        completion(nil, error);
+//    }];
 }
 
 
