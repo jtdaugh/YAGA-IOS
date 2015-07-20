@@ -177,8 +177,9 @@
     NSDictionary *pushInfo = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
     if(pushInfo && pushInfo[@"meta"]) {
         [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:@{@"meta":pushInfo[@"meta"]}];
+        [[NSUserDefaults standardUserDefaults] setObject:pushInfo forKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     }
-
+    
     return YES;
 }
 
