@@ -58,9 +58,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 static NSString *cellID = @"Cell";
 
-#define kNumberOfItemsAboveToDownload 4
-#define kNumberOfItemsBelowToDownload 16
-
 @implementation YACollectionViewController
 
 - (void)viewDidLoad {
