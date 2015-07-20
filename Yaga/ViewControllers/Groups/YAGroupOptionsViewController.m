@@ -523,6 +523,11 @@ static NSString *CellID = @"CellID";
 }
 
 - (void)groupsDidRefresh:(NSNotification*)notification {
+    if([self.group isInvalidated]) {
+        [self.navigationController popToRootViewControllerAnimated:YES];
+        return;
+    }
+    
     [self updateMembersPendingJoin];
     [self.tableView reloadData];
 }
