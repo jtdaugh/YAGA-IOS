@@ -24,7 +24,6 @@
 #import "NameGroupViewController.h"
 #import "YAGridViewController.h"
 
-#import "YAUserPermissions.h"
 #import "YAFindGroupsViewConrtoller.h"
 #import "YACollectionViewController.h"
 
@@ -119,9 +118,6 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self.delegate updateCameraAccessoriesWithViewIndex:0];
     }
     self.animatePush = YES;
-        
-    if(![YAUserPermissions pushPermissionsRequestedBefore])
-        [YAUserPermissions registerUserNotificationSettings];
     
     //load phonebook if it wasn't done before
     if(![YAUser currentUser].phonebook.count) {
