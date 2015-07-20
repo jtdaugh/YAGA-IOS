@@ -1035,11 +1035,15 @@ typedef enum {
 #pragma mark Group Notifications
 - (void)groupDidRefresh:(NSNotification*)notification {
     [self updateUnviewedVideosBadge];
+    
+    [self updateCameraButtonsWithMode:self.cameraButtonsMode];
 }
 
 
 - (void)groupDidChange:(NSNotification *)notification {
     [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
+    
+    [self updateCameraButtonsWithMode:self.cameraButtonsMode];
 }
 
 #pragma mark Settings
