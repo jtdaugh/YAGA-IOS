@@ -22,6 +22,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     
     self.videoPage = [[YAVideoPage alloc] initWithFrame:self.view.bounds];
     self.videoPage.presentingVC = (id<YASuspendableGesturesDelegate>)self;
@@ -137,6 +141,8 @@
 }
 
 - (void)trimVideoWithStartTime:(CGFloat)startTime andStopTime:(CGFloat)stopTime {
+    self.videoPage.playerView.URL = nil;
+    
     NSURL *videoFileUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
     
     AVAsset *anAsset = [[AVURLAsset alloc] initWithURL:videoFileUrl options:nil];
@@ -169,7 +175,6 @@
                         DLog(@"Edit video - export canceled");
                         break;
                     default:
-                        self.videoPage.playerView.URL = nil;
                         self.videoPage.playerView.URL = outputUrl;
                         self.videoPage.playerView.playWhenReady = YES;
                     break;
