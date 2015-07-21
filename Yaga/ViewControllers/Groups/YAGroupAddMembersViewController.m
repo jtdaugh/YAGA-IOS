@@ -414,7 +414,7 @@
             
             BOOL needRefresh = NO;
             for(NSDictionary *contactData in weakSelf.selectedContacts) {
-                RLMResults *pendingMembers = [weakSelf.existingGroup.pending_members objectsWhere:[NSString stringWithFormat:@"username = '%@'", contactData[nUsername]]];
+                RLMResults *pendingMembers = [weakSelf.existingGroup.pending_members objectsWhere:[NSString stringWithFormat:@"username = '%@' || username = '%@'", [contactData[nUsername] lowercaseString], [contactData[nUsername] capitalizedString]]];
                 if(pendingMembers.count) {
                     needRefresh = YES;
                     break;
