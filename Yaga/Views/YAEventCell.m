@@ -41,7 +41,7 @@
         
         self.likeCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(initialUsernameWidth + 11, 0, self.frame.size.width - (initialUsernameWidth + 30), initialHeight)];
         self.likeCountLabel.textColor = [UIColor whiteColor];
-        self.likeCountLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
+        self.likeCountLabel.font = [UIFont boldSystemFontOfSize:LIKE_COUNT_SIZE];
         self.likeCountLabel.shadowColor = [UIColor blackColor];
         self.likeCountLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         self.likeCountLabel.userInteractionEnabled = NO;
@@ -144,7 +144,7 @@
     [self layoutImageViewWithYOffset:-1.f];
     [self layoutLikeCountLabelWithYOffset:-1.f];
     if (likeCount > 1) {
-        self.likeCountLabel.text = [NSString stringWithFormat:@"x %ld", likeCount];
+        self.likeCountLabel.text = [NSString stringWithFormat:@"✕ %ld", likeCount];
     } else {
         self.likeCountLabel.text = @"";
     }
