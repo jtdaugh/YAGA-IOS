@@ -185,46 +185,8 @@
                         [[YAUser currentUser] saveObject:username forKey:nUsername];
                         [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
 
-                        //Get all groups for this user
-
-                        [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts, BOOL sentToServer) {
-                            if(error) {
-                                [weakSelf performSegueWithIdentifier:@"ShowGroupsAfterAuthentication" sender:weakSelf];
-                            } else {
-                                if(sentToServer) {
-                                    [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
-                                        if(!error) {
-                                            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                                                NSArray *readableArray = [YAUtils readableGroupsArrayFromResponse:response];
-                                                [[NSUserDefaults standardUserDefaults] setObject:readableArray forKey:kFindGroupsCachedResponse];
-                                                
-                                                dispatch_async(dispatch_get_main_queue(), ^{
-                                                    if(readableArray.count) {
-                                                        [weakSelf performSegueWithIdentifier:@"ShowFindGroupsAfterAuthentication" sender:weakSelf];
-                                                    }
-                                                    else {
-                                                        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-                                                            if(!error) {
-                                                                [weakSelf performSegueWithIdentifier:@"ShowGroupsAfterAuthentication" sender:weakSelf];
-                                                            }
-                                                            else {
-                                                                [weakSelf.activityIndicator stopAnimating];
-                                                                weakSelf.nextButton.enabled = YES;
-                                                                
-                                                                [YAUtils showNotification:NSLocalizedString(@"Can't get groups list", @"") type:YANotificationTypeError];
-                                                            }
-                                                        }];
-                                                    }
-                                                });
-                                            });
-                                        }
-                                        else {
-                                            [weakSelf performSegueWithIdentifier:@"ShowGroupsAfterAuthentication" sender:weakSelf];
-                                        }
-                                    }];
-                                }
-                            }
-                        } excludingPhoneNumbers:nil];
+                        //show find groups immediately
+                        [weakSelf performSegueWithIdentifier:@"ShowFindGroupsAfterAuthentication" sender:weakSelf];
                     }
                     else {
                         //new user

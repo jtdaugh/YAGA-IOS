@@ -411,6 +411,16 @@
         
         [self.existingGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
             [weakSelf showActivity:NO];
+            
+            BOOL needRefresh = NO;
+            for(NSDictionary *contactData in weakSelf.selectedContacts) {
+                RLMResults *pendingMembers = [weakSelf.existingGroup.pending_members objectsWhere:[NSString stringWithFormat:@"username = '%@'", contactData[nUsername]]];
+                if(pendingMembers.count) {
+                    needRefresh = YES;
+                    break;
+                }
+            }
+            
             if(!error) {
                 [[Mixpanel sharedInstance] track:@"Group changed" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
                 
@@ -428,6 +438,9 @@
                 }
             }
 
+            if(needRefresh)
+                [weakSelf.existingGroup refresh];
+            
         }];
     }
     else {
