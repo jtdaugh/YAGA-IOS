@@ -26,4 +26,6 @@
 - (void)closeAnimated;
 - (void)captionButtonPressed;
 
+- (void)showBottomControls:(BOOL)show;
+
 @end

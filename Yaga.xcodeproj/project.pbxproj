@@ -78,6 +78,10 @@
 		6EA942161A404B00001803C5 /* YAGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942151A404B00001803C5 /* YAGroup.m */; };
 		6EA942191A405C80001803C5 /* YAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942181A405C80001803C5 /* YAUtils.m */; };
 		6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA9421B1A41E5C9001803C5 /* YAVideo.m */; };
+		6EB57DEB1B5E6F52003B7374 /* YAEditVideoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DEA1B5E6F52003B7374 /* YAEditVideoViewController.m */; };
+		6EB57DF81B5E7159003B7374 /* SASliderLeft.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DF21B5E7159003B7374 /* SASliderLeft.m */; };
+		6EB57DF91B5E7159003B7374 /* SASliderRight.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DF41B5E7159003B7374 /* SASliderRight.m */; };
+		6EB57DFA1B5E7159003B7374 /* SAVideoRangeSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DF61B5E7159003B7374 /* SAVideoRangeSlider.m */; };
 		6EB995421B3B0035004ACF05 /* YASwipeToDismissViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB995411B3B0035004ACF05 /* YASwipeToDismissViewController.m */; };
 		6EB995451B3B005A004ACF05 /* YASharingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB995441B3B005A004ACF05 /* YASharingView.m */; };
 		6EC1F08A1B27394E00297D0F /* uploading.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6EC1F0891B27394E00297D0F /* uploading.gif */; };
@@ -269,6 +273,14 @@
 		6EA942181A405C80001803C5 /* YAUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAUtils.m; sourceTree = "<group>"; };
 		6EA9421A1A41E5C9001803C5 /* YAVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideo.h; sourceTree = "<group>"; };
 		6EA9421B1A41E5C9001803C5 /* YAVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideo.m; sourceTree = "<group>"; };
+		6EB57DE91B5E6F52003B7374 /* YAEditVideoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAEditVideoViewController.h; sourceTree = "<group>"; };
+		6EB57DEA1B5E6F52003B7374 /* YAEditVideoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAEditVideoViewController.m; sourceTree = "<group>"; };
+		6EB57DF11B5E7159003B7374 /* SASliderLeft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASliderLeft.h; sourceTree = "<group>"; };
+		6EB57DF21B5E7159003B7374 /* SASliderLeft.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASliderLeft.m; sourceTree = "<group>"; };
+		6EB57DF31B5E7159003B7374 /* SASliderRight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASliderRight.h; sourceTree = "<group>"; };
+		6EB57DF41B5E7159003B7374 /* SASliderRight.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASliderRight.m; sourceTree = "<group>"; };
+		6EB57DF51B5E7159003B7374 /* SAVideoRangeSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVideoRangeSlider.h; sourceTree = "<group>"; };
+		6EB57DF61B5E7159003B7374 /* SAVideoRangeSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAVideoRangeSlider.m; sourceTree = "<group>"; };
 		6EB995401B3B0035004ACF05 /* YASwipeToDismissViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASwipeToDismissViewController.h; sourceTree = "<group>"; };
 		6EB995411B3B0035004ACF05 /* YASwipeToDismissViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASwipeToDismissViewController.m; sourceTree = "<group>"; };
 		6EB995431B3B005A004ACF05 /* YASharingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASharingView.h; sourceTree = "<group>"; };
@@ -628,6 +640,8 @@
 				6E583B771A65394800639BE5 /* YAAnimatedTransitioningController.m */,
 				6EB995401B3B0035004ACF05 /* YASwipeToDismissViewController.h */,
 				6EB995411B3B0035004ACF05 /* YASwipeToDismissViewController.m */,
+				6EB57DE91B5E6F52003B7374 /* YAEditVideoViewController.h */,
+				6EB57DEA1B5E6F52003B7374 /* YAEditVideoViewController.m */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -654,6 +668,7 @@
 		6E9188B11A3F3A5A0034AB63 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				6EB57DEE1B5E7159003B7374 /* SAVideoRangeSlider */,
 				6EB995431B3B005A004ACF05 /* YASharingView.h */,
 				6EB995441B3B005A004ACF05 /* YASharingView.m */,
 				6E583B701A6535C400639BE5 /* YAVideoPage.h */,
@@ -709,6 +724,19 @@
 				6E9188C91A3F3A5A0034AB63 /* VENTokenField.m */,
 			);
 			path = VENTokenField;
+			sourceTree = "<group>";
+		};
+		6EB57DEE1B5E7159003B7374 /* SAVideoRangeSlider */ = {
+			isa = PBXGroup;
+			children = (
+				6EB57DF11B5E7159003B7374 /* SASliderLeft.h */,
+				6EB57DF21B5E7159003B7374 /* SASliderLeft.m */,
+				6EB57DF31B5E7159003B7374 /* SASliderRight.h */,
+				6EB57DF41B5E7159003B7374 /* SASliderRight.m */,
+				6EB57DF51B5E7159003B7374 /* SAVideoRangeSlider.h */,
+				6EB57DF61B5E7159003B7374 /* SAVideoRangeSlider.m */,
+			);
+			path = SAVideoRangeSlider;
 			sourceTree = "<group>";
 		};
 		71D0F55F190D998000C7DEE0 = {
@@ -940,6 +968,7 @@
 				861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailableError.m in Sources */,
 				885F53661B3F826700D359DB /* RCounter.m in Sources */,
 				6E9188DD1A3F3A5A0034AB63 /* YAGridViewController.m in Sources */,
+				6EB57DEB1B5E6F52003B7374 /* YAEditVideoViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
 				88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */,
 				88F906561B3A224400EE5527 /* YAPostCaptureViewController.m in Sources */,
@@ -978,6 +1007,7 @@
 				8695EF881AAF519900431E44 /* YAGifCopyActivity.m in Sources */,
 				6E9188CE1A3F3A5A0034AB63 /* UIColor+Expanded.m in Sources */,
 				6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */,
+				6EB57DFA1B5E7159003B7374 /* SAVideoRangeSlider.m in Sources */,
 				6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */,
 				0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */,
 				6E9188F11A3F3A5A0034AB63 /* VENToken.m in Sources */,
@@ -987,6 +1017,7 @@
 				6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */,
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
+				6EB57DF81B5E7159003B7374 /* SASliderLeft.m in Sources */,
 				6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */,
 				6E5F82391B3829C300AFB0CE /* GroupsTableViewCell.m in Sources */,
 				88FB0A261B1D5250002C213C /* YAEventManager.m in Sources */,
@@ -998,6 +1029,7 @@
 				6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */,
 				6EB995421B3B0035004ACF05 /* YASwipeToDismissViewController.m in Sources */,
 				6E9188E71A3F3A5A0034AB63 /* YaOnboardingNavigationController.m in Sources */,
+				6EB57DF91B5E7159003B7374 /* SASliderRight.m in Sources */,
 				6E583B6F1A6535BC00639BE5 /* YASwipingViewController.m in Sources */,
 				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,
 				413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */,

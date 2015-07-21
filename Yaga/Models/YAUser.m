@@ -253,6 +253,9 @@
 
 
 - (NSString*)formatDate:(NSDate*)date {
+    if(!date)
+        return @"";
+    
     NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitWeekOfYear | NSCalendarUnitWeekday fromDate:date];
     NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitWeekOfYear fromDate:[NSDate date]];
     

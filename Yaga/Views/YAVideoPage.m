@@ -1387,7 +1387,7 @@ static NSString *commentCellID = @"CommentCell";
 
     [self initializeCaption];
     
-    if (!self.video.group) {
+    if (self.video && !self.video.group) {
         // hacky delay to do this after you can see video.
         [self performSelector:@selector(shareButtonPressed:) withObject:nil afterDelay:0.25];
     }
@@ -1772,6 +1772,11 @@ static NSString *commentCellID = @"CommentCell";
 
     return YES; // handle the touch
 }
+
+- (void)showBottomControls:(BOOL)show {
+     self.commentsWrapperView.hidden = self.commentButton.hidden = self.likeButton.hidden = self.heartButton.hidden = self.moreButton.hidden  = !show;
+}
+
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
     if ([object isKindOfClass:[YAVideoPlayerView class]]) {
