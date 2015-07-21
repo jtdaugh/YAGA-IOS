@@ -94,6 +94,7 @@
 #define kNumberOfItemsBelowToDownload 16
 
 #define COMMENTS_FONT_SIZE 17.f
+#define LIKE_COUNT_SIZE 13.f
 
 #define kMaxUsersShownInList (5)
 
