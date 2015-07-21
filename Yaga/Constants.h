@@ -91,7 +91,7 @@
 #define MIXPANEL_DEBUG_TOKEN @"30b5e350abfdd51dad650da6c8213af6"
 
 #define kNumberOfItemsAboveToDownload 4
-#define kNumberOfItemsBelowToDownload 16
+#define kNumberOfItemsBelowToDownload 12
 
 #define COMMENTS_FONT_SIZE 17.f
 #define LIKE_COUNT_SIZE 13.f
@@ -131,6 +131,6 @@
 #define recordButtonWidth 60.0f
 #define GIF_GRID_UNSEEN @"gifsUnseen"
 
-#define DEBUG_SERVER 1
+#define DEBUG_SERVER 0
 
 #endif
