@@ -9,7 +9,6 @@
 #import "YAInviteViewController.h"
 
 #import "YAInviteCameraViewController.h"
-#import "YAPostCaptureViewController.h"
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import "MBProgressHUD.h"

@@ -223,7 +223,7 @@
         video.creator = [[YAUser currentUser] username];
         video.createdAt = currentDate;
         video.mp4Filename = mp4Filename;
-        video.group = group;
+//        video.group = group;
         video.pending = group.publicGroup;
         
         UIImage *previewImage = [YACameraManager sharedManager].capturePreviewImage;
@@ -236,16 +236,6 @@
         
         if (isImmediatelyAfterRecording)
             [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
-        
-        [group.realm beginWriteTransaction];
-        [group.videos insertObject:video atIndex:0];
-        [group.realm commitWriteTransaction];
-        
-        //start uploading while generating gif
-        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:group];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kNewVideos:@[video]}];
-        
         
         if(previewImage == nil)
             [self enqueueJpgCreationForVideo:video];

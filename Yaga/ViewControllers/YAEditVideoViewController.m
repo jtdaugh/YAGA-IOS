@@ -10,6 +10,7 @@
 #import "YAVideoPage.h"
 #import "YAUser.h"
 #import "SAVideoRangeSlider.h"
+#import "YAServerTransactionQueue.h"
 
 @interface YAEditVideoViewController ()
 @property (nonatomic, strong) SAVideoRangeSlider *editControl;
@@ -87,7 +88,29 @@
 }
 
 - (void)sendButtonTapped:(id)sender {
-    [self dismissAnimated];
+    
+    if([YAUser currentUser].currentGroup) {
+        [[RLMRealm defaultRealm] beginWriteTransaction];
+        [[YAUser currentUser].currentGroup.videos insertObject:self.video atIndex:0];
+        self.video.group = [YAUser currentUser].currentGroup;
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
+        
+        //start uploading while generating gif
+        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:[YAUser currentUser].currentGroup];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kNewVideos:@[self.video]}];
+        
+        [self dismissAnimated];
+    }
+
+    
+    
+//    if (self.video && !self.video.group) {
+//        // hacky delay to do this after you can see video.
+//        [self performSelector:@selector(shareButtonPressed:) withObject:nil afterDelay:0.25];
+//    }
+    
 }
 
 #pragma mark - YASwipeToDismissViewController

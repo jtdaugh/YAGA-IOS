@@ -21,9 +21,9 @@
 #import "YACameraViewController.h"
 #import "YAGroupsViewController.h"
 #import "YACollectionViewController.h"
-#import "YAPostCaptureViewController.h"
 #import "YAFindGroupsViewConrtoller.h"
 #import "NameGroupViewController.h"
+#import "YAEditVideoViewController.h"
 
 #import "SloppySwiper.h"
 
@@ -346,7 +346,8 @@
 }
 
 - (void)presentNewlyRecordedVideo:(YAVideo *)video {
-    YAPostCaptureViewController *vc = [[YAPostCaptureViewController alloc] initWithVideo:video cameraViewController:self.cameraViewController];
+    YAEditVideoViewController *vc = [YAEditVideoViewController new];
+    vc.video = video;
     vc.transitioningDelegate = self;
     vc.modalPresentationStyle = UIModalPresentationCustom;
     
