@@ -16,6 +16,7 @@
 @interface YAVideoPlayerView ()
 @property (strong) AVPlayerItem* playerItem;
 @property (nonatomic, strong) NSTimer *viewCountTimer;
+@property (nonatomic, strong) id playbackObserver;
 @end
 
 static void *AVPlayerDemoPlaybackViewControllerRateObservationContext = &AVPlayerDemoPlaybackViewControllerRateObservationContext;
@@ -68,9 +69,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 #pragma mark Asset URL
 
 - (AVAsset*)makeAssetCompositionFromAsset:(AVAsset*)sourceAsset {
-    
-    
-    
     AVMutableComposition *composition = [[AVMutableComposition alloc] init];
     
     // calculate time
@@ -120,7 +118,9 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
          Create an asset for inspection of a resource referenced by a given URL.
          Load the values for the asset key "playable".
          */
-        AVAsset *asset = [self makeAssetCompositionFromAsset:[AVURLAsset URLAssetWithURL:self.URL options:nil]];
+        AVAsset *originalAsset = [AVURLAsset URLAssetWithURL:self.URL options:nil];
+        
+        AVAsset *asset = [self makeAssetCompositionFromAsset:originalAsset];
         
         NSArray *requestedKeys = @[@"playable"];
         
@@ -140,12 +140,16 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 #pragma mark
 - (void)dealloc
 {
+    
+    [self.player removeTimeObserver:self.playbackObserver];
+    self.playbackObserver = nil;
+    
     [[YAViewCountManager sharedManager] stoppedWatchingVideo];
     [self.player removeObserver:self forKeyPath:@"currentItem"];
     [self.player removeObserver:self forKeyPath:@"rate"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
     [self.playerItem removeObserver:self forKeyPath:@"status"];
-
+    
     [self.player pause];
     self.playerItem = nil;
     self.player = nil;
@@ -222,7 +226,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
                                                      selector:@selector(playerItemDidReachEnd:)
                                                          name:AVPlayerItemDidPlayToEndTimeNotification
                                                        object:self.playerItem];
-
+            
             
             /* Create new player, if we don't already have one. */
             if (!self.player)
@@ -230,7 +234,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
                 /* Get a new AVPlayer initialized to play the specified player item. */
                 [self setPlayer:[AVPlayer playerWithPlayerItem:self.playerItem]];
                 self.player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
-
+                
                 /* Observe the AVPlayer "currentItem" property to find out when any
                  AVPlayer replaceCurrentItemWithPlayerItem: replacement will/did
                  occur.*/
@@ -353,15 +357,42 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     //hide fullscreen jpg preview
     if(self.subviews.count && [self.subviews[0] isKindOfClass:[UIImageView class]]) {
         UIImageView *jpgView = self.subviews[0];
-//        [jpgView removeFromSuperview];
+        //        [jpgView removeFromSuperview];
         [self sendSubviewToBack:jpgView];
     }
+    
+    //add playback observer
+    [self.player removeTimeObserver:self.playbackObserver];
+    
+    CMTime interval = CMTimeMake(33, 1000);
+    __weak typeof(self) weakSelf = self;
+    
+    self.playbackObserver = [self.player addPeriodicTimeObserverForInterval:interval queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+        CMTime endTime = CMTimeConvertScale (weakSelf.player.currentItem.asset.duration, weakSelf.player.currentTime.timescale, kCMTimeRoundingMethod_RoundHalfAwayFromZero);
+        if (CMTimeCompare(endTime, kCMTimeZero) != 0) {
+            double normalizedTime = (double) weakSelf.player.currentTime.value / (double) endTime.value;
+            DLog(@"normalizedTime: %f", normalizedTime);
+            
+            //the following two lines of code are needed in case we are using composition for "repeat" mode
+            normalizedTime *= NUM_OF_COPIES;
+            normalizedTime = normalizedTime - floorf(normalizedTime);
+            
+            [weakSelf playbackProgressChanged:normalizedTime];
+        }
+    }];
 }
 
 - (void)pause {
     [self.player pause];
 }
 
+- (void)playbackProgressChanged:(CGFloat)progress {
+    if([self.delegate respondsToSelector:@selector(playbackProgressChanged:)]) {
+        [self.delegate playbackProgressChanged:progress];
+    }
+}
+
 
 @end
 
+//

@@ -9,8 +9,9 @@
 #import "YAVideo.h"
 #import "SAVideoRangeSlider.h"
 #import "YASwipingViewController.h"
+#import "YAVideoPlayerView.h"
 
-@interface YAEditVideoViewController : YASwipeToDismissViewController <SAVideoRangeSliderDelegate>
+@interface YAEditVideoViewController : YASwipeToDismissViewController <SAVideoRangeSliderDelegate, YAVideoPlayerViewDelegate>
 @property (nonatomic, strong) YAVideo *video;
 
 @end

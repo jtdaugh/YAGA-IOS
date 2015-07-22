@@ -36,6 +36,7 @@
     [self.videoPage setVideo:self.video shouldPreload:YES];
     self.videoPage.playerView.playWhenReady = YES;
     [self.videoPage showBottomControls:NO];
+    self.videoPage.playerView.delegate = self;
     [self.view addSubview:self.videoPage];
     
     [self addBottomView];
@@ -46,8 +47,8 @@
 - (void)addEditingSlider {
     const CGFloat sliderHeight = 35;
     self.editControl = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight) videoUrl:[YAUtils urlFromFileName:self.video.mp4Filename]];
-//    self.editControl.maxGap = 15;
-//    self.editControl.minGap = 1;
+    //    self.editControl.maxGap = 15;
+    //    self.editControl.minGap = 1;
     self.editControl.delegate = self;
     [self.view addSubview:self.editControl];
 }
@@ -115,9 +116,9 @@
 - (void)videoRange:(SAVideoRangeSlider *)videoRange didChangeLeftPosition:(CGFloat)leftPosition rightPosition:(CGFloat)rightPosition {
     
     if(self.videoPage.playerView.player.rate == 1.0){
-        [self.videoPage.playerView.player pause];        
+        [self.videoPage.playerView.player pause];
     }
-
+    
     CGFloat newSeekTime;
     if(leftPosition != self.previousLeft){
         newSeekTime = leftPosition;
@@ -188,30 +189,32 @@
         CMTimeRange range = CMTimeRangeMake(start, duration);
         self.exportSession.timeRange = range;
         
-//        MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Please wait"];
+        __weak typeof(self) weakSelf = self;
         [self.exportSession exportAsynchronouslyWithCompletionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
-//                [hud hide:YES];
-                switch ([self.exportSession status]) {
+                switch ([weakSelf.exportSession status]) {
                     case AVAssetExportSessionStatusFailed:
-                        DLog(@"Edit video - export failed: %@", [[self.exportSession error] localizedDescription]);
+                        DLog(@"Edit video - export failed: %@", [[weakSelf.exportSession error] localizedDescription]);
                         break;
                     case AVAssetExportSessionStatusCancelled:
                         DLog(@"Edit video - export canceled");
                         break;
                     default:
-                        self.videoPage.playerView.URL = outputUrl;
-                        self.videoPage.playerView.playWhenReady = YES;
-                    break;
+                        weakSelf.videoPage.playerView.URL = outputUrl;
+                        weakSelf.videoPage.playerView.playWhenReady = YES;
+                        
+                        break;
                 }
                 
             });
-            
-            
         }];
         
     }
 }
 
+#pragma mark - YAVideoPlayerDelegate
+- (void)playbackProgressChanged:(CGFloat)progress {
+    [self.editControl setPlayerProgress:progress];
+}
 
 @end

@@ -33,6 +33,8 @@
 @property (nonatomic, strong) NSURL *videoUrl;
 @property (nonatomic, strong) SASliderLeft *leftThumb;
 @property (nonatomic, strong) SASliderRight *rightThumb;
+@property (nonatomic, strong) UIView *currentPositionView;
+
 @property (nonatomic) CGFloat frame_width;
 @property (nonatomic) Float64 durationSeconds;
 
@@ -64,6 +66,10 @@
         [self addSubview:_bgView];
         
         _videoUrl = videoUrl;
+        
+        _currentPositionView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, self.bounds.size.height)];
+        _currentPositionView.backgroundColor = [UIColor whiteColor];
+        [self addSubview:_currentPositionView];
         
         
         _topBorder = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, SLIDER_BORDERS_SIZE)];
@@ -300,7 +306,6 @@
     
 }
 
-
 - (void)layoutSubviews
 {
     CGFloat inset = _leftThumb.frame.size.width / 2;
@@ -477,8 +482,11 @@
     return [NSString stringWithFormat:@"%@ - %@", from, to];
 }
 
-
-
+- (void)setPlayerProgress:(CGFloat)progress {
+    CGFloat totalWidth = self.rightThumb.frame.origin.x + self.rightThumb.frame.size.width - self.leftThumb.frame.origin.x;
+    CGFloat currentPositionX = self.leftThumb.frame.origin.x + totalWidth * progress;
+    self.currentPositionView.frame = CGRectMake(currentPositionX, 0, self.currentPositionView.frame.size.width, self.currentPositionView.frame.size.height);
+}
 
 #pragma mark - Helpers
 
