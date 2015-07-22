@@ -277,11 +277,11 @@ static NSString *cellID = @"Cell";
     NSArray *deletedVideos = notification.userInfo[kDeletedVideos];
     
     void (^refreshBlock)(void) = ^ {
-        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
             [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
             [self scrollingDidStop];
         [self delayedHidePullToRefresh];
+        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     };
     
     if (newVideos.count || deletedVideos.count) {
