@@ -107,6 +107,8 @@ typedef enum {
 
 @property (strong, nonatomic) YAPopoverView *popover;
 
+@property (readonly, nonatomic) BOOL autoEnlarged;
+
 @end
 
 @implementation YACameraViewController
@@ -446,6 +448,12 @@ typedef enum {
     [self initCamera];
     
     [self updateCameraButtonsWithMode:self.cameraButtonsMode];
+    
+    //enlarge camera if app was opened without push info, do it only once
+    if(![[NSUserDefaults standardUserDefaults] objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey] && !self.autoEnlarged) {
+        [self enlargeCamera:nil];
+        _autoEnlarged = YES;
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -1028,7 +1036,7 @@ typedef enum {
 #pragma mark -
 
 - (void)updateUnviewedVideosBadge {
-    BOOL hidden = ![YAUser currentUser].currentGroup || ![[YAUser currentUser] hasUnviewedVideosInGroups];
+    BOOL hidden = ![YAUser currentUser].currentGroup || ![[YAUser currentUser] hasUnviewedVideosInGroups] || self.largeCamera;
     self.unviewedVideosBadge.alpha = hidden ? 0 : 1;
     self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
 }
