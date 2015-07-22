@@ -114,8 +114,9 @@
 #pragma mark - SAVideoRangeSliderDelegate
 - (void)videoRange:(SAVideoRangeSlider *)videoRange didChangeLeftPosition:(CGFloat)leftPosition rightPosition:(CGFloat)rightPosition {
     
-    [self.videoPage.playerView.player pause];
-    int32_t timeScale = self.videoPage.playerView.player.currentItem.asset.duration.timescale;
+    if(self.videoPage.playerView.player.rate == 1.0){
+        [self.videoPage.playerView.player pause];        
+    }
 
     CGFloat newSeekTime;
     if(leftPosition != self.previousLeft){
@@ -185,10 +186,10 @@
         CMTimeRange range = CMTimeRangeMake(start, duration);
         self.exportSession.timeRange = range;
         
-        MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Please wait"];
+//        MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Please wait"];
         [self.exportSession exportAsynchronouslyWithCompletionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
-                [hud hide:YES];
+//                [hud hide:YES];
                 switch ([self.exportSession status]) {
                     case AVAssetExportSessionStatusFailed:
                         DLog(@"Edit video - export failed: %@", [[self.exportSession error] localizedDescription]);

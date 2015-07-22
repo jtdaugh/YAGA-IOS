@@ -341,7 +341,7 @@
         weakSelf.imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:myAsset];
         
         if ([weakSelf isRetina]){
-            weakSelf.imageGenerator.maximumSize = CGSizeMake(weakSelf.bgView.frame.size.width*2, weakSelf.bgView.frame.size.height*2);
+            weakSelf.imageGenerator.maximumSize = CGSizeMake(weakSelf.bgView.frame.size.width*[UIScreen mainScreen].scale, weakSelf.bgView.frame.size.height*[UIScreen mainScreen].scale);
         } else {
             weakSelf.imageGenerator.maximumSize = CGSizeMake(weakSelf.bgView.frame.size.width, weakSelf.bgView.frame.size.height);
         }
@@ -361,7 +361,7 @@
                 
                 UIImage *videoScreen;
                 if ([weakSelf isRetina]){
-                    videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage scale:2.0 orientation:UIImageOrientationUp];
+                    videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp];
                 } else {
                     videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage];
                 }
@@ -369,6 +369,8 @@
                 CGRect rect=tmp.frame;
                 rect.size.width=picWidth;
                 tmp.frame=rect;
+                tmp.contentMode = UIViewContentModeScaleAspectFill;
+                tmp.layer.masksToBounds = YES;
                 [weakSelf.bgView addSubview:tmp];
                 picWidth = tmp.frame.size.width;
                 CGImageRelease(halfWayImage);
@@ -399,7 +401,7 @@
                     dispatch_async(dispatch_get_main_queue(), ^{
                         UIImage *videoScreen;
                         if ([weakSelf isRetina]){
-                            videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage scale:2.0 orientation:UIImageOrientationUp];
+                            videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp];
                         } else {
                             videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage];
                         }
@@ -428,7 +430,8 @@
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.bgView addSubview:tmp];
                         });
-                        
+                        tmp.contentMode = UIViewContentModeScaleAspectFill;
+                        tmp.layer.masksToBounds = YES;
                         [self addDarkenViewToImageView:tmp];
                         
                         CGImageRelease(halfWayImage);
