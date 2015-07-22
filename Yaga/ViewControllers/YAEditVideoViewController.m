@@ -135,6 +135,8 @@
 }
 
 - (void)videoRange:(SAVideoRangeSlider *)videoRange didGestureStateEndedLeftPosition:(CGFloat)leftPosition rightPosition:(CGFloat)rightPosition {
+    self.previousLeft = leftPosition;
+    self.previousRight = rightPosition;
     [self trimVideoWithStartTime:leftPosition andStopTime:rightPosition];
 }
 
