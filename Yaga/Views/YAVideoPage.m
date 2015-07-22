@@ -175,6 +175,8 @@ static NSString *commentCellID = @"CommentCell";
 //#endif
         
         [self setBackgroundColor:[UIColor blackColor]];
+        
+        self.showBottomControls = YES;
     }
     return self;
 }
