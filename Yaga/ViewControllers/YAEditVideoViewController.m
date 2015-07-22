@@ -16,6 +16,10 @@
 @property (nonatomic, strong) YAVideoPage *videoPage;
 @property (nonatomic, strong) UIView *bottomView;
 @property (nonatomic, strong) AVAssetExportSession *exportSession;
+
+@property CGFloat previousLeft;
+@property CGFloat previousRight;
+
 @end
 
 @implementation YAEditVideoViewController
@@ -42,7 +46,8 @@
 - (void)addEditingSlider {
     const CGFloat sliderHeight = 35;
     self.editControl = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight) videoUrl:[YAUtils urlFromFileName:self.video.mp4Filename]];
-    
+//    self.editControl.maxGap = 15;
+//    self.editControl.minGap = 1;
     self.editControl.delegate = self;
     [self.view addSubview:self.editControl];
 }
@@ -108,6 +113,23 @@
 
 #pragma mark - SAVideoRangeSliderDelegate
 - (void)videoRange:(SAVideoRangeSlider *)videoRange didChangeLeftPosition:(CGFloat)leftPosition rightPosition:(CGFloat)rightPosition {
+    
+    [self.videoPage.playerView.player pause];
+    int32_t timeScale = self.videoPage.playerView.player.currentItem.asset.duration.timescale;
+
+    CGFloat newSeekTime;
+    if(leftPosition != self.previousLeft){
+        newSeekTime = leftPosition;
+    } else if(rightPosition != self.previousRight){
+        newSeekTime = rightPosition;
+    }
+    
+    [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(newSeekTime, NSEC_PER_SEC) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+        //
+    }];
+    
+    NSLog(@"did change left position");
+    
     //do nothing
 }
 

@@ -495,7 +495,7 @@
 -(BOOL)isRetina{
     return ([[UIScreen mainScreen] respondsToSelector:@selector(displayLinkWithTarget:selector:)] &&
             
-            ([UIScreen mainScreen].scale == 2.0));
+            ([UIScreen mainScreen].scale >= 2.0));
 }
 
 - (void)addDarkenViewToImageView:(UIImageView*)imageView {
