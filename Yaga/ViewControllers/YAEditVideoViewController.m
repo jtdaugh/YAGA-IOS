@@ -20,7 +20,7 @@
 
 @property CGFloat previousLeft;
 @property CGFloat previousRight;
-
+@property BOOL dragging;
 @end
 
 @implementation YAEditVideoViewController
@@ -144,6 +144,7 @@
 
 #pragma mark - SAVideoRangeSliderDelegate
 - (void)videoRange:(SAVideoRangeSlider *)videoRange didChangeLeftPosition:(CGFloat)leftPosition rightPosition:(CGFloat)rightPosition {
+    self.dragging = YES;
     
     if(self.videoPage.playerView.player.rate == 1.0){
         [self.videoPage.playerView.player pause];
@@ -151,8 +152,10 @@
     
     CGFloat newSeekTime;
     if(leftPosition != self.previousLeft){
+        NSLog(@"previous left");
         newSeekTime = leftPosition;
     } else if(rightPosition != self.previousRight){
+        NSLog(@"previous right");
         newSeekTime = rightPosition;
     }
     
@@ -160,7 +163,10 @@
         //
     }];
     
-    NSLog(@"did change left position");
+    [self.trimmingView setPlayerProgress:0.0f];
+    
+    self.previousLeft = leftPosition;
+    self.previousRight = rightPosition;
     
     //do nothing
 }
@@ -169,6 +175,7 @@
     self.previousLeft = leftPosition;
     self.previousRight = rightPosition;
     [self trimVideoWithStartTime:leftPosition andStopTime:rightPosition];
+    self.dragging = NO;
 }
 
 
@@ -244,7 +251,9 @@
 
 #pragma mark - YAVideoPlayerDelegate
 - (void)playbackProgressChanged:(CGFloat)progress {
-    [self.trimmingView setPlayerProgress:progress];
+    if(!self.dragging){
+        [self.trimmingView setPlayerProgress:progress];
+    }
 }
 
 @end

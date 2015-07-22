@@ -371,7 +371,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
         CMTime endTime = CMTimeConvertScale (weakSelf.player.currentItem.asset.duration, weakSelf.player.currentTime.timescale, kCMTimeRoundingMethod_RoundHalfAwayFromZero);
         if (CMTimeCompare(endTime, kCMTimeZero) != 0) {
             double normalizedTime = (double) weakSelf.player.currentTime.value / (double) endTime.value;
-            DLog(@"normalizedTime: %f", normalizedTime);
+//            DLog(@"normalizedTime: %f", normalizedTime);
             
             //the following two lines of code are needed in case we are using composition for "repeat" mode
             normalizedTime *= NUM_OF_COPIES;
