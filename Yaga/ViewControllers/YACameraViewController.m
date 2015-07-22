@@ -663,7 +663,7 @@ typedef enum {
 //            [self.groupButton setAlpha:0.0];
             [self.unviewedVideosBadge setAlpha:0.0];
             [self.leftBottomButton setAlpha:0.0];
-            [self.groupButton setAlpha:0.0];
+            //[self.groupButton setAlpha:0.0];
 //            self.flashButton.frame = flashFrame;
 //            self.switchCameraButton.frame = switchCamFrame;
             
@@ -1113,8 +1113,6 @@ typedef enum {
 }
 
 - (void)updateCameraButtonsWithMode:(YACameraButtonMode)mode {
-    self.rightBottomButton.alpha = 0;
-    
     if(mode == YACAmeraButtonModeFindAndCreate) {
         
         //left button
@@ -1130,7 +1128,7 @@ typedef enum {
 
         [UIView animateWithDuration:0.2 animations:^{
             self.leftBottomButton.alpha = 0;
-            self.rightBottomButton.alpha = 1;
+            self.rightBottomButton.alpha = self.largeCamera ? 0 : 1;
             self.groupButton.alpha = 0;
             self.logo.alpha = 1;
             self.unviewedVideosBadge.alpha = 0;
@@ -1175,7 +1173,7 @@ typedef enum {
         self.unviewedVideosBadge.hidden = NO;
 
         [UIView animateWithDuration:0.2 animations:^{
-            self.rightBottomButton.alpha = 1;
+            self.rightBottomButton.alpha = self.largeCamera ? 0 : 1;
             self.leftBottomButton.alpha = 1;
             self.groupButton.alpha = 1;
             self.logo.alpha = 0;
