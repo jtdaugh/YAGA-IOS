@@ -659,20 +659,12 @@ typedef enum {
             //
             self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
             self.cameraView.frame = CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
-            [self.rightBottomButton setAlpha:0.0];
-//            [self.groupButton setAlpha:0.0];
-            [self.unviewedVideosBadge setAlpha:0.0];
-            [self.leftBottomButton setAlpha:0.0];
-            //[self.groupButton setAlpha:0.0];
-//            self.flashButton.frame = flashFrame;
-//            self.switchCameraButton.frame = switchCamFrame;
-            
-//            self.recordButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
             self.recordButton.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT - recordButtonWidth);
         } completion:^(BOOL finished) {
         }];
         
         self.largeCamera = YES;
+        [self updateCameraButtonsWithMode:self.cameraButtonsMode];
     }
 }
 
@@ -1054,6 +1046,8 @@ typedef enum {
 - (void)groupDidChange:(NSNotification *)notification {
     [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
     
+    self.cameraButtonsMode = [YAUser currentUser].currentGroup ? YACameraButtonModeBackAndInfo : YACAmeraButtonModeFindAndCreate;
+    
     [self updateCameraButtonsWithMode:self.cameraButtonsMode];
 }
 
@@ -1174,7 +1168,7 @@ typedef enum {
 
         [UIView animateWithDuration:0.2 animations:^{
             self.rightBottomButton.alpha = self.largeCamera ? 0 : 1;
-            self.leftBottomButton.alpha = 1;
+            self.leftBottomButton.alpha = self.largeCamera ? 0 : 1;
             self.groupButton.alpha = 1;
             self.logo.alpha = 0;
             [self updateUnviewedVideosBadge];
