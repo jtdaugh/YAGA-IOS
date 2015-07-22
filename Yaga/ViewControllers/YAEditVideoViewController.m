@@ -36,7 +36,7 @@
     self.videoPage.presentingVC = (id<YASuspendableGesturesDelegate>)self;
     [self.videoPage setVideo:self.video shouldPreload:YES];
     self.videoPage.playerView.playWhenReady = YES;
-    [self.videoPage showBottomControls:NO];
+    self.videoPage.showBottomControls = NO;
     self.videoPage.playerView.delegate = self;
     [self.view addSubview:self.videoPage];
     

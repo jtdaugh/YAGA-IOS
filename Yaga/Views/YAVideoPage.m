@@ -888,7 +888,7 @@ static NSString *commentCellID = @"CommentCell";
 //}
 
 - (void)setGesturesEnabled:(BOOL)enabled {
-    if ([self.video isInvalidated] || !self.video.group) {
+    if ([self.video isInvalidated]) {
         self.hideGestureRecognizer.enabled = enabled;
         self.captionTapRecognizer.enabled = NO;
         self.likeDoubleTapRecognizer.enabled = NO;
@@ -943,12 +943,12 @@ static NSString *commentCellID = @"CommentCell";
         self.captionButtonContainer.hidden = YES;
 //        self.textButton.hidden = NO;
         self.deleteButton.hidden = NO;
-        self.moreButton.hidden = NO;
-        self.commentsWrapperView.hidden = NO;
+        self.moreButton.hidden = !self.showBottomControls;
+        self.commentsWrapperView.hidden = !self.showBottomControls;
         self.XButton.hidden = NO;
         
-        self.commentButton.hidden = NO;
-        self.heartButton.hidden = NO;
+        self.commentButton.hidden = !self.showBottomControls;
+        self.heartButton.hidden = !self.showBottomControls;
         self.viewCounter.superview.alpha = 1.0;
         self.viewCountImageView.alpha = 1.0;
     }
@@ -1253,7 +1253,6 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
-    DLog(@"tapped");
     if (self.editingCaption) return;
     if ([recognizer isEqual:self.likeDoubleTapRecognizer]) {
         [self addLike];
@@ -1768,8 +1767,9 @@ static NSString *commentCellID = @"CommentCell";
     return YES; // handle the touch
 }
 
-- (void)showBottomControls:(BOOL)show {
-     self.commentsWrapperView.hidden = self.commentButton.hidden = self.likeButton.hidden = self.heartButton.hidden = self.moreButton.hidden  = !show;
+- (void)setShowBottomControls:(BOOL)showBottomControls {
+    _showBottomControls = showBottomControls;
+     self.commentsWrapperView.hidden = self.commentButton.hidden = self.likeButton.hidden = self.heartButton.hidden = self.moreButton.hidden  = !_showBottomControls;
 }
 
 - (void)showSharingOptions {

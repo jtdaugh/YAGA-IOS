@@ -26,7 +26,7 @@
 - (void)closeAnimated;
 - (void)captionButtonPressed;
 
-- (void)showBottomControls:(BOOL)show;
+@property (nonatomic, assign) BOOL showBottomControls;
 - (void)showSharingOptions;
 
 @end
