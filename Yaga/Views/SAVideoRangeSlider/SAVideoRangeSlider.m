@@ -384,18 +384,18 @@
             
             NSMutableArray *allTimes = [[NSMutableArray alloc] init];
             
-            int time4Pic = 0;
-            
-            // Bug iOS7 - generateCGImagesAsynchronouslyForTimes
-            __block int prefreWidth=0;
-            for (__block int i=1, ii=1; i<picsCnt; i++){
-                time4Pic = i*picWidth;
-                
-                CMTime timeFrame = CMTimeMakeWithSeconds(weakSelf.durationSeconds*time4Pic/weakSelf.bgView.frame.size.width, 600);
-                
-                [allTimes addObject:[NSValue valueWithCMTime:timeFrame]];
-                
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                int time4Pic = 0;
+                // Bug iOS7 - generateCGImagesAsynchronouslyForTimes
+                __block int prefreWidth=0;
+                for (__block int i=1, ii=1; i<picsCnt; i++){
+                    time4Pic = i*picWidth;
+                    
+                    CMTime timeFrame = CMTimeMakeWithSeconds(weakSelf.durationSeconds*time4Pic/weakSelf.bgView.frame.size.width, 600);
+                    
+                    [allTimes addObject:[NSValue valueWithCMTime:timeFrame]];
+                    
+                    
                     CGImageRef halfWayImage = [weakSelf.imageGenerator copyCGImageAtTime:timeFrame actualTime:&actualTime error:&error];
                     
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -436,14 +436,12 @@
                         
                         CGImageRelease(halfWayImage);
                     });
-                });
-            }
+                    
+                }
+            });
         });
     });
 }
-
-
-
 
 #pragma mark - Properties
 
