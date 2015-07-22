@@ -90,7 +90,17 @@
 - (void)sendButtonTapped:(id)sender {
     
     if([YAUser currentUser].currentGroup) {
+        NSError *error;
+        NSURL *resultingUrl;
+        [[NSFileManager defaultManager] replaceItemAtURL:[YAUtils urlFromFileName:self.video.mp4Filename] withItemAtURL:[self trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&error];
+        if(error) {
+            [YAUtils showNotification:@"Can not save video" type:YANotificationTypeError];
+            return;
+        }
+        [self deleteTrimmedFile];
+        
         [[RLMRealm defaultRealm] beginWriteTransaction];
+        
         [[YAUser currentUser].currentGroup.videos insertObject:self.video atIndex:0];
         self.video.group = [YAUser currentUser].currentGroup;
         [[RLMRealm defaultRealm] commitWriteTransaction];
