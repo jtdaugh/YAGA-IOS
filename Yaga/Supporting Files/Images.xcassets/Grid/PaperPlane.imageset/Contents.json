@@ -2,18 +2,18 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "1437507139_paperplane.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "filename" : "paper-send.png"
     },
     {
       "idiom" : "universal",
-      "filename" : "1437507139_paperplane-1.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "filename" : "paper-send-1.png"
     },
     {
       "idiom" : "universal",
-      "filename" : "1437507139_paperplane-2.png",
-      "scale" : "3x"
+      "scale" : "3x",
+      "filename" : "paper-send-2.png"
     }
   ],
   "info" : {
