@@ -23,7 +23,6 @@
 
 #import "YAEventManager.h"
 #import "YAPopoverView.h"
-#import "YAEditVideoViewController.h"
 
 @protocol GridViewControllerDelegate;
 
@@ -456,11 +455,8 @@ static NSString *cellID = @"Cell";
 - (void)openVideoAtIndexPath:(NSIndexPath*)indexPath {
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
     
-    //YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.item];
-    //swipingVC.delegate = self;
-    YAEditVideoViewController *editVC = [YAEditVideoViewController new];
-    YAVideo *video = [[YAUser currentUser].currentGroup.videos objectAtIndex:indexPath.item];
-    editVC.video = video;
+    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.item];
+    swipingVC.delegate = self;
     
     CGRect initialFrame = attributes.frame;
     initialFrame.origin.y -= self.collectionView.contentOffset.y;
@@ -468,10 +464,10 @@ static NSString *cellID = @"Cell";
     
     [self.delegate setInitialAnimationFrame:initialFrame];
     
-    editVC.transitioningDelegate = self.delegate;
-    editVC.modalPresentationStyle = UIModalPresentationCustom;
+    swipingVC.transitioningDelegate = self.delegate;
+    swipingVC.modalPresentationStyle = UIModalPresentationCustom;
     
-    [self presentViewController:editVC animated:YES completion:nil];
+    [self presentViewController:swipingVC animated:YES completion:nil];
 }
 
 - (void)openVideo:(NSNotification*)notif {
