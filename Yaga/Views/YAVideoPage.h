@@ -27,5 +27,6 @@
 - (void)captionButtonPressed;
 
 - (void)showBottomControls:(BOOL)show;
+- (void)showSharingOptions;
 
 @end

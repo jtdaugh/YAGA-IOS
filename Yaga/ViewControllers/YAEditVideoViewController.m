@@ -13,7 +13,7 @@
 #import "YAServerTransactionQueue.h"
 
 @interface YAEditVideoViewController ()
-@property (nonatomic, strong) SAVideoRangeSlider *editControl;
+@property (nonatomic, strong) SAVideoRangeSlider *trimmingView;
 @property (nonatomic, strong) YAVideoPage *videoPage;
 @property (nonatomic, strong) UIView *bottomView;
 @property (nonatomic, strong) AVAssetExportSession *exportSession;
@@ -47,11 +47,11 @@
 
 - (void)addEditingSlider {
     const CGFloat sliderHeight = 35;
-    self.editControl = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight) videoUrl:[YAUtils urlFromFileName:self.video.mp4Filename]];
+    self.trimmingView = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight) videoUrl:[YAUtils urlFromFileName:self.video.mp4Filename]];
     //    self.editControl.maxGap = 15;
     //    self.editControl.minGap = 1;
-    self.editControl.delegate = self;
-    [self.view addSubview:self.editControl];
+    self.trimmingView.delegate = self;
+    [self.view addSubview:self.trimmingView];
 }
 
 - (void)addBottomView {
@@ -103,14 +103,11 @@
         
         [self dismissAnimated];
     }
-
-    
-    
-//    if (self.video && !self.video.group) {
-//        // hacky delay to do this after you can see video.
-//        [self performSelector:@selector(shareButtonPressed:) withObject:nil afterDelay:0.25];
-//    }
-    
+    else {
+        self.bottomView.hidden = YES;
+        self.trimmingView.hidden = YES;
+        [self.videoPage showSharingOptions];
+    }
 }
 
 #pragma mark - YASwipeToDismissViewController
@@ -237,7 +234,7 @@
 
 #pragma mark - YAVideoPlayerDelegate
 - (void)playbackProgressChanged:(CGFloat)progress {
-    [self.editControl setPlayerProgress:progress];
+    [self.trimmingView setPlayerProgress:progress];
 }
 
 @end

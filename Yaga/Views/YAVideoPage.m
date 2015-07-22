@@ -1772,6 +1772,10 @@ static NSString *commentCellID = @"CommentCell";
      self.commentsWrapperView.hidden = self.commentButton.hidden = self.likeButton.hidden = self.heartButton.hidden = self.moreButton.hidden  = !show;
 }
 
+- (void)showSharingOptions {
+    [self shareButtonPressed:nil];
+}
+
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
     if ([object isKindOfClass:[YAVideoPlayerView class]]) {
