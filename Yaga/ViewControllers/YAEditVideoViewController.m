@@ -18,8 +18,6 @@
 @property (nonatomic, strong) UIView *bottomView;
 @property (nonatomic, strong) AVAssetExportSession *exportSession;
 
-@property CGFloat previousLeft;
-@property CGFloat previousRight;
 @property BOOL dragging;
 @end
 
@@ -141,41 +139,36 @@
 }
 
 #pragma mark - SAVideoRangeSliderDelegate
-- (void)videoRange:(SAVideoRangeSlider *)videoRange didChangeLeftPosition:(CGFloat)leftPosition rightPosition:(CGFloat)rightPosition {
+- (void)rangeSliderDidMoveLeftSlider:(SAVideoRangeSlider *)rangeSlider {
     self.dragging = YES;
     
     if(self.videoPage.playerView.player.rate == 1.0){
         [self.videoPage.playerView.player pause];
     }
     
-    CGFloat newSeekTime;
-    if(leftPosition != self.previousLeft){
-        NSLog(@"previous left");
-        newSeekTime = leftPosition;
-    } else if(rightPosition != self.previousRight){
-        NSLog(@"previous right");
-        newSeekTime = rightPosition;
-    }
-    
-    [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(newSeekTime, NSEC_PER_SEC) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
-        //
+    [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.leftPosition, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
     }];
     
-    [self.trimmingView setPlayerProgress:0.0f];
-    
-    self.previousLeft = leftPosition;
-    self.previousRight = rightPosition;
-    
-    //do nothing
+//    [self.trimmingView setPlayerProgress:0.0f];
 }
 
-- (void)videoRange:(SAVideoRangeSlider *)videoRange didGestureStateEndedLeftPosition:(CGFloat)leftPosition rightPosition:(CGFloat)rightPosition {
-    self.previousLeft = leftPosition;
-    self.previousRight = rightPosition;
-    [self trimVideoWithStartTime:leftPosition andStopTime:rightPosition];
+- (void)rangeSliderDidMoveRightSlider:(SAVideoRangeSlider *)rangeSlider {
+    self.dragging = YES;
+    
+    if(self.videoPage.playerView.player.rate == 1.0){
+        [self.videoPage.playerView.player pause];
+    }
+    
+    [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.rightPosition, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+    }];
+    
+//    [self.trimmingView setPlayerProgress:0.0f];
+}
+
+- (void)rangeSliderDidEndMoving:(SAVideoRangeSlider *)rangeSlider {
+    [self trimVideoWithStartTime:rangeSlider.leftPosition andStopTime:rangeSlider.rightPosition];
     self.dragging = NO;
 }
-
 
 #pragma mark - Trimming
 -(void)deleteTrimmedFile {
@@ -237,7 +230,6 @@
                     default:
                         weakSelf.videoPage.playerView.URL = outputUrl;
                         weakSelf.videoPage.playerView.playWhenReady = YES;
-                        
                         break;
                 }
                 

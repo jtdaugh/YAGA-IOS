@@ -145,18 +145,6 @@
     _minGap = minGap;
 }
 
-
-- (void)delegateNotification
-{
-    if ([_delegate respondsToSelector:@selector(videoRange:didChangeLeftPosition:rightPosition:)]){
-        [_delegate videoRange:self didChangeLeftPosition:self.leftPosition rightPosition:self.rightPosition];
-    }
-    
-}
-
-
-
-
 #pragma mark - Gestures
 
 - (void)handleLeftPan:(UIPanGestureRecognizer *)gesture
@@ -182,7 +170,9 @@
         
         [self setNeedsLayout];
         
-        [self delegateNotification];
+        if ([_delegate respondsToSelector:@selector(rangeSliderDidMoveLeftSlider:)]){
+            [_delegate rangeSliderDidMoveLeftSlider:self];
+        }
         
     }
     
@@ -191,8 +181,8 @@
     [self setTimeLabel];
     
     if (gesture.state == UIGestureRecognizerStateEnded){
-        if ([_delegate respondsToSelector:@selector(videoRange:didGestureStateEndedLeftPosition:rightPosition:)]){
-            [_delegate videoRange:self didGestureStateEndedLeftPosition:self.leftPosition rightPosition:self.rightPosition];
+        if ([_delegate respondsToSelector:@selector(rangeSliderDidEndMoving:)]){
+            [_delegate rangeSliderDidEndMoving:self];
         }
     }
 }
@@ -228,15 +218,16 @@
         
         [self setNeedsLayout];
         
-        [self delegateNotification];
-        
+        if ([_delegate respondsToSelector:@selector(rangeSliderDidMoveRightSlider:)]){
+            [_delegate rangeSliderDidMoveRightSlider:self];
+        }
     }
     
     [self setTimeLabel];
     
     if (gesture.state == UIGestureRecognizerStateEnded){
-        if ([_delegate respondsToSelector:@selector(videoRange:didGestureStateEndedLeftPosition:rightPosition:)]){
-            [_delegate videoRange:self didGestureStateEndedLeftPosition:self.leftPosition rightPosition:self.rightPosition];
+        if ([_delegate respondsToSelector:@selector(rangeSliderDidEndMoving:)]){
+            [_delegate rangeSliderDidEndMoving:self];
         }
     }
 }
@@ -244,7 +235,6 @@
 
 - (void)handleCenterPan:(UIPanGestureRecognizer *)gesture
 {
-    
     if (gesture.state == UIGestureRecognizerStateBegan || gesture.state == UIGestureRecognizerStateChanged) {
         
         CGPoint translation = [gesture translationInView:self];
@@ -262,18 +252,19 @@
         
         [self setNeedsLayout];
         
-        [self delegateNotification];
+        if ([_delegate respondsToSelector:@selector(rangeSliderDidMoveLeftSlider:)]){
+            [_delegate rangeSliderDidMoveLeftSlider:self];
+        }
         
     }
     
     [self setTimeLabel];
     
     if (gesture.state == UIGestureRecognizerStateEnded){
-        if ([_delegate respondsToSelector:@selector(videoRange:didGestureStateEndedLeftPosition:rightPosition:)]){
-            [_delegate videoRange:self didGestureStateEndedLeftPosition:self.leftPosition rightPosition:self.rightPosition];
+        if ([_delegate respondsToSelector:@selector(rangeSliderDidEndMoving:)]){
+            [_delegate rangeSliderDidEndMoving:self];
         }
     }
-    
 }
 
 - (void)layoutSubviews

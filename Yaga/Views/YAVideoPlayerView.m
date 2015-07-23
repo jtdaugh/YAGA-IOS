@@ -375,7 +375,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
             //the following two lines of code are needed in case we are using composition for "repeat" mode
             normalizedTime *= NUM_OF_COPIES;
             normalizedTime = normalizedTime - floorf(normalizedTime);
-            
             [weakSelf playbackProgressChanged:normalizedTime];
         }
     }];
