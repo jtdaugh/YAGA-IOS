@@ -116,21 +116,6 @@
         UIPanGestureRecognizer *centerPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCenterPan:)];
         [_centerView addGestureRecognizer:centerPan];
         
-        
-        //        _popoverBubble = [[SAResizibleBubble alloc] initWithFrame:CGRectMake(0, -50, 100, 50)];
-        //        _popoverBubble.alpha = 0;
-        //        _popoverBubble.backgroundColor = [UIColor clearColor];
-        //        [self addSubview:_popoverBubble];
-        //
-        //
-        //        _bubleText = [[UILabel alloc] initWithFrame:_popoverBubble.frame];
-        //        _bubleText.font = [UIFont boldSystemFontOfSize:20];
-        //        _bubleText.backgroundColor = [UIColor clearColor];
-        //        _bubleText.textColor = [UIColor blackColor];
-        //        _bubleText.textAlignment = UITextAlignmentCenter;
-        //
-        //        [_popoverBubble addSubview:_bubleText];
-        
         [self getMovieFrame];
     }
     
@@ -145,21 +130,6 @@
         // Initialization code
     }
     return self;
-}
-
-
--(void)setPopoverBubbleSize: (CGFloat) width height:(CGFloat)height{
-    
-    //    CGRect currentFrame = _popoverBubble.frame;
-    //    currentFrame.size.width = width;
-    //    currentFrame.size.height = height;
-    //    currentFrame.origin.y = -height;
-    //    _popoverBubble.frame = currentFrame;
-    //
-    //    currentFrame.origin.x = 0;
-    //    currentFrame.origin.y = 0;
-    //    _bubleText.frame = currentFrame;
-    //
 }
 
 

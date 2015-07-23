@@ -42,14 +42,12 @@
     
     [self addBottomView];
     
-    [self addEditingSlider];
+    [self addTrimmingView];
 }
 
-- (void)addEditingSlider {
+- (void)addTrimmingView {
     const CGFloat sliderHeight = 35;
     self.trimmingView = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight) videoUrl:[YAUtils urlFromFileName:self.video.mp4Filename]];
-    //    self.editControl.maxGap = 15;
-    //    self.editControl.minGap = 1;
     self.trimmingView.delegate = self;
     [self.view addSubview:self.trimmingView];
 }

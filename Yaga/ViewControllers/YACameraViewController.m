@@ -93,7 +93,7 @@ typedef enum {
 
 @property (strong, nonatomic) UISwipeGestureRecognizer *swipeEnlargeCamera;
 @property (strong, nonatomic) UISwipeGestureRecognizer *swipeCollapseCamera;
-@property BOOL largeCamera;
+@property (assign, nonatomic)  BOOL largeCamera;
 
 @property (nonatomic, assign) CGRect previousViewFrame;
 @property double animationStartTime;
@@ -109,6 +109,7 @@ typedef enum {
 
 @property (readonly, nonatomic) BOOL autoEnlarged;
 
+@property (strong, nonatomic) UIButton *doneRecordingButton;
 @end
 
 @implementation YACameraViewController
@@ -339,6 +340,16 @@ typedef enum {
         self.filters = @[@"#nofilter"];
         self.filterIndex = 0;
 
+        const CGFloat doneButtonWidth = 50;
+        self.doneRecordingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.doneRecordingButton.frame = CGRectMake(self.cameraView.bounds.size.width, self.cameraView.bounds.size.height - doneButtonWidth - 10, doneButtonWidth, doneButtonWidth);
+        self.doneRecordingButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+        [self.doneRecordingButton setImage:[[UIImage imageNamed:@"PaperPlane"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+        [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapped) forControlEvents:UIControlEventTouchUpInside];
+        self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+        self.doneRecordingButton.tintColor = [UIColor whiteColor];
+        [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        [self.cameraView addSubview:self.doneRecordingButton];
     }
     
     //stop recording on incoming call
@@ -357,7 +368,7 @@ typedef enum {
 
 - (void)initCamera {
     [[YACameraManager sharedManager] initCamera];
-    
+    [[YACameraManager sharedManager] initCamera];
     dispatch_async(dispatch_get_main_queue(), ^{
         [YACameraManager sharedManager].delegate = self;
         [[YACameraManager sharedManager] setCameraView:self.cameraView];
@@ -482,26 +493,26 @@ typedef enum {
 }
 
 - (void)enableRecording:(BOOL)enable {
-    if(enable) {
-        
-        self.longPressFullScreenGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-        self.longPressFullScreenGestureRecognizer.delegate = self;
-        [self.longPressFullScreenGestureRecognizer setMinimumPressDuration:0.2f];
-        [self.cameraView addGestureRecognizer:self.longPressFullScreenGestureRecognizer];
-        self.longPressRedButtonGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
-        [self.longPressRedButtonGestureRecognizer setMinimumPressDuration:0.0f];
-        self.longPressRedButtonGestureRecognizer.delegate = self;
-        [self.recordButton addGestureRecognizer:self.longPressRedButtonGestureRecognizer];
-    }
-    else {
-        [self.cameraView removeGestureRecognizer:self.longPressFullScreenGestureRecognizer];
-//        [self.cameraView removeGestureRecognizer:self.swipeEnlargeCamera];
-//        [self.cameraView removeGestureRecognizer:self.swipeCollapseCamera];
-        [self.recordButton removeGestureRecognizer:self.longPressRedButtonGestureRecognizer];
-    }
-//    [UIView animateWithDuration:0.2 animations:^{
-//        self.recordButton.transforgm = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
-//    }];
+//    if(enable) {
+//        
+//        self.longPressFullScreenGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+//        self.longPressFullScreenGestureRecognizer.delegate = self;
+//        [self.longPressFullScreenGestureRecognizer setMinimumPressDuration:0.2f];
+//        [self.cameraView addGestureRecognizer:self.longPressFullScreenGestureRecognizer];
+//        self.longPressRedButtonGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleHold:)];
+//        [self.longPressRedButtonGestureRecognizer setMinimumPressDuration:0.0f];
+//        self.longPressRedButtonGestureRecognizer.delegate = self;
+//        [self.recordButton addGestureRecognizer:self.longPressRedButtonGestureRecognizer];
+//    }
+//    else {
+//        [self.cameraView removeGestureRecognizer:self.longPressFullScreenGestureRecognizer];
+////        [self.cameraView removeGestureRecognizer:self.swipeEnlargeCamera];
+////        [self.cameraView removeGestureRecognizer:self.swipeCollapseCamera];
+//        [self.recordButton removeGestureRecognizer:self.longPressRedButtonGestureRecognizer];
+//    }
+////    [UIView animateWithDuration:0.2 animations:^{
+////        self.recordButton.transforgm = enable ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0, 0);
+////    }];
 }
 
 - (void)swipedCameraRight:(UISwipeGestureRecognizer *)recognizer {
@@ -631,11 +642,6 @@ typedef enum {
 - (void)collapseCamera:(UISwipeGestureRecognizer *)recognizer {
     
     if(self.largeCamera){
-//        CGRect flashFrame = self.flashButton.frame;
-//        flashFrame.origin.y = VIEW_HEIGHT/2 - flashFrame.size.height - 14;
-//        CGRect switchCamFrame = self.switchCameraButton.frame;
-//        switchCamFrame.origin.y = VIEW_HEIGHT/2 - switchCamFrame.size.height - 10;
-
         [self animateToOriginalCameraFrame];
         
         self.largeCamera = NO;
@@ -650,11 +656,8 @@ typedef enum {
         
         self.previousViewFrame = self.view.frame;
         
-//        [self startEnlargeAnimation];
-//        CGRect flashFrame = self.flashButton.frame;
-//        flashFrame.origin.y = VIEW_HEIGHT - flashFyasrame.size.height - 14;
-//        CGRect switchCamFrame = self.switchCameraButton.frame;
-//        switchCamFrame.origin.y = VIEW_HEIGHT - switchCamFrame.size.height - 10;
+        self.largeCamera = YES;
+        
         [UIView animateWithDuration:0.2 delay:0.0 options:0 animations:^{
             //
             self.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
@@ -662,9 +665,6 @@ typedef enum {
             self.recordButton.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT - recordButtonWidth);
         } completion:^(BOOL finished) {
         }];
-        
-        self.largeCamera = YES;
-        [self updateCameraButtonsWithMode:self.cameraButtonsMode];
     }
 }
 
@@ -763,7 +763,6 @@ typedef enum {
 }
 
 - (void)startHold {
-
     DLog(@"starting hold");
     
     self.recordingTime = [NSDate date];
@@ -822,8 +821,6 @@ typedef enum {
     }];
 
     [self startRecordingVideo];
-    DLog(@"starting something...");
-    
 }
 
 - (void)countdownTick:(NSTimer *) timer {
@@ -908,6 +905,51 @@ typedef enum {
 
 }
 
+//val: refactor, method copied from endHold but without if(self.recording) condition
+- (void)doneRecordingTapped {
+    [self.accidentalDragOffscreenTimer invalidate];
+    self.accidentalDragOffscreenTimer = nil;
+    self.longPressFullScreenGestureRecognizer.minimumPressDuration = 0.2f;
+    
+    self.recordingIndicator.alpha = 0.0;
+    self.recordButton.hidden = NO;
+    
+    [self.view bringSubviewToFront:self.cameraView];
+    //        CGRect flashFrame = self.flashButton.frame;
+    //        flashFrame.origin.y = VIEW_HEIGHT/2 - flashFrame.size.height - 10;
+    //        CGRect switchCamFrame = self.switchCameraButton.frame;
+    //        switchCamFrame.origin.y = VIEW_HEIGHT/2 - switchCamFrame.size.height - 10;
+    
+    [self.indicatorText setText:NSLocalizedString(@"RECORD_TIP", @"")];
+    [self.indicator removeFromSuperview];
+    // Do Whatever You want on End of Gesture
+    self.recording = [NSNumber numberWithBool:NO];
+    
+    [self.recordingIndicator.layer removeAllAnimations];
+    
+    if(self.flash){
+        [self setFlashMode:NO];
+    }
+    
+    [self.countdown invalidate];
+    self.countdown = nil;
+    
+    NSDate *recordingFinished = [NSDate date];
+    NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
+    
+    if((executionTime < 0.5) || self.cancelledRecording){
+        self.cancelledRecording = YES;
+        //[self animateToOriginalCameraFrame];
+    } else {
+        //[self performSelector:@selector(animateToOriginalCameraFrame) withObject:self afterDelay:0.5];
+        //            [self animateToOriginalCameraFrame];
+    }
+    
+    [self stopRecordingVideo];
+    
+}
+
+
 - (void)animateToOriginalCameraFrame {
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         self.view.frame = self.previousViewFrame;
@@ -931,14 +973,13 @@ typedef enum {
 }
 
 - (void) startRecordingVideo {
+    return;
     [[YACameraManager sharedManager] startRecording];
 }
 
 - (void) stopRecordingVideo {
-    __weak YACameraViewController *weakSelf = self;
-    DLog(@"yo 1");
-    [[YACameraManager sharedManager] stopRecordingWithCompletion:^(NSURL *recordedURL) {
-        DLog(@"got here");
+    __weak typeof(self) weakSelf = self;
+    [[YACameraManager sharedManager] stopContiniousRecordingWithCompletion:^(NSURL *recordedURL) {
         if (!weakSelf.cancelledRecording) {
             if ([YAUser currentUser].currentGroup) {
                 [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:recordedURL
@@ -1106,14 +1147,16 @@ typedef enum {
     [self updateCameraButtonsWithMode:mode];
 }
 
+- (void)setLargeCamera:(BOOL)largeCamera {
+    _largeCamera = largeCamera;
+    [self updateCameraButtonsWithMode:self.cameraButtonsMode];
+}
+
 - (void)updateCameraButtonsWithMode:(YACameraButtonMode)mode {
+    
+    self.doneRecordingButton.hidden = !self.largeCamera;
+    
     if(mode == YACAmeraButtonModeFindAndCreate) {
-        
-        //left button
-//        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
-//        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
-//        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
-        
         //right button
         [self.rightBottomButton setImage:nil forState:UIControlStateNormal];
         self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - 110, VIEW_HEIGHT/2 - 35, 100, 30);

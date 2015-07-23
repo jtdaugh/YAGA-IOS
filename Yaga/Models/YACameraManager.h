@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "GPUImage.h"
 
-typedef void (^YARecordingCompletionBlock)(NSURL *recordedURL);
+typedef void (^YARecordingCompletionBlock)(NSURL *outputUrl);
 
 @interface YACameraView : GPUImageView
 // Just fo abstraction
@@ -32,6 +32,7 @@ typedef void (^YARecordingCompletionBlock)(NSURL *recordedURL);
 - (void)resumeCamera;
 - (void)startRecording;
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion;
+- (void)stopContiniousRecordingWithCompletion:(YARecordingCompletionBlock)completion;
 - (void)switchCamera;
 - (void)forceFrontFacingCamera; // probably only used by inviteVC right meow
 - (void)toggleFlash:(BOOL)flashOn;

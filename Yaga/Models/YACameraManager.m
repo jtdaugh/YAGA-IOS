@@ -11,6 +11,8 @@
 
 #define MAX_ZOOM_SCALE 4.f
 
+#define BACKUP_RECORDING_SECONDS 20
+
 @implementation YACameraView
 @end
 
@@ -22,7 +24,6 @@
 @property (strong, nonatomic) GPUImageMovieWriter *movieWriter;
 
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchZoomGesture;
-@property (nonatomic, strong) UIPanGestureRecognizer *panZoomGesture;
 @property (nonatomic, assign) CGFloat zoomFactor;
 @property (nonatomic, assign) CGFloat beginGestureScale;
 
@@ -30,6 +31,8 @@
 @property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
 @property (nonatomic) BOOL isInitialized;
 
+@property (nonatomic, strong) NSURL *recordingBackup;
+@property (nonatomic, strong) NSTimer *recordingBackupTimer;
 @end
 
 @implementation YACameraManager
@@ -85,18 +88,9 @@
         NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
         self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
         unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
-        
-//        [GPUImageMovieWriter alloc] initWith
-        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
-        //        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
-        self.videoCamera.audioEncodingTarget = self.movieWriter;
-        
-        [self startRecording];
-        YARecordingCompletionBlock comp = ^(NSURL *recordedURL) {
-            DLog(@"Recorded and discarded video to kill laggy cam");
-        };
-        [self performSelector:@selector(stopRecordingWithCompletion:) withObject:comp afterDelay:0.05];
-        
+
+        [self startContiniousRecording];
+
     }
 }
 
@@ -122,21 +116,15 @@
             [self.videoCamera removeTarget:self.currentCameraView];
             [self.currentCameraView removeGestureRecognizer:self.pinchZoomGesture];
             self.pinchZoomGesture = nil;
-            [self.currentCameraView removeGestureRecognizer:self.panZoomGesture];
-            self.panZoomGesture = nil;
         }
         if (cameraView) {
             [cameraView setFillMode:kGPUImageFillModePreserveAspectRatioAndFill];
             [cameraView setContentMode:UIViewContentModeScaleAspectFill];
             [self.videoCamera addTarget:cameraView];
+            
             self.pinchZoomGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchZoom:)];
             self.pinchZoomGesture.delegate = self;
             [cameraView addGestureRecognizer:self.pinchZoomGesture];
-            self.panZoomGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanZoom:)];
-            self.panZoomGesture.delegate = self;
-            self.panZoomGesture.enabled = NO;
-            [cameraView addGestureRecognizer:self.panZoomGesture];
-
         }
 
     }
@@ -163,9 +151,38 @@
     }
 }
 
+- (void)startContiniousRecording {
+    [self startRecording];
+    
+    self.recordingBackupTimer = [NSTimer scheduledTimerWithTimeInterval:BACKUP_RECORDING_SECONDS target:self selector:@selector(createBackupAndProceedRecording) userInfo:nil repeats:NO];
+}
+
+- (void)createBackupAndProceedRecording {
+    __weak typeof(self) weakSelf = self;
+    [self stopRecordingWithCompletion:^(NSURL *recordedURL) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSString *backupPath = [[NSString alloc] initWithFormat:@"%@backup_recording.mp4", NSTemporaryDirectory()];
+            unlink([backupPath UTF8String]); // If a file already exists
+            
+            NSError *error;
+            [[NSFileManager defaultManager] copyItemAtPath:self.currentlyRecordingUrl.path toPath:backupPath error:&error];
+            if(error) {
+                DLog(@"can't create recording backup");
+                return;
+            }
+            
+            weakSelf.recordingBackup = [NSURL fileURLWithPath:backupPath];
+            
+            DLog(@"%d seconds backup created, proceeding recording", BACKUP_RECORDING_SECONDS);
+            
+            [weakSelf startContiniousRecording];
+        });
+    }];
+
+}
+
 - (void)startRecording {
     if (!self.isInitialized) return;
-    self.panZoomGesture.enabled = YES;
     self.pinchZoomGesture.enabled = NO;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -221,9 +238,8 @@
 
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion {
     if (!self.isInitialized) return;
-    self.panZoomGesture.enabled = NO;
     self.pinchZoomGesture.enabled = YES;
-
+    
     DLog(@"Finish recording?");
     [self.movieWriter finishRecordingWithCompletionHandler:^{
         DLog(@"Finish recording 2?");
@@ -236,6 +252,28 @@
         });
         completion(self.currentlyRecordingUrl);
         [[YACameraManager sharedManager] setZoomFactor:1];
+    }];
+}
+
+- (void)stopContiniousRecordingWithCompletion:(YARecordingCompletionBlock)completion {
+    __weak typeof(self) weakSelf = self;
+    
+    [self.recordingBackupTimer invalidate];
+    
+    [self stopRecordingWithCompletion:^(NSURL *outputUrl) {
+        
+        if(weakSelf.recordingBackup) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [weakSelf mergeAssetsAtUrls:@[weakSelf.recordingBackup, outputUrl] withCompletion:^(NSURL *outputUrl) {
+                    completion(outputUrl);
+                }];
+            });
+        }
+        else {
+            completion(outputUrl);
+        }
+        
+        [weakSelf startContiniousRecording];
     }];
 }
 
@@ -300,26 +338,91 @@
     }
 }
 
-- (void)handlePanZoom:(UIPanGestureRecognizer *)recognizer {
-    CGFloat translation = [recognizer translationInView:self.currentCameraView].y; // negative for up, pos for down
-    NSLog(@"Translation y:%f",translation);
-    if (translation >= 0) {
-        CGFloat scaleZeroToOne = 1 - (translation / (VIEW_HEIGHT/2));
-        [self setZoomFactor:self.beginGestureScale * scaleZeroToOne];
-    } else {
-        CGFloat scaleOneToFour = 1 + (ABS(translation) / (VIEW_HEIGHT/4));
-        [self setZoomFactor:self.beginGestureScale * scaleOneToFour];
-    }
-}
-
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if ([gestureRecognizer isEqual:self.pinchZoomGesture]) {
         self.beginGestureScale = self.zoomFactor;
     }
-    if ([gestureRecognizer isEqual:self.panZoomGesture]) {
-        self.beginGestureScale = self.zoomFactor;
-    }
     return YES;
+}
+
+- (void)mergeAssetsAtUrls:(NSArray*)urls withCompletion:(YARecordingCompletionBlock)completion {
+    //can only merge from two NSURLs
+    if(urls.count != 2){
+        completion(nil);
+        return;
+    }
+    
+    //creating composition
+    AVMutableComposition *mixComposition = [[AVMutableComposition alloc] init];
+    AVMutableCompositionTrack *mutableCompVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+    AVMutableCompositionTrack *mutableCompAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+    
+    //creating video/audio tracks
+    AVAsset *videoAsset1 = [AVAsset assetWithURL:urls[0]];
+    AVAsset *videoAsset2 = [AVAsset assetWithURL:urls[1]];
+    
+    //get videoAsset2 duration
+    NSArray *requestedKeys = @[@"playable"];
+//    [videoAsset2 loadValuesAsynchronouslyForKeys:requestedKeys completionHandler: ^{
+        Float64 asset1DurationSeconds = CMTimeGetSeconds(videoAsset1.duration);
+        Float64 asset1StartSeconds = CMTimeGetSeconds(videoAsset2.duration);
+        Float64 asset1TotalSecondsToAdd = asset1DurationSeconds - asset1StartSeconds;
+        
+        CMTime asset1From = CMTimeMakeWithSeconds(asset1StartSeconds, videoAsset1.duration.timescale);
+        CMTime asset1DurationToAdd = CMTimeMakeWithSeconds(asset1TotalSecondsToAdd, videoAsset1.duration.timescale);
+        
+        [mutableCompVideoTrack insertTimeRange:CMTimeRangeMake(asset1From, asset1DurationToAdd) ofTrack:[[videoAsset1 tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:kCMTimeZero error:nil];
+        [mutableCompAudioTrack insertTimeRange:CMTimeRangeMake(asset1From, asset1DurationToAdd) ofTrack:[[videoAsset1 tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:kCMTimeZero error:nil];
+        
+        CMTime insertSecondAssetAt = CMTimeMakeWithSeconds(asset1TotalSecondsToAdd, videoAsset1.duration.timescale);
+        
+        [mutableCompVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset2.duration) ofTrack:[[videoAsset2 tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:insertSecondAssetAt error:nil];
+        [mutableCompAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset2.duration) ofTrack:[[videoAsset2 tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:insertSecondAssetAt error:nil];
+        
+        //exporting merged video file
+        NSString *mergedPath = [[NSString alloc] initWithFormat:@"%@recording_merged.mp4", NSTemporaryDirectory()];
+        unlink([mergedPath UTF8String]); // If a file already exists
+        
+        NSURL *mergedUrl = [NSURL fileURLWithPath:mergedPath];
+        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPreset640x480];
+        exportSession.outputFileType=AVFileTypeQuickTimeMovie;
+        exportSession.outputURL = mergedUrl;
+        
+        CMTimeValue val = mixComposition.duration.value;
+        CMTime start = CMTimeMake(0, 1);
+        CMTime duration = CMTimeMake(val, 1);
+        CMTimeRange range = CMTimeRangeMake(start, duration);
+        exportSession.timeRange = range;
+        
+        [exportSession exportAsynchronouslyWithCompletionHandler:^{
+            switch ([exportSession status]) {
+                case AVAssetExportSessionStatusFailed:
+                {
+                    DLog(@"Export during merge failed: %@ %@", [[exportSession error] localizedDescription],[[exportSession error]debugDescription]);
+                    break;
+                }
+                case AVAssetExportSessionStatusCancelled:
+                {
+                    DLog(@"Export during merge canceled");
+                    break;
+                }
+                case AVAssetExportSessionStatusCompleted:
+                {//test
+                    AVAsset *testAsset = [AVAsset assetWithURL:mergedUrl];
+                    [testAsset loadValuesAsynchronouslyForKeys:requestedKeys completionHandler: ^{
+                        DLog(@"merged duration %f", CMTimeGetSeconds(testAsset.duration));
+                    }];
+                    completion(mergedUrl);
+                    break;
+                }
+                default:
+                {
+                    DLog(@"Export during merge unexpected error");
+                    break;
+                }
+            }
+        }];
+ //   }];
 }
 
 @end
