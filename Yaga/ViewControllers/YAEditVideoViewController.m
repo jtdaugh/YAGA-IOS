@@ -11,10 +11,11 @@
 #import "YAUser.h"
 #import "SAVideoRangeSlider.h"
 #import "YAServerTransactionQueue.h"
+#import "YAAssetsCreator.h"
 
 @interface YAEditVideoViewController ()
 @property (nonatomic, strong) SAVideoRangeSlider *trimmingView;
-@property (nonatomic, strong) YAVideoPage *videoPage;
+@property (nonatomic, strong) YAVideoPlayerView *videoPlayerView;
 @property (nonatomic, strong) UIView *bottomView;
 @property (nonatomic, strong) AVAssetExportSession *exportSession;
 
@@ -32,28 +33,25 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [super viewDidLoad];
     self.startTime = 0.0f;
     self.endTime = CGFLOAT_MAX;
+
+    self.videoPlayerView = [[YAVideoPlayerView alloc] initWithFrame:self.view.bounds];
+    self.videoPlayerView.URL = self.videoUrl;
+    self.videoPlayerView.playWhenReady = YES;
+    self.videoPlayerView.delegate = self;
+    [self.view addSubview:self.videoPlayerView];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    self.videoPage = [[YAVideoPage alloc] initWithFrame:self.view.bounds];
-    self.videoPage.presentingVC = (id<YASuspendableGesturesDelegate>)self;
-    [self.videoPage setVideo:self.video shouldPreload:YES];
-    self.videoPage.playerView.playWhenReady = YES;
-    self.videoPage.showBottomControls = NO;
-    self.videoPage.playerView.delegate = self;
-    [self.view addSubview:self.videoPage];
-    
     [self addBottomView];
-    
     [self addTrimmingView];
-    
 }
 
 - (void)addTrimmingView {
     const CGFloat sliderHeight = 35;
-    self.trimmingView = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight) videoUrl:[YAUtils urlFromFileName:self.video.mp4Filename]];
+    self.trimmingView = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight)
+                                                         videoUrl:self.videoUrl];
     self.trimmingView.delegate = self;
     [self.view addSubview:self.trimmingView];
 }
@@ -97,7 +95,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         if(!error) {
             NSError *replaceError;
             NSURL *resultingUrl;
-            [[NSFileManager defaultManager] replaceItemAtURL:[YAUtils urlFromFileName:self.video.mp4Filename] withItemAtURL:[self trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&replaceError];
+            [[NSFileManager defaultManager] replaceItemAtURL:self.videoUrl withItemAtURL:[self trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&replaceError];
             if(replaceError) {
                 [YAUtils showNotification:@"Can not save video" type:YANotificationTypeError];
                 return;
@@ -107,22 +105,23 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
             if([YAUser currentUser].currentGroup) {
                 [[RLMRealm defaultRealm] beginWriteTransaction];
                 
-                [[YAUser currentUser].currentGroup.videos insertObject:self.video atIndex:0];
-                self.video.group = [YAUser currentUser].currentGroup;
-                [[RLMRealm defaultRealm] commitWriteTransaction];
                 
-                
-                //start uploading while generating gif
-                [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:[YAUser currentUser].currentGroup];
-                
-                [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kNewVideos:@[self.video]}];
+//                [[YAUser currentUser].currentGroup.videos insertObject:self.video atIndex:0];
+//                self.video.group = [YAUser currentUser].currentGroup;
+//                [[RLMRealm defaultRealm] commitWriteTransaction];
+//                
+//                
+//                //start uploading while generating gif
+//                [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:[YAUser currentUser].currentGroup];
+//                
+//                [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kNewVideos:@[self.video]}];
                 
                 [self dismissAnimated];
             }
             else {
+                
                 self.bottomView.hidden = YES;
                 self.trimmingView.hidden = YES;
-                [self.videoPage showSharingOptions];
             }
         }
         else {
@@ -135,16 +134,16 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
 - (void)suspendAllGestures:(id)sender {
     // prevent non-visible pages from sending stray calls
-    if ([sender isEqual:self.videoPage]) {
-        self.panGesture.enabled = NO;
-    }
+//    if ([sender isEqual:self.videoPage]) {
+//        self.panGesture.enabled = NO;
+//    }
 }
 
 - (void)restoreAllGestures:(id)sender  {
-    // prevent non-visible pages from sending stray calls
-    if ([sender isEqual:self.videoPage]) {
-        self.panGesture.enabled = YES;
-    }
+//    // prevent non-visible pages from sending stray calls
+//    if ([sender isEqual:self.videoPage]) {
+//        self.panGesture.enabled = YES;
+//    }
 }
 
 - (void)dismissAnimated{
@@ -160,11 +159,11 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
     self.dragging = YES;
     
-    if(self.videoPage.playerView.player.rate == 1.0){
-        [self.videoPage.playerView.player pause];
+    if(self.videoPlayerView.player.rate == 1.0){
+        [self.videoPlayerView.player pause];
     }
     
-    [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.leftPosition, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.leftPosition, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
     }];
     
 //    [self.trimmingView setPlayerProgress:0.0f];
@@ -174,11 +173,11 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     
     self.dragging = YES;
     
-    if(self.videoPage.playerView.player.rate == 1.0){
-        [self.videoPage.playerView.player pause];
+    if(self.videoPlayerView.player.rate == 1.0){
+        [self.videoPlayerView.player pause];
     }
     
-    [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.rightPosition, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.rightPosition, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
     }];
     
 //    [self.trimmingView setPlayerProgress:0.0f];
@@ -188,12 +187,12 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.startTime = rangeSlider.leftPosition;
     self.endTime = rangeSlider.rightPosition;
     
-    [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
         
         NSLog(@"hello?");
         
         self.dragging = NO;
-        self.videoPage.playerView.playWhenReady = YES;
+        self.videoPlayerView.playWhenReady = YES;
     }];
 }
 
@@ -213,8 +212,9 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (NSURL*)trimmedFileUrl {
-    NSString *pathExtenstion = [self.video.mp4Filename pathExtension];
-    NSString *trimmedFilename = [[[self.video.mp4Filename stringByDeletingPathExtension] stringByAppendingString:@"_trimmed"] stringByAppendingPathExtension:pathExtenstion];
+    NSString *urlString = [self.videoUrl relativeString];
+    NSString *pathExtenstion = [urlString pathExtension];
+    NSString *trimmedFilename = [[[urlString stringByDeletingPathExtension] stringByAppendingString:@"_trimmed"] stringByAppendingPathExtension:pathExtenstion];
     
     NSURL *result = [YAUtils urlFromFileName:trimmedFilename];
     
@@ -222,11 +222,9 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)trimVideoWithStartTime:(CGFloat)startTime andStopTime:(CGFloat)stopTime completion:(trimmingCompletionBlock)completion {
-    self.videoPage.playerView.URL = nil;
+    self.videoPlayerView.URL = nil;
     
-    NSURL *videoFileUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
-    
-    AVAsset *anAsset = [[AVURLAsset alloc] initWithURL:videoFileUrl options:nil];
+    AVAsset *anAsset = [[AVURLAsset alloc] initWithURL:self.videoUrl options:nil];
     NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:anAsset];
     if ([compatiblePresets containsObject:AVAssetExportPresetMediumQuality]) {
         
@@ -284,7 +282,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         
         if(progress > self.endTime){
             
-            [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+            [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
             }];
         } else {
             if((progress - self.startTime) > 0){

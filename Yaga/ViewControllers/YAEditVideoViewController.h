@@ -12,6 +12,6 @@
 #import "YAVideoPlayerView.h"
 
 @interface YAEditVideoViewController : YASwipeToDismissViewController <SAVideoRangeSliderDelegate, YAVideoPlayerViewDelegate>
-@property (nonatomic, strong) YAVideo *video;
+@property (nonatomic, strong) NSURL *videoUrl;
 
 @end

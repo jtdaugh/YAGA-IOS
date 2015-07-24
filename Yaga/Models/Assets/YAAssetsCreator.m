@@ -67,7 +67,7 @@
 - (void)concatenateAssetsAtURLs:(NSArray *)assetURLs
                   withOutputURL:(NSURL *)outputURL
                   exportQuality:(NSString *)exportQuality
-                     completion:(videoConcatenationCompletion)completion {
+                     completion:(videoOperationCompletion)completion {
     AVMutableComposition *combinedVideoComposition = [self buildVideoSequenceCompositionFromURLS:assetURLs];
     if (!exportQuality) exportQuality = AVAssetExportPresetMediumQuality;
     
@@ -91,7 +91,7 @@
     }];
 }
 
-- (void)addBumberToVideoAtURL:(NSURL *)videoURL completion:(videoConcatenationCompletion)completion {
+- (void)addBumberToVideoAtURL:(NSURL *)videoURL completion:(videoOperationCompletion)completion {
     NSURL *outputUrl = [YAUtils urlFromFileName:@"YAGA.mp4"];
     [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
     NSMutableArray *assetURLsToConcatenate = [NSMutableArray arrayWithObject:videoURL];
@@ -158,7 +158,7 @@
 
 #pragma mark - Queue operations
 
-- (void)createUnsentVideoFromRecodingURL:(NSURL*)recordingUrl {
+- (void)createUnsentVideoFromRecodingURL:(NSURL*)recordingUrl completion:(videoOperationCompletion)completion {
     YAVideo *video = [YAVideo video];
     
     NSString *hashStr = [YAUtils uniqueId];
@@ -199,9 +199,7 @@
 }
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
-                        addToGroup:(YAGroup*)group
-       isImmediatelyAfterRecording:(BOOL)isImmediatelyAfterRecording {
-    
+                        addToGroup:(YAGroup*)group {
     YAVideo *video = [YAVideo video];
     
     NSString *hashStr = [YAUtils uniqueId];
@@ -233,10 +231,7 @@
                 video.jpgFullscreenFilename = jpgFilename;
             }
         }
-        
-        if (isImmediatelyAfterRecording)
-            [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
-        
+                
         if(previewImage == nil)
             [self enqueueJpgCreationForVideo:video];
     });

@@ -189,8 +189,7 @@
 
 - (void)startRecording {
     if (!self.isInitialized) return;
-    self.pinchZoomGesture.enabled = NO;
-    
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         //Create temporary URL to record to
@@ -244,7 +243,6 @@
 
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion {
     if (!self.isInitialized) return;
-    self.pinchZoomGesture.enabled = YES;
     
     DLog(@"Finish recording?");
     [self.movieWriter finishRecordingWithCompletionHandler:^{

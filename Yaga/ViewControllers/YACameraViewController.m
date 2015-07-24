@@ -21,6 +21,7 @@
 #import "YAFindGroupsViewConrtoller.h"
 #import "YACreateGroupNavigationController.h"
 #import "NameGroupViewController.h"
+#import "YAEditVideoViewController.h"
 
 #import "YAPopoverView.h"
 
@@ -139,11 +140,6 @@
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(showVideoPage:)
-                                                 name:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON
-                                               object:nil];
-    
     const CGFloat doneButtonWidth = 50;
     self.doneRecordingButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.doneRecordingButton.frame = CGRectMake(self.cameraView.bounds.size.width - doneButtonWidth - 10, self.cameraView.bounds.size.height - doneButtonWidth - 10, doneButtonWidth, doneButtonWidth);
@@ -165,7 +161,6 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:nil];
 }
 
 #pragma mark - recording
@@ -194,28 +189,15 @@
     }
 }
 
-- (void)showVideoPage:(NSNotification*)notification {
-    YAVideo *video = (YAVideo *)notification.object;
-    if (video.createdAt && ([[NSDate date] timeIntervalSinceDate:video.createdAt] < 0.2)) {
-        
-    }
-    [self.delegate presentNewlyRecordedVideo:video];
-}
-
-- (void) startRecordingVideo {
-    return;
-    [[YACameraManager sharedManager] startRecording];
-}
-
-- (void) stopRecordingVideo {
+- (void)stopRecordingVideo {
     [[YACameraManager sharedManager] stopContiniousRecordingWithCompletion:^(NSURL *recordedURL) {
-        if ([YAUser currentUser].currentGroup) {
-            [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:recordedURL
-                                                             addToGroup:[YAUser currentUser].currentGroup
-                                            isImmediatelyAfterRecording:YES];
-        } else {
-            [[YAAssetsCreator sharedCreator] createUnsentVideoFromRecodingURL:recordedURL];
-        }
+        YAEditVideoViewController *vc = [YAEditVideoViewController new];
+        vc.videoUrl = recordedURL;
+        
+        // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
+        // So set the initial frame to the end frame.
+        [self presentViewController:vc animated:YES completion:nil];
+
     }];
 }
 
