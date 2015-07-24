@@ -182,13 +182,13 @@ typedef enum {
         [self.cameraAccessories addObject:self.groupButton];
         [self.view addSubview:self.groupButton];
 
-        CGFloat logoWidth = VIEW_WIDTH/6;
-        CGFloat logoHeight = VIEW_HEIGHT/12;
-        self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, 8, logoWidth, logoHeight)];
-        [self.logo setContentMode:UIViewContentModeScaleAspectFit];
-        [self.logo setImage:[UIImage imageNamed:@"Logo"]];
-        [self.cameraAccessories addObject:self.logo];
-        [self.view addSubview:self.logo];
+//        CGFloat logoWidth = VIEW_WIDTH/6;
+//        CGFloat logoHeight = VIEW_HEIGHT/12;
+//        self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, 8, logoWidth, logoHeight)];
+//        [self.logo setContentMode:UIViewContentModeScaleAspectFit];
+//        [self.logo setImage:[UIImage imageNamed:@"Logo"]];
+//        [self.cameraAccessories addObject:self.logo];
+//        [self.view addSubview:self.logo];
         
         //record button
         self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];

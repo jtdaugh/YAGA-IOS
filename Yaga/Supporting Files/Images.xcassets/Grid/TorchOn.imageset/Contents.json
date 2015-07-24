@@ -6,16 +6,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "torchon-1.png"
+      "filename" : "Lightning Bolt Filled-100.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "torchon.png"
+      "filename" : "Lightning Bolt Filled-100-1.png"
     },
     {
       "idiom" : "universal",
-      "scale" : "3x"
+      "scale" : "3x",
+      "filename" : "Lightning Bolt Filled-100-2.png"
     }
   ],
   "info" : {
