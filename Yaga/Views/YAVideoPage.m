@@ -49,6 +49,7 @@ static NSString *commentCellID = @"CommentCell";
 
 //overlay controls
 @property (strong, nonatomic) UIButton *XButton;
+@property (strong, nonatomic) UIButton *TButton;
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) RCounter *viewCounter;
@@ -549,11 +550,17 @@ static NSString *commentCellID = @"CommentCell";
     
     //    CGFloat tSize = CAPTION_FONT_SIZE;
 
-    self.XButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    self.XButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(30, 30)];
     self.XButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
     self.XButton.alpha = 0.7;
     [self.XButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
+    
+    self.TButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    self.TButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
+    self.TButton.alpha = 0.7;
+    [self.TButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.TButton];
     
     self.moreButton = [YAUtils circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
@@ -575,9 +582,9 @@ static NSString *commentCellID = @"CommentCell";
     [self.heartButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.heartButton];
     
-
-    self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
-    [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
+    self.cancelWhileTypingButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(30, 30)];
+    self.cancelWhileTypingButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
+    self.cancelWhileTypingButton.alpha = 0.7;
     [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
     
     [self setupCommentsContainer];
@@ -592,7 +599,7 @@ static NSString *commentCellID = @"CommentCell";
     self.progressView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:self.progressView];
     
-    UIButton *progressXButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
+    UIButton *progressXButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(30, 30)];
     progressXButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
     progressXButton.alpha = 0.7;
     [progressXButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
@@ -1370,6 +1377,9 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)initializeCaption {
     [self.serverCaptionWrapperView removeFromSuperview];
+    
+    self.TButton.hidden = [self.video.caption length] != 0;
+    
     if ([self.video.caption length]) {
          [self insertCaption];
     } else if (self.myVideo) {
