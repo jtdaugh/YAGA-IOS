@@ -40,6 +40,8 @@
 
 @property (nonatomic, strong) NSMutableArray *darkenViews;
 
+@property (nonatomic, readonly) CGFloat thumbnailFrameWidth;
+@property (nonatomic, readonly) CGFloat framesCount;
 @end
 
 @implementation SAVideoRangeSlider
@@ -72,10 +74,8 @@
         _leftThumb.layer.borderWidth = 0;
         [self addSubview:_leftThumb];
         
-        
         UIPanGestureRecognizer *leftPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleLeftPan:)];
         [_leftThumb addGestureRecognizer:leftPan];
-        
         
         _rightThumb = [[SASliderRight alloc] initWithFrame:CGRectMake(0, 0, thumbWidth, frame.size.height)];
         
@@ -98,7 +98,10 @@
         UIPanGestureRecognizer *centerPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCenterPan:)];
         [_centerView addGestureRecognizer:centerPan];
         
-        [self getMovieFrame];
+        _thumbnailFrameWidth = 20;
+        _framesCount = ceil(self.bgView.frame.size.width / self.thumbnailFrameWidth);
+        
+        [self generateThumbsAsync];
     }
     
     return self;
@@ -271,11 +274,12 @@
 
 #pragma mark - Video
 
--(void)getMovieFrame{
+-(void)generateThumbsAsync{
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         AVAsset *myAsset = [[AVURLAsset alloc] initWithURL:weakSelf.videoUrl options:nil];
+        weakSelf.durationSeconds = CMTimeGetSeconds([myAsset duration]);
         weakSelf.imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:myAsset];
         
         if ([weakSelf isRetina]){
@@ -284,103 +288,63 @@
             weakSelf.imageGenerator.maximumSize = CGSizeMake(weakSelf.bgView.frame.size.width, weakSelf.bgView.frame.size.height);
         }
         
-        __block int picWidth = 20;
-        
         weakSelf.darkenViews = [NSMutableArray new];
         
-        // First image
         __block NSError *error;
-        __block CMTime actualTime;
-        CGImageRef halfWayImage = [weakSelf.imageGenerator copyCGImageAtTime:kCMTimeZero actualTime:&actualTime error:&error];
+        for (NSUInteger i = 0; i < self.framesCount; i++) {
+            
+            CGFloat currentTime = i * self.thumbnailFrameWidth;
+            CMTime timeFrame = CMTimeMakeWithSeconds(weakSelf.durationSeconds*currentTime/weakSelf.bgView.frame.size.width, 600);
+            
+            CGImageRef imageRef = [weakSelf.imageGenerator copyCGImageAtTime:timeFrame actualTime:nil error:&error];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf addThumbnail:imageRef atIndex:i];
+                CGImageRelease(imageRef);
+            });
+        }
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            if (halfWayImage != NULL) {
-                
-                UIImage *videoScreen;
-                if ([weakSelf isRetina]){
-                    videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp];
-                } else {
-                    videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage];
-                }
-                UIImageView *tmp = [[UIImageView alloc] initWithImage:videoScreen];
-                CGRect rect=tmp.frame;
-                //rect.origin.x = self.leftThumb.frame.origin.x + self.leftThumb.frame.size.width;
-                rect.size.width=picWidth;
-                tmp.frame=rect;
-                tmp.contentMode = UIViewContentModeScaleAspectFill;
-                tmp.layer.masksToBounds = YES;
-                [weakSelf.bgView addSubview:tmp];
-                picWidth = tmp.frame.size.width;
-                CGImageRelease(halfWayImage);
-                
-                [weakSelf addDarkenViewToImageView:tmp];
-            }
-            
-            weakSelf.durationSeconds = CMTimeGetSeconds([myAsset duration]);
-            
-            int picsCnt = ceil(weakSelf.bgView.frame.size.width / picWidth);
-            
-            __block NSMutableArray *allTimes = [[NSMutableArray alloc] init];
-            
-            
-            int time4Pic = 0;
-            // Bug iOS7 - generateCGImagesAsynchronouslyForTimes
-            __block int prefreWidth=0;
-            for (__block int i=1, ii=1; i<picsCnt; i++){
-                time4Pic = i*picWidth;
-                
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    CMTime timeFrame = CMTimeMakeWithSeconds(weakSelf.durationSeconds*time4Pic/weakSelf.bgView.frame.size.width, 600);
-                    
-                    [allTimes addObject:[NSValue valueWithCMTime:timeFrame]];
-                    
-                    
-                    CGImageRef halfWayImage = [weakSelf.imageGenerator copyCGImageAtTime:timeFrame actualTime:&actualTime error:&error];
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        UIImage *videoScreen;
-                        if ([weakSelf isRetina]){
-                            videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp];
-                        } else {
-                            videoScreen = [[UIImage alloc] initWithCGImage:halfWayImage];
-                        }
-                        
-                        UIImageView *tmp = [[UIImageView alloc] initWithImage:videoScreen];
-                        
-                        CGRect currentFrame = tmp.frame;
-                        currentFrame.origin.x = ii*picWidth;
-                        
-                        currentFrame.size.width=picWidth;
-                        prefreWidth+=currentFrame.size.width;
-                        
-                        if( i == picsCnt-1){
-                            currentFrame.size.width-=6;
-                        }
-                        tmp.frame = currentFrame;
-                        int all = (ii+1)*tmp.frame.size.width;
-                        
-                        if (all > weakSelf.bgView.frame.size.width){
-                            int delta = all - weakSelf.bgView.frame.size.width;
-                            currentFrame.size.width -= delta;
-                        }
-                        
-                        ii++;
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [weakSelf.bgView addSubview:tmp];
-                        });
-                        tmp.contentMode = UIViewContentModeScaleAspectFill;
-                        tmp.layer.masksToBounds = YES;
-                        [self addDarkenViewToImageView:tmp];
-                        
-                        CGImageRelease(halfWayImage);
-                    });
-                });
-            }
-            
-        });
     });
+}
+
+- (void)addThumbnail:(CGImageRef)imageRef atIndex:(NSUInteger)index {
+    UIImage *image;
+    
+    if ([self isRetina]){
+        image = [[UIImage alloc] initWithCGImage:imageRef scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp];
+    } else {
+        image = [[UIImage alloc] initWithCGImage:imageRef];
+    }
+    
+    UIImageView *thumbImageView = [[UIImageView alloc] initWithImage:image];
+    
+    CGRect currentFrame = thumbImageView.frame;
+    currentFrame.origin.x = index * self.thumbnailFrameWidth;
+    
+    currentFrame.size.width = self.thumbnailFrameWidth;
+    
+    if( index == self.framesCount - 1){
+        currentFrame.size.width -= 6;
+    }
+    thumbImageView.frame = currentFrame;
+    int all = (index + 1) * thumbImageView.frame.size.width;
+    
+    if (all > self.bgView.frame.size.width){
+        int delta = all - self.bgView.frame.size.width;
+        currentFrame.size.width -= delta;
+    }
+    
+    thumbImageView.contentMode = UIViewContentModeScaleAspectFill;
+    thumbImageView.layer.masksToBounds = YES;
+    
+    [self.bgView addSubview:thumbImageView];
+    
+    //add darken view
+    UIView *view = [[UIView alloc] initWithFrame:thumbImageView.bounds];
+    view.backgroundColor = [UIColor blackColor];
+    view.alpha = 0;
+    [thumbImageView addSubview:view];
+    [self.darkenViews addObject:view];
 }
 
 #pragma mark - Properties
@@ -440,15 +404,6 @@
     return ([[UIScreen mainScreen] respondsToSelector:@selector(displayLinkWithTarget:selector:)] &&
             
             ([UIScreen mainScreen].scale >= 2.0));
-}
-
-- (void)addDarkenViewToImageView:(UIImageView*)imageView {
-    UIView *view = [[UIView alloc] initWithFrame:imageView.bounds];
-    view.backgroundColor = [UIColor blackColor];
-    view.alpha = 0;
-    [imageView addSubview:view];
-    
-    [self.darkenViews addObject:view];
 }
 
 
