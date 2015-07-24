@@ -18,13 +18,20 @@
 @property (nonatomic, strong) UIView *bottomView;
 @property (nonatomic, strong) AVAssetExportSession *exportSession;
 
+@property CGFloat startTime;
+@property CGFloat endTime;
+
 @property BOOL dragging;
 @end
+
+typedef void(^trimmingCompletionBlock)(NSError *error);
 
 @implementation YAEditVideoViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.startTime = 0.0f;
+    self.endTime = CGFLOAT_MAX;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -41,6 +48,7 @@
     [self addBottomView];
     
     [self addTrimmingView];
+    
 }
 
 - (void)addTrimmingView {
@@ -85,35 +93,42 @@
 
 - (void)sendButtonTapped:(id)sender {
     
-    if([YAUser currentUser].currentGroup) {
-        NSError *error;
-        NSURL *resultingUrl;
-        [[NSFileManager defaultManager] replaceItemAtURL:[YAUtils urlFromFileName:self.video.mp4Filename] withItemAtURL:[self trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&error];
-        if(error) {
-            [YAUtils showNotification:@"Can not save video" type:YANotificationTypeError];
-            return;
+    [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {
+        if(!error) {
+            NSError *replaceError;
+            NSURL *resultingUrl;
+            [[NSFileManager defaultManager] replaceItemAtURL:[YAUtils urlFromFileName:self.video.mp4Filename] withItemAtURL:[self trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&replaceError];
+            if(replaceError) {
+                [YAUtils showNotification:@"Can not save video" type:YANotificationTypeError];
+                return;
+            }
+            [self deleteTrimmedFile];
+            
+            if([YAUser currentUser].currentGroup) {
+                [[RLMRealm defaultRealm] beginWriteTransaction];
+                
+                [[YAUser currentUser].currentGroup.videos insertObject:self.video atIndex:0];
+                self.video.group = [YAUser currentUser].currentGroup;
+                [[RLMRealm defaultRealm] commitWriteTransaction];
+                
+                
+                //start uploading while generating gif
+                [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:[YAUser currentUser].currentGroup];
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kNewVideos:@[self.video]}];
+                
+                [self dismissAnimated];
+            }
+            else {
+                self.bottomView.hidden = YES;
+                self.trimmingView.hidden = YES;
+                [self.videoPage showSharingOptions];
+            }
         }
-        [self deleteTrimmedFile];
-        
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        
-        [[YAUser currentUser].currentGroup.videos insertObject:self.video atIndex:0];
-        self.video.group = [YAUser currentUser].currentGroup;
-        [[RLMRealm defaultRealm] commitWriteTransaction];
-        
-        
-        //start uploading while generating gif
-        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:[YAUser currentUser].currentGroup];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kNewVideos:@[self.video]}];
-        
-        [self dismissAnimated];
-    }
-    else {
-        self.bottomView.hidden = YES;
-        self.trimmingView.hidden = YES;
-        [self.videoPage showSharingOptions];
-    }
+        else {
+            [YAUtils showNotification:@"Error: can't trim video" type:YANotificationTypeError];
+        }
+    }];
 }
 
 #pragma mark - YASwipeToDismissViewController
@@ -140,6 +155,9 @@
 
 #pragma mark - SAVideoRangeSliderDelegate
 - (void)rangeSliderDidMoveLeftSlider:(SAVideoRangeSlider *)rangeSlider {
+    
+    NSLog(@"left position: %f", rangeSlider.leftPosition);
+
     self.dragging = YES;
     
     if(self.videoPage.playerView.player.rate == 1.0){
@@ -153,6 +171,7 @@
 }
 
 - (void)rangeSliderDidMoveRightSlider:(SAVideoRangeSlider *)rangeSlider {
+    
     self.dragging = YES;
     
     if(self.videoPage.playerView.player.rate == 1.0){
@@ -166,8 +185,16 @@
 }
 
 - (void)rangeSliderDidEndMoving:(SAVideoRangeSlider *)rangeSlider {
-    [self trimVideoWithStartTime:rangeSlider.leftPosition andStopTime:rangeSlider.rightPosition];
-    self.dragging = NO;
+    self.startTime = rangeSlider.leftPosition;
+    self.endTime = rangeSlider.rightPosition;
+    
+    [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+        
+        NSLog(@"hello?");
+        
+        self.dragging = NO;
+        self.videoPage.playerView.playWhenReady = YES;
+    }];
 }
 
 #pragma mark - Trimming
@@ -194,7 +221,7 @@
     return result;
 }
 
-- (void)trimVideoWithStartTime:(CGFloat)startTime andStopTime:(CGFloat)stopTime {
+- (void)trimVideoWithStartTime:(CGFloat)startTime andStopTime:(CGFloat)stopTime completion:(trimmingCompletionBlock)completion {
     self.videoPage.playerView.URL = nil;
     
     NSURL *videoFileUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
@@ -223,13 +250,17 @@
                 switch ([weakSelf.exportSession status]) {
                     case AVAssetExportSessionStatusFailed:
                         DLog(@"Edit video - export failed: %@", [[weakSelf.exportSession error] localizedDescription]);
+                        if(completion)
+                            completion([weakSelf.exportSession error]);
                         break;
                     case AVAssetExportSessionStatusCancelled:
                         DLog(@"Edit video - export canceled");
+                        if(completion)
+                            completion([weakSelf.exportSession error]);
                         break;
                     default:
-                        weakSelf.videoPage.playerView.URL = outputUrl;
-                        weakSelf.videoPage.playerView.playWhenReady = YES;
+                        if(completion)
+                            completion(nil);
                         break;
                 }
                 
@@ -240,9 +271,33 @@
 }
 
 #pragma mark - YAVideoPlayerDelegate
-- (void)playbackProgressChanged:(CGFloat)progress {
+- (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
     if(!self.dragging){
-        [self.trimmingView setPlayerProgress:progress];
+        
+        // if is end time, loop back to the start time
+        if(progress < .02){
+            NSLog(@"progress: %f", progress);
+            NSLog(@"duration: %f", duration);
+            NSLog(@"progress/duration: %f", progress/duration);
+            
+        }
+        
+        if(progress > self.endTime){
+            
+            [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+            }];
+        } else {
+            if((progress - self.startTime) > 0){
+                CGFloat end = (self.endTime == CGFLOAT_MAX) ? duration : self.endTime;
+                CGFloat normalizedProgress = (progress - self.startTime)/(end - self.startTime);
+                [self.trimmingView setPlayerProgress:normalizedProgress];
+                
+            } else {
+                [self.trimmingView setPlayerProgress:0.0];
+            }
+            
+        }
+
     }
 }
 

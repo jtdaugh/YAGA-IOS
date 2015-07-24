@@ -154,7 +154,9 @@
 - (void)startContiniousRecording {
     [self startRecording];
     
-    self.recordingBackupTimer = [NSTimer scheduledTimerWithTimeInterval:BACKUP_RECORDING_SECONDS target:self selector:@selector(createBackupAndProceedRecording) userInfo:nil repeats:NO];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.recordingBackupTimer = [NSTimer scheduledTimerWithTimeInterval:BACKUP_RECORDING_SECONDS target:self selector:@selector(createBackupAndProceedRecording) userInfo:nil repeats:NO];
+    });
 }
 
 - (void)createBackupAndProceedRecording {
@@ -164,8 +166,12 @@
             NSString *backupPath = [[NSString alloc] initWithFormat:@"%@backup_recording.mp4", NSTemporaryDirectory()];
             unlink([backupPath UTF8String]); // If a file already exists
             
+            
             NSError *error;
-            [[NSFileManager defaultManager] copyItemAtPath:self.currentlyRecordingUrl.path toPath:backupPath error:&error];
+            NSDictionary *fileAttrs = [[NSFileManager defaultManager] attributesOfItemAtPath:recordedURL.path error:&error];
+            DLog(@"recording size: %@", fileAttrs[@"NSFileSize"]);
+            
+            [[NSFileManager defaultManager] copyItemAtPath:recordedURL.path toPath:backupPath error:&error];
             if(error) {
                 DLog(@"can't create recording backup");
                 return;
@@ -361,11 +367,35 @@
     AVAsset *videoAsset1 = [AVAsset assetWithURL:urls[0]];
     AVAsset *videoAsset2 = [AVAsset assetWithURL:urls[1]];
     
+    //exporting merged video file
+    NSString *mergedPath = [[NSString alloc] initWithFormat:@"%@recording_merged.mp4", NSTemporaryDirectory()];
+    unlink([mergedPath UTF8String]); // If a file already exists
+    NSURL *mergedURL = [NSURL fileURLWithPath:mergedPath];
+    
     //get videoAsset2 duration
     NSArray *requestedKeys = @[@"playable"];
-//    [videoAsset2 loadValuesAsynchronouslyForKeys:requestedKeys completionHandler: ^{
+    [videoAsset2 loadValuesAsynchronouslyForKeys:requestedKeys completionHandler: ^{
         Float64 asset1DurationSeconds = CMTimeGetSeconds(videoAsset1.duration);
-        Float64 asset1StartSeconds = CMTimeGetSeconds(videoAsset2.duration);
+        Float64 asset2DurationSeconds = CMTimeGetSeconds(videoAsset2.duration);
+        
+        //do not proceed if second asset is zero length(has just started recording)
+        if(asset2DurationSeconds == 0) {
+            
+            //copy is required as first asset can be used again, but YAAssetsCreator will delete the recording_backup.mp4 file
+            NSError *error;
+
+            [[NSFileManager defaultManager] copyItemAtURL:urls[0] toURL:mergedURL error:&error];
+            if(error) {
+                DLog(@"Critical error: can't copy file, can not proceed.");
+                return;
+            }
+            else {
+                completion(mergedURL);
+                return;
+            }
+        }
+        
+        Float64 asset1StartSeconds = asset2DurationSeconds;
         Float64 asset1TotalSecondsToAdd = asset1DurationSeconds - asset1StartSeconds;
         
         CMTime asset1From = CMTimeMakeWithSeconds(asset1StartSeconds, videoAsset1.duration.timescale);
@@ -379,9 +409,7 @@
         [mutableCompVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset2.duration) ofTrack:[[videoAsset2 tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:insertSecondAssetAt error:nil];
         [mutableCompAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset2.duration) ofTrack:[[videoAsset2 tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:insertSecondAssetAt error:nil];
         
-        //exporting merged video file
-        NSString *mergedPath = [[NSString alloc] initWithFormat:@"%@recording_merged.mp4", NSTemporaryDirectory()];
-        unlink([mergedPath UTF8String]); // If a file already exists
+
         
         NSURL *mergedUrl = [NSURL fileURLWithPath:mergedPath];
         AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPreset640x480];
@@ -407,11 +435,7 @@
                     break;
                 }
                 case AVAssetExportSessionStatusCompleted:
-                {//test
-                    AVAsset *testAsset = [AVAsset assetWithURL:mergedUrl];
-                    [testAsset loadValuesAsynchronouslyForKeys:requestedKeys completionHandler: ^{
-                        DLog(@"merged duration %f", CMTimeGetSeconds(testAsset.duration));
-                    }];
+                {
                     completion(mergedUrl);
                     break;
                 }
@@ -422,7 +446,7 @@
                 }
             }
         }];
- //   }];
+    }];
 }
 
 @end

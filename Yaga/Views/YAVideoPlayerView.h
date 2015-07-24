@@ -10,7 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 @protocol YAVideoPlayerViewDelegate <NSObject>
-- (void)playbackProgressChanged:(CGFloat)progress;
+- (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration;
 @end
 
 @interface YAVideoPlayerView : UIView {

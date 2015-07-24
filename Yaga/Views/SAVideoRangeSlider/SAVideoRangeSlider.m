@@ -44,11 +44,6 @@
 
 @implementation SAVideoRangeSlider
 
-
-#define SLIDER_BORDERS_SIZE 6.0f
-#define BG_VIEW_BORDERS_SIZE 3.0f
-
-
 - (id)initWithFrame:(CGRect)frame videoUrl:(NSURL *)videoUrl{
     
     self = [super initWithFrame:frame];
@@ -58,9 +53,7 @@
         
         int thumbWidth = ceil(frame.size.width*0.05);
         
-        _bgView = [[UIControl alloc] initWithFrame:CGRectMake(thumbWidth-BG_VIEW_BORDERS_SIZE, 0, frame.size.width-(thumbWidth*2)+BG_VIEW_BORDERS_SIZE*2, frame.size.height)];
-        //        _bgView.layer.borderColor = [UIColor grayColor].CGColor;
-        //        _bgView.layer.borderWidth = BG_VIEW_BORDERS_SIZE;
+        _bgView = [[UIControl alloc] initWithFrame:CGRectMake(thumbWidth, 0, frame.size.width-(thumbWidth*2), frame.size.height)];
         _bgView.layer.cornerRadius = 5;
         _bgView.clipsToBounds = YES;
         [self addSubview:_bgView];
@@ -70,17 +63,6 @@
         _currentPositionView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, self.bounds.size.height)];
         _currentPositionView.backgroundColor = [UIColor whiteColor];
         [self addSubview:_currentPositionView];
-        
-        
-        _topBorder = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, SLIDER_BORDERS_SIZE)];
-        _topBorder.backgroundColor = [UIColor colorWithRed: 0.996 green: 0.951 blue: 0.502 alpha: 1];
-        //[self addSubview:_topBorder];
-        
-        
-        _bottomBorder = [[UIView alloc] initWithFrame:CGRectMake(0, frame.size.height-SLIDER_BORDERS_SIZE, frame.size.width, SLIDER_BORDERS_SIZE)];
-        _bottomBorder.backgroundColor = [UIColor colorWithRed: 0.992 green: 0.902 blue: 0.004 alpha: 1];
-        //[self addSubview:_bottomBorder];
-        
         
         _leftThumb = [[SASliderLeft alloc] initWithFrame:CGRectMake(0, 0, thumbWidth, frame.size.height)];
         _leftThumb.contentMode = UIViewContentModeLeft;
@@ -275,17 +257,7 @@
     
     _rightThumb.center = CGPointMake(_rightPosition-inset, _rightThumb.frame.size.height/2);
     
-    _topBorder.frame = CGRectMake(_leftThumb.frame.origin.x + _leftThumb.frame.size.width, 0, _rightThumb.frame.origin.x - _leftThumb.frame.origin.x - _leftThumb.frame.size.width/2, SLIDER_BORDERS_SIZE);
-    
-    _bottomBorder.frame = CGRectMake(_leftThumb.frame.origin.x + _leftThumb.frame.size.width, _bgView.frame.size.height-SLIDER_BORDERS_SIZE, _rightThumb.frame.origin.x - _leftThumb.frame.origin.x - _leftThumb.frame.size.width/2, SLIDER_BORDERS_SIZE);
-    
-    
     _centerView.frame = CGRectMake(_leftThumb.frame.origin.x + _leftThumb.frame.size.width, _centerView.frame.origin.y, _rightThumb.frame.origin.x - _leftThumb.frame.origin.x - _leftThumb.frame.size.width, _centerView.frame.size.height);
-    
-    
-    //    CGRect frame = _popoverBubble.frame;
-    //    frame.origin.x = _centerView.frame.origin.x+_centerView.frame.size.width/2-frame.size.width/2;
-    //    _popoverBubble.frame = frame;
     
     //darken left and right
     for (UIImageView *previewImageView in self.darkenViews) {
@@ -333,6 +305,7 @@
                 }
                 UIImageView *tmp = [[UIImageView alloc] initWithImage:videoScreen];
                 CGRect rect=tmp.frame;
+                //rect.origin.x = self.leftThumb.frame.origin.x + self.leftThumb.frame.size.width;
                 rect.size.width=picWidth;
                 tmp.frame=rect;
                 tmp.contentMode = UIViewContentModeScaleAspectFill;
@@ -348,7 +321,7 @@
             
             int picsCnt = ceil(weakSelf.bgView.frame.size.width / picWidth);
             
-            NSMutableArray *allTimes = [[NSMutableArray alloc] init];
+            __block NSMutableArray *allTimes = [[NSMutableArray alloc] init];
             
             
             int time4Pic = 0;
@@ -445,8 +418,8 @@
 }
 
 - (void)setPlayerProgress:(CGFloat)progress {
-    CGFloat totalWidth = self.rightThumb.frame.origin.x + self.rightThumb.frame.size.width - self.leftThumb.frame.origin.x;
-    CGFloat currentPositionX = self.leftThumb.frame.origin.x + totalWidth * progress;
+    CGFloat totalWidth = self.rightThumb.frame.origin.x - self.leftThumb.frame.origin.x - self.leftThumb.frame.size.width;
+    CGFloat currentPositionX = self.leftThumb.frame.origin.x + self.leftThumb.frame.size.width + totalWidth * progress;
     self.currentPositionView.frame = CGRectMake(currentPositionX, 0, self.currentPositionView.frame.size.width, self.currentPositionView.frame.size.height);
 }
 

@@ -368,14 +368,12 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     __weak typeof(self) weakSelf = self;
     
     self.playbackObserver = [self.player addPeriodicTimeObserverForInterval:interval queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
-        CMTime endTime = CMTimeConvertScale (weakSelf.player.currentItem.asset.duration, weakSelf.player.currentTime.timescale, kCMTimeRoundingMethod_RoundHalfAwayFromZero);
-        if (CMTimeCompare(endTime, kCMTimeZero) != 0) {
-            double normalizedTime = (double) weakSelf.player.currentTime.value / (double) endTime.value;
-            
-            //the following two lines of code are needed in case we are using composition for "repeat" mode
-            normalizedTime *= NUM_OF_COPIES;
-            normalizedTime = normalizedTime - floorf(normalizedTime);
-            [weakSelf playbackProgressChanged:normalizedTime];
+        CGFloat endTime = CMTimeGetSeconds(weakSelf.player.currentItem.asset.duration);
+//        CMTime endTime = CMTimeConvertScale (weakSelf.player.currentItem.asset.duration, weakSelf.player.currentTime.timescale, kCMTimeRoundingMethod_RoundHalfAwayFromZero);
+        if (endTime != 0) {
+            CGFloat currentTime = CMTimeGetSeconds(weakSelf.player.currentTime);
+            CGFloat normalizedTime = fmodf(currentTime, endTime/NUM_OF_COPIES);
+            [weakSelf playbackProgressChanged:normalizedTime duration:endTime/NUM_OF_COPIES];
         }
     }];
 }
@@ -384,9 +382,9 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     [self.player pause];
 }
 
-- (void)playbackProgressChanged:(CGFloat)progress {
-    if([self.delegate respondsToSelector:@selector(playbackProgressChanged:)]) {
-        [self.delegate playbackProgressChanged:progress];
+- (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
+    if([self.delegate respondsToSelector:@selector(playbackProgressChanged:duration:)]) {
+        [self.delegate playbackProgressChanged:progress duration:duration];
     }
 }
 
