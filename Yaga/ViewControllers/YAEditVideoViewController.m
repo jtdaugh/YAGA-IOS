@@ -146,6 +146,9 @@
 
 #pragma mark - SAVideoRangeSliderDelegate
 - (void)rangeSliderDidMoveLeftSlider:(SAVideoRangeSlider *)rangeSlider {
+    
+    NSLog(@"left position: %f", rangeSlider.leftPosition);
+
     self.dragging = YES;
     
     if(self.videoPage.playerView.player.rate == 1.0){
@@ -159,6 +162,7 @@
 }
 
 - (void)rangeSliderDidMoveRightSlider:(SAVideoRangeSlider *)rangeSlider {
+    
     self.dragging = YES;
     
     if(self.videoPage.playerView.player.rate == 1.0){
@@ -174,9 +178,6 @@
 - (void)rangeSliderDidEndMoving:(SAVideoRangeSlider *)rangeSlider {
     self.startTime = rangeSlider.leftPosition;
     self.endTime = rangeSlider.rightPosition;
-    
-    NSLog(@"start time? %f", self.startTime);
-    NSLog(@"end time? %f", self.endTime);
     
     [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
         
@@ -245,8 +246,8 @@
                         DLog(@"Edit video - export canceled");
                         break;
                     default:
-                        weakSelf.videoPage.playerView.URL = outputUrl;
-                        weakSelf.videoPage.playerView.playWhenReady = YES;
+//                        weakSelf.videoPage.playerView.URL = outputUrl;
+//                        weakSelf.videoPage.playerView.playWhenReady = YES;
                         break;
                 }
                 
@@ -261,17 +262,22 @@
     if(!self.dragging){
         
         // if is end time, loop back to the start time
-        NSLog(@"progress: %f", progress);
-        NSLog(@"duration: %f", duration);
-        NSLog(@"progress/duration: %f", progress/duration);
-//        if(progress)
+//        NSLog(@"progress: %f", progress);
+//        NSLog(@"duration: %f", duration);
+//        NSLog(@"progress/duration: %f", progress/duration);
         
         if(progress > self.endTime){
             
             [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
             }];
         } else {
-            [self.trimmingView setPlayerProgress:progress/duration];
+            if(progress > 0){
+                CGFloat end = (self.endTime == CGFLOAT_MAX) ? duration : self.endTime;
+                CGFloat normalizedProgress = (progress - self.startTime)/(end - self.startTime);
+                [self.trimmingView setPlayerProgress:normalizedProgress];
+                
+            }
+            
         }
 
     }
