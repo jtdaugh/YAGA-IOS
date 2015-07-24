@@ -24,6 +24,8 @@
 @property BOOL dragging;
 @end
 
+typedef void(^trimmingCompletionBlock)(NSError *error);
+
 @implementation YAEditVideoViewController
 
 - (void)viewDidLoad {
@@ -91,35 +93,42 @@
 
 - (void)sendButtonTapped:(id)sender {
     
-    if([YAUser currentUser].currentGroup) {
-        NSError *error;
-        NSURL *resultingUrl;
-        [[NSFileManager defaultManager] replaceItemAtURL:[YAUtils urlFromFileName:self.video.mp4Filename] withItemAtURL:[self trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&error];
-        if(error) {
-            [YAUtils showNotification:@"Can not save video" type:YANotificationTypeError];
-            return;
+    [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {
+        if(!error) {
+            NSError *replaceError;
+            NSURL *resultingUrl;
+            [[NSFileManager defaultManager] replaceItemAtURL:[YAUtils urlFromFileName:self.video.mp4Filename] withItemAtURL:[self trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&replaceError];
+            if(replaceError) {
+                [YAUtils showNotification:@"Can not save video" type:YANotificationTypeError];
+                return;
+            }
+            [self deleteTrimmedFile];
+            
+            if([YAUser currentUser].currentGroup) {
+                [[RLMRealm defaultRealm] beginWriteTransaction];
+                
+                [[YAUser currentUser].currentGroup.videos insertObject:self.video atIndex:0];
+                self.video.group = [YAUser currentUser].currentGroup;
+                [[RLMRealm defaultRealm] commitWriteTransaction];
+                
+                
+                //start uploading while generating gif
+                [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:[YAUser currentUser].currentGroup];
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kNewVideos:@[self.video]}];
+                
+                [self dismissAnimated];
+            }
+            else {
+                self.bottomView.hidden = YES;
+                self.trimmingView.hidden = YES;
+                [self.videoPage showSharingOptions];
+            }
         }
-        [self deleteTrimmedFile];
-        
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        
-        [[YAUser currentUser].currentGroup.videos insertObject:self.video atIndex:0];
-        self.video.group = [YAUser currentUser].currentGroup;
-        [[RLMRealm defaultRealm] commitWriteTransaction];
-        
-        
-        //start uploading while generating gif
-        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:[YAUser currentUser].currentGroup];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kNewVideos:@[self.video]}];
-        
-        [self dismissAnimated];
-    }
-    else {
-        self.bottomView.hidden = YES;
-        self.trimmingView.hidden = YES;
-        [self.videoPage showSharingOptions];
-    }
+        else {
+            [YAUtils showNotification:@"Error: can't trim video" type:YANotificationTypeError];
+        }
+    }];
 }
 
 #pragma mark - YASwipeToDismissViewController
@@ -212,7 +221,7 @@
     return result;
 }
 
-- (void)trimVideoWithStartTime:(CGFloat)startTime andStopTime:(CGFloat)stopTime {
+- (void)trimVideoWithStartTime:(CGFloat)startTime andStopTime:(CGFloat)stopTime completion:(trimmingCompletionBlock)completion {
     self.videoPage.playerView.URL = nil;
     
     NSURL *videoFileUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
@@ -241,13 +250,17 @@
                 switch ([weakSelf.exportSession status]) {
                     case AVAssetExportSessionStatusFailed:
                         DLog(@"Edit video - export failed: %@", [[weakSelf.exportSession error] localizedDescription]);
+                        if(completion)
+                            completion([weakSelf.exportSession error]);
                         break;
                     case AVAssetExportSessionStatusCancelled:
                         DLog(@"Edit video - export canceled");
+                        if(completion)
+                            completion([weakSelf.exportSession error]);
                         break;
                     default:
-//                        weakSelf.videoPage.playerView.URL = outputUrl;
-//                        weakSelf.videoPage.playerView.playWhenReady = YES;
+                        if(completion)
+                            completion(nil);
                         break;
                 }
                 
