@@ -363,7 +363,7 @@
     
     //get videoAsset2 duration
     NSArray *requestedKeys = @[@"playable"];
-//    [videoAsset2 loadValuesAsynchronouslyForKeys:requestedKeys completionHandler: ^{
+    [videoAsset2 loadValuesAsynchronouslyForKeys:requestedKeys completionHandler: ^{
         Float64 asset1DurationSeconds = CMTimeGetSeconds(videoAsset1.duration);
         Float64 asset1StartSeconds = CMTimeGetSeconds(videoAsset2.duration);
         Float64 asset1TotalSecondsToAdd = asset1DurationSeconds - asset1StartSeconds;
@@ -422,7 +422,7 @@
                 }
             }
         }];
- //   }];
+    }];
 }
 
 @end

@@ -348,8 +348,7 @@
             
             int picsCnt = ceil(weakSelf.bgView.frame.size.width / picWidth);
             
-            NSMutableArray *allTimes = [[NSMutableArray alloc] init];
-            
+            __block NSMutableArray *allTimes = [[NSMutableArray alloc] init];
             
             int time4Pic = 0;
             // Bug iOS7 - generateCGImagesAsynchronouslyForTimes
