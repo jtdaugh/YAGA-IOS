@@ -275,20 +275,25 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     if(!self.dragging){
         
         // if is end time, loop back to the start time
-//        NSLog(@"progress: %f", progress);
-//        NSLog(@"duration: %f", duration);
-//        NSLog(@"progress/duration: %f", progress/duration);
+        if(progress < .02){
+            NSLog(@"progress: %f", progress);
+            NSLog(@"duration: %f", duration);
+            NSLog(@"progress/duration: %f", progress/duration);
+            
+        }
         
         if(progress > self.endTime){
             
             [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
             }];
         } else {
-            if(progress > 0){
+            if((progress - self.startTime) > 0){
                 CGFloat end = (self.endTime == CGFLOAT_MAX) ? duration : self.endTime;
                 CGFloat normalizedProgress = (progress - self.startTime)/(end - self.startTime);
                 [self.trimmingView setPlayerProgress:normalizedProgress];
                 
+            } else {
+                [self.trimmingView setPlayerProgress:0.0];
             }
             
         }
