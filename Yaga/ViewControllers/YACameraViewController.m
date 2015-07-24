@@ -72,7 +72,13 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self initCamera];
+    [[YACameraManager sharedManager] initCamera];
+    [[YACameraManager sharedManager] resumeCamera];
+    self.recordingTime = [NSDate date];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [YACameraManager sharedManager].delegate = self;
+        [[YACameraManager sharedManager] setCameraView:self.cameraView];
+    });
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -165,15 +171,6 @@
 
 #pragma mark - recording
 
-- (void)initCamera {
-    [[YACameraManager sharedManager] initCamera];
-    self.recordingTime = [NSDate date];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [YACameraManager sharedManager].delegate = self;
-        [[YACameraManager sharedManager] setCameraView:self.cameraView];
-    });
-}
-
 //val: refactor, method copied from endHold but without if(self.recording) condition
 - (void)doneRecordingTapped {
     
@@ -193,7 +190,7 @@
     [[YACameraManager sharedManager] stopContiniousRecordingWithCompletion:^(NSURL *recordedURL) {
         YAEditVideoViewController *vc = [YAEditVideoViewController new];
         vc.videoUrl = recordedURL;
-        
+        DLog(@"recording url: %@", recordedURL);
         // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
         // So set the initial frame to the end frame.
         [self presentViewController:vc animated:YES completion:nil];

@@ -26,7 +26,6 @@
     
     [self.view endEditing:YES];
     
-    [self.cameraViewController initCamera];
 }
 
 - (void)viewWillAppear:(BOOL)animated {

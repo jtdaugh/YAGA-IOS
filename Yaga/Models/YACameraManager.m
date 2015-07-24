@@ -30,9 +30,11 @@
 
 @property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
 @property (nonatomic) BOOL isInitialized;
+@property (nonatomic) BOOL isPaused;
 
-@property (nonatomic, strong) NSURL *recordingBackup;
 @property (nonatomic, strong) NSTimer *recordingBackupTimer;
+
+@property (nonatomic, readonly) NSString *backupPath;
 @end
 
 @implementation YACameraManager
@@ -49,7 +51,19 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        self.isInitialized = NO;
+        _isInitialized = NO;
+        _isPaused = YES;
+        _backupPath = [[NSString alloc] initWithFormat:@"%@backup_recording.mp4", NSTemporaryDirectory()];
+        
+        //remove old backup
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        if ([fileManager fileExistsAtPath:_backupPath])
+        {
+            NSError *error;
+            if (![fileManager removeItemAtPath:_backupPath error:&error])
+                DLog(@"Error removing backup recording: %@", error);
+        }
+
     }
     return self;
 }
@@ -76,21 +90,6 @@
                 [self.videoCamera addTarget:self.currentCameraView];
             }
         }
-
-        DLog(@"starting camera capture");
-        [self.videoCamera startCameraCapture];
-        
-        NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
-        [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
-        [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
-        [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
-        
-        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
-        self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
-        unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
-
-        [self startContiniousRecording];
-
     }
 }
 
@@ -134,7 +133,12 @@
 - (void)pauseCamera {
     if (self.isInitialized){
         DLog(@"pausing camera capture");
+        [self stopContiniousRecordingWithCompletion:^(NSURL *outputUrl) {
+            // discard
+        }];
+        
         [self.videoCamera pauseCameraCapture];
+        self.isPaused = YES;
         [self.delegate setFrontFacingFlash:NO];
         [self.videoCamera stopCameraCapture];
         runSynchronouslyOnVideoProcessingQueue(^{
@@ -144,10 +148,17 @@
 }
 
 - (void)resumeCamera {
-    if (self.isInitialized) {
+    if (self.isInitialized && self.isPaused) {
         DLog(@"resuming camera capture");
+        self.isPaused = NO;
         [self.videoCamera resumeCameraCapture];
         [self.videoCamera startCameraCapture];
+        
+        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
+        self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
+        unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
+        
+        [self startContiniousRecording];
     }
 }
 
@@ -163,21 +174,17 @@
     __weak typeof(self) weakSelf = self;
     [self stopRecordingWithCompletion:^(NSURL *recordedURL) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSString *backupPath = [[NSString alloc] initWithFormat:@"%@backup_recording.mp4", NSTemporaryDirectory()];
-            unlink([backupPath UTF8String]); // If a file already exists
-            
+            unlink([self.backupPath UTF8String]); // If a file already exists
             
             NSError *error;
             NSDictionary *fileAttrs = [[NSFileManager defaultManager] attributesOfItemAtPath:recordedURL.path error:&error];
             DLog(@"recording size: %@", fileAttrs[@"NSFileSize"]);
             
-            [[NSFileManager defaultManager] copyItemAtPath:recordedURL.path toPath:backupPath error:&error];
+            [[NSFileManager defaultManager] copyItemAtPath:recordedURL.path toPath:self.backupPath error:&error];
             if(error) {
                 DLog(@"can't create recording backup");
                 return;
             }
-            
-            weakSelf.recordingBackup = [NSURL fileURLWithPath:backupPath];
             
             DLog(@"%d seconds backup created, proceeding recording", BACKUP_RECORDING_SECONDS);
             
@@ -264,20 +271,30 @@
     
     [self.recordingBackupTimer invalidate];
     
-    [self stopRecordingWithCompletion:^(NSURL *outputUrl) {
+    [self stopRecordingWithCompletion:^(NSURL *recordingUrl) {
         
-        if(weakSelf.recordingBackup) {
+        if([[NSFileManager defaultManager] fileExistsAtPath:self.backupPath]) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                [weakSelf mergeAssetsAtUrls:@[weakSelf.recordingBackup, outputUrl] withCompletion:^(NSURL *outputUrl) {
-                    completion(outputUrl);
+                
+                NSURL *backupURL = [NSURL fileURLWithPath:self.backupPath];
+                
+                [weakSelf mergeAssetsAtUrls:@[backupURL, recordingUrl] withCompletion:^(NSURL *mergedUrl) {
+                    completion(mergedUrl);
+                    
+                    //merged is now backup recording
+                    unlink([weakSelf.backupPath UTF8String]); // If a file already exists
+                    
+                    NSError *replaceError;
+                    NSURL *resultingUrl;
+                    [[NSFileManager defaultManager] replaceItemAtURL:backupURL withItemAtURL:mergedUrl backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&replaceError];
+
                 }];
             });
         }
         else {
-            completion(outputUrl);
+            completion(recordingUrl);
         }
         
-        [weakSelf startContiniousRecording];
     }];
 }
 
@@ -378,7 +395,8 @@
         
         //do not proceed if second asset is zero length(has just started recording)
         if(asset2DurationSeconds == 0) {
-            
+            NSDictionary *d = [[NSFileManager defaultManager] attributesOfItemAtPath:[(NSURL*)[urls objectAtIndex:1] path] error:nil];
+            DLog(@"%@", d);
             //copy is required as first asset can be used again, but YAAssetsCreator will delete the recording_backup.mp4 file
             NSError *error;
 

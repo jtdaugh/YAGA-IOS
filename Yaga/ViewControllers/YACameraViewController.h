@@ -21,8 +21,6 @@
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 @property (strong, nonatomic) NSNumber *recording;
 
-- (void)initCamera;
-
 - (void)showCameraAccessories:(BOOL)show;
 
 @end
