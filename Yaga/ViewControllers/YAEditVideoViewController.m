@@ -18,6 +18,9 @@
 @property (nonatomic, strong) UIView *bottomView;
 @property (nonatomic, strong) AVAssetExportSession *exportSession;
 
+@property CGFloat startTime;
+@property CGFloat endTime;
+
 @property BOOL dragging;
 @end
 
@@ -25,6 +28,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.startTime = 0.0f;
+    self.endTime = CGFLOAT_MAX;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -41,6 +46,7 @@
     [self addBottomView];
     
     [self addTrimmingView];
+    
 }
 
 - (void)addTrimmingView {
@@ -166,8 +172,19 @@
 }
 
 - (void)rangeSliderDidEndMoving:(SAVideoRangeSlider *)rangeSlider {
-    [self trimVideoWithStartTime:rangeSlider.leftPosition andStopTime:rangeSlider.rightPosition];
-    self.dragging = NO;
+    self.startTime = rangeSlider.leftPosition;
+    self.endTime = rangeSlider.rightPosition;
+    
+    NSLog(@"start time? %f", self.startTime);
+    NSLog(@"end time? %f", self.endTime);
+    
+    [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+        
+        NSLog(@"hello?");
+        
+        self.dragging = NO;
+        self.videoPage.playerView.playWhenReady = YES;
+    }];
 }
 
 #pragma mark - Trimming
@@ -240,9 +257,23 @@
 }
 
 #pragma mark - YAVideoPlayerDelegate
-- (void)playbackProgressChanged:(CGFloat)progress {
+- (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
     if(!self.dragging){
-        [self.trimmingView setPlayerProgress:progress];
+        
+        // if is end time, loop back to the start time
+        NSLog(@"progress: %f", progress);
+        NSLog(@"duration: %f", duration);
+        NSLog(@"progress/duration: %f", progress/duration);
+//        if(progress)
+        
+        if(progress > self.endTime){
+            
+            [self.videoPage.playerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPage.playerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+            }];
+        } else {
+            [self.trimmingView setPlayerProgress:progress/duration];
+        }
+
     }
 }
 
