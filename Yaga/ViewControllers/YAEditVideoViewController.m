@@ -65,7 +65,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     
     UIView *transparentView = [[UIView alloc] initWithFrame:self.bottomView.bounds];
     transparentView.backgroundColor = [UIColor blackColor];
-    transparentView.alpha = 0.2;
+    transparentView.alpha = 0.42;
     [self.bottomView addSubview:transparentView];
     
     UILabel *groupNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2)];
@@ -78,7 +78,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     UILabel *hintLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2)];
     hintLabel.textColor = [UIColor whiteColor];
     hintLabel.font = [UIFont fontWithName:BIG_FONT size:12];
-    hintLabel.text =  @"tap to add more groups";
+    hintLabel.text =  @"Tap to add more groups";
     [self.bottomView addSubview:hintLabel];
     
     UIButton *sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
