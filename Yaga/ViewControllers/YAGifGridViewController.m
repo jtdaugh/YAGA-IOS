@@ -6,7 +6,7 @@
 //
 //
 
-#import "YACollectionViewController.h"
+#import "YAGifGridViewController.h"
 
 #import "YAVideoCell.h"
 
@@ -28,7 +28,7 @@
 
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
-@interface YACollectionViewController ()
+@interface YAGifGridViewController ()
 
 @property (strong, nonatomic) UICollectionViewFlowLayout *gridLayout;
 
@@ -58,7 +58,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 static NSString *cellID = @"Cell";
 
-@implementation YACollectionViewController
+@implementation YAGifGridViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -107,7 +107,7 @@ static NSString *cellID = @"Cell";
                   localId:(NSString *)localId
         eventCountUpdated:(NSUInteger)eventCount {
     if ((self.scrollingFast) || !eventCount) return; // dont update unless the collection view is still
-    __weak YACollectionViewController *weakSelf = self;
+    __weak YAGifGridViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
         if (weakSelf.scrollingFast) return;
@@ -127,8 +127,6 @@ static NSString *cellID = @"Cell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [YAUtils setVisitedGifGrid];
-    [self.delegate swapOutOfOnboardingState];
-    [self.delegate updateCameraAccessoriesWithViewIndex:1];
 
     if([YAUser currentUser].currentGroup.publicGroup) {
         if (![YAUtils hasVisitedHumanity]) {
@@ -453,18 +451,11 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)openVideoAtIndexPath:(NSIndexPath*)indexPath {
-    UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
     
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.item];
     swipingVC.delegate = self;
     
-    CGRect initialFrame = attributes.frame;
-    initialFrame.origin.y -= self.collectionView.contentOffset.y;
-    initialFrame.origin.y += self.view.frame.origin.y;
-    
-    [self.delegate setInitialAnimationFrame:initialFrame];
-    
-    swipingVC.transitioningDelegate = self.delegate;
+    swipingVC.transitioningDelegate = self;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
     
     [self presentViewController:swipingVC animated:YES completion:nil];
@@ -506,8 +497,6 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [self.delegate scrollViewDidScroll];
-    
     if (scrollView.contentSize.height == 0) return;
     if(self.disableScrollHandling) {
         return;
@@ -606,7 +595,6 @@ static NSString *cellID = @"Cell";
     
     //don't do anything if it's visible already
     if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]]) {
-        [self.delegate scrollViewDidScroll]; //just make sure grid and camera has correct frames
         return;
     }
     
@@ -621,7 +609,6 @@ static NSString *cellID = @"Cell";
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             weakSelf.collectionView.contentInset = tmp;
             
-            [weakSelf.delegate scrollViewDidScroll];
             [weakSelf scrollingDidStop];
         });
     }

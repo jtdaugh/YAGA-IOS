@@ -8,8 +8,8 @@
 
 #import "YAGroupAddMembersViewController.h"
 #import "YAInviteViewController.h"
-#import "YAGridViewController.h"
 #import "NameGroupViewController.h"
+#import "YAGroupOptionsViewController.h"
 #import "APPhoneWithLabel.h"
 #import "NSString+Hash.h"
 #import "YAUtils.h"
@@ -396,7 +396,7 @@
     //If we come from GridViewController
     __block BOOL found = NO;
     [self.navigationController.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj isKindOfClass:[YAGridViewController class]]) {
+        if ([obj isKindOfClass:[YAGroupOptionsViewController class]]) {
             found = YES;
             *stop = YES;
         }

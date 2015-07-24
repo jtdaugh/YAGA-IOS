@@ -12,7 +12,6 @@
 #import "YAUser.h"
 #import "YAAssetsCreator.h"
 #import "MBProgressHUD.h"
-#import "YAGridViewController.h"
 
 #define kMaxUserNamesShown (6)
 

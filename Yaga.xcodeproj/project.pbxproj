@@ -46,9 +46,9 @@
 		6E7324E31AF109F7002CCFED /* YADownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7324E21AF109F7002CCFED /* YADownloadManager.m */; };
 		6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4131A4324C0000B3A14 /* YAVideoCell.m */; };
 		6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4191A432713000B3A14 /* YACameraViewController.m */; };
-		6E73F4221A432FAC000B3A14 /* YAGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F41D1A432FAC000B3A14 /* YAGroupsViewController.m */; };
+		6E73F4221A432FAC000B3A14 /* YAGroupsListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F41D1A432FAC000B3A14 /* YAGroupsListViewController.m */; };
 		6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */; };
-		6E73F42B1A43357D000B3A14 /* YACollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4261A43337D000B3A14 /* YACollectionViewController.m */; };
+		6E73F42B1A43357D000B3A14 /* YAGifGridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4261A43337D000B3A14 /* YAGifGridViewController.m */; };
 		6E7C2EE41A4C4EE200522A34 /* UsernameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7C2EE31A4C4EE200522A34 /* UsernameViewController.m */; };
 		6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9187651A3F2C270034AB63 /* AppDelegate.m */; };
 		6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E9187771A3F2C270034AB63 /* InfoPlist.strings */; };
@@ -61,7 +61,6 @@
 		6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188801A3F3A5A0034AB63 /* UIImage+Colors.m */; };
 		6E9188D01A3F3A5A0034AB63 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188821A3F3A5A0034AB63 /* UIImage+Resize.m */; };
 		6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188871A3F3A5A0034AB63 /* YAUser.m */; };
-		6E9188DD1A3F3A5A0034AB63 /* YAGridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E91889B1A3F3A5A0034AB63 /* YAGridViewController.m */; };
 		6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */; };
 		6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */; };
 		6E9188E71A3F3A5A0034AB63 /* YaOnboardingNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B01A3F3A5A0034AB63 /* YaOnboardingNavigationController.m */; };
@@ -207,12 +206,12 @@
 		6E73F4131A4324C0000B3A14 /* YAVideoCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideoCell.m; sourceTree = "<group>"; };
 		6E73F4181A432713000B3A14 /* YACameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraViewController.h; sourceTree = "<group>"; };
 		6E73F4191A432713000B3A14 /* YACameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACameraViewController.m; sourceTree = "<group>"; };
-		6E73F41C1A432FAC000B3A14 /* YAGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupsViewController.h; sourceTree = "<group>"; };
-		6E73F41D1A432FAC000B3A14 /* YAGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupsViewController.m; sourceTree = "<group>"; };
+		6E73F41C1A432FAC000B3A14 /* YAGroupsListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupsListViewController.h; sourceTree = "<group>"; };
+		6E73F41D1A432FAC000B3A14 /* YAGroupsListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupsListViewController.m; sourceTree = "<group>"; };
 		6E73F41E1A432FAC000B3A14 /* NameGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NameGroupViewController.h; sourceTree = "<group>"; };
 		6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NameGroupViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		6E73F4251A43337D000B3A14 /* YACollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACollectionViewController.h; sourceTree = "<group>"; };
-		6E73F4261A43337D000B3A14 /* YACollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACollectionViewController.m; sourceTree = "<group>"; };
+		6E73F4251A43337D000B3A14 /* YAGifGridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGifGridViewController.h; sourceTree = "<group>"; };
+		6E73F4261A43337D000B3A14 /* YAGifGridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGifGridViewController.m; sourceTree = "<group>"; };
 		6E7C2EE21A4C4EE200522A34 /* UsernameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UsernameViewController.h; sourceTree = "<group>"; };
 		6E7C2EE31A4C4EE200522A34 /* UsernameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = UsernameViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		6E9187641A3F2C270034AB63 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -238,8 +237,6 @@
 		6E9188861A3F3A5A0034AB63 /* YAUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAUser.h; sourceTree = "<group>"; };
 		6E9188871A3F3A5A0034AB63 /* YAUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAUser.m; sourceTree = "<group>"; };
 		6E9188941A3F3A5A0034AB63 /* Yaga-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Yaga-Bridging-Header.h"; sourceTree = "<group>"; };
-		6E91889A1A3F3A5A0034AB63 /* YAGridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGridViewController.h; sourceTree = "<group>"; };
-		6E91889B1A3F3A5A0034AB63 /* YAGridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGridViewController.m; sourceTree = "<group>"; };
 		6E9188A51A3F3A5A0034AB63 /* YASMSAuthentificationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASMSAuthentificationViewController.h; sourceTree = "<group>"; };
 		6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASMSAuthentificationViewController.m; sourceTree = "<group>"; };
 		6E9188A91A3F3A5A0034AB63 /* YAPhoneNumberViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YAPhoneNumberViewController.h; path = ../YAPhoneNumberViewController.h; sourceTree = "<group>"; };
@@ -486,8 +483,8 @@
 				6E40C9E01B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m */,
 				6E62F71E1A51A8CB008F5116 /* YAGroupAddMembersViewController.h */,
 				6E62F71F1A51A8CB008F5116 /* YAGroupAddMembersViewController.m */,
-				6E73F41C1A432FAC000B3A14 /* YAGroupsViewController.h */,
-				6E73F41D1A432FAC000B3A14 /* YAGroupsViewController.m */,
+				6E73F41C1A432FAC000B3A14 /* YAGroupsListViewController.h */,
+				6E73F41D1A432FAC000B3A14 /* YAGroupsListViewController.m */,
 				6E73F41E1A432FAC000B3A14 /* NameGroupViewController.h */,
 				6E73F41F1A432FAC000B3A14 /* NameGroupViewController.m */,
 				887AFD0A1AD8623500F00948 /* YAInviteViewController.h */,
@@ -619,10 +616,8 @@
 				6E5E667A1A424E3300B58E49 /* Segues */,
 				0FE7A6B21B53542C00B35DCD /* YACreateGroupNavigationController.h */,
 				0FE7A6B31B53542C00B35DCD /* YACreateGroupNavigationController.m */,
-				6E73F4251A43337D000B3A14 /* YACollectionViewController.h */,
-				6E73F4261A43337D000B3A14 /* YACollectionViewController.m */,
-				6E91889A1A3F3A5A0034AB63 /* YAGridViewController.h */,
-				6E91889B1A3F3A5A0034AB63 /* YAGridViewController.m */,
+				6E73F4251A43337D000B3A14 /* YAGifGridViewController.h */,
+				6E73F4261A43337D000B3A14 /* YAGifGridViewController.m */,
 				6E9188AF1A3F3A5A0034AB63 /* YaOnboardingNavigationController.h */,
 				6E9188B01A3F3A5A0034AB63 /* YaOnboardingNavigationController.m */,
 				8830D8E81B35E09A006F841D /* YAGroupsNavigationController.h */,
@@ -935,7 +930,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E73F42B1A43357D000B3A14 /* YACollectionViewController.m in Sources */,
+				6E73F42B1A43357D000B3A14 /* YAGifGridViewController.m in Sources */,
 				6EA942161A404B00001803C5 /* YAGroup.m in Sources */,
 				882F082D1AEF6F12007FAA66 /* YAPanGestureRecognizer.m in Sources */,
 				86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */,
@@ -962,7 +957,6 @@
 				88E3E21F1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m in Sources */,
 				861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailableError.m in Sources */,
 				885F53661B3F826700D359DB /* RCounter.m in Sources */,
-				6E9188DD1A3F3A5A0034AB63 /* YAGridViewController.m in Sources */,
 				6EB57DEB1B5E6F52003B7374 /* YAEditVideoViewController.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
 				88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */,
@@ -978,7 +972,7 @@
 				6E5333541AA09B2A00C221DC /* YAPushNotificationHandler.m in Sources */,
 				6ED379E41AB1C6F40099BDC1 /* YAUserPermissions.m in Sources */,
 				861A90BF1A4AE77C00CAD2E3 /* NSData+Hex.m in Sources */,
-				6E73F4221A432FAC000B3A14 /* YAGroupsViewController.m in Sources */,
+				6E73F4221A432FAC000B3A14 /* YAGroupsListViewController.m in Sources */,
 				6ECCCDF81A804EF000B1E1BC /* YAProgressView.m in Sources */,
 				6E73F4231A432FAC000B3A14 /* NameGroupViewController.m in Sources */,
 				6E6A090C1A562F91002F4A8B /* YAServerTransactionQueue.m in Sources */,

@@ -7,7 +7,7 @@
 //
 
 
-#import "YAGroupsViewController.h"
+#import "YAGroupsListViewController.h"
 #import "YAUser.h"
 #import "YAUtils.h"
 
@@ -22,18 +22,18 @@
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
 #import "NameGroupViewController.h"
-#import "YAGridViewController.h"
 
 #import "YAFindGroupsViewConrtoller.h"
-#import "YACollectionViewController.h"
+#import "YAGifGridViewController.h"
 
 #define FOOTER_HEIGHT 170
 
-@interface YAGroupsViewController ()
+@interface YAGroupsListViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 @property (nonatomic, strong) YAGroup *editingGroup;
 @property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
 @property (nonatomic) BOOL animatePush;
+
 //needed to have pull down to refresh shown for at least 1 second
 @property (nonatomic, strong) NSDate *willRefreshDate;
 @property (nonatomic) CGFloat topInset;
@@ -42,7 +42,7 @@
 
 static NSString *CellIdentifier = @"GroupsCell";
 
-@implementation YAGroupsViewController
+@implementation YAGroupsListViewController
 
 - (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset {
     self = [super init];
@@ -115,7 +115,6 @@ static NSString *CellIdentifier = @"GroupsCell";
         // The animate push hack is because sometimes -viewDidAppear was getting called
         // even when we forced the gif collection view push in -viewDidLoad
         [YAUser currentUser].currentGroup = nil;
-        [self.delegate updateCameraAccessoriesWithViewIndex:0];
     }
     self.animatePush = YES;
     
@@ -173,10 +172,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     if ([self.navigationController.topViewController isEqual:self]) {
         //open current group if needed
         if([YAUser currentUser].currentGroup) {
-            YACollectionViewController *vc = [YACollectionViewController new];
-            vc.delegate = self.delegate;
+            YAGifGridViewController *vc = [YAGifGridViewController new];
             [self.navigationController pushViewController:vc animated:self.animatePush];
-            [self.delegate updateCameraAccessoriesWithViewIndex:1];
         }
     } else {
         // Grid is already visible, let it reload
@@ -208,11 +205,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     return YES;
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
- 
-    [self.delegate scrollViewDidScroll];
-
-}
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return self.groups.count;
 }
@@ -240,8 +232,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
     YAGroup *group = self.groups[indexPath.item];
     [YAUser currentUser].currentGroup = group;
-    [self.delegate swapOutOfOnboardingState];
-    [self.delegate updateCameraAccessoriesWithViewIndex:1];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -308,14 +298,6 @@ static NSString *CellIdentifier = @"GroupsCell";
                   layout:(UICollectionViewLayout*)collectionViewLayout
 referenceSizeForFooterInSection:(NSInteger)section {
     return CGSizeMake(VIEW_WIDTH, FOOTER_HEIGHT);;
-}
-
-- (void)createCellPressed:(id)sender {
-    [self.delegate showCreateGroupWithInitialVideo:nil];
-}
-
-- (void)findCellPressed:(id)sender {
-    [self.delegate showFindGroups];
 }
 
 @end
