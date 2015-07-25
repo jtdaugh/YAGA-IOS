@@ -8,6 +8,10 @@
 
 #import "YAGroupsNavigationController.h"
 #import "YAAnimatedTransitioningController.h"
+#import "YAGifGridViewController.h"
+#import "YAGroupsListViewController.h"
+
+#import "YAUser.h"
 
 @interface YAGroupsNavigationController () <UINavigationControllerDelegate, UIGestureRecognizerDelegate>
 
@@ -19,6 +23,18 @@
 @end
 
 @implementation YAGroupsNavigationController
+
++ (YAGroupsNavigationController *)navControllerWithCorrectGroupViewControllers {
+    YAGroupsNavigationController *navigationController = [YAGroupsNavigationController new];
+    NSArray *vcArray;
+    if ([YAUser currentUser].currentGroup) {
+        vcArray = @[[YAGroupsListViewController new], [YAGifGridViewController new]];
+    } else {
+        vcArray = @[[YAGroupsListViewController new]];
+    }
+    [navigationController setViewControllers:vcArray];
+    return navigationController;
+}
 
 #pragma mark - NSObject
 

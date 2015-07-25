@@ -57,7 +57,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)doneButtonPressed:(id)sender {
     if(self.onboardingMode) {
-        [self performSegueWithIdentifier:@"ShowGroupsAfterFindGroups" sender:self];
+        [self performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:self];
     }
     else
         [self.navigationController dismissViewControllerAnimated:YES completion:nil];
@@ -91,7 +91,7 @@ static NSString *CellIdentifier = @"GroupsCell";
             
             weakSelf.groupsListLoaded = YES;
             if(self.findGroupsFinished && self.groupsDataArray.count == 0)
-                [weakSelf performSegueWithIdentifier:@"ShowGroupsAfterFindGroups" sender:weakSelf];
+                [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
         }];
         
         __block UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
@@ -115,7 +115,7 @@ static NSString *CellIdentifier = @"GroupsCell";
             if(error) {
                 self.findGroupsFinished = YES;
                 if(self.groupsListLoaded)
-                    [weakSelf performSegueWithIdentifier:@"ShowGroupsAfterFindGroups" sender:weakSelf];
+                    [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
             } else {
                 if(sentToServer) {
                     [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
@@ -138,14 +138,14 @@ static NSString *CellIdentifier = @"GroupsCell";
                                     }
                                     else {
                                         if(self.groupsListLoaded)
-                                            [weakSelf performSegueWithIdentifier:@"ShowGroupsAfterFindGroups" sender:weakSelf];
+                                            [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
                                     }
                                 });
                             });
                         }
                         else {
                             if(self.groupsListLoaded)
-                                [weakSelf performSegueWithIdentifier:@"ShowGroupsAfterFindGroups" sender:weakSelf];
+                                [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
                         }
                     }];
                 }

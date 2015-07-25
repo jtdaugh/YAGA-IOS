@@ -305,11 +305,7 @@
 }
 
 - (void)gridButtonPressed {
-    YAGroupsListViewController *vc0 = [YAGroupsListViewController new];
-    YAGifGridViewController *vc1 = [YAGifGridViewController new];
-    UINavigationController *nvc = [UINavigationController new];
-    [nvc setViewControllers:@[vc0, vc1]];
-    [self presentViewController:nvc animated:YES completion:nil];
+    [self presentViewController:[YAGroupsNavigationController navControllerWithCorrectGroupViewControllers] animated:YES completion:nil];
 }
 
 - (void)showHumanityTooltip {
