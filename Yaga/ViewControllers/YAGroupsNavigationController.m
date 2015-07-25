@@ -205,6 +205,10 @@
     }
 }
 
+- (void)setInitialAnimationFrame:(CGRect)frame {
+    self.animationController.initialFrame = frame;
+}
+
 #pragma mark - Custom transitions
 - (id <UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
     self.animationController.presentingMode = YES;

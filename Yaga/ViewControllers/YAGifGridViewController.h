@@ -14,6 +14,7 @@
 
 @property (strong, nonatomic) UICollectionView *collectionView;
 @property (nonatomic) BOOL scrolling;
+
 - (void)reload;
 
 @end
