@@ -53,8 +53,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic) BOOL scrollingFast;
 @property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
-@property (nonatomic, strong) UIButton *cameraButton;
-
 @end
 
 static NSString *cellID = @"Cell";
@@ -85,17 +83,6 @@ static NSString *cellID = @"Cell";
     [self.view addSubview:self.collectionView];
     self.collectionView.frame = self.view.bounds;
     
-    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
-                                                                   self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - 20 - (CAMERA_BUTTON_SIZE/2),
-                                                                   CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
-    self.cameraButton.backgroundColor = PRIMARY_COLOR;
-    [self.cameraButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
-    self.cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
-    self.cameraButton.layer.masksToBounds = YES;
-    [self.cameraButton addTarget:self action:@selector(dismissToCamera) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.cameraButton];
-    [self.view bringSubviewToFront:self.cameraButton];
-    
     self.lastOffset = self.collectionView.contentOffset;
 
     self.lastDownloadPrioritizationIndex = 0;
@@ -112,10 +99,6 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
     
     [self setupPullToRefresh];
-}
-
-- (void)dismissToCamera {
-    [[UIApplication sharedApplication].keyWindow.rootViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)videoWithServerId:(NSString *)serverId

@@ -19,6 +19,7 @@
 
 @property (weak, nonatomic) id<UINavigationControllerDelegate> realDelegate;
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
+@property (nonatomic, strong) UIButton *cameraButton;
 
 @end
 
@@ -75,6 +76,21 @@
     }
     
     self.interactivePopGestureRecognizer.delegate = self;
+    
+    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
+                                                                   self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - (CAMERA_BUTTON_SIZE/2),
+                                                                   CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
+    self.cameraButton.backgroundColor = PRIMARY_COLOR;
+    [self.cameraButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
+    self.cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
+    self.cameraButton.layer.masksToBounds = YES;
+    [self.cameraButton addTarget:self action:@selector(dismissToCamera) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.cameraButton];
+
+}
+
+- (void)dismissToCamera {
+    [[UIApplication sharedApplication].keyWindow.rootViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {

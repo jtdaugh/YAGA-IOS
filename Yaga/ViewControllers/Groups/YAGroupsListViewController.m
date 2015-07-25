@@ -44,11 +44,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 @implementation YAGroupsListViewController
 
-
-- (void)dismissToCamera {
-    [[UIApplication sharedApplication].keyWindow.rootViewController dismissViewControllerAnimated:YES completion:nil];
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setupCollectionView];
@@ -64,17 +59,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     //force to open last selected group
     self.animatePush = NO;
     [self groupDidChange:nil];
-    
-    UIButton *cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
-                                                                   self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - 20 - (CAMERA_BUTTON_SIZE/2),
-                                                                   CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
-    cameraButton.backgroundColor = PRIMARY_COLOR;
-    [cameraButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
-    cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
-    cameraButton.layer.masksToBounds = YES;
-    [cameraButton addTarget:self action:@selector(dismissToCamera) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:cameraButton];
-
     
     [self updateState];
 }
