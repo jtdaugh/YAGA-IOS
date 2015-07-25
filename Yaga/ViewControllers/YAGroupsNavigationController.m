@@ -60,6 +60,12 @@
                             forBarPosition:UIBarPositionAny
                                 barMetrics:UIBarMetricsDefault];
     
+    self.navigationBar.layer.shadowColor = [SECONDARY_COLOR CGColor];
+    self.navigationBar.layer.shadowOpacity = 1.0;
+    self.navigationBar.layer.shadowRadius = 1;
+    self.navigationBar.layer.shadowOffset = CGSizeMake(0, 0.5);
+    self.navigationBar.layer.masksToBounds = NO;
+    
     self.animationController = [YAAnimatedTransitioningController new];
 
     [self.view setBackgroundColor:[UIColor colorWithWhite:0.97 alpha:1]];
