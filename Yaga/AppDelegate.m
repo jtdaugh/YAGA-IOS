@@ -202,7 +202,7 @@
     
     [self removeNotificationsBadge];
 
-    [[YACameraManager sharedManager] resumeCamera];
+    [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
 }
 
 - (void)removeNotificationsBadge {
@@ -213,7 +213,7 @@
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     
-    [[YACameraManager sharedManager] pauseCamera];
+    [[YACameraManager sharedManager] pauseCameraAndStop:YES];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         

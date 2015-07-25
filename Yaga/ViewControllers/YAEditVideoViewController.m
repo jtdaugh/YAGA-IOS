@@ -50,12 +50,12 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [self addBottomView];
     [self addTrimmingView];
     [self addTopButtons];
-    [[YACameraManager sharedManager] pauseCamera];
+    [[YACameraManager sharedManager] pauseCameraAndStop:NO];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [[YACameraManager sharedManager] resumeCamera];
+    [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:NO];
 }
 
 - (void)addTrimmingView {
