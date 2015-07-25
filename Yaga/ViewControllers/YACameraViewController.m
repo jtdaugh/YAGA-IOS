@@ -259,13 +259,11 @@
             [UIView animateWithDuration:0.618 delay:0.0 options:0 animations:^{
                 //
                 [self.bigRecordingIndicator setAlpha:0.0];
-                [self.bigRecordingIndicator setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
                 
                 [self.recordingMessage setAlpha:0.0];
-                [self.recordingMessage setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
 
             } completion:^(BOOL finished) {
-                [UIView animateWithDuration:0.618 delay:0.0 options:0 animations:^{
+                [UIView animateWithDuration:0.618/2 delay:0.0 options:0 animations:^{
                     //
                     [self.recordingIndicator setAlpha:1.0];
                 } completion:^(BOOL finished) {
