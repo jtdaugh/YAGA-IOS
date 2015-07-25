@@ -132,8 +132,8 @@
     
     CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
     
-    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .8); //(0.2, 0.2);
-    initialTransform = CGAffineTransformScale(initialTransform, .2, .2);
+    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
+    initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
 //    initialFrame.origin.y += self.view.frame.origin.y;
 //    initialFrame.origin.x = 0;
     

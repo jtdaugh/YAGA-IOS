@@ -91,11 +91,13 @@
         [YACameraManager sharedManager].delegate = self;
         [[YACameraManager sharedManager] setCameraView:self.cameraView];
     });
+//    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [[YACameraManager sharedManager] pauseCameraAndStop:NO];
+//    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
 }
 
 - (void)viewDidLoad {
@@ -227,10 +229,11 @@
 - (void)viewDidAppear:(BOOL)animated {
     
     [self startRecordingAnimation];
-//    [[UIApplication sharedApplication] setStatusBarHidden:YES];
 }
 
 - (void)startRecordingAnimation {
+    
+    [self.animatedRecorder removeFromSuperview];
     
     self.animatedRecorder = [[YAProgressView alloc] initWithFrame:self.doneRecordingButton.frame];
     self.animatedRecorder.indeterminate = YES;
