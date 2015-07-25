@@ -82,8 +82,9 @@
 @implementation YACameraViewController
 
 - (void)viewWillAppear:(BOOL)animated {
+
     [super viewWillAppear:animated];
-    
+
     [[YACameraManager sharedManager] initCamera];
     [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
     self.recordingTime = [NSDate date];

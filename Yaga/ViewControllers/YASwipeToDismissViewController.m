@@ -24,11 +24,17 @@
     [self.view addGestureRecognizer:self.panGesture];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+}
+
 #pragma mark - Animated dismissal
 - (void)panGesture:(UIPanGestureRecognizer *)rec
 {
     if(self.dismissed)
         return;
+    
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
     
     CGPoint vel = [rec velocityInView:self.view];
     CGPoint tr = [rec translationInView:self.view];
@@ -87,10 +93,14 @@
 }
 
 - (void)restoreAnimated {
+    
+
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         self.view.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
         self.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
-    } completion:nil];
+    } completion:^(BOOL finished){
+        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+    }];
 }
 
 
