@@ -49,20 +49,20 @@
     
     [self.navigationBar setTranslucent:NO];
     [self.navigationBar setTitleTextAttributes:@{
-                                                 NSForegroundColorAttributeName: [UIColor whiteColor],
+                                                 NSForegroundColorAttributeName: SECONDARY_COLOR,
                                                  NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:20]
                                                  }];
     
     [self.navigationBar setShadowImage:[UIImage new]];
-    [self.navigationBar setBarTintColor:PRIMARY_COLOR];
-    [self.navigationBar setTintColor:[UIColor whiteColor]];
+    [self.navigationBar setBarTintColor:[UIColor whiteColor]];
+    [self.navigationBar setTintColor:SECONDARY_COLOR];
     [self.navigationBar setBackgroundImage:[UIImage new]
                             forBarPosition:UIBarPositionAny
                                 barMetrics:UIBarMetricsDefault];
     
     self.animationController = [YAAnimatedTransitioningController new];
 
-    [self.view setBackgroundColor:[UIColor whiteColor]];
+    [self.view setBackgroundColor:[UIColor colorWithWhite:0.97 alpha:1]];
     
     if (!self.delegate) {
         self.delegate = self;
@@ -129,7 +129,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
     
 }
 

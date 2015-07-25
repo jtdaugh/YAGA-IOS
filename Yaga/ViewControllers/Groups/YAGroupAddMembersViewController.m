@@ -16,8 +16,6 @@
 #import "YAServer.h"
 
 @interface YAGroupAddMembersViewController ()
-@property (strong, nonatomic) UIView *topBar;
-@property (strong, nonatomic) UIButton *doneButton;
 @property (strong, nonatomic) UIActivityIndicatorView *activityView;
 @property (strong, nonatomic) VENTokenField *searchBar;
 @property (strong, nonatomic) UILabel *placeHolder;
@@ -50,10 +48,7 @@
     
     [self.view setBackgroundColor:PRIMARY_COLOR];
     
-    [self addNavBarView];
-    CGFloat origin = 64;
-    
-    VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0, origin, VIEW_WIDTH, 44)];
+    VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 44)];
     [searchBar setBackgroundColor:[UIColor whiteColor]];
     [searchBar setToLabelText:@""];
 //    [[UILabel appearanceWhenContainedIn:[UISearchBar class], nil] setTextColor:[UIColor redColor]];
@@ -71,8 +66,7 @@
     border.translatesAutoresizingMaskIntoConstraints = NO;
     border.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:border];
-    origin = searchBar.frame.origin.y + searchBar.frame.size.height;
-    UITableView *membersList = [[UITableView alloc] initWithFrame:CGRectMake(0, origin, VIEW_WIDTH, VIEW_HEIGHT - origin) style:UITableViewStylePlain];
+    UITableView *membersList = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     membersList.translatesAutoresizingMaskIntoConstraints = NO;
 
     [membersList setBackgroundColor:[UIColor clearColor]];
@@ -84,15 +78,14 @@
     self.membersTableview = membersList;
     
     [self.view addSubview:self.membersTableview];
-    UIView *navBar = self.topBar;
-    NSDictionary *views = NSDictionaryOfVariableBindings(navBar, searchBar, border, membersList);
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[navBar]|" options:0 metrics:nil views:views]];
+    NSDictionary *views = NSDictionaryOfVariableBindings(searchBar, border, membersList);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[searchBar]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[border]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[membersList]|" options:0 metrics:nil views:views]];
     
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[navBar][searchBar][border(1)]-0-[membersList]|" options:0 metrics:nil views:views]];
-
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[searchBar][border(1)]-0-[membersList]|" options:0 metrics:nil views:views]];
+    
+    [self setDoneButton];
     
     if(self.selectedContacts.count) {
         [self reloadSearchBox];
@@ -117,6 +110,17 @@
     } excludingPhoneNumbers:[self.existingGroup phonesSet]];
 }
 
+- (void)setDoneButton {
+    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneTapped)];
+    [doneButton setTitleTextAttributes:@{
+                                         NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
+                                         } forState:UIControlStateNormal];
+    [doneButton setEnabled:NO];
+    
+    [doneButton setTintColor:[UIColor lightGrayColor]];
+    self.navigationItem.rightBarButtonItem = doneButton;
+
+}
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     self.navigationController.interactivePopGestureRecognizer.enabled = YES;
@@ -128,6 +132,8 @@
 
     [self.searchBar becomeFirstResponder];
     
+    self.title = self.existingGroup ? self.existingGroup.name : @"Add Members";
+
     self.edgesForExtendedLayout = UIRectEdgeNone;
 }
 
@@ -139,45 +145,9 @@
     self.title = @"";
 }
 
-- (void)addNavBarView {
-    
-    self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 64)];
-    self.topBar.backgroundColor = PRIMARY_COLOR;
-    UILabel *groupNameLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 28, 200, 30)];
-    groupNameLabel.textColor = [UIColor whiteColor];
-    groupNameLabel.textAlignment = NSTextAlignmentCenter;
-    [groupNameLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
-    groupNameLabel.text = self.existingGroup ? self.existingGroup.name : @"Add Members";
-    [self.topBar addSubview:groupNameLabel];
-    
-    UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
-    backButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    [backButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    backButton.tintColor = [UIColor whiteColor];
-    [backButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [backButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self.topBar addSubview:backButton];
-    
-    CGFloat doneWidth = 70;
-    self.doneButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - doneWidth - 10, 31, doneWidth, 28)];
-    [self.doneButton setTitle:@"Done" forState:UIControlStateNormal];
-    [self.doneButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.doneButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
-    [self.doneButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
-    self.doneButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-    [self.doneButton addTarget:self action:@selector(doneTapped) forControlEvents:UIControlEventTouchUpInside];
-    [self.doneButton setEnabled:NO];
-    [self.topBar addSubview:self.doneButton];
-    
-    [self.view addSubview:self.topBar];
-    
-}
-
 - (void)backButtonPressed:(id)sender {
     [self.navigationController popViewControllerAnimated:YES];
 }
-
-
 
 - (void)keyboardWasShown:(NSNotification *)notification {
     // Get the size of the keyboard.
@@ -276,9 +246,11 @@
     [self.searchBar reloadData];
     
     if([self numberOfTokensInTokenField:self.searchBar] > 0){
-        [self.doneButton setEnabled:YES];
+        [self.navigationItem.rightBarButtonItem setEnabled:YES];
+        [self.navigationItem.rightBarButtonItem setTintColor:[UIColor whiteColor]];
     } else {
-        [self.doneButton setEnabled:NO];
+        [self.navigationItem.rightBarButtonItem setEnabled:NO];
+        [self.navigationItem.rightBarButtonItem setTintColor:[UIColor lightGrayColor]];
     }
 }
 
@@ -376,15 +348,14 @@
 }
 
 - (void)showActivity:(BOOL)show {
-    self.doneButton.hidden = show;
     if(show) {
         self.activityView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - 35, 30, 30, 30)];
-        [self.topBar addSubview:self.activityView];
+        self.navigationItem.rightBarButtonItem.customView = self.activityView;
+        self.navigationItem.rightBarButtonItem.enabled = NO;
         [self.activityView startAnimating];
     }
     else {
-        [self.activityView removeFromSuperview];
-        self.activityView = nil;
+        [self setDoneButton];
     }
 }
 
