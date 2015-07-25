@@ -143,10 +143,17 @@
 //    self.filters = @[@"#nofilter"];
 //    self.filterIndex = 0;
 
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+
     
     const CGFloat doneButtonWidth = BUTTON_SIZE;
     self.doneRecordingButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -184,12 +191,14 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-//    [UIView animateWithDuration:0.8 delay:0.2 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
-//        //
-//        [self.recordingIndicator setAlpha:0.0];
-//    } completion:^(BOOL finished) {
-//        //
-//    }];
+    
+    NSLog(@"camera view did appear?");
+    [self startRecordingAnimation];
+}
+
+- (void)startRecordingAnimation {
+    [self.recordingIndicator setAlpha:1.0];
+    [self.recordingIndicator setTransform:CGAffineTransformIdentity];
     
     [UIView animateKeyframesWithDuration:0.618 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat animations:^{
         //
@@ -202,11 +211,12 @@
     } completion:^(BOOL finished) {
         //
     }];
-
+    
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
 #pragma mark - recording
@@ -294,6 +304,11 @@
     if(self.flash){
         [self setFlashMode:NO];
     }
+}
+
+- (void)willEnterForeground {
+    NSLog(@"will enter foreground?");
+    [self startRecordingAnimation];
 }
 
 - (void)showCameraAccessories:(BOOL)show {
