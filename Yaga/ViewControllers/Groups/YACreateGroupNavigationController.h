@@ -11,6 +11,4 @@
 
 @interface YACreateGroupNavigationController : UINavigationController
 
-@property (nonatomic, weak) YACameraViewController *cameraViewController;
-
 @end

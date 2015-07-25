@@ -27,31 +27,15 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    [self.view setBackgroundColor:PRIMARY_COLOR];
-
-    UIButton *closeButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
-    closeButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    [closeButton setImage:[[UIImage imageNamed:@"X"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    closeButton.tintColor = [UIColor whiteColor];
-    [closeButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [closeButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:closeButton];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
+    self.navigationItem.title = @"Name this group";
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(closeButtonPressed:)];
 
     CGFloat width = VIEW_WIDTH * .8;
     
     DLog(@" view width: %f", VIEW_WIDTH);
     
     CGFloat origin = VIEW_HEIGHT *.1;
-    
-    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.08)];
-    [titleLabel setText:@"Name this group"];
-    [titleLabel setNumberOfLines:1];
-    [titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
-    [titleLabel setTextAlignment:NSTextAlignmentCenter];
-    [titleLabel setTextColor:[UIColor whiteColor]];
-    [self.view addSubview:titleLabel];
-    
-    origin = [self getNewOrigin:titleLabel];
     
     CGFloat formWidth = VIEW_WIDTH *.8;
     self.groupNameTextField = [[UITextField alloc] initWithFrame:CGRectMake((VIEW_WIDTH-formWidth)/2, origin, formWidth, VIEW_HEIGHT*.08)];
@@ -62,9 +46,9 @@
     [self.groupNameTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.groupNameTextField setTextAlignment:NSTextAlignmentCenter];
     [self.groupNameTextField setFont:[UIFont fontWithName:BIG_FONT size:32]];
-    [self.groupNameTextField setTextColor:[UIColor whiteColor]];
+    [self.groupNameTextField setTextColor:PRIMARY_COLOR];
     [self.groupNameTextField becomeFirstResponder];
-    [self.groupNameTextField setTintColor:[UIColor whiteColor]];
+    [self.groupNameTextField setTintColor:PRIMARY_COLOR];
     [self.groupNameTextField setReturnKeyType:UIReturnKeyDone];
     [self.groupNameTextField addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
     [self.view addSubview:self.groupNameTextField];
@@ -73,12 +57,12 @@
     
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
     self.nextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
-    [self.nextButton setBackgroundColor:[UIColor whiteColor]];
+    [self.nextButton setBackgroundColor:PRIMARY_COLOR];
     [self.nextButton setTitle:NSLocalizedString(@"Next", @"") forState:UIControlStateNormal];
     [self.nextButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
 //    [self.nextButton.titleLabel setTextColor: [UIColor blackColor]];
 //    self.nextButton.titleLabel.textColor = [UIColor blackColor];
-    [self.nextButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.nextButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.nextButton setAlpha:0.0];
     self.nextButton.layer.cornerRadius = 8.0;
     self.nextButton.layer.masksToBounds = YES;
@@ -88,7 +72,6 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self.navigationController setNavigationBarHidden:YES animated:YES];
     [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
 
     [self.groupNameTextField becomeFirstResponder];

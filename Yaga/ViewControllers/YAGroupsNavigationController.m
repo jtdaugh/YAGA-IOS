@@ -29,7 +29,6 @@
 @property (nonatomic, strong) UIVisualEffectView *cameraButtonBlur;
 
 @property (nonatomic, strong) UIImageView *overlay;
-@property (nonatomic) BOOL forceCamera;
 @end
 
 @implementation YAGroupsNavigationController
@@ -84,15 +83,15 @@
 
     [self addCameraButton];
     
-    UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
-    overlay.backgroundColor = [UIColor blackColor];
-    [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
-    overlay.contentMode = UIViewContentModeScaleAspectFill;
-    [self.view addSubview:overlay];
-    self.overlay = overlay;
-
-    self.forceCamera = YES;
-
+    if (self.forceCamera) {
+        UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
+        overlay.backgroundColor = [UIColor blackColor];
+        [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
+        overlay.contentMode = UIViewContentModeScaleAspectFill;
+        [self.view addSubview:overlay];
+        self.overlay = overlay;
+    }
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(openGroupOptions)
                                                  name:OPEN_GROUP_OPTIONS_NOTIFICATION
@@ -122,6 +121,7 @@
     
     [self.view addSubview:self.cameraButtonBlur];
     [self.view addSubview:self.cameraButton];
+    [self showCameraButton:NO];
     
 }
 

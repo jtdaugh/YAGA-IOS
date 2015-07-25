@@ -18,11 +18,13 @@
 
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupOptionsViewController.h"
+#import "YACreateGroupNavigationController.h"
 
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAPullToRefreshLoadingView.h"
 #import "NameGroupViewController.h"
 
+#import "YAGroupsNavigationController.h"
 #import "YAFindGroupsViewConrtoller.h"
 #import "YAGifGridViewController.h"
 
@@ -72,6 +74,23 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)setupBarItems {
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Find" style:UIBarButtonItemStylePlain target:self action:@selector(findGroupsPressed)];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(createGroupPressed)];
+}
+
+- (void)findGroupsPressed {
+    YAGroupsNavigationController *newNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
+    [self presentViewController:newNavController animated:YES completion:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [(YAGroupsNavigationController *)self.navigationController showCameraButton:YES];
+}
+
+- (void)createGroupPressed {
+    NameGroupViewController *vc = [NameGroupViewController new];
+    YAGroupsNavigationController *createGroupNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:vc];
+    
+    [self presentViewController:createGroupNavController animated:YES completion:nil];
 }
 
 - (void)setupCollectionView {

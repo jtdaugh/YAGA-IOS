@@ -33,7 +33,7 @@
 #import <Crashlytics/Crashlytics.h>
 #import "Harpy.h"
 #import "YARealmMigrationManager.h"
-
+#import "YAGroupsNavigationController.h"
 
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;
@@ -120,6 +120,9 @@
         }
         
         UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
+        if ([viewController isKindOfClass:[YAGroupsNavigationController class]]) {
+            ((YAGroupsNavigationController *)viewController).forceCamera = YES;
+        }
         self.window.rootViewController = viewController;
         
         [self.window makeKeyAndVisible];

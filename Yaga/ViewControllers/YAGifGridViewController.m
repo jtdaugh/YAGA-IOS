@@ -145,6 +145,7 @@ static NSString *cellID = @"Cell";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     self.navigationItem.title = [YAUser currentUser].currentGroup.name;
+    [(YAGroupsNavigationController *)self.navigationController showCameraButton:YES];
 }
 
 - (void)viewDidAppear:(BOOL)animated {

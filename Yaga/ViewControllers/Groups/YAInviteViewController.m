@@ -42,38 +42,21 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    [self.view setBackgroundColor:PRIMARY_COLOR];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
     self.title = @"";
     
     CGFloat width = VIEW_WIDTH * .8;
     
     DLog(@" view width: %f", VIEW_WIDTH);
     
-    CGFloat origin = floorf(VIEW_HEIGHT *.075);
-    
+    CGFloat origin = 10;
+    self.navigationItem.title = @"Send Invites";
     if(self.canNavigateBack) {
         self.navigationController.interactivePopGestureRecognizer.enabled = YES;
-        
-        UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 12, 34, 34)];
-        backButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-        [backButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-        backButton.tintColor = [UIColor whiteColor];
-        [backButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        [backButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-        [self.view addSubview:backButton];
-
     } else {
         self.navigationController.interactivePopGestureRecognizer.enabled = NO;
-        
-        CGFloat skipWidth = 70;
-        UIButton *skipButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - skipWidth - 10, 17, skipWidth, 28)];
-        [skipButton setTitle:@"Skip" forState:UIControlStateNormal];
-        [skipButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [skipButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
-        [skipButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
-        skipButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-        [skipButton addTarget:self action:@selector(skipButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-        [self.view addSubview:skipButton];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Skip" style:UIBarButtonItemStylePlain target:self action:@selector(skipButtonPressed:)];
+        self.navigationItem.backBarButtonItem = nil;
     }
     
     self.friendNamesLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.1f)];
@@ -83,11 +66,11 @@
     self.friendNamesLabel.adjustsFontSizeToFitWidth = YES;
     [self.friendNamesLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
     [self.friendNamesLabel setTextAlignment:NSTextAlignmentCenter];
-    [self.friendNamesLabel setTextColor:[UIColor whiteColor]];
+    [self.friendNamesLabel setTextColor:PRIMARY_COLOR];
     
     [self.view addSubview:self.friendNamesLabel];
 
-    origin = [self getNewOrigin:self.friendNamesLabel];
+    origin = [self getNewOrigin:self.friendNamesLabel] - 8;
     CGFloat camWidth = VIEW_WIDTH *.9;
 
     self.sendYagaLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin, width, VIEW_HEIGHT*.07)];
@@ -95,7 +78,7 @@
     [self.sendYagaLabel setNumberOfLines:0];
     [self.sendYagaLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
     [self.sendYagaLabel setTextAlignment:NSTextAlignmentCenter];
-    [self.sendYagaLabel setTextColor:[UIColor whiteColor]];
+    [self.sendYagaLabel setTextColor:PRIMARY_COLOR];
     
     [self.view addSubview:self.sendYagaLabel];
 
@@ -129,17 +112,17 @@
     UILabel *orLable = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin - 10, width, VIEW_HEIGHT*.06)];
     orLable.text = @"or";
     orLable.textAlignment = NSTextAlignmentCenter;
-    orLable.textColor = [UIColor whiteColor];
+    orLable.textColor = PRIMARY_COLOR;
     [orLable setFont:[UIFont fontWithName:BIG_FONT size:15]];
     [self.view addSubview:orLable];
     
-    origin += 32;
+    origin += 28;
 
     self.sendTextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-width)/2, origin, width, VIEW_HEIGHT*.09)];
-    [self.sendTextButton setBackgroundColor:[UIColor whiteColor]];
+    [self.sendTextButton setBackgroundColor:PRIMARY_COLOR];
     [self.sendTextButton setTitle:NSLocalizedString(@"Invite with a text", @"") forState:UIControlStateNormal];
     [self.sendTextButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
-    [self.sendTextButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.sendTextButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     self.sendTextButton.layer.cornerRadius = 8.0;
     self.sendTextButton.layer.masksToBounds = YES;
     [self.view addSubview:self.sendTextButton];
@@ -148,7 +131,6 @@
     [self.view bringSubviewToFront:self.camViewController.view];
     [self.view bringSubviewToFront:self.suggestQuoteLabel];
 
-    
 }
 
 - (void)backButtonPressed:(id)sender {
@@ -407,7 +389,7 @@
 
 
 - (CGFloat)getNewOrigin:(UIView *) anchor {
-    return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.04);
+    return anchor.frame.origin.y + anchor.frame.size.height + (VIEW_HEIGHT*.02);
 }
 
 - (void)didReceiveMemoryWarning {

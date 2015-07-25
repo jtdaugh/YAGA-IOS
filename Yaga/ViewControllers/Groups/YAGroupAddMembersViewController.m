@@ -46,7 +46,7 @@
     if(!self.selectedContacts)
         _selectedContacts = [[NSMutableArray alloc] init];
     
-    [self.view setBackgroundColor:PRIMARY_COLOR];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
     
     VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 44)];
     [searchBar setBackgroundColor:[UIColor whiteColor]];
@@ -64,7 +64,7 @@
     
     UIView *border = [[UIView alloc] init];
     border.translatesAutoresizingMaskIntoConstraints = NO;
-    border.backgroundColor = [UIColor whiteColor];
+    border.backgroundColor = PRIMARY_COLOR;
     [self.view addSubview:border];
     UITableView *membersList = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     membersList.translatesAutoresizingMaskIntoConstraints = NO;
@@ -232,8 +232,8 @@
             cell.detailTextLabel.text = [contact[kSearchedByUsername] boolValue] ? ya_contact.name : ya_contact.username;
         
     } else {
-        [cell.textLabel       setTextColor:[UIColor whiteColor]];
-        [cell.detailTextLabel setTextColor:[UIColor whiteColor]];
+        [cell.textLabel       setTextColor:PRIMARY_COLOR];
+        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
 //        cell.imageView.image = nil;
         cell.accessoryView = nil;
     }
@@ -247,10 +247,10 @@
     
     if([self numberOfTokensInTokenField:self.searchBar] > 0){
         [self.navigationItem.rightBarButtonItem setEnabled:YES];
-        [self.navigationItem.rightBarButtonItem setTintColor:[UIColor whiteColor]];
+        [self.navigationItem.rightBarButtonItem setTintColor:SECONDARY_COLOR];
     } else {
         [self.navigationItem.rightBarButtonItem setEnabled:NO];
-        [self.navigationItem.rightBarButtonItem setTintColor:[UIColor lightGrayColor]];
+        [self.navigationItem.rightBarButtonItem setTintColor:[UIColor grayColor]];
     }
 }
 
