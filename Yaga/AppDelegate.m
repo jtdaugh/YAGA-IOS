@@ -113,7 +113,7 @@
 #endif
         NSString *identifier;
         if([[YAUser currentUser] loggedIn]) {
-            identifier = @"LoggedInUserNavigationController";
+            identifier = @"LoggedInUserInitialViewController";
         }
         else {
             identifier = @"OnboardingNavigationController";
