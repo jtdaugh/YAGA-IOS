@@ -12,6 +12,7 @@
 #import "YAGroupsListViewController.h"
 #import "YACameraViewController.h"
 #import "SloppySwiper.h"
+#import "YAGroupOptionsViewController.h"
 
 #import "YAUser.h"
 
@@ -36,6 +37,7 @@
 {
     self.delegate = nil;
     self.interactivePopGestureRecognizer.delegate = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
 }
 
 #pragma mark - UIViewController
@@ -52,19 +54,16 @@
                                                  }];
     
     [self.navigationBar setShadowImage:[UIImage new]];
-    [self.navigationBar setBarTintColor:SECONDARY_COLOR];
+    [self.navigationBar setBarTintColor:PRIMARY_COLOR];
+    [self.navigationBar setTintColor:[UIColor whiteColor]];
     [self.navigationBar setBackgroundImage:[UIImage new]
                             forBarPosition:UIBarPositionAny
                                 barMetrics:UIBarMetricsDefault];
-    //    [self.navigationBar setBackgroundColor:[UIColor blackColor]];
-    // Do any additional setup after loading the view.
     
     self.animationController = [YAAnimatedTransitioningController new];
 
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
-//    [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(-1000, -1000) forBarMetrics:UIBarMetricsDefault];
-
     if (!self.delegate) {
         self.delegate = self;
     }
@@ -93,6 +92,10 @@
 
     self.forceCamera = YES;
 
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(openGroupOptions)
+                                                 name:OPEN_GROUP_OPTIONS_NOTIFICATION
+                                               object:nil];
 }
 
 - (void)presentCamera {
@@ -100,6 +103,20 @@
     camVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
     camVC.modalPresentationStyle = UIModalPresentationCustom;
     [self presentViewController:camVC animated:YES completion:nil];
+}
+
+
+- (void)openGroupOptions {
+    if(![YAUser currentUser].currentGroup)
+        return;
+    
+    if([self.topViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
+        [self popViewControllerAnimated:NO];
+    }
+    
+    YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
+    vc.group = [YAUser currentUser].currentGroup;
+    [self pushViewController:vc animated:YES];
 }
 
 - (void)viewWillAppear:(BOOL)animated {

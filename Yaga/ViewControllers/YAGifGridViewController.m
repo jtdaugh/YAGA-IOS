@@ -19,6 +19,7 @@
 
 #import "YAPullToRefreshLoadingView.h"
 #import "YAGroupsNavigationController.h"
+#import "YAGroupOptionsViewController.h"
 
 #import "YANotificationView.h"
 
@@ -104,8 +105,15 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)setupBarButtons {
-    UIBarButtonItem *infoButton = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"InfoWhite"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStylePlain target:self action:@selector(infoPressed)];
+    UIBarButtonItem *infoButton = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"InfoBar"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
+                                                                   style:UIBarButtonItemStylePlain
+                                                                  target:self
+                                                                  action:@selector(infoPressed)];
     self.navigationItem.rightBarButtonItem = infoButton;
+}
+
+- (void)infoPressed {
+    [(YAGroupsNavigationController *)self.navigationController openGroupOptions];
 }
 
 - (void)videoWithServerId:(NSString *)serverId

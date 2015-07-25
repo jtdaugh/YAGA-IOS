@@ -49,7 +49,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self setupCollectionView];
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     [self.navigationController setNavigationBarHidden:NO];
-    self.navigationItem.title = @"My Groups";
+    self.navigationItem.title = @"Groups";
     
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];

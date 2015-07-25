@@ -25,7 +25,7 @@
 
 @property (nonatomic, strong) UIButton *groupNameButton;
 @property (nonatomic, strong) YANotificationView *notificationView;
-@property (nonatomic, strong) UIButton *addMembersButton;
+
 @end
 
 @implementation YAGroupOptionsViewController
@@ -35,7 +35,10 @@
     
     self.view.backgroundColor = [UIColor colorWithWhite:0.98 alpha:1];
     
-    [self addNavBarView];
+    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addMembersTapped:)];
+    self.navigationItem.rightBarButtonItem = addButton;
+    UIBarButtonItem *newBackButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStylePlain target:nil action:nil];
+    [[self navigationItem] setBackBarButtonItem:newBackButton];
     
     const CGFloat buttonWidth = VIEW_WIDTH - 40;
     CGFloat buttonHeight = 54;
@@ -64,7 +67,7 @@
     [self.leaveButton addTarget:self action:@selector(leaveTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.leaveButton];
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, VIEW_WIDTH, self.muteButton.frame.origin.y - 64) style:UITableViewStylePlain];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.muteButton.frame.origin.y) style:UITableViewStylePlain];
 
     [self.view addSubview:self.tableView];
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
@@ -84,6 +87,8 @@
                                              selector:@selector(groupsDidRefresh:)
                                                  name:GROUPS_REFRESHED_NOTIFICATION
                                                object:nil];
+    
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Back"]]];
 }
 
 - (void)dealloc {
@@ -94,39 +99,10 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUPS_REFRESHED_NOTIFICATION object:nil];
 }
 
-- (void)addNavBarView {
-    
-    UIView *topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 64)];
-    topBar.backgroundColor = PRIMARY_COLOR;
-    self.groupNameButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 28, 200, 30)];
-    self.groupNameButton.tintColor = [UIColor whiteColor];
-    self.groupNameButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:20];
-    [self.groupNameButton setTitle:self.group.name forState:UIControlStateNormal];
-    [self.groupNameButton addTarget:self action:@selector(editTitleTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [topBar addSubview:self.groupNameButton];
-    
-    CGFloat addMembersButtonWidth = 100;
-    self.addMembersButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.addMembersButton setTitle:@"Add" forState:UIControlStateNormal];
-    self.addMembersButton.frame = CGRectMake(VIEW_WIDTH - addMembersButtonWidth - 10, 31, addMembersButtonWidth, 28);
-    self.addMembersButton.tintColor = [UIColor whiteColor];
-    self.addMembersButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-    [self.addMembersButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
-    [topBar addSubview:self.addMembersButton];
-    
-    UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
-    backButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    [backButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    backButton.tintColor = [UIColor whiteColor];
-    [backButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [backButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [topBar addSubview:backButton];
-    [self.view addSubview:topBar];
-}
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+    self.navigationItem.title = [YAUser currentUser].currentGroup.name;
+
     [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
@@ -135,7 +111,7 @@
     
     [self.tableView reloadData];
     
-    self.muteButton.hidden = self.leaveButton.hidden = self.addMembersButton.hidden = self.group.publicGroup;
+    self.muteButton.hidden = self.leaveButton.hidden = self.group.publicGroup;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -544,7 +520,7 @@ static NSString *CellID = @"CellID";
 - (void)setGroup:(YAGroup *)group {
     _group = group;
     
-    self.muteButton.hidden = self.leaveButton.hidden = self.addMembersButton.hidden = self.group.publicGroup;
+    self.muteButton.hidden = self.leaveButton.hidden = self.group.publicGroup;
     
     __weak typeof(self) weakSelf = self;
     self.notificationToken = [self.group.realm addNotificationBlock:^(NSString *notification, RLMRealm *realm) {
