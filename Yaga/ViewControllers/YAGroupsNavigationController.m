@@ -52,14 +52,13 @@
     [self setNavigationBarHidden:NO];
     
     [self.navigationBar setTranslucent:NO];
-    [self.navigationBar setTintColor:[UIColor whiteColor]];
     [self.navigationBar setTitleTextAttributes:@{
                                                  NSForegroundColorAttributeName: [UIColor whiteColor],
                                                  NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:20]
                                                  }];
     
     [self.navigationBar setShadowImage:[UIImage new]];
-    [self.navigationBar setBarTintColor:PRIMARY_COLOR];
+    [self.navigationBar setBarTintColor:SECONDARY_COLOR];
     [self.navigationBar setBackgroundImage:[UIImage new]
                             forBarPosition:UIBarPositionAny
                                 barMetrics:UIBarMetricsDefault];
@@ -76,6 +75,18 @@
     }
     
     self.interactivePopGestureRecognizer.delegate = self;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 }
 
 #pragma mark - UINavigationController
