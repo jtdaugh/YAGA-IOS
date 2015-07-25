@@ -226,6 +226,11 @@
     self.bigRecordingIndicator.alpha = 0.0;
     [self.view addSubview:self.bigRecordingIndicator];
     
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    
+    NSLog(@"camera view did appear?");
     self.animatedRecorder = [[YAProgressView alloc] initWithFrame:self.doneRecordingButton.frame];
     self.animatedRecorder.indeterminate = YES;
     self.animatedRecorder.radius = self.doneRecordingButton.frame.size.width/2 - 5.0f;
@@ -240,14 +245,9 @@
     UIView *progressBkgView = [[UIView alloc] initWithFrame:self.animatedRecorder.frame];
     progressBkgView.backgroundColor = [UIColor clearColor];
     self.animatedRecorder.backgroundView = progressBkgView;
-
+    
     [self.view addSubview:self.animatedRecorder];
-    
-}
 
-- (void)viewDidAppear:(BOOL)animated {
-    
-    NSLog(@"camera view did appear?");
 
     [self startRecordingAnimation];
 }
