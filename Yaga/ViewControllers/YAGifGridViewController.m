@@ -18,6 +18,7 @@
 #import "YAAssetsCreator.h"
 
 #import "YAPullToRefreshLoadingView.h"
+#import "YAGroupsNavigationController.h"
 
 #import "YANotificationView.h"
 
@@ -52,8 +53,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic) BOOL scrollingFast;
 @property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
-
-
 @end
 
 static NSString *cellID = @"Cell";
@@ -85,7 +84,7 @@ static NSString *cellID = @"Cell";
     self.collectionView.frame = self.view.bounds;
     
     self.lastOffset = self.collectionView.contentOffset;
-    
+
     self.lastDownloadPrioritizationIndex = 0;
     [self reload];
 
@@ -121,6 +120,11 @@ static NSString *cellID = @"Cell";
         }
     });
 
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    self.navigationItem.title = [YAUser currentUser].currentGroup.name;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -333,7 +337,7 @@ static NSString *cellID = @"Cell";
             [self showActivityIndicator:NO];
 
             if(!self.noVideosLabel) {
-                self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
+                self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.view.bounds.size.height/2)];
                 self.noVideosLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:24];
                 NSAttributedString *string = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Things are a bit quiet in here. Hold the big red button to record a video.", @"") attributes:@{NSStrokeColorAttributeName:[UIColor whiteColor],NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]}];
                 

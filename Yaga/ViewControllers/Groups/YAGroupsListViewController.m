@@ -26,7 +26,7 @@
 #import "YAFindGroupsViewConrtoller.h"
 #import "YAGifGridViewController.h"
 
-#define FOOTER_HEIGHT 170
+#define FOOTER_HEIGHT (CAMERA_BUTTON_SIZE/2 + 170)
 
 @interface YAGroupsListViewController ()
 @property (nonatomic, strong) RLMResults *groups;
@@ -44,28 +44,12 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 @implementation YAGroupsListViewController
 
-- (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset {
-    self = [super init];
-    if (self) {
-        _topInset = topInset;
-    }
-    return self;
-}
-
-- (void)changeTopInset:(CGFloat)newTopInset {
-    if (self.topInset == newTopInset) {
-        return; // Nothing changed, so do nothing.
-    }
-    self.topInset = newTopInset;
-    [self setupCollectionView];
-}
-
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setupCollectionView];
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    [self.navigationController setNavigationBarHidden:YES];
+    [self.navigationController setNavigationBarHidden:NO];
+    self.navigationItem.title = @"My Groups";
     
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
@@ -262,7 +246,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         [reusableview addSubview:label];
         
         CGSize buttonSize = CGSizeMake(VIEW_WIDTH/2 - 30, 50);
-        UIButton *findButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/4 - buttonSize.width/2 + 2, FOOTER_HEIGHT - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+        UIButton *findButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/4 - buttonSize.width/2 + 2, FOOTER_HEIGHT - CAMERA_BUTTON_SIZE/2 - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
         findButton.backgroundColor = [UIColor whiteColor];
         [findButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
         findButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
@@ -275,7 +259,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
         [reusableview addSubview:findButton];
         
-        UIButton *createButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*3/4 - buttonSize.width/2 - 2, FOOTER_HEIGHT - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+        UIButton *createButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*3/4 - buttonSize.width/2 - 2, FOOTER_HEIGHT - CAMERA_BUTTON_SIZE/2 - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
         createButton.backgroundColor = PRIMARY_COLOR;
         [createButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         createButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];

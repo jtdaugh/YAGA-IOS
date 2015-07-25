@@ -10,9 +10,6 @@
 
 @interface YAGroupsListViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate>
 
-- (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset;
-- (void)changeTopInset:(CGFloat)newTopInset;
-
 @property (nonatomic, strong) UICollectionView *collectionView;
 
 @property (nonatomic, strong) UITapGestureRecognizer *cameraTapToClose;

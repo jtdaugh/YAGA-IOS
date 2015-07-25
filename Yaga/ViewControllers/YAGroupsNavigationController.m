@@ -19,6 +19,7 @@
 
 @property (weak, nonatomic) id<UINavigationControllerDelegate> realDelegate;
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
+@property (nonatomic, strong) UIButton *cameraButton;
 
 @end
 
@@ -52,14 +53,13 @@
     [self setNavigationBarHidden:NO];
     
     [self.navigationBar setTranslucent:NO];
-    [self.navigationBar setTintColor:[UIColor whiteColor]];
     [self.navigationBar setTitleTextAttributes:@{
                                                  NSForegroundColorAttributeName: [UIColor whiteColor],
                                                  NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:20]
                                                  }];
     
     [self.navigationBar setShadowImage:[UIImage new]];
-    [self.navigationBar setBarTintColor:PRIMARY_COLOR];
+    [self.navigationBar setBarTintColor:SECONDARY_COLOR];
     [self.navigationBar setBackgroundImage:[UIImage new]
                             forBarPosition:UIBarPositionAny
                                 barMetrics:UIBarMetricsDefault];
@@ -76,6 +76,33 @@
     }
     
     self.interactivePopGestureRecognizer.delegate = self;
+    
+    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
+                                                                   self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - (CAMERA_BUTTON_SIZE/2),
+                                                                   CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
+    self.cameraButton.backgroundColor = PRIMARY_COLOR;
+    [self.cameraButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
+    self.cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
+    self.cameraButton.layer.masksToBounds = YES;
+    [self.cameraButton addTarget:self action:@selector(dismissToCamera) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.cameraButton];
+
+}
+
+- (void)dismissToCamera {
+    [[UIApplication sharedApplication].keyWindow.rootViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 }
 
 #pragma mark - UINavigationController

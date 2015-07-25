@@ -158,6 +158,9 @@
         self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
         unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
         
+        if ([self.backupPath length])
+            unlink([self.backupPath UTF8String]); // If a file already exists
+        
         [self startContiniousRecording];
     }
 }
@@ -274,6 +277,7 @@
     [self stopRecordingWithCompletion:^(NSURL *recordingUrl) {
         
         if([[NSFileManager defaultManager] fileExistsAtPath:self.backupPath]) {
+            DLog(@"Stopped recording with secondURL");
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 
                 NSURL *backupURL = [NSURL fileURLWithPath:self.backupPath];
@@ -281,17 +285,11 @@
                 [weakSelf mergeAssetsAtUrls:@[backupURL, recordingUrl] withCompletion:^(NSURL *mergedUrl) {
                     completion(mergedUrl);
                     
-                    //merged is now backup recording
-                    unlink([weakSelf.backupPath UTF8String]); // If a file already exists
-                    
-                    NSError *replaceError;
-                    NSURL *resultingUrl;
-                    [[NSFileManager defaultManager] replaceItemAtURL:backupURL withItemAtURL:mergedUrl backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&replaceError];
-
                 }];
             });
         }
         else {
+            DLog(@"Stopped recording and NO secondURL");
             completion(recordingUrl);
         }
         

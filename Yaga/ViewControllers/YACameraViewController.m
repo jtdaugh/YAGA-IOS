@@ -172,6 +172,7 @@
 
     
     self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - BUTTON_SIZE)/2, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
+    self.gridButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     [self.gridButton setImage:[UIImage imageNamed:@"Grid"] forState:UIControlStateNormal];
     self.gridButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.gridButton addTarget:self action:@selector(gridButtonPressed) forControlEvents:UIControlEventTouchUpInside];
