@@ -52,7 +52,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     _groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
     
-    [[UIBarButtonItem appearance] setTintColor:[UIColor whiteColor]];
+    [[UIBarButtonItem appearance] setTintColor:SECONDARY_COLOR];
 }
 
 - (void)doneButtonPressed:(id)sender {

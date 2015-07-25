@@ -51,12 +51,14 @@
     
     CGFloat origin = 10;
     self.navigationItem.title = @"Send Invites";
+    
     if(self.canNavigateBack) {
         self.navigationController.interactivePopGestureRecognizer.enabled = YES;
     } else {
+        
         self.navigationController.interactivePopGestureRecognizer.enabled = NO;
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Skip" style:UIBarButtonItemStylePlain target:self action:@selector(skipButtonPressed:)];
-        self.navigationItem.backBarButtonItem = nil;
+        self.navigationItem.hidesBackButton = YES;
     }
     
     self.friendNamesLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - width)/2, origin, width, VIEW_HEIGHT*.1f)];
