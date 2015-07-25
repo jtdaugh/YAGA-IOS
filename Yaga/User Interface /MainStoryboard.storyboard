@@ -20,12 +20,12 @@
                         </connections>
                     </tableView>
                     <connections>
-                        <segue destination="owe-ug-5LR" kind="custom" identifier="ResetRootAfterFindGroups" customClass="YASetNewRootVCSegue" id="m1j-fh-dav"/>
+                        <segue destination="mCE-W7-Ymp" kind="custom" identifier="ResetRootAfterFindGroups" customClass="YASetNewRootVCSegue" id="Emf-A1-xwt"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uBD-qv-GUK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="180" y="-41"/>
+            <point key="canvasLocation" x="260" y="-97"/>
         </scene>
         <!--Phone Number View Controller-->
         <scene sceneID="qnD-bq-jX5">
@@ -189,26 +189,40 @@
             </objects>
             <point key="canvasLocation" x="-666" y="774"/>
         </scene>
-        <!--Camera View Controller-->
-        <scene sceneID="PG1-gJ-s8x">
+        <!--Groups List View Controller-->
+        <scene sceneID="eBE-Ua-wYb">
             <objects>
-                <viewController storyboardIdentifier="LoggedInUserInitialViewController" id="owe-ug-5LR" customClass="YACameraViewController" sceneMemberID="viewController">
+                <viewController id="2YO-rz-bW7" customClass="YAGroupsListViewController" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="pEP-hn-pWg"/>
-                        <viewControllerLayoutGuide type="bottom" id="HMg-br-RDJ"/>
+                        <viewControllerLayoutGuide type="top" id="trM-zq-MOJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="7hl-eI-fTw"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="sAc-Py-24G">
-                        <rect key="frame" x="0.0" y="64" width="600" height="600"/>
+                    <view key="view" contentMode="scaleToFill" id="OMn-c7-HrD">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <extendedEdge key="edgesForExtendedLayout"/>
-                    <navigationItem key="navigationItem" id="sPE-sa-3og"/>
+                    <navigationItem key="navigationItem" id="Xhd-Z1-0cF"/>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="zUg-0n-BZp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VeQ-TE-6su" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="180" y="824"/>
+            <point key="canvasLocation" x="985" y="824"/>
+        </scene>
+        <!--Groups Navigation Controller-->
+        <scene sceneID="1wv-Cu-ANz">
+            <objects>
+                <navigationController storyboardIdentifier="LoggedInUserInitialViewController" id="mCE-W7-Ymp" customClass="YAGroupsNavigationController" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="b0f-Ge-NL8">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="2YO-rz-bW7" kind="relationship" relationship="rootViewController" id="gr4-Xx-M2P"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0fq-p0-tD7" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="260" y="824"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
