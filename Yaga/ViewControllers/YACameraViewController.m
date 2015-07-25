@@ -249,14 +249,14 @@
         [self.bigRecordingIndicator setTransform:CGAffineTransformIdentity];
 
         [UIView animateWithDuration:0.618 delay:0.0 options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat animations:^{
-            [UIView setAnimationRepeatCount:3];
+            [UIView setAnimationRepeatCount:2];
             
-            [self.bigRecordingIndicator setAlpha:0.0];
+            [self.bigRecordingIndicator setAlpha:0.3];
             [self.bigRecordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
             //
         } completion:^(BOOL finished) {
             //
-            [UIView animateWithDuration:0.618 delay:0.0 options:0 animations:^{
+            [UIView animateWithDuration:.618 delay:0.1 options:0 animations:^{
                 //
                 [self.bigRecordingIndicator setAlpha:0.0];
                 
