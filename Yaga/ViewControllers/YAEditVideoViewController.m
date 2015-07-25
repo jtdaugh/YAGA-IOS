@@ -230,7 +230,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (NSURL*)trimmedFileUrl {
-    NSString *urlString = [self.videoUrl relativeString];
+    NSString *urlString = [[self.videoUrl absoluteString] lastPathComponent];
     NSString *pathExtenstion = [urlString pathExtension];
     NSString *trimmedFilename = [[[urlString stringByDeletingPathExtension] stringByAppendingString:@"_trimmed"] stringByAppendingPathExtension:pathExtenstion];
     

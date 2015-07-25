@@ -22,6 +22,8 @@
 #import "YACreateGroupNavigationController.h"
 #import "NameGroupViewController.h"
 #import "YAEditVideoViewController.h"
+#import "YAGifGridViewController.h"
+#import "YAGroupsListViewController.h"
 
 #import "YAPopoverView.h"
 
@@ -49,12 +51,12 @@
 @property (strong, nonatomic) UIButton *switchCameraButton;
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *doneRecordingButton;
+@property (strong, nonatomic) UIButton *gridButton;
 
 @property (nonatomic) BOOL audioInputAdded;
 
 @property (nonatomic, strong) CTCallCenter *callCenter;
 
-@property (nonatomic, assign) CGRect previousViewFrame;
 @property double animationStartTime;
 
 //@property NSUInteger filterIndex;
@@ -129,8 +131,6 @@
     [self.cameraAccessories addObject:self.flashButton];
     [self.view addSubview:self.flashButton];
     
-    self.previousViewFrame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
-    
 // Filters
 //    self.swipeCameraLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraLeft:)];
 //    self.swipeCameraLeft.direction = UISwipeGestureRecognizerDirectionLeft;
@@ -157,6 +157,13 @@
     [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.cameraView addSubview:self.doneRecordingButton];
 
+    
+    self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - BUTTON_SIZE)/2, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
+    [self.gridButton setImage:[UIImage imageNamed:@"Grid"] forState:UIControlStateNormal];
+    self.gridButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    [self.gridButton addTarget:self action:@selector(gridButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.cameraView addSubview:self.gridButton];
+    
     //stop recording on incoming call
     void (^block)(CTCall*) = ^(CTCall* call) {
         DLog(@"Phone call received, state:%@.", call.callState);
@@ -262,6 +269,14 @@
         if(show)
             [self.view bringSubviewToFront:v];
     }
+}
+
+- (void)gridButtonPressed {
+    YAGroupsListViewController *vc0 = [YAGroupsListViewController new];
+    YAGifGridViewController *vc1 = [YAGifGridViewController new];
+    UINavigationController *nvc = [UINavigationController new];
+    [nvc setViewControllers:@[vc0, vc1]];
+    [self presentViewController:nvc animated:YES completion:nil];
 }
 
 - (void)showHumanityTooltip {
