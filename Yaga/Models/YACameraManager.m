@@ -130,7 +130,7 @@
     self.currentCameraView = cameraView;
 }
 
-- (void)pauseCamera {
+- (void)pauseCameraAndStop:(BOOL)stop {
     if (self.isInitialized){
         DLog(@"pausing camera capture");
         [self stopContiniousRecordingWithCompletion:^(NSURL *outputUrl) {
@@ -140,19 +140,23 @@
         [self.videoCamera pauseCameraCapture];
         self.isPaused = YES;
         [self.delegate setFrontFacingFlash:NO];
-        [self.videoCamera stopCameraCapture];
-        runSynchronouslyOnVideoProcessingQueue(^{
-            glFinish();
-        });
+        if (stop) {
+            [self.videoCamera stopCameraCapture];
+            runSynchronouslyOnVideoProcessingQueue(^{
+                glFinish();
+            });
+        }
     }
 }
 
-- (void)resumeCamera {
+- (void)resumeCameraAndNeedsRestart:(BOOL)restart {
     if (self.isInitialized && self.isPaused) {
         DLog(@"resuming camera capture");
         self.isPaused = NO;
         [self.videoCamera resumeCameraCapture];
-        [self.videoCamera startCameraCapture];
+        if (restart) {
+            [self.videoCamera startCameraCapture];
+        }
         
         NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
         self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];

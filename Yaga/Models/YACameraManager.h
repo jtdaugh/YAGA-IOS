@@ -28,8 +28,8 @@ typedef void (^YARecordingCompletionBlock)(NSURL *outputUrl);
 @property (nonatomic, weak) id<YACameraManagerDelegate> delegate;
 
 - (void)initCamera;
-- (void)pauseCamera;
-- (void)resumeCamera;
+- (void)pauseCameraAndStop:(BOOL)stop;
+- (void)resumeCameraAndNeedsRestart:(BOOL)restart;
 - (void)startRecording;
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion;
 - (void)stopContiniousRecordingWithCompletion:(YARecordingCompletionBlock)completion;

@@ -85,7 +85,7 @@
     [super viewWillAppear:animated];
     
     [[YACameraManager sharedManager] initCamera];
-    [[YACameraManager sharedManager] resumeCamera];
+    [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
     self.recordingTime = [NSDate date];
     dispatch_async(dispatch_get_main_queue(), ^{
         [YACameraManager sharedManager].delegate = self;
@@ -95,7 +95,7 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [[YACameraManager sharedManager] pauseCamera];
+    [[YACameraManager sharedManager] pauseCameraAndStop:NO];
 }
 
 - (void)viewDidLoad {
