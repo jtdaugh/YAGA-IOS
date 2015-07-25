@@ -12,4 +12,5 @@
 
 @property (nonatomic, assign) BOOL presentingMode;
 @property (nonatomic, assign) CGRect initialFrame;
+@property (nonatomic, assign) CGAffineTransform initialTransform;
 @end

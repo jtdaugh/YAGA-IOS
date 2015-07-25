@@ -12,12 +12,19 @@
 
 @implementation YAAnimatedTransitioningController
 
+- (id) init {
+    if (self = [super init])  {
+        self.initialTransform = CGAffineTransformIdentity;
+    }
+    return self;
+}
+
 - (NSTimeInterval)transitionDuration:(id <UIViewControllerContextTransitioning>)transitionContext {
     return kDuration;
 }
 
 - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext{
-    
+        
     if(self.presentingMode){
         [self executePresentationAnimation:transitionContext];
     }
@@ -35,6 +42,7 @@
     [inView addSubview:toViewController.view];
     
     toViewController.view.frame = self.initialFrame;
+    toViewController.view.transform = self.initialTransform;
     toViewController.view.alpha = 0.5;
 //    [UIView animateWithDuration:kDuration delay:0.0f usingSpringWithDamping:0.4f initialSpringVelocity:6.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
     [UIView animateWithDuration:kDuration delay:0.0 usingSpringWithDamping:0.8 initialSpringVelocity:0.6 options:0 animations:^{
@@ -45,6 +53,7 @@
 //    }];
 //    [UIView animateWithDuration:kDuration delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
         toViewController.view.alpha = 1;
+        toViewController.view.transform = CGAffineTransformIdentity;
         toViewController.view.frame = [UIApplication sharedApplication].keyWindow.bounds;
         
     } completion:^(BOOL finished) {

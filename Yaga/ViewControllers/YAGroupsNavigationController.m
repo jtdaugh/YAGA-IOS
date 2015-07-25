@@ -104,8 +104,19 @@
 
 - (void)presentCamera {
     YACameraViewController *camVC = [YACameraViewController new];
-    camVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
+    camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
     camVC.modalPresentationStyle = UIModalPresentationCustom;
+    
+    CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
+    
+    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .8); //(0.2, 0.2);
+    initialTransform = CGAffineTransformScale(initialTransform, .2, .2);
+//    initialFrame.origin.y += self.view.frame.origin.y;
+//    initialFrame.origin.x = 0;
+    
+    [self setInitialAnimationFrame: initialFrame];
+    [self setInitialAnimationTransform:initialTransform];
+//    self.animationController.initialTransform = initialTransform;
     [self presentViewController:camVC animated:YES completion:nil];
 }
 
@@ -232,6 +243,10 @@
 
 - (void)setInitialAnimationFrame:(CGRect)frame {
     self.animationController.initialFrame = frame;
+}
+
+- (void)setInitialAnimationTransform:(CGAffineTransform)transform {
+    self.animationController.initialTransform = transform;
 }
 
 #pragma mark - Custom transitions

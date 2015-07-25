@@ -18,5 +18,6 @@
 - (void)showCameraButton:(BOOL)show;
 
 - (void)setInitialAnimationFrame:(CGRect)frame;
+- (void)setInitialAnimationTransform:(CGAffineTransform)transform;
 
 @end

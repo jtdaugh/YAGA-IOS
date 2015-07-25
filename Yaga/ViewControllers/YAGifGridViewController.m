@@ -487,9 +487,9 @@ static NSString *cellID = @"Cell";
     CGRect initialFrame = attributes.frame;
     initialFrame.origin.y -= self.collectionView.contentOffset.y;
     initialFrame.origin.y += self.view.frame.origin.y;
-
-    [((YAGroupsNavigationController *)self.navigationController) setInitialAnimationFrame:initialFrame];
     
+    [((YAGroupsNavigationController *)self.navigationController) setInitialAnimationFrame:initialFrame];
+    [((YAGroupsNavigationController *)self.navigationController) setInitialAnimationTransform:CGAffineTransformIdentity];
     
 //    [self setInitialAnimationFrame:initialFrame];
     
