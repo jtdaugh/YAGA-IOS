@@ -71,6 +71,7 @@
 - (void)dismissAnimated:(BOOL)dismissToBottom {
     
     self.dismissed = YES;
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
     
     //dismiss
     CGFloat y = [UIScreen mainScreen].bounds.size.height * .5;
