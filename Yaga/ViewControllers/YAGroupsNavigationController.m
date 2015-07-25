@@ -25,6 +25,9 @@
 @property (weak, nonatomic) id<UINavigationControllerDelegate> realDelegate;
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 @property (nonatomic, strong) UIButton *cameraButton;
+
+@property (nonatomic, strong) UIVisualEffectView *cameraButtonBlur;
+
 @property (nonatomic, strong) UIImageView *overlay;
 @property (nonatomic) BOOL forceCamera;
 @end
@@ -60,9 +63,15 @@
                             forBarPosition:UIBarPositionAny
                                 barMetrics:UIBarMetricsDefault];
     
+    self.navigationBar.layer.shadowColor = [SECONDARY_COLOR CGColor];
+    self.navigationBar.layer.shadowOpacity = 0.5;
+    self.navigationBar.layer.shadowRadius = 1;
+    self.navigationBar.layer.shadowOffset = CGSizeMake(0, 0.5);
+    self.navigationBar.layer.masksToBounds = NO;
+    
     self.animationController = [YAAnimatedTransitioningController new];
 
-    [self.view setBackgroundColor:[UIColor colorWithWhite:0.97 alpha:1]];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
     
     if (!self.delegate) {
         self.delegate = self;
@@ -73,19 +82,7 @@
 
     self.interactivePopGestureRecognizer.delegate = self;
 
-    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
-                                                                   self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - (CAMERA_BUTTON_SIZE/2),
-                                                                   CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
-    self.cameraButton.backgroundColor = [UIColor colorWithWhite:1 alpha:0.75];
-    [self.cameraButton setImage:[[UIImage imageNamed:@"Camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    self.cameraButton.imageView.tintColor = PRIMARY_COLOR;
-    self.cameraButton.imageEdgeInsets = UIEdgeInsetsMake(-55, 0, 0, 0);
-    self.cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
-    self.cameraButton.layer.borderColor = [PRIMARY_COLOR CGColor];
-    self.cameraButton.layer.borderWidth = 2.f;
-    self.cameraButton.layer.masksToBounds = YES;
-    [self.cameraButton addTarget:self action:@selector(presentCamera) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.cameraButton];
+    [self addCameraButton];
     
     UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
     overlay.backgroundColor = [UIColor blackColor];
@@ -100,6 +97,32 @@
                                              selector:@selector(openGroupOptions)
                                                  name:OPEN_GROUP_OPTIONS_NOTIFICATION
                                                object:nil];
+}
+
+- (void)addCameraButton {
+    
+    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
+                                                                   self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - (CAMERA_BUTTON_SIZE/2),
+                                                                   CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
+    self.cameraButton.backgroundColor = [UIColor clearColor];
+    [self.cameraButton setImage:[[UIImage imageNamed:@"Camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    self.cameraButton.imageView.tintColor = PRIMARY_COLOR;
+    self.cameraButton.imageEdgeInsets = UIEdgeInsetsMake(-55, 0, 0, 0);
+    self.cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
+//    self.cameraButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+//    self.cameraButton.layer.borderWidth = 1.f;
+    self.cameraButton.layer.masksToBounds = YES;
+    [self.cameraButton addTarget:self action:@selector(presentCamera) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+    self.cameraButtonBlur = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    self.cameraButtonBlur.frame = self.cameraButton.frame;
+    self.cameraButtonBlur.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
+    self.cameraButtonBlur.layer.masksToBounds = YES;
+    
+    [self.view addSubview:self.cameraButtonBlur];
+    [self.view addSubview:self.cameraButton];
+    
 }
 
 - (void)presentCamera {
@@ -134,7 +157,7 @@
 }
 
 - (void)showCameraButton:(BOOL)show {
-    self.cameraButton.hidden = !show;
+    self.cameraButton.hidden = self.cameraButtonBlur.hidden = !show;
 }
 
 - (void)viewWillAppear:(BOOL)animated {

@@ -47,7 +47,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self.view setBackgroundColor:[UIColor colorWithWhite:0.97 alpha:1]];
+//    [self.view setBackgroundColor:[UIColor colorWithWhite:0.97 alpha:1]];
 
     [self setupCollectionView];
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES];
