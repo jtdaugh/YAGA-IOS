@@ -458,7 +458,7 @@ static NSString *cellID = @"Cell";
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.item];
     swipingVC.delegate = self;
     
-    swipingVC.transitioningDelegate = self;
+    swipingVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
     
     [self presentViewController:swipingVC animated:YES completion:nil];

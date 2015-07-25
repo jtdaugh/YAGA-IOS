@@ -8,6 +8,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "AVCamPreviewView.h"
+#import "YASwipeToDismissViewController.h"
 
 @protocol YACameraViewControllerDelegate <NSObject>
 - (void)openGroupOptions;
@@ -16,7 +17,7 @@
 - (void)presentNewlyRecordedVideo:(YAVideo *)video;
 @end
 
-@interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate>
+@interface YACameraViewController : YASwipeToDismissViewController<UIGestureRecognizerDelegate>
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 @property (strong, nonatomic) NSNumber *recording;

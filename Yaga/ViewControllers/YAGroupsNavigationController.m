@@ -10,6 +10,8 @@
 #import "YAAnimatedTransitioningController.h"
 #import "YAGifGridViewController.h"
 #import "YAGroupsListViewController.h"
+#import "YACameraViewController.h"
+#import "SloppySwiper.h"
 
 #import "YAUser.h"
 
@@ -17,25 +19,16 @@
 
 @property (nonatomic, getter = isDuringPushAnimation) BOOL duringPushAnimation;
 
+@property (nonatomic, strong) SloppySwiper *swiper;
+
 @property (weak, nonatomic) id<UINavigationControllerDelegate> realDelegate;
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 @property (nonatomic, strong) UIButton *cameraButton;
-
+@property (nonatomic, strong) UIImageView *overlay;
+@property (nonatomic) BOOL forceCamera;
 @end
 
 @implementation YAGroupsNavigationController
-
-+ (YAGroupsNavigationController *)navControllerWithCorrectGroupViewControllers {
-    YAGroupsNavigationController *navigationController = [YAGroupsNavigationController new];
-    NSArray *vcArray;
-    if ([YAUser currentUser].currentGroup) {
-        vcArray = @[[YAGroupsListViewController new], [YAGifGridViewController new]];
-    } else {
-        vcArray = @[[YAGroupsListViewController new]];
-    }
-    [navigationController setViewControllers:vcArray];
-    return navigationController;
-}
 
 #pragma mark - NSObject
 
@@ -74,9 +67,12 @@
     if (!self.delegate) {
         self.delegate = self;
     }
-    
+
+    self.swiper = [[SloppySwiper alloc] initWithNavigationController:self];
+    self.delegate = self.swiper;
+
     self.interactivePopGestureRecognizer.delegate = self;
-    
+
     self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
                                                                    self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - (CAMERA_BUTTON_SIZE/2),
                                                                    CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
@@ -84,13 +80,25 @@
     [self.cameraButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
     self.cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
     self.cameraButton.layer.masksToBounds = YES;
-    [self.cameraButton addTarget:self action:@selector(dismissToCamera) forControlEvents:UIControlEventTouchUpInside];
+    [self.cameraButton addTarget:self action:@selector(presentCamera) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.cameraButton];
+    
+    UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    overlay.backgroundColor = [UIColor blackColor];
+    [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
+    overlay.contentMode = UIViewContentModeScaleAspectFill;
+    [self.view addSubview:overlay];
+    self.overlay = overlay;
+
+    self.forceCamera = YES;
 
 }
 
-- (void)dismissToCamera {
-    [[UIApplication sharedApplication].keyWindow.rootViewController dismissViewControllerAnimated:YES completion:nil];
+- (void)presentCamera {
+    YACameraViewController *camVC = [YACameraViewController new];
+    camVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
+    camVC.modalPresentationStyle = UIModalPresentationCustom;
+    [self presentViewController:camVC animated:YES completion:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -100,6 +108,18 @@
     
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (self.forceCamera) {
+        self.forceCamera = NO;
+        YACameraViewController *camVC = [YACameraViewController new];
+        camVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
+        camVC.modalPresentationStyle = UIModalPresentationCustom;
+        [self presentViewController:camVC animated:NO completion:^{
+            [self.overlay removeFromSuperview];
+        }];
+    }
+}
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
