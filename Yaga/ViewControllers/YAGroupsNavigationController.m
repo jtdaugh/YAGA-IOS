@@ -62,7 +62,8 @@
     self.animationController = [YAAnimatedTransitioningController new];
 
     [self.view setBackgroundColor:[UIColor whiteColor]];
-    [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(-1000, -1000) forBarMetrics:UIBarMetricsDefault];
+    
+//    [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(-1000, -1000) forBarMetrics:UIBarMetricsDefault];
 
     if (!self.delegate) {
         self.delegate = self;

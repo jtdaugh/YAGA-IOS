@@ -99,6 +99,13 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
     
     [self setupPullToRefresh];
+    
+    [self setupBarButtons];
+}
+
+- (void)setupBarButtons {
+    UIBarButtonItem *infoButton = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"InfoWhite"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStylePlain target:self action:@selector(infoPressed)];
+    self.navigationItem.rightBarButtonItem = infoButton;
 }
 
 - (void)videoWithServerId:(NSString *)serverId
