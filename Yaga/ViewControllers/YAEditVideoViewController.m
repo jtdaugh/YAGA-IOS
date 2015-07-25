@@ -12,12 +12,15 @@
 #import "SAVideoRangeSlider.h"
 #import "YAServerTransactionQueue.h"
 #import "YAAssetsCreator.h"
+#import "YACameraManager.h"
 
 @interface YAEditVideoViewController ()
 @property (nonatomic, strong) SAVideoRangeSlider *trimmingView;
 @property (nonatomic, strong) YAVideoPlayerView *videoPlayerView;
 @property (nonatomic, strong) UIView *bottomView;
 @property (nonatomic, strong) AVAssetExportSession *exportSession;
+@property (nonatomic, strong) UIButton *xButton;
+@property (nonatomic, strong) UIButton *captionButton;
 
 @property CGFloat startTime;
 @property CGFloat endTime;
@@ -46,6 +49,13 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [super viewWillAppear:animated];
     [self addBottomView];
     [self addTrimmingView];
+    [self addTopButtons];
+    [[YACameraManager sharedManager] pauseCamera];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [[YACameraManager sharedManager] resumeCamera];
 }
 
 - (void)addTrimmingView {
@@ -87,6 +97,14 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     sendButton.tintColor = [UIColor whiteColor];
     [sendButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.bottomView addSubview:sendButton];
+}
+
+- (void)addTopButtons {
+    CGFloat buttonSize = 50;
+    self.xButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - buttonSize - 10, 10, buttonSize, buttonSize)];
+    [self.xButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
+    [self.xButton addTarget:self action:@selector(dismissAnimated) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.xButton];
 }
 
 - (void)sendButtonTapped:(id)sender {

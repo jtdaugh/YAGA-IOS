@@ -7,12 +7,14 @@
 //
 
 #import "YAGroupsNavigationController.h"
+#import "YAAnimatedTransitioningController.h"
 
 @interface YAGroupsNavigationController () <UINavigationControllerDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, getter = isDuringPushAnimation) BOOL duringPushAnimation;
 
 @property (weak, nonatomic) id<UINavigationControllerDelegate> realDelegate;
+@property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 
 @end
 
@@ -48,6 +50,8 @@
     //    [self.navigationBar setBackgroundColor:[UIColor blackColor]];
     // Do any additional setup after loading the view.
     
+    self.animationController = [YAAnimatedTransitioningController new];
+
     [self.view setBackgroundColor:[UIColor whiteColor]];
     [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(-1000, -1000) forBarMetrics:UIBarMetricsDefault];
 
@@ -136,5 +140,19 @@
         [invocation invokeWithTarget:delegate];
     }
 }
+
+#pragma mark - Custom transitions
+- (id <UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
+    self.animationController.presentingMode = YES;
+    
+    return self.animationController;
+}
+
+- (id <UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
+    self.animationController.presentingMode = NO;
+    
+    return self.animationController;
+}
+
 
 @end

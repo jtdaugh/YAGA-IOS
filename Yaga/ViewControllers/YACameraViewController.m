@@ -190,6 +190,10 @@
     [[YACameraManager sharedManager] stopContiniousRecordingWithCompletion:^(NSURL *recordedURL) {
         YAEditVideoViewController *vc = [YAEditVideoViewController new];
         vc.videoUrl = recordedURL;
+        
+        vc.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
+        vc.modalPresentationStyle = UIModalPresentationCustom;
+        
         DLog(@"recording url: %@", recordedURL);
         // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
         // So set the initial frame to the end frame.
