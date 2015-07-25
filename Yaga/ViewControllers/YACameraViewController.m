@@ -148,23 +148,23 @@
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     
-    const CGFloat doneButtonWidth = 50;
+    const CGFloat doneButtonWidth = BUTTON_SIZE;
     self.doneRecordingButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.doneRecordingButton.frame = CGRectMake(self.cameraView.bounds.size.width - doneButtonWidth - 10, self.cameraView.bounds.size.height - doneButtonWidth - 10, doneButtonWidth, doneButtonWidth);
     self.doneRecordingButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     [self.doneRecordingButton setImage:[[UIImage imageNamed:@"PaperPlane"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapped) forControlEvents:UIControlEventTouchUpInside];
-    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+//    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     self.doneRecordingButton.tintColor = [UIColor whiteColor];
     [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [self.cameraView addSubview:self.doneRecordingButton];
+    [self.view addSubview:self.doneRecordingButton];
 
     
     self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - BUTTON_SIZE)/2, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
     [self.gridButton setImage:[UIImage imageNamed:@"Grid"] forState:UIControlStateNormal];
     self.gridButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.gridButton addTarget:self action:@selector(gridButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.cameraView addSubview:self.gridButton];
+    [self.view addSubview:self.gridButton];
     
     //stop recording on incoming call
     void (^block)(CTCall*) = ^(CTCall* call) {
