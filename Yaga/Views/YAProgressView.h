@@ -10,4 +10,5 @@
 
 @interface YAProgressView : UCZProgressView
 - (void)setCustomText:(NSString*)text;
+- (void)configureIndeterminatePercent:(CGFloat)percent;
 @end

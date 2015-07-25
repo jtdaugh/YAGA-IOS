@@ -24,6 +24,7 @@
 #import "YAEditVideoViewController.h"
 #import "YAGifGridViewController.h"
 #import "YAGroupsListViewController.h"
+#import "YAProgressView.h"
 
 #import "YAPopoverView.h"
 #import "QuartzCore/CALayer.h"
@@ -58,6 +59,8 @@
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *doneRecordingButton;
 @property (strong, nonatomic) UIButton *gridButton;
+
+@property (strong, nonatomic) YAProgressView *animatedRecorder;
 
 @property (nonatomic) BOOL audioInputAdded;
 
@@ -161,15 +164,18 @@
                                                object:nil];
 
     
-    const CGFloat doneButtonWidth = BUTTON_SIZE*2;
+    const CGFloat doneButtonWidth = BUTTON_SIZE*1.5;
     self.doneRecordingButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.doneRecordingButton.frame = CGRectMake((self.cameraView.bounds.size.width - doneButtonWidth)/2, self.cameraView.bounds.size.height - doneButtonWidth - 10, doneButtonWidth, doneButtonWidth);
     self.doneRecordingButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-    [self.doneRecordingButton setImage:[[UIImage imageNamed:@"PaperPlane"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [self.doneRecordingButton setImage:[UIImage imageNamed:@"PaperPlane"] forState:UIControlStateNormal];
     [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapped) forControlEvents:UIControlEventTouchUpInside];
 //    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    self.doneRecordingButton.tintColor = [UIColor whiteColor];
+//    self.doneRecordingButton.tintColor = [UIColor whiteColor];
     [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    self.doneRecordingButton.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.doneRecordingButton.layer.borderWidth = 5.0f;
+    self.doneRecordingButton.layer.cornerRadius = doneButtonWidth/2;
     [self.view addSubview:self.doneRecordingButton];
 
     
@@ -194,7 +200,7 @@
     self.recordingIndicator.layer.masksToBounds = YES;
     
     [self.recordingIndicator setAlpha:1.0];
-    [self.view addSubview:self.recordingIndicator];
+//    [self.view addSubview:self.recordingIndicator];
     
     CGFloat bigRecordingIndicatorSize = 32;
     
@@ -221,6 +227,23 @@
     self.bigRecordingIndicator.alpha = 0.0;
     [self.view addSubview:self.bigRecordingIndicator];
     
+    self.animatedRecorder = [[YAProgressView alloc] initWithFrame:self.doneRecordingButton.frame];
+    self.animatedRecorder.indeterminate = YES;
+    self.animatedRecorder.radius = self.doneRecordingButton.frame.size.width/2 - 5.0f;
+    self.animatedRecorder.lineWidth = 5;
+    self.animatedRecorder.showsText = NO;
+    self.animatedRecorder.tintColor = [UIColor redColor];
+    [self.animatedRecorder setUserInteractionEnabled:NO];
+    [self.animatedRecorder setBackgroundColor:[UIColor clearColor]];
+    
+    [self.animatedRecorder configureIndeterminatePercent:0.1];
+    
+    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.animatedRecorder.frame];
+    progressBkgView.backgroundColor = [UIColor clearColor];
+    self.animatedRecorder.backgroundView = progressBkgView;
+
+    [self.view addSubview:self.animatedRecorder];
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -231,67 +254,65 @@
 }
 
 - (void)startRecordingAnimation {
-    [self.recordingIndicator setAlpha:0.0];
-    [self.recordingIndicator setTransform:CGAffineTransformIdentity];
-    
-    [self.recordingMessage setAlpha:0.0];
-    [self.recordingMessage setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
-    
-    [self.bigRecordingIndicator setAlpha:0.0];
-    [self.bigRecordingIndicator setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
-    
-    [UIView animateWithDuration:0.618 delay:0.0 options:0 animations:^{
-        //
-        [self.bigRecordingIndicator setAlpha:1.0];
-        [self.bigRecordingIndicator setTransform:CGAffineTransformIdentity];
-        [self.recordingMessage setAlpha:1.0];
-        [self.recordingMessage setTransform:CGAffineTransformIdentity];
-        
-    } completion:^(BOOL finished) {
-        //
-        [self.bigRecordingIndicator setAlpha:1.0];
-        [self.bigRecordingIndicator setTransform:CGAffineTransformIdentity];
+//    [self.recordingIndicator setAlpha:0.0];
+//    [self.recordingIndicator setTransform:CGAffineTransformIdentity];
+//    
+//    [self.recordingMessage setAlpha:0.0];
+//    [self.recordingMessage setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
+//    
+//    [self.bigRecordingIndicator setAlpha:0.0];
+//    [self.bigRecordingIndicator setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
+//    
+//    [UIView animateWithDuration:0.618 delay:0.0 options:0 animations:^{
+//        //
+//        [self.bigRecordingIndicator setAlpha:1.0];
+//        [self.bigRecordingIndicator setTransform:CGAffineTransformIdentity];
+//        [self.recordingMessage setAlpha:1.0];
+//        [self.recordingMessage setTransform:CGAffineTransformIdentity];
+//        
+//    } completion:^(BOOL finished) {
+//        //
+//        [self.bigRecordingIndicator setAlpha:1.0];
+//        [self.bigRecordingIndicator setTransform:CGAffineTransformIdentity];
+//
+//        [UIView animateWithDuration:0.618 delay:0.0 options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat animations:^{
+//            [UIView setAnimationRepeatCount:2];
+//            
+//            [self.bigRecordingIndicator setAlpha:0.3];
+//            [self.bigRecordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
+//            //
+//        } completion:^(BOOL finished) {
+//            //
+//            [UIView animateWithDuration:.618 delay:0.1 options:0 animations:^{
+//                //
+//                [self.bigRecordingIndicator setAlpha:0.0];
+//                
+//                [self.recordingMessage setAlpha:0.0];
+//
+//            } completion:^(BOOL finished) {
+//                [UIView animateWithDuration:0.618/2 delay:0.0 options:0 animations:^{
+//                    //
+//                    [self.recordingIndicator setAlpha:1.0];
+//                } completion:^(BOOL finished) {
+//                    //
+//                    [self.recordingIndicator setAlpha:1.0];
+//                    
+//                    [UIView animateKeyframesWithDuration:0.618 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat animations:^{
+//                        //
+//                        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:1.0 animations:^{
+//                            //
+//                            [self.recordingIndicator setAlpha:0.3];
+//                            [self.recordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
+//                        }];
+//                        
+//                    } completion:^(BOOL finished) {
+//                        //
+//                    }];
+//                }];
+//            }];
+//        }];
+//    }];
 
-        [UIView animateWithDuration:0.618 delay:0.0 options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat animations:^{
-            [UIView setAnimationRepeatCount:2];
-            
-            [self.bigRecordingIndicator setAlpha:0.3];
-            [self.bigRecordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
-            //
-        } completion:^(BOOL finished) {
-            //
-            [UIView animateWithDuration:.618 delay:0.1 options:0 animations:^{
-                //
-                [self.bigRecordingIndicator setAlpha:0.0];
-                
-                [self.recordingMessage setAlpha:0.0];
-
-            } completion:^(BOOL finished) {
-                [UIView animateWithDuration:0.618/2 delay:0.0 options:0 animations:^{
-                    //
-                    [self.recordingIndicator setAlpha:1.0];
-                } completion:^(BOOL finished) {
-                    //
-                    [self.recordingIndicator setAlpha:1.0];
-                    
-                    [UIView animateKeyframesWithDuration:0.618 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat animations:^{
-                        //
-                        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:1.0 animations:^{
-                            //
-                            [self.recordingIndicator setAlpha:0.3];
-                            [self.recordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
-                        }];
-                        
-                    } completion:^(BOOL finished) {
-                        //
-                    }];
-                }];
-            }];
-        }];
-    }];
-    
-    
-    
 }
 
 - (void)dealloc {
