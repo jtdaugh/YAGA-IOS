@@ -76,6 +76,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
     [[YACameraManager sharedManager] initCamera];
     [[YACameraManager sharedManager] resumeCamera];
     self.recordingTime = [NSDate date];
@@ -92,6 +93,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     self.navigationController.navigationBarHidden = YES;
     [YACameraManager sharedManager].delegate = self;
     
@@ -194,6 +196,7 @@
 - (void)viewDidAppear:(BOOL)animated {
     
     NSLog(@"camera view did appear?");
+
     [self startRecordingAnimation];
 }
 
