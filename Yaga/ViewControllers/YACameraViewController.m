@@ -271,14 +271,20 @@
 
 - (void)showRecordButton {
     
-    [UIView animateWithDuration:1.618 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+    self.doneRecordingButton.transform = CGAffineTransformMakeScale(0.8, 0.8);
+    self.animatedRecorder.transform = CGAffineTransformMakeScale(0.8, 0.8);
+    
+    [UIView animateWithDuration:.618 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         //
         [self.doneRecordingButton setAlpha:1.0];
         [self.animatedRecorder setAlpha:1.0];
+        
+        self.doneRecordingButton.transform = CGAffineTransformIdentity;
+        self.animatedRecorder.transform = CGAffineTransformIdentity;
     } completion:^(BOOL finished) {
         //
     }];
-
+    
 }
 
 - (void)dealloc {

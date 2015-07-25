@@ -140,6 +140,9 @@
         [self.videoCamera pauseCameraCapture];
         self.isPaused = YES;
         [self.delegate setFrontFacingFlash:NO];
+        
+        
+        
         [self.videoCamera stopCameraCapture];
         runSynchronouslyOnVideoProcessingQueue(^{
             glFinish();
