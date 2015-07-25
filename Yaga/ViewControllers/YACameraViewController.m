@@ -48,6 +48,8 @@
 
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 
+@property (strong, nonatomic) UIView *recordingIndicator;
+
 @property (strong, nonatomic) UIButton *switchCameraButton;
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *doneRecordingButton;
@@ -170,6 +172,37 @@
     };
     self.callCenter = [[CTCallCenter alloc] init];
     self.callCenter.callEventHandler = block;
+    
+    CGFloat redDotSize = 24;
+    self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - redDotSize/2, 24, redDotSize, redDotSize)];
+    [self.recordingIndicator setBackgroundColor:[UIColor redColor]];
+    self.recordingIndicator.layer.cornerRadius = redDotSize/2;
+    self.recordingIndicator.layer.masksToBounds = YES;
+    [self.recordingIndicator setAlpha:1.0];
+    [self.view addSubview:self.recordingIndicator];
+    
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+//    [UIView animateWithDuration:0.8 delay:0.2 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:UIViewAnimationOptionRepeat | UIViewAnimationOptionAutoreverse animations:^{
+//        //
+//        [self.recordingIndicator setAlpha:0.0];
+//    } completion:^(BOOL finished) {
+//        //
+//    }];
+    
+    [UIView animateKeyframesWithDuration:0.618 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat animations:^{
+        //
+        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:1.0 animations:^{
+            //
+            [self.recordingIndicator setAlpha:0.3];
+            [self.recordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
+        }];
+        
+    } completion:^(BOOL finished) {
+        //
+    }];
+
 }
 
 - (void)dealloc {
