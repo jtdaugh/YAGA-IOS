@@ -48,6 +48,8 @@
 
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 
+@property (strong, nonatomic) UIView *recordingIndicator;
+
 @property (strong, nonatomic) UIButton *switchCameraButton;
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *doneRecordingButton;
@@ -141,21 +143,28 @@
 //    self.filters = @[@"#nofilter"];
 //    self.filterIndex = 0;
 
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
                                                object:nil];
     
-    const CGFloat doneButtonWidth = 50;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(willEnterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+
+    
+    const CGFloat doneButtonWidth = BUTTON_SIZE;
     self.doneRecordingButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.doneRecordingButton.frame = CGRectMake(self.cameraView.bounds.size.width - doneButtonWidth - 10, self.cameraView.bounds.size.height - doneButtonWidth - 10, doneButtonWidth, doneButtonWidth);
     self.doneRecordingButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     [self.doneRecordingButton setImage:[[UIImage imageNamed:@"PaperPlane"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapped) forControlEvents:UIControlEventTouchUpInside];
-    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+//    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     self.doneRecordingButton.tintColor = [UIColor whiteColor];
     [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [self.cameraView addSubview:self.doneRecordingButton];
+    [self.view addSubview:self.doneRecordingButton];
 
     
     self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - BUTTON_SIZE)/2, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
@@ -163,7 +172,7 @@
     [self.gridButton setImage:[UIImage imageNamed:@"Grid"] forState:UIControlStateNormal];
     self.gridButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.gridButton addTarget:self action:@selector(gridButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.cameraView addSubview:self.gridButton];
+    [self.view addSubview:self.gridButton];
     
     //stop recording on incoming call
     void (^block)(CTCall*) = ^(CTCall* call) {
@@ -171,10 +180,44 @@
     };
     self.callCenter = [[CTCallCenter alloc] init];
     self.callCenter.callEventHandler = block;
+    
+    CGFloat redDotSize = 24;
+    self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - redDotSize/2, 24, redDotSize, redDotSize)];
+    [self.recordingIndicator setBackgroundColor:[UIColor redColor]];
+    self.recordingIndicator.layer.cornerRadius = redDotSize/2;
+    self.recordingIndicator.layer.masksToBounds = YES;
+    [self.recordingIndicator setAlpha:1.0];
+    [self.view addSubview:self.recordingIndicator];
+    
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    
+    NSLog(@"camera view did appear?");
+    [self startRecordingAnimation];
+}
+
+- (void)startRecordingAnimation {
+    [self.recordingIndicator setAlpha:1.0];
+    [self.recordingIndicator setTransform:CGAffineTransformIdentity];
+    
+    [UIView animateKeyframesWithDuration:0.618 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat animations:^{
+        //
+        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:1.0 animations:^{
+            //
+            [self.recordingIndicator setAlpha:0.3];
+            [self.recordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
+        }];
+        
+    } completion:^(BOOL finished) {
+        //
+    }];
+    
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
 #pragma mark - recording
@@ -262,6 +305,11 @@
     if(self.flash){
         [self setFlashMode:NO];
     }
+}
+
+- (void)willEnterForeground {
+    NSLog(@"will enter foreground?");
+    [self startRecordingAnimation];
 }
 
 - (void)showCameraAccessories:(BOOL)show {
