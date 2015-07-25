@@ -80,6 +80,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
     [[YACameraManager sharedManager] initCamera];
     [[YACameraManager sharedManager] resumeCamera];
     self.recordingTime = [NSDate date];
@@ -96,6 +97,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     self.navigationController.navigationBarHidden = YES;
     [YACameraManager sharedManager].delegate = self;
     
@@ -159,9 +161,9 @@
                                                object:nil];
 
     
-    const CGFloat doneButtonWidth = BUTTON_SIZE;
+    const CGFloat doneButtonWidth = BUTTON_SIZE*2;
     self.doneRecordingButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.doneRecordingButton.frame = CGRectMake(self.cameraView.bounds.size.width - doneButtonWidth - 10, self.cameraView.bounds.size.height - doneButtonWidth - 10, doneButtonWidth, doneButtonWidth);
+    self.doneRecordingButton.frame = CGRectMake((self.cameraView.bounds.size.width - doneButtonWidth)/2, self.cameraView.bounds.size.height - doneButtonWidth - 10, doneButtonWidth, doneButtonWidth);
     self.doneRecordingButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     [self.doneRecordingButton setImage:[[UIImage imageNamed:@"PaperPlane"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapped) forControlEvents:UIControlEventTouchUpInside];
@@ -171,7 +173,7 @@
     [self.view addSubview:self.doneRecordingButton];
 
     
-    self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - BUTTON_SIZE)/2, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
+    self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake(10, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
     self.gridButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     [self.gridButton setImage:[UIImage imageNamed:@"Grid"] forState:UIControlStateNormal];
     self.gridButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -224,6 +226,7 @@
 - (void)viewDidAppear:(BOOL)animated {
     
     NSLog(@"camera view did appear?");
+
     [self startRecordingAnimation];
 }
 
