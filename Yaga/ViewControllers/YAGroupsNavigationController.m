@@ -76,9 +76,13 @@
     self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
                                                                    self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - (CAMERA_BUTTON_SIZE/2),
                                                                    CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
-    self.cameraButton.backgroundColor = PRIMARY_COLOR;
-    [self.cameraButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
+    self.cameraButton.backgroundColor = [UIColor colorWithWhite:1 alpha:0.75];
+    [self.cameraButton setImage:[[UIImage imageNamed:@"Camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    self.cameraButton.imageView.tintColor = PRIMARY_COLOR;
+    self.cameraButton.imageEdgeInsets = UIEdgeInsetsMake(-55, 0, 0, 0);
     self.cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
+    self.cameraButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+    self.cameraButton.layer.borderWidth = 2.f;
     self.cameraButton.layer.masksToBounds = YES;
     [self.cameraButton addTarget:self action:@selector(presentCamera) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.cameraButton];
@@ -224,6 +228,10 @@
     if ([delegate respondsToSelector:invocation.selector]) {
         [invocation invokeWithTarget:delegate];
     }
+}
+
+- (void)setInitialAnimationFrame:(CGRect)frame {
+    self.animationController.initialFrame = frame;
 }
 
 #pragma mark - Custom transitions

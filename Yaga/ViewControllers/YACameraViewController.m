@@ -232,6 +232,9 @@
 
 - (void)startRecordingAnimation {
     
+    [self.animatedRecorder setAlpha:0.0];
+    [self.doneRecordingButton setAlpha:0.0];
+    
     [UIView animateKeyframesWithDuration:2.0 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
         //
         [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.2 animations:^{
@@ -251,6 +254,7 @@
 }
 
 - (void)showRecordButton {
+    
     self.animatedRecorder = [[YAProgressView alloc] initWithFrame:self.doneRecordingButton.frame];
     self.animatedRecorder.indeterminate = YES;
     self.animatedRecorder.radius = self.doneRecordingButton.frame.size.width/2 - 5.0f;

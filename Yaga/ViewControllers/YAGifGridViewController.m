@@ -54,6 +54,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic) BOOL scrollingFast;
 @property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -474,11 +475,23 @@ static NSString *cellID = @"Cell";
 
 - (void)openVideoAtIndexPath:(NSIndexPath*)indexPath {
     
+    UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
+
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.item];
     swipingVC.delegate = self;
     
     swipingVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
+    
+    
+    CGRect initialFrame = attributes.frame;
+    initialFrame.origin.y -= self.collectionView.contentOffset.y;
+    initialFrame.origin.y += self.view.frame.origin.y;
+
+    [((YAGroupsNavigationController *)self.navigationController) setInitialAnimationFrame:initialFrame];
+    
+    
+//    [self setInitialAnimationFrame:initialFrame];
     
     [self presentViewController:swipingVC animated:YES completion:nil];
 }
@@ -649,6 +662,5 @@ static NSString *cellID = @"Cell";
     [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_HUMANITY_VISIT_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_HUMANITY_VISIT_BODY", @"") dismissText:@"Got it" addToView:self.navigationController.view] show];
     
 }
-
 
 @end
