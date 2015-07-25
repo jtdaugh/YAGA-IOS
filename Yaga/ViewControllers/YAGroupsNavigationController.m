@@ -105,7 +105,6 @@
     [self presentViewController:camVC animated:YES completion:nil];
 }
 
-
 - (void)openGroupOptions {
     if(![YAUser currentUser].currentGroup)
         return;
@@ -117,6 +116,10 @@
     YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
     vc.group = [YAUser currentUser].currentGroup;
     [self pushViewController:vc animated:YES];
+}
+
+- (void)showCameraButton:(BOOL)show {
+    self.cameraButton.hidden = !show;
 }
 
 - (void)viewWillAppear:(BOOL)animated {

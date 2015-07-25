@@ -60,7 +60,14 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.animatePush = NO;
     [self groupDidChange:nil];
     
+    [self setupBarItems];
+    
     [self updateState];
+}
+
+- (void)setupBarItems {
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Find" style:UIBarButtonItemStylePlain target:self action:@selector(findGroupsPressed)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(createGroupPressed)];
 }
 
 - (void)setupCollectionView {

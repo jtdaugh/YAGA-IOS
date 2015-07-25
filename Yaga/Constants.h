@@ -129,6 +129,7 @@
 #define COMMENTS_SEND_WIDTH 70.f
 
 #define CAMERA_BUTTON_SIZE 140.f
+#define NAV_BAR_HEIGHT 64.f
 
 #define recordButtonWidth 60.0f
 #define GIF_GRID_UNSEEN @"gifsUnseen"

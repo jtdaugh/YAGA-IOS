@@ -15,4 +15,6 @@
 
 - (void)openGroupOptions;
 
+- (void)showCameraButton:(BOOL)show;
+
 @end

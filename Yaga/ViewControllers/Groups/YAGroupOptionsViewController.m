@@ -8,6 +8,7 @@
 
 #import "YAGroupOptionsViewController.h"
 #import "YAGroupAddMembersViewController.h"
+#import "YAGroupsNavigationController.h"
 #import "YAInviteViewController.h"
 #import "YAServer.h"
 
@@ -43,7 +44,7 @@
     const CGFloat buttonWidth = VIEW_WIDTH - 40;
     CGFloat buttonHeight = 54;
     
-    self.muteButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, VIEW_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
+    self.muteButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, VIEW_HEIGHT - NAV_BAR_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
     [self.muteButton setBackgroundColor:[UIColor whiteColor]];
     [self.muteButton setTitle:NSLocalizedString(@"Mute", @"") forState:UIControlStateNormal];
     [self.muteButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
@@ -55,7 +56,7 @@
     [self.muteButton addTarget:self action:@selector(muteTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.muteButton];
     
-    self.leaveButton = [[UIButton alloc] initWithFrame:CGRectMake(self.muteButton.frame.origin.x + self.muteButton.frame.size.width + 16, VIEW_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
+    self.leaveButton = [[UIButton alloc] initWithFrame:CGRectMake(self.muteButton.frame.origin.x + self.muteButton.frame.size.width + 16, VIEW_HEIGHT - NAV_BAR_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
     [self.leaveButton setBackgroundColor:PRIMARY_COLOR];
     [self.leaveButton setTitle:NSLocalizedString(@"Leave", @"") forState:UIControlStateNormal];
     [self.leaveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
@@ -112,11 +113,14 @@
     [self.tableView reloadData];
     
     self.muteButton.hidden = self.leaveButton.hidden = self.group.publicGroup;
+    
+    [(YAGroupsNavigationController *)self.navigationController showCameraButton:NO];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    
+    [(YAGroupsNavigationController *)self.navigationController showCameraButton:YES];
+
     //crash fixed
     //http://stackoverflow.com/questions/19230446/tableviewcaneditrowatindexpath-crash-when-popping-viewcontroller
     self.tableView.editing = NO;
