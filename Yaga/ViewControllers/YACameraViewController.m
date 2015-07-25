@@ -26,6 +26,7 @@
 #import "YAGroupsListViewController.h"
 
 #import "YAPopoverView.h"
+#import "QuartzCore/CALayer.h"
 
 #define BUTTON_SIZE (VIEW_WIDTH / 7)
 #define HEADER_HEIGHT 60.f
@@ -49,6 +50,9 @@
 @property (strong, nonatomic) NSMutableArray *cameraAccessories;
 
 @property (strong, nonatomic) UIView *recordingIndicator;
+
+@property (strong, nonatomic) UILabel *recordingMessage;
+@property (strong, nonatomic) UIView *bigRecordingIndicator;
 
 @property (strong, nonatomic) UIButton *switchCameraButton;
 @property (strong, nonatomic) UIButton *flashButton;
@@ -185,8 +189,34 @@
     [self.recordingIndicator setBackgroundColor:[UIColor redColor]];
     self.recordingIndicator.layer.cornerRadius = redDotSize/2;
     self.recordingIndicator.layer.masksToBounds = YES;
+    
     [self.recordingIndicator setAlpha:1.0];
     [self.view addSubview:self.recordingIndicator];
+    
+    CGFloat bigRecordingIndicatorSize = 32;
+    
+    self.recordingMessage = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH * 2.0f / 3.0f, 200)];
+    [self.recordingMessage setText:@"RECORDING"];
+    [self.recordingMessage setCenter:CGPointMake(VIEW_WIDTH/2 + bigRecordingIndicatorSize, VIEW_HEIGHT/2)];
+    [self.recordingMessage setFont:[UIFont fontWithName:BOLD_FONT size:36]];
+    [self.recordingMessage setTextColor:[UIColor whiteColor]];
+    [self.recordingMessage setTextAlignment:NSTextAlignmentCenter];
+    self.recordingMessage.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.recordingMessage.layer.shadowOffset = CGSizeMake(3.0f, 3.0f);
+    self.recordingMessage.layer.shadowRadius = 0.0f;
+    self.recordingMessage.layer.shadowOpacity = 1.0f;
+    self.recordingMessage.alpha = 0.0;
+    [self.view addSubview:self.recordingMessage];
+    
+    CGSize messageSize = [[self.recordingMessage text] sizeWithAttributes:@{NSFontAttributeName:[self.recordingMessage font]}];
+    
+    self.bigRecordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(0, 0, bigRecordingIndicatorSize, bigRecordingIndicatorSize)];
+    self.bigRecordingIndicator.center = CGPointMake(self.recordingMessage.center.x - messageSize.width/2 - 10 - bigRecordingIndicatorSize/2, self.recordingMessage.center.y);
+    [self.bigRecordingIndicator setBackgroundColor:[UIColor redColor]];
+    self.bigRecordingIndicator.layer.cornerRadius = bigRecordingIndicatorSize/2;
+    self.bigRecordingIndicator.layer.masksToBounds = YES;
+    self.bigRecordingIndicator.alpha = 0.0;
+    [self.view addSubview:self.bigRecordingIndicator];
     
 }
 
@@ -197,20 +227,68 @@
 }
 
 - (void)startRecordingAnimation {
-    [self.recordingIndicator setAlpha:1.0];
+    [self.recordingIndicator setAlpha:0.0];
     [self.recordingIndicator setTransform:CGAffineTransformIdentity];
     
-    [UIView animateKeyframesWithDuration:0.618 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat animations:^{
+    [self.recordingMessage setAlpha:0.0];
+    [self.recordingMessage setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
+    
+    [self.bigRecordingIndicator setAlpha:0.0];
+    [self.bigRecordingIndicator setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
+    
+    [UIView animateWithDuration:0.618 delay:0.0 options:0 animations:^{
         //
-        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:1.0 animations:^{
-            //
-            [self.recordingIndicator setAlpha:0.3];
-            [self.recordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
-        }];
+        [self.bigRecordingIndicator setAlpha:1.0];
+        [self.bigRecordingIndicator setTransform:CGAffineTransformIdentity];
+        [self.recordingMessage setAlpha:1.0];
+        [self.recordingMessage setTransform:CGAffineTransformIdentity];
         
     } completion:^(BOOL finished) {
         //
+        [self.bigRecordingIndicator setAlpha:1.0];
+        [self.bigRecordingIndicator setTransform:CGAffineTransformIdentity];
+
+        [UIView animateWithDuration:0.618 delay:0.0 options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat animations:^{
+            [UIView setAnimationRepeatCount:3];
+            
+            [self.bigRecordingIndicator setAlpha:0.0];
+            [self.bigRecordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
+            //
+        } completion:^(BOOL finished) {
+            //
+            [UIView animateWithDuration:0.618 delay:0.0 options:0 animations:^{
+                //
+                [self.bigRecordingIndicator setAlpha:0.0];
+                [self.bigRecordingIndicator setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
+                
+                [self.recordingMessage setAlpha:0.0];
+                [self.recordingMessage setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
+
+            } completion:^(BOOL finished) {
+                [UIView animateWithDuration:0.618 delay:0.0 options:0 animations:^{
+                    //
+                    [self.recordingIndicator setAlpha:1.0];
+                } completion:^(BOOL finished) {
+                    //
+                    [self.recordingIndicator setAlpha:1.0];
+                    
+                    [UIView animateKeyframesWithDuration:0.618 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat animations:^{
+                        //
+                        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:1.0 animations:^{
+                            //
+                            [self.recordingIndicator setAlpha:0.3];
+                            [self.recordingIndicator setTransform:CGAffineTransformMakeScale(0.8, 0.8)];
+                        }];
+                        
+                    } completion:^(BOOL finished) {
+                        //
+                    }];
+                }];
+            }];
+        }];
     }];
+    
+    
     
 }
 
