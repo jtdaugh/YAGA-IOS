@@ -173,7 +173,7 @@
 //    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
 //    self.doneRecordingButton.tintColor = [UIColor whiteColor];
     [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    self.doneRecordingButton.layer.borderColor = [UIColor redColor].CGColor;
+    self.doneRecordingButton.layer.borderColor = [UIColor whiteColor].CGColor;
     self.doneRecordingButton.layer.borderWidth = 5.0f;
     self.doneRecordingButton.layer.cornerRadius = doneButtonWidth/2;
     
@@ -227,26 +227,17 @@
 - (void)viewDidAppear:(BOOL)animated {
     
     [self startRecordingAnimation];
+//    [[UIApplication sharedApplication] setStatusBarHidden:YES];
 }
 
 - (void)startRecordingAnimation {
     
-    [UIView animateKeyframesWithDuration:2.0 delay:0.0 options:0 animations:^{
+    [UIView animateKeyframesWithDuration:2.0 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
         //
         [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.2 animations:^{
             //
             [self.recordingMessage setAlpha:1.0];
         }];
-
-//        [UIView addKeyframeWithRelativeStartTime:0.25 relativeDuration:0.2 animations:^{
-//            //
-//            [self.recordingMessage setAlpha:0.0];
-//        }];
-//
-//        [UIView addKeyframeWithRelativeStartTime:0.5 relativeDuration:0.2 animations:^{
-//            //
-//            [self.recordingMessage setAlpha:1.0];
-//        }];
 
         [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
             //
@@ -265,11 +256,11 @@
     self.animatedRecorder.radius = self.doneRecordingButton.frame.size.width/2 - 5.0f;
     self.animatedRecorder.lineWidth = 5;
     self.animatedRecorder.showsText = NO;
-    self.animatedRecorder.tintColor = [UIColor whiteColor];
+    self.animatedRecorder.tintColor = [UIColor redColor];
     [self.animatedRecorder setUserInteractionEnabled:NO];
     [self.animatedRecorder setBackgroundColor:[UIColor clearColor]];
     
-//    [self.animatedRecorder configureIndeterminatePercent:0.1];
+    [self.animatedRecorder configureIndeterminatePercent:0.1];
     
     UIView *progressBkgView = [[UIView alloc] initWithFrame:self.animatedRecorder.frame];
     progressBkgView.backgroundColor = [UIColor clearColor];
@@ -277,7 +268,7 @@
     [self.animatedRecorder setAlpha:0.0];
     [self.view addSubview:self.animatedRecorder];
     
-    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         //
         [self.doneRecordingButton setAlpha:1.0];
         [self.animatedRecorder setAlpha:1.0];
