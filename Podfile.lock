@@ -81,7 +81,7 @@ DEPENDENCIES:
   - Realm (~> 0.93.2)
   - SloppySwiper
   - SVPullToRefresh
-  - UCZProgressView
+  - UCZProgressView (from `https://github.com/yagainc/UCZProgressView.git`)
 
 EXTERNAL SOURCES:
   FLAnimatedImage:
@@ -89,6 +89,8 @@ EXTERNAL SOURCES:
   GPUImage:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019
     :git: https://github.com/yagainc/GPUImage.git
+  UCZProgressView:
+    :git: https://github.com/yagainc/UCZProgressView.git
 
 CHECKOUT OPTIONS:
   FLAnimatedImage:
@@ -97,6 +99,9 @@ CHECKOUT OPTIONS:
   GPUImage:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019
     :git: https://github.com/yagainc/GPUImage.git
+  UCZProgressView:
+    :commit: 3c6b5cc6a90de216675e144494b699277304d32e
+    :git: https://github.com/yagainc/UCZProgressView.git
 
 SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7

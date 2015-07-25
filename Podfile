@@ -9,7 +9,7 @@ pod 'FrameAccessor', '~> 1.0'
 pod 'FLAnimatedImage', :git => 'https://github.com/yagainc/FLAnimatedImage.git'
 pod 'NSDate-Time-Ago', :inhibit_warnings => true
 pod 'SVPullToRefresh'
-pod 'UCZProgressView'
+pod 'UCZProgressView', :git => 'https://github.com/yagainc/UCZProgressView.git'
 pod 'OrderedDictionary'
 pod 'AFDownloadRequestOperation'
 pod 'MBProgressHUD', '~> 0.8'

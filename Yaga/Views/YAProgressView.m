@@ -63,4 +63,9 @@
     }
 }
 
+- (void)configureIndeterminatePercent:(CGFloat)percent {
+    self.progressLayer.strokeStart = 0.0;
+    self.progressLayer.strokeEnd = percent;
+}
+
 @end
