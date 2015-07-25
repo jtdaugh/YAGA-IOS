@@ -11,12 +11,15 @@
 #import "YAGifGridViewController.h"
 #import "YAGroupsListViewController.h"
 #import "YACameraViewController.h"
+#import "SloppySwiper.h"
 
 #import "YAUser.h"
 
 @interface YAGroupsNavigationController () <UINavigationControllerDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, getter = isDuringPushAnimation) BOOL duringPushAnimation;
+
+@property (nonatomic, strong) SloppySwiper *swiper;
 
 @property (weak, nonatomic) id<UINavigationControllerDelegate> realDelegate;
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
@@ -64,7 +67,10 @@
     if (!self.delegate) {
         self.delegate = self;
     }
-    
+
+    self.swiper = [[SloppySwiper alloc] initWithNavigationController:self];
+    self.delegate = self.swiper;
+
     self.interactivePopGestureRecognizer.delegate = self;
 
     self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,

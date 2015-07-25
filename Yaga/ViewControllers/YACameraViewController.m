@@ -323,7 +323,7 @@
 }
 
 - (void)gridButtonPressed {
-    [self presentViewController:[YAGroupsNavigationController navControllerWithCorrectGroupViewControllers] animated:YES completion:nil];
+    [self dismissAnimated];
 }
 
 - (void)showHumanityTooltip {
