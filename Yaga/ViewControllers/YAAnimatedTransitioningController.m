@@ -45,7 +45,7 @@
     toViewController.view.transform = self.initialTransform;
     toViewController.view.alpha = 0.5;
 //    [UIView animateWithDuration:kDuration delay:0.0f usingSpringWithDamping:0.4f initialSpringVelocity:6.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
-    [UIView animateWithDuration:kDuration delay:0.0 usingSpringWithDamping:0.8 initialSpringVelocity:0.6 options:0 animations:^{
+    [UIView animateWithDuration:kDuration delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.6 options:0 animations:^{
         //
 //    } completion:^(BOOL finished) {
 //        //

@@ -82,8 +82,9 @@
 @implementation YACameraViewController
 
 - (void)viewWillAppear:(BOOL)animated {
+
     [super viewWillAppear:animated];
-    
+
     [[YACameraManager sharedManager] initCamera];
     [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
     self.recordingTime = [NSDate date];
@@ -91,11 +92,13 @@
         [YACameraManager sharedManager].delegate = self;
         [[YACameraManager sharedManager] setCameraView:self.cameraView];
     });
+//    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [[YACameraManager sharedManager] pauseCameraAndStop:NO];
+//    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
 }
 
 - (void)viewDidLoad {
@@ -227,15 +230,32 @@
 - (void)viewDidAppear:(BOOL)animated {
     
     [self startRecordingAnimation];
-//    [[UIApplication sharedApplication] setStatusBarHidden:YES];
 }
 
 - (void)startRecordingAnimation {
     
+    [self.animatedRecorder removeFromSuperview];
+    
+    self.animatedRecorder = [[YAProgressView alloc] initWithFrame:self.doneRecordingButton.frame];
+    self.animatedRecorder.indeterminate = YES;
+    self.animatedRecorder.radius = self.doneRecordingButton.frame.size.width/2 - 5.0f;
+    self.animatedRecorder.lineWidth = 5;
+    self.animatedRecorder.showsText = NO;
+    self.animatedRecorder.tintColor = [UIColor redColor];
+    [self.animatedRecorder setUserInteractionEnabled:NO];
+    [self.animatedRecorder setBackgroundColor:[UIColor clearColor]];
+    
+    [self.animatedRecorder configureIndeterminatePercent:0.1];
+    
+    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.animatedRecorder.frame];
+    progressBkgView.backgroundColor = [UIColor clearColor];
+    self.animatedRecorder.backgroundView = progressBkgView;
     [self.animatedRecorder setAlpha:0.0];
+    [self.view addSubview:self.animatedRecorder];
+
     [self.doneRecordingButton setAlpha:0.0];
     
-    [UIView animateKeyframesWithDuration:2.0 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+    [UIView animateKeyframesWithDuration:1.618 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
         //
         [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.2 animations:^{
             //
@@ -255,31 +275,20 @@
 
 - (void)showRecordButton {
     
-    self.animatedRecorder = [[YAProgressView alloc] initWithFrame:self.doneRecordingButton.frame];
-    self.animatedRecorder.indeterminate = YES;
-    self.animatedRecorder.radius = self.doneRecordingButton.frame.size.width/2 - 5.0f;
-    self.animatedRecorder.lineWidth = 5;
-    self.animatedRecorder.showsText = NO;
-    self.animatedRecorder.tintColor = [UIColor redColor];
-    [self.animatedRecorder setUserInteractionEnabled:NO];
-    [self.animatedRecorder setBackgroundColor:[UIColor clearColor]];
+    self.doneRecordingButton.transform = CGAffineTransformMakeScale(0.8, 0.8);
+    self.animatedRecorder.transform = CGAffineTransformMakeScale(0.8, 0.8);
     
-    [self.animatedRecorder configureIndeterminatePercent:0.1];
-    
-    UIView *progressBkgView = [[UIView alloc] initWithFrame:self.animatedRecorder.frame];
-    progressBkgView.backgroundColor = [UIColor clearColor];
-    self.animatedRecorder.backgroundView = progressBkgView;
-    [self.animatedRecorder setAlpha:0.0];
-    [self.view addSubview:self.animatedRecorder];
-    
-    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+    [UIView animateWithDuration:.618 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         //
         [self.doneRecordingButton setAlpha:1.0];
         [self.animatedRecorder setAlpha:1.0];
+        
+        self.doneRecordingButton.transform = CGAffineTransformIdentity;
+        self.animatedRecorder.transform = CGAffineTransformIdentity;
     } completion:^(BOOL finished) {
         //
     }];
-
+    
 }
 
 - (void)dealloc {
