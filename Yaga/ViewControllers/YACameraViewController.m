@@ -167,18 +167,19 @@
                                                object:nil];
 
     
-    const CGFloat doneButtonWidth = BUTTON_SIZE*1.5;
+    const CGFloat doneButtonWidth = 90;
     self.doneRecordingButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.doneRecordingButton.frame = CGRectMake((self.cameraView.bounds.size.width - doneButtonWidth)/2, self.cameraView.bounds.size.height - doneButtonWidth - 10, doneButtonWidth, doneButtonWidth);
     self.doneRecordingButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-    [self.doneRecordingButton setImage:[UIImage imageNamed:@"PaperPlane"] forState:UIControlStateNormal];
+    [self.doneRecordingButton setImage:[[UIImage imageNamed:@"Check"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapped) forControlEvents:UIControlEventTouchUpInside];
-//    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(15, 15, 15, 15);
 //    self.doneRecordingButton.tintColor = [UIColor whiteColor];
     [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     self.doneRecordingButton.layer.borderColor = [UIColor whiteColor].CGColor;
     self.doneRecordingButton.layer.borderWidth = 5.0f;
     self.doneRecordingButton.layer.cornerRadius = doneButtonWidth/2;
+    self.doneRecordingButton.imageView.tintColor = [UIColor whiteColor];
     
     [self.doneRecordingButton setAlpha:0.0];
     
