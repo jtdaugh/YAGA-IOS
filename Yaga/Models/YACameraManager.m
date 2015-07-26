@@ -248,7 +248,7 @@
         //
         
         
-        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
+        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:[UIScreen mainScreen].bounds.size fileType:AVFileTypeMPEG4 outputSettings:nil];
         self.movieWriter.encodingLiveVideo = YES;
         self.movieWriter.shouldPassthroughAudio = NO; // default YES
         self.movieWriter.assetWriter.movieFragmentInterval = kCMTimeInvalid;
