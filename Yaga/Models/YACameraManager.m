@@ -252,7 +252,6 @@
         self.movieWriter.encodingLiveVideo = YES;
         self.movieWriter.shouldPassthroughAudio = NO; // default YES
         self.movieWriter.assetWriter.movieFragmentInterval = kCMTimeInvalid;
-        //        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
         self.videoCamera.audioEncodingTarget = self.movieWriter;
         
         [self.videoCamera addTarget:self.movieWriter];
@@ -287,7 +286,6 @@
             [self.videoCamera startCameraCapture];
         });
         completion(self.currentlyRecordingUrl);
-        [[YACameraManager sharedManager] setZoomFactor:1];
     }];
 }
 
@@ -314,6 +312,7 @@
             DLog(@"Stopped recording and NO secondURL");
             completion(recordingUrl);
         }
+        [[YACameraManager sharedManager] setZoomFactor:1];
         
     }];
 }

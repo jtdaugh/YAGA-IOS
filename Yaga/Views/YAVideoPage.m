@@ -144,6 +144,7 @@ static NSString *commentCellID = @"CommentCell";
 
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
+        [_playerView setSmoothLoopingComposition:YES];
         [self addSubview:self.playerView];
         
         // So captions dont spread between videos.

@@ -52,8 +52,7 @@
     
     [self.navigationBar setTranslucent:NO];
     [self.navigationBar setTitleTextAttributes:@{
-                                                 NSForegroundColorAttributeName: SECONDARY_COLOR,
-                                                 NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:20]
+                                                 NSForegroundColorAttributeName: SECONDARY_COLOR
                                                  }];
     
     [self.navigationBar setShadowImage:[UIImage new]];
