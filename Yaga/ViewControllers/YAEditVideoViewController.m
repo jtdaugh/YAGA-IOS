@@ -36,7 +36,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [super viewDidLoad];
     self.startTime = 0.0f;
     self.endTime = CGFLOAT_MAX;
-
+    self.view.backgroundColor = [UIColor blackColor];
+    
     self.videoPlayerView = [[YAVideoPlayerView alloc] initWithFrame:self.view.bounds];
     [self.videoPlayerView setSmoothLoopingComposition:NO];
     [self.videoPlayerView setDontHandleLooping:YES];
@@ -108,6 +109,15 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [self.xButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
     [self.xButton addTarget:self action:@selector(dismissAnimated) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.xButton];
+    
+    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, buttonSize, buttonSize)];
+    [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
+    [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.captionButton];
+}
+
+- (void)captionButtonPressed {
+    #warning implement this
 }
 
 - (void)sendButtonTapped:(id)sender {
@@ -318,6 +328,10 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         }
 
     }
+}
+
+- (BOOL)blockCameraPresentationOnBackground {
+    return YES;
 }
 
 @end

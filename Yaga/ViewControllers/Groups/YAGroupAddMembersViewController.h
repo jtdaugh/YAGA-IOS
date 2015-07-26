@@ -20,4 +20,6 @@
 
 @property (nonatomic, assign) YAVideo *initialVideo;
 
+- (BOOL)blockCameraPresentationOnBackground;
+
 @end
