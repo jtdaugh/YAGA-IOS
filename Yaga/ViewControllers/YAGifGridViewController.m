@@ -147,7 +147,6 @@ static NSString *cellID = @"Cell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    self.navigationItem.title = [YAUser currentUser].currentGroup.name;
     [(YAGroupsNavigationController *)self.navigationController showCameraButton:YES];
 }
 
@@ -208,6 +207,8 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reload {
+    self.navigationItem.title = [YAUser currentUser].currentGroup.name;
+
     BOOL needRefresh = NO;
     if(![YAUser currentUser].currentGroup.videos || ![[YAUser currentUser].currentGroup.videos count])
         needRefresh = YES;

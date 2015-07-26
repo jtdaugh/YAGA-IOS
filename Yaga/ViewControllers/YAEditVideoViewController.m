@@ -296,12 +296,15 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)sendButtonTapped:(id)sender {
-    
     NSMutableArray *groupsToSendTo = [NSMutableArray array];
     for (NSIndexPath *path in [self.groupsTableView indexPathsForSelectedRows]) {
         YAGroup *group = [self.groups objectAtIndex:path.row];
         [groupsToSendTo addObject:group];
     }
+    
+    if (![groupsToSendTo count]) return;
+    
+    [YAUser currentUser].currentGroup = [groupsToSendTo firstObject];
     
     __weak typeof(self) weakSelf = self;
     [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {
