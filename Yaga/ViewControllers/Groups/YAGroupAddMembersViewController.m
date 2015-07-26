@@ -560,4 +560,9 @@
     self.filteredContacts = [[self.deviceContacts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (%K IN %@)", nPhone, memberPhones]] mutableCopy];
     [self.membersTableview reloadData];
 }
+
+- (BOOL)blockCameraPresentationOnBackground {
+    return YES;
+}
+
 @end

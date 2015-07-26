@@ -319,9 +319,20 @@
         YAEditVideoViewController *vc = [YAEditVideoViewController new];
         vc.videoUrl = recordedURL;
         
-        vc.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
+        YAGroupsNavigationController *navVC = (YAGroupsNavigationController *)self.navigationController;
+        vc.transitioningDelegate = navVC;
         vc.modalPresentationStyle = UIModalPresentationCustom;
         
+        CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
+        
+        CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
+        initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
+        //    initialFrame.origin.y += self.view.frame.origin.y;
+        //    initialFrame.origin.x = 0;
+        
+        [navVC setInitialAnimationFrame: initialFrame];
+        [navVC setInitialAnimationTransform:initialTransform];
+
         DLog(@"recording url: %@", recordedURL);
         // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
         // So set the initial frame to the end frame.
@@ -577,5 +588,9 @@
 //            break;
 //    }
 //}
+
+- (BOOL)blockCameraPresentationOnBackground {
+    return YES;
+}
 
 @end

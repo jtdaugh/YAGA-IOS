@@ -23,4 +23,6 @@
 
 - (void)showCameraAccessories:(BOOL)show;
 
+- (BOOL)blockCameraPresentationOnBackground;
+
 @end

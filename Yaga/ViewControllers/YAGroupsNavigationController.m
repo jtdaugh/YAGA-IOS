@@ -40,6 +40,7 @@
     self.delegate = nil;
     self.interactivePopGestureRecognizer.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 }
 
 #pragma mark - UIViewController
@@ -96,6 +97,11 @@
                                              selector:@selector(openGroupOptions)
                                                  name:OPEN_GROUP_OPTIONS_NOTIFICATION
                                                object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
 }
 
 - (void)addCameraButton {
@@ -124,6 +130,56 @@
     [self showCameraButton:NO];
     
 }
+
+- (void)didEnterBackground {
+    if (![self isEqual:[UIApplication sharedApplication].keyWindow.rootViewController]) {
+        // Only the root should be doing this
+        return;
+    }
+    id visibleVC;
+    if (self.presentedViewController) {
+        if (self.presentedViewController.presentedViewController) {
+            visibleVC = self.presentedViewController.presentedViewController;
+        } else {
+            visibleVC = self.presentedViewController;
+        }
+    } else {
+        visibleVC = self.visibleViewController;
+    }
+    SEL presentCameraSelector = @selector(blockCameraPresentationOnBackground);
+    BOOL presentCamera = YES;
+    if ([visibleVC respondsToSelector:presentCameraSelector]) {
+        presentCamera = ![visibleVC performSelector:presentCameraSelector];
+    }
+    if (presentCamera) {
+        [self dismissAnyNecessaryViewControllersAndShowCamera];
+    }
+}
+
+- (void)dismissAnyNecessaryViewControllersAndShowCamera {
+    if (self.presentedViewController) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+    } else {
+        if ([self.viewControllers count] > 2) {
+            self.viewControllers = [self.viewControllers subarrayWithRange:NSMakeRange(0, 2)];
+        }
+    }
+    YACameraViewController *camVC = [YACameraViewController new];
+    camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
+    camVC.modalPresentationStyle = UIModalPresentationCustom;
+    
+    CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
+    
+    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
+    initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
+    //    initialFrame.origin.y += self.view.frame.origin.y;
+    //    initialFrame.origin.x = 0;
+    
+    [self setInitialAnimationFrame: initialFrame];
+    [self setInitialAnimationTransform:initialTransform];
+    //    self.animationController.initialTransform = initialTransform;
+    [self presentViewController:camVC animated:NO completion:nil];}
+
 
 - (void)presentCamera {
     YACameraViewController *camVC = [YACameraViewController new];
