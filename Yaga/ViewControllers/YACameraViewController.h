@@ -7,7 +7,6 @@
 //
 
 #import <AVFoundation/AVFoundation.h>
-#import "AVCamPreviewView.h"
 #import "YASwipeToDismissViewController.h"
 
 @protocol YACameraViewControllerDelegate <NSObject>

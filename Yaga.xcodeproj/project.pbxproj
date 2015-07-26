@@ -64,7 +64,6 @@
 		6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188A61A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m */; };
 		6E9188E41A3F3A5A0034AB63 /* YAPhoneNumberViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */; };
 		6E9188E71A3F3A5A0034AB63 /* YaOnboardingNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B01A3F3A5A0034AB63 /* YaOnboardingNavigationController.m */; };
-		6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B31A3F3A5A0034AB63 /* AVCamPreviewView.m */; };
 		6E9188E91A3F3A5A0034AB63 /* CliquePageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B51A3F3A5A0034AB63 /* CliquePageControl.m */; };
 		6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188B71A3F3A5A0034AB63 /* CliqueTextField.m */; };
 		6E9188EC1A3F3A5A0034AB63 /* GroupDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188BB1A3F3A5A0034AB63 /* GroupDetailView.m */; };
@@ -243,8 +242,6 @@
 		6E9188AA1A3F3A5A0034AB63 /* YAPhoneNumberViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YAPhoneNumberViewController.m; path = ../YAPhoneNumberViewController.m; sourceTree = "<group>"; };
 		6E9188AF1A3F3A5A0034AB63 /* YaOnboardingNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YaOnboardingNavigationController.h; sourceTree = "<group>"; };
 		6E9188B01A3F3A5A0034AB63 /* YaOnboardingNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YaOnboardingNavigationController.m; sourceTree = "<group>"; };
-		6E9188B21A3F3A5A0034AB63 /* AVCamPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVCamPreviewView.h; sourceTree = "<group>"; };
-		6E9188B31A3F3A5A0034AB63 /* AVCamPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVCamPreviewView.m; sourceTree = "<group>"; };
 		6E9188B41A3F3A5A0034AB63 /* CliquePageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliquePageControl.h; sourceTree = "<group>"; };
 		6E9188B51A3F3A5A0034AB63 /* CliquePageControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CliquePageControl.m; sourceTree = "<group>"; };
 		6E9188B61A3F3A5A0034AB63 /* CliqueTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CliqueTextField.h; sourceTree = "<group>"; };
@@ -667,8 +664,6 @@
 				6E583B731A6535C400639BE5 /* YAVideoPlayerView.m */,
 				6E73F4121A4324C0000B3A14 /* YAVideoCell.h */,
 				6E73F4131A4324C0000B3A14 /* YAVideoCell.m */,
-				6E9188B21A3F3A5A0034AB63 /* AVCamPreviewView.h */,
-				6E9188B31A3F3A5A0034AB63 /* AVCamPreviewView.m */,
 				6E9188B41A3F3A5A0034AB63 /* CliquePageControl.h */,
 				6E9188B51A3F3A5A0034AB63 /* CliquePageControl.m */,
 				6E9188B61A3F3A5A0034AB63 /* CliqueTextField.h */,
@@ -1006,7 +1001,6 @@
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
 				6EB57DF81B5E7159003B7374 /* SASliderLeft.m in Sources */,
-				6E9188E81A3F3A5A0034AB63 /* AVCamPreviewView.m in Sources */,
 				6E5F82391B3829C300AFB0CE /* GroupsTableViewCell.m in Sources */,
 				88FB0A261B1D5250002C213C /* YAEventManager.m in Sources */,
 				8890451D1B18FF8700B3C4D7 /* YAEventCell.m in Sources */,

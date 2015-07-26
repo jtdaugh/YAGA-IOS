@@ -72,10 +72,11 @@
     if (self.isInitialized) {
         return;
     }
-    self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
+    self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPresetHigh cameraPosition:AVCaptureDevicePositionBack];
     self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
     self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
     self.zoomFactor = 1.0;
+    [self setupCameraSettings];
     self.isInitialized = YES;
     
     // only init camera if not simulator
@@ -89,6 +90,23 @@
             if (![[self.videoCamera targets] containsObject:self.currentCameraView]) {
                 [self.videoCamera addTarget:self.currentCameraView];
             }
+        }
+    }
+}
+
+- (void)setupCameraSettings {
+    if ([self.videoCamera inputCamera]) {
+        NSError *error = nil;
+        if ([[self.videoCamera inputCamera] lockForConfiguration:&error]) {
+            if([[self.videoCamera inputCamera] isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]){
+                [[self.videoCamera inputCamera] setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+            }
+            
+            if([[self.videoCamera inputCamera] isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]){
+                [[self.videoCamera inputCamera] setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+            }
+            
+            [[self.videoCamera inputCamera] unlockForConfiguration];
         }
     }
 }
