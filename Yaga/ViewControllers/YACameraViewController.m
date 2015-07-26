@@ -85,6 +85,12 @@
     [super viewWillAppear:animated];
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     [[YACameraManager sharedManager] initCamera];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [YACameraManager sharedManager].delegate = self;
+        [[YACameraManager sharedManager] setCameraView:self.cameraView];
+    });
+    
     if (!self.shownViaBackgrounding) {
         [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
     }
@@ -226,13 +232,8 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
 
-    self.recordingTime = [NSDate date];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [YACameraManager sharedManager].delegate = self;
-        [[YACameraManager sharedManager] setCameraView:self.cameraView];
-    });
-
     [self startRecordingAnimation];
+    self.recordingTime = [NSDate date];
 
 }
 
