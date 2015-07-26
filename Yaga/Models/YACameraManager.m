@@ -23,6 +23,8 @@
 @property (strong, nonatomic) GPUImageVideoCamera *videoCamera;
 @property (strong, nonatomic) GPUImageMovieWriter *movieWriter;
 
+@property (nonatomic, strong) UIImage *mostRecentCapturePreviewImage;
+
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchZoomGesture;
 @property (nonatomic, assign) CGFloat zoomFactor;
 @property (nonatomic, assign) CGFloat beginGestureScale;
@@ -183,6 +185,9 @@
         if ([self.backupPath length])
             unlink([self.backupPath UTF8String]); // If a file already exists
         
+        self.mostRecentCapturePreviewImage = nil;
+        self.capturePreviewImage = nil;
+        
         [self startContiniousRecording];
     }
 }
@@ -257,12 +262,20 @@
         [self.videoCamera addTarget:self.movieWriter];
         [self.movieWriter startRecording];
         
-        self.capturePreviewImage = nil;
+        if (self.mostRecentCapturePreviewImage) {
+            // make the preview img from the previous clip the primary preview
+            self.capturePreviewImage = self.mostRecentCapturePreviewImage;
+        }
+        self.mostRecentCapturePreviewImage = nil;
         GPUImageFilter *imgFilter = [GPUImageFilter new];
         [self.videoCamera addTarget:imgFilter];
         
         [imgFilter useNextFrameForImageCapture];
-        self.capturePreviewImage = [imgFilter imageFromCurrentFramebufferWithOrientation:UIImageOrientationUp];
+        self.mostRecentCapturePreviewImage = [imgFilter imageFromCurrentFramebufferWithOrientation:UIImageOrientationUp];
+        if (!self.capturePreviewImage) {
+            // Always want a primary preview img, so if this is the first clip, copy the preview img
+            self.capturePreviewImage = self.mostRecentCapturePreviewImage;
+        }
     });
     
     

@@ -17,6 +17,7 @@
 @interface YAEditVideoViewController ()
 @property (nonatomic, strong) SAVideoRangeSlider *trimmingView;
 @property (nonatomic, strong) YAVideoPlayerView *videoPlayerView;
+@property (nonatomic, strong) UIImageView *previewImageView;
 @property (nonatomic, strong) UIView *bottomView;
 @property (nonatomic, strong) AVAssetExportSession *exportSession;
 @property (nonatomic, strong) UIButton *xButton;
@@ -38,6 +39,11 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.endTime = CGFLOAT_MAX;
     self.view.backgroundColor = [UIColor blackColor];
     
+    self.previewImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    self.previewImageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.previewImageView.image = self.previewImage;
+    [self.view addSubview:self.previewImageView];
+    
     self.videoPlayerView = [[YAVideoPlayerView alloc] initWithFrame:self.view.bounds];
     [self.videoPlayerView setSmoothLoopingComposition:NO];
     [self.videoPlayerView setDontHandleLooping:YES];
@@ -46,7 +52,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.videoPlayerView.delegate = self;
 
     [self.view addSubview:self.videoPlayerView];
-    
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
