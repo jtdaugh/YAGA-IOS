@@ -155,7 +155,7 @@
     }
     
     // Force these updates to happen before app is opened again
-    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
+    [[NSRunLoop currentRunLoop] runUntilDate:[[NSDate date] dateByAddingTimeInterval:0.1]];
 }
 
 - (void)dismissAnyNecessaryViewControllersAndShowCamera {

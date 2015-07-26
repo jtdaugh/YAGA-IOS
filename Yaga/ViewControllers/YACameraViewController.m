@@ -322,6 +322,7 @@
     [[YACameraManager sharedManager] stopContiniousRecordingWithCompletion:^(NSURL *recordedURL) {
         YAEditVideoViewController *vc = [YAEditVideoViewController new];
         vc.videoUrl = recordedURL;
+        vc.previewImage = [[YACameraManager sharedManager] capturePreviewImage];
         
         YAGroupsNavigationController *navVC = (YAGroupsNavigationController *)self.navigationController;
         vc.transitioningDelegate = navVC;

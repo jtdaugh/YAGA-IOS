@@ -13,6 +13,8 @@
 
 @interface YAEditVideoViewController : YASwipeToDismissViewController <SAVideoRangeSliderDelegate, YAVideoPlayerViewDelegate>
 @property (nonatomic, strong) NSURL *videoUrl;
+@property (nonatomic, strong) UIImage *previewImage;
 
 - (BOOL)blockCameraPresentationOnBackground;
+
 @end
