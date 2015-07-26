@@ -431,7 +431,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         [self deleteTrimmedFile];
         
         self.exportSession.outputURL = outputUrl;
-        self.exportSession.outputFileType = AVFileTypeQuickTimeMovie;
+        self.exportSession.outputFileType = AVFileTypeMPEG4;
         
         CMTime start = CMTimeMakeWithSeconds(startTime, anAsset.duration.timescale);
         CMTime duration = CMTimeMakeWithSeconds(stopTime-startTime, anAsset.duration.timescale);
