@@ -108,7 +108,8 @@
     self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
                                                                    self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - (CAMERA_BUTTON_SIZE/2),
                                                                    CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
-    self.cameraButton.backgroundColor = [UIColor clearColor];
+    
+    self.cameraButton.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.7]; // So its not clear on iOS 7
     [self.cameraButton setImage:[[UIImage imageNamed:@"Camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     self.cameraButton.imageView.tintColor = [UIColor whiteColor];
     self.cameraButton.imageEdgeInsets = UIEdgeInsetsMake(-55, 0, 0, 0);
@@ -118,7 +119,7 @@
     self.cameraButton.layer.masksToBounds = YES;
     [self.cameraButton addTarget:self action:@selector(presentCamera) forControlEvents:UIControlEventTouchUpInside];
     
-    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]; // Will still be dark because of translucent black background.
     self.cameraButtonBlur = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
     self.cameraButtonBlur.frame = self.cameraButton.frame;
     self.cameraButtonBlur.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
@@ -130,6 +131,9 @@
     
 }
 
+
+// Any view controller that wants to maintain presence when the app enters background
+// must implement -blockCameraPresentationOnBackground and return YES.
 - (void)didEnterBackground {
     if (![self isEqual:[UIApplication sharedApplication].keyWindow.rootViewController]) {
         // Only the root should be doing this

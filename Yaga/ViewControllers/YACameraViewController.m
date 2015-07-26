@@ -368,6 +368,7 @@
     UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     activityIndicator.center = self.doneRecordingButton.center;
     [activityIndicator startAnimating];
+    
     self.doneRecordingButton.hidden = YES;
     [self.view addSubview:activityIndicator];
     [[YACameraManager sharedManager] stopContiniousRecordingWithCompletion:^(NSURL *recordedURL) {
