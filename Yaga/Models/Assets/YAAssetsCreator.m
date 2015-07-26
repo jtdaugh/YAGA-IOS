@@ -158,50 +158,12 @@
 
 #pragma mark - Queue operations
 
-- (void)createUnsentVideoFromRecodingURL:(NSURL*)recordingUrl completion:(videoOperationCompletion)completion {
-    YAVideo *video = [YAVideo video];
-    
-    NSString *hashStr = [YAUtils uniqueId];
-    NSString *mp4Filename = [hashStr stringByAppendingPathExtension:@"mp4"];
-    NSString *jpgFilename = [hashStr stringByAppendingPathExtension:@"jpg"];
-    NSString *mp4Path = [[YAUtils cachesDirectory] stringByAppendingPathComponent:mp4Filename];
-    NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
-    NSURL    *mp4Url = [NSURL fileURLWithPath:mp4Path];
-    
-    NSError *error;
-    [[NSFileManager defaultManager] moveItemAtURL:recordingUrl toURL:mp4Url error:&error];
-    if(error) {
-        DLog(@"Error in createVideoFromRecodingURL, can't move recording, %@", error);
-        return;
-    }
-    
-    NSDate *currentDate = [NSDate date];
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        video.creator = [[YAUser currentUser] username];
-        video.createdAt = currentDate;
-        video.mp4Filename = mp4Filename;
-        
-        UIImage *previewImage = [YACameraManager sharedManager].capturePreviewImage;
-        if(previewImage != nil) {
-            previewImage = [self deviceSpecificFullscreenImageFromImage:previewImage];
-            if([UIImageJPEGRepresentation(previewImage, 0.6) writeToFile:jpgPath atomically:NO]) {
-                video.jpgFullscreenFilename = jpgFilename;
-            }
-        }
-        
-        
-        if(previewImage == nil)
-            [self enqueueJpgCreationForVideo:video];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:RECORDED_VIDEO_IS_SHOWABLE_NOTIFICAITON object:video userInfo:nil];
-    });
-    
-}
-
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
-                        addToGroup:(YAGroup*)group {
-    YAVideo *video = [YAVideo video];
+                        addToGroups:(NSArray *)groups {
+    if (![groups count]) return;
     
+    YAVideo *video = [YAVideo video];
+    YAGroup *group = [groups firstObject];
     NSString *hashStr = [YAUtils uniqueId];
     NSString *mp4Filename = [hashStr stringByAppendingPathExtension:@"mp4"];
     NSString *jpgFilename = [hashStr stringByAppendingPathExtension:@"jpg"];
@@ -217,11 +179,11 @@
     }
     
     NSDate *currentDate = [NSDate date];
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         video.creator = [[YAUser currentUser] username];
         video.createdAt = currentDate;
         video.mp4Filename = mp4Filename;
-//        video.group = group;
+        video.group = group;
         video.pending = group.publicGroup;
         
         UIImage *previewImage = [YACameraManager sharedManager].capturePreviewImage;
@@ -231,16 +193,36 @@
                 video.jpgFullscreenFilename = jpgFilename;
             }
         }
-                
+        
+        [group.realm beginWriteTransaction];
+        [group.videos insertObject:video atIndex:0];
+        [group.realm commitWriteTransaction];
+        
+        //start uploading while generating gif
+        [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:group];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kNewVideos:@[video]}];
+        
         if(previewImage == nil)
             [self enqueueJpgCreationForVideo:video];
+
+        NSMutableArray *remainingGroupIds = [NSMutableArray array];
+        for (int i = 0; i < [groups count]; i++) {
+            YAGroup *group = groups[i];
+            [remainingGroupIds addObject:group.serverId];
+        }
+        if ([remainingGroupIds count]) {
+            [[YAServer sharedServer] copyVideo:video toGroupsWithIds:remainingGroupIds withCompletion:^(id response, NSError *error) {
+                // No confirmation or anything on completion
+            }];
+        }
     });
     
     //no need to create gif here, recording operation will post GROUP_DID_REFRESH_NOTIFICATION and AssetsCreator will make sure gif is created for the new item
     //in case of two gif operations for the same video there will be the following issue:
     //one operation can create gif earlier and start uploading, second operation will clean up the file for saving new gif date and and that moment zero bytes are read for uploading.
 }
-
+    
 // Was used for stiching switch-cam videos. GPU image made this method unneeded for now
 //- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs
 //                        addToGroup:(YAGroup*)group {

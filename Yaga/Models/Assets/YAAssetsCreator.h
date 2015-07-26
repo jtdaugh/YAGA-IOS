@@ -27,10 +27,8 @@ typedef void (^jpgCompletion)(void);
 
 - (void)addBumberToVideoAtURL:(NSURL*)videoURL completion:(videoOperationCompletion)completion;
 
-- (void)createUnsentVideoFromRecodingURL:(NSURL*)recordingUrl completion:(videoOperationCompletion)completion;
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
-                        addToGroup:(YAGroup*)group;
-
+                       addToGroups:(NSArray *)groups;
 
 //- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs addToGroup:(YAGroup*)group;
 - (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos killExistingJobs:(BOOL)killExisting;

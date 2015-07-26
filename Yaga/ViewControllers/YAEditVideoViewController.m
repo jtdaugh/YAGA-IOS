@@ -297,38 +297,28 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
 - (void)sendButtonTapped:(id)sender {
     
+    NSMutableArray *groupsToSendTo = [NSMutableArray array];
+    for (NSIndexPath *path in [self.groupsTableView indexPathsForSelectedRows]) {
+        YAGroup *group = [self.groups objectAtIndex:path.row];
+        [groupsToSendTo addObject:group];
+    }
+    
+    __weak typeof(self) weakSelf = self;
     [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {
         if(!error) {
             NSError *replaceError;
             NSURL *resultingUrl;
-            [[NSFileManager defaultManager] replaceItemAtURL:self.videoUrl withItemAtURL:[self trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&replaceError];
+            [[NSFileManager defaultManager] replaceItemAtURL:weakSelf.videoUrl withItemAtURL:[weakSelf trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&replaceError];
             if(replaceError) {
                 [YAUtils showNotification:@"Can not save video" type:YANotificationTypeError];
                 return;
             }
-            [self deleteTrimmedFile];
+            [weakSelf deleteTrimmedFile];
+            [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:weakSelf.videoUrl addToGroups:groupsToSendTo];
             
-            if([YAUser currentUser].currentGroup) {
-                [[RLMRealm defaultRealm] beginWriteTransaction];
-                
-                
-//                [[YAUser currentUser].currentGroup.videos insertObject:self.video atIndex:0];
-//                self.video.group = [YAUser currentUser].currentGroup;
-//                [[RLMRealm defaultRealm] commitWriteTransaction];
-//                
-//                
-//                //start uploading while generating gif
-//                [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:self.video toGroup:[YAUser currentUser].currentGroup];
-//                
-//                [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:[YAUser currentUser].currentGroup userInfo:@{kNewVideos:@[self.video]}];
-                
-                [self dismissAnimated];
-            }
-            else {
-                
-                self.bottomView.hidden = YES;
-                self.trimmingView.hidden = YES;
-            }
+            #warning gotta be a better way to dismiss these
+            [weakSelf dismissAnimated];
+            [(YASwipeToDismissViewController *)weakSelf.presentingViewController dismissAnimated];
         }
         else {
             [YAUtils showNotification:@"Error: can't trim video" type:YANotificationTypeError];
