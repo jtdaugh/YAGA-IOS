@@ -203,8 +203,7 @@
         
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kNewVideos:@[video]}];
         
-        if(previewImage == nil)
-            [self enqueueJpgCreationForVideo:video];
+        [self enqueueJpgCreationForVideo:video];
 
         NSMutableArray *remainingGroupIds = [NSMutableArray array];
         for (int i = 0; i < [groups count]; i++) {
