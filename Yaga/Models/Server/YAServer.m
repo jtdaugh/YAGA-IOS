@@ -442,7 +442,7 @@
     
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
-        DLog(@"updated");
+        DLog(@"%@ updated", publicGroups ? @"Public groups" : @"User groups");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         DLog(@"can't fetch remote groups, error: %@", error.localizedDescription);
         completion(nil, error);
@@ -963,7 +963,7 @@
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
                 
                 //current group never updated or updatedAt is older than local?
-                if(![YAUser currentUser].currentGroup.refreshedAt || [[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
+                if([[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
                     [[[YAUser currentUser] currentGroup] refresh];
                 }
             }

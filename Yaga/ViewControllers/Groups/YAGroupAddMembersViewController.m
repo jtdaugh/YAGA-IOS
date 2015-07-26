@@ -99,7 +99,7 @@
     }
     
     __weak typeof(self) weakSelf = self;
-    [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
+    [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts, BOOL sentToServer) {
         if (error) {
             //show error
         }
@@ -337,44 +337,34 @@
                 [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nYagaUser:[NSNumber numberWithBool:NO], nUsername:[YAUtils readableNumberFromString:text],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
             }
         }
-        //add by username
-        else if([text rangeOfString:@" "].location == NSNotFound) {
-            if(text.length > 0) {
-                
-                NSString *contactsPredicate = [[NSString stringWithFormat:@"username BEGINSWITH[c] '%@'", text] stringByReplacingOccurrencesOfString:@"\\" withString:@""];
-                RLMResults *contactsByUsername = [YAContact objectsWhere:contactsPredicate];
-                
-                NSSet *selectedUsernames = [NSSet setWithArray:[self.selectedContacts valueForKey:@"username"]];
-                for(YAContact *contact in contactsByUsername) {
-                    if(![selectedUsernames containsObject:contact.username]) {
-                        NSMutableDictionary *contactDicMutable = [[contact dictionaryRepresentation] mutableCopy];
-                        contactDicMutable[kSearchedByUsername] = [NSNumber numberWithBool:YES];
-                        contactDicMutable[nYagaUser] = [NSNumber numberWithBool:YES];
-                        [self.filteredContacts addObject:contactDicMutable];
-                    }
-                    
-                }
-                
-                NSArray *foundUsernames = [self.filteredContacts valueForKey:nUsername];
-                if(![foundUsernames containsObject:[text lowercaseString]]) {
-                    [self.filteredContacts addObject:@{nCompositeName:text, nFirstname:@"", nLastname:@"", nPhone:@"", nYagaUser:[NSNumber numberWithBool:YES], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
-                }
-            }
-        }
         
         NSArray *keys = [[text lowercaseString] componentsSeparatedByString:@" "];
         
         NSMutableArray *subpredicates = [NSMutableArray array];
         for(NSString *key in keys) {
             if([key length] == 0) { continue; }
-            NSPredicate *p = [NSPredicate predicateWithFormat:@"firstname BEGINSWITH[cd] %@ || lastname BEGINSWITH[cd] %@", key, key];
+            NSPredicate *p = [NSPredicate predicateWithFormat:@"firstname BEGINSWITH[cd] %@ || lastname BEGINSWITH[cd] %@ || username BEGINSWITH[cd] %@", key, key, key];
             [subpredicates addObject:p];
         }
         
         NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates:subpredicates];
         NSArray *filtered = [self.deviceContacts filteredArrayUsingPredicate:predicate];
         
+        //add by useraname
+        if([text rangeOfString:@" "].location == NSNotFound && text.length > 0) {
+            BOOL alreadyFound = NO;
+            for (NSDictionary *contactData in filtered) {
+                if([[contactData[nUsername] lowercaseString] isEqualToString:[text lowercaseString]]) {
+                    alreadyFound = YES;
+                    break;
+                }
+            }
+            if(!alreadyFound)
+                [self.filteredContacts addObject:@{nCompositeName:text, nFirstname:@"", nLastname:@"", nPhone:@"", nYagaUser:[NSNumber numberWithBool:YES], nUsername:text,  kSearchedByUsername:[NSNumber numberWithBool:YES]}];
+        }
+        
         [self.filteredContacts addObjectsFromArray:filtered];
+        
         [self.membersTableview reloadData];
     }
     
@@ -421,6 +411,16 @@
         
         [self.existingGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
             [weakSelf showActivity:NO];
+            
+            BOOL needRefresh = NO;
+            for(NSDictionary *contactData in weakSelf.selectedContacts) {
+                RLMResults *pendingMembers = [weakSelf.existingGroup.pending_members objectsWhere:[NSString stringWithFormat:@"username = '%@' || username = '%@'", [contactData[nUsername] lowercaseString], [contactData[nUsername] capitalizedString]]];
+                if(pendingMembers.count) {
+                    needRefresh = YES;
+                    break;
+                }
+            }
+            
             if(!error) {
                 [[Mixpanel sharedInstance] track:@"Group changed" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
                 
@@ -438,6 +438,9 @@
                 }
             }
 
+            if(needRefresh)
+                [weakSelf.existingGroup refresh];
+            
         }];
     }
     else {

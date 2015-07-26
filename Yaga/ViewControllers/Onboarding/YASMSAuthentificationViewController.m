@@ -10,6 +10,7 @@
 #import "YAServer.h"
 #import "YAUser.h"
 #import "YAUtils.h"
+#import "YAFindGroupsViewConrtoller.h"
 
 @interface YASMSAuthentificationViewController ()
 @property (strong, nonatomic) UIImageView *logo;
@@ -167,6 +168,8 @@
     [self.activityIndicator startAnimating];
     self.nextButton.enabled = NO;
     
+    __weak typeof(self) weakSelf = self;
+    
     [[YAServer sharedServer] requestAuthTokenWithAuthCode:self.codeTextField.text withCompletion:^(id response, NSError *error) {
         if (!error) {
             
@@ -182,36 +185,16 @@
                         [[YAUser currentUser] saveObject:username forKey:nUsername];
                         [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
 
-                        //Get all groups for this user
-                        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-                            if(!error) {
-                                [self performSegueWithIdentifier:@"ShowGroupsAfterAuthentication" sender:self];
-                            }
-                            else {
-                                [self.activityIndicator stopAnimating];
-                                self.nextButton.enabled = YES;
-                                
-                                [YAUtils showNotification:NSLocalizedString(@"Can't load user groups", @"") type:YANotificationTypeError];
-                            }
-                        }];
-                        
-                        [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
-                            if(!error) {
-                                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                                    NSArray *readableArray = [YAUtils readableGroupsArrayFromResponse:response];
-                                    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:readableArray forKey:kFindGroupsCachedResponse];
-                                });
-                            }
-                        }];
-
+                        //show find groups immediately
+                        [weakSelf performSegueWithIdentifier:@"ShowFindGroupsAfterAuthentication" sender:weakSelf];
                     }
                     else {
                         //new user
-                        [self performSegueWithIdentifier:@"UserNameViewController" sender:self];
+                        [weakSelf performSegueWithIdentifier:@"UserNameViewController" sender:weakSelf];
                     }
                 } else {
-                    [self.activityIndicator stopAnimating];
-                    self.nextButton.enabled = YES;
+                    [weakSelf.activityIndicator stopAnimating];
+                    weakSelf.nextButton.enabled = YES;
                     
                     [YAUtils showNotification:NSLocalizedString(@"Can't get user info", @"") type:YANotificationTypeError];
                 }
@@ -228,4 +211,9 @@
     }];
 }
 
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if([segue.destinationViewController isKindOfClass:[YAFindGroupsViewConrtoller class]]) {
+        ((YAFindGroupsViewConrtoller*)segue.destinationViewController).onboardingMode = YES;
+    }
+}
 @end

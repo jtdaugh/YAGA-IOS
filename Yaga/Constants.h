@@ -28,6 +28,8 @@
 #define LOADER_WIDTH 8
 #define LOADER_HEIGHT 8
 
+#define PLAYER_TURNED_DOWN_AUDIO 0.3f
+
 #define MAX_VIDEO_DURATION 15.0 
 
 #define ELEVATOR_MARGIN 50.0
@@ -95,9 +97,11 @@
 #define MIXPANEL_TOKEN @"154e8ff6623bbd104cbccc881adfd0b0"
 #define MIXPANEL_DEBUG_TOKEN @"30b5e350abfdd51dad650da6c8213af6"
 
-#define kPaginationDefaultThreshold 25
+#define kNumberOfItemsAboveToDownload 4
+#define kNumberOfItemsBelowToDownload 12
 
 #define COMMENTS_FONT_SIZE 17.f
+#define LIKE_COUNT_SIZE 13.f
 
 #define kMaxUsersShownInList (5)
 
@@ -111,6 +115,8 @@
 #define kYagaUsersRequested         @"kYagaUsersRequested"
 
 #define kLastPublicGroupsRequestDate @"kLastPublicGroupsRequestDate"
+
+#define kCancelledJoins @"kCancelledJoins"
 
 // Captions
 #define STANDARDIZED_DEVICE_WIDTH 320.f

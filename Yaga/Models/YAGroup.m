@@ -347,6 +347,11 @@
                 YAGroup *group = [YAGroup group];
                 group.name = name;
                 group.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
+
+                //will fix the spinning monkey issue for new groups https://trello.com/c/aMDEodm9/792-monkey-is-spinning-all-the-time-after-group-creation
+                group.updatedAt = [NSDate dateWithTimeIntervalSince1970:1];
+                group.refreshedAt = [NSDate dateWithTimeIntervalSince1970:1];
+                
                 [[RLMRealm defaultRealm] addObject:group];
                 
                 [[RLMRealm defaultRealm] commitWriteTransaction];
@@ -661,6 +666,23 @@
     }
     
     return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos, kDeletedVideos:videosToDelete};
+}
+
+- (BOOL)hasPendingJoin {
+    NSSet *cancelledJoins = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
+    
+    if([self isInvalidated])
+        return NO;
+    
+    for(YAContact *member in self.pending_members) {
+        if([member isInvalidated])
+            continue;
+        
+        if(![cancelledJoins containsObject:member.number])
+            return YES;
+    }
+    
+    return NO;
 }
 
 @end

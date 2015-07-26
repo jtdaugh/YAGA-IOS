@@ -223,8 +223,10 @@
 
     self.currentPageIndex = index;
     
-    if(self.currentPageIndex != self.previousPageIndex)
+    if(self.currentPageIndex != self.previousPageIndex) {
+        [self.delegate swipingController:self scrollToIndex:index];
         [self updatePages:NO];
+    }
     
     self.previousPageIndex = self.currentPageIndex;
 }

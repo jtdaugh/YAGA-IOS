@@ -189,11 +189,6 @@
 }
 
 - (void)endedHold {
-    self.hud = [[MBProgressHUD alloc] initWithWindow:[UIApplication sharedApplication].keyWindow];
-    [[UIApplication sharedApplication].keyWindow addSubview:self.hud];
-    self.hud.labelText = NSLocalizedString(@"Preparing Invite", nil);
-    [self.hud show:YES];
-
     self.suggestQuoteLabel.hidden = NO;
 }
 
@@ -330,17 +325,20 @@
             [friendNumbers addObject:contact[nPhone]];
     }
     
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:videoURL completion:^(NSURL *filePath, NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (error) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Preparing Invite", nil)];
+        [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:videoURL completion:^(NSURL *filePath, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
                 [self.hud hide:NO];
-                DLog(@"error");
-            } else {
-                [self sendiMessageToNumbers:friendNumbers withVidURL:filePath];
-            }
-        });
-        
-                                                                    }];
+                if (error) {
+                    [YAUtils showHudWithText:NSLocalizedString(@"Error occured, try later", @"")];
+                    DLog(@"error");
+                } else {
+                    [self sendiMessageToNumbers:friendNumbers withVidURL:filePath];
+                }
+            });
+        }];
+    });
 }
 
 // Unneccessarily long method :/

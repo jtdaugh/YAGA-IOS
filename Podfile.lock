@@ -68,8 +68,7 @@ DEPENDENCIES:
   - APAddressBook (~> 0.0.7)
   - FBSDKShareKit
   - Firebase (>= 2.3.1)
-  - FLAnimatedImage (from `https://github.com/yagainc/FLAnimatedImage.git`, commit
-    `88349698c94dc52ed161d2a1f0c97b9b36d4e046`)
+  - FLAnimatedImage (from `https://github.com/yagainc/FLAnimatedImage.git`)
   - FrameAccessor (~> 1.0)
   - GPUImage (from `https://github.com/yagainc/GPUImage.git`, commit `714beb8f3d8a477245d95b1610ccdd40f7867019`)
   - Harpy
@@ -86,7 +85,6 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   FLAnimatedImage:
-    :commit: 88349698c94dc52ed161d2a1f0c97b9b36d4e046
     :git: https://github.com/yagainc/FLAnimatedImage.git
   GPUImage:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019
@@ -94,7 +92,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   FLAnimatedImage:
-    :commit: 88349698c94dc52ed161d2a1f0c97b9b36d4e046
+    :commit: 89cbbcd65cbf065e6e6b157ddfd1a7eb4306cd52
     :git: https://github.com/yagainc/FLAnimatedImage.git
   GPUImage:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019

@@ -443,6 +443,8 @@ typedef enum {
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self initCamera];
+    
+    [self updateCameraButtonsWithMode:self.cameraButtonsMode];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -1033,11 +1035,15 @@ typedef enum {
 #pragma mark Group Notifications
 - (void)groupDidRefresh:(NSNotification*)notification {
     [self updateUnviewedVideosBadge];
+    
+    [self updateCameraButtonsWithMode:self.cameraButtonsMode];
 }
 
 
 - (void)groupDidChange:(NSNotification *)notification {
     [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
+    
+    [self updateCameraButtonsWithMode:self.cameraButtonsMode];
 }
 
 #pragma mark Settings
@@ -1142,7 +1148,12 @@ typedef enum {
         //right button
         self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, (VIEW_HEIGHT/2 - INFO_SIZE - INFO_PADDING*2) + 5, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
         [self.rightBottomButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.rightBottomButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
+        UIImage *infoButtonImage = [UIImage imageNamed:@"InfoWhite"];
+        if([YAUser currentUser].currentGroup.hasPendingJoin) {
+            infoButtonImage = [infoButtonImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            self.rightBottomButton.tintColor = PRIMARY_COLOR;
+        }
+        [self.rightBottomButton setImage:infoButtonImage forState:UIControlStateNormal];
         [self.rightBottomButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
         self.rightBottomButton.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.rightBottomButton.layer.shadowRadius = 1.0f;
@@ -1163,15 +1174,10 @@ typedef enum {
             self.logo.hidden = YES;
         }];
     }
-
-    
 }
-
 
 - (void)showHumanityTooltip {
     [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_HUMANITY_VISIT_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_HUMANITY_VISIT_BODY", @"") dismissText:@"Got it" addToView:self.parentViewController.view] show];
 }
-
-
 
 @end

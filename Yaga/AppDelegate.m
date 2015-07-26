@@ -175,7 +175,7 @@
     
     //handle push for case when app wasn't in background
     NSDictionary *pushInfo = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
-    if(pushInfo) {
+    if(pushInfo && pushInfo[@"meta"]) {
         [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:@{@"meta":pushInfo[@"meta"]}];
     }
 
@@ -280,10 +280,16 @@
             [self.notificationView showMessage:alert viewType:YANotificationTypeMessage actionHandler:nil];
         }
         else {
-            //only handle push if notification message is tapped
-            [self.notificationView showMessage:alert viewType:YANotificationTypeMessage actionHandler:^{
-                [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:userInfo];
-            }];
+            if([[YAPushNotificationHandler sharedHandler] shouldHandlePushEvent:userInfo]) {
+                //only handle push if notification message is tapped
+                [self.notificationView showMessage:alert viewType:YANotificationTypeMessage actionHandler:^{
+                    [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:userInfo];
+                }];
+            }
+            else {
+                //no handling when message is tapped
+                [self.notificationView showMessage:alert viewType:YANotificationTypeMessage actionHandler:nil];
+            }
         }
     }
     else {

@@ -8,7 +8,7 @@ target 'Yaga', :exclusive => true do
 	pod 'APAddressBook', '~> 0.0.7'
 	pod 'libPhoneNumber-iOS', '~> 0.7'
 	pod 'FrameAccessor', '~> 1.0'
-	pod 'FLAnimatedImage', :git => 'https://github.com/yagainc/FLAnimatedImage.git', :commit => '88349698c94dc52ed161d2a1f0c97b9b36d4e046'
+	pod 'FLAnimatedImage', :git => 'https://github.com/yagainc/FLAnimatedImage.git'
 	pod 'NSDate-Time-Ago', :inhibit_warnings => true
 	pod 'SVPullToRefresh'
 	pod 'UCZProgressView'
@@ -40,6 +40,3 @@ post_install do |installer_representation|
         end
     end
 end
-
-
-

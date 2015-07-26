@@ -199,39 +199,47 @@
             }
             if(completion)
             {
-                completion(nil, result);
+                completion(nil, result, NO);
                 
                 NSDate *lastRequested = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kLastYagaUsersRequestDate];
                 
                 //request yaga users once per hour
                 if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60]] == NSOrderedDescending) {
                     [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
-                        NSMutableDictionary *yagaUserDictionary = [NSMutableDictionary new];
-                        
-                        for(NSDictionary *yagaUserDic in response) {
-                            NSString *phone = yagaUserDic[nPhone];
+                        if(error) {
+                            if (completion)
+                                completion(error, nil, NO);
+                        }
+                        else {
+                            NSMutableDictionary *yagaUserDictionary = [NSMutableDictionary new];
                             
-                            if(!phone.length)
-                                continue;
-                            
-                            NSMutableDictionary *phonebookItem = [self.phonebook objectForKey:phone];
-                            
-                            if(phonebookItem) {
-                                [phonebookItem setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];
-                                NSString *username = yagaUserDic[nName];
-                                if([username isKindOfClass:[NSString class]] && username.length != 0)
-                                    [phonebookItem setObject:username forKey:nUsername];
+                            for(NSDictionary *yagaUserDic in response) {
+                                NSString *phone = yagaUserDic[nPhone];
                                 
-                                [self.phonebook setObject:phonebookItem forKey:phone];
+                                if(!phone.length)
+                                    continue;
+                                
+                                NSMutableDictionary *phonebookItem = [self.phonebook objectForKey:phone];
+                                
+                                if(phonebookItem) {
+                                    [phonebookItem setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];
+                                    NSString *username = yagaUserDic[nName];
+                                    if([username isKindOfClass:[NSString class]] && username.length != 0)
+                                        [phonebookItem setObject:username forKey:nUsername];
+                                    
+                                    [self.phonebook setObject:phonebookItem forKey:phone];
+                                }
+                                
+                                [yagaUserDictionary setObject:yagaUserDic forKey:phone];
                             }
                             
-                            [yagaUserDictionary setObject:yagaUserDic forKey:phone];
+                            [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastYagaUsersRequestDate];
+                            [[NSUserDefaults standardUserDefaults] setObject:yagaUserDictionary forKey:kYagaUsersRequested];
+                            
+                            if(completion)
+                                completion(nil, result, YES);
                         }
-                        
-                        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[NSDate date] forKey:kLastYagaUsersRequestDate];
-                        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:yagaUserDictionary forKey:kYagaUsersRequested];
-                        
-                        completion(nil, result);
+
                     }];
                 }
             }
@@ -239,7 +247,7 @@
         else
         {
             if(completion)
-                completion([NSError errorWithDomain:@"NO DOMAIN" code:0 userInfo:nil], nil);
+                completion([NSError errorWithDomain:@"NO DOMAIN" code:0 userInfo:nil], nil, NO);
         }
     }];
 }

@@ -52,6 +52,9 @@
     
     NSString *stringUrl = gifJob ? video.gifUrl : video.url;
     
+    if(!stringUrl.length)
+        return nil;
+    
     //do nothing if job is enqueued already
     if([self.downloadJobs.allKeys containsObject:stringUrl])
         return self.downloadJobs[stringUrl];
@@ -144,6 +147,7 @@
 }
 
 - (void)resumeJobs {
+    DLog(@"Resume jobs called");
     if([self nextUrl]) {
         //fill in the executing queue to the max capacity
         while (self.executingUrls.count < self.maxConcurentJobs && [self nextUrl]) {
@@ -170,9 +174,11 @@
                         YAVideo *video = results[0];
                         
                         nextJob = [self createJobForVideo:video gifJob:gifJob];
-                        [self.downloadJobs setObject:nextJob forKey:waitingUrl];
-                        
-                        [nextJob start];
+                        if(nextJob) {
+                            [self.downloadJobs setObject:nextJob forKey:waitingUrl];
+                            
+                            [nextJob start];
+                        }
                     }
                 });
             }
@@ -196,7 +202,9 @@
     
     self.waiting_semaphore = dispatch_semaphore_create(0);
     
+    DLog(@"Waiting Until All Jobs Are Finished");
     dispatch_semaphore_wait(self.waiting_semaphore, DISPATCH_TIME_FOREVER);
+    DLog(@"Done waiting for jobs to Finish");
 }
 
 - (void)cancelAllJobs {
@@ -237,6 +245,9 @@
     [self pauseExecutingJobs];
     
     AFDownloadRequestOperation *nextJob = [self createJobForVideo:video gifJob:NO];
+    if(!nextJob)
+        return;
+    
     [self.downloadJobs setObject:nextJob forKey:video.url];
     if(nextJob.isPaused)
         [nextJob resume];

@@ -8,10 +8,10 @@
 
 #import "UsernameViewController.h"
 #import "YAUser.h"
-#import "YAGroupsViewController.h"
 #import "YAServer.h"
 #import "YAUtils.h"
 #import "NSDictionary+ResponseObject.h"
+#import "YAFindGroupsViewConrtoller.h"
 
 @interface UsernameViewController ()
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
@@ -118,48 +118,30 @@
     //
     __weak typeof(self) weakSelf = self;
     [[YAServer sharedServer] registerUsername:self.usernameTextField.text
-                                             withCompletion:^(id response, NSError *error) {
-                                                 if(error) {
-                                                     [weakSelf.activityIndicator stopAnimating];
-                                                     self.nextButton.enabled = YES;
-                                                     NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:response withError:nil];
-                                                     if(dict && dict[nName]) {
-                                                         NSString *serverError = [dict[nName] componentsJoinedByString:@"\n"];
-                                                         [YAUtils showNotification:serverError type:YANotificationTypeError];
-                                                     }
-                                                     else
-                                                         [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
-                                                 }
-                                                 else {
-                                                     [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
-                                                     [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
-
-                                                     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-                                                         
-                                                         if(!error) {
-                                                             // TODO: Adjust mixpanel for humanity
-                                                             if([YAGroup allObjects].count) {
-                                                                 [[Mixpanel sharedInstance] track:@"Onboarding user already a part of some groups"];
-                                                             }
-                                                             else {
-                                                                 [[Mixpanel sharedInstance] track:@"Onboarding user doesn't have any groups"];
-                                                             }
-                                                             [self performSegueWithIdentifier:@"MyGroupsFromUsername" sender:self];
-                                                         }
-                                                         else {
-                                                             [weakSelf.activityIndicator stopAnimating];
-                                                             self.nextButton.enabled = YES;
-                                                             
-                                                             [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
-                                                         }
-                                                     }];
-                                                 }
-                                             }];
+                               withCompletion:^(id response, NSError *error) {
+                                   if(error) {
+                                       [weakSelf.activityIndicator stopAnimating];
+                                       weakSelf.nextButton.enabled = YES;
+                                       NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:response withError:nil];
+                                       if(dict && dict[nName]) {
+                                           NSString *serverError = [dict[nName] componentsJoinedByString:@"\n"];
+                                           [YAUtils showNotification:serverError type:YANotificationTypeError];
+                                       }
+                                       else
+                                           [YAUtils showNotification:error.localizedDescription type:YANotificationTypeError];
+                                   }
+                                   else {
+                                       [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
+                                       [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
+                                       
+                                       [weakSelf performSegueWithIdentifier:@"ShowFindGroupsAfterUsername" sender:weakSelf];
+                                   }
+                               }];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[YAGroupsViewController class]]) {
+    if([segue.destinationViewController isKindOfClass:[YAFindGroupsViewConrtoller class]]) {
+        ((YAFindGroupsViewConrtoller*)segue.destinationViewController).onboardingMode = YES;
     }
 }
-
 @end

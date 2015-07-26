@@ -105,7 +105,7 @@
         runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
         NSNumber *value = currentData.value;
         if (currentData.value == [NSNull null]) {
-            value = 0;
+            value = nil;
         }
         [currentData setValue:[NSNumber numberWithInt:(1 + [value intValue])]];
         return [FTransactionResult successWithValue:currentData];

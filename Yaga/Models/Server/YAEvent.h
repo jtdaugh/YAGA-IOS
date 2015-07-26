@@ -22,6 +22,7 @@ typedef NS_ENUM(NSUInteger, YAEventType) {
 @property (nonatomic, strong) NSString *key;
 @property (nonatomic, strong) NSString *username;
 @property (nonatomic, strong) NSString *comment;
+@property (nonatomic, strong) NSNumber *likeCount;
 @property (nonatomic, strong) NSString *timestamp;
 
 - (NSDictionary *)toDictionary;
