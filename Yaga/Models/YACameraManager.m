@@ -11,7 +11,7 @@
 
 #define MAX_ZOOM_SCALE 4.f
 
-#define BACKUP_RECORDING_SECONDS 20
+#define BACKUP_RECORDING_SECONDS 15
 
 @implementation YACameraView
 @end
