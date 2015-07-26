@@ -80,7 +80,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     BOOL result = [composition insertTimeRange:editRange ofAsset:sourceAsset atTime:composition.duration error:&editError];
     
     if (result) {
-        for (int i = 0; i < NUM_OF_COPIES; i++) {
+        for (int i = 0; i < [self numberOfCopies]; i++) {
             [composition insertTimeRange:editRange ofAsset:sourceAsset atTime:composition.duration error:&editError];
         }
     }
@@ -120,7 +120,12 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
          */
         AVAsset *originalAsset = [AVURLAsset URLAssetWithURL:self.URL options:nil];
         
-        AVAsset *asset = [self makeAssetCompositionFromAsset:originalAsset];
+        AVAsset *asset;
+        if(self.smoothLoopingComposition){
+            asset = [self makeAssetCompositionFromAsset:originalAsset];
+        } else {
+            asset = originalAsset;
+        }
         
         NSArray *requestedKeys = @[@"playable"];
         
@@ -147,7 +152,9 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     [[YAViewCountManager sharedManager] stoppedWatchingVideo];
     [self.player removeObserver:self forKeyPath:@"currentItem"];
     [self.player removeObserver:self forKeyPath:@"rate"];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
+    if(!self.dontHandleLooping){
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
+    }
     [self.playerItem removeObserver:self forKeyPath:@"status"];
     
     [self.player pause];
@@ -202,7 +209,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     /* At this point we're ready to set up for playback of the asset. */
     
     /* Stop observing our prior AVPlayerItem, if we have one. */
-    if (self.playerItem)
+    if (self.playerItem && !self.dontHandleLooping)
     {
         /* Remove existing player item key value observers and notifications. */
         [self.playerItem removeObserver:self forKeyPath:@"status"];
@@ -222,10 +229,13 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
                               forKeyPath:@"status"
                                  options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
                                  context:AVPlayerDemoPlaybackViewControllerStatusObservationContext];
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(playerItemDidReachEnd:)
-                                                         name:AVPlayerItemDidPlayToEndTimeNotification
-                                                       object:self.playerItem];
+            
+            if(!self.dontHandleLooping){
+                [[NSNotificationCenter defaultCenter] addObserver:self
+                                                         selector:@selector(playerItemDidReachEnd:)
+                                                             name:AVPlayerItemDidPlayToEndTimeNotification
+                                                           object:self.playerItem];
+            }
             
             
             /* Create new player, if we don't already have one. */
@@ -349,7 +359,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)play {
-    float singlePlayTime = CMTimeGetSeconds(self.playerItem.asset.duration) / (float) NUM_OF_COPIES;
+    float singlePlayTime = CMTimeGetSeconds(self.playerItem.asset.duration) / (float) [self numberOfCopies];
     [[YAViewCountManager sharedManager] didBeginWatchingVideoWithInterval:singlePlayTime];
     
     [self.player play];
@@ -369,13 +379,26 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     
     self.playbackObserver = [self.player addPeriodicTimeObserverForInterval:interval queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
         CGFloat endTime = CMTimeGetSeconds(weakSelf.player.currentItem.asset.duration);
-//        CMTime endTime = CMTimeConvertScale (weakSelf.player.currentItem.asset.duration, weakSelf.player.currentTime.timescale, kCMTimeRoundingMethod_RoundHalfAwayFromZero);
+        
         if (endTime != 0) {
             CGFloat currentTime = CMTimeGetSeconds(weakSelf.player.currentTime);
-            CGFloat normalizedTime = fmodf(currentTime, endTime/NUM_OF_COPIES);
-            [weakSelf playbackProgressChanged:normalizedTime duration:endTime/NUM_OF_COPIES];
+            CGFloat normalizedTime;
+            if(self.dontHandleLooping){
+                normalizedTime = currentTime;
+            } else {
+                normalizedTime = fmodf(currentTime, endTime/[weakSelf numberOfCopies]);
+            }
+            [weakSelf playbackProgressChanged:normalizedTime duration:endTime/[weakSelf numberOfCopies]];
         }
     }];
+}
+
+- (CGFloat) numberOfCopies {
+    if(self.smoothLoopingComposition){
+        return NUM_OF_COPIES;
+    } else {
+        return 1;
+    }
 }
 
 - (void)pause {

@@ -38,9 +38,12 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.endTime = CGFLOAT_MAX;
 
     self.videoPlayerView = [[YAVideoPlayerView alloc] initWithFrame:self.view.bounds];
+    [self.videoPlayerView setSmoothLoopingComposition:NO];
+    [self.videoPlayerView setDontHandleLooping:YES];
     self.videoPlayerView.URL = self.videoUrl;
     self.videoPlayerView.playWhenReady = YES;
     self.videoPlayerView.delegate = self;
+
     [self.view addSubview:self.videoPlayerView];
     
 }
@@ -290,24 +293,24 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 - (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
     if(!self.dragging){
         
+        CGFloat end = (self.endTime == CGFLOAT_MAX) ? duration : self.endTime;
+
         // if is end time, loop back to the start time
-        if(progress < .02){
-            NSLog(@"progress: %f", progress);
-            NSLog(@"duration: %f", duration);
-            NSLog(@"progress/duration: %f", progress/duration);
+        if(progress){
+//            NSLog(@"progress: %f", progress);
+//            NSLog(@"duration: %f", duration);
+//            NSLog(@"progress/duration: %f", progress/duration);
             
         }
         
-        if(progress > self.endTime){
+        if(progress >= end){
             
             [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
             }];
         } else {
-            if((progress - self.startTime) > 0){
-                CGFloat end = (self.endTime == CGFLOAT_MAX) ? duration : self.endTime;
+            if((progress - self.startTime) >= 0){
                 CGFloat normalizedProgress = (progress - self.startTime)/(end - self.startTime);
                 [self.trimmingView setPlayerProgress:normalizedProgress];
-                
             } else {
                 [self.trimmingView setPlayerProgress:0.0];
             }

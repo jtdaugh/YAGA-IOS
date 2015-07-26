@@ -23,6 +23,8 @@
 
 @property (nonatomic, assign) BOOL playWhenReady;
 @property (nonatomic, assign) BOOL readyToPlay;
+@property (nonatomic, assign) BOOL smoothLoopingComposition;
+@property (nonatomic, assign) BOOL dontHandleLooping;
 
 @property (nonatomic, weak) id<YAVideoPlayerViewDelegate> delegate;
 
