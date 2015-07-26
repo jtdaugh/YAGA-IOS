@@ -61,6 +61,7 @@
 @property (strong, nonatomic) UIButton *gridButton;
 
 @property (strong, nonatomic) YAProgressView *animatedRecorder;
+@property (strong, nonatomic) UIView *recordingCircle;
 
 @property (nonatomic) BOOL audioInputAdded;
 
@@ -177,15 +178,21 @@
     self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(15, 15, 15, 15);
 //    self.doneRecordingButton.tintColor = [UIColor whiteColor];
     [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    self.doneRecordingButton.layer.borderColor = [UIColor whiteColor].CGColor;
-    self.doneRecordingButton.layer.borderWidth = 5.0f;
-    self.doneRecordingButton.layer.cornerRadius = doneButtonWidth/2;
     self.doneRecordingButton.imageView.tintColor = [UIColor whiteColor];
     
     [self.doneRecordingButton setAlpha:0.0];
     
     [self.view addSubview:self.doneRecordingButton];
 
+    self.recordingCircle = [[UIView alloc] initWithFrame:self.doneRecordingButton.frame];
+    
+    self.recordingCircle.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.recordingCircle.layer.borderWidth = 5.0f;
+    self.recordingCircle.layer.cornerRadius = doneButtonWidth/2;
+    [self.recordingCircle setAlpha:0.0];
+    [self.view addSubview:self.recordingCircle];
+
+    
     self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BUTTON_SIZE - 10, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
     self.gridButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     [self.gridButton setImage:[UIImage imageNamed:@"Grid"] forState:UIControlStateNormal];
@@ -260,39 +267,58 @@
 
     [self.doneRecordingButton setAlpha:0.0];
     
-    [UIView animateKeyframesWithDuration:1.618 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
-        //
-        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.2 animations:^{
-            //
-            [self.recordingMessage setAlpha:1.0];
-        }];
-
-        [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
-            //
-            [self.recordingMessage setAlpha:0.0];
-        }];
-    } completion:^(BOOL finished) {
-        //
-        [self showRecordButton];
-    }];
+    [self showRecordButton];
+//    [UIView animateKeyframesWithDuration:1.618 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
+//        //
+//        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.2 animations:^{
+//            //
+//            [self.recordingMessage setAlpha:1.0];
+//        }];
+//
+//        [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
+//            //
+//            [self.recordingMessage setAlpha:0.0];
+//        }];
+//    } completion:^(BOOL finished) {
+//        //
+//        [self showRecordButton];
+//    }];
     
-}
-
-- (void)showRecordButton {
-    
-    self.doneRecordingButton.transform = CGAffineTransformMakeScale(0.8, 0.8);
+//    self.doneRecordingButton.transform = CGAffineTransformMakeScale(0.8, 0.8);
     self.animatedRecorder.transform = CGAffineTransformMakeScale(0.8, 0.8);
+    
+    [self.animatedRecorder setCustomText:@"REC"];
     
     [UIView animateWithDuration:.618 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         //
-        [self.doneRecordingButton setAlpha:1.0];
         [self.animatedRecorder setAlpha:1.0];
-        
-        self.doneRecordingButton.transform = CGAffineTransformIdentity;
+        [self.recordingCircle setAlpha:1.0];
         self.animatedRecorder.transform = CGAffineTransformIdentity;
     } completion:^(BOOL finished) {
         //
     }];
+    
+    [UIView animateWithDuration:.618 delay:0.618*2 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+        //
+        [self.animatedRecorder.textLabel setAlpha:0.0];
+        [self.animatedRecorder.textLabel setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
+    } completion:^(BOOL finished) {
+        //
+    }];
+
+    [self.doneRecordingButton setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
+    [UIView animateWithDuration:.618 delay:0.618*2.5 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
+        //
+        [self.doneRecordingButton setAlpha:1.0];
+        [self.doneRecordingButton setTransform:CGAffineTransformIdentity];
+    } completion:^(BOOL finished) {
+        //
+    }];
+
+}
+
+- (void)showRecordButton {
+    
     
 }
 
