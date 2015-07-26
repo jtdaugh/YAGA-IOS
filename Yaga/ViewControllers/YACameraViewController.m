@@ -175,7 +175,7 @@
     self.doneRecordingButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     [self.doneRecordingButton setImage:[[UIImage imageNamed:@"PaperPlane"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapped) forControlEvents:UIControlEventTouchUpInside];
-    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(15, 15, 15, 15);
+    self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(25, 25, 25, 25);
 //    self.doneRecordingButton.tintColor = [UIColor whiteColor];
     [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     self.doneRecordingButton.imageView.tintColor = [UIColor whiteColor];
