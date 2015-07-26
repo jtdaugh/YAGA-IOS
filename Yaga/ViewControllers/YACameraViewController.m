@@ -326,6 +326,8 @@
         vc.transitioningDelegate = navVC;
         vc.modalPresentationStyle = UIModalPresentationCustom;
         
+        vc.showsStatusBarOnDismiss = NO;
+        
         CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
         
         CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);

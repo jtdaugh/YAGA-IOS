@@ -484,6 +484,7 @@ static NSString *cellID = @"Cell";
     swipingVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
     
+    swipingVC.showsStatusBarOnDismiss = YES;
     
     CGRect initialFrame = attributes.frame;
     initialFrame.origin.y -= self.collectionView.contentOffset.y;

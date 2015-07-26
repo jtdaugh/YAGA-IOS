@@ -110,15 +110,15 @@
                                                                    CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
     self.cameraButton.backgroundColor = [UIColor clearColor];
     [self.cameraButton setImage:[[UIImage imageNamed:@"Camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    self.cameraButton.imageView.tintColor = PRIMARY_COLOR;
+    self.cameraButton.imageView.tintColor = [UIColor whiteColor];
     self.cameraButton.imageEdgeInsets = UIEdgeInsetsMake(-55, 0, 0, 0);
     self.cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
-//    self.cameraButton.layer.borderColor = [PRIMARY_COLOR CGColor];
-//    self.cameraButton.layer.borderWidth = 1.f;
+    self.cameraButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+    self.cameraButton.layer.borderWidth = 2.f;
     self.cameraButton.layer.masksToBounds = YES;
     [self.cameraButton addTarget:self action:@selector(presentCamera) forControlEvents:UIControlEventTouchUpInside];
     
-    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
     self.cameraButtonBlur = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
     self.cameraButtonBlur.frame = self.cameraButton.frame;
     self.cameraButtonBlur.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
@@ -170,6 +170,8 @@
     camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
     camVC.modalPresentationStyle = UIModalPresentationCustom;
     
+    camVC.showsStatusBarOnDismiss = YES;
+    
     CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
     
     CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
@@ -190,6 +192,8 @@
     camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
     camVC.modalPresentationStyle = UIModalPresentationCustom;
     
+    camVC.showsStatusBarOnDismiss = YES;
+
     CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
     
     CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
@@ -234,6 +238,8 @@
         YACameraViewController *camVC = [YACameraViewController new];
         camVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
         camVC.modalPresentationStyle = UIModalPresentationCustom;
+        camVC.showsStatusBarOnDismiss = YES;
+
         [self presentViewController:camVC animated:NO completion:^{
             [self.overlay removeFromSuperview];
         }];
