@@ -175,11 +175,14 @@
     self.doneRecordingButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     [self.doneRecordingButton setImage:[[UIImage imageNamed:@"PaperPlane"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapDown) forControlEvents:UIControlEventTouchDown];
+    [self.doneRecordingButton addTarget:self action:@selector(doneRecordingTapCancel) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchDragExit | UIControlEventTouchDragOutside | UIControlEventTouchCancel];
+
     self.doneRecordingButton.imageEdgeInsets = UIEdgeInsetsMake(25, 25, 25, 25);
 //    self.doneRecordingButton.tintColor = [UIColor whiteColor];
     [self.doneRecordingButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     self.doneRecordingButton.imageView.tintColor = [UIColor whiteColor];
-    
+    self.doneRecordingButton.adjustsImageWhenHighlighted = YES;
     [self.doneRecordingButton setAlpha:0.0];
     
     [self.view addSubview:self.doneRecordingButton];
@@ -236,6 +239,17 @@
     self.recordingMessage.alpha = 0.0;
     [self.view addSubview:self.recordingMessage];
 }
+
+- (void)doneRecordingTapDown {
+    self.panGesture.enabled = NO;
+    self.recordingCircle.layer.borderColor = [[UIColor lightGrayColor] CGColor];
+}
+
+- (void)doneRecordingTapCancel {
+    self.panGesture.enabled = YES;
+    self.recordingCircle.layer.borderColor = [[UIColor whiteColor] CGColor];
+}
+
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
@@ -338,7 +352,6 @@
 
 //val: refactor, method copied from endHold but without if(self.recording) condition
 - (void)doneRecordingTapped {
-    
     if(self.flash){
         [self setFlashMode:NO];
     }
@@ -352,6 +365,7 @@
 }
 
 - (void)stopRecordingVideo {
+    MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Activating time machine..."];
     [[YACameraManager sharedManager] stopContiniousRecordingWithCompletion:^(NSURL *recordedURL) {
         YAEditVideoViewController *vc = [YAEditVideoViewController new];
         vc.videoUrl = recordedURL;
@@ -376,7 +390,9 @@
         DLog(@"recording url: %@", recordedURL);
         // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
         // So set the initial frame to the end frame.
-        [self presentViewController:vc animated:YES completion:nil];
+        [self presentViewController:vc animated:YES completion:^{
+            [hud hide:NO];
+        }];
 
     }];
 }
