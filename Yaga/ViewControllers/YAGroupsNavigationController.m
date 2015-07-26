@@ -167,6 +167,8 @@
     camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
     camVC.modalPresentationStyle = UIModalPresentationCustom;
     
+    camVC.showsStatusBarOnDismiss = YES;
+    
     CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
     
     CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
@@ -185,6 +187,8 @@
     camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
     camVC.modalPresentationStyle = UIModalPresentationCustom;
     
+    camVC.showsStatusBarOnDismiss = YES;
+
     CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
     
     CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
@@ -229,6 +233,8 @@
         YACameraViewController *camVC = [YACameraViewController new];
         camVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
         camVC.modalPresentationStyle = UIModalPresentationCustom;
+        camVC.showsStatusBarOnDismiss = YES;
+
         [self presentViewController:camVC animated:NO completion:^{
             [self.overlay removeFromSuperview];
         }];

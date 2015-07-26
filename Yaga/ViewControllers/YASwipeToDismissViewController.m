@@ -22,6 +22,7 @@
     self.panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
     [self.panGesture setMaximumNumberOfTouches:1];
     [self.view addGestureRecognizer:self.panGesture];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -34,7 +35,10 @@
     if(self.dismissed)
         return;
     
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    if(self.showsStatusBarOnDismiss){
+        [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    }
+
     
     CGPoint vel = [rec velocityInView:self.view];
     CGPoint tr = [rec translationInView:self.view];
@@ -71,7 +75,9 @@
 - (void)dismissAnimated:(BOOL)dismissToBottom {
     
     self.dismissed = YES;
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    if(self.showsStatusBarOnDismiss){
+        [[UIApplication sharedApplication] setStatusBarHidden:NO];        
+    }
     
     //dismiss
     CGFloat y = [UIScreen mainScreen].bounds.size.height * .5;
