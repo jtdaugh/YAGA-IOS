@@ -289,6 +289,12 @@
     self.animatedRecorder.transform = CGAffineTransformMakeScale(0.8, 0.8);
     
     [self.animatedRecorder setCustomText:@"REC"];
+    self.animatedRecorder.textLabel.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.animatedRecorder.textLabel.layer.shadowOffset = CGSizeMake(1.0f, 1.0f);
+    self.animatedRecorder.textLabel.layer.shadowRadius = 0.0f;
+    self.animatedRecorder.textLabel.layer.shadowOpacity = 1.0f;
+    self.recordingMessage.alpha = 0.0;
+
     
     [UIView animateWithDuration:.618 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         //
