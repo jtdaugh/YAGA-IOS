@@ -20,6 +20,7 @@
 
 @property (weak, nonatomic) id<YACameraViewControllerDelegate> delegate;
 @property (strong, nonatomic) NSNumber *recording;
+@property (nonatomic) BOOL shownViaBackgrounding;
 
 - (void)showCameraAccessories:(BOOL)show;
 

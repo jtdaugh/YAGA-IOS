@@ -153,6 +153,9 @@
     if (presentCamera) {
         [self dismissAnyNecessaryViewControllersAndShowCamera];
     }
+    
+    // Force these updates to happen before app is opened again
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate date]];
 }
 
 - (void)dismissAnyNecessaryViewControllersAndShowCamera {
@@ -171,13 +174,15 @@
     
     CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
     initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
-    //    initialFrame.origin.y += self.view.frame.origin.y;
-    //    initialFrame.origin.x = 0;
     
     [self setInitialAnimationFrame: initialFrame];
     [self setInitialAnimationTransform:initialTransform];
     //    self.animationController.initialTransform = initialTransform;
-    [self presentViewController:camVC animated:NO completion:nil];}
+
+    camVC.shownViaBackgrounding = YES;
+    [self presentViewController:camVC animated:NO completion:nil];
+
+}
 
 
 - (void)presentCamera {

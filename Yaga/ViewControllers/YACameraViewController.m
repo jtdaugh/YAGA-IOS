@@ -82,17 +82,12 @@
 @implementation YACameraViewController
 
 - (void)viewWillAppear:(BOOL)animated {
-
     [super viewWillAppear:animated];
-
-    [[YACameraManager sharedManager] initCamera];
-    [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
-    self.recordingTime = [NSDate date];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [YACameraManager sharedManager].delegate = self;
-        [[YACameraManager sharedManager] setCameraView:self.cameraView];
-    });
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+    [[YACameraManager sharedManager] initCamera];
+    if (!self.shownViaBackgrounding) {
+        [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -229,8 +224,16 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    
+    [super viewDidAppear:animated];
+
+    self.recordingTime = [NSDate date];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [YACameraManager sharedManager].delegate = self;
+        [[YACameraManager sharedManager] setCameraView:self.cameraView];
+    });
+
     [self startRecordingAnimation];
+
 }
 
 - (void)startRecordingAnimation {
