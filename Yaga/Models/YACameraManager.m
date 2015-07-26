@@ -266,7 +266,6 @@
             // make the preview img from the previous clip the primary preview
             self.capturePreviewImage = self.mostRecentCapturePreviewImage;
         }
-        self.mostRecentCapturePreviewImage = nil;
         GPUImageFilter *imgFilter = [GPUImageFilter new];
         [self.videoCamera addTarget:imgFilter];
         
