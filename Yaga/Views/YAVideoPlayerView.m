@@ -383,7 +383,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
         if (endTime != 0) {
             CGFloat currentTime = CMTimeGetSeconds(weakSelf.player.currentTime);
             CGFloat normalizedTime;
-            if(self.dontHandleLooping){
+            if(weakSelf.dontHandleLooping){
                 normalizedTime = currentTime;
             } else {
                 normalizedTime = fmodf(currentTime, endTime/[weakSelf numberOfCopies]);
