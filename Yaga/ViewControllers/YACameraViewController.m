@@ -190,6 +190,7 @@
     self.recordingCircle.layer.borderWidth = 5.0f;
     self.recordingCircle.layer.cornerRadius = doneButtonWidth/2;
     [self.recordingCircle setAlpha:0.0];
+    [self.recordingCircle setUserInteractionEnabled:NO];
     [self.view addSubview:self.recordingCircle];
 
     
