@@ -134,7 +134,7 @@
     }
     [[YAUser currentUser] setDialCode:obj[DIAL_CODE]];
     
-    [[NSUserDefaults standardUserDefaults] setObject:obj[COUNTRY_CODE] forKey:kCountryCode];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:obj[COUNTRY_CODE] forKey:kCountryCode];
     [[YAUser currentUser] setCountryCode:obj[COUNTRY_CODE]];
     
     [self dismissViewControllerAnimated:YES completion:nil];

@@ -7,6 +7,7 @@
 //
 
 #import "YACrosspostCell.h"
+#import "Constants.h"
 @interface YACrosspostCell ()
 @property (strong, nonatomic) UILabel *groupTitleLabel;
 @property (strong, nonatomic) UIImageView *checkbox;

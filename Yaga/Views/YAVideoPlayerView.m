@@ -8,7 +8,9 @@
 
 #import "YAVideoPlayerView.h"
 
+#ifdef YAGA_APP
 #import "YAViewCountManager.h"
+#endif
 #import "YAWeakTimerTarget.h"
 
 #define NUM_OF_COPIES 100
@@ -149,7 +151,10 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     [self.player removeTimeObserver:self.playbackObserver];
     self.playbackObserver = nil;
     
+#ifdef YAGA_APP
     [[YAViewCountManager sharedManager] stoppedWatchingVideo];
+#endif
+
     [self.player removeObserver:self forKeyPath:@"currentItem"];
     [self.player removeObserver:self forKeyPath:@"rate"];
     if(!self.dontHandleLooping){
@@ -359,8 +364,11 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 }
 
 - (void)play {
-    float singlePlayTime = CMTimeGetSeconds(self.playerItem.asset.duration) / (float) [self numberOfCopies];
+
+#ifdef YAGA_APP
+    float singlePlayTime = CMTimeGetSeconds(self.playerItem.asset.duration) / (float) NUM_OF_COPIES;
     [[YAViewCountManager sharedManager] didBeginWatchingVideoWithInterval:singlePlayTime];
+#endif
     
     [self.player play];
     

@@ -50,7 +50,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     if ([self.tableView respondsToSelector:@selector(layoutMargins)])
         self.tableView.layoutMargins = UIEdgeInsetsZero;
     
-    _groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
+    _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
     
     [[UIBarButtonItem appearance] setTintColor:SECONDARY_COLOR];
 }
@@ -361,7 +361,7 @@ static NSString *CellIdentifier = @"GroupsCell";
                 else {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                         weakSelf.groupsDataArray = [YAUtils readableGroupsArrayFromResponse:response];
-                        [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
+                        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.tableView reloadData];
                         });
@@ -370,7 +370,7 @@ static NSString *CellIdentifier = @"GroupsCell";
             }];
         };
         
-        NSDate *lastYagaUsersRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
+        NSDate *lastYagaUsersRequested = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kLastYagaUsersRequestDate];
         if(!lastYagaUsersRequested) {
             //force upload phone contacts in case there is no information on server yet otherwise searchGroups will return nothgin
             [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts, BOOL sentToServer) {

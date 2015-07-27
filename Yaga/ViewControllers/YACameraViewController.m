@@ -283,21 +283,6 @@
     [self.doneRecordingButton setAlpha:0.0];
     
     [self showRecordButton];
-//    [UIView animateKeyframesWithDuration:1.618 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
-//        //
-//        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.2 animations:^{
-//            //
-//            [self.recordingMessage setAlpha:1.0];
-//        }];
-//
-//        [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
-//            //
-//            [self.recordingMessage setAlpha:0.0];
-//        }];
-//    } completion:^(BOOL finished) {
-//        //
-//        [self showRecordButton];
-//    }];
     
 //    self.doneRecordingButton.transform = CGAffineTransformMakeScale(0.8, 0.8);
     self.animatedRecorder.transform = CGAffineTransformMakeScale(0.8, 0.8);

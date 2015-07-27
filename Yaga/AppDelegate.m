@@ -77,15 +77,15 @@
     } else {
         
     }
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:ALREADY_LAUNCHED_KEY])
+    if ([[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:ALREADY_LAUNCHED_KEY])
     {
        
     }
     else
     {
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:ALREADY_LAUNCHED_KEY];
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:GIF_GRID_UNSEEN];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:ALREADY_LAUNCHED_KEY];
+        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:GIF_GRID_UNSEEN];
+        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
         
         // This is the first launch ever
         
@@ -97,8 +97,8 @@
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
 
     // Uncomments for testing tooltips
-//    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFirstVideoRecorded];
-//    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kCellWasAlreadyTapped];
+//    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:NO forKey:kFirstVideoRecorded];
+//    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:NO forKey:kCellWasAlreadyTapped];
     
 //#define TESTING_MODE - uncomment that line to cleanup everything
 
@@ -259,7 +259,7 @@
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     DLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", deviceToken);
     
-    [[NSUserDefaults standardUserDefaults] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
     Mixpanel *mixpanel = [Mixpanel sharedInstance];
     [mixpanel.people addPushDeviceToken:deviceToken];
     

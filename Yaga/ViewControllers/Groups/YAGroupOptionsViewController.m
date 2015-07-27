@@ -445,7 +445,7 @@ static NSString *CellID = @"CellID";
 }
 
 - (void)updateMembersPendingJoin {
-    NSSet *cancelledJoins = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
+    NSSet *cancelledJoins = [NSSet setWithArray:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kCancelledJoins]];
     self.membersPendingJoin = [NSMutableArray new];
     
     if([self.group isInvalidated])
@@ -461,10 +461,10 @@ static NSString *CellID = @"CellID";
 }
 
 - (void)cancelJoinButtonPressed:(UIButton*)sender {
-    NSMutableArray *cancelled = [NSMutableArray arrayWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
+    NSMutableArray *cancelled = [NSMutableArray arrayWithArray:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kCancelledJoins]];
     YAContact *cancelledContact = self.membersPendingJoin[sender.tag];
     [cancelled addObject:cancelledContact.number];
-    [[NSUserDefaults standardUserDefaults] setObject:cancelled forKey:kCancelledJoins];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:cancelled forKey:kCancelledJoins];
     
     [self.membersPendingJoin removeObject:cancelledContact];
     [self.tableView reloadData];
