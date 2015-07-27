@@ -28,8 +28,6 @@
 @property (nonatomic, strong) UIButton *addMembersButton;
 @end
 
-#define kCancelledJoins @"kCancelledJoins"
-
 @implementation YAGroupOptionsViewController
 
 - (void)viewDidLoad {
@@ -525,6 +523,11 @@ static NSString *CellID = @"CellID";
 }
 
 - (void)groupsDidRefresh:(NSNotification*)notification {
+    if([self.group isInvalidated]) {
+        [self.navigationController popToRootViewControllerAnimated:YES];
+        return;
+    }
+    
     [self updateMembersPendingJoin];
     [self.tableView reloadData];
 }

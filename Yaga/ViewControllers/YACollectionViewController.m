@@ -58,9 +58,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 static NSString *cellID = @"Cell";
 
-#define kNumberOfItemsAboveToDownload 4
-#define kNumberOfItemsBelowToDownload 16
-
 @implementation YACollectionViewController
 
 - (void)viewDidLoad {
@@ -119,7 +116,7 @@ static NSString *cellID = @"Cell";
         }
         YAVideoCell *cell = (YAVideoCell *)[weakSelf.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
         if (cell) {
-            DLog(@"Updating comment count for videoID: %@", serverId);
+            DLog(@"Updating comment count to %ld for videoID: %@", eventCount, serverId);
             [cell setEventCount:eventCount];
             
         }

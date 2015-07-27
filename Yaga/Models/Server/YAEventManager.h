@@ -12,6 +12,7 @@
 @protocol YAEventReceiver <NSObject>
 
 - (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId didReceiveNewEvent:(YAEvent *)event;
+- (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId didRemoveEvent:(YAEvent *)event;
 - (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId receivedInitialEvents:(NSArray *)events;
 
 @end
@@ -59,6 +60,10 @@
 - (void)addEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId
     serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
 
+
+- (void)updateEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
+
+- (void)removeEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
 
 // If group changed or first call, clears out any memory.
 - (void)groupChanged;
