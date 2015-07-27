@@ -30,14 +30,17 @@ typedef void (^YARecordingCompletionBlock)(NSURL *outputUrl);
 - (void)initCamera;
 - (void)pauseCameraAndStop:(BOOL)stop;
 - (void)resumeCameraAndNeedsRestart:(BOOL)restart;
-- (void)startRecording;
-- (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion;
 - (void)stopContiniousRecordingWithCompletion:(YARecordingCompletionBlock)completion;
 - (void)switchCamera;
 - (void)forceFrontFacingCamera; // probably only used by inviteVC right meow
 - (void)toggleFlash:(BOOL)flashOn;
 
 - (void)setCameraView:(YACameraView *)cameraView;
+
+// Only for invite cam:
+- (void)startRecording;
+- (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion;
+
 
 @property (nonatomic, strong) UIImage *capturePreviewImage;
 

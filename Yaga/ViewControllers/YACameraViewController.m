@@ -365,7 +365,12 @@
 }
 
 - (void)stopRecordingVideo {
-    MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Activating time machine..."];
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    activityIndicator.center = self.doneRecordingButton.center;
+    [activityIndicator startAnimating];
+    
+    self.doneRecordingButton.hidden = YES;
+    [self.view addSubview:activityIndicator];
     [[YACameraManager sharedManager] stopContiniousRecordingWithCompletion:^(NSURL *recordedURL) {
         YAEditVideoViewController *vc = [YAEditVideoViewController new];
         vc.videoUrl = recordedURL;
@@ -391,7 +396,8 @@
         // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
         // So set the initial frame to the end frame.
         [self presentViewController:vc animated:YES completion:^{
-            [hud hide:NO];
+            [activityIndicator removeFromSuperview];
+            self.doneRecordingButton.hidden = NO;
         }];
 
     }];

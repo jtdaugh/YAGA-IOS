@@ -115,6 +115,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [[YACameraManager sharedManager] initCamera];
+    [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
     [YACameraManager sharedManager].delegate = self;
     [[YACameraManager sharedManager] forceFrontFacingCamera];
     [[YACameraManager sharedManager] setCameraView:self.cameraView];
