@@ -158,6 +158,146 @@
 
 #pragma mark - Queue operations
 
++ (UIInterfaceOrientation)orientationForTrack:(AVAsset *)asset
+{
+    AVAssetTrack *videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+    CGSize size = [videoTrack naturalSize];
+    CGAffineTransform txf = [videoTrack preferredTransform];
+    
+    if (size.width == txf.tx && size.height == txf.ty)
+        return UIInterfaceOrientationLandscapeRight;
+    else if (txf.tx == 0 && txf.ty == 0)
+        return UIInterfaceOrientationLandscapeLeft;
+    else if (txf.tx == 0 && txf.ty == size.width)
+        return UIInterfaceOrientationPortraitUpsideDown;
+    else
+        return UIInterfaceOrientationPortrait;
+}
+
+
++ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoOperationCompletion)completion {
+    
+    AVAsset *asset = [AVAsset assetWithURL:videoUrl];
+    CGSize vidSize = ((AVAssetTrack *)([asset tracksWithMediaType:AVMediaTypeVideo][0])).naturalSize;
+    CGSize correctSize = CGSizeMake(480.0, 640.0);
+    
+    GPUImageMovie *movieFile;
+    GPUImageOutput<GPUImageInput> *filter;
+    GPUImageMovieWriter *movieWriter;
+    
+    movieFile = [[GPUImageMovie alloc] initWithAsset:asset];
+//    movieFile.runBenchmark = YES;
+    movieFile.playAtActualSpeed = NO;
+
+//    UIInterfaceOrientation orientation = [self orientationForTrack:asset];
+   
+    
+    NSString *pathToMovie = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/PreProcessedMovie.m4v"];
+    unlink([pathToMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
+    NSURL *movieURL = [NSURL fileURLWithPath:pathToMovie];
+    
+    NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
+    [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
+    [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
+    [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
+    
+    movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:movieURL size:correctSize fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
+
+    CGFloat xMultiple = vidSize.width / correctSize.width;
+    CGFloat yMultiple = vidSize.height / correctSize.height;
+    
+    if (xMultiple > yMultiple) {
+        // The video needs to trim off the sides
+        CGFloat croppedWidth = correctSize.width * yMultiple;
+        CGRect cropRegion = CGRectMake(((vidSize.width - croppedWidth)/vidSize.width) / 2, 0, croppedWidth / vidSize.width, 1);
+        filter = [[GPUImageCropFilter alloc] initWithCropRegion:cropRegion];
+        [movieFile addTarget:filter];
+        [filter addTarget:movieWriter];
+
+    } else {
+        // The video is skinnier than 3:4. Most likely a snapchat. Convert to 3:4 & Leave black bars on the sides.
+        filter = [[GPUImageCropFilter alloc] initWithCropRegion:CGRectMake(0, 0, 1, 1)];
+        [filter forceProcessingAtSizeRespectingAspectRatio:correctSize];
+        [movieFile addTarget:filter];
+        [filter addTarget:movieWriter];
+    }
+    
+
+    // This might fuck stuff up IDK
+//    switch (orientation)
+//    {
+//        case UIInterfaceOrientationLandscapeLeft:
+//            [filter setInputRotation:kGPUImageNoRotation atIndex:0];
+//            
+//            break;
+//        case UIInterfaceOrientationLandscapeRight:
+//            [filter setInputRotation:kGPUImageRotate180 atIndex:0];
+//            
+//            break;
+//        case UIInterfaceOrientationPortraitUpsideDown:
+//            [filter setInputRotation:kGPUImageRotateLeft atIndex:0];
+//            
+//            break;
+//        default:
+//            [filter setInputRotation:kGPUImageRotateRight atIndex:0];
+//            
+//    };
+    
+    
+    AudioChannelLayout channelLayout;
+    memset(&channelLayout, 0, sizeof(AudioChannelLayout));
+    channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
+    
+    NSDictionary *audioSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [ NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
+                                   [ NSNumber numberWithInt: 2 ], AVNumberOfChannelsKey,
+                                   [ NSNumber numberWithFloat: 16000.0 ], AVSampleRateKey,
+                                   [ NSData dataWithBytes:&channelLayout length: sizeof( AudioChannelLayout ) ], AVChannelLayoutKey,
+                                   [ NSNumber numberWithInt: 32000 ], AVEncoderBitRateKey,
+                                   nil];
+    
+    movieWriter.shouldPassthroughAudio = YES; // default YES
+//    if ([[asset tracksWithMediaType:AVMediaTypeAudio] count] > 0){
+////        [movieWriter setHasAudioTrack:YES audioSettings:audioSettings];
+//        [movieWriter setHasAudioTrack:YES audioSettings:nil];
+//        movieFile.audioEncodingTarget = movieWriter;
+//    } else {//no audio
+        [movieWriter setHasAudioTrack:NO];
+        movieFile.audioEncodingTarget = nil;
+//    }
+
+    [movieFile enableSynchronizedEncodingUsingMovieWriter:movieWriter];
+    
+    [movieWriter startRecording];
+    [movieFile startProcessing];
+
+    __weak typeof(movieWriter) weakMovieWriter = movieWriter;
+    [movieWriter setCompletionBlock:^{
+        NSLog(@"Completed Successfully");
+        [movieFile removeTarget:filter];
+        [filter removeTarget:weakMovieWriter];
+        [weakMovieWriter finishRecording];
+        [movieFile description]; // just so it gets retained :)
+        [videoSettings description]; // just so it gets retained :)
+        [movieURL description]; // just so it gets retained :)
+        [asset description]; // just 9so it gets retained :)
+//        [audioSettings description]; // just so it gets retained :)
+        completion(movieURL, nil);
+    }];
+    
+//    [movieWriter setFailureBlock:^(NSError *error) {
+//        NSLog(@"Completed Successfully");
+//        [filter removeTarget:weakMovieWriter];
+//        [weakMovieWriter finishRecording];
+//        [movieFile description]; // just so it gets retained :)
+//        [videoSettings description]; // just so it gets retained :)
+//        [movieURL description]; // just so it gets retained :)
+//        [asset description]; // just 9so it gets retained :)
+//        //        [audioSettings description]; // just so it gets retained :)
+//        completion(nil, error);
+//    }];
+}
+
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
                         addToGroups:(NSArray *)groups {
     if (![groups count]) return;
