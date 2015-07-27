@@ -30,6 +30,8 @@ typedef void (^jpgCompletion)(void);
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
                        addToGroups:(NSArray *)groups;
 
++ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoOperationCompletion)completion;
+
 //- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs addToGroup:(YAGroup*)group;
 - (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos killExistingJobs:(BOOL)killExisting;
 

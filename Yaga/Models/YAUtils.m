@@ -465,57 +465,57 @@
 #pragma mark - Tooltip and userdefaults helpers
 
 + (BOOL)hasVisitedGifGrid {
-    return ![[NSUserDefaults standardUserDefaults] boolForKey:GIF_GRID_UNSEEN];
+    return ![[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:GIF_GRID_UNSEEN];
 }
 
 + (void)setVisitedGifGrid {
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:GIF_GRID_UNSEEN];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:NO forKey:GIF_GRID_UNSEEN];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
 + (BOOL)hasVisitedHumanity {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:HUMANITY_VISITED];
+    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:HUMANITY_VISITED];
 }
 
 + (void)setVisitedHumanity {
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HUMANITY_VISITED];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:HUMANITY_VISITED];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
 + (BOOL)hasVisitedPrivateGroup {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:PRIVATE_GROUP_VISITED];
+    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:PRIVATE_GROUP_VISITED];
 }
 
 + (void)setVisitedPrivateGroup {
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PRIVATE_GROUP_VISITED];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:PRIVATE_GROUP_VISITED];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
 + (BOOL)hasRecordedPrivateVideo {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:HAS_RECORDED_PRIVATE_VIDEO];
+    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:HAS_RECORDED_PRIVATE_VIDEO];
 }
 
 + (void)setRecordedPrivateVideo {
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HAS_RECORDED_PRIVATE_VIDEO];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:HAS_RECORDED_PRIVATE_VIDEO];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
 + (BOOL)hasRecordedPublicVideo {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:HAS_RECORDED_PUBLIC_VIDEO];
+    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:HAS_RECORDED_PUBLIC_VIDEO];
 }
 
 + (void)setRecordedPublicVideo {
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HAS_RECORDED_PUBLIC_VIDEO];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:HAS_RECORDED_PUBLIC_VIDEO];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
 + (BOOL)hasRecordedUngroupedVideo {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:HAS_RECORDED_UNGROUPED_VIDEO];
+    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:HAS_RECORDED_UNGROUPED_VIDEO];
 }
 
 + (void)setRecordedUngroupedVideo {
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HAS_RECORDED_UNGROUPED_VIDEO];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:HAS_RECORDED_UNGROUPED_VIDEO];
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
 

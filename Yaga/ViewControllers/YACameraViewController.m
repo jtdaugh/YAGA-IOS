@@ -15,6 +15,7 @@
 
 #import <CoreTelephony/CTCall.h>
 #import <CoreTelephony/CTCallCenter.h>
+#import <MobileCoreServices/UTCoreTypes.h>
 
 #import <QuartzCore/QuartzCore.h>
 #import "YAGroupsNavigationController.h"
@@ -283,21 +284,6 @@
     [self.doneRecordingButton setAlpha:0.0];
     
     [self showRecordButton];
-//    [UIView animateKeyframesWithDuration:1.618 delay:0.0 options:UIViewKeyframeAnimationOptionAllowUserInteraction animations:^{
-//        //
-//        [UIView addKeyframeWithRelativeStartTime:0.0 relativeDuration:0.2 animations:^{
-//            //
-//            [self.recordingMessage setAlpha:1.0];
-//        }];
-//
-//        [UIView addKeyframeWithRelativeStartTime:0.8 relativeDuration:0.2 animations:^{
-//            //
-//            [self.recordingMessage setAlpha:0.0];
-//        }];
-//    } completion:^(BOOL finished) {
-//        //
-//        [self showRecordButton];
-//    }];
     
 //    self.doneRecordingButton.transform = CGAffineTransformMakeScale(0.8, 0.8);
     self.animatedRecorder.transform = CGAffineTransformMakeScale(0.8, 0.8);
@@ -653,6 +639,42 @@
 
 - (BOOL)blockCameraPresentationOnBackground {
     return YES;
+}
+
+#pragma mark - camera roll upload
+
+- (void)chooseFromCameraRoll {
+    DLog(@"Upload from camera roll pressed");
+    MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"One sec..."];
+    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+    picker.delegate = self;
+    picker.allowsEditing = YES;
+    picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    [picker setMediaTypes: [NSArray arrayWithObject:(NSString *)kUTTypeMovie]];
+    [self presentViewController:picker animated:YES completion:^{
+        [hud hide:NO];
+    }];
+    
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    DLog(@"Did pick video from camera roll");
+
+    [picker dismissViewControllerAnimated:YES completion:^{
+//        NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+//        if ([mediaType isEqualToString:(NSString *)kUTTypeMovie])
+//        {
+//            NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
+//            [YAAssetsCreator reformatExternalVideoAtUrl:videoURL withCompletion:^(NSURL *filePath, NSError *error) {
+//                [[YAAssetsCreator sharedCreator] createUnsentVideoFromRecodingURL:filePath];
+//            }];
+//        }
+    }];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    DLog(@"Cancelled picking video from camera roll");
+    [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 
 @end

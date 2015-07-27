@@ -14,7 +14,7 @@
 @implementation YAUserPermissions
 
 + (BOOL)pushPermissionsRequestedBefore {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:kPushesPermissionsRequestedBefore];
+    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:kPushesPermissionsRequestedBefore];
 }
 
 + (void)registerUserNotificationSettings {
@@ -32,19 +32,19 @@
     }
     
     if(iosDialogShown && notRegistered) {
-        NSDate *remindDialogDate = [[NSUserDefaults standardUserDefaults] objectForKey:kPushesPermissionsAlertNextTimeToShow];
+        NSDate *remindDialogDate = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kPushesPermissionsAlertNextTimeToShow];
         
         //remind dialog date is later than now or doesn't exist? show remind dialog
         if(!remindDialogDate || [remindDialogDate compare:[NSDate date]] == NSOrderedDescending) {
             MSAlertController*alert = [MSAlertController alertControllerWithTitle:NSLocalizedString(@"Push notifications", @"") message:NSLocalizedString(@"Push notifications are disabled", @"") preferredStyle:MSAlertControllerStyleAlert];
             
             [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Never show this again", @"") style:MSAlertActionStyleDefault handler:^(MSAlertAction *action) {
-                [[NSUserDefaults standardUserDefaults] setObject:[NSDate dateWithTimeIntervalSince1970:0] forKey:kPushesPermissionsAlertNextTimeToShow];
+                [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[NSDate dateWithTimeIntervalSince1970:0] forKey:kPushesPermissionsAlertNextTimeToShow];
             }]];
              
             [alert addAction:[MSAlertAction actionWithTitle:NSLocalizedString(@"Remind me later", @"") style:MSAlertActionStyleDefault handler:^(MSAlertAction *action) {
                 NSDate *date = [[NSDate date] dateByAddingTimeInterval:24 * 60 * 60 * 3];//remind in 3 days
-                [[NSUserDefaults standardUserDefaults] setObject:date forKey:kPushesPermissionsAlertNextTimeToShow];
+                [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:date forKey:kPushesPermissionsAlertNextTimeToShow];
             }]];
             
             [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
