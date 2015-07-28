@@ -31,7 +31,7 @@
 @property (nonatomic, strong) UIButton *xButton;
 @property (nonatomic, strong) UIButton *captionButton;
 @property (nonatomic, strong) UIButton *sendButton;
-@property (nonatomic, strong) UIButton *chooseGroupsButton;
+@property (nonatomic, strong) UILabel *chooseGroupsLabel;
 @property (nonatomic, strong) UILabel *chosenGroupsLabel;
 @property (nonatomic, strong) UITableView *groupsTableView;
 @property (nonatomic, strong) UITapGestureRecognizer *groupsListTapOutRecognizer;
@@ -50,7 +50,7 @@
 
 @property BOOL dragging;
 
-@property (strong, nonatomic) YAApplyCaptionView *currentCaptionView;
+@property (strong, nonatomic) UIView *currentCaptionView;
 
 @end
 
@@ -168,13 +168,16 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.chosenGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:16];
     [self.bottomView addSubview:self.chosenGroupsLabel];
         
-    self.chooseGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2)];
-    self.chooseGroupsButton.titleLabel.textColor = [UIColor whiteColor];
-    self.chooseGroupsButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:12];
-    [self.chooseGroupsButton setTitle:@"Tap to add more groups" forState:UIControlStateNormal];
-    [self.chooseGroupsButton addTarget:self action:@selector(chooseGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
-    self.chooseGroupsButton.titleLabel.textAlignment = NSTextAlignmentLeft;
-    [self.bottomView addSubview:self.chooseGroupsButton];
+    self.chooseGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2)];
+    self.chooseGroupsLabel.textColor = [UIColor whiteColor];
+    self.chooseGroupsLabel.font = [UIFont fontWithName:BIG_FONT size:12];
+    [self.chooseGroupsLabel setText:@"Tap to add more groups"];
+    self.chooseGroupsLabel.textAlignment = NSTextAlignmentLeft;
+    [self.bottomView addSubview:self.chooseGroupsLabel];
+    
+    UITapGestureRecognizer *chooseGroupsTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(chooseGroupsPressed)];
+    [self.bottomView addGestureRecognizer:chooseGroupsTap];
+
 }
 
 #pragma mark - TableView delegate & data source
@@ -242,10 +245,9 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
             self.chosenGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
         }
         
-        self.chooseGroupsButton.frame = CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
-        self.chooseGroupsButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:12];
-        [self.chooseGroupsButton setTitle:(!self.groupsExpanded ? @"Tap to add more groups" : @"") forState:UIControlStateNormal];
-        [self.chooseGroupsButton sizeToFit];
+        self.chooseGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
+        self.chooseGroupsLabel.font = [UIFont fontWithName:BIG_FONT size:12];
+        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to add more groups" : @"")];
 
         YAGroup *group = [self.groups objectAtIndex:((NSIndexPath *)selectedPaths[0]).row];
         if (count == 1) {
@@ -258,11 +260,10 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.chosenGroupsLabel.hidden = YES;
         self.sendButton.enabled = NO;
 
-        self.chooseGroupsButton.frame = CGRectMake(10, self.bottomView.bounds.size.height / 4, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
-        self.chooseGroupsButton.titleLabel.textColor = [UIColor colorWithWhite:0.8 alpha:1];
-        self.chooseGroupsButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
-        [self.chooseGroupsButton setTitle:(!self.groupsExpanded ? @"Tap to choose groups" : @"Choose groups") forState:UIControlStateNormal];
-        [self.chooseGroupsButton sizeToFit];
+        self.chooseGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height / 4, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
+        self.chooseGroupsLabel.textColor = [UIColor colorWithWhite:0.8 alpha:1];
+        self.chooseGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to choose groups" : @"Choose groups")];
     }
     
 }
@@ -357,6 +358,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     
     self.groupsTableView.hidden = NO;
     [self.view bringSubviewToFront:self.groupsTableView];
+    [self.view bringSubviewToFront:self.bottomView];
     [self layoutGroupButtons];
     CGFloat tableHeight = MIN(self.groupsTableView.frame.size.height, [self.groups count] * kGroupRowHeight);
     CGRect tableViewFrame = self.groupsTableView.frame;
