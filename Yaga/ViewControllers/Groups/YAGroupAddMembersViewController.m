@@ -64,8 +64,9 @@
     
     UIView *border = [[UIView alloc] init];
     border.translatesAutoresizingMaskIntoConstraints = NO;
-    border.backgroundColor = PRIMARY_COLOR;
+    border.backgroundColor = SECONDARY_COLOR;
     [self.view addSubview:border];
+    
     UITableView *membersList = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     membersList.translatesAutoresizingMaskIntoConstraints = NO;
 
@@ -207,13 +208,13 @@
     }
     
     if ([contact[nYagaUser] boolValue]){
-        [cell.textLabel       setTextColor:[UIColor blackColor]];
-        [cell.detailTextLabel setTextColor:[UIColor blackColor]];
+        [cell.textLabel       setTextColor:PRIMARY_COLOR];
+        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
         
 //        UIImage *img = [UIImage imageNamed:@"Ball"];
 //        cell.imageView.image = img;
         
-        UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey"]];
+        UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey_Pink"]];
         [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
         cell.accessoryView = accessoryView;
         
@@ -232,8 +233,8 @@
             cell.detailTextLabel.text = [contact[kSearchedByUsername] boolValue] ? ya_contact.name : ya_contact.username;
         
     } else {
-        [cell.textLabel       setTextColor:PRIMARY_COLOR];
-        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+        [cell.textLabel       setTextColor:SECONDARY_COLOR];
+        [cell.detailTextLabel setTextColor:SECONDARY_COLOR];
 //        cell.imageView.image = nil;
         cell.accessoryView = nil;
     }
