@@ -49,6 +49,9 @@
 @property CGFloat endTime;
 
 @property BOOL dragging;
+
+@property (strong, nonatomic) YAApplyCaptionView *currentCaptionView;
+
 @end
 
 typedef void(^trimmingCompletionBlock)(NSError *error);
@@ -288,7 +291,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
                                                                              CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER), CGAffineTransformMakeRotation(-.2 + randomRotation));
     
     [self beginEditableCaptionAtPoint:loc
-                           initalText:@""
+                           initalText:self.captionText
                       initalTransform:t];
     
 }
@@ -298,15 +301,22 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     
     __weak YAApplyCaptionView *weakApplyCaptionView = applyCaptionView;
     
+    [self.currentCaptionView removeFromSuperview];
+    
     self.trimmingView.hidden = YES;
     self.captionButton.hidden = YES;
     self.xButton.hidden = YES;
     self.bottomView.hidden = YES;
-    self.groupsTableView.hidden = YES;
-
+    if(self.groupsExpanded){
+        [self collapseGroupList];
+    }
+    
     applyCaptionView.completionHandler = ^(BOOL completed, UIView *captionView, UITextView *captionTextView, NSString *text, CGFloat x, CGFloat y, CGFloat scale, CGFloat rotation){
         if (completed) {
             [self.view addSubview:captionView];
+            self.currentCaptionView = captionView;
+            [captionView setUserInteractionEnabled:NO];
+            self.captionButton.hidden = YES;
             self.captionText = text;
             self.captionX = x;
             self.captionY = y;
@@ -318,9 +328,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.captionButton.hidden = NO;
         self.xButton.hidden = NO;
         self.bottomView.hidden = NO;
-        if(self.groupsExpanded){
-            self.groupsTableView.hidden = NO;
-        }
         [weakApplyCaptionView removeFromSuperview];
     };
     
@@ -349,6 +356,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.groupsExpanded = YES;
     
     self.groupsTableView.hidden = NO;
+    [self.view bringSubviewToFront:self.groupsTableView];
     [self layoutGroupButtons];
     CGFloat tableHeight = MIN(self.groupsTableView.frame.size.height, [self.groups count] * kGroupRowHeight);
     CGRect tableViewFrame = self.groupsTableView.frame;
