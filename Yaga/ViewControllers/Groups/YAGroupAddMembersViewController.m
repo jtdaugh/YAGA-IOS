@@ -461,6 +461,7 @@
         //       EditVideoVC              CameraVC                 GroupsNavController
         if (self.presentingViewController.presentingViewController.presentingViewController) {
             [self.presentingViewController.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+            [[UIApplication sharedApplication]setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade]; // otherwise its hidden after dismissal
         } else {
             [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
