@@ -285,7 +285,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         findButton.layer.cornerRadius = buttonSize.height/2;
         findButton.layer.masksToBounds = YES;
         [findButton setTitle:@"Find Groups" forState:UIControlStateNormal];
-        [findButton addTarget:self action:@selector(findCellPressed:) forControlEvents:UIControlEventTouchUpInside];
+        [findButton addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
 
         [reusableview addSubview:findButton];
         
@@ -298,7 +298,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         createButton.layer.cornerRadius = buttonSize.height/2;
         createButton.layer.masksToBounds = YES;
         [createButton setTitle:@"Create Group" forState:UIControlStateNormal];
-        [createButton addTarget:self action:@selector(createCellPressed:) forControlEvents:UIControlEventTouchUpInside];
+        [createButton addTarget:self action:@selector(createGroupPressed) forControlEvents:UIControlEventTouchUpInside];
         [reusableview addSubview:createButton];
         
         return reusableview;

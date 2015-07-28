@@ -487,8 +487,17 @@
     NSString *userAgent = [NSString stringWithFormat:@"YAGA IOS %@", [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]];
     [self.jsonOperationsManager.requestSerializer setValue:userAgent forHTTPHeaderField:@"User-Agent"];
     
+    NSDictionary *parameters = @{
+                                 @"name": video.caption,
+                                 @"name_x": [NSNumber numberWithFloat:video.caption_x],
+                                 @"name_y": [NSNumber numberWithFloat:video.caption_y],
+                                 @"rotation": [NSNumber numberWithFloat:video.caption_rotation],
+                                 @"scale": [NSNumber numberWithFloat:video.caption_scale],
+                                 @"font": [NSNumber numberWithInteger:0]
+                                 };
+    
     [self.jsonOperationsManager POST:api
-            parameters:nil
+            parameters:parameters
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    if ([video isInvalidated]) {
                        YARealmObjectUnavailableError *yaError = [YARealmObjectUnavailableError new];

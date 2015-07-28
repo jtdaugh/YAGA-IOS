@@ -28,6 +28,11 @@ typedef void (^jpgCompletion)(void);
 - (void)addBumberToVideoAtURL:(NSURL*)videoURL completion:(videoOperationCompletion)completion;
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
+                   withCaptionText:(NSString *)captionText
+                                 x:(CGFloat)x
+                                 y:(CGFloat)y
+                             scale:(CGFloat)scale
+                          rotation:(CGFloat)rotation
                        addToGroups:(NSArray *)groups;
 
 + (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoOperationCompletion)completion;

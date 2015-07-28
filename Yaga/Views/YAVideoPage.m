@@ -766,7 +766,8 @@ static NSString *commentCellID = @"CommentCell";
 // initial adding of caption. modifications will instead call -updateCaptionFromSnapshot
 - (void)insertCaption {
     UIView *textWrapper = [[UIView alloc] initWithFrame:CGRectInfinite];
-    UITextView *textView = [self textViewWithCaptionAttributes];
+    UITextView *textView = [YAApplyCaptionView textViewWithCaptionAttributes];
+    textView.delegate = self;
     textView.text = self.video.caption;
     textView.editable = NO;
     
@@ -812,28 +813,6 @@ static NSString *commentCellID = @"CommentCell";
     } completion:nil];
 }
 
-- (UITextView *)textViewWithCaptionAttributes {
-    UITextView *textView = [UITextView new];
-    textView.alpha = 1;
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
-                                                                                              }];
-    [textView setAttributedText:string];
-    [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
-    [textView setTextColor:PRIMARY_COLOR];
-    [textView setFont:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]];
-    
-    [textView setTextAlignment:NSTextAlignmentCenter];
-    [textView setAutocorrectionType:UITextAutocorrectionTypeNo];
-    [textView setReturnKeyType:UIReturnKeyDone];
-    [textView setScrollEnabled:NO];
-    textView.textContainer.lineFragmentPadding = 0;
-    textView.textContainerInset = UIEdgeInsetsZero;
-    textView.delegate = self;
-    
-    return textView;
-}
 
 //- (void)textButtonPressed:(id)sender {
 //    [self addCaptionAtPoint:CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2)];

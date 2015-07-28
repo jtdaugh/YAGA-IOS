@@ -95,7 +95,8 @@
     self.textFieldTransform = transform;
     self.editableCaptionWrapperView = [[UIView alloc] initWithFrame:CGRectInfinite];
     
-    self.editableCaptionTextView = [self textViewWithCaptionAttributes];
+    self.editableCaptionTextView = [[self class] textViewWithCaptionAttributes];
+    self.editableCaptionTextView.delegate = self;
     self.editableCaptionTextView.text = text;
     
     [self resizeTextAboveKeyboardWithAnimation:NO];
@@ -106,7 +107,7 @@
     [self.editableCaptionTextView becomeFirstResponder];
 }
 
-- (UITextView *)textViewWithCaptionAttributes {
++ (UITextView *)textViewWithCaptionAttributes {
     UITextView *textView = [UITextView new];
     textView.alpha = 1;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
@@ -124,7 +125,6 @@
     [textView setScrollEnabled:NO];
     textView.textContainer.lineFragmentPadding = 0;
     textView.textContainerInset = UIEdgeInsetsZero;
-    textView.delegate = self;
     
     return textView;
 }

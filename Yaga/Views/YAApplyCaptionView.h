@@ -16,4 +16,6 @@ typedef void (^YACaptionViewCompletionHandler)(BOOL completed, UIView *captionVi
 
 @property (nonatomic, copy) YACaptionViewCompletionHandler completionHandler;
 
++ (UITextView *)textViewWithCaptionAttributes;
+
 @end

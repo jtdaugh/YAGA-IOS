@@ -15,13 +15,14 @@
 #import "YACameraManager.h"
 #import "YACrosspostCell.h"
 #import "UIImage+Color.h"
+#import "YAApplyCaptionView.h"
 
 #define kGroupRowHeight 60
 #define kBottomFrameHeight 60
 #define kNewGroupCellId @"postToNewGroupCell"
 #define kCrosspostCellId @"crossPostCell"
 
-@interface YAEditVideoViewController () <UITableViewDataSource, UITableViewDelegate>
+@interface YAEditVideoViewController () <UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) SAVideoRangeSlider *trimmingView;
 @property (nonatomic, strong) YAVideoPlayerView *videoPlayerView;
 @property (nonatomic, strong) UIImageView *previewImageView;
@@ -35,6 +36,12 @@
 @property (nonatomic, strong) UITableView *groupsTableView;
 @property (nonatomic, strong) UITapGestureRecognizer *groupsListTapOutRecognizer;
 @property (nonatomic) BOOL groupsExpanded;
+
+@property (nonatomic, strong) NSString *captionText;
+@property (nonatomic) CGFloat captionX;
+@property (nonatomic) CGFloat captionY;
+@property (nonatomic) CGFloat captionScale;
+@property (nonatomic) CGFloat captionRotation;
 
 @property (nonatomic, strong) RLMResults *groups;
 
@@ -54,6 +61,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.view.backgroundColor = [UIColor blackColor];
     self.groupsListTapOutRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseGroupList)];
     self.groupsExpanded = NO;
+    self.panGesture.delegate = self;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -89,6 +97,18 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [super viewWillDisappear:animated];
     [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:NO];
 }
+
+#pragma mark - UIGestureRecognizerDelegate
+
+// So the pan to dismiss gesture doesnt mess with the trim view.
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+    if ([gestureRecognizer isEqual:self.panGesture]) {
+        return ([self.panGesture locationInView:self.view].y < VIEW_HEIGHT * 0.75);
+    }
+    return YES;
+}
+
+#pragma mark - layout
 
 - (void)setupTableView {
     self.groupsTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT*0.5)];
@@ -258,8 +278,51 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)captionButtonPressed {
-    #warning implement this
+    
+    float randomX = ((float)rand() / RAND_MAX) * 100;
+    float randomY = ((float)rand() / RAND_MAX) * 200;
+    CGPoint loc = CGPointMake(VIEW_WIDTH/2 - 50 + randomX, VIEW_HEIGHT/2 - randomY);
+    
+    float randomRotation = ((float)rand() / RAND_MAX) * .4;
+    CGAffineTransform t = CGAffineTransformConcat(CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER,
+                                                                             CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER), CGAffineTransformMakeRotation(-.2 + randomRotation));
+    
+    [self beginEditableCaptionAtPoint:loc
+                           initalText:@""
+                      initalTransform:t];
+    
 }
+
+- (void)beginEditableCaptionAtPoint:(CGPoint)point initalText:(NSString *)text initalTransform:(CGAffineTransform)transform {
+    YAApplyCaptionView *applyCaptionView = [[YAApplyCaptionView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) captionPoint:point initialText:text initialTransform:transform];
+    
+    __weak YAApplyCaptionView *weakApplyCaptionView = applyCaptionView;
+    
+    self.trimmingView.hidden = YES;
+    self.captionButton.hidden = YES;
+    self.xButton.hidden = YES;
+    self.bottomView.hidden = YES;
+
+    applyCaptionView.completionHandler = ^(BOOL completed, UIView *captionView, UITextView *captionTextView, NSString *text, CGFloat x, CGFloat y, CGFloat scale, CGFloat rotation){
+        if (completed) {
+            [self.view addSubview:captionView];
+            self.captionText = text;
+            self.captionX = x;
+            self.captionY = y;
+            self.captionScale = scale;
+            self.captionRotation = rotation;
+        }
+
+        self.trimmingView.hidden = NO;
+        self.captionButton.hidden = NO;
+        self.xButton.hidden = NO;
+        self.bottomView.hidden = NO;
+        [weakApplyCaptionView removeFromSuperview];
+    };
+    
+    [self.view addSubview:applyCaptionView];
+}
+
 
 - (void)collapseGroupList {
     [self.videoPlayerView removeGestureRecognizer:self.groupsListTapOutRecognizer];
@@ -275,7 +338,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     } completion:^(BOOL finished) {
         self.groupsTableView.hidden = YES;
     }];
-    
 }
 
 - (void)chooseGroupsPressed {
@@ -317,7 +379,10 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
                 return;
             }
             [weakSelf deleteTrimmedFile];
-            [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:weakSelf.videoUrl addToGroups:groupsToSendTo];
+            
+            [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:weakSelf.videoUrl
+                                                        withCaptionText:weakSelf.captionText x:weakSelf.captionX y:weakSelf.captionY scale:weakSelf.captionScale rotation:weakSelf.captionRotation
+                                                            addToGroups:groupsToSendTo];
             
             #warning gotta be a better way to dismiss these
             [weakSelf dismissAnimated];

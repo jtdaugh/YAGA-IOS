@@ -299,16 +299,20 @@
 }
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
-                        addToGroups:(NSArray *)groups {
-    if (![groups count]) return;
+                   withCaptionText:(NSString *)captionText
+                                 x:(CGFloat)x
+                                 y:(CGFloat)y
+                             scale:(CGFloat)scale
+                          rotation:(CGFloat)rotation
+                       addToGroups:(NSArray *)groups {
+    
+if (![groups count]) return;
     
     YAVideo *video = [YAVideo video];
     YAGroup *group = [groups firstObject];
     NSString *hashStr = [YAUtils uniqueId];
     NSString *mp4Filename = [hashStr stringByAppendingPathExtension:@"mp4"];
-    NSString *jpgFilename = [hashStr stringByAppendingPathExtension:@"jpg"];
     NSString *mp4Path = [[YAUtils cachesDirectory] stringByAppendingPathComponent:mp4Filename];
-    NSString *jpgPath = [[YAUtils cachesDirectory] stringByAppendingPathComponent:jpgFilename];
     NSURL    *mp4Url = [NSURL fileURLWithPath:mp4Path];
     
     NSError *error;
@@ -326,13 +330,17 @@
         video.group = group;
         video.pending = group.publicGroup;
         
-        UIImage *previewImage = [YACameraManager sharedManager].capturePreviewImage;
-        if(previewImage != nil) {
-            previewImage = [self deviceSpecificFullscreenImageFromImage:previewImage];
-            if([UIImageJPEGRepresentation(previewImage, 0.6) writeToFile:jpgPath atomically:NO]) {
-                video.jpgFullscreenFilename = jpgFilename;
-            }
+        if ([captionText length]) {
+            [video updateCaption:captionText withXPosition:x yPosition:y scale:scale rotation:rotation];
         }
+        
+//        UIImage *previewImage = [YACameraManager sharedManager].capturePreviewImage;
+//        if(previewImage != nil) {
+//            previewImage = [self deviceSpecificFullscreenImageFromImage:previewImage];
+//            if([UIImageJPEGRepresentation(previewImage, 0.6) writeToFile:jpgPath atomically:NO]) {
+//                video.jpgFullscreenFilename = jpgFilename;
+//            }
+//        }
         
         [group.realm beginWriteTransaction];
         [group.videos insertObject:video atIndex:0];
