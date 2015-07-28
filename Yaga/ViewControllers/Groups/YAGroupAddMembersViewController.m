@@ -146,8 +146,6 @@
     if (![self.presentedViewController isKindOfClass:[MSAlertController class]]) {
         [self.searchBar resignFirstResponder];
     }
-
-    self.title = @"";
 }
 
 - (void)backButtonPressed:(id)sender {

@@ -39,7 +39,7 @@
 
 #define kUnviwedBadgeWidth 10
 
-@interface YACameraViewController () <YACameraManagerDelegate>
+@interface YACameraViewController () <YACameraManagerDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) YACameraView *cameraView;
 
@@ -119,17 +119,24 @@
     
     self.cameraAccessories = [@[] mutableCopy];
     
+    UIView *tapView = [[UIView alloc] initWithFrame:self.view.bounds];
+    tapView.backgroundColor = [UIColor clearColor];
+    [self.cameraView addSubview:tapView];
+    UITapGestureRecognizer *doubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchCamera:)];
+    doubleTapRecognizer.numberOfTapsRequired = 2;
+    [tapView addGestureRecognizer:doubleTapRecognizer];
+    
     self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.white setBackgroundColor:[UIColor whiteColor]];
-    [self.white setAlpha:0.8];
+    [self.white setAlpha:0.4];
+    self.white.hidden = YES;
+    [self.cameraView addSubview:self.white];
+    UITapGestureRecognizer *killFrontFlashTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleFlash:)];
+    killFrontFlashTapRecognizer.numberOfTapsRequired = 1;
+    [self.white addGestureRecognizer:killFrontFlashTapRecognizer];
+    [killFrontFlashTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
     
-    [self.white setUserInteractionEnabled:YES];
-    
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleFlash:)];
-    tapGestureRecognizer.delegate = self;
-    [self.white addGestureRecognizer:tapGestureRecognizer];
-    
-    self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 8, 10, BUTTON_SIZE, BUTTON_SIZE)];
+    self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 8, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
     //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
     [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
     [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
@@ -139,7 +146,7 @@
     [self.view addSubview:self.switchCameraButton];
     
     CGFloat flashSize = BUTTON_SIZE - 8;
-    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, flashSize, flashSize)];
+    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, VIEW_HEIGHT - BUTTON_SIZE - 10, flashSize, flashSize)];
     //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
     [flashButton addTarget:self action:@selector(toggleFlash:) forControlEvents:UIControlEventTouchUpInside];
     [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
@@ -198,7 +205,7 @@
     [self.view addSubview:self.recordingCircle];
 
     
-    self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BUTTON_SIZE - 10, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
+    self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - BUTTON_SIZE)/2, 10, BUTTON_SIZE, BUTTON_SIZE)];
     self.gridButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     [self.gridButton setImage:[UIImage imageNamed:@"Grid"] forState:UIControlStateNormal];
     self.gridButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -239,6 +246,7 @@
     self.recordingMessage.layer.shadowOpacity = 1.0f;
     self.recordingMessage.alpha = 0.0;
     [self.view addSubview:self.recordingMessage];
+    
 }
 
 - (void)doneRecordingTapDown {
@@ -250,7 +258,6 @@
     self.panGesture.enabled = YES;
     self.recordingCircle.layer.borderColor = [[UIColor whiteColor] CGColor];
 }
-
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
@@ -406,15 +413,12 @@
         if(self.previousBrightness){
             [[UIScreen mainScreen] setBrightness:[self.previousBrightness floatValue]];
         }
-        [self.white removeFromSuperview];
+        [self.white setHidden:YES];
     } else {
         // turn flash on
         self.previousBrightness = [NSNumber numberWithFloat: [[UIScreen mainScreen] brightness]];
         [[UIScreen mainScreen] setBrightness:1.0];
-        [self.view addSubview:self.white];
-        
-        [self.view bringSubviewToFront:self.cameraView];
-        [self showCameraAccessories:YES];
+        [self.white setHidden:NO];
     }
 }
 
@@ -446,14 +450,6 @@
 - (void)willEnterForeground {
     NSLog(@"will enter foreground?");
     [self startRecordingAnimation];
-}
-
-- (void)showCameraAccessories:(BOOL)show {
-    for(UIView *v in self.cameraAccessories){
-        [v setAlpha:show ? 1 : 0];
-        if(show)
-            [self.view bringSubviewToFront:v];
-    }
 }
 
 - (void)gridButtonPressed {
