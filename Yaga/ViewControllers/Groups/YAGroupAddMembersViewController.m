@@ -13,6 +13,7 @@
 #import "NSString+Hash.h"
 #import "YAUtils.h"
 #import "YAServer.h"
+#import "YAAssetsCreator.h"
 #import "YAInviteHelper.h"
 
 @interface YAGroupAddMembersViewController ()
@@ -431,12 +432,12 @@
         
         [YAGroup groupWithName:self.groupName withCompletion:^(NSError *error, id result) {
             if(error) {
-                [weakSelf showActivity:NO];
+                [self showActivity:NO];
             } else {
                 YAGroup *newGroup = result;
                 [YAUser currentUser].currentGroup = newGroup;
-                if (weakSelf.initialVideo ) {
-                    [weakSelf postInitialVideo];
+                if (self.initialVideo ) {
+                    [self postInitialVideo];
                 }
                 
                 [newGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
@@ -455,13 +456,13 @@
 }
 
 - (void)dismissAddMembers {
-    // If we presented the create group flow on top of the post-capture screen, dimisss that as well.
+    // If we presented the create group flow on top of the trim screen, dimisss that & the camera as well.
     if (self.inCreateGroupFlow) {
-        if (self.presentingViewController.presentingViewController) {
-            [self dismissViewControllerAnimated:YES completion:nil];
-            [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+        //       EditVideoVC              CameraVC                 GroupsNavController
+        if (self.presentingViewController.presentingViewController.presentingViewController) {
+            [self.presentingViewController.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         } else {
-            [self dismissViewControllerAnimated:YES completion:nil];
+            [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
     } else {
         [self popToGridViewController];
@@ -473,15 +474,10 @@
 }
 
 - (void)postInitialVideo {
-    // Always call this server method so video immediately appears in newly created group. Copy video currently waits on server stuff.
-    if (self.initialVideo.group) {
-        [[YAServer sharedServer] copyVideo:self.initialVideo toGroupsWithIds:@[[YAUser currentUser].currentGroup.serverId] withCompletion:^(id response, NSError *error) {
-            // Do nothing for now.
-        }];
-    } else {
-        [[YAServer sharedServer] postUngroupedVideo:self.initialVideo toGroups:@[[YAUser currentUser].currentGroup]];
-    }
-    [[NSNotificationCenter defaultCenter] postNotificationName:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:self.initialVideo];
+    YAVideo *vid = self.initialVideo;
+    [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:[NSURL URLWithString:vid.mp4Filename]
+                                                withCaptionText:vid.caption x:vid.caption_x y:vid.caption_y scale:vid.caption_scale rotation:vid.caption_rotation
+                                                    addToGroups:@[[YAUser currentUser].currentGroup]];
 }
 
 - (NSArray *)filterContactsToInvite {

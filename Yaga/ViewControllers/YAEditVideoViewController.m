@@ -16,6 +16,8 @@
 #import "YACrosspostCell.h"
 #import "UIImage+Color.h"
 #import "YAApplyCaptionView.h"
+#import "NameGroupViewController.h"
+#import "YAGroupsNavigationController.h"
 
 #define kGroupRowHeight 60
 #define kBottomFrameHeight 60
@@ -187,39 +189,47 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.groups count]; //  + 1; // +1 cuz create new group
+    return [self.groups count] + 1; // +1 cuz create new group
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-//    if (indexPath.row == [self.groups count]) {
-//        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kNewGroupCellId forIndexPath:indexPath];
-//        cell.backgroundColor = [UIColor clearColor];
-//        cell.textLabel.font = [UIFont fontWithName:BIG_FONT size:28];
-//        cell.textLabel.textColor = [UIColor whiteColor];
-//        
-//        cell.textLabel.shadowColor = [UIColor blackColor];
-//        cell.textLabel.shadowOffset = CGSizeMake(0.5, 0.5);
-//        UIImageView *disclosure = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
-//        disclosure.image = [UIImage imageNamed:@"Disclosure"];
-//        cell.accessoryView = disclosure;
-//        cell.textLabel.text = @" Create new group";
-//        cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:[UIImage imageWithColor:PRIMARY_COLOR]];
-//        return cell;
-//    } else {
+    if (indexPath.row == [self.groups count]) {
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kNewGroupCellId forIndexPath:indexPath];
+        cell.backgroundColor = [UIColor clearColor];
+        cell.textLabel.font = [UIFont fontWithName:BIG_FONT size:28];
+        cell.textLabel.textColor = [UIColor whiteColor];
+        
+        cell.textLabel.shadowColor = [UIColor blackColor];
+        cell.textLabel.shadowOffset = CGSizeMake(0.5, 0.5);
+        UIImageView *disclosure = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        disclosure.image = [UIImage imageNamed:@"Disclosure"];
+        cell.accessoryView = disclosure;
+        cell.textLabel.text = @" Create new group";
+        cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:[UIImage imageWithColor:PRIMARY_COLOR]];
+        return cell;
+    } else {
         YACrosspostCell *cell = [tableView dequeueReusableCellWithIdentifier:kCrosspostCellId forIndexPath:indexPath];
         YAGroup *group = [self.groups objectAtIndex:indexPath.row];
         [cell setGroupTitle:group.name];
         return cell;
-//    }
+    }
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-//    if (indexPath.row == [self.groups count]) {
-//        [[NSNotificationCenter defaultCenter] postNotificationName:BEGIN_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:self.video];
-//        [tableView deselectRowAtIndexPath:indexPath animated:NO];
-//    } else {
+    if (indexPath.row == [self.groups count]) {
+        __weak typeof(self) weakSelf = self;
+        [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {
+            YAVideo *video = [YAVideo video];
+            video.mp4Filename = [[weakSelf trimmedFileUrl] absoluteString];;
+            [video updateCaption:self.captionText withXPosition:self.captionX yPosition:self.captionY scale:self.captionScale rotation:self.captionRotation];
+            NameGroupViewController *vc = [NameGroupViewController new];
+            vc.initialVideo = video;
+            [weakSelf presentViewController:[[YAGroupsNavigationController alloc] initWithRootViewController:vc] animated:YES completion:nil];
+        }];
+        [tableView deselectRowAtIndexPath:indexPath animated:NO];
+    } else {
     [self layoutGroupButtons];
-//    }
+    }
 }
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -360,7 +370,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [self.view bringSubviewToFront:self.groupsTableView];
     [self.view bringSubviewToFront:self.bottomView];
     [self layoutGroupButtons];
-    CGFloat tableHeight = MIN(self.groupsTableView.frame.size.height, [self.groups count] * kGroupRowHeight);
+    CGFloat tableHeight = MIN(self.groupsTableView.frame.size.height, ([self.groups count] + 1) * kGroupRowHeight);
     CGRect tableViewFrame = self.groupsTableView.frame;
     tableViewFrame.origin.y = VIEW_HEIGHT - kBottomFrameHeight - tableHeight;
     [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.8 initialSpringVelocity:1 options:UIViewAnimationOptionAllowAnimatedContent animations:^{

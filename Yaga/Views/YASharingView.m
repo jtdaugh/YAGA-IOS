@@ -61,16 +61,14 @@
         CGFloat shareBarHeight = 60;
         CGFloat topBarHeight = 80;
         
-        CGFloat totalRowsHeight = XPCellHeight * ([self.groups count] + 1);
+        CGFloat totalRowsHeight = XPCellHeight * [self.groups count];
         if (![self.groups count]) totalRowsHeight = 0;
         BOOL myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
         if (!myVideo) totalRowsHeight = 0;
         
         CGFloat maxTableViewHeight = (frame.size.height * VIEW_HEIGHT_PROPORTION) - topGap - XPCellHeight;
-        if (video.group) {
-            maxTableViewHeight -= topBarHeight;
-        }
-        
+        maxTableViewHeight -= topBarHeight;
+    
         CGFloat tableHeight = MIN(maxTableViewHeight, totalRowsHeight);
         
         CGFloat gradientHeight = tableHeight + topBarHeight + topGap;
@@ -117,10 +115,6 @@
             [self.topBar addSubview:externalShareButton];
         }
         
-        if(!video.group){
-            self.topBar.hidden = YES;
-        }
-        
         self.groupsList = [[UITableView alloc] initWithFrame:CGRectMake(0, tableOrigin, VIEW_WIDTH, tableHeight)];
         [self.groupsList setBackgroundColor:[UIColor clearColor]];
         [self.groupsList registerClass:[YACrosspostCell class] forCellReuseIdentifier:kCrosspostCellId];
@@ -132,12 +126,12 @@
         self.groupsList.dataSource = self;
         self.groupsList.hidden = !myVideo;
         [self addSubview:self.groupsList];
-        self.groupsList.contentInset = UIEdgeInsetsMake(0, 0, video.group ? XPCellHeight : 0, 0);
+        self.groupsList.contentInset = UIEdgeInsetsMake(0, 0, XPCellHeight, 0);
 
         self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, tableOrigin - topGap, VIEW_WIDTH-24, 24)];
         self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
         self.crossPostPrompt.textColor = [UIColor whiteColor];
-        NSString *title = video.group ? ([self.groups count] ? @"Share to other groups" : @"") : @"Post to Groups";
+        NSString *title =([self.groups count] ? @"Share to other groups" : @"");
         self.crossPostPrompt.text = title;
         self.crossPostPrompt.hidden = !myVideo;
         self.crossPostPrompt.layer.shadowRadius = 0.5f;
@@ -216,11 +210,7 @@
 }
 
 - (void)collapseCrosspost {
-    if (self.video.group) {
         [self.page collapseCrosspost];
-    } else {
-        [self.page.presentingVC dismissAnimated];
-    }
 }
 
 - (void)externalShareAction:(UIButton *)sender {
@@ -501,25 +491,19 @@
             [yaGroups addObject:group];
         }
     }
-    if (self.video.group) {
-        __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Copying video to groups", @"")];
-        [[YAServer sharedServer] copyVideo:self.video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
-            [hud hide:NO];
-            
-            if(!error) {
-                [YAUtils showHudWithText:NSLocalizedString(@"Copied successfully", @"")];
-            }
-            else {
-                DLog(@"%@", error);
-                [YAUtils showHudWithText:NSLocalizedString(@"Can not copy video to groups", @"")];
-            }
-        }];
-        [self.page collapseCrosspost];
-    } else {
-        [[YAServer sharedServer] postUngroupedVideo:self.video toGroups:yaGroups];
-        [self.page.presentingVC dismissAnimated];
-    }
-
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Copying video to groups", @"")];
+    [[YAServer sharedServer] copyVideo:self.video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
+        [hud hide:NO];
+        
+        if(!error) {
+            [YAUtils showHudWithText:NSLocalizedString(@"Copied successfully", @"")];
+        }
+        else {
+            DLog(@"%@", error);
+            [YAUtils showHudWithText:NSLocalizedString(@"Can not copy video to groups", @"")];
+        }
+    }];
+    [self.page collapseCrosspost];
 }
 
 - (void)externalShareButtonPressed {
@@ -614,26 +598,10 @@
 
 #pragma mark - UITableViewDataSource / UITableViewDelegate
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row == [self.groups count]) {
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kNewGroupCellId forIndexPath:indexPath];
-        cell.backgroundColor = [UIColor clearColor];
-        cell.textLabel.font = [UIFont fontWithName:BIG_FONT size:28];
-        cell.textLabel.textColor = [UIColor whiteColor];
-        
-        cell.textLabel.shadowColor = [UIColor blackColor];
-        cell.textLabel.shadowOffset = CGSizeMake(0.5, 0.5);
-        UIImageView *disclosure = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
-        disclosure.image = [UIImage imageNamed:@"Disclosure"];
-        cell.accessoryView = disclosure;
-        cell.textLabel.text = @" Create new group";
-        cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:[UIImage imageWithColor:PRIMARY_COLOR]];
-        return cell;
-    } else {
         YACrosspostCell *cell = [tableView dequeueReusableCellWithIdentifier:kCrosspostCellId forIndexPath:indexPath];
         YAGroup *group = [self.groups objectAtIndex:indexPath.row];
         [cell setGroupTitle:group.name];
         return cell;
-    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -641,16 +609,11 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.groups count] + (self.video.group ? 0 : 1);
+    return [self.groups count];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row == [self.groups count]) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:BEGIN_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:self.video];
-        [tableView deselectRowAtIndexPath:indexPath animated:NO];
-    } else {
         [self renderButton:[[tableView indexPathsForSelectedRows] count]];
-    }
 }
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
