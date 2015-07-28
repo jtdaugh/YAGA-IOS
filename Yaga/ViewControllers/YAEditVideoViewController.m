@@ -153,7 +153,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.sendButton.frame = CGRectMake(self.view.bounds.size.width - self.bottomView.bounds.size.height, 0, self.bottomView.bounds.size.height, self.bottomView.bounds.size.height);
-    [self.sendButton setImage:[[UIImage imageNamed:@"PaperPlane"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [self.sendButton setImage:[[UIImage imageNamed:@"Send"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [self.sendButton addTarget:self action:@selector(sendButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
     self.sendButton.imageEdgeInsets = UIEdgeInsetsMake(15, 15, 15, 15);
     self.sendButton.tintColor = [UIColor whiteColor];
@@ -302,6 +302,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.captionButton.hidden = YES;
     self.xButton.hidden = YES;
     self.bottomView.hidden = YES;
+    self.groupsTableView.hidden = YES;
 
     applyCaptionView.completionHandler = ^(BOOL completed, UIView *captionView, UITextView *captionTextView, NSString *text, CGFloat x, CGFloat y, CGFloat scale, CGFloat rotation){
         if (completed) {
@@ -317,6 +318,9 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.captionButton.hidden = NO;
         self.xButton.hidden = NO;
         self.bottomView.hidden = NO;
+        if(self.groupsExpanded){
+            self.groupsTableView.hidden = NO;
+        }
         [weakApplyCaptionView removeFromSuperview];
     };
     
