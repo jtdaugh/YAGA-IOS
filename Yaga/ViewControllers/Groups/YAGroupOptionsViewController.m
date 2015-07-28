@@ -9,7 +9,7 @@
 #import "YAGroupOptionsViewController.h"
 #import "YAGroupAddMembersViewController.h"
 #import "YAGroupsNavigationController.h"
-#import "YAInviteViewController.h"
+#import "YAInviteHelper.h"
 #import "YAServer.h"
 
 @interface YAGroupOptionsViewController ()
@@ -27,6 +27,7 @@
 @property (nonatomic, strong) UIButton *groupNameButton;
 @property (nonatomic, strong) YANotificationView *notificationView;
 
+@property (nonatomic, strong) YAInviteHelper *inviteHelper;
 @end
 
 @implementation YAGroupOptionsViewController
@@ -121,7 +122,6 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [(YAGroupsNavigationController *)self.navigationController showCameraButton:YES];
 
     //crash fixed
     //http://stackoverflow.com/questions/19230446/tableviewcaneditrowatindexpath-crash-when-popping-viewcontroller
@@ -438,12 +438,10 @@ static NSString *CellID = @"CellID";
 
 - (void)inviteTapped:(UIButton*)sender {
     YAContact *contactToInvite = self.sortedMembers[sender.tag];
-    
-    YAInviteViewController *inviteVC = [YAInviteViewController new];
-    inviteVC.canNavigateBack = YES;
-    inviteVC.inCreateGroupFlow = NO;
-    inviteVC.contactsThatNeedInvite = @[[contactToInvite dictionaryRepresentation]];
-    [self.navigationController pushViewController:inviteVC animated:YES];
+    self.inviteHelper = [[YAInviteHelper alloc] initWithContactsToInvite: @[[contactToInvite dictionaryRepresentation]] viewController:self cancelText:@"Cancel" completion:^(BOOL sent) {
+        self.inviteHelper = nil;
+    }];
+    [self.inviteHelper show];
 }
 
 - (void)updateMembersPendingJoin {

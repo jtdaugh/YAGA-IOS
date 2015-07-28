@@ -518,7 +518,4 @@
     [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
-
-
-
 @end
