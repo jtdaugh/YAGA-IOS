@@ -134,7 +134,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)addTrimmingView {
-    const CGFloat sliderHeight = 35;
+    const CGFloat sliderHeight = 40;
     self.trimmingView = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight)
                                                          videoUrl:self.videoUrl];
     self.trimmingView.delegate = self;

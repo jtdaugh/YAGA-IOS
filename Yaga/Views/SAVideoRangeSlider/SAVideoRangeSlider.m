@@ -98,7 +98,7 @@
         UIPanGestureRecognizer *centerPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCenterPan:)];
         [_centerView addGestureRecognizer:centerPan];
         
-        _thumbnailFrameWidth = 20;
+        _thumbnailFrameWidth = frame.size.height * (9.f/16.f);
         _framesCount = ceil(self.bgView.frame.size.width / self.thumbnailFrameWidth);
         
         [self generateThumbsAsync];
