@@ -7,13 +7,13 @@
 //
 
 #import "YAGroupAddMembersViewController.h"
-#import "YAInviteViewController.h"
 #import "NameGroupViewController.h"
 #import "YAGroupOptionsViewController.h"
 #import "APPhoneWithLabel.h"
 #import "NSString+Hash.h"
 #import "YAUtils.h"
 #import "YAServer.h"
+#import "YAInviteHelper.h"
 
 @interface YAGroupAddMembersViewController ()
 @property (strong, nonatomic) UIActivityIndicatorView *activityView;
@@ -23,6 +23,7 @@
 @property (strong, nonatomic) NSMutableArray *filteredContacts;
 @property (strong, nonatomic) NSArray *deviceContacts;
 
+@property (nonatomic, strong) YAInviteHelper *inviteHelper;
 @property (nonatomic, strong) NSArray *contactsThatNeedInvite;
 
 @property (nonatomic, readonly) BOOL existingGroupDirty;
@@ -109,6 +110,9 @@
             });
         }
     } excludingPhoneNumbers:[self.existingGroup phonesSet]];
+    
+    [self.searchBar becomeFirstResponder];
+
 }
 
 - (void)setDoneButton {
@@ -130,8 +134,6 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 //    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
-
-    [self.searchBar becomeFirstResponder];
     
     self.title = self.existingGroup ? self.existingGroup.name : @"Add Members";
 
@@ -141,7 +143,9 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
-    [self.searchBar resignFirstResponder];
+    if (![self.presentedViewController isKindOfClass:[MSAlertController class]]) {
+        [self.searchBar resignFirstResponder];
+    }
 
     self.title = @"";
 }
@@ -365,6 +369,23 @@
     if(![self validateSelectedContacts])
         return;
 
+
+    self.contactsThatNeedInvite = [self filterContactsToInvite];
+    if (![self.contactsThatNeedInvite count]) {
+        [self changeGroupOnServer];
+    } else {
+        self.inviteHelper = [[YAInviteHelper alloc] initWithContactsToInvite:self.contactsThatNeedInvite viewController:self cancelText:@"Skip" completion:^(BOOL sent) {
+            self.inviteHelper = nil; // Do the weird __block and nil thing so inviteHelper doesn't get released until here. Could also make it a property.
+            [self changeGroupOnServer];
+        }];
+        [self.inviteHelper show];
+    }
+
+    
+    }
+
+- (void)changeGroupOnServer {
+    
     //If we come from GridViewController
     __block BOOL found = NO;
     [self.navigationController.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -373,10 +394,11 @@
             *stop = YES;
         }
     }];
+    
     self.inCreateGroupFlow = !found;
-    
+
     __weak typeof(self) weakSelf = self;
-    
+
     if(self.existingGroup && self.existingGroupDirty) {
         // Existing Group
         [self showActivity:YES];
@@ -395,24 +417,14 @@
             
             if(!error) {
                 [[Mixpanel sharedInstance] track:@"Group changed" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
-                
-                weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
-                if (![weakSelf.contactsThatNeedInvite count]) {
-                    NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), weakSelf.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
-                    [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-                    [weakSelf dismissAddMembers];
-                } else {
-                    // Push the invite screen
-                    YAInviteViewController *nextVC = [YAInviteViewController new];
-                    nextVC.inCreateGroupFlow = NO;
-                    nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
-                    [weakSelf.navigationController pushViewController:nextVC animated:YES];
-                }
+                NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), weakSelf.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
+                [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
             }
-
+            
             if(needRefresh)
                 [weakSelf.existingGroup refresh];
-            
+           
+            [weakSelf dismissAddMembers];
         }];
     }
     else {
@@ -433,23 +445,15 @@
                     [weakSelf showActivity:NO];
                     if(!error) {
                         [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
-                        
-                        weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
-                        if (![weakSelf.contactsThatNeedInvite count]) {
-                            [weakSelf dismissAddMembers];
-                        } else {
-                            YAInviteViewController *nextVC = [YAInviteViewController new];
-                            nextVC.inCreateGroupFlow = YES;
-                            nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
-                            [weakSelf.navigationController pushViewController:nextVC animated:YES];
-                        }
                     }
+                    [weakSelf dismissAddMembers];
                 }];
-
             }
-        }];
 
+        }];
+        
     }
+
 }
 
 - (void)dismissAddMembers {
