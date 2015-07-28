@@ -158,8 +158,8 @@
         }];
         
         [self.videoCamera pauseCameraCapture];
+        [self toggleFlash:NO];
         self.isPaused = YES;
-        [self.delegate setFrontFacingFlash:NO];
         if (stop) {
             [self.videoCamera stopCameraCapture];
             runSynchronouslyOnVideoProcessingQueue(^{

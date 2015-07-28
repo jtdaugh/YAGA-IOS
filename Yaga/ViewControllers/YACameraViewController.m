@@ -30,7 +30,7 @@
 #import "YAPopoverView.h"
 #import "QuartzCore/CALayer.h"
 
-#define BUTTON_SIZE (VIEW_WIDTH / 7)
+#define BUTTON_SIZE (VIEW_WIDTH / 8)
 #define HEADER_HEIGHT 60.f
 
 
@@ -38,6 +38,8 @@
 #define INFO_SIZE 36.f
 
 #define kUnviwedBadgeWidth 10
+
+#define kStrobeInterval 0.07
 
 @interface YACameraViewController () <YACameraManagerDelegate, UIGestureRecognizerDelegate>
 
@@ -70,6 +72,9 @@
 
 @property double animationStartTime;
 
+@property (nonatomic, strong) NSTimer *flashTimer;
+@property (nonatomic, strong) NSTimer *strobeTimer;
+
 //@property NSUInteger filterIndex;
 //@property (strong, nonatomic) UISwipeGestureRecognizer *swipeCameraLeft;
 //@property (strong, nonatomic) UISwipeGestureRecognizer *swipeCameraRight;
@@ -100,6 +105,10 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    [self.flashTimer invalidate];
+    [self.strobeTimer invalidate];
+    self.flashTimer = nil;
+    self.strobeTimer = nil;
     [[YACameraManager sharedManager] pauseCameraAndStop:NO];
 //    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
 }
@@ -128,32 +137,13 @@
     
     self.white = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self.white setBackgroundColor:[UIColor whiteColor]];
-    [self.white setAlpha:0.4];
+    [self.white setAlpha:0.6];
     self.white.hidden = YES;
     [self.cameraView addSubview:self.white];
     UITapGestureRecognizer *killFrontFlashTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleFlash:)];
     killFrontFlashTapRecognizer.numberOfTapsRequired = 1;
     [self.white addGestureRecognizer:killFrontFlashTapRecognizer];
     [killFrontFlashTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
-    
-    self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 8, VIEW_HEIGHT - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
-    //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
-    [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
-    [self.switchCameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    
-    [self.cameraAccessories addObject:self.switchCameraButton];
-    [self.view addSubview:self.switchCameraButton];
-    
-    CGFloat flashSize = BUTTON_SIZE - 8;
-    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, VIEW_HEIGHT - BUTTON_SIZE - 10, flashSize, flashSize)];
-    //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [flashButton addTarget:self action:@selector(toggleFlash:) forControlEvents:UIControlEventTouchUpInside];
-    [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
-    [flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    self.flashButton = flashButton;
-    [self.cameraAccessories addObject:self.flashButton];
-    [self.view addSubview:self.flashButton];
     
 // Filters
 //    self.swipeCameraLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraLeft:)];
@@ -195,6 +185,31 @@
     
     [self.view addSubview:self.doneRecordingButton];
 
+    CGFloat bottomButtonPaddingX = (self.doneRecordingButton.frame.origin.x-BUTTON_SIZE)/2;
+    CGFloat bottomButtonTopY = self.doneRecordingButton.center.y - (BUTTON_SIZE/2);
+    
+    self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - bottomButtonPaddingX - BUTTON_SIZE, bottomButtonTopY, BUTTON_SIZE, BUTTON_SIZE)];
+    //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
+    [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
+    [self.switchCameraButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    
+    [self.cameraAccessories addObject:self.switchCameraButton];
+    [self.view addSubview:self.switchCameraButton];
+    
+    CGFloat flashSize = BUTTON_SIZE - 8;
+    UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(bottomButtonPaddingX+4, bottomButtonTopY+4, flashSize, flashSize)];
+    //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [flashButton addTarget:self action:@selector(startFlashTimer) forControlEvents:UIControlEventTouchDown];
+    [flashButton addTarget:self action:@selector(killStrobe) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel];
+    [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
+    [flashButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+    
+    self.flashButton = flashButton;
+    [self.cameraAccessories addObject:self.flashButton];
+    [self.view addSubview:self.flashButton];
+
+    
     self.recordingCircle = [[UIView alloc] initWithFrame:self.doneRecordingButton.frame];
     
     self.recordingCircle.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -420,6 +435,27 @@
         [[UIScreen mainScreen] setBrightness:1.0];
         [self.white setHidden:NO];
     }
+}
+
+- (void)startFlashTimer {
+    [self toggleFlash:nil];
+    self.flashTimer = [NSTimer scheduledTimerWithTimeInterval:kStrobeInterval*3 target:self selector:@selector(startStrobe) userInfo:nil repeats:NO];
+    self.panGesture.enabled = NO; // So you can drag while strobing
+}
+
+- (void)startStrobe {
+    self.strobeTimer = [NSTimer scheduledTimerWithTimeInterval:kStrobeInterval target:self selector:@selector(toggleFlash:) userInfo:nil repeats:YES];
+}
+
+- (void)killStrobe {
+    self.panGesture.enabled = YES;
+    if (self.strobeTimer) {
+        [self.strobeTimer invalidate];
+        self.strobeTimer = nil;
+        [self setFlashMode:NO];
+    }
+    [self.flashTimer invalidate];
+    self.flashTimer = nil;
 }
 
 - (void)toggleFlash:(id)sender {
