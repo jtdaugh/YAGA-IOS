@@ -58,6 +58,7 @@
         _bgView = [[UIControl alloc] initWithFrame:CGRectMake(thumbWidth, 0, frame.size.width-(thumbWidth*2), frame.size.height)];
         _bgView.layer.cornerRadius = 5;
         _bgView.clipsToBounds = YES;
+        _bgView.backgroundColor = [UIColor blackColor];
         [self addSubview:_bgView];
         
         _videoUrl = videoUrl;
@@ -96,7 +97,7 @@
         [self addSubview:_centerView];
         
         UIPanGestureRecognizer *centerPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCenterPan:)];
-        [_centerView addGestureRecognizer:centerPan];
+//        [_centerView addGestureRecognizer:centerPan];
         
         _thumbnailFrameWidth = frame.size.height * (9.f/16.f);
         _framesCount = ceil(self.bgView.frame.size.width / self.thumbnailFrameWidth);

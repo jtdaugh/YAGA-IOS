@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		02ECEDBC4621CBE0CB14A3D4 /* libPods-YAVideoShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F365E23CEB3BDF63467042B1 /* libPods-YAVideoShareExtension.a */; };
 		0F46B6D41B585A63008E9808 /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41999D3A1B57568D0054881F /* bumper.mp4 */; };
 		0F46B6D81B58676A008E9808 /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
 		0F46B6DB1B586E38008E9808 /* YAShareServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F46B6DA1B586E38008E9808 /* YAShareServer.m */; };
@@ -24,6 +23,7 @@
 		0FDC3AFA1B0E69C0003A688D /* UIImage+YABlur.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF71B0E69C0003A688D /* UIImage+YABlur.m */; };
 		0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */; };
 		0FE7A6B41B53542C00B35DCD /* YACreateGroupNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FE7A6B31B53542C00B35DCD /* YACreateGroupNavigationController.m */; };
+		18EE367900016CEB8BF3A0E7 /* libPods-Yaga.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B8DB16454F57F65456424710 /* libPods-Yaga.a */; };
 		4120E70B1B43624500627359 /* SocialVideoHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4120E70A1B43624500627359 /* SocialVideoHelper.m */; };
 		41235F1A1B4C93E400B08ED5 /* YAPopoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41235F191B4C93E400B08ED5 /* YAPopoverView.m */; };
 		413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
@@ -144,7 +144,7 @@
 		88FB0A231B1D4F36002C213C /* YAEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A221B1D4F36002C213C /* YAEvent.m */; };
 		88FB0A261B1D5250002C213C /* YAEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A251B1D5250002C213C /* YAEventManager.m */; };
 		88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A2B1B1D6D78002C213C /* NSArray+Reverse.m */; };
-		BA5997220C664579F5CB7238 /* libPods-Yaga.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B8DB16454F57F65456424710 /* libPods-Yaga.a */; };
+		A8F20EE534187BCAFAC52788 /* libPods-YAVideoShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F365E23CEB3BDF63467042B1 /* libPods-YAVideoShareExtension.a */; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 		E5EC7E9521430FF9402F63C5 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -425,7 +425,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E5EC7E9521430FF9402F63C5 /* libPods.a in Frameworks */,
-				02ECEDBC4621CBE0CB14A3D4 /* libPods-YAVideoShareExtension.a in Frameworks */,
+				A8F20EE534187BCAFAC52788 /* libPods-YAVideoShareExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -448,7 +448,7 @@
 				71D0F570190D998000C7DEE0 /* UIKit.framework in Frameworks */,
 				71D0F56C190D998000C7DEE0 /* Foundation.framework in Frameworks */,
 				C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */,
-				BA5997220C664579F5CB7238 /* libPods-Yaga.a in Frameworks */,
+				18EE367900016CEB8BF3A0E7 /* libPods-Yaga.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
