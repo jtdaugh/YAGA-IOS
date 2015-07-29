@@ -79,8 +79,7 @@
         frame.origin.x = (VIEW_WIDTH - self.initialFrame.size.width)/2;
     }
     
-    //[UIView animateWithDuration:kDuration delay:0.0f usingSpringWithDamping:0.4f initialSpringVelocity:6.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
-    [UIView animateWithDuration:kDuration delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         fromViewController.view.frame = frame;
         fromViewController.view.transform = self.initialTransform;
         fromViewController.view.alpha = 0.0;

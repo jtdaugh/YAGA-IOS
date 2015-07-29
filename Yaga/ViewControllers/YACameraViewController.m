@@ -98,7 +98,7 @@
         [[YACameraManager sharedManager] setCameraView:self.cameraView];
     });
     
-    if (!self.shownViaBackgrounding) {
+    if (!self.shownViaBackgrounding) { // Otherwise let app delegate handle it
         [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
     }
 }
