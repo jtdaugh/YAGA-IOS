@@ -264,7 +264,7 @@
     
     //darken left and right
     for (UIImageView *previewImageView in self.darkenViews) {
-        if(previewImageView.superview.frame.origin.x < _leftThumb.frame.origin.x - _leftThumb.frame.size.width || previewImageView.superview.frame.origin.x > _rightThumb.frame.origin.x - _rightThumb.frame.size.width) {
+        if(previewImageView.superview.frame.origin.x < _leftThumb.frame.origin.x - _leftThumb.frame.size.width || (previewImageView.superview.frame.origin.x + previewImageView.superview.frame.size.width) > (_rightThumb.frame.origin.x)) {
             previewImageView.alpha = 0.7;
         }
         else
