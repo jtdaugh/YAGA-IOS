@@ -58,7 +58,6 @@
         _bgView = [[UIControl alloc] initWithFrame:CGRectMake(thumbWidth, 0, frame.size.width-(thumbWidth*2), frame.size.height)];
         _bgView.layer.cornerRadius = 5;
         _bgView.clipsToBounds = YES;
-        _bgView.backgroundColor = [UIColor blackColor];
         [self addSubview:_bgView];
         
         _videoUrl = videoUrl;
@@ -342,7 +341,7 @@
     
     //add darken view
     UIView *view = [[UIView alloc] initWithFrame:thumbImageView.bounds];
-//    view.backgroundColor = [UIColor blackColor];
+    view.backgroundColor = [UIColor blackColor];
     view.alpha = 0;
     [thumbImageView addSubview:view];
     [self.darkenViews addObject:view];
