@@ -56,14 +56,13 @@
         int thumbWidth = ceil(frame.size.width*0.05);
         
         _bgView = [[UIControl alloc] initWithFrame:CGRectMake(thumbWidth, 0, frame.size.width-(thumbWidth*2), frame.size.height)];
-        _bgView.layer.cornerRadius = 5;
-        _bgView.clipsToBounds = YES;
-        _bgView.backgroundColor = [UIColor blackColor];
+        _bgView.layer.cornerRadius = 0;
+//        _bgView.clipsToBounds = YES;
         [self addSubview:_bgView];
         
         _videoUrl = videoUrl;
         
-        _currentPositionView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, self.bounds.size.height)];
+        _currentPositionView = [[UIView alloc] initWithFrame:CGRectMake(-1, -2, 2, self.bounds.size.height + 4)];
         _currentPositionView.backgroundColor = [UIColor whiteColor];
         [self addSubview:_currentPositionView];
         
@@ -265,7 +264,7 @@
     
     //darken left and right
     for (UIImageView *previewImageView in self.darkenViews) {
-        if(previewImageView.superview.frame.origin.x < _leftThumb.frame.origin.x - _leftThumb.frame.size.width || previewImageView.superview.frame.origin.x > _rightThumb.frame.origin.x - _rightThumb.frame.size.width) {
+        if(previewImageView.superview.frame.origin.x < _leftThumb.frame.origin.x - _leftThumb.frame.size.width || (previewImageView.superview.frame.origin.x + previewImageView.superview.frame.size.width) > (_rightThumb.frame.origin.x)) {
             previewImageView.alpha = 0.7;
         }
         else
@@ -342,7 +341,7 @@
     
     //add darken view
     UIView *view = [[UIView alloc] initWithFrame:thumbImageView.bounds];
-//    view.backgroundColor = [UIColor blackColor];
+    view.backgroundColor = [UIColor blackColor];
     view.alpha = 0;
     [thumbImageView addSubview:view];
     [self.darkenViews addObject:view];
@@ -385,7 +384,7 @@
 - (void)setPlayerProgress:(CGFloat)progress {
     CGFloat totalWidth = self.rightThumb.frame.origin.x - self.leftThumb.frame.origin.x - self.leftThumb.frame.size.width;
     CGFloat currentPositionX = self.leftThumb.frame.origin.x + self.leftThumb.frame.size.width + totalWidth * progress;
-    self.currentPositionView.frame = CGRectMake(currentPositionX, 0, self.currentPositionView.frame.size.width, self.currentPositionView.frame.size.height);
+    self.currentPositionView.frame = CGRectMake(currentPositionX, self.currentPositionView.frame.origin.y, self.currentPositionView.frame.size.width, self.currentPositionView.frame.size.height);
 }
 
 #pragma mark - Helpers

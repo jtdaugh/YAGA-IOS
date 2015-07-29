@@ -14,7 +14,7 @@
     [UIView transitionFromView:[UIApplication sharedApplication].keyWindow.rootViewController.view
                         toView:dst.view
                       duration:0.4f
-                       options:UIViewAnimationOptionTransitionFlipFromRight | UIViewAnimationOptionCurveEaseInOut
+                       options:UIViewAnimationOptionTransitionCurlUp | UIViewAnimationOptionCurveEaseInOut
                     completion:^(BOOL finished){
                         [UIApplication sharedApplication].keyWindow.rootViewController = dst;
                     }];

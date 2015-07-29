@@ -81,6 +81,12 @@ static NSString *CellIdentifier = @"GroupsCell";
                 // TODO: Adjust mixpanel for humanity
                 if([YAGroup allObjects].count) {
                     [[Mixpanel sharedInstance] track:@"Onboarding user already a part of some groups"];
+                    
+                    NSLog(@"groups count: %lu", (unsigned long)[YAGroup allObjects].count);
+                    
+                    if(self.onboardingMode){
+                        [self doneButtonPressed:nil];
+                    }
                 }
                 else {
                     [[Mixpanel sharedInstance] track:@"Onboarding user doesn't have any groups"];
@@ -90,8 +96,9 @@ static NSString *CellIdentifier = @"GroupsCell";
             }
             
             weakSelf.groupsListLoaded = YES;
-            if(self.findGroupsFinished && self.groupsDataArray.count == 0)
+            if(self.findGroupsFinished && self.groupsDataArray.count == 0) {
                 [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
+            }
         }];
         
         __block UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];

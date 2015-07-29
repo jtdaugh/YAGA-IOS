@@ -55,7 +55,6 @@
 
 @property (strong, nonatomic) UIView *recordingIndicator;
 
-@property (strong, nonatomic) UILabel *recordingMessage;
 @property (strong, nonatomic) UIView *bigRecordingIndicator;
 
 @property (strong, nonatomic) UIButton *switchCameraButton;
@@ -109,6 +108,11 @@
     [self.strobeTimer invalidate];
     self.flashTimer = nil;
     self.strobeTimer = nil;
+
+    [self.animatedRecorder removeFromSuperview];
+    [self.doneRecordingButton setAlpha:0.0];
+    [self.recordingCircle setAlpha:0.0];
+
     [[YACameraManager sharedManager] pauseCameraAndStop:NO];
 //    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
 }
@@ -247,21 +251,6 @@
 //                                                                                                     NSStrokeWidthAttributeName: @8.0,
 //                                                                                                     NSStrokeColorAttributeName: [UIColor whiteColor]
 //                                                                                                     }];
-    
-    self.recordingMessage = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH * 2.0f / 3.0f, 36)];
-    [self.recordingMessage setText:@"Recording"];
-    [self.recordingMessage setCenter:CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT - 12 - 24)];
-    [self.recordingMessage setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-    [self.recordingMessage setTextColor:[UIColor whiteColor]];
-    [self.recordingMessage setTextAlignment:NSTextAlignmentCenter];
-    
-    self.recordingMessage.layer.shadowColor = [UIColor blackColor].CGColor;
-    self.recordingMessage.layer.shadowOffset = CGSizeMake(3.0f, 3.0f);
-    self.recordingMessage.layer.shadowRadius = 0.0f;
-    self.recordingMessage.layer.shadowOpacity = 1.0f;
-    self.recordingMessage.alpha = 0.0;
-    [self.view addSubview:self.recordingMessage];
-    
 }
 
 - (void)doneRecordingTapDown {
@@ -304,25 +293,25 @@
     [self.view addSubview:self.animatedRecorder];
 
     [self.doneRecordingButton setAlpha:0.0];
-    
-    [self showRecordButton];
-    
+    [self.recordingCircle setAlpha:0.0];
 //    self.doneRecordingButton.transform = CGAffineTransformMakeScale(0.8, 0.8);
-    self.animatedRecorder.transform = CGAffineTransformMakeScale(0.8, 0.8);
     
     [self.animatedRecorder setCustomText:@"REC"];
     self.animatedRecorder.textLabel.layer.shadowColor = [UIColor blackColor].CGColor;
     self.animatedRecorder.textLabel.layer.shadowOffset = CGSizeMake(1.0f, 1.0f);
     self.animatedRecorder.textLabel.layer.shadowRadius = 0.0f;
     self.animatedRecorder.textLabel.layer.shadowOpacity = 1.0f;
-    self.recordingMessage.alpha = 0.0;
+    [self.animatedRecorder.textLabel setAlpha:0.0];
+    
+    [self.animatedRecorder.textLabel setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
 
     
     [UIView animateWithDuration:.618 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         //
         [self.animatedRecorder setAlpha:1.0];
         [self.recordingCircle setAlpha:1.0];
-        self.animatedRecorder.transform = CGAffineTransformIdentity;
+        [self.animatedRecorder.textLabel setTransform:CGAffineTransformIdentity];
+        [self.animatedRecorder.textLabel setAlpha:1.0];
     } completion:^(BOOL finished) {
         //
     }];
