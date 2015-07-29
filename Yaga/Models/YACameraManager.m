@@ -7,11 +7,13 @@
 //
 
 #import "YACameraManager.h"
+#import "YAAssetsCreator.h"
 #import "YAUser.h"
 
 #define MAX_ZOOM_SCALE 4.f
 
-#define BACKUP_RECORDING_SECONDS 15
+#define BACKUP_RECORDING_INTERVAL 5
+#define MAXIMUM_TRIM_INTERVAL 20
 
 @implementation YACameraView
 @end
@@ -23,8 +25,6 @@
 @property (strong, nonatomic) GPUImageVideoCamera *videoCamera;
 @property (strong, nonatomic) GPUImageMovieWriter *movieWriter;
 
-@property (nonatomic, strong) UIImage *mostRecentCapturePreviewImage;
-
 @property (nonatomic, strong) UIPinchGestureRecognizer *pinchZoomGesture;
 @property (nonatomic, assign) CGFloat zoomFactor;
 @property (nonatomic, assign) CGFloat beginGestureScale;
@@ -35,8 +35,12 @@
 @property (nonatomic) BOOL isPaused;
 
 @property (nonatomic, strong) NSTimer *recordingBackupTimer;
+@property (nonatomic, strong) NSDate *currentRecordingBeginDate;
 
-@property (nonatomic, readonly) NSString *backupPath;
+@property (nonatomic, strong) NSMutableArray *recordingSequenceUrls; // Array of NSURLs
+@property (nonatomic, strong) NSMutableArray *recordingSequenceDurations; // Array of CMTimes or NSTimeIntervals (dunno yet)
+@property (nonatomic, strong) NSMutableArray *previewImages; // NSArray of UIImages
+
 @end
 
 @implementation YACameraManager
@@ -55,17 +59,6 @@
     if (self) {
         _isInitialized = NO;
         _isPaused = YES;
-        _backupPath = [[NSString alloc] initWithFormat:@"%@backup_recording.mp4", NSTemporaryDirectory()];
-        
-        //remove old backup
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        if ([fileManager fileExistsAtPath:_backupPath])
-        {
-            NSError *error;
-            if (![fileManager removeItemAtPath:_backupPath error:&error])
-                DLog(@"Error removing backup recording: %@", error);
-        }
-
     }
     return self;
 }
@@ -153,7 +146,7 @@
 - (void)pauseCameraAndStop:(BOOL)stop {
     if (self.isInitialized){
         DLog(@"pausing camera capture");
-        [self stopContiniousRecordingWithCompletion:^(NSURL *outputUrl) {
+        [self stopContiniousRecordingAndPrepareOutput:NO completion:^(NSURL *outputUrl, NSTimeInterval duration, UIImage *firstFrameImage) {
             // discard
         }];
         
@@ -178,15 +171,9 @@
             [self.videoCamera startCameraCapture];
         }
         
-        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
-        self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
-        unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
-        
-        if ([self.backupPath length])
-            unlink([self.backupPath UTF8String]); // If a file already exists
-        
-        self.mostRecentCapturePreviewImage = nil;
-        self.capturePreviewImage = nil;
+        self.previewImages = [NSMutableArray array];
+        self.recordingSequenceDurations = [NSMutableArray array];
+        self.recordingSequenceUrls = [NSMutableArray array];
         
         [self startContiniousRecording];
     }
@@ -196,7 +183,8 @@
     [self startRecording];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.recordingBackupTimer = [NSTimer scheduledTimerWithTimeInterval:BACKUP_RECORDING_SECONDS target:self selector:@selector(createBackupAndProceedRecording) userInfo:nil repeats:NO];
+        [self.recordingBackupTimer invalidate];
+        self.recordingBackupTimer = [NSTimer scheduledTimerWithTimeInterval:BACKUP_RECORDING_INTERVAL target:self selector:@selector(createBackupAndProceedRecording) userInfo:nil repeats:NO];
     });
 }
 
@@ -204,20 +192,6 @@
     __weak typeof(self) weakSelf = self;
     [self stopRecordingWithCompletion:^(NSURL *recordedURL) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            unlink([self.backupPath UTF8String]); // If a file already exists
-            
-            NSError *error;
-            NSDictionary *fileAttrs = [[NSFileManager defaultManager] attributesOfItemAtPath:recordedURL.path error:&error];
-            DLog(@"recording size: %@", fileAttrs[@"NSFileSize"]);
-            
-            [[NSFileManager defaultManager] copyItemAtPath:recordedURL.path toPath:self.backupPath error:&error];
-            if(error) {
-                DLog(@"can't create recording backup");
-                return;
-            }
-            
-            DLog(@"%d seconds backup created, proceeding recording", BACKUP_RECORDING_SECONDS);
-            
             [weakSelf startContiniousRecording];
         });
     }];
@@ -228,11 +202,10 @@
     if (!self.isInitialized) return;
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+
         
-        //Create temporary URL to record to
-        NSString *outputPath = [[NSString alloc] initWithFormat:@"%@recording.mp4", NSTemporaryDirectory()];
-        self.currentlyRecordingUrl = [[NSURL alloc] initFileURLWithPath:outputPath];
-        unlink([[self.currentlyRecordingUrl path] UTF8String]); // If a file already exists
+        NSString *fileName = [NSString stringWithFormat:@"%@_%@", [[NSProcessInfo processInfo] globallyUniqueString], @"file.mp4"];
+        self.currentlyRecordingUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
         
         NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
         [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
@@ -260,21 +233,17 @@
         self.videoCamera.audioEncodingTarget = self.movieWriter;
         
         [self.videoCamera addTarget:self.movieWriter];
+        
+        self.currentRecordingBeginDate = [NSDate date];
         [self.movieWriter startRecording];
         
-        if (self.mostRecentCapturePreviewImage) {
-            // make the preview img from the previous clip the primary preview
-            self.capturePreviewImage = self.mostRecentCapturePreviewImage;
-        }
         GPUImageFilter *imgFilter = [GPUImageFilter new];
         [self.videoCamera addTarget:imgFilter];
         
         [imgFilter useNextFrameForImageCapture];
-        self.mostRecentCapturePreviewImage = [imgFilter imageFromCurrentFramebufferWithOrientation:UIImageOrientationUp];
-        if (!self.capturePreviewImage) {
-            // Always want a primary preview img, so if this is the first clip, copy the preview img
-            self.capturePreviewImage = self.mostRecentCapturePreviewImage;
-        }
+        UIImage *previewImage = [imgFilter imageFromCurrentFramebufferWithOrientation:UIImageOrientationUp];
+        [self.previewImages addObject:previewImage];
+        [self.recordingSequenceUrls addObject:self.currentlyRecordingUrl];
     });
     
     
@@ -286,6 +255,7 @@
 
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion {
     if (!self.isInitialized) return;
+    [self.recordingSequenceDurations addObject:@([[NSDate date] timeIntervalSinceDate:self.currentRecordingBeginDate])];
     
     DLog(@"Finish recording?");
     [self.movieWriter finishRecordingWithCompletionHandler:^{
@@ -301,37 +271,62 @@
     }];
 }
 
-- (void)stopContiniousRecordingWithCompletion:(YARecordingCompletionBlock)completion {
+- (void)deleteRecordingData {
+    NSError *error = nil;
+    for (NSURL *url in self.recordingSequenceUrls) {
+        [[NSFileManager defaultManager] removeItemAtURL:url error:&error];
+    }
+    [self.recordingSequenceUrls removeAllObjects];
+    [self.recordingSequenceDurations removeAllObjects];
+    [self.previewImages removeAllObjects];
+}
+
+- (void)stopContiniousRecordingAndPrepareOutput:(BOOL)prepareOutput completion:(YAPostCaptureCompletionBlock)completion {
     __weak typeof(self) weakSelf = self;
     
     [self.recordingBackupTimer invalidate];
     
     [self stopRecordingWithCompletion:^(NSURL *recordingUrl) {
+        if (!prepareOutput) {
+            [weakSelf deleteRecordingData];
+            completion(nil, 0, nil);
+            return;
+        }
         
-        if([[NSFileManager defaultManager] fileExistsAtPath:self.backupPath]) {
-            DLog(@"Stopped recording with secondURL");
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                
-                NSURL *backupURL = [NSURL fileURLWithPath:self.backupPath];
-                
-                [weakSelf mergeAssetsAtUrls:@[backupURL, recordingUrl] withCompletion:^(NSURL *mergedUrl) {
-                    completion(mergedUrl);
-                    
-                }];
-            });
+        NSTimeInterval estimatedDuration = 0;
+        NSMutableArray *urlsToConcat = [NSMutableArray array];
+        UIImage *previewFrameImage = nil;
+        for (int i = (int)[weakSelf.recordingSequenceUrls count] - 1; i >= 0; i--) {
+            // Go thru recordings from recent to old, appending until time is >= MAX_INTERVAL
+            estimatedDuration += [(NSNumber *)self.recordingSequenceDurations[i] doubleValue];
+            [urlsToConcat insertObject:weakSelf.recordingSequenceUrls[i] atIndex:0];
+            previewFrameImage = self.previewImages[i];
+            if (estimatedDuration >= MAXIMUM_TRIM_INTERVAL) break;
         }
-        else {
-            DLog(@"Stopped recording and NO secondURL");
-            completion(recordingUrl);
-        }
+        
+        NSString *fileName = [NSString stringWithFormat:@"%@_%@", [[NSProcessInfo processInfo] globallyUniqueString], @"file.mp4"];
+        NSURL *fileURL = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
+        
+        [[YAAssetsCreator sharedCreator] concatenateAssetsAtURLs:urlsToConcat
+                                                   withOutputURL:fileURL
+                                                   exportQuality:nil
+                                                      completion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
+            [weakSelf deleteRecordingData];
+            completion(filePath, totalDuration, previewFrameImage);
+        }];
+        
         [[YACameraManager sharedManager] setZoomFactor:1];
-        
     }];
 }
 
 - (void)switchCamera {
     self.zoomFactor = 1;
     [self.videoCamera rotateCamera];
+    // Do the change during/immediately after blip. If we swithed immediately audio may be out of sync
+    
+#warning - look for the best way to switch the recording here.
+    [self performSelector:@selector(stopRecordingWithCompletion:) withObject:(^(NSURL *outputUrl){}) afterDelay:0.05];
+    [self performSelector:@selector(startContiniousRecording) withObject:nil afterDelay:0.2];
 }
 
 - (void)forceFrontFacingCamera {

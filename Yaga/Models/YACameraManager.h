@@ -10,6 +10,7 @@
 #import "GPUImage.h"
 
 typedef void (^YARecordingCompletionBlock)(NSURL *outputUrl);
+typedef void (^YAPostCaptureCompletionBlock)(NSURL *outputUrl, NSTimeInterval duration, UIImage *firstFrameImage);
 
 @interface YACameraView : GPUImageView
 // Just fo abstraction
@@ -30,18 +31,11 @@ typedef void (^YARecordingCompletionBlock)(NSURL *outputUrl);
 - (void)initCamera;
 - (void)pauseCameraAndStop:(BOOL)stop;
 - (void)resumeCameraAndNeedsRestart:(BOOL)restart;
-- (void)stopContiniousRecordingWithCompletion:(YARecordingCompletionBlock)completion;
+- (void)stopContiniousRecordingAndPrepareOutput:(BOOL)prepareOutput completion:(YAPostCaptureCompletionBlock)completion;
 - (void)switchCamera;
 - (void)forceFrontFacingCamera; // probably only used by inviteVC right meow
 - (void)toggleFlash:(BOOL)flashOn;
 
 - (void)setCameraView:(YACameraView *)cameraView;
-
-// Only for invite cam:
-- (void)startRecording;
-- (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion;
-
-
-@property (nonatomic, strong) UIImage *capturePreviewImage;
 
 @end

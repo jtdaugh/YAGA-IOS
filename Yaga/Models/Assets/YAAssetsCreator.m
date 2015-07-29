@@ -67,13 +67,14 @@
 - (void)concatenateAssetsAtURLs:(NSArray *)assetURLs
                   withOutputURL:(NSURL *)outputURL
                   exportQuality:(NSString *)exportQuality
-                     completion:(videoOperationCompletion)completion {
+                     completion:(videoConcatenationCompletion)completion {
     AVMutableComposition *combinedVideoComposition = [self buildVideoSequenceCompositionFromURLS:assetURLs];
     if (!exportQuality) exportQuality = AVAssetExportPresetMediumQuality;
     
+    NSTimeInterval duration = CMTimeGetSeconds(combinedVideoComposition.duration);
+    
     self.exportSession = [[AVAssetExportSession alloc] initWithAsset:combinedVideoComposition
                                                           presetName:exportQuality];
-    
     self.exportSession.outputURL = outputURL;
     self.exportSession.outputFileType = AVFileTypeMPEG4;
     self.exportSession.shouldOptimizeForNetworkUse = YES;
@@ -83,9 +84,9 @@
     __weak __typeof(self)weakSelf = self;
     [self.exportSession exportAsynchronouslyWithCompletionHandler:^(void ) {
         if (weakSelf.exportSession.status == AVAssetExportSessionStatusCompleted){
-            completion(weakSelf.exportSession.outputURL, nil);
+            completion(weakSelf.exportSession.outputURL, duration, nil);
         } else {
-            completion(nil, [NSError new]);
+            completion(nil, 0, [NSError new]);
         }
         weakSelf.exportSession = nil;
     }];
@@ -101,7 +102,7 @@
     [self concatenateAssetsAtURLs:assetURLsToConcatenate
                     withOutputURL:outputUrl
                     exportQuality:AVAssetExportPresetMediumQuality
-                       completion:^(NSURL *filePath, NSError *error) {
+                       completion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
                            if(completion)
                                completion(filePath, error);
                        }];
@@ -175,7 +176,7 @@
 }
 
 
-+ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoOperationCompletion)completion {
++ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoConcatenationCompletion)completion {
     
     AVAsset *asset = [AVAsset assetWithURL:videoUrl];
     CGSize vidSize = ((AVAssetTrack *)([asset tracksWithMediaType:AVMediaTypeVideo][0])).naturalSize;
@@ -282,7 +283,7 @@
         [movieURL description]; // just so it gets retained :)
         [asset description]; // just 9so it gets retained :)
 //        [audioSettings description]; // just so it gets retained :)
-        completion(movieURL, nil);
+        completion(movieURL, CMTimeGetSeconds(asset.duration), nil);
     }];
     
 //    [movieWriter setFailureBlock:^(NSError *error) {

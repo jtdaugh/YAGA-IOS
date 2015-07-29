@@ -379,10 +379,10 @@
     
     self.doneRecordingButton.hidden = YES;
     [self.view addSubview:activityIndicator];
-    [[YACameraManager sharedManager] stopContiniousRecordingWithCompletion:^(NSURL *recordedURL) {
+    [[YACameraManager sharedManager] stopContiniousRecordingAndPrepareOutput:YES completion:^(NSURL *outputUrl, NSTimeInterval duration, UIImage *firstFrameImage) {
         YAEditVideoViewController *vc = [YAEditVideoViewController new];
-        vc.videoUrl = recordedURL;
-        vc.previewImage = [[YACameraManager sharedManager] capturePreviewImage];
+        vc.videoUrl = outputUrl;
+        vc.previewImage = firstFrameImage;
         
         YAGroupsNavigationController *navVC = (YAGroupsNavigationController *)self.presentingViewController;
         vc.transitioningDelegate = navVC;
@@ -400,7 +400,7 @@
         [navVC setInitialAnimationFrame: initialFrame];
         [navVC setInitialAnimationTransform:initialTransform];
 
-        DLog(@"recording url: %@", recordedURL);
+        DLog(@"recording url: %@", outputUrl);
         // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
         // So set the initial frame to the end frame.
         [self presentViewController:vc animated:YES completion:^{

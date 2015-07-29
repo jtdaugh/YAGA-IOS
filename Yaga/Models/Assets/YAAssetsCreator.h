@@ -18,6 +18,7 @@
 #define kGifSpeed (1.5f)
 
 typedef void (^videoOperationCompletion)(NSURL *filePath, NSError *error);
+typedef void (^videoConcatenationCompletion)(NSURL *filePath, NSTimeInterval totalDuration, NSError *error);
 typedef void (^stopOperationsCompletion)(void);
 typedef void (^jpgCompletion)(void);
 
@@ -35,7 +36,12 @@ typedef void (^jpgCompletion)(void);
                           rotation:(CGFloat)rotation
                        addToGroups:(NSArray *)groups;
 
-+ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoOperationCompletion)completion;
++ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoConcatenationCompletion)completion;
+
+- (void)concatenateAssetsAtURLs:(NSArray *)assetURLs
+                  withOutputURL:(NSURL *)outputURL
+                  exportQuality:(NSString *)exportQuality
+                     completion:(videoConcatenationCompletion)completion;
 
 //- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs addToGroup:(YAGroup*)group;
 - (void)enqueueAssetsCreationJobForVisibleVideos:(NSArray*)visibleVideos invisibleVideos:(NSArray*)invisibleVideos killExistingJobs:(BOOL)killExisting;
