@@ -67,35 +67,41 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.groupsListTapOutRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseGroupList)];
     self.groupsExpanded = NO;
     self.panGesture.delegate = self;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        self.groups = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+        
+        self.startTime = 0.0f;
+        self.endTime = CGFLOAT_MAX;
+        
+        self.previewImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+        self.previewImageView.contentMode = UIViewContentModeScaleAspectFit;
+        self.previewImageView.image = self.previewImage;
+        [self.view addSubview:self.previewImageView];
+        
+        self.videoPlayerView = [[YAVideoPlayerView alloc] initWithFrame:self.view.bounds];
+        [self.videoPlayerView setSmoothLoopingComposition:NO];
+        [self.videoPlayerView setDontHandleLooping:YES];
+        self.videoPlayerView.URL = self.videoUrl;
+        self.videoPlayerView.playWhenReady = YES;
+        self.videoPlayerView.delegate = self;
+        
+        [self.view addSubview:self.videoPlayerView];
+        
+        [self addBottomView];
+        [self setupTableView];
+        [self addTrimmingView];
+        [self addTopButtons];
+        [[YACameraManager sharedManager] pauseCameraAndStop:NO];
+    });
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    self.groups = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-    
-    self.startTime = 0.0f;
-    self.endTime = CGFLOAT_MAX;
-    
-    self.previewImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
-    self.previewImageView.contentMode = UIViewContentModeScaleAspectFit;
-    self.previewImageView.image = self.previewImage;
-    [self.view addSubview:self.previewImageView];
-    
-    self.videoPlayerView = [[YAVideoPlayerView alloc] initWithFrame:self.view.bounds];
-    [self.videoPlayerView setSmoothLoopingComposition:NO];
-    [self.videoPlayerView setDontHandleLooping:YES];
-    self.videoPlayerView.URL = self.videoUrl;
-    self.videoPlayerView.playWhenReady = YES;
-    self.videoPlayerView.delegate = self;
-    
-    [self.view addSubview:self.videoPlayerView];
-    
-    [self addBottomView];
-    [self setupTableView];
-    [self addTrimmingView];
-    [self addTopButtons];
-    [[YACameraManager sharedManager] pauseCameraAndStop:NO];
+    if (self.videoPlayerView.URL) {
+        self.videoPlayerView.playWhenReady = YES;
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -224,6 +230,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
             [video updateCaption:self.captionText withXPosition:self.captionX yPosition:self.captionY scale:self.captionScale rotation:self.captionRotation];
             NameGroupViewController *vc = [NameGroupViewController new];
             vc.initialVideo = video;
+            [weakSelf.videoPlayerView pause];
             [weakSelf presentViewController:[[YAGroupsNavigationController alloc] initWithRootViewController:vc] animated:YES completion:nil];
         }];
         [tableView deselectRowAtIndexPath:indexPath animated:NO];
@@ -510,7 +517,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)trimVideoWithStartTime:(CGFloat)startTime andStopTime:(CGFloat)stopTime completion:(trimmingCompletionBlock)completion {
-    self.videoPlayerView.URL = nil;
     
     AVAsset *anAsset = [[AVURLAsset alloc] initWithURL:self.videoUrl options:nil];
     NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:anAsset];

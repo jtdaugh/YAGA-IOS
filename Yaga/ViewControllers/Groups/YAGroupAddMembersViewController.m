@@ -354,11 +354,14 @@
 - (void)showActivity:(BOOL)show {
     if(show) {
         self.activityView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - 35, 30, 30, 30)];
+        self.activityView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
         self.navigationItem.rightBarButtonItem.customView = self.activityView;
         self.navigationItem.rightBarButtonItem.enabled = NO;
         [self.activityView startAnimating];
+        self.view.userInteractionEnabled = NO;
     }
     else {
+        self.view.userInteractionEnabled = YES;
         [self setDoneButton];
     }
 }

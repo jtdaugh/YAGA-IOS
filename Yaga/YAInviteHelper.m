@@ -38,7 +38,7 @@
 }
 
 - (void)show {
-    MSAlertController *inviteAlert = [MSAlertController alertControllerWithTitle:@"Invite" message:[self getFriendNamesTitle] preferredStyle:MSAlertControllerStyleAlert];
+    MSAlertController *inviteAlert = [MSAlertController alertControllerWithTitle:@"Send Invites" message:[self getFriendNamesTitle] preferredStyle:MSAlertControllerStyleAlert];
     [inviteAlert addAction:[MSAlertAction actionWithTitle:self.cancelText style:MSAlertActionStyleCancel handler:^(MSAlertAction *action) {
         self.completion(NO);
     }]];
