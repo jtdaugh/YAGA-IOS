@@ -409,9 +409,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
                                                         withCaptionText:weakSelf.captionText x:weakSelf.captionX y:weakSelf.captionY scale:weakSelf.captionScale rotation:weakSelf.captionRotation
                                                             addToGroups:groupsToSendTo];
             
-            #warning gotta be a better way to dismiss these
-            [weakSelf dismissAnimated];
-            [(YASwipeToDismissViewController *)weakSelf.presentingViewController dismissAnimated];
+            [weakSelf.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
         else {
             [YAUtils showNotification:@"Error: can't trim video" type:YANotificationTypeError];

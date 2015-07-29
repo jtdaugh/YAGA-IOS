@@ -670,7 +670,7 @@
 //}
 
 - (BOOL)blockCameraPresentationOnBackground {
-    return YES;
+    return NO; // YES;
 }
 
 #pragma mark - camera roll upload

@@ -170,14 +170,14 @@
             self.viewControllers = [self.viewControllers subarrayWithRange:NSMakeRange(0, 2)];
         }
     }
-    [self presentCameraWithCompletion:nil shownViaBackgrounding:YES];
+    [self presentCameraAnimated:NO shownViaBackgrounding:YES withCompletion:nil];
 }
 
 - (void)cameraButtonPressed {
-    [self presentCameraWithCompletion:nil shownViaBackgrounding:NO];
+    [self presentCameraAnimated:YES shownViaBackgrounding:NO withCompletion:nil];
 }
 
-- (void)presentCameraWithCompletion:(void (^)(void))completion shownViaBackgrounding:(BOOL)shownViaBackgrounding{
+- (void)presentCameraAnimated:(BOOL)animated shownViaBackgrounding:(BOOL)shownViaBackgrounding withCompletion:(void (^)(void))completion{
     YACameraViewController *camVC = [YACameraViewController new];
     camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
     camVC.modalPresentationStyle = UIModalPresentationCustom;
@@ -195,7 +195,7 @@
     [self setInitialAnimationTransform:initialTransform];
 //    self.animationController.initialTransform = initialTransform;
     camVC.shownViaBackgrounding = shownViaBackgrounding;
-    [self presentViewController:camVC animated:YES completion:completion];
+    [self presentViewController:camVC animated:animated completion:completion];
 }
 
 - (void)openGroupOptions {
@@ -226,9 +226,9 @@
     [super viewDidAppear:animated];
     if (self.forceCamera) {
         self.forceCamera = NO;
-        [self presentCameraWithCompletion:^{
+        [self presentCameraAnimated:NO shownViaBackgrounding:NO withCompletion:^{
             [self.overlay removeFromSuperview];
-        } shownViaBackgrounding:NO];
+        }];
     }
 }
 

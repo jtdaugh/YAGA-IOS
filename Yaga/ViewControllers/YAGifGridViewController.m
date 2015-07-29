@@ -147,23 +147,40 @@ static NSString *cellID = @"Cell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [(YAGroupsNavigationController *)self.navigationController showCameraButton:YES];
+    if (![(YAGroupsNavigationController *)self.navigationController forceCamera]) { // These view methods still get called even if we force camera non-animated
+        
+        [(YAGroupsNavigationController *)self.navigationController showCameraButton:YES];
+        for (YAVideoCell *cell in [self.collectionView visibleCells]) {
+            [cell animateGifView:YES];
+        }
+
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [YAUtils setVisitedGifGrid];
+    if (![(YAGroupsNavigationController *)self.navigationController forceCamera]) { // These view methods still get called even if we force camera non-animated
 
-    if([YAUser currentUser].currentGroup.publicGroup) {
-        if (![YAUtils hasVisitedHumanity]) {
-            [self showHumanityTooltip];
-            [YAUtils setVisitedHumanity];
+        [YAUtils setVisitedGifGrid];
+
+        if([YAUser currentUser].currentGroup.publicGroup) {
+            if (![YAUtils hasVisitedHumanity]) {
+                [self showHumanityTooltip];
+                [YAUtils setVisitedHumanity];
+            }
+        } else {
+            if (![YAUtils hasVisitedPrivateGroup]) {
+                [self showPrivateGroupTooltip];
+                [YAUtils setVisitedPrivateGroup];
+            }
         }
-    } else {
-        if (![YAUtils hasVisitedPrivateGroup]) {
-            [self showPrivateGroupTooltip];
-            [YAUtils setVisitedPrivateGroup];
-        }
+    }
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    for (YAVideoCell *cell in [self.collectionView visibleCells]) {
+        [cell animateGifView:NO];
     }
 }
 

@@ -104,6 +104,8 @@
 }
 
 - (void)animateGifView:(BOOL)animate {
+    if (!self.gifView.animatedImage) return;
+    
     if(animate) {
         if(!self.gifView.isAnimating) {
             [self.gifView startAnimating];
