@@ -324,9 +324,8 @@
     [self.videoCamera rotateCamera];
     // Do the change during/immediately after blip. If we swithed immediately audio may be out of sync
     
-#warning - look for the best way to switch the recording here.
-    [self performSelector:@selector(stopRecordingWithCompletion:) withObject:(^(NSURL *outputUrl){}) afterDelay:0.05];
-    [self performSelector:@selector(startContiniousRecording) withObject:nil afterDelay:0.2];
+#warning crashes if u tap 2x within 0.1s i think.
+    [self performSelector:@selector(createBackupAndProceedRecording) withObject:nil afterDelay:0.1];
 }
 
 - (void)forceFrontFacingCamera {
