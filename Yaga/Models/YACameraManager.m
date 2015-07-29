@@ -309,7 +309,7 @@
         
         [[YAAssetsCreator sharedCreator] concatenateAssetsAtURLs:urlsToConcat
                                                    withOutputURL:fileURL
-                                                   exportQuality:nil
+                                                   exportQuality:AVAssetExportPresetHighestQuality
                                                       completion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
             [weakSelf deleteRecordingData];
             completion(filePath, totalDuration, previewFrameImage);
@@ -325,7 +325,7 @@
     // Do the change during/immediately after blip. If we swithed immediately audio may be out of sync
     
 #warning crashes if u tap 2x within 0.1s i think.
-    [self performSelector:@selector(createBackupAndProceedRecording) withObject:nil afterDelay:0.1];
+    [self performSelector:@selector(createBackupAndProceedRecording) withObject:nil afterDelay:0.07];
 }
 
 - (void)forceFrontFacingCamera {

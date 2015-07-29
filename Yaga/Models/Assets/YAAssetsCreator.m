@@ -77,9 +77,10 @@
                                                           presetName:exportQuality];
     self.exportSession.outputURL = outputURL;
     self.exportSession.outputFileType = AVFileTypeMPEG4;
-    self.exportSession.shouldOptimizeForNetworkUse = YES;
-    if([UIDevice currentDevice].systemVersion.floatValue >= 8)
-        self.exportSession.canPerformMultiplePassesOverSourceMediaData = YES;
+
+    //    self.exportSession.shouldOptimizeForNetworkUse = YES;
+//    if([UIDevice currentDevice].systemVersion.floatValue >= 8)
+//        self.exportSession.canPerformMultiplePassesOverSourceMediaData = YES;
     
     __weak __typeof(self)weakSelf = self;
     [self.exportSession exportAsynchronouslyWithCompletionHandler:^(void ) {
