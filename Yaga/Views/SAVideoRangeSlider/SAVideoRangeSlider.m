@@ -53,7 +53,7 @@
         
         _frame_width = frame.size.width;
         
-        int thumbWidth = ceil(frame.size.width*0.04);
+        int thumbWidth = ceil(frame.size.width*0.05);
         
         _bgView = [[UIControl alloc] initWithFrame:CGRectMake(thumbWidth, 0, frame.size.width-(thumbWidth*2), frame.size.height)];
         _bgView.layer.cornerRadius = 0;
