@@ -384,7 +384,7 @@
         vc.videoUrl = recordedURL;
         vc.previewImage = [[YACameraManager sharedManager] capturePreviewImage];
         
-        YAGroupsNavigationController *navVC = (YAGroupsNavigationController *)self.navigationController;
+        YAGroupsNavigationController *navVC = (YAGroupsNavigationController *)self.presentingViewController;
         vc.transitioningDelegate = navVC;
         vc.modalPresentationStyle = UIModalPresentationCustom;
         

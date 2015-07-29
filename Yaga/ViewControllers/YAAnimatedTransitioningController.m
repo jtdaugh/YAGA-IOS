@@ -38,9 +38,12 @@
     UIView* inView = [transitionContext containerView];
     
     UIViewController* toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
-    
+    UIViewController* fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+
     [inView addSubview:toViewController.view];
     
+    [fromViewController viewWillDisappear:YES];
+
     toViewController.view.frame = self.initialFrame;
     toViewController.view.transform = self.initialTransform;
     toViewController.view.alpha = 0.5;
@@ -59,20 +62,31 @@
     } completion:^(BOOL finished) {
         
         [transitionContext completeTransition:YES];
+        [fromViewController viewDidDisappear:YES];
     }];
 }
 
 - (void)executeDismissalAnimation:(id<UIViewControllerContextTransitioning>)transitionContext{
     
     UIViewController* fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+    UIViewController* toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
     
-
+    [toViewController viewWillAppear:YES];
+    
+    CGRect frame = self.initialFrame;
+    if (CGAffineTransformEqualToTransform(self.initialTransform, CGAffineTransformIdentity)) {
+        frame.origin.y = (VIEW_HEIGHT - self.initialFrame.size.height);
+        frame.origin.x = (VIEW_WIDTH - self.initialFrame.size.width)/2;
+    }
+    
     //[UIView animateWithDuration:kDuration delay:0.0f usingSpringWithDamping:0.4f initialSpringVelocity:6.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
     [UIView animateWithDuration:kDuration delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-        fromViewController.view.frame = self.initialFrame;
-        fromViewController.view.alpha = 0.3;
+        fromViewController.view.frame = frame;
+        fromViewController.view.transform = self.initialTransform;
+        fromViewController.view.alpha = 0.0;
     } completion:^(BOOL finished) {
         [transitionContext completeTransition:YES];
+        [toViewController viewDidAppear:YES];
     }];
 }
 

@@ -26,6 +26,7 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 }
 
@@ -79,19 +80,7 @@
         [[UIApplication sharedApplication] setStatusBarHidden:NO];        
     }
     
-    //dismiss
-    CGFloat y = [UIScreen mainScreen].bounds.size.height * .5;
-    if(!dismissToBottom)
-        y *= -1;
-    
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
-        self.view.frame = CGRectMake(0, y, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
-        self.view.alpha = 0.0;
-        self.view.transform = CGAffineTransformMakeScale(0.5,0.5);
-    } completion:^(BOOL finished) {
-        if(finished)
-            [self dismissViewControllerAnimated:NO completion:nil];
-    }];
+    [self dismissViewControllerAnimated:YES completion:nil];
     
 }
 

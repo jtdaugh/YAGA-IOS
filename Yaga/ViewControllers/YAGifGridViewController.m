@@ -363,12 +363,10 @@ static NSString *cellID = @"Cell";
 
             if(!self.noVideosLabel) {
                 self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.view.bounds.size.height/2)];
-                self.noVideosLabel.font = [UIFont fontWithName:@"AvenirNext-HeavyItalic" size:24];
-                NSAttributedString *string = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Things are a bit quiet in here. Hold the big red button to record a video.", @"") attributes:@{NSStrokeColorAttributeName:[UIColor whiteColor],NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-5.0]}];
-                
+                self.noVideosLabel.font = [UIFont fontWithName:BIG_FONT size:24];
+                self.noVideosLabel.text = NSLocalizedString(@"THINGS_ARE_QUIET", @"");
                 self.noVideosLabel.textAlignment = NSTextAlignmentCenter;
-                self.noVideosLabel.attributedText = string;
-                self.noVideosLabel.numberOfLines = 3;
+                self.noVideosLabel.numberOfLines = 0;
                 self.noVideosLabel.textColor = PRIMARY_COLOR;
                 [self.collectionView addSubview:self.noVideosLabel];
             }

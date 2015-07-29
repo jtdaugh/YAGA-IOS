@@ -117,7 +117,7 @@
     self.cameraButton.layer.borderColor = [[UIColor whiteColor] CGColor];
     self.cameraButton.layer.borderWidth = 2.f;
     self.cameraButton.layer.masksToBounds = YES;
-    [self.cameraButton addTarget:self action:@selector(presentCamera) forControlEvents:UIControlEventTouchUpInside];
+    [self.cameraButton addTarget:self action:@selector(cameraButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     
     UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]; // Will still be dark because of translucent black background.
     self.cameraButtonBlur = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
@@ -170,28 +170,14 @@
             self.viewControllers = [self.viewControllers subarrayWithRange:NSMakeRange(0, 2)];
         }
     }
-    YACameraViewController *camVC = [YACameraViewController new];
-    camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
-    camVC.modalPresentationStyle = UIModalPresentationCustom;
-    
-    camVC.showsStatusBarOnDismiss = YES;
-    
-    CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
-    
-    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
-    initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
-    
-    [self setInitialAnimationFrame: initialFrame];
-    [self setInitialAnimationTransform:initialTransform];
-    //    self.animationController.initialTransform = initialTransform;
-
-    camVC.shownViaBackgrounding = YES;
-    [self presentViewController:camVC animated:NO completion:nil];
-
+    [self presentCameraWithCompletion:nil shownViaBackgrounding:YES];
 }
 
+- (void)cameraButtonPressed {
+    [self presentCameraWithCompletion:nil shownViaBackgrounding:NO];
+}
 
-- (void)presentCamera {
+- (void)presentCameraWithCompletion:(void (^)(void))completion shownViaBackgrounding:(BOOL)shownViaBackgrounding{
     YACameraViewController *camVC = [YACameraViewController new];
     camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
     camVC.modalPresentationStyle = UIModalPresentationCustom;
@@ -208,7 +194,8 @@
     [self setInitialAnimationFrame: initialFrame];
     [self setInitialAnimationTransform:initialTransform];
 //    self.animationController.initialTransform = initialTransform;
-    [self presentViewController:camVC animated:YES completion:nil];
+    camVC.shownViaBackgrounding = shownViaBackgrounding;
+    [self presentViewController:camVC animated:YES completion:completion];
 }
 
 - (void)openGroupOptions {
@@ -239,14 +226,9 @@
     [super viewDidAppear:animated];
     if (self.forceCamera) {
         self.forceCamera = NO;
-        YACameraViewController *camVC = [YACameraViewController new];
-        camVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
-        camVC.modalPresentationStyle = UIModalPresentationCustom;
-        camVC.showsStatusBarOnDismiss = YES;
-
-        [self presentViewController:camVC animated:NO completion:^{
+        [self presentCameraWithCompletion:^{
             [self.overlay removeFromSuperview];
-        }];
+        } shownViaBackgrounding:NO];
     }
 }
 

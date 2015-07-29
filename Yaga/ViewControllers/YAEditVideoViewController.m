@@ -93,7 +93,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         [self setupTableView];
         [self addTrimmingView];
         [self addTopButtons];
-        [[YACameraManager sharedManager] pauseCameraAndStop:NO];
     });
 }
 
@@ -102,11 +101,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     if (self.videoPlayerView.URL) {
         self.videoPlayerView.playWhenReady = YES;
     }
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:NO];
 }
 
 #pragma mark - UIGestureRecognizerDelegate
