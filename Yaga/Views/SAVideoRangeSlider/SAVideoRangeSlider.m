@@ -57,12 +57,12 @@
         
         _bgView = [[UIControl alloc] initWithFrame:CGRectMake(thumbWidth, 0, frame.size.width-(thumbWidth*2), frame.size.height)];
         _bgView.layer.cornerRadius = 0;
-        _bgView.clipsToBounds = YES;
+//        _bgView.clipsToBounds = YES;
         [self addSubview:_bgView];
         
         _videoUrl = videoUrl;
         
-        _currentPositionView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, self.bounds.size.height)];
+        _currentPositionView = [[UIView alloc] initWithFrame:CGRectMake(-1, -2, 2, self.bounds.size.height + 4)];
         _currentPositionView.backgroundColor = [UIColor whiteColor];
         [self addSubview:_currentPositionView];
         
@@ -384,7 +384,7 @@
 - (void)setPlayerProgress:(CGFloat)progress {
     CGFloat totalWidth = self.rightThumb.frame.origin.x - self.leftThumb.frame.origin.x - self.leftThumb.frame.size.width;
     CGFloat currentPositionX = self.leftThumb.frame.origin.x + self.leftThumb.frame.size.width + totalWidth * progress;
-    self.currentPositionView.frame = CGRectMake(currentPositionX, 0, self.currentPositionView.frame.size.width, self.currentPositionView.frame.size.height);
+    self.currentPositionView.frame = CGRectMake(currentPositionX, self.currentPositionView.frame.origin.y, self.currentPositionView.frame.size.width, self.currentPositionView.frame.size.height);
 }
 
 #pragma mark - Helpers
