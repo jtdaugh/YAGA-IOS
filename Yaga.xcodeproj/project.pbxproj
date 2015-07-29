@@ -144,8 +144,6 @@
 		88FB0A261B1D5250002C213C /* YAEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A251B1D5250002C213C /* YAEventManager.m */; };
 		88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A2B1B1D6D78002C213C /* NSArray+Reverse.m */; };
 		A8F20EE534187BCAFAC52788 /* libPods-YAVideoShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F365E23CEB3BDF63467042B1 /* libPods-YAVideoShareExtension.a */; };
-		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
-		E5EC7E9521430FF9402F63C5 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -421,7 +419,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E5EC7E9521430FF9402F63C5 /* libPods.a in Frameworks */,
 				A8F20EE534187BCAFAC52788 /* libPods-YAVideoShareExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -444,7 +441,6 @@
 				71D0F56E190D998000C7DEE0 /* CoreGraphics.framework in Frameworks */,
 				71D0F570190D998000C7DEE0 /* UIKit.framework in Frameworks */,
 				71D0F56C190D998000C7DEE0 /* Foundation.framework in Frameworks */,
-				C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */,
 				18EE367900016CEB8BF3A0E7 /* libPods-Yaga.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1259,10 +1255,6 @@
 				INFOPLIST_FILE = YAVideoShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/build/Debug-iphoneos",
-				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -1295,10 +1287,6 @@
 				INFOPLIST_FILE = YAVideoShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/build/Debug-iphoneos",
-				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
