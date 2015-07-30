@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0F46B6D41B585A63008E9808 /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41999D3A1B57568D0054881F /* bumper.mp4 */; };
 		0F46B6D81B58676A008E9808 /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
 		0F46B6DB1B586E38008E9808 /* YAShareServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F46B6DA1B586E38008E9808 /* YAShareServer.m */; };
 		0F46B6E01B587FA0008E9808 /* YAShareGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F46B6DF1B587FA0008E9808 /* YAShareGroup.m */; };
@@ -27,7 +26,7 @@
 		4120E70B1B43624500627359 /* SocialVideoHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4120E70A1B43624500627359 /* SocialVideoHelper.m */; };
 		41235F1A1B4C93E400B08ED5 /* YAPopoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = 41235F191B4C93E400B08ED5 /* YAPopoverView.m */; };
 		413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 413734BA1B1D070700ADE96F /* YACrosspostCell.m */; };
-		41999D3B1B57568D0054881F /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 41999D3A1B57568D0054881F /* bumper.mp4 */; };
+		418BA7FB1B69E99100629C2B /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 418BA7FA1B69E99100629C2B /* bumper.mp4 */; };
 		41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C71B162E76008553A8 /* Fabric.framework */; };
 		41BD42CA1B162E76008553A8 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C81B162E76008553A8 /* Crashlytics.framework */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
@@ -203,7 +202,7 @@
 		41235F191B4C93E400B08ED5 /* YAPopoverView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPopoverView.m; sourceTree = "<group>"; };
 		413734B91B1D070700ADE96F /* YACrosspostCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACrosspostCell.h; sourceTree = "<group>"; };
 		413734BA1B1D070700ADE96F /* YACrosspostCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACrosspostCell.m; sourceTree = "<group>"; };
-		41999D3A1B57568D0054881F /* bumper.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.mp4; sourceTree = "<group>"; };
+		418BA7FA1B69E99100629C2B /* bumper.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.mp4; sourceTree = "<group>"; };
 		41BD42C71B162E76008553A8 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		41BD42C81B162E76008553A8 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -682,10 +681,10 @@
 		6E91888C1A3F3A5A0034AB63 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				418BA7FA1B69E99100629C2B /* bumper.mp4 */,
 				412DAA191B26573600D92EB8 /* Filters */,
 				6EC1F0891B27394E00297D0F /* uploading.gif */,
 				6E9D87161B15DED600FA70EC /* loader.gif */,
-				41999D3A1B57568D0054881F /* bumper.mp4 */,
 				8668D3F31ADE6A90002ADA45 /* Images.xcassets */,
 				6EEDB8E11A8A10B7000BB909 /* push.m4a */,
 				6E1E209E1A6FAB500041DF54 /* Third party */,
@@ -987,7 +986,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0F46B6E21B58B91D008E9808 /* Images.xcassets in Resources */,
-				0F46B6D41B585A63008E9808 /* bumper.mp4 in Resources */,
 				0FD720EC1B57970000BCF17F /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1000,13 +998,13 @@
 				6E1E20A91A6FAB500041DF54 /* syllable.csv in Resources */,
 				6EEDB8E21A8A10B7000BB909 /* push.m4a in Resources */,
 				6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */,
+				418BA7FB1B69E99100629C2B /* bumper.mp4 in Resources */,
 				6EC1F08A1B27394E00297D0F /* uploading.gif in Resources */,
 				885F536E1B3F827400D359DB /* counter-shadow@2x.png in Resources */,
 				885F536C1B3F827400D359DB /* counter-numbers@2x.png in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
 				6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */,
 				885F536B1B3F827400D359DB /* counter-numbers.png in Resources */,
-				41999D3B1B57568D0054881F /* bumper.mp4 in Resources */,
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				885F536D1B3F827400D359DB /* counter-shadow.png in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
@@ -1239,7 +1237,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_ENTITLEMENTS = YAVideoShareExtension/YAVideoShareExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1270,7 +1268,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_ENTITLEMENTS = YAVideoShareExtension/YAVideoShareExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1375,7 +1373,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CODE_SIGN_ENTITLEMENTS = Yaga/Yaga.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1409,7 +1407,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CODE_SIGN_ENTITLEMENTS = Yaga/Yaga.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
