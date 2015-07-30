@@ -139,7 +139,7 @@
 
 #define CAPTION_OVERWRITING_ALLOWED 1
 
-#define DEBUG_SERVER 1
+#define DEBUG_SERVER 0
 
 // Sharing
 #define kNewGroupCellId @"postToNewGroupCell"
