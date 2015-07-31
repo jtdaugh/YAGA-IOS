@@ -28,7 +28,6 @@
 
 
 @property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
-@property (nonatomic) BOOL isInitialized;
 @property (nonatomic) BOOL isPaused;
 
 @property (nonatomic, strong) NSTimer *recordingBackupTimer;
@@ -53,22 +52,22 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _isInitialized = NO;
+        _initialized = NO;
         _isPaused = YES;
     }
     return self;
 }
 
 - (void)initCamera {
-    if (self.isInitialized) {
+    if (self.initialized) {
         return;
     }
     self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPresetHigh cameraPosition:AVCaptureDevicePositionBack];
     self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
     self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
-    self.zoomFactor = 1.0;
+    _zoomFactor = 1.0;
     [self setupCameraSettings];
-    self.isInitialized = YES;
+    _initialized = YES;
     
     // only init camera if not simulator
     if(TARGET_IPHONE_SIMULATOR){
@@ -128,8 +127,9 @@
         if (cameraView) {
             [cameraView setFillMode:kGPUImageFillModePreserveAspectRatioAndFill];
             [cameraView setContentMode:UIViewContentModeScaleAspectFill];
-            [self.videoCamera addTarget:cameraView];
-            
+            if (self.videoCamera) {
+                [self.videoCamera addTarget:cameraView];
+            }
             self.pinchZoomGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinchZoom:)];
             self.pinchZoomGesture.delegate = self;
             [cameraView addGestureRecognizer:self.pinchZoomGesture];
@@ -140,7 +140,7 @@
 }
 
 - (void)pauseCameraAndStop:(BOOL)stop {
-    if (self.isInitialized){
+    if (_initialized){
         DLog(@"pausing camera capture");
         [self stopContiniousRecordingAndPrepareOutput:NO completion:^(NSURL *outputUrl, NSTimeInterval duration, UIImage *firstFrameImage) {
             // discard
@@ -159,13 +159,13 @@
 }
 
 - (void)resumeCameraAndNeedsRestart:(BOOL)restart {
-    if (self.isInitialized && self.isPaused) {
+    if (self.initialized && self.isPaused) {
         DLog(@"resuming camera capture");
         self.isPaused = NO;
-        [self.videoCamera resumeCameraCapture];
         if (restart) {
             [self.videoCamera startCameraCapture];
         }
+        [self.videoCamera resumeCameraCapture];
         
         self.recordingSequenceDurations = [NSMutableArray array];
         self.recordingSequenceUrls = [NSMutableArray array];
@@ -194,10 +194,9 @@
 }
 
 - (void)startRecording {
-    if (!self.isInitialized) return;
+    if (!self.initialized) return;
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
         
         NSString *fileName = [NSString stringWithFormat:@"%@_%@", [[NSProcessInfo processInfo] globallyUniqueString], @"file.mp4"];
         self.currentlyRecordingUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
@@ -241,7 +240,7 @@
 }
 
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion {
-    if (!self.isInitialized) return;
+    if (!self.initialized) return;
     [self.recordingSequenceUrls addObject:self.currentlyRecordingUrl];
     [self.recordingSequenceDurations addObject:@([[NSDate date] timeIntervalSinceDate:self.currentRecordingBeginDate])];
     

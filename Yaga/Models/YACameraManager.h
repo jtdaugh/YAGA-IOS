@@ -27,6 +27,7 @@ typedef void (^YAPostCaptureCompletionBlock)(NSURL *outputUrl, NSTimeInterval du
 + (instancetype)sharedManager;
 
 @property (nonatomic, weak) id<YACameraManagerDelegate> delegate;
+@property (nonatomic, readonly) BOOL initialized;
 
 - (void)initCamera;
 - (void)pauseCameraAndStop:(BOOL)stop;

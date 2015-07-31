@@ -94,16 +94,21 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 //    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
-    [[YACameraManager sharedManager] initCamera];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [YACameraManager sharedManager].delegate = self;
-        [[YACameraManager sharedManager] setCameraView:self.cameraView];
-    });
-    
+    [YACameraManager sharedManager].delegate = self;
+    [[YACameraManager sharedManager] setCameraView:self.cameraView];
+    if (![YACameraManager sharedManager].initialized) {
+        [[YACameraManager sharedManager] initCamera];
+    }
     if (!self.shownViaBackgrounding) { // Otherwise let app delegate handle it
         [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
     }
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [self startRecordingAnimation];
+    self.recordingTime = [NSDate date];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -272,14 +277,6 @@
 - (void)doneRecordingTapCancel {
     self.panGesture.enabled = YES;
     self.recordingCircle.layer.borderColor = [[UIColor whiteColor] CGColor];
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-
-    [self startRecordingAnimation];
-    self.recordingTime = [NSDate date];
-
 }
 
 - (void)startRecordingAnimation {
