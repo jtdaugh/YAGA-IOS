@@ -7,12 +7,18 @@
 //
 
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
+#import <AVFoundation/AVFoundation.h>
 
 #import "YAShareServer.h"
 #import "Constants.h"
 #import "NSDictionary+ResponseObject.h"
 #import "NSData+Hex.h"
 #import "NSString+Hash.h"
+
+@implementation YAShareVideoCaption
+
+@end
+
 
 @interface YAShareServer ()
 
@@ -87,53 +93,8 @@ static YAShareServer *_sharedServer = nil;
     }];
 }
 
-- (void)uploadVideoCaptionWithId:(NSString*)serverVideoId toGroupServerId:(NSString *)groupServerId caption:(NSString *)caption x:(CGFloat)x y:(CGFloat)y rotation:(CGFloat)rotation scale:(CGFloat)scale front:(NSInteger)font withCompletion:(responseBlock)completion {
-    if (!self.authToken.length)
-        return;
-    
-    NSAssert(serverVideoId, @"videoId is a required parameter");
-    
-    NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, groupServerId, serverVideoId];
-    
-    // match yavideo variables with server fields.
-    NSDictionary *parameters = @{
-                                 @"name": caption,
-                                 @"name_x": [NSNumber numberWithFloat:x],
-                                 @"name_y": [NSNumber numberWithFloat:y],
-                                 @"rotation": [NSNumber numberWithFloat:rotation],
-                                 @"scale": [NSNumber numberWithFloat:scale],
-                                 @"font": [NSNumber numberWithInteger:font]
-                                 };
-    
-    id json = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:nil];
-    
-    NSURL *url = [NSURL URLWithString:api];
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [request setHTTPMethod:@"PUT"];
-    
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    
-    [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
-    [request setHTTPBody:json];
-    
-    [NSURLConnection sendAsynchronousRequest:request
-                                       queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                               if([(NSHTTPURLResponse*)response statusCode] == 200)
-                                   completion(nil, nil);
-                               else {
-                                   NSString *str = [data hexRepresentationWithSpaces_AS:NO];
-                                   if(response)
-                                       completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
-                                   else
-                                       completion(nil, [NSError errorWithDomain:@"YADomain" code:0 userInfo:nil]);
-                               }
-                               
-                           }];
-}
 
-- (void)uploadVideo:(NSData *)movieData toGroupWithId:(NSString*)serverGroupId withCompletion:(YAUploadVideoResponseBlock)completion {
+- (void)uploadVideo:(NSData *)movieData withCaption:(YAShareVideoCaption *)caption toGroupWithId:(NSString*)serverGroupId withCompletion:(YAUploadVideoResponseBlock)completion {
     if (!self.authToken.length)
         return;
     
@@ -143,6 +104,15 @@ static YAShareServer *_sharedServer = nil;
     
     NSString *userAgent = [NSString stringWithFormat:@"YAGA IOS %@", [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]];
     [self.jsonOperationsManager.requestSerializer setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+    
+    // match yavideo variables with server fields.
+    NSDictionary *parameters = @{
+                                 @"name": caption.text,
+                                 @"name_x": [NSNumber numberWithFloat:caption.x],
+                                 @"name_y": [NSNumber numberWithFloat:caption.y],
+                                 @"rotation": [NSNumber numberWithFloat:caption.rotation],
+                                 @"scale": [NSNumber numberWithFloat:caption.scale],
+                                 };
     
     [self.jsonOperationsManager POST:api
                           parameters:nil
@@ -262,6 +232,54 @@ static YAShareServer *_sharedServer = nil;
 + (NSString*)cachesDirectory {
     NSArray *cachePaths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     return cachePaths[0];
+}
+
+
++ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoConcatenationCompletion)completion {
+    
+    AVAsset *asset = [AVAsset assetWithURL:videoUrl];
+    CGSize vidSize = ((AVAssetTrack *)([asset tracksWithMediaType:AVMediaTypeVideo][0])).naturalSize;
+    CGSize correctSize = [[UIScreen mainScreen] bounds].size;
+    
+    NSString *pathToProcessedMovie = [NSTemporaryDirectory() stringByAppendingPathComponent:@"ProcessedMovie.mp4"];
+    unlink([pathToProcessedMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
+    NSURL *outputURL = [NSURL fileURLWithPath:pathToProcessedMovie];
+    
+    
+    AVMutableVideoComposition* videoComposition = [AVMutableVideoComposition videoComposition];
+    videoComposition.renderSize = correctSize;
+    videoComposition.frameDuration = CMTimeMake(1, 30);
+    
+    AVMutableVideoCompositionInstruction *instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+    instruction.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration);
+    
+    AVAssetTrack *clipVideoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+    
+    CGFloat yMultiple = correctSize.height / vidSize.height;
+    
+    AVMutableVideoCompositionLayerInstruction* transformer = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:clipVideoTrack];
+    CGAffineTransform finalTransform = CGAffineTransformMakeScale(yMultiple, yMultiple);
+    CGFloat dx = (((vidSize.width * yMultiple) - correctSize.width) / 2.0);
+    finalTransform = CGAffineTransformTranslate(finalTransform, -dx, 0);
+    [transformer setTransform:finalTransform atTime:kCMTimeZero];
+    instruction.layerInstructions = [NSArray arrayWithObject:transformer];
+    videoComposition.instructions = [NSArray arrayWithObject: instruction];
+    
+    AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetPassthrough];
+    exportSession.videoComposition = videoComposition;
+    exportSession.outputURL = outputURL;
+    exportSession.outputFileType = AVFileTypeMPEG4;
+    
+    NSTimeInterval duration = CMTimeGetSeconds(asset.duration);
+    if (duration > MAXIMUM_TRIM_TOTAL_LENGTH) {
+        [exportSession setTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(MAXIMUM_TRIM_TOTAL_LENGTH, 100000))];
+    }
+    
+    
+    [exportSession exportAsynchronouslyWithCompletionHandler:^(void ) {
+        completion(exportSession.outputURL, CMTimeGetSeconds(exportSession.timeRange.duration), nil);
+    }];
+    
 }
 
 @end

@@ -127,6 +127,9 @@
 		86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864A81A43322F002256FF /* CountryListDataSource.m */; };
 		86B864AC1A433343002256FF /* CountryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B864AB1A433343002256FF /* CountryCell.m */; };
 		86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86EF0B8E1A40592F00FF4E3C /* Localizable.strings */; };
+		880C000E1B6B6A8E00861C66 /* SAVideoRangeSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DF61B5E7159003B7374 /* SAVideoRangeSlider.m */; };
+		880C000F1B6B6A9100861C66 /* SASliderRight.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DF41B5E7159003B7374 /* SASliderRight.m */; };
+		880C00101B6B6A9300861C66 /* SASliderLeft.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DF21B5E7159003B7374 /* SASliderLeft.m */; };
 		882222AD1B675ACE00A39CB8 /* YAInviteHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 882222AC1B675ACE00A39CB8 /* YAInviteHelper.m */; };
 		882F082D1AEF6F12007FAA66 /* YAPanGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 882F082C1AEF6F12007FAA66 /* YAPanGestureRecognizer.m */; };
 		882FA9F61B43398100B5F408 /* NSMutableArray+NSCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 882FA9F51B43398100B5F408 /* NSMutableArray+NSCache.m */; };
@@ -1105,9 +1108,12 @@
 				0FD720EA1B57970000BCF17F /* YAShareVideoViewController.m in Sources */,
 				0F46B6E31B58C9EC008E9808 /* YAPanGestureRecognizer.m in Sources */,
 				0F46B6DB1B586E38008E9808 /* YAShareServer.m in Sources */,
+				880C000F1B6B6A9100861C66 /* SASliderRight.m in Sources */,
 				0F46B6E01B587FA0008E9808 /* YAShareGroup.m in Sources */,
 				0F46B6D81B58676A008E9808 /* YACrosspostCell.m in Sources */,
 				0FA340991B57B6C000624C1F /* YAVideoPlayerView.m in Sources */,
+				880C00101B6B6A9300861C66 /* SASliderLeft.m in Sources */,
+				880C000E1B6B6A8E00861C66 /* SAVideoRangeSlider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

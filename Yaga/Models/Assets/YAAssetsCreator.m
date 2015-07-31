@@ -8,6 +8,7 @@
 
 #import "YAAssetsCreator.h"
 #import "YAUtils.h"
+#import "Constants.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
@@ -214,7 +215,7 @@
     
     AVAsset *asset = [AVAsset assetWithURL:videoUrl];
     CGSize vidSize = ((AVAssetTrack *)([asset tracksWithMediaType:AVMediaTypeVideo][0])).naturalSize;
-    CGSize correctSize = CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT);
+    CGSize correctSize = [[UIScreen mainScreen] bounds].size;
     
     NSString *pathToProcessedMovie = [NSTemporaryDirectory() stringByAppendingPathComponent:@"ProcessedMovie.mp4"];
     unlink([pathToProcessedMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie

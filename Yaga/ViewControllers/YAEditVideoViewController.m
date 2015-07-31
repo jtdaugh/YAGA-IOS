@@ -373,7 +373,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [self layoutGroupButtons];
     CGFloat tableHeight = MIN(self.groupsTableView.frame.size.height, ([self.groups count] + 1) * kGroupRowHeight);
     CGRect tableViewFrame = self.groupsTableView.frame;
-    tableViewFrame.origin.y = VIEW_HEIGHT - kBottomFrameHeight - tableHeight;
+    tableViewFrame.size.height = tableHeight;
+    tableViewFrame.origin.y = self.view.bounds.size.height - kBottomFrameHeight - tableHeight;
     [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.8 initialSpringVelocity:1 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         self.groupsTableView.frame = tableViewFrame;
         self.trimmingView.alpha = 0;
@@ -408,7 +409,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
             [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:weakSelf.videoUrl
                                                         withCaptionText:weakSelf.captionText x:weakSelf.captionX y:weakSelf.captionY scale:weakSelf.captionScale rotation:weakSelf.captionRotation
                                                             addToGroups:groupsToSendTo];
-            
+            [[Mixpanel sharedInstance] track:@"Video posted"];
+
             [weakSelf.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
         else {
