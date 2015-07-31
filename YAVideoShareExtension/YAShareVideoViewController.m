@@ -26,7 +26,7 @@
 
 typedef void(^trimmingCompletionBlock)(NSError *error);
 
-@interface YAShareVideoViewController ()
+@interface YAShareVideoViewController () <SAVideoRangeSliderDelegate, YAVideoPlayerViewDelegate>
 
 @property (nonatomic, strong) NSURL *movieURL;
 
@@ -449,6 +449,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
             }
             [weakSelf deleteTrimmedFile];
             
+            #warning this aint working. Fix or kill extension before shipping
             [[YAShareServer sharedServer] uploadVideo:[NSData dataWithContentsOfURL:weakSelf.movieURL] withCaption:self.caption toGroupWithId:groupId withCompletion:^(id response, NSString *videoServerID, NSError *error) {
                 [hud hide:NO];
                 [weakSelf dismissExtension];

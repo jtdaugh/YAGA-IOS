@@ -31,8 +31,6 @@
     self.navigationItem.title = @"Name Group";
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(closeButtonPressed:)];
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
-
-    CGFloat width = VIEW_WIDTH * .8;
     
     DLog(@" view width: %f", VIEW_WIDTH);
     

@@ -95,7 +95,7 @@
         _centerView.backgroundColor = [UIColor clearColor];
         [self addSubview:_centerView];
         
-        UIPanGestureRecognizer *centerPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCenterPan:)];
+//        UIPanGestureRecognizer *centerPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCenterPan:)];
 //        [_centerView addGestureRecognizer:centerPan];
         
         _thumbnailFrameWidth = ceil(frame.size.height * (9.f/16.f));

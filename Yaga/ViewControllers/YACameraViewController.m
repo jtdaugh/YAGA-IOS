@@ -41,7 +41,8 @@
 
 #define kStrobeInterval 0.07
 
-@interface YACameraViewController () <YACameraManagerDelegate, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate>
+@interface YACameraViewController () <YACameraManagerDelegate, UIGestureRecognizerDelegate,
+    UIImagePickerControllerDelegate, UINavigationControllerDelegate> // navigation controller delegate reqd for image picker
 
 @property (nonatomic, strong) YACameraView *cameraView;
 

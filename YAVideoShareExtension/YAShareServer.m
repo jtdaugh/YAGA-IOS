@@ -115,7 +115,7 @@ static YAShareServer *_sharedServer = nil;
                                  };
     
     [self.jsonOperationsManager POST:api
-                          parameters:nil
+                          parameters:parameters
                              success:^(AFHTTPRequestOperation *operation, id responseObject) {
                                  DLog(@"uploadVideoData, recieved params for S3 upload. Making multipart upload...");
                                  
