@@ -986,11 +986,14 @@ static NSString *commentCellID = @"CommentCell";
             [self.overlay setAlpha:0.0];
         }];
         
+//        self.playerView.player.rate = 0.5;
+        
     } else if(recognizer.state == UIGestureRecognizerStateEnded){
         [UIView animateWithDuration:0.2 animations:^{
             //
             [self.overlay setAlpha:1.0];
         }];
+//        self.playerView.player.rate = 1.0;
     }
 }
 

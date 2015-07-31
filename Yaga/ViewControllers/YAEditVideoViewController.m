@@ -242,6 +242,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 #pragma mark - layout
 
 - (void)layoutGroupButtons {
+    
     NSArray *selectedPaths = [self.groupsTableView indexPathsForSelectedRows];
     NSUInteger count = [selectedPaths count];
     if (count) {
@@ -350,12 +351,14 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 - (void)collapseGroupList {
     [self.videoPlayerView removeGestureRecognizer:self.groupsListTapOutRecognizer];
     self.groupsExpanded = NO;
+    self.groupsTableView.alpha = 1.0;
 
     CGRect tableViewFrame = self.groupsTableView.frame;
     tableViewFrame.origin.y = VIEW_HEIGHT;
     self.trimmingView.hidden = NO;
     [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.8 initialSpringVelocity:1 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         self.groupsTableView.frame = tableViewFrame;
+        self.groupsTableView.alpha = 0.0;
         self.trimmingView.alpha = 1;
         [self layoutGroupButtons];
     } completion:^(BOOL finished) {
@@ -368,16 +371,18 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.groupsExpanded = YES;
     
     self.groupsTableView.hidden = NO;
+    self.groupsTableView.alpha = 0.0;
     [self.view bringSubviewToFront:self.groupsTableView];
     [self.view bringSubviewToFront:self.bottomView];
-    [self layoutGroupButtons];
     CGFloat tableHeight = MIN(self.groupsTableView.frame.size.height, ([self.groups count] + 1) * kGroupRowHeight);
     CGRect tableViewFrame = self.groupsTableView.frame;
     tableViewFrame.size.height = tableHeight;
     tableViewFrame.origin.y = self.view.bounds.size.height - kBottomFrameHeight - tableHeight;
-    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:0.8 initialSpringVelocity:1 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         self.groupsTableView.frame = tableViewFrame;
+        self.groupsTableView.alpha = 1.0;
         self.trimmingView.alpha = 0;
+        [self layoutGroupButtons];
     } completion:^(BOOL finished) {
         self.trimmingView.hidden = YES;
     }];
