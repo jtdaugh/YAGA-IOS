@@ -41,7 +41,7 @@
 
 #define kStrobeInterval 0.07
 
-@interface YACameraViewController () <YACameraManagerDelegate, UIGestureRecognizerDelegate>
+@interface YACameraViewController () <YACameraManagerDelegate, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate>
 
 @property (nonatomic, strong) YACameraView *cameraView;
 
@@ -61,6 +61,7 @@
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *doneRecordingButton;
 @property (strong, nonatomic) UIButton *gridButton;
+@property (strong, nonatomic) UIButton *uploadButton;
 
 @property (strong, nonatomic) YAProgressView *animatedRecorder;
 @property (strong, nonatomic) UIView *recordingCircle;
@@ -70,6 +71,9 @@
 @property (nonatomic, strong) CTCallCenter *callCenter;
 
 @property double animationStartTime;
+
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
+@property (nonatomic, strong) MBProgressHUD *hud;
 
 @property (nonatomic, strong) NSTimer *flashTimer;
 @property (nonatomic, strong) NSTimer *strobeTimer;
@@ -231,6 +235,13 @@
     [self.gridButton addTarget:self action:@selector(gridButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.gridButton];
     
+    self.uploadButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, BUTTON_SIZE, BUTTON_SIZE)];
+    self.uploadButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
+    [self.uploadButton setImage:[UIImage imageNamed:@"Share"] forState:UIControlStateNormal];
+    self.uploadButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    [self.uploadButton addTarget:self action:@selector(chooseFromCameraRoll) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.uploadButton];
+    
     //stop recording on incoming call
     void (^block)(CTCall*) = ^(CTCall* call) {
         DLog(@"Phone call received, state:%@.", call.callState);
@@ -361,42 +372,47 @@
     }
 }
 
+- (void)presentTrimViewWithOutputUrl:(NSURL *)url duration:(NSTimeInterval)duration {
+    YAEditVideoViewController *vc = [YAEditVideoViewController new];
+    vc.videoUrl = url;
+    vc.totalDuration = duration;
+    
+    YAGroupsNavigationController *navVC = (YAGroupsNavigationController *)self.presentingViewController;
+    vc.transitioningDelegate = navVC;
+    vc.modalPresentationStyle = UIModalPresentationCustom;
+    
+    vc.showsStatusBarOnDismiss = NO;
+    
+    CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
+    
+    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
+    initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
+    //    initialFrame.origin.y += self.view.frame.origin.y;
+    //    initialFrame.origin.x = 0;
+    
+    [navVC setInitialAnimationFrame: initialFrame];
+    [navVC setInitialAnimationTransform:initialTransform];
+
+    [self presentViewController:vc animated:YES completion:^{
+        if (self.hud) {
+            [self.hud hide:NO];
+        }
+        [self.activityIndicator removeFromSuperview];
+        self.doneRecordingButton.hidden = NO;
+    }];
+    
+
+}
+
 - (void)stopRecordingVideo {
-    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    activityIndicator.center = self.doneRecordingButton.center;
-    [activityIndicator startAnimating];
+    self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    self.activityIndicator.center = self.doneRecordingButton.center;
+    [self.activityIndicator startAnimating];
     
     self.doneRecordingButton.hidden = YES;
-    [self.view addSubview:activityIndicator];
+    [self.view addSubview:self.activityIndicator];
     [[YACameraManager sharedManager] stopContiniousRecordingAndPrepareOutput:YES completion:^(NSURL *outputUrl, NSTimeInterval duration, UIImage *firstFrameImage) {
-        YAEditVideoViewController *vc = [YAEditVideoViewController new];
-        vc.videoUrl = outputUrl;
-        vc.previewImage = firstFrameImage;
-        
-        YAGroupsNavigationController *navVC = (YAGroupsNavigationController *)self.presentingViewController;
-        vc.transitioningDelegate = navVC;
-        vc.modalPresentationStyle = UIModalPresentationCustom;
-        
-        vc.showsStatusBarOnDismiss = NO;
-        
-        CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
-        
-        CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
-        initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
-        //    initialFrame.origin.y += self.view.frame.origin.y;
-        //    initialFrame.origin.x = 0;
-        
-        [navVC setInitialAnimationFrame: initialFrame];
-        [navVC setInitialAnimationTransform:initialTransform];
-
-        DLog(@"recording url: %@", outputUrl);
-        // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
-        // So set the initial frame to the end frame.
-        [self presentViewController:vc animated:YES completion:^{
-            [activityIndicator removeFromSuperview];
-            self.doneRecordingButton.hidden = NO;
-        }];
-
+        [self presentTrimViewWithOutputUrl:outputUrl duration:duration];
     }];
 }
 
@@ -666,35 +682,34 @@
 
 - (void)chooseFromCameraRoll {
     DLog(@"Upload from camera roll pressed");
-    MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"One sec..."];
+    self.hud = [YAUtils showIndeterminateHudWithText:@"One sec..."];
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
     picker.delegate = self;
     picker.allowsEditing = YES;
     picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     [picker setMediaTypes: [NSArray arrayWithObject:(NSString *)kUTTypeMovie]];
-    [self presentViewController:picker animated:YES completion:^{
-        [hud hide:NO];
-    }];
-    
+    [self presentViewController:picker animated:YES completion:nil];;
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     DLog(@"Did pick video from camera roll");
-
     [picker dismissViewControllerAnimated:YES completion:^{
-//        NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
-//        if ([mediaType isEqualToString:(NSString *)kUTTypeMovie])
-//        {
-//            NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
-//            [YAAssetsCreator reformatExternalVideoAtUrl:videoURL withCompletion:^(NSURL *filePath, NSError *error) {
-//                [[YAAssetsCreator sharedCreator] createUnsentVideoFromRecodingURL:filePath];
-//            }];
-//        }
+        NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+        if ([mediaType isEqualToString:(NSString *)kUTTypeMovie])
+        {
+            NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
+            [YAAssetsCreator reformatExternalVideoAtUrl:videoURL withCompletion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
+                [self presentTrimViewWithOutputUrl:filePath duration:totalDuration]; // hud will be dismissed after presenting trim
+            }];
+        } else {
+            [self.hud hide:NO];
+        }
     }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     DLog(@"Cancelled picking video from camera roll");
+    [self.hud hide:NO];
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 

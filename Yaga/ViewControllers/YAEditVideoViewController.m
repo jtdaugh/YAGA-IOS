@@ -77,7 +77,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         
         self.previewImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
         self.previewImageView.contentMode = UIViewContentModeScaleAspectFit;
-        self.previewImageView.image = self.previewImage;
+        self.previewImageView.image = [YAAssetsCreator thumbnailImageForVideoUrl:self.videoUrl atTime:0]; // Change time if we set the initial left trim
         [self.view addSubview:self.previewImageView];
         
         self.videoPlayerView = [[YAVideoPlayerView alloc] initWithFrame:self.view.bounds];
@@ -515,7 +515,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     if ([compatiblePresets containsObject:AVAssetExportPresetMediumQuality]) {
         
         self.exportSession = [[AVAssetExportSession alloc]
-                              initWithAsset:anAsset presetName:AVAssetExportPresetPassthrough];
+                              initWithAsset:anAsset presetName:AVAssetExportPresetMediumQuality];
         
         NSURL *outputUrl = [self trimmedFileUrl];
         [self deleteTrimmedFile];
@@ -523,6 +523,10 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.exportSession.outputURL = outputUrl;
         self.exportSession.outputFileType = AVFileTypeMPEG4;
         
+        self.exportSession.shouldOptimizeForNetworkUse = YES;
+        if([UIDevice currentDevice].systemVersion.floatValue >= 8)
+            self.exportSession.canPerformMultiplePassesOverSourceMediaData = YES;
+
         CMTime start = CMTimeMakeWithSeconds(startTime, anAsset.duration.timescale);
         CMTime duration = CMTimeMakeWithSeconds(stopTime-startTime, anAsset.duration.timescale);
         CMTimeRange range = CMTimeRangeMake(start, duration);

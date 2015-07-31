@@ -36,11 +36,14 @@ typedef void (^jpgCompletion)(void);
                           rotation:(CGFloat)rotation
                        addToGroups:(NSArray *)groups;
 
++ (UIImage *)thumbnailImageForVideoUrl:(NSURL *)videoUrl atTime:(NSTimeInterval)time;
 + (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoConcatenationCompletion)completion;
 
+// If durationLimit is set, it will chop off as much time as needed from the beginning of the video. 
 - (void)concatenateAssetsAtURLs:(NSArray *)assetURLs
                   withOutputURL:(NSURL *)outputURL
                   exportQuality:(NSString *)exportQuality
+              limitedToDuration:(NSTimeInterval)durationLimit
                      completion:(videoConcatenationCompletion)completion;
 
 //- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs addToGroup:(YAGroup*)group;

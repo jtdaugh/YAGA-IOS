@@ -12,9 +12,6 @@
 
 #define MAX_ZOOM_SCALE 4.f
 
-#define BACKUP_RECORDING_INTERVAL 5
-#define MAXIMUM_TRIM_INTERVAL 20
-
 @implementation YACameraView
 @end
 
@@ -39,7 +36,6 @@
 
 @property (nonatomic, strong) NSMutableArray *recordingSequenceUrls; // Array of NSURLs
 @property (nonatomic, strong) NSMutableArray *recordingSequenceDurations; // Array of CMTimes or NSTimeIntervals (dunno yet)
-@property (nonatomic, strong) NSMutableArray *previewImages; // NSArray of UIImages
 
 @end
 
@@ -171,7 +167,6 @@
             [self.videoCamera startCameraCapture];
         }
         
-        self.previewImages = [NSMutableArray array];
         self.recordingSequenceDurations = [NSMutableArray array];
         self.recordingSequenceUrls = [NSMutableArray array];
         
@@ -184,7 +179,7 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.recordingBackupTimer invalidate];
-        self.recordingBackupTimer = [NSTimer scheduledTimerWithTimeInterval:BACKUP_RECORDING_INTERVAL target:self selector:@selector(createBackupAndProceedRecording) userInfo:nil repeats:NO];
+        self.recordingBackupTimer = [NSTimer scheduledTimerWithTimeInterval:RECORDING_BACKUP_INTERVAL target:self selector:@selector(createBackupAndProceedRecording) userInfo:nil repeats:NO];
     });
 }
 
@@ -207,14 +202,14 @@
         NSString *fileName = [NSString stringWithFormat:@"%@_%@", [[NSProcessInfo processInfo] globallyUniqueString], @"file.mp4"];
         self.currentlyRecordingUrl = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:fileName]];
         
-        NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
-        [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
-        [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
-        [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
+//        NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
+//        [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
+//        [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
+//        [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
         
-        AudioChannelLayout channelLayout;
-        memset(&channelLayout, 0, sizeof(AudioChannelLayout));
-        channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
+//        AudioChannelLayout channelLayout;
+//        memset(&channelLayout, 0, sizeof(AudioChannelLayout));
+//        channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
         
         //        NSDictionary *audioSettings = [NSDictionary dictionaryWithObjectsAndKeys:
         //                                       [ NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
@@ -236,14 +231,6 @@
         
         self.currentRecordingBeginDate = [NSDate date];
         [self.movieWriter startRecording];
-        
-        GPUImageFilter *imgFilter = [GPUImageFilter new];
-        [self.videoCamera addTarget:imgFilter];
-        
-        [imgFilter useNextFrameForImageCapture];
-        UIImage *previewImage = [imgFilter imageFromCurrentFramebufferWithOrientation:UIImageOrientationUp];
-        [self.previewImages addObject:previewImage];
-        [self.recordingSequenceUrls addObject:self.currentlyRecordingUrl];
     });
     
     
@@ -255,6 +242,7 @@
 
 - (void)stopRecordingWithCompletion:(YARecordingCompletionBlock)completion {
     if (!self.isInitialized) return;
+    [self.recordingSequenceUrls addObject:self.currentlyRecordingUrl];
     [self.recordingSequenceDurations addObject:@([[NSDate date] timeIntervalSinceDate:self.currentRecordingBeginDate])];
     
     DLog(@"Finish recording?");
@@ -278,7 +266,6 @@
     }
     [self.recordingSequenceUrls removeAllObjects];
     [self.recordingSequenceDurations removeAllObjects];
-    [self.previewImages removeAllObjects];
 }
 
 - (void)stopContiniousRecordingAndPrepareOutput:(BOOL)prepareOutput completion:(YAPostCaptureCompletionBlock)completion {
@@ -300,8 +287,7 @@
             // Go thru recordings from recent to old, appending until time is >= MAX_INTERVAL
             estimatedDuration += [(NSNumber *)self.recordingSequenceDurations[i] doubleValue];
             [urlsToConcat insertObject:weakSelf.recordingSequenceUrls[i] atIndex:0];
-            previewFrameImage = self.previewImages[i];
-            if (estimatedDuration >= MAXIMUM_TRIM_INTERVAL) break;
+            if (estimatedDuration >= MAXIMUM_TRIM_TOTAL_LENGTH) break;
         }
         
         NSString *fileName = [NSString stringWithFormat:@"%@_%@", [[NSProcessInfo processInfo] globallyUniqueString], @"file.mp4"];
@@ -309,7 +295,8 @@
         
         [[YAAssetsCreator sharedCreator] concatenateAssetsAtURLs:urlsToConcat
                                                    withOutputURL:fileURL
-                                                   exportQuality:AVAssetExportPresetHighestQuality
+                                                   exportQuality:AVAssetExportPresetPassthrough
+                                               limitedToDuration:MAXIMUM_TRIM_TOTAL_LENGTH
                                                       completion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
             [weakSelf deleteRecordingData];
             completion(filePath, totalDuration, previewFrameImage);
@@ -389,105 +376,6 @@
         self.beginGestureScale = self.zoomFactor;
     }
     return YES;
-}
-
-- (void)mergeAssetsAtUrls:(NSArray*)urls withCompletion:(YARecordingCompletionBlock)completion {
-    //can only merge from two NSURLs
-    if(urls.count != 2){
-        completion(nil);
-        return;
-    }
-    
-    //creating composition
-    AVMutableComposition *mixComposition = [[AVMutableComposition alloc] init];
-    AVMutableCompositionTrack *mutableCompVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-    AVMutableCompositionTrack *mutableCompAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
-    
-    //creating video/audio tracks
-    AVAsset *videoAsset1 = [AVAsset assetWithURL:urls[0]];
-    AVAsset *videoAsset2 = [AVAsset assetWithURL:urls[1]];
-    
-    //exporting merged video file
-    NSString *mergedPath = [[NSString alloc] initWithFormat:@"%@recording_merged.mp4", NSTemporaryDirectory()];
-    unlink([mergedPath UTF8String]); // If a file already exists
-    NSURL *mergedURL = [NSURL fileURLWithPath:mergedPath];
-    
-    //get videoAsset2 duration
-    NSArray *requestedKeys = @[@"playable"];
-    [videoAsset2 loadValuesAsynchronouslyForKeys:requestedKeys completionHandler: ^{
-        Float64 asset1DurationSeconds = CMTimeGetSeconds(videoAsset1.duration);
-        Float64 asset2DurationSeconds = CMTimeGetSeconds(videoAsset2.duration);
-        
-        //do not proceed if second asset is zero length(has just started recording)
-        if(asset2DurationSeconds == 0) {
-            NSDictionary *d = [[NSFileManager defaultManager] attributesOfItemAtPath:[(NSURL*)[urls objectAtIndex:1] path] error:nil];
-            DLog(@"%@", d);
-            //copy is required as first asset can be used again, but YAAssetsCreator will delete the recording_backup.mp4 file
-            NSError *error;
-
-            [[NSFileManager defaultManager] copyItemAtURL:urls[0] toURL:mergedURL error:&error];
-            if(error) {
-                DLog(@"Critical error: can't copy file, can not proceed.");
-                return;
-            }
-            else {
-                completion(mergedURL);
-                return;
-            }
-        }
-        
-        Float64 asset1StartSeconds = asset2DurationSeconds;
-        Float64 asset1TotalSecondsToAdd = asset1DurationSeconds - asset1StartSeconds;
-        
-        CMTime asset1From = CMTimeMakeWithSeconds(asset1StartSeconds, videoAsset1.duration.timescale);
-        CMTime asset1DurationToAdd = CMTimeMakeWithSeconds(asset1TotalSecondsToAdd, videoAsset1.duration.timescale);
-        
-        [mutableCompVideoTrack insertTimeRange:CMTimeRangeMake(asset1From, asset1DurationToAdd) ofTrack:[[videoAsset1 tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:kCMTimeZero error:nil];
-        [mutableCompAudioTrack insertTimeRange:CMTimeRangeMake(asset1From, asset1DurationToAdd) ofTrack:[[videoAsset1 tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:kCMTimeZero error:nil];
-        
-        CMTime insertSecondAssetAt = CMTimeMakeWithSeconds(asset1TotalSecondsToAdd, videoAsset1.duration.timescale);
-        
-        [mutableCompVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset2.duration) ofTrack:[[videoAsset2 tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:insertSecondAssetAt error:nil];
-        [mutableCompAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset2.duration) ofTrack:[[videoAsset2 tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:insertSecondAssetAt error:nil];
-        
-
-        
-        NSURL *mergedUrl = [NSURL fileURLWithPath:mergedPath];
-        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPreset640x480];
-        exportSession.outputFileType=AVFileTypeQuickTimeMovie;
-        exportSession.outputURL = mergedUrl;
-        
-        CMTimeValue val = mixComposition.duration.value;
-        CMTime start = CMTimeMake(0, 1);
-        CMTime duration = CMTimeMake(val, 1);
-        CMTimeRange range = CMTimeRangeMake(start, duration);
-        exportSession.timeRange = range;
-        
-        [exportSession exportAsynchronouslyWithCompletionHandler:^{
-            switch ([exportSession status]) {
-                case AVAssetExportSessionStatusFailed:
-                {
-                    DLog(@"Export during merge failed: %@ %@", [[exportSession error] localizedDescription],[[exportSession error]debugDescription]);
-                    break;
-                }
-                case AVAssetExportSessionStatusCancelled:
-                {
-                    DLog(@"Export during merge canceled");
-                    break;
-                }
-                case AVAssetExportSessionStatusCompleted:
-                {
-                    completion(mergedUrl);
-                    break;
-                }
-                default:
-                {
-                    DLog(@"Export during merge unexpected error");
-                    break;
-                }
-            }
-        }];
-    }];
 }
 
 @end

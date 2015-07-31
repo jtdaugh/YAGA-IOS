@@ -57,7 +57,7 @@
         
         _bgView = [[UIControl alloc] initWithFrame:CGRectMake(thumbWidth, 0, frame.size.width-(thumbWidth*2), frame.size.height)];
         _bgView.layer.cornerRadius = 0;
-//        _bgView.clipsToBounds = YES;
+        _bgView.clipsToBounds = YES;
         [self addSubview:_bgView];
         
         _videoUrl = videoUrl;
