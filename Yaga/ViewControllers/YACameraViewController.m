@@ -243,10 +243,10 @@
     
     self.uploadButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, BUTTON_SIZE, BUTTON_SIZE)];
     self.uploadButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    [self.uploadButton setImage:[UIImage imageNamed:@"Share"] forState:UIControlStateNormal];
+    [self.uploadButton setImage:[UIImage imageNamed:@"Import"] forState:UIControlStateNormal];
     self.uploadButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.uploadButton addTarget:self action:@selector(chooseFromCameraRoll) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.uploadButton];
+//    [self.view addSubview:self.uploadButton];
     
     //stop recording on incoming call
     void (^block)(CTCall*) = ^(CTCall* call) {
