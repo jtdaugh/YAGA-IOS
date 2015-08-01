@@ -77,7 +77,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         
         self.previewImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
         self.previewImageView.contentMode = UIViewContentModeScaleAspectFit;
-        self.previewImageView.image = self.previewImage;
+        self.previewImageView.image = [YAAssetsCreator thumbnailImageForVideoUrl:self.videoUrl atTime:0]; // Change time if we set the initial left trim
         [self.view addSubview:self.previewImageView];
         
         self.videoPlayerView = [[YAVideoPlayerView alloc] initWithFrame:self.view.bounds];
@@ -376,7 +376,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [self.view bringSubviewToFront:self.bottomView];
     CGFloat tableHeight = MIN(self.groupsTableView.frame.size.height, ([self.groups count] + 1) * kGroupRowHeight);
     CGRect tableViewFrame = self.groupsTableView.frame;
-    tableViewFrame.origin.y = VIEW_HEIGHT - kBottomFrameHeight - tableHeight;
+    tableViewFrame.size.height = tableHeight;
+    tableViewFrame.origin.y = self.view.bounds.size.height - kBottomFrameHeight - tableHeight;
     [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:0.5 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         self.groupsTableView.frame = tableViewFrame;
         self.groupsTableView.alpha = 1.0;
@@ -413,7 +414,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
             [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:weakSelf.videoUrl
                                                         withCaptionText:weakSelf.captionText x:weakSelf.captionX y:weakSelf.captionY scale:weakSelf.captionScale rotation:weakSelf.captionRotation
                                                             addToGroups:groupsToSendTo];
-            
+            [[Mixpanel sharedInstance] track:@"Video posted"];
+
             [weakSelf.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
         else {
@@ -520,7 +522,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     if ([compatiblePresets containsObject:AVAssetExportPresetMediumQuality]) {
         
         self.exportSession = [[AVAssetExportSession alloc]
-                              initWithAsset:anAsset presetName:AVAssetExportPresetPassthrough];
+                              initWithAsset:anAsset presetName:AVAssetExportPresetMediumQuality];
         
         NSURL *outputUrl = [self trimmedFileUrl];
         [self deleteTrimmedFile];
@@ -528,6 +530,10 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.exportSession.outputURL = outputUrl;
         self.exportSession.outputFileType = AVFileTypeMPEG4;
         
+        self.exportSession.shouldOptimizeForNetworkUse = YES;
+        if([UIDevice currentDevice].systemVersion.floatValue >= 8)
+            self.exportSession.canPerformMultiplePassesOverSourceMediaData = YES;
+
         CMTime start = CMTimeMakeWithSeconds(startTime, anAsset.duration.timescale);
         CMTime duration = CMTimeMakeWithSeconds(stopTime-startTime, anAsset.duration.timescale);
         CMTimeRange range = CMTimeRangeMake(start, duration);

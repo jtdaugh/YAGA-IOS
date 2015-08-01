@@ -8,6 +8,7 @@
 
 #import "YAAssetsCreator.h"
 #import "YAUtils.h"
+#import "Constants.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
@@ -67,11 +68,18 @@
 - (void)concatenateAssetsAtURLs:(NSArray *)assetURLs
                   withOutputURL:(NSURL *)outputURL
                   exportQuality:(NSString *)exportQuality
+              limitedToDuration:(NSTimeInterval)durationLimit
                      completion:(videoConcatenationCompletion)completion {
     AVMutableComposition *combinedVideoComposition = [self buildVideoSequenceCompositionFromURLS:assetURLs];
-    if (!exportQuality) exportQuality = AVAssetExportPresetMediumQuality;
-    
     NSTimeInterval duration = CMTimeGetSeconds(combinedVideoComposition.duration);
+    if (duration > durationLimit) {
+        NSTimeInterval lengthToRemove = duration - durationLimit;
+        [combinedVideoComposition removeTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(lengthToRemove, 100000))];
+    }
+    
+    if (!exportQuality) exportQuality = AVAssetExportPresetPassthrough;
+    
+    duration = CMTimeGetSeconds(combinedVideoComposition.duration);
     
     self.exportSession = [[AVAssetExportSession alloc] initWithAsset:combinedVideoComposition
                                                           presetName:exportQuality];
@@ -102,7 +110,8 @@
     
     [self concatenateAssetsAtURLs:assetURLsToConcatenate
                     withOutputURL:outputUrl
-                    exportQuality:AVAssetExportPresetMediumQuality
+                    exportQuality:AVAssetExportPresetHighestQuality
+                limitedToDuration:CGFLOAT_MAX
                        completion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
                            if(completion)
                                completion(filePath, error);
@@ -176,128 +185,77 @@
         return UIInterfaceOrientationPortrait;
 }
 
++ (UIImage *)thumbnailImageForVideoUrl:(NSURL *)videoUrl atTime:(NSTimeInterval)time {
+    AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoUrl options:nil];
+    NSParameterAssert(asset);
+    AVAssetImageGenerator *assetIG =
+    [[AVAssetImageGenerator alloc] initWithAsset:asset];
+    assetIG.appliesPreferredTrackTransform = YES;
+    assetIG.apertureMode = AVAssetImageGeneratorApertureModeEncodedPixels;
+    
+    CGImageRef thumbnailImageRef = NULL;
+    CFTimeInterval thumbnailImageTime = time;
+    NSError *igError = nil;
+    thumbnailImageRef =
+    [assetIG copyCGImageAtTime:CMTimeMake(thumbnailImageTime, 60)
+                    actualTime:NULL
+                         error:&igError];
+    
+    if (!thumbnailImageRef)
+        NSLog(@"thumbnailImageGenerationError %@", igError );
+    
+    UIImage *thumbnailImage = thumbnailImageRef
+    ? [[UIImage alloc] initWithCGImage:thumbnailImageRef]
+    : nil;
+    
+    return thumbnailImage;
+}
 
 + (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoConcatenationCompletion)completion {
     
     AVAsset *asset = [AVAsset assetWithURL:videoUrl];
     CGSize vidSize = ((AVAssetTrack *)([asset tracksWithMediaType:AVMediaTypeVideo][0])).naturalSize;
-    CGSize correctSize = CGSizeMake(480.0, 640.0);
+    CGSize correctSize = [[UIScreen mainScreen] bounds].size;
     
-    GPUImageMovie *movieFile;
-    GPUImageOutput<GPUImageInput> *filter;
-    GPUImageMovieWriter *movieWriter;
+    NSString *pathToProcessedMovie = [NSTemporaryDirectory() stringByAppendingPathComponent:@"ProcessedMovie.mp4"];
+    unlink([pathToProcessedMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
+    NSURL *outputURL = [NSURL fileURLWithPath:pathToProcessedMovie];
     
-    movieFile = [[GPUImageMovie alloc] initWithAsset:asset];
-//    movieFile.runBenchmark = YES;
-    movieFile.playAtActualSpeed = NO;
+    
+    AVMutableVideoComposition* videoComposition = [AVMutableVideoComposition videoComposition];
+    videoComposition.renderSize = correctSize;
+    videoComposition.frameDuration = CMTimeMake(1, 30);
+    
+    AVMutableVideoCompositionInstruction *instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+    instruction.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration);
 
-//    UIInterfaceOrientation orientation = [self orientationForTrack:asset];
-   
+    AVAssetTrack *clipVideoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] firstObject];
     
-    NSString *pathToMovie = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/PreProcessedMovie.m4v"];
-    unlink([pathToMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
-    NSURL *movieURL = [NSURL fileURLWithPath:pathToMovie];
-    
-    NSMutableDictionary *videoSettings = [[NSMutableDictionary alloc] init];;
-    [videoSettings setObject:AVVideoCodecH264 forKey:AVVideoCodecKey];
-    [videoSettings setObject:[NSNumber numberWithInteger:480] forKey:AVVideoWidthKey];
-    [videoSettings setObject:[NSNumber numberWithInteger:640] forKey:AVVideoHeightKey];
-    
-    movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:movieURL size:correctSize fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
+    CGFloat yMultiple = correctSize.height / vidSize.height;
 
-    CGFloat xMultiple = vidSize.width / correctSize.width;
-    CGFloat yMultiple = vidSize.height / correctSize.height;
+    AVMutableVideoCompositionLayerInstruction* transformer = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:clipVideoTrack];
+    CGAffineTransform finalTransform = CGAffineTransformMakeScale(yMultiple, yMultiple);
+    CGFloat dx = (((vidSize.width * yMultiple) - correctSize.width) / 2.0);
+    finalTransform = CGAffineTransformTranslate(finalTransform, -dx, 0);
+    [transformer setTransform:finalTransform atTime:kCMTimeZero];
+    instruction.layerInstructions = [NSArray arrayWithObject:transformer];
+    videoComposition.instructions = [NSArray arrayWithObject: instruction];
     
-    if (xMultiple > yMultiple) {
-        // The video needs to trim off the sides
-        CGFloat croppedWidth = correctSize.width * yMultiple;
-        CGRect cropRegion = CGRectMake(((vidSize.width - croppedWidth)/vidSize.width) / 2, 0, croppedWidth / vidSize.width, 1);
-        filter = [[GPUImageCropFilter alloc] initWithCropRegion:cropRegion];
-        [movieFile addTarget:filter];
-        [filter addTarget:movieWriter];
-
-    } else {
-        // The video is skinnier than 3:4. Most likely a snapchat. Convert to 3:4 & Leave black bars on the sides.
-        filter = [[GPUImageCropFilter alloc] initWithCropRegion:CGRectMake(0, 0, 1, 1)];
-        [filter forceProcessingAtSizeRespectingAspectRatio:correctSize];
-        [movieFile addTarget:filter];
-        [filter addTarget:movieWriter];
+    AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetPassthrough];
+    exportSession.videoComposition = videoComposition;
+    exportSession.outputURL = outputURL;
+    exportSession.outputFileType = AVFileTypeMPEG4;
+    
+    NSTimeInterval duration = CMTimeGetSeconds(asset.duration);
+    if (duration > MAXIMUM_TRIM_TOTAL_LENGTH) {
+        [exportSession setTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(MAXIMUM_TRIM_TOTAL_LENGTH, 100000))];
     }
-    
 
-    // This might fuck stuff up IDK
-//    switch (orientation)
-//    {
-//        case UIInterfaceOrientationLandscapeLeft:
-//            [filter setInputRotation:kGPUImageNoRotation atIndex:0];
-//            
-//            break;
-//        case UIInterfaceOrientationLandscapeRight:
-//            [filter setInputRotation:kGPUImageRotate180 atIndex:0];
-//            
-//            break;
-//        case UIInterfaceOrientationPortraitUpsideDown:
-//            [filter setInputRotation:kGPUImageRotateLeft atIndex:0];
-//            
-//            break;
-//        default:
-//            [filter setInputRotation:kGPUImageRotateRight atIndex:0];
-//            
-//    };
     
-    
-    AudioChannelLayout channelLayout;
-    memset(&channelLayout, 0, sizeof(AudioChannelLayout));
-    channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;
-    
-    NSDictionary *audioSettings = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   [ NSNumber numberWithInt: kAudioFormatMPEG4AAC], AVFormatIDKey,
-                                   [ NSNumber numberWithInt: 2 ], AVNumberOfChannelsKey,
-                                   [ NSNumber numberWithFloat: 16000.0 ], AVSampleRateKey,
-                                   [ NSData dataWithBytes:&channelLayout length: sizeof( AudioChannelLayout ) ], AVChannelLayoutKey,
-                                   [ NSNumber numberWithInt: 32000 ], AVEncoderBitRateKey,
-                                   nil];
-    
-    movieWriter.shouldPassthroughAudio = YES; // default YES
-//    if ([[asset tracksWithMediaType:AVMediaTypeAudio] count] > 0){
-////        [movieWriter setHasAudioTrack:YES audioSettings:audioSettings];
-//        [movieWriter setHasAudioTrack:YES audioSettings:nil];
-//        movieFile.audioEncodingTarget = movieWriter;
-//    } else {//no audio
-        [movieWriter setHasAudioTrack:NO];
-        movieFile.audioEncodingTarget = nil;
-//    }
-
-    [movieFile enableSynchronizedEncodingUsingMovieWriter:movieWriter];
-    
-    [movieWriter startRecording];
-    [movieFile startProcessing];
-
-    __weak typeof(movieWriter) weakMovieWriter = movieWriter;
-    [movieWriter setCompletionBlock:^{
-        NSLog(@"Completed Successfully");
-        [movieFile removeTarget:filter];
-        [filter removeTarget:weakMovieWriter];
-        [weakMovieWriter finishRecording];
-        [movieFile description]; // just so it gets retained :)
-        [videoSettings description]; // just so it gets retained :)
-        [movieURL description]; // just so it gets retained :)
-        [asset description]; // just 9so it gets retained :)
-//        [audioSettings description]; // just so it gets retained :)
-        completion(movieURL, CMTimeGetSeconds(asset.duration), nil);
+    [exportSession exportAsynchronouslyWithCompletionHandler:^(void ) {
+        completion(exportSession.outputURL, CMTimeGetSeconds(exportSession.timeRange.duration), nil);
     }];
-    
-//    [movieWriter setFailureBlock:^(NSError *error) {
-//        NSLog(@"Completed Successfully");
-//        [filter removeTarget:weakMovieWriter];
-//        [weakMovieWriter finishRecording];
-//        [movieFile description]; // just so it gets retained :)
-//        [videoSettings description]; // just so it gets retained :)
-//        [movieURL description]; // just so it gets retained :)
-//        [asset description]; // just 9so it gets retained :)
-//        //        [audioSettings description]; // just so it gets retained :)
-//        completion(nil, error);
-//    }];
+
 }
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
@@ -308,7 +266,7 @@
                           rotation:(CGFloat)rotation
                        addToGroups:(NSArray *)groups {
     
-if (![groups count]) return;
+    if (![groups count]) return;
     
     YAVideo *video = [YAVideo video];
     YAGroup *group = [groups firstObject];
@@ -356,7 +314,7 @@ if (![groups count]) return;
         [self enqueueJpgCreationForVideo:video];
 
         NSMutableArray *remainingGroupIds = [NSMutableArray array];
-        for (int i = 0; i < [groups count]; i++) {
+        for (int i = 1; i < [groups count]; i++) {
             YAGroup *group = groups[i];
             [remainingGroupIds addObject:group.serverId];
         }
@@ -371,22 +329,6 @@ if (![groups count]) return;
     //in case of two gif operations for the same video there will be the following issue:
     //one operation can create gif earlier and start uploading, second operation will clean up the file for saving new gif date and and that moment zero bytes are read for uploading.
 }
-    
-// Was used for stiching switch-cam videos. GPU image made this method unneeded for now
-//- (void)createVideoFromSequenceOfURLs:(NSArray *)videoURLs
-//                        addToGroup:(YAGroup*)group {
-//    NSURL *outputUrl = [YAUtils urlFromFileName:@"concatenated.mp4"];
-//    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
-//
-//    [self concatenateAssetsAtURLs:videoURLs
-//                    withOutputURL:outputUrl
-//                    exportQuality:AVAssetExportPreset640x480
-//                       completion:^(NSURL *filePath, NSError *error) {
-//        if (!error) {
-//            [self createVideoFromRecodingURL:filePath addToGroup:[YAUser currentUser].currentGroup];
-//        }
-//    }];
-//}
 
 
 - (void)stopAllJobsWithCompletion:(stopOperationsCompletion)completion {

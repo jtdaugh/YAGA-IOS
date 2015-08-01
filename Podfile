@@ -26,9 +26,8 @@ end
 
 target 'YAVideoShareExtension', :exclusive => true do
 	platform :ios, '8.0'
-	pod 'Firebase', '>= 2.3.1'
 	pod 'AFNetworking', '~> 2.0'
-	pod 'MBProgressHUD', '~> 0.8'
+    pod 'MBProgressHUD', '~> 0.8'
 end
 
 post_install do |installer_representation|

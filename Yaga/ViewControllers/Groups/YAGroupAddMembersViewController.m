@@ -306,14 +306,6 @@
         [self.filteredContacts removeAllObjects];
         [self.membersTableview reloadData];
         
-        //add by phone
-        if([YAUtils validatePhoneNumber:text]) {
-            NSString *phone = [YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatE164];
-            if(phone) {
-                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nYagaUser:[NSNumber numberWithBool:NO], nUsername:[YAUtils readableNumberFromString:text],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
-            }
-        }
-        
         NSArray *keys = [[text lowercaseString] componentsSeparatedByString:@" "];
         
         NSMutableArray *subpredicates = [NSMutableArray array];
@@ -326,8 +318,15 @@
         NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates:subpredicates];
         NSArray *filtered = [self.deviceContacts filteredArrayUsingPredicate:predicate];
         
-        //add by useraname
-        if([text rangeOfString:@" "].location == NSNotFound && text.length > 0) {
+        
+        //add by phone or username, don't treat phone as username
+        if([YAUtils validatePhoneNumber:text]) {
+            NSString *phone = [YAUtils phoneNumberFromText:text numberFormat:NBEPhoneNumberFormatE164];
+            if(phone) {
+                [self.filteredContacts addObject:@{nCompositeName:@"", nFirstname:@"", nLastname:@"", nPhone:phone, nYagaUser:[NSNumber numberWithBool:NO], nUsername:[YAUtils readableNumberFromString:text],  kSearchedByPhone:[NSNumber numberWithBool:YES]}];
+            }
+        } else if([text rangeOfString:@" "].location == NSNotFound && text.length > 0) {
+            // add by username
             BOOL alreadyFound = NO;
             for (NSDictionary *contactData in filtered) {
                 if([[contactData[nUsername] lowercaseString] isEqualToString:[text lowercaseString]]) {

@@ -22,8 +22,6 @@
 @property (strong, nonatomic) NSNumber *recording;
 @property (nonatomic) BOOL shownViaBackgrounding;
 
-- (void)showCameraAccessories:(BOOL)show;
-
 - (BOOL)blockCameraPresentationOnBackground;
 
 @end
