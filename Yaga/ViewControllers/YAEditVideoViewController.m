@@ -72,9 +72,11 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         
         self.groups = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
         
-        self.startTime = 0.0f;
+        
+        self.startTime = (self.totalDuration > MAX_VIDEO_DURATION) ? self.totalDuration - MAX_VIDEO_DURATION : 0;
         self.endTime = CGFLOAT_MAX;
         
+
         self.previewImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
         self.previewImageView.contentMode = UIViewContentModeScaleAspectFit;
         self.previewImageView.image = [YAAssetsCreator thumbnailImageForVideoUrl:self.videoUrl atTime:0]; // Change time if we set the initial left trim
@@ -83,6 +85,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.videoPlayerView = [[YAVideoPlayerView alloc] initWithFrame:self.view.bounds];
         [self.videoPlayerView setSmoothLoopingComposition:NO];
         [self.videoPlayerView setDontHandleLooping:YES];
+        self.videoPlayerView.initialSeekTime = CMTimeMakeWithSeconds(self.startTime, 10000000);
         self.videoPlayerView.URL = self.videoUrl;
         self.videoPlayerView.playWhenReady = YES;
         self.videoPlayerView.delegate = self;
@@ -141,7 +144,12 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 - (void)addTrimmingView {
     const CGFloat sliderHeight = 40;
     self.trimmingView = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight)
-                                                         videoUrl:self.videoUrl];
+                                                         videoUrl:self.videoUrl
+                                                         duration:self.totalDuration
+                                                      leftSeconds:self.startTime
+                                                     rightSeconds:self.endTime];
+    self.trimmingView.minInterval = MIN_VIDEO_DURATION;
+    self.trimmingView.maxInterval = MAX_VIDEO_DURATION;
     self.trimmingView.delegate = self;
     [self.view addSubview:self.trimmingView];
 }
@@ -449,7 +457,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 #pragma mark - SAVideoRangeSliderDelegate
 - (void)rangeSliderDidMoveLeftSlider:(SAVideoRangeSlider *)rangeSlider {
     
-    NSLog(@"left position: %f", rangeSlider.leftPosition);
+    NSLog(@"left position: %f", rangeSlider.leftSliderPositionSeconds);
 
     self.dragging = YES;
     
@@ -457,7 +465,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         [self.videoPlayerView.player pause];
     }
     
-    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.leftPosition, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.leftSliderPositionSeconds, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
     }];
     
 //    [self.trimmingView setPlayerProgress:0.0f];
@@ -471,15 +479,15 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         [self.videoPlayerView.player pause];
     }
     
-    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.rightPosition, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.rightSliderPositionSeconds, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
     }];
     
 //    [self.trimmingView setPlayerProgress:0.0f];
 }
 
 - (void)rangeSliderDidEndMoving:(SAVideoRangeSlider *)rangeSlider {
-    self.startTime = rangeSlider.leftPosition;
-    self.endTime = rangeSlider.rightPosition;
+    self.startTime = rangeSlider.leftSliderPositionSeconds;
+    self.endTime = rangeSlider.rightSliderPositionSeconds;
     
     [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
         
@@ -566,29 +574,31 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 #pragma mark - YAVideoPlayerDelegate
-- (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
+- (void)playbackProgressChanged:(CGFloat)progressSeconds duration:(CGFloat)duration {
     if(!self.dragging){
         
         CGFloat end = (self.endTime == CGFLOAT_MAX) ? duration : self.endTime;
 
         // if is end time, loop back to the start time
-        if(progress){
+        if(progressSeconds){
 //            NSLog(@"progress: %f", progress);
 //            NSLog(@"duration: %f", duration);
 //            NSLog(@"progress/duration: %f", progress/duration);
             
         }
         
-        if(progress >= end){
+        if(progressSeconds >= end){
             
-            [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
-            }];
+            [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPlayerView.player.currentItem.asset.duration.timescale)
+                                    toleranceBefore:kCMTimeZero
+                                     toleranceAfter:CMTimeMakeWithSeconds(0.03, self.videoPlayerView.player.currentItem.asset.duration.timescale)
+                                  completionHandler:^(BOOL finished) {}];
         } else {
-            if((progress - self.startTime) >= 0){
-                CGFloat normalizedProgress = (progress - self.startTime)/(end - self.startTime);
-                [self.trimmingView setPlayerProgress:normalizedProgress];
+            if((progressSeconds - self.startTime) >= 0){
+                CGFloat normalizedProgress = (progressSeconds - self.startTime)/(end - self.startTime);
+                if (self.trimmingView) [self.trimmingView setPlayerProgress:normalizedProgress];
             } else {
-                [self.trimmingView setPlayerProgress:0.0];
+                if (self.trimmingView) [self.trimmingView setPlayerProgress:0];
             }
             
         }

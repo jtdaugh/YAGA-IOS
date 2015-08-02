@@ -20,6 +20,7 @@
 @property (nonatomic, strong) AVPlayer* player;
 
 @property (nonatomic, copy) NSURL* URL;
+@property (nonatomic) CMTime initialSeekTime;
 
 @property (nonatomic, assign) BOOL playWhenReady;
 @property (nonatomic, assign) BOOL readyToPlay;

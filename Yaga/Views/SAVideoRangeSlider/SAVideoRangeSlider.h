@@ -37,16 +37,16 @@
 
 
 @property (nonatomic, weak) id <SAVideoRangeSliderDelegate> delegate;
-@property (nonatomic) CGFloat leftPosition;
-@property (nonatomic) CGFloat rightPosition;
+@property (nonatomic) CGFloat leftSliderPositionSeconds;
+@property (nonatomic) CGFloat rightSliderPositionSeconds;
 @property (nonatomic, strong) UILabel *bubleText;
 @property (nonatomic, strong) UIView *topBorder;
 @property (nonatomic, strong) UIView *bottomBorder;
-@property (nonatomic, assign) NSInteger maxGap;
-@property (nonatomic, assign) NSInteger minGap;
+@property (nonatomic, assign) CGFloat maxInterval;
+@property (nonatomic, assign) CGFloat minInterval;
 
 
-- (id)initWithFrame:(CGRect)frame videoUrl:(NSURL *)videoUrl;
+- (id)initWithFrame:(CGRect)frame videoUrl:(NSURL *)videoUrl duration:(NSTimeInterval)duration leftSeconds:(NSTimeInterval)leftSeconds rightSeconds:(NSTimeInterval)seconds;
 - (void)setPlayerProgress:(CGFloat)progress;
 @end
 

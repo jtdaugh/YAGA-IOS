@@ -35,10 +35,14 @@
 @property (nonatomic, strong) SASliderRight *rightThumb;
 @property (nonatomic, strong) UIView *currentPositionView;
 
-@property (nonatomic) CGFloat frame_width;
-@property (nonatomic) Float64 durationSeconds;
+@property (nonatomic) CGFloat leftPosition;
+@property (nonatomic) CGFloat rightPosition;
 
-@property (nonatomic, strong) NSMutableArray *darkenViews;
+@property (nonatomic) CGFloat frame_width;
+@property (nonatomic) NSTimeInterval durationSeconds;
+
+@property (nonatomic, strong) UIView *darkenLeftView;
+@property (nonatomic, strong) UIView *darkenRightView;
 
 @property (nonatomic, readonly) CGFloat thumbnailFrameWidth;
 @property (nonatomic, readonly) CGFloat framesCount;
@@ -46,7 +50,7 @@
 
 @implementation SAVideoRangeSlider
 
-- (id)initWithFrame:(CGRect)frame videoUrl:(NSURL *)videoUrl{
+- (id)initWithFrame:(CGRect)frame videoUrl:(NSURL *)videoUrl duration:(NSTimeInterval)duration leftSeconds:(NSTimeInterval)leftSeconds rightSeconds:(NSTimeInterval)rightSeconds{
     
     self = [super initWithFrame:frame];
     if (self) {
@@ -60,9 +64,19 @@
         _bgView.clipsToBounds = YES;
         [self addSubview:_bgView];
         
+        _darkenLeftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, _bgView.frame.size.height)];
+        _darkenLeftView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.7];
+        _darkenLeftView.layer.zPosition = 100;
+        [_bgView addSubview:_darkenLeftView];
+
+        _darkenRightView = [[UIView alloc] initWithFrame:CGRectMake(_bgView.frame.origin.x, 0, 0, _bgView.frame.size.height)];
+        _darkenRightView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.7];
+        _darkenRightView.layer.zPosition = 100;
+        [_bgView addSubview:_darkenRightView];
+
         _videoUrl = videoUrl;
         
-        _currentPositionView = [[UIView alloc] initWithFrame:CGRectMake(-1, -2, 2, self.bounds.size.height + 4)];
+        _currentPositionView = [[UIView alloc] initWithFrame:CGRectMake(thumbWidth-1, -2, 2, self.bounds.size.height + 4)];
         _currentPositionView.backgroundColor = [UIColor whiteColor];
         [self addSubview:_currentPositionView];
         
@@ -88,8 +102,9 @@
         UIPanGestureRecognizer *rightPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleRightPan:)];
         [_rightThumb addGestureRecognizer:rightPan];
         
-        _rightPosition = frame.size.width;
-        _leftPosition = 0;
+        _durationSeconds = duration;
+        _rightPosition = MIN(_bgView.frame.size.width * (rightSeconds / duration), _bgView.frame.size.width );
+        _leftPosition = _bgView.frame.size.width  * (leftSeconds / duration);
         
         _centerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
         _centerView.backgroundColor = [UIColor clearColor];
@@ -117,19 +132,6 @@
     return self;
 }
 
-
--(void)setMaxGap:(NSInteger)maxGap{
-    _leftPosition = 0;
-    _rightPosition = _frame_width*maxGap/_durationSeconds;
-    _maxGap = maxGap;
-}
-
--(void)setMinGap:(NSInteger)minGap{
-    _leftPosition = 0;
-    _rightPosition = _frame_width*minGap/_durationSeconds;
-    _minGap = minGap;
-}
-
 #pragma mark - Gestures
 
 - (void)handleLeftPan:(UIPanGestureRecognizer *)gesture
@@ -143,18 +145,19 @@
             _leftPosition = 0;
         }
         
-        if (
-            (_rightPosition-_leftPosition <= _leftThumb.frame.size.width+_rightThumb.frame.size.width) ||
-            ((self.maxGap > 0) && (self.rightPosition-self.leftPosition > self.maxGap)) ||
-            ((self.minGap > 0) && (self.rightPosition-self.leftPosition < self.minGap))
-            ){
+        if ((self.maxInterval > 0) && (self.rightSliderPositionSeconds-self.leftSliderPositionSeconds > self.maxInterval)) {
+            // Pan the whole trim view if they want to pan left beyond the max range
+            _rightPosition += translation.x;
+        } else if ((self.minInterval > 0) && (self.rightSliderPositionSeconds-self.leftSliderPositionSeconds < self.minInterval)) {
             _leftPosition -= translation.x;
+            return;
         }
         
         [gesture setTranslation:CGPointZero inView:self];
         
+        [self setPlayerProgress:0]; // since player will start over from dragged position.
         [self setNeedsLayout];
-        
+
         if ([_delegate respondsToSelector:@selector(rangeSliderDidMoveLeftSlider:)]){
             [_delegate rangeSliderDidMoveLeftSlider:self];
         }
@@ -184,25 +187,29 @@
             _rightPosition = 0;
         }
         
-        if (_rightPosition > _frame_width){
-            _rightPosition = _frame_width;
+        if (_rightPosition > _bgView.frame.size.width){
+            _rightPosition = _bgView.frame.size.width;
         }
         
         if (_rightPosition-_leftPosition <= 0){
             _rightPosition -= translation.x;
+            return;
         }
         
-        if ((_rightPosition-_leftPosition <= _leftThumb.frame.size.width+_rightThumb.frame.size.width) ||
-            ((self.maxGap > 0) && (self.rightPosition-self.leftPosition > self.maxGap)) ||
-            ((self.minGap > 0) && (self.rightPosition-self.leftPosition < self.minGap))){
+        if ((self.maxInterval > 0) && (self.rightSliderPositionSeconds-self.leftSliderPositionSeconds > self.maxInterval)){
+            // Pan the whole trim view if they want to pan right beyond the max range
+            _leftPosition += translation.x;
+        } else if ((self.minInterval > 0) && (self.rightSliderPositionSeconds-self.leftSliderPositionSeconds < self.minInterval)) {
             _rightPosition -= translation.x;
+            return;
         }
         
         
         [gesture setTranslation:CGPointZero inView:self];
         
+        [self setPlayerProgress:0]; // since player will start over from dragged position.
         [self setNeedsLayout];
-        
+
         if ([_delegate respondsToSelector:@selector(rangeSliderDidMoveRightSlider:)]){
             [_delegate rangeSliderDidMoveRightSlider:self];
         }
@@ -256,20 +263,14 @@
 {
     CGFloat inset = _leftThumb.frame.size.width / 2;
     
-    _leftThumb.center = CGPointMake(_leftPosition+inset, _leftThumb.frame.size.height/2);
+    _leftThumb.center = CGPointMake(_leftThumb.frame.size.width + _leftPosition-inset, _leftThumb.frame.size.height/2);
     
-    _rightThumb.center = CGPointMake(_rightPosition-inset, _rightThumb.frame.size.height/2);
+    _rightThumb.center = CGPointMake(_leftThumb.frame.size.width + _rightPosition+inset, _rightThumb.frame.size.height/2);
     
     _centerView.frame = CGRectMake(_leftThumb.frame.origin.x + _leftThumb.frame.size.width, _centerView.frame.origin.y, _rightThumb.frame.origin.x - _leftThumb.frame.origin.x - _leftThumb.frame.size.width, _centerView.frame.size.height);
     
-    //darken left and right
-    for (UIImageView *previewImageView in self.darkenViews) {
-        if(previewImageView.superview.frame.origin.x < _leftThumb.frame.origin.x - _leftThumb.frame.size.width || (previewImageView.superview.frame.origin.x + previewImageView.superview.frame.size.width) > (_rightThumb.frame.origin.x)) {
-            previewImageView.alpha = 0.7;
-        }
-        else
-            previewImageView.alpha = 0;
-    }
+    _darkenLeftView.frame = CGRectMake(0, 0, _leftPosition, _bgView.frame.size.height);
+    _darkenRightView.frame = CGRectMake(_rightPosition, 0, _bgView.frame.size.width - _rightPosition, _bgView.frame.size.height);
 }
 
 #pragma mark - Video
@@ -279,7 +280,6 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         AVAsset *myAsset = [[AVURLAsset alloc] initWithURL:weakSelf.videoUrl options:nil];
-        weakSelf.durationSeconds = CMTimeGetSeconds([myAsset duration]);
         weakSelf.imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:myAsset];
         
         if ([weakSelf isRetina]){
@@ -287,8 +287,6 @@
         } else {
             weakSelf.imageGenerator.maximumSize = CGSizeMake(weakSelf.bgView.frame.size.width, weakSelf.bgView.frame.size.height);
         }
-        
-        weakSelf.darkenViews = [NSMutableArray new];
         
         __block NSError *error;
         for (NSUInteger i = 0; i < self.framesCount; i++) {
@@ -301,9 +299,11 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf addThumbnail:imageRef atIndex:i];
                 CGImageRelease(imageRef);
+                if (i == weakSelf.framesCount - 1) {
+                    [weakSelf setNeedsLayout];
+                }
             });
         }
-        
     });
 }
 
@@ -344,22 +344,30 @@
     view.backgroundColor = [UIColor blackColor];
     view.alpha = 0;
     [thumbImageView addSubview:view];
-    [self.darkenViews addObject:view];
 }
 
 #pragma mark - Properties
 
-- (CGFloat)leftPosition
+- (CGFloat)leftSliderPositionSeconds
 {
-    return _leftPosition * _durationSeconds / _frame_width;
+    return (_leftPosition / _bgView.frame.size.width) * _durationSeconds;
 }
 
 
-- (CGFloat)rightPosition
+- (CGFloat)rightSliderPositionSeconds
 {
-    return _rightPosition * _durationSeconds / _frame_width;
+    return (_rightPosition / _bgView.frame.size.width) * _durationSeconds;
 }
 
+- (void)setLeftSliderPositionSeconds:(CGFloat)leftPositionSeconds {
+    _leftPosition = _durationSeconds ? (leftPositionSeconds / _durationSeconds) * _bgView.frame.size.width : 0;
+    [self setNeedsLayout];
+}
+
+- (void)setRightSliderPositionSeconds:(CGFloat)rightPositionSeconds {
+    _rightPosition = MIN((_durationSeconds ? (rightPositionSeconds / _durationSeconds) : 1) * _bgView.frame.size.width, _bgView.frame.size.width);
+    [self setNeedsLayout];
+}
 
 -(void) setTimeLabel{
     self.bubleText.text = [self trimIntervalStr];
@@ -382,7 +390,7 @@
 }
 
 - (void)setPlayerProgress:(CGFloat)progress {
-    CGFloat totalWidth = self.rightThumb.frame.origin.x - self.leftThumb.frame.origin.x - self.leftThumb.frame.size.width;
+    CGFloat totalWidth = self.rightThumb.frame.origin.x - self.leftThumb.frame.origin.x - self.leftThumb.frame.size.width - 1;
     CGFloat currentPositionX = self.leftThumb.frame.origin.x + self.leftThumb.frame.size.width + totalWidth * progress;
     self.currentPositionView.frame = CGRectMake(currentPositionX, self.currentPositionView.frame.origin.y, self.currentPositionView.frame.size.width, self.currentPositionView.frame.size.height);
 }

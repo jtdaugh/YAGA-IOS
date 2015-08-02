@@ -365,7 +365,7 @@
     NSDate *recordingFinished = [NSDate date];
     NSTimeInterval executionTime = [recordingFinished timeIntervalSinceDate:self.recordingTime];
     
-    if (executionTime > 0.5) {
+    if (executionTime > MIN_VIDEO_DURATION) {
         [self stopRecordingVideo];
     }
 }

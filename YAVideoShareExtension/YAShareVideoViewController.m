@@ -48,6 +48,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
 @property CGFloat startTime;
 @property CGFloat endTime;
+@property CGFloat durationSeconds;
 
 @property BOOL dragging;
 
@@ -168,6 +169,9 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.groupsListTapOutRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseGroupList)];
         self.groupsExpanded = NO;
 
+        AVURLAsset *tempAsset = [AVURLAsset assetWithURL:self.movieURL];
+        self.durationSeconds = CMTimeGetSeconds(tempAsset.duration);
+        
         self.startTime = 0.0f;
         self.endTime = CGFLOAT_MAX;
         
@@ -215,7 +219,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 - (void)addTrimmingView {
     const CGFloat sliderHeight = 40;
     self.trimmingView = [[SAVideoRangeSlider alloc] initWithFrame:CGRectMake(5, self.bottomView.frame.origin.y - sliderHeight - 10 , self.view.bounds.size.width - 10, sliderHeight)
-                                                         videoUrl:self.movieURL];
+                                                         videoUrl:self.movieURL
+                                                         duration:self.durationSeconds leftSeconds:self.startTime rightSeconds:self.endTime];
     self.trimmingView.delegate = self;
     [self.view addSubview:self.trimmingView];
 }
@@ -465,7 +470,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 #pragma mark - SAVideoRangeSliderDelegate
 - (void)rangeSliderDidMoveLeftSlider:(SAVideoRangeSlider *)rangeSlider {
     
-    NSLog(@"left position: %f", rangeSlider.leftPosition);
+    NSLog(@"left position: %f", rangeSlider.leftSliderPositionSeconds);
     
     self.dragging = YES;
     
@@ -473,7 +478,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         [self.videoPlayerView.player pause];
     }
     
-    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.leftPosition, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.leftSliderPositionSeconds, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
     }];
     
     //    [self.trimmingView setPlayerProgress:0.0f];
@@ -487,15 +492,15 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         [self.videoPlayerView.player pause];
     }
     
-    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.rightPosition, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
+    [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(rangeSlider.rightSliderPositionSeconds, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
     }];
     
     //    [self.trimmingView setPlayerProgress:0.0f];
 }
 
 - (void)rangeSliderDidEndMoving:(SAVideoRangeSlider *)rangeSlider {
-    self.startTime = rangeSlider.leftPosition;
-    self.endTime = rangeSlider.rightPosition;
+    self.startTime = rangeSlider.leftSliderPositionSeconds;
+    self.endTime = rangeSlider.rightSliderPositionSeconds;
     
     [self.videoPlayerView.player seekToTime:CMTimeMakeWithSeconds(self.startTime, self.videoPlayerView.player.currentItem.asset.duration.timescale) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
         

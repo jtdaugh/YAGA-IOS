@@ -19,6 +19,7 @@
 @property (strong) AVPlayerItem* playerItem;
 @property (nonatomic, strong) NSTimer *viewCountTimer;
 @property (nonatomic, strong) id playbackObserver;
+@property (nonatomic) BOOL initialSeekHappened;
 @end
 
 static void *AVPlayerDemoPlaybackViewControllerRateObservationContext = &AVPlayerDemoPlaybackViewControllerRateObservationContext;
@@ -33,6 +34,7 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     if(self) {
         AVPlayerLayer *playerLayer = (AVPlayerLayer*)[self layer];
         playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        self.initialSeekTime = CMTimeMake(0, 1000000);
     }
     return self;
 }
@@ -57,6 +59,10 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     _readyToPlay = readyToPlay;
     
     if(self.readyToPlay && self.playWhenReady) {
+        if (self.initialSeekTime.value && !self.initialSeekHappened) {
+            self.initialSeekHappened = YES;
+            [self.player seekToTime:self.initialSeekTime];
+        }
         [self play];
     }
 }
@@ -65,6 +71,10 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
     _playWhenReady = playWhenReady;
     
     if(self.readyToPlay && playWhenReady)
+        if (self.initialSeekTime.value && !self.initialSeekHappened) {
+            self.initialSeekHappened = YES;
+            [self.player seekToTime:self.initialSeekTime];
+        }
         [self play];
 }
 
@@ -399,6 +409,11 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
             [weakSelf playbackProgressChanged:normalizedTime duration:endTime/[weakSelf numberOfCopies]];
         }
     }];
+}
+
+- (void)setInitialSeekTime:(CMTime)initialSeekTime {
+    _initialSeekTime = initialSeekTime;
+    _initialSeekHappened = NO;
 }
 
 - (CGFloat) numberOfCopies {
