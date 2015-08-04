@@ -145,13 +145,15 @@
     addressBook.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"compositeName" ascending:YES]];
     
     //using last requested yaga users
-    NSDictionary *yagaUsersData = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kYagaUsersRequested];
+    NSDictionary *yagaUsersData = [[NSUserDefaults standardUserDefaults] objectForKey:kYagaUsersRequested];
     
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
             [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:kContactsAccessWasRequested];
             
-            __block NSMutableArray *result = [NSMutableArray new];
+            __block NSMutableArray *usersResults = [NSMutableArray new];
+            __block NSMutableArray *nonUsersResults = [NSMutableArray new];
+            
             NSMutableArray *phoneResults = [NSMutableArray new];
             self->_phonebook = [NSMutableDictionary new];
             
@@ -190,7 +192,12 @@
 
                     if(![excludePhonesSet containsObject:num])
                     {
-                        [result addObject:item];
+                        if (yagaUserData) {
+                            [usersResults addObject:item];
+                        } else {
+                            [nonUsersResults addObject:item];
+                        }
+                        
                         [phoneResults addObject:num];
                     }
                     
@@ -199,10 +206,11 @@
             }
             if(completion)
             {
-                completion(nil, result, NO);
+                NSMutableArray *orderedResults = [[usersResults arrayByAddingObjectsFromArray:nonUsersResults] mutableCopy];
                 
-                NSDate *lastRequested = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kLastYagaUsersRequestDate];
+                completion(nil, orderedResults, NO);
                 
+                NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
                 //request yaga users once per hour
                 if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60]] == NSOrderedDescending) {
                     [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
@@ -229,15 +237,28 @@
                                     
                                     [self.phonebook setObject:phonebookItem forKey:phone];
                                 }
-                                
+                                NSPredicate *phoneNumPredicate = [NSPredicate predicateWithFormat:@"%K == %@", nPhone, phone];
+                                if ([[usersResults filteredArrayUsingPredicate:phoneNumPredicate] count]) {
+                                    // already in yaga users array, do nothing. Should update entry maybe?
+                                } else {
+                                    NSArray *newUser = [nonUsersResults filteredArrayUsingPredicate:phoneNumPredicate];
+                                    if ([newUser count]) {
+                                        [nonUsersResults removeObjectsInArray:newUser];
+                                        [usersResults addObjectsFromArray:newUser];
+                                    }
+                                }
                                 [yagaUserDictionary setObject:yagaUserDic forKey:phone];
                             }
+
+                            [usersResults sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:nCompositeName ascending:YES]]];
                             
                             [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastYagaUsersRequestDate];
                             [[NSUserDefaults standardUserDefaults] setObject:yagaUserDictionary forKey:kYagaUsersRequested];
-                            
-                            if(completion)
-                                completion(nil, result, YES);
+                           
+                            if(completion) {
+                                NSMutableArray *orderedResults = [[usersResults arrayByAddingObjectsFromArray:nonUsersResults] mutableCopy];
+                                completion(nil, orderedResults, YES);
+                            }
                         }
 
                     }];

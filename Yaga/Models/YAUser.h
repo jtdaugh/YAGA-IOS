@@ -46,7 +46,9 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts, 
 - (BOOL)loggedIn;
 - (void)logout;
 
+// Will call completion when contacts loaded locally and a second time if it needs to refresh yaga-users from server
 - (void)importContactsWithCompletion:(contactsImportedBlock)completion excludingPhoneNumbers:(NSSet*)excludePhonesSet;
+
 - (NSString*)formatDate:(NSDate*)date;
 - (NSString*)username;
 - (NSString*)phoneNumber;
