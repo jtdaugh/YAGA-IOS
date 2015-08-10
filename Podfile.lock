@@ -47,11 +47,9 @@ PODS:
   - Harpy (3.3.7)
   - libPhoneNumber-iOS (0.8.5)
   - MBProgressHUD (0.9.1)
-  - Mixpanel (2.8.1):
-    - Mixpanel/Mixpanel (= 2.8.1)
-  - Mixpanel/Mixpanel (2.8.1):
-    - Mixpanel/MPCategoryHelpers
-  - Mixpanel/MPCategoryHelpers (2.8.1)
+  - Mixpanel (2.8.2):
+    - Mixpanel/Mixpanel (= 2.8.2)
+  - Mixpanel/Mixpanel (2.8.2)
   - MSAlertController (1.0.2)
   - NSDate-Time-Ago (1.0.1)
   - OrderedDictionary (1.2)
@@ -74,7 +72,7 @@ DEPENDENCIES:
   - Harpy
   - libPhoneNumber-iOS (~> 0.7)
   - MBProgressHUD (~> 0.8)
-  - Mixpanel
+  - Mixpanel (>= 2.8.2)
   - MSAlertController
   - NSDate-Time-Ago
   - OrderedDictionary
@@ -117,7 +115,7 @@ SPEC CHECKSUMS:
   Harpy: f2f947532e4741547fdebe67672ca8c493326944
   libPhoneNumber-iOS: b8ccd23576379caca37c7cbdd554addf384459ed
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
-  Mixpanel: 93c4825025e6380ced273ed7178496282e385077
+  Mixpanel: f4d71ac2a306e7cda6ad03d4a2be249a0fd7a967
   MSAlertController: 502577669b8fef56c492c943cb0d5ae94392369d
   NSDate-Time-Ago: e9de167d0659ebe465c273e833e7b582f061fc41
   OrderedDictionary: 9cc5d69c5c5314ad696ed1839190724e83d534c7

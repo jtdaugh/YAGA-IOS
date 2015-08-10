@@ -15,7 +15,7 @@ target 'Yaga', :exclusive => true do
     pod 'OrderedDictionary'
     pod 'AFDownloadRequestOperation'
     pod 'MBProgressHUD', '~> 0.8'
-    pod 'Mixpanel'
+    pod 'Mixpanel', '>= 2.8.2'
     pod 'Firebase', '>= 2.3.1'
     pod 'MSAlertController'
     pod 'GPUImage', :git => 'https://github.com/yagainc/GPUImage.git', :commit => '714beb8f3d8a477245d95b1610ccdd40f7867019'
