@@ -306,6 +306,10 @@
     return [[YAUser currentUser] objectForKey:nPhone];
 }
 
+- (NSString*)serverId {
+    return [[YAUser currentUser] objectForKey:nUserId];
+}
+
 - (NSString*)deviceToken {
     return [[YAUser currentUser] objectForKey:YA_DEVICE_TOKEN];
 }

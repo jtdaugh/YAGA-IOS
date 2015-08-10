@@ -8,6 +8,7 @@
 
 #import <Realm/Realm.h>
 
+#define nUserId         @"userId"
 #define nUsername       @"username"
 #define nPhone          @"phone"
 #define nCountry        @"country"

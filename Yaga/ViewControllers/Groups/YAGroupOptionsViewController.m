@@ -445,7 +445,6 @@ static NSString *CellID = @"CellID";
 }
 
 - (void)updateMembersPendingJoin {
-    NSSet *cancelledJoins = [NSSet setWithArray:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kCancelledJoins]];
     self.membersPendingJoin = [NSMutableArray new];
     
     if([self.group isInvalidated])
@@ -455,19 +454,24 @@ static NSString *CellID = @"CellID";
         if([member isInvalidated])
             continue;
         
-        if(![cancelledJoins containsObject:member.number])
-            [self.membersPendingJoin addObject:member];
+        [self.membersPendingJoin addObject:member];
     }
 }
 
 - (void)cancelJoinButtonPressed:(UIButton*)sender {
-    NSMutableArray *cancelled = [NSMutableArray arrayWithArray:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kCancelledJoins]];
     YAContact *cancelledContact = self.membersPendingJoin[sender.tag];
-    [cancelled addObject:cancelledContact.number];
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:cancelled forKey:kCancelledJoins];
     
-    [self.membersPendingJoin removeObject:cancelledContact];
-    [self.tableView reloadData];
+    [[YAServer sharedServer] removeGroupMemberByPhone:cancelledContact.number fromGroupWithId:self.group.serverId  withCompletion:^(id response, NSError *error) {
+        if(!error) {
+            [self.pendingMembersInProgress removeObject:[NSNumber numberWithInteger:sender.tag]];
+            [self.tableView reloadData];
+            
+            [self.group refresh];
+        }
+        else {
+            DLog(@"Can not remove member");
+        }
+    }];
 }
 
 - (void)allowJoinButtonPressed:(UIButton*)sender {

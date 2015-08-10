@@ -668,21 +668,4 @@
     return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos, kDeletedVideos:videosToDelete};
 }
 
-- (BOOL)hasPendingJoin {
-    NSSet *cancelledJoins = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kCancelledJoins]];
-    
-    if([self isInvalidated])
-        return NO;
-    
-    for(YAContact *member in self.pending_members) {
-        if([member isInvalidated])
-            continue;
-        
-        if(![cancelledJoins containsObject:member.number])
-            return YES;
-    }
-    
-    return NO;
-}
-
 @end

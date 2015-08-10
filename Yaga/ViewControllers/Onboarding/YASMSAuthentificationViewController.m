@@ -177,12 +177,14 @@
             [[Mixpanel sharedInstance] identify:[YAUser currentUser].phoneNumber];
             [[Mixpanel sharedInstance].people set:@{@"$phone":[YAUser currentUser].phoneNumber}];
             
-            [[YAServer sharedServer] getInfoForCurrentUserWithCompletion:^(id response, NSError *error) {
+            [[YAServer sharedServer] getInfoForCurrentUserWithCompletion:^(NSDictionary *response, NSError *error) {
                 //old user
                 if (!error) {
                     if(response) {
-                        NSString *username = (NSString*)response;
+                        NSString *username = [response objectForKey:YA_RESPONSE_NAME];
+                        NSString *userId = [response objectForKey:YA_RESPONSE_ID];
                         [[YAUser currentUser] saveObject:username forKey:nUsername];
+                        [[YAUser currentUser] saveObject:userId forKey:nUserId];
                         [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
 
                         //show find groups immediately

@@ -97,6 +97,9 @@ typedef void (^groupChangedCompletionBlock)(void);
     else if([eventName isEqualToString:@"approve"]) {
         [self handleApprovePublic];
     }
+    else if([eventName isEqualToString:@"reject"]) {
+        [self handleReject];
+    }
 }
 
 - (void)handlePostEvent {
@@ -167,6 +170,11 @@ typedef void (^groupChangedCompletionBlock)(void);
 - (void)handleApprovePublic {
     NSString *groupId = self.meta[@"group_id"];
     [self openGroupWithId:groupId refresh:YES completion:nil];
+}
+
+- (void)handleReject {
+    NSString *groupId = self.meta[@"group_id"];
+    [self openGroupWithId:groupId refresh:YES];
 }
 
 #pragma mark - Utils
@@ -273,6 +281,13 @@ typedef void (^groupChangedCompletionBlock)(void);
     
     if([eventName isEqualToString:@"registration"]) {
         return NO;
+    }
+    
+    if([eventName isEqualToString:@"reject"]) {
+        NSString *userId = self.meta[@"user_id"];
+        if ([[YAUser currentUser].serverId isEqualToString:userId]) {
+            return NO;
+        }
     }
     
     return YES;

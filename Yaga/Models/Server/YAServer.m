@@ -108,7 +108,7 @@
         if ([name isKindOfClass:[NSNull class]]) {
             completion(nil, nil);
         } else {
-            completion(name, nil);
+            completion(dict, nil);
         }
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
