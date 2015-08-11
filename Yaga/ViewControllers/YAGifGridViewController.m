@@ -56,12 +56,19 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic) BOOL scrollingFast;
 @property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
+@property (nonatomic, strong) RLMResults *sortedVideos;
 
 @end
 
 static NSString *cellID = @"Cell";
 
 @implementation YAGifGridViewController
+
+- (void)setGroup:(YAGroup *)group {
+    _group = group;
+    
+    self.sortedVideos = [self.group.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -132,7 +139,7 @@ static NSString *cellID = @"Cell";
     if ((self.scrollingFast) || !eventCount) return; // dont update unless the collection view is still
     __weak YAGifGridViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSUInteger index = [self.group.videos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
+        NSUInteger index = [self.sortedVideos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
         if (weakSelf.scrollingFast) return;
         if (index == NSNotFound) {
             return;
@@ -239,7 +246,7 @@ static NSString *cellID = @"Cell";
     self.navigationItem.title = self.group.name;
 
     BOOL needRefresh = NO;
-    if(!self.group.videos || ![self.group.videos count])
+    if(!self.sortedVideos || ![self.sortedVideos count])
         needRefresh = YES;
     
     if([self.group.updatedAt compare:self.group.refreshedAt] == NSOrderedDescending) {
@@ -271,7 +278,7 @@ static NSString *cellID = @"Cell";
         if(![notif.userInfo[kShouldReloadVideoCell] boolValue])
             return;
         
-        NSUInteger index =[self.group.videos indexOfObject:video];
+        NSUInteger index =[self.sortedVideos indexOfObject:video];
         
         //the following line will ensure indexPathsForVisibleItems will return correct results
         [weakSelf.collectionView layoutIfNeeded];
@@ -351,7 +358,7 @@ static NSString *cellID = @"Cell";
         NSMutableArray *indexPathsToReload = [NSMutableArray new];
         
         for (YAVideo *video in updatedVideos) {
-            NSUInteger index = [self.group.videos indexOfObject:video];
+            NSUInteger index = [self.sortedVideos indexOfObject:video];
             if (index != NSNotFound) {
                 if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:index]]) {
                     [indexPathsToReload addObject:[NSIndexPath indexPathForItem:index inSection:0]];
@@ -392,7 +399,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)showNoVideosMessageIfNeeded {
-    if(!self.group.videos.count) {
+    if(!self.sortedVideos.count) {
         //group was sucessfully refreshed
         if([self.group.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame) {
             //hide spinning monkey and show "no videos" label
@@ -433,7 +440,7 @@ static NSString *cellID = @"Cell";
         
         const CGFloat indicatorWidth  = 50;
         [self.activityView removeFromSuperview];
-        if(!self.group.videos.count) {
+        if(!self.sortedVideos.count) {
             self.activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
             self.activityView.color = PRIMARY_COLOR;
             self.activityView.frame = CGRectMake(VIEW_WIDTH/2-indicatorWidth/2, VIEW_HEIGHT/5, indicatorWidth, indicatorWidth);
@@ -455,12 +462,12 @@ static NSString *cellID = @"Cell";
 #pragma mark - UICollectionView
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.group.videos.count;
+    return self.sortedVideos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    YAVideo *video = [self.group.videos objectAtIndex:indexPath.item];
+    YAVideo *video = [self.sortedVideos objectAtIndex:indexPath.item];
     CGFloat randomAlpha = indexPath.row * 13 % 10;
     UIColor *shadeOfPinkBasedOnIndex = [PRIMARY_COLOR colorWithAlphaComponent:(.2 + randomAlpha*.05)];
     [cell setBackgroundColor:shadeOfPinkBasedOnIndex];
@@ -539,7 +546,7 @@ static NSString *cellID = @"Cell";
 
 - (void)openVideo:(NSNotification*)notif {
     YAVideo *video = notif.userInfo[@"video"];
-    NSUInteger videoIndex = [self.group.videos indexOfObject:video];
+    NSUInteger videoIndex = [self.sortedVideos indexOfObject:video];
     
     if(videoIndex == NSNotFound) {
         DLog(@"can't find video index in current group");
@@ -651,14 +658,14 @@ static NSString *cellID = @"Cell";
     
     NSUInteger beginIndex = initialIndex;
     if (initialIndex >= kNumberOfItemsBelowToDownload) beginIndex -= kNumberOfItemsBelowToDownload; // Cant always subtract cuz overflow
-    NSUInteger endIndex = MIN(self.group.videos.count, initialIndex + kNumberOfItemsBelowToDownload);
+    NSUInteger endIndex = MIN(self.sortedVideos.count, initialIndex + kNumberOfItemsBelowToDownload);
     
     for(NSUInteger videoIndex = beginIndex; videoIndex < endIndex; videoIndex++) {
         if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
-            [visibleVideos addObject:[self.group.videos objectAtIndex:videoIndex]];
+            [visibleVideos addObject:[self.sortedVideos objectAtIndex:videoIndex]];
         }
         else {
-            [invisibleVideos addObject:[self.group.videos objectAtIndex:videoIndex]];
+            [invisibleVideos addObject:[self.sortedVideos objectAtIndex:videoIndex]];
         }
     }
     
