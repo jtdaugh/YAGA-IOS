@@ -66,8 +66,11 @@ static NSString *cellID = @"Cell";
 
 - (void)setGroup:(YAGroup *)group {
     _group = group;
-    
-    self.sortedVideos = [self.group.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
+    if ([group.videos count]) {
+        self.sortedVideos = [group.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
+    } else {
+        self.sortedVideos = group.videos;
+    }
 }
 
 - (void)viewDidLoad {
@@ -157,41 +160,31 @@ static NSString *cellID = @"Cell";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self.navigationController setNavigationBarHidden:NO animated:YES];
-    
-    if (![(YAGroupsNavigationController *)self.navigationController forceCamera]) { // These view methods still get called even if we force camera non-animated
-        
-//        [(YAGroupsNavigationController *)self.navigationController showTabbar:YES];
-        for (YAVideoCell *cell in [self.collectionView visibleCells]) {
-            [cell animateGifView:YES];
-        }
-
+    for (YAVideoCell *cell in [self.collectionView visibleCells]) {
+        [cell animateGifView:YES];
     }
+
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
 }
 
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if (![(YAGroupsNavigationController *)self.navigationController forceCamera]) { // These view methods still get called even if we force camera non-animated
 
-        [YAUtils setVisitedGifGrid];
+    [YAUtils setVisitedGifGrid];
 
-        if(self.group.publicGroup) {
-            if (![YAUtils hasVisitedHumanity]) {
-                [self showHumanityTooltip];
-                [YAUtils setVisitedHumanity];
-            }
-        } else {
-            if (![YAUtils hasVisitedPrivateGroup]) {
-                [self showPrivateGroupTooltip];
-                [YAUtils setVisitedPrivateGroup];
-            }
+    if(self.group.publicGroup) {
+        if (![YAUtils hasVisitedHumanity]) {
+            [self showHumanityTooltip];
+            [YAUtils setVisitedHumanity];
+        }
+    } else {
+        if (![YAUtils hasVisitedPrivateGroup]) {
+            [self showPrivateGroupTooltip];
+            [YAUtils setVisitedPrivateGroup];
         }
     }
 }
@@ -243,7 +236,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reload {
-    self.navigationItem.title = self.group.name;
+    self.navigationItem.title = [self.group.name isEqualToString:kPublicStreamGroupName] ? @"Feed" : self.group.name;
 
     BOOL needRefresh = NO;
     if(!self.sortedVideos || ![self.sortedVideos count])

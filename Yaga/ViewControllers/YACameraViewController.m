@@ -93,7 +93,6 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-//    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     [YACameraManager sharedManager].delegate = self;
     [[YACameraManager sharedManager] setCameraView:self.cameraView];
     if (![YACameraManager sharedManager].initialized) {
@@ -123,7 +122,6 @@
     [self.recordingCircle setAlpha:0.0];
 
     [[YACameraManager sharedManager] pauseCameraAndStop:NO];
-//    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
 }
 
 - (void)viewDidLoad {

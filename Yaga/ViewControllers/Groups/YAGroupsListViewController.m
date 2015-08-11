@@ -49,8 +49,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setupCollectionView];
-    self.navigationItem.title = @"Groups";
-
+    self.navigationItem.title = @"Channels";
+    self.view.backgroundColor = [UIColor whiteColor];
+    
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION    object:nil];
@@ -173,7 +174,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)groupDidChange:(NSNotification*)notif {
     [self.collectionView.pullToRefreshView stopAnimating];
     
-    if ([((UITabBarController*)self.navigationController.topViewController).selectedViewController isEqual:self]) {
+    if (![self.navigationController.topViewController isKindOfClass:[YAGifGridViewController class]]) {
         //open current group if needed
         if([YAUser currentUser].currentGroup) {
             YAGifGridViewController *vc = [YAGifGridViewController new];

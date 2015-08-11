@@ -24,7 +24,6 @@
 @property (weak, nonatomic) id<UINavigationControllerDelegate> realDelegate;
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 
-@property (nonatomic, strong) UIImageView *overlay;
 @end
 
 @implementation YAGroupsNavigationController
@@ -36,7 +35,6 @@
     self.delegate = nil;
     self.interactivePopGestureRecognizer.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 }
 
 #pragma mark - UIViewController
@@ -45,7 +43,9 @@
 {
     [super viewDidLoad];
     [self setNavigationBarHidden:NO];
-    
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+
     [self.navigationBar setTranslucent:NO];
     [self.navigationBar setTitleTextAttributes:@{
                                                  NSForegroundColorAttributeName: SECONDARY_COLOR
@@ -77,99 +77,44 @@
 
     self.interactivePopGestureRecognizer.delegate = self;
     
-    if (self.forceCamera) {
-        UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
-        overlay.backgroundColor = [UIColor blackColor];
-        [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
-        overlay.contentMode = UIViewContentModeScaleAspectFill;
-        [self.view addSubview:overlay];
-        self.overlay = overlay;
-    }
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(openGroupOptions)
                                                  name:OPEN_GROUP_OPTIONS_NOTIFICATION
                                                object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didEnterBackground)
-                                                 name:UIApplicationDidEnterBackgroundNotification
-                                               object:nil];
 }
 
-// Any view controller that wants to maintain presence when the app enters background
-// must implement -blockCameraPresentationOnBackground and return YES.
-- (void)didEnterBackground {
-    if (![self isEqual:[UIApplication sharedApplication].keyWindow.rootViewController]) {
-        // Only the root should be doing this
-        return;
-    }
-    id visibleVC;
-    if (self.presentedViewController) {
-        if (self.presentedViewController.presentedViewController) {
-            visibleVC = self.presentedViewController.presentedViewController;
-        } else {
-            visibleVC = self.presentedViewController;
-        }
-    } else {
-        visibleVC = self.visibleViewController;
-    }
-    SEL presentCameraSelector = @selector(blockCameraPresentationOnBackground);
-    BOOL presentCamera = YES;
-    if ([visibleVC respondsToSelector:presentCameraSelector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        presentCamera = ![visibleVC performSelector:presentCameraSelector];
-#pragma clang diagnostic pop
-    }
-    if (presentCamera) {
-        [self dismissAnyNecessaryViewControllersAndShowCamera];
-    }
-    
-    // Force these updates to happen before app is opened again
-    [[NSRunLoop currentRunLoop] runUntilDate:[[NSDate date] dateByAddingTimeInterval:0.1]];
-}
-
-- (void)dismissAnyNecessaryViewControllersAndShowCamera {
-    if (self.presentedViewController) {
-        [self dismissViewControllerAnimated:NO completion:nil];
-    } else {
-        if ([self.viewControllers count] > 2) {
-            self.viewControllers = [self.viewControllers subarrayWithRange:NSMakeRange(0, 2)];
-        }
-    }
-    [self presentCameraAnimated:NO shownViaBackgrounding:YES withCompletion:nil];
-}
-
-- (void)showTabbar:(BOOL)show {
-    //
-}
-
-
-- (void)presentCameraAnimated:(BOOL)animated {
-    [self presentCameraAnimated:animated shownViaBackgrounding:NO withCompletion:nil];
-}
-
-- (void)presentCameraAnimated:(BOOL)animated shownViaBackgrounding:(BOOL)shownViaBackgrounding withCompletion:(void (^)(void))completion{
-    YACameraViewController *camVC = [YACameraViewController new];
-    camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
-    camVC.modalPresentationStyle = UIModalPresentationCustom;
-    
-    camVC.showsStatusBarOnDismiss = YES;
-
-    CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
-    
-    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
-    initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
-//    initialFrame.origin.y += self.view.frame.origin.y;
-//    initialFrame.origin.x = 0;
-    
-    [self setInitialAnimationFrame: initialFrame];
-    [self setInitialAnimationTransform:initialTransform];
-//    self.animationController.initialTransform = initialTransform;
-    camVC.shownViaBackgrounding = shownViaBackgrounding;
-    [self presentViewController:camVC animated:animated completion:completion];
-}
+//// Any view controller that wants to maintain presence when the app enters background
+//// must implement -blockCameraPresentationOnBackground and return YES.
+//- (void)didEnterBackground {
+//    if (![self isEqual:[UIApplication sharedApplication].keyWindow.rootViewController]) {
+//        // Only the root should be doing this
+//        return;
+//    }
+//    id visibleVC;
+//    if (self.presentedViewController) {
+//        if (self.presentedViewController.presentedViewController) {
+//            visibleVC = self.presentedViewController.presentedViewController;
+//        } else {
+//            visibleVC = self.presentedViewController;
+//        }
+//    } else {
+//        visibleVC = self.visibleViewController;
+//    }
+//    SEL presentCameraSelector = @selector(blockCameraPresentationOnBackground);
+//    BOOL presentCamera = YES;
+//    if ([visibleVC respondsToSelector:presentCameraSelector]) {
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+//        presentCamera = ![visibleVC performSelector:presentCameraSelector];
+//#pragma clang diagnostic pop
+//    }
+//    if (presentCamera) {
+//        [self dismissAnyNecessaryViewControllersAndShowCamera];
+//    }
+//    
+//    // Force these updates to happen before app is opened again
+//    [[NSRunLoop currentRunLoop] runUntilDate:[[NSDate date] dateByAddingTimeInterval:0.1]];
+//}
 
 - (void)openGroupOptions {
     if(![YAUser currentUser].currentGroup)
@@ -186,24 +131,10 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
-    
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    if (self.forceCamera) {
-        self.forceCamera = NO;
-        [self presentCameraAnimated:NO shownViaBackgrounding:NO withCompletion:^{
-            [self.overlay removeFromSuperview];
-        }];
-    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-//    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 }
 
 #pragma mark - UINavigationController

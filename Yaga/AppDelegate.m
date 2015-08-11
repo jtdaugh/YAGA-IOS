@@ -120,9 +120,7 @@
         }
         
         UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
-        if ([viewController isKindOfClass:[YAGroupsNavigationController class]]) {
-            ((YAGroupsNavigationController *)viewController).forceCamera = YES;
-        }
+
         self.window.rootViewController = viewController;
         
         [self.window makeKeyAndVisible];

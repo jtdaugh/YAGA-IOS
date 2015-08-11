@@ -9,8 +9,14 @@
 #import "YAMainViewController.h"
 #import "YAUtils.h"
 #import "YAGroupsNavigationController.h"
+#import "YACameraViewController.h"
+#import "YAAnimatedTransitioningController.h"
 
-@interface YAMainViewController ()
+@interface YAMainViewController () <UIViewControllerTransitioningDelegate, UITabBarControllerDelegate>
+
+@property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
+
+@property (nonatomic, weak) UIViewController *cameraTabViewController;
 
 @end
 
@@ -22,15 +28,16 @@
 //    [YAUtils randomQuoteWithCompletion:^(NSString *quote, NSError *error) {
 //        self.navigationItem.prompt = quote;
 //    }];
+    self.cameraTabViewController = self.viewControllers[2];
     
-    [self addCameraButton];
-
+    self.animationController = [YAAnimatedTransitioningController new];
+    self.delegate = self;
     self.tabBar.itemSpacing = VIEW_WIDTH/2;
     self.tabBar.tintColor = PRIMARY_COLOR;
     self.tabBar.barTintColor = [UIColor whiteColor];
 
-    self.tabBar.backgroundImage = [YAUtils imageWithColor:[UIColor whiteColor]];
-    self.tabBar.shadowImage = [UIImage imageNamed:@"BarShadow"];
+//    self.tabBar.backgroundImage = [YAUtils imageWithColor:[UIColor whiteColor]];
+//    self.tabBar.shadowImage = [UIImage imageNamed:@"BarShadow"];
 }
 
 //- (void)viewWillAppear:(BOOL)animated {
@@ -41,36 +48,63 @@
 //    [super viewWillAppear:animated];
 //}
 
-- (void)addCameraButton {
-    
-    UIButton *cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
-                                                                   self.view.frame.size.height -(CAMERA_BUTTON_SIZE/2),
-                                                                   CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
-    cameraButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-    cameraButton.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.7]; // So its not clear on iOS 7
-    [cameraButton setImage:[[UIImage imageNamed:@"Camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    cameraButton.imageView.tintColor = [UIColor whiteColor];
-    cameraButton.imageEdgeInsets = UIEdgeInsetsMake(-55, 0, 0, 0);
-    cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
-    cameraButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-    cameraButton.layer.borderWidth = 2.f;
-    cameraButton.layer.masksToBounds = YES;
-    [cameraButton addTarget:self action:@selector(cameraButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    
-    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]; // Will still be dark because of translucent black background.
-    UIVisualEffectView *cameraButtonBlur = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-    cameraButtonBlur.frame = cameraButton.frame;
-    cameraButtonBlur.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
-    cameraButtonBlur.layer.masksToBounds = YES;
-    
-    [self.view addSubview:cameraButtonBlur];
-    [self.view addSubview:cameraButton];
+- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController
+{
+    return viewController != self.cameraTabViewController;
 }
 
-- (void)cameraButtonPressed {
-    [(YAGroupsNavigationController*)self.navigationController presentCameraAnimated:YES];
+
+- (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
+    if ([item isEqual:self.cameraTabViewController.tabBarItem]) {
+        // This is the camera button. Present modal camera instead of selecting tab
+        [self presentCameraAnimated:YES];
+    }
 }
 
+
+
+- (void)presentCameraAnimated:(BOOL)animated {
+    YACameraViewController *camVC = [YACameraViewController new];
+    camVC.transitioningDelegate = self; //(YAGroupsNavigationController *)self.navigationController;
+    camVC.modalPresentationStyle = UIModalPresentationCustom;
+    
+    camVC.showsStatusBarOnDismiss = YES;
+    
+    CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
+    
+    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
+    initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
+    //    initialFrame.origin.y += self.view.frame.origin.y;
+    //    initialFrame.origin.x = 0;
+    
+    [self setInitialAnimationFrame: initialFrame];
+    [self setInitialAnimationTransform:initialTransform];
+    //    self.animationController.initialTransform = initialTransform;
+    camVC.shownViaBackgrounding = NO;
+    [self presentViewController:camVC animated:animated completion:nil];
+}
+
+
+- (void)setInitialAnimationFrame:(CGRect)frame {
+    self.animationController.initialFrame = frame;
+}
+
+- (void)setInitialAnimationTransform:(CGAffineTransform)transform {
+    self.animationController.initialTransform = transform;
+}
+
+#pragma mark - Custom transitions
+- (id <UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
+    self.animationController.presentingMode = YES;
+    
+    return self.animationController;
+}
+
+- (id <UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
+    self.animationController.presentingMode = NO;
+    
+    return self.animationController;
+}
 
 
 @end
