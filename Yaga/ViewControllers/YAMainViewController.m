@@ -11,6 +11,7 @@
 #import "YAGroupsNavigationController.h"
 #import "YACameraViewController.h"
 #import "YAAnimatedTransitioningController.h"
+#import "YACameraManager.h"
 
 @interface YAMainViewController () <UIViewControllerTransitioningDelegate, UITabBarControllerDelegate>
 
@@ -29,6 +30,8 @@
 //        self.navigationItem.prompt = quote;
 //    }];
     self.cameraTabViewController = self.viewControllers[2];
+    
+    [[YACameraManager sharedManager] initCamera];
     
     self.animationController = [YAAnimatedTransitioningController new];
     self.delegate = self;

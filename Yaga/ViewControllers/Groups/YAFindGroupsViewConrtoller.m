@@ -62,6 +62,8 @@ static NSString *CellIdentifier = @"GroupsCell";
         self.tableView.layoutMargins = UIEdgeInsetsZero;
     
     [self setupPullToRefresh];
+    [self.tableView triggerPullToRefresh];
+    [self.tableView reloadData];
 
     _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
     
