@@ -666,7 +666,15 @@
                 video.namer = @"";
             }
             video.font = ![videoDic[YA_RESPONSE_FONT] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_FONT] integerValue] : 0;
-            video.group = self;
+           
+            NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_GROUP]];
+            RLMResults *existingGroup = [YAGroup objectsWhere:predicate];
+            if ([existingGroup count]) {
+                video.group = [existingGroup firstObject];
+            } else {
+                video.group = self;
+            }
+            
             video.caption_x = ![videoDic[YA_RESPONSE_NAME_X] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_X] floatValue] : 0.5;
             video.caption_y = ![videoDic[YA_RESPONSE_NAME_Y] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_Y] floatValue] : 0.25;
             video.caption_scale = ![videoDic[YA_RESPONSE_SCALE] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_SCALE] floatValue] : 1;
