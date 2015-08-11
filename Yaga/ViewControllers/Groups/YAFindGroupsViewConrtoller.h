@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAFindGroupsViewConrtoller : UITableViewController
+@interface YAFindGroupsViewConrtoller : UIViewController
 @property (nonatomic, assign) BOOL onboardingMode;
 @end

@@ -284,7 +284,7 @@
         <!--Explore-->
         <scene sceneID="ev1-HC-Kbw">
             <objects>
-                <viewController title="Explore" id="b7a-Wb-OdS" sceneMemberID="viewController">
+                <viewController title="Explore" id="b7a-Wb-OdS" customClass="YAFindGroupsViewConrtoller" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="zWT-HL-M3M"/>
                         <viewControllerLayoutGuide type="bottom" id="LXI-Xf-dzo"/>

@@ -17,9 +17,12 @@
 #import "YAPopoverView.h"
 #import "YAUserPermissions.h"
 
-@interface YAFindGroupsViewConrtoller ()
+@interface YAFindGroupsViewConrtoller () <UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, strong) NSArray *groupsDataArray;
 @property (nonatomic, strong) NSMutableSet *pendingRequestsInProgress;
+
+@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) UISearchBar *searchBar;
 
 @property (atomic, assign) BOOL groupsListLoaded;
 @property (atomic, assign) BOOL findGroupsFinished;
@@ -32,10 +35,17 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.title = NSLocalizedString(@"Join Groups", @"");
+    self.navigationItem.title = NSLocalizedString(@"Explore Channels", @"");
     
     self.view.backgroundColor = [UIColor whiteColor];
     
+    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 10, VIEW_WIDTH-40, 30)];
+    self.searchBar.searchBarStyle = UISearchBarStyleMinimal;
+    [self.view addSubview:self.searchBar];
+    
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH, VIEW_HEIGHT - 60)];
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     [self.tableView setAllowsSelection:NO];
@@ -45,11 +55,14 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     // This will remove extra separators from tableview
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    [self.view addSubview:self.tableView];
     
     //ios8 fix for separatorInset
     if ([self.tableView respondsToSelector:@selector(layoutMargins)])
         self.tableView.layoutMargins = UIEdgeInsetsZero;
     
+    [self setupPullToRefresh];
+
     _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
     
     [[UIBarButtonItem appearance] setTintColor:SECONDARY_COLOR];
@@ -159,14 +172,6 @@ static NSString *CellIdentifier = @"GroupsCell";
             }
         } excludingPhoneNumbers:nil];
         
-    }
-    else {
-        [self setupPullToRefresh];
-        
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonPressed:)];
-        
-        [self.tableView triggerPullToRefresh];
-        [self.tableView reloadData];
     }
 }
 

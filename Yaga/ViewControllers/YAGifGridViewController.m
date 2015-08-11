@@ -69,7 +69,7 @@ static NSString *cellID = @"Cell";
     if ([group.videos count]) {
         self.sortedVideos = [group.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
     } else {
-        self.sortedVideos = group.videos;
+        self.sortedVideos = nil;
     }
 }
 
