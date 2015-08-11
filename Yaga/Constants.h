@@ -174,6 +174,7 @@
 #define YA_RESPONSE_MEMBER_PHONE        @"phone"
 #define YA_RESPONSE_MEMBER_JOINED_AT    @"joined_at"
 #define YA_RESPONSE_RESULT              @"result"
+#define YA_RESPONSE_RESULTS             @"results"
 #define YA_RESPONSE_USER                @"user"
 #define YA_RESPONSE_TOKEN               @"token"
 #define YA_RESPONSE_APPROVED            @"approved"
@@ -186,6 +187,11 @@
 #define YA_VIDEO_DELETED                @"deleted"
 #define YA_GROUP_UPDATED_AT             @"updated_at"
 #define YA_GROUP_LAST_FOREIGN_POST_ID   @"last_foreign_post_id"
+
+
+//server side paging
+#define YA_RESPONSE_COUNT               @"count"
+#define YA_RESPONSE_NEXT                @"next"
 
 // API
 
@@ -216,4 +222,8 @@
 
 #define API_GROUP_POST_COPY                 @"%@/groups/%@/posts/%@/copy/"
 
+#define API_PUBLIC_STREAM_TEMPLATE          @"%@/posts/list/?since=%lu&limit=%lu&offset=%lu"
+
+#define kPublicStreamGroupName              @"_PublicStream_"
+#define kPublicStreamItemsOnPage            30
 #endif

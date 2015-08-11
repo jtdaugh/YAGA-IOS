@@ -23,7 +23,6 @@
 #import "YACreateGroupNavigationController.h"
 #import "NameGroupViewController.h"
 #import "YAEditVideoViewController.h"
-#import "YAGifGridViewController.h"
 #import "YAGroupsListViewController.h"
 #import "YAProgressView.h"
 

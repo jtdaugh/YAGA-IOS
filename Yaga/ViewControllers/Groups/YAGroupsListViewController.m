@@ -48,14 +48,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-//    [self.view setBackgroundColor:[UIColor colorWithWhite:0.97 alpha:1]];
-
     [self setupCollectionView];
-//    [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    [self.navigationController setNavigationBarHidden:NO];
     self.navigationItem.title = @"Groups";
-    
 
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
@@ -79,11 +73,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)findGroupsPressed {
     YAGroupsNavigationController *newNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
     [self presentViewController:newNavController animated:YES completion:nil];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    [(YAGroupsNavigationController *)self.navigationController showCameraButton:YES];
 }
 
 - (void)createGroupPressed {
@@ -180,13 +169,15 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self updateState];
 }
 
+#warning refactor navigation flow when changing groups, gifGrid should push immediatelly on didSelectItemAtIndexPath, make sure push notifications are working correctly
 - (void)groupDidChange:(NSNotification*)notif {
     [self.collectionView.pullToRefreshView stopAnimating];
     
-    if ([self.navigationController.topViewController isEqual:self]) {
+    if ([((UITabBarController*)self.navigationController.topViewController).selectedViewController isEqual:self]) {
         //open current group if needed
         if([YAUser currentUser].currentGroup) {
             YAGifGridViewController *vc = [YAGifGridViewController new];
+            vc.group = [YAUser currentUser].currentGroup;
             [self.navigationController pushViewController:vc animated:self.animatePush];
         }
     } else {

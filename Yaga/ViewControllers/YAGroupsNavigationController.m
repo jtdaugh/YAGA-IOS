@@ -8,7 +8,6 @@
 
 #import "YAGroupsNavigationController.h"
 #import "YAAnimatedTransitioningController.h"
-#import "YAGifGridViewController.h"
 #import "YAGroupsListViewController.h"
 #import "YACameraViewController.h"
 #import "SloppySwiper.h"
@@ -24,9 +23,6 @@
 
 @property (weak, nonatomic) id<UINavigationControllerDelegate> realDelegate;
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
-@property (nonatomic, strong) UIButton *cameraButton;
-
-@property (nonatomic, strong) UIVisualEffectView *cameraButtonBlur;
 
 @property (nonatomic, strong) UIImageView *overlay;
 @end
@@ -80,8 +76,6 @@
     self.delegate = self.swiper;
 
     self.interactivePopGestureRecognizer.delegate = self;
-
-    [self addCameraButton];
     
     if (self.forceCamera) {
         UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
@@ -103,35 +97,6 @@
                                                object:nil];
 }
 
-- (void)addCameraButton {
-    
-    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - CAMERA_BUTTON_SIZE)/2,
-                                                                   self.view.frame.size.height - self.navigationController.navigationBar.frame.size.height - (CAMERA_BUTTON_SIZE/2),
-                                                                   CAMERA_BUTTON_SIZE, CAMERA_BUTTON_SIZE)];
-    
-    self.cameraButton.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.7]; // So its not clear on iOS 7
-    [self.cameraButton setImage:[[UIImage imageNamed:@"Camera"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    self.cameraButton.imageView.tintColor = [UIColor whiteColor];
-    self.cameraButton.imageEdgeInsets = UIEdgeInsetsMake(-55, 0, 0, 0);
-    self.cameraButton.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
-    self.cameraButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-    self.cameraButton.layer.borderWidth = 2.f;
-    self.cameraButton.layer.masksToBounds = YES;
-    [self.cameraButton addTarget:self action:@selector(cameraButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    
-    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]; // Will still be dark because of translucent black background.
-    self.cameraButtonBlur = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-    self.cameraButtonBlur.frame = self.cameraButton.frame;
-    self.cameraButtonBlur.layer.cornerRadius = CAMERA_BUTTON_SIZE/2;
-    self.cameraButtonBlur.layer.masksToBounds = YES;
-    
-    [self.view addSubview:self.cameraButtonBlur];
-    [self.view addSubview:self.cameraButton];
-    [self showCameraButton:NO];
-    
-}
-
-
 // Any view controller that wants to maintain presence when the app enters background
 // must implement -blockCameraPresentationOnBackground and return YES.
 - (void)didEnterBackground {
@@ -152,7 +117,10 @@
     SEL presentCameraSelector = @selector(blockCameraPresentationOnBackground);
     BOOL presentCamera = YES;
     if ([visibleVC respondsToSelector:presentCameraSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         presentCamera = ![visibleVC performSelector:presentCameraSelector];
+#pragma clang diagnostic pop
     }
     if (presentCamera) {
         [self dismissAnyNecessaryViewControllersAndShowCamera];
@@ -173,8 +141,13 @@
     [self presentCameraAnimated:NO shownViaBackgrounding:YES withCompletion:nil];
 }
 
-- (void)cameraButtonPressed {
-    [self presentCameraAnimated:YES shownViaBackgrounding:NO withCompletion:nil];
+- (void)showTabbar:(BOOL)show {
+    //
+}
+
+
+- (void)presentCameraAnimated:(BOOL)animated {
+    [self presentCameraAnimated:animated shownViaBackgrounding:NO withCompletion:nil];
 }
 
 - (void)presentCameraAnimated:(BOOL)animated shownViaBackgrounding:(BOOL)shownViaBackgrounding withCompletion:(void (^)(void))completion{
@@ -209,10 +182,6 @@
     YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
     vc.group = [YAUser currentUser].currentGroup;
     [self pushViewController:vc animated:YES];
-}
-
-- (void)showCameraButton:(BOOL)show {
-    self.cameraButton.hidden = self.cameraButtonBlur.hidden = !show;
 }
 
 - (void)viewWillAppear:(BOOL)animated {

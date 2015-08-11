@@ -17,4 +17,8 @@
 
 - (void)reload;
 
+@property (strong, nonatomic) YAGroup *group;
+
+- (void)setupPullToRefresh;
+- (void)reloadCollectionView;
 @end

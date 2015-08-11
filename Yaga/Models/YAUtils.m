@@ -16,6 +16,7 @@
 #import "NBNumberFormat.h"
 #import "YAServer.h"
 #import "Constants.h"
+#import <AFNetworking/AFHTTPRequestOperationManager.h>
 
 #define HUMANITY_VISITED @"humanityVisited"
 #define PRIVATE_GROUP_VISITED @"groupVisited"
@@ -516,6 +517,46 @@
 + (void)setRecordedUngroupedVideo {
     [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:HAS_RECORDED_UNGROUPED_VIDEO];
     [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
+}
+
++ (void)randomQuoteWithCompletion:(stringCompletionBlock)completion {
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    manager.responseSerializer = [AFJSONResponseSerializer serializer];
+    [manager.requestSerializer setValue:@"ezBtcvH4HEmshaP4mANK8ZCvBA2ip1gpoHPjsnZ3p0o42PLQw1" forHTTPHeaderField:@"X-Mashape-Key"];
+        [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    
+    
+    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+//    NSDictionary *headers = @{@"X-Mashape-Key": @"ezBtcvH4HEmshaP4mANK8ZCvBA2ip1gpoHPjsnZ3p0o42PLQw1", @"Content-Type": @"application/x-www-form-urlencoded", @"Accept": @"application/json"};
+
+    
+    
+    [manager POST:@"https://andruxnet-random-famous-quotes.p.mashape.com/cat=movies" parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSString *quote = [responseObject objectForKey:@"quote"];
+        if(completion)
+            completion(quote, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if(completion)
+            completion(nil, error);
+    }];
+}
+
++ (NSDictionary*)urlParametersFromString:(NSString*)urlString {
+    NSArray *urlComponents = [urlString componentsSeparatedByString:@"&"];
+    
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    
+    for (NSString *keyValuePair in urlComponents)
+    {
+        NSArray *pairComponents = [keyValuePair componentsSeparatedByString:@"="];
+        NSString *key = [[pairComponents firstObject] stringByRemovingPercentEncoding];
+        NSString *value = [[pairComponents lastObject] stringByRemovingPercentEncoding];
+        
+        [result setObject:value forKey:key];
+    }
+    return result;
 }
 
 @end

@@ -15,6 +15,8 @@
 #import "YAServer.h"
 
 #import "UIScrollView+SVPullToRefresh.h"
+#import "UIScrollView+SVInfiniteScrolling.h"
+
 #import "YAAssetsCreator.h"
 
 #import "YAPullToRefreshLoadingView.h"
@@ -117,7 +119,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)infoPressed {
-    if([YAUser currentUser].currentGroup.publicGroup) {
+    if(self.group.publicGroup) {
         [self showHumanityTooltip];
     } else {
         [(YAGroupsNavigationController *)self.navigationController openGroupOptions];
@@ -130,7 +132,7 @@ static NSString *cellID = @"Cell";
     if ((self.scrollingFast) || !eventCount) return; // dont update unless the collection view is still
     __weak YAGifGridViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
+        NSUInteger index = [self.group.videos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
         if (weakSelf.scrollingFast) return;
         if (index == NSNotFound) {
             return;
@@ -147,9 +149,12 @@ static NSString *cellID = @"Cell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    
     if (![(YAGroupsNavigationController *)self.navigationController forceCamera]) { // These view methods still get called even if we force camera non-animated
         
-        [(YAGroupsNavigationController *)self.navigationController showCameraButton:YES];
+//        [(YAGroupsNavigationController *)self.navigationController showTabbar:YES];
         for (YAVideoCell *cell in [self.collectionView visibleCells]) {
             [cell animateGifView:YES];
         }
@@ -157,13 +162,20 @@ static NSString *cellID = @"Cell";
     }
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:NO];
+}
+
+
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     if (![(YAGroupsNavigationController *)self.navigationController forceCamera]) { // These view methods still get called even if we force camera non-animated
 
         [YAUtils setVisitedGifGrid];
 
-        if([YAUser currentUser].currentGroup.publicGroup) {
+        if(self.group.publicGroup) {
             if (![YAUtils hasVisitedHumanity]) {
                 [self showHumanityTooltip];
                 [YAUtils setVisitedHumanity];
@@ -224,13 +236,13 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reload {
-    self.navigationItem.title = [YAUser currentUser].currentGroup.name;
+    self.navigationItem.title = self.group.name;
 
     BOOL needRefresh = NO;
-    if(![YAUser currentUser].currentGroup.videos || ![[YAUser currentUser].currentGroup.videos count])
+    if(!self.group.videos || ![self.group.videos count])
         needRefresh = YES;
     
-    if([[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
+    if([self.group.updatedAt compare:self.group.refreshedAt] == NSOrderedDescending) {
         needRefresh = YES;
     }
     
@@ -253,13 +265,13 @@ static NSString *cellID = @"Cell";
         if(!video.group || [video.group isInvalidated])
             return;
         
-        if(![video.group isEqual:[YAUser currentUser].currentGroup])
+        if(![video.group isEqual:self.group])
             return;
         
         if(![notif.userInfo[kShouldReloadVideoCell] boolValue])
             return;
         
-        NSUInteger index =[[YAUser currentUser].currentGroup.videos indexOfObject:video];
+        NSUInteger index =[self.group.videos indexOfObject:video];
         
         //the following line will ensure indexPathsForVisibleItems will return correct results
         [weakSelf.collectionView layoutIfNeeded];
@@ -280,22 +292,23 @@ static NSString *cellID = @"Cell";
     });
 }
 
+#warning refactor, GifGridController shouldn't pop itself when group is changed
 - (void)groupDidChange:(NSNotification*)notif {
-    if (![YAUser currentUser].currentGroup) {
-        [self.navigationController popViewControllerAnimated:NO];
-        return;
-    }
-    [self.noVideosLabel removeFromSuperview];
-    self.noVideosLabel = nil;
-    [self.toolTipLabel removeFromSuperview];
-    self.toolTipLabel = nil;
-    [self reload];
+//    if (!self.group) {
+//        [self.navigationController popViewControllerAnimated:NO];
+//        return;
+//    }
+//    [self.noVideosLabel removeFromSuperview];
+//    self.noVideosLabel = nil;
+//    [self.toolTipLabel removeFromSuperview];
+//    self.toolTipLabel = nil;
+//    [self reload];
 }
 
 - (void)refreshCurrentGroup {
     [self showActivityIndicator:YES];
     
-    [[YAUser currentUser].currentGroup refresh];
+    [self.group refresh];
 }
 
 - (void)groupWillRefresh:(NSNotification*)notification {
@@ -312,7 +325,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)groupDidRefresh:(NSNotification*)notification {
-    if(![notification.object isEqual:[YAUser currentUser].currentGroup])
+    if(![notification.object isEqual:self.group])
         return;
     
     NSArray *newVideos = notification.userInfo[kNewVideos];
@@ -320,22 +333,25 @@ static NSString *cellID = @"Cell";
     NSArray *deletedVideos = notification.userInfo[kDeletedVideos];
     
     void (^refreshBlock)(void) = ^ {
-        if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
+        
+        //do not scroll to the top if infinite scrolling is used
+        if(!self.collectionView.infiniteScrollingView && [self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
             [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-            [self scrollingDidStop];
+        [self scrollingDidStop];
+        
         [self delayedHidePullToRefresh];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     };
     
     if (newVideos.count || deletedVideos.count) {
-        [self.collectionView reloadData];
+        [self reloadCollectionView];
         refreshBlock();
     }
     else if(updatedVideos.count) {
         NSMutableArray *indexPathsToReload = [NSMutableArray new];
         
         for (YAVideo *video in updatedVideos) {
-            NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+            NSUInteger index = [self.group.videos indexOfObject:video];
             if (index != NSNotFound) {
                 if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:index]]) {
                     [indexPathsToReload addObject:[NSIndexPath indexPathForItem:index inSection:0]];
@@ -358,6 +374,9 @@ static NSString *cellID = @"Cell";
     }
 }
 
+- (void)reloadCollectionView {
+    [self.collectionView reloadData];
+}
 - (void)delayedHidePullToRefresh {
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
     
@@ -367,14 +386,15 @@ static NSString *cellID = @"Cell";
     __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
+        [weakSelf.collectionView.infiniteScrollingView stopAnimating];
         [weakSelf showNoVideosMessageIfNeeded];
     });
 }
 
 - (void)showNoVideosMessageIfNeeded {
-    if(![YAUser currentUser].currentGroup.videos.count) {
+    if(!self.group.videos.count) {
         //group was sucessfully refreshed
-        if([[YAUser currentUser].currentGroup.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame) {
+        if([self.group.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame) {
             //hide spinning monkey and show "no videos" label
             [self showActivityIndicator:NO];
 
@@ -413,7 +433,7 @@ static NSString *cellID = @"Cell";
         
         const CGFloat indicatorWidth  = 50;
         [self.activityView removeFromSuperview];
-        if(![YAUser currentUser].currentGroup.videos.count) {
+        if(!self.group.videos.count) {
             self.activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
             self.activityView.color = PRIMARY_COLOR;
             self.activityView.frame = CGRectMake(VIEW_WIDTH/2-indicatorWidth/2, VIEW_HEIGHT/5, indicatorWidth, indicatorWidth);
@@ -435,12 +455,12 @@ static NSString *cellID = @"Cell";
 #pragma mark - UICollectionView
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return [YAUser currentUser].currentGroup.videos.count;
+    return self.group.videos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    YAVideo *video = [[YAUser currentUser].currentGroup.videos objectAtIndex:indexPath.item];
+    YAVideo *video = [self.group.videos objectAtIndex:indexPath.item];
     CGFloat randomAlpha = indexPath.row * 13 % 10;
     UIColor *shadeOfPinkBasedOnIndex = [PRIMARY_COLOR colorWithAlphaComponent:(.2 + randomAlpha*.05)];
     [cell setBackgroundColor:shadeOfPinkBasedOnIndex];
@@ -464,7 +484,7 @@ static NSString *cellID = @"Cell";
     NSString *serverId = [cell.video.serverId copy];
     NSString *localId = [cell.video.localId copy];
     YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:cell.video];
-    NSString *groupId = [[YAUser currentUser].currentGroup.serverId copy];
+    NSString *groupId = [self.group.serverId copy];
     
     NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoWithServerId:serverId localId:localId serverIdStatus:status];
     [cell setEventCount:eventCount];
@@ -519,7 +539,7 @@ static NSString *cellID = @"Cell";
 
 - (void)openVideo:(NSNotification*)notif {
     YAVideo *video = notif.userInfo[@"video"];
-    NSUInteger videoIndex = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+    NSUInteger videoIndex = [self.group.videos indexOfObject:video];
     
     if(videoIndex == NSNotFound) {
         DLog(@"can't find video index in current group");
@@ -631,14 +651,14 @@ static NSString *cellID = @"Cell";
     
     NSUInteger beginIndex = initialIndex;
     if (initialIndex >= kNumberOfItemsBelowToDownload) beginIndex -= kNumberOfItemsBelowToDownload; // Cant always subtract cuz overflow
-    NSUInteger endIndex = MIN([YAUser currentUser].currentGroup.videos.count, initialIndex + kNumberOfItemsBelowToDownload);
+    NSUInteger endIndex = MIN(self.group.videos.count, initialIndex + kNumberOfItemsBelowToDownload);
     
     for(NSUInteger videoIndex = beginIndex; videoIndex < endIndex; videoIndex++) {
         if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
-            [visibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+            [visibleVideos addObject:[self.group.videos objectAtIndex:videoIndex]];
         }
         else {
-            [invisibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+            [invisibleVideos addObject:[self.group.videos objectAtIndex:videoIndex]];
         }
     }
     
@@ -674,7 +694,7 @@ static NSString *cellID = @"Cell";
 
 
 - (void)showPrivateGroupTooltip {
-    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_GROUP_VISIT_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_GROUP_VISIT_BODY", @""), [YAUser currentUser].currentGroup.name, [[YAUser currentUser].currentGroup.members count]] dismissText:@"Got it" addToView:self.navigationController.view] show];
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_GROUP_VISIT_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_GROUP_VISIT_BODY", @""), self.group.name, [self.group.members count]] dismissText:@"Got it" addToView:self.navigationController.view] show];
 }
 
 

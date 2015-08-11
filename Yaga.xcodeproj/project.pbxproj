@@ -56,6 +56,9 @@
 		6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09041A562F91002F4A8B /* YAServer.m */; };
 		6E6A090B1A562F91002F4A8B /* YAServerTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09061A562F91002F4A8B /* YAServerTransaction.m */; };
 		6E6A090C1A562F91002F4A8B /* YAServerTransactionQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09081A562F91002F4A8B /* YAServerTransactionQueue.m */; };
+		6E6FEC7D1B78C5B700BE9AAB /* YAMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6FEC7C1B78C5B700BE9AAB /* YAMainViewController.m */; };
+		6E6FEC801B78C60A00BE9AAB /* YAStreamViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6FEC7F1B78C60A00BE9AAB /* YAStreamViewController.m */; };
+		6E6FEC831B78C62600BE9AAB /* YAMyVideosViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6FEC821B78C62600BE9AAB /* YAMyVideosViewController.m */; };
 		6E7324E31AF109F7002CCFED /* YADownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7324E21AF109F7002CCFED /* YADownloadManager.m */; };
 		6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4131A4324C0000B3A14 /* YAVideoCell.m */; };
 		6E73F41A1A432713000B3A14 /* YACameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73F4191A432713000B3A14 /* YACameraViewController.m */; };
@@ -255,6 +258,12 @@
 		6E6A09061A562F91002F4A8B /* YAServerTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAServerTransaction.m; sourceTree = "<group>"; };
 		6E6A09071A562F91002F4A8B /* YAServerTransactionQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAServerTransactionQueue.h; sourceTree = "<group>"; };
 		6E6A09081A562F91002F4A8B /* YAServerTransactionQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAServerTransactionQueue.m; sourceTree = "<group>"; };
+		6E6FEC7B1B78C5B700BE9AAB /* YAMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAMainViewController.h; sourceTree = "<group>"; };
+		6E6FEC7C1B78C5B700BE9AAB /* YAMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAMainViewController.m; sourceTree = "<group>"; };
+		6E6FEC7E1B78C60A00BE9AAB /* YAStreamViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAStreamViewController.h; sourceTree = "<group>"; };
+		6E6FEC7F1B78C60A00BE9AAB /* YAStreamViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAStreamViewController.m; sourceTree = "<group>"; };
+		6E6FEC811B78C62600BE9AAB /* YAMyVideosViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAMyVideosViewController.h; sourceTree = "<group>"; };
+		6E6FEC821B78C62600BE9AAB /* YAMyVideosViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAMyVideosViewController.m; sourceTree = "<group>"; };
 		6E7324E11AF109F7002CCFED /* YADownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YADownloadManager.h; sourceTree = "<group>"; };
 		6E7324E21AF109F7002CCFED /* YADownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YADownloadManager.m; sourceTree = "<group>"; };
 		6E73F4121A4324C0000B3A14 /* YAVideoCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideoCell.h; sourceTree = "<group>"; };
@@ -701,6 +710,12 @@
 		6E9188951A3F3A5A0034AB63 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				6E6FEC811B78C62600BE9AAB /* YAMyVideosViewController.h */,
+				6E6FEC821B78C62600BE9AAB /* YAMyVideosViewController.m */,
+				6E6FEC7E1B78C60A00BE9AAB /* YAStreamViewController.h */,
+				6E6FEC7F1B78C60A00BE9AAB /* YAStreamViewController.m */,
+				6E6FEC7B1B78C5B700BE9AAB /* YAMainViewController.h */,
+				6E6FEC7C1B78C5B700BE9AAB /* YAMainViewController.m */,
 				6E73F41B1A432FAC000B3A14 /* Groups */,
 				6E9188A41A3F3A5A0034AB63 /* Onboarding */,
 				6E5E667A1A424E3300B58E49 /* Segues */,
@@ -1157,6 +1172,7 @@
 				6E583B751A6535C400639BE5 /* YAVideoPlayerView.m in Sources */,
 				6E1603F61B184F4A00D5D90E /* YANoServerIdError.m in Sources */,
 				6E62F7201A51A8CB008F5116 /* YAGroupAddMembersViewController.m in Sources */,
+				6E6FEC831B78C62600BE9AAB /* YAMyVideosViewController.m in Sources */,
 				86B864AC1A433343002256FF /* CountryCell.m in Sources */,
 				6E5333541AA09B2A00C221DC /* YAPushNotificationHandler.m in Sources */,
 				6ED379E41AB1C6F40099BDC1 /* YAUserPermissions.m in Sources */,
@@ -1190,6 +1206,7 @@
 				6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */,
 				882FA9F61B43398100B5F408 /* NSMutableArray+NSCache.m in Sources */,
 				6E9188D01A3F3A5A0034AB63 /* UIImage+Resize.m in Sources */,
+				6E6FEC7D1B78C5B700BE9AAB /* YAMainViewController.m in Sources */,
 				6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */,
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
@@ -1199,6 +1216,7 @@
 				8890451D1B18FF8700B3C4D7 /* YAEventCell.m in Sources */,
 				882222AD1B675ACE00A39CB8 /* YAInviteHelper.m in Sources */,
 				8830D8EA1B35E09A006F841D /* YAGroupsNavigationController.m in Sources */,
+				6E6FEC801B78C60A00BE9AAB /* YAStreamViewController.m in Sources */,
 				6EEA835D1AE8CAA100E3EDCE /* YARealmMigrationManager.m in Sources */,
 				6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */,
 				6EEDB8E51A8A555C000BB909 /* YANotificationView.m in Sources */,

@@ -387,13 +387,37 @@
 
 - (void)groupInfoWithId:(NSString*)serverGroupId since:(NSDate*)since withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
-    NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api;
     
-    if(since) {
-        NSString *sinceString = [NSString stringWithFormat:@"?since=%lu", (unsigned long)[since timeIntervalSince1970]];
-        api = [api stringByAppendingString:sinceString];
+    if([serverGroupId isEqualToString:kPublicStreamGroupName]) {
+        RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"name = '%@'", kPublicStreamGroupName]];
+        
+        if (groups.count != 1) {
+            completion(nil, [NSError errorWithDomain:@"YAError" code:1 userInfo:nil]);
+            return;
+        }
+        YAGroup *streamGroup = groups[0];
+        
+        //TODO: use since when all pages are downloaded
+        //get oldest refreshedAt to use as since for public stream request
+        //we use only one property on the client "createdAt", it's set to updatedAt when video is updated
+//        NSArray *sortedCreatedAt = [[streamGroup.videos valueForKey:@"createdAt"] sortedArrayUsingComparator:^NSComparisonResult(NSDate *date1, NSDate* date2) {
+//            return [date2 compare:date1];
+//        }];
+//        
+//        NSUInteger since = sortedCreatedAt.count == 0 ? 0 : [(NSDate*)sortedCreatedAt[0] timeIntervalSince1970];
+//        
+        api = [NSString stringWithFormat:API_PUBLIC_STREAM_TEMPLATE, self.base_api, (unsigned long)0, (unsigned long)kPublicStreamItemsOnPage, (unsigned long)streamGroup.nextPageIndex * kPublicStreamItemsOnPage];
+    }
+    else {
+        NSAssert(serverGroupId, @"serverGroup is a required parameter");
+        api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
+        
+        if(since) {
+            NSString *sinceString = [NSString stringWithFormat:@"?since=%lu", (unsigned long)[since timeIntervalSince1970]];
+            api = [api stringByAppendingString:sinceString];
+        }
     }
     
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {

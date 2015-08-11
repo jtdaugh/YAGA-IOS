@@ -101,8 +101,21 @@
 
 #pragma mark - Server synchronisation: update from server
 - (void)updateFromServerResponeDictionarty:(NSDictionary*)dictionary {
-    self.serverId = dictionary[YA_RESPONSE_ID];
-    self.name = dictionary[YA_RESPONSE_NAME];
+    //do not update name and serverId for public stream group
+    if(![self.name isEqualToString:kPublicStreamGroupName]) {
+        self.serverId = dictionary[YA_RESPONSE_ID];
+        self.name = dictionary[YA_RESPONSE_NAME];
+    }
+    //update total count and next page index for public stream group
+    else {
+        self.totalPages = ceil((double)[dictionary[YA_RESPONSE_COUNT] longValue] / (double)kPublicStreamItemsOnPage);
+        NSString *next = dictionary[YA_RESPONSE_NEXT] == [NSNull null] ? nil : dictionary[YA_RESPONSE_NEXT];
+        
+        //extract next page information
+        self.nextPageIndex = [[[YAUtils urlParametersFromString:next] objectForKey:@"offset"] intValue] / kPublicStreamItemsOnPage;
+        
+        DLog(@"updating group: %@, next page index: %d", self.name, self.nextPageIndex);
+    }
     
     NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
@@ -248,25 +261,32 @@
         
         NSString *predicate = [NSString stringWithFormat:@"publicGroup = %d", publicGroups];
         
+        //delete old groups
         for (YAGroup *group in [[YAGroup allObjects] objectsWhere:predicate]) {
-            if(![serverGroupIds containsObject:group.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group]) {
-                BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
-                
-                NSMutableArray *videosToRemove = [NSMutableArray new];
-                
-                for(YAVideo *videoToRemove in group.videos)
-                    [videosToRemove addObject:videoToRemove];
-                
-                for(YAVideo *videoToRemove in [videosToRemove copy]) {
-                    [videoToRemove purgeLocalAssets];
-                    [[RLMRealm defaultRealm] deleteObject:videoToRemove];
-                }
-                
-                [groupsToDelete addObject:group];
-                
-                if(currentGroupToRemove) {
-                    [YAUser currentUser].currentGroup = [[YAGroup allObjects] firstObject];
-                }
+            //do not delete public stream
+            if([group.name isEqualToString:kPublicStreamGroupName])
+                continue;
+            
+            //do not delete existing
+            if([serverGroupIds containsObject:group.serverId] || [[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group])
+                continue;
+            
+            BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
+            
+            NSMutableArray *videosToRemove = [NSMutableArray new];
+            
+            for(YAVideo *videoToRemove in group.videos)
+                [videosToRemove addObject:videoToRemove];
+            
+            for(YAVideo *videoToRemove in [videosToRemove copy]) {
+                [videoToRemove purgeLocalAssets];
+                [[RLMRealm defaultRealm] deleteObject:videoToRemove];
+            }
+            
+            [groupsToDelete addObject:group];
+            
+            if(currentGroupToRemove) {
+                [YAUser currentUser].currentGroup = [[YAGroup allObjects] firstObject];
             }
         }
         
@@ -512,29 +532,29 @@
     
     [[YAServer sharedServer] groupInfoWithId:self.serverId since:self.refreshedAt
                               withCompletion:^(id response, NSError *error) {
-        if(self.isInvalidated)
-            return;
-        
-        self.videosUpdateInProgress = NO;
-        if(error) {
-            DLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
-            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
-            return;
-        }
-        else {
-            [self.realm beginWriteTransaction];
-            self.refreshedAt = self.updatedAt;
-            [self updateFromServerResponeDictionarty:response];
-            [self.realm commitWriteTransaction];
-            
-            NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
-            DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
-            
-            NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
-        }
-    }];
+                                  if(self.isInvalidated)
+                                      return;
+                                  
+                                  self.videosUpdateInProgress = NO;
+                                  if(error) {
+                                      DLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
+                                      return;
+                                  }
+                                  else {
+                                      [self.realm beginWriteTransaction];
+                                      self.refreshedAt = self.updatedAt;
+                                      [self updateFromServerResponeDictionarty:response];
+                                      [self.realm commitWriteTransaction];
+                                      
+                                      NSArray *videoDictionaries = [self.name isEqualToString:kPublicStreamGroupName] ? response[YA_RESPONSE_RESULTS] :response[YA_VIDEO_POSTS];
+                                      DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
+                                      
+                                      NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries];
+                                      
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
+                                  }
+                              }];
 }
 
 - (void)refresh {
@@ -653,7 +673,7 @@
             video.caption_rotation = ![videoDic[YA_RESPONSE_ROTATION] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_ROTATION] floatValue] : 0;
             video.pending = ![videoDic[YA_RESPONSE_APPROVED] boolValue];
 
-            [self.videos insertObject:video atIndex:0];
+            [self.videos addObject:video];//insertObject:video atIndex:0];
             
             [newVideos addObject:video];
         }

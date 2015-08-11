@@ -116,8 +116,6 @@
     [self.tableView reloadData];
     
     self.muteButton.hidden = self.leaveButton.hidden = self.group.publicGroup;
-    
-    [(YAGroupsNavigationController *)self.navigationController showCameraButton:NO];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {

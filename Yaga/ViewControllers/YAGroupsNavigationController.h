@@ -17,9 +17,10 @@
 
 - (void)openGroupOptions;
 
-- (void)showCameraButton:(BOOL)show;
+- (void)showTabbar:(BOOL)show;
 
 - (void)setInitialAnimationFrame:(CGRect)frame;
 - (void)setInitialAnimationTransform:(CGAffineTransform)transform;
 
+- (void)presentCameraAnimated:(BOOL)animated;
 @end

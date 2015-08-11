@@ -13,7 +13,6 @@
 #define nPhone          @"phone"
 #define nCountry        @"country"
 #define nToken          @"token"
-#define nUserId         @"user_id"
 #define nCompositeName  @"composite_name"
 #define nName           @"name"
 #define nFirstname      @"firstname"

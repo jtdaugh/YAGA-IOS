@@ -16,6 +16,7 @@
 
 typedef void (^uploadDataCompletionBlock)(NSError *error);
 typedef void (^confirmationBlock)(void);
+typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 
 @interface YAUtils : NSObject <UIAlertViewDelegate>
 + (NSString *)readableNumberFromString:(NSString*)input;
@@ -71,4 +72,12 @@ typedef void (^confirmationBlock)(void);
 + (BOOL)hasRecordedUngroupedVideo;
 + (void)setRecordedUngroupedVideo;
 
+//etc
+
+//get random quote of the day
++ (void)randomQuoteWithCompletion:(stringCompletionBlock)completion;
+
+
+//server side paging
++ (NSDictionary*)urlParametersFromString:(NSString*)urlString;
 @end
