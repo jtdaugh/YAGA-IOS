@@ -517,7 +517,7 @@ static NSString *cellID = @"Cell";
     
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
 
-    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.item];
+    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:self.sortedVideos initialIndex:indexPath.item];
     swipingVC.delegate = self;
     
     swipingVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
