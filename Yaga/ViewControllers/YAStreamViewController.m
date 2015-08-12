@@ -26,13 +26,13 @@
         if(groups.count == 1) {
             self.group = [groups objectAtIndex:0];
 #warning DEBUG
-            NSMutableArray *a = [NSMutableArray new];
-            for(YAVideo *video in self.group.videos) {
-                [a addObject:video];
-            }
-            for(YAVideo *video in a) {
-                [video removeFromCurrentGroupWithCompletion:nil removeFromServer:NO];
-            }
+//            NSMutableArray *a = [NSMutableArray new];
+//            for(YAVideo *video in self.group.videos) {
+//                [a addObject:video];
+//            }
+//            for(YAVideo *video in a) {
+//                [video removeFromCurrentGroupWithCompletion:nil removeFromServer:NO];
+//            }
             [[self.group realm] beginWriteTransaction];
             self.group.nextPageIndex = 0;
             [[self.group realm] commitWriteTransaction];
