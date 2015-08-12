@@ -66,8 +66,12 @@ static NSString *cellID = @"Cell";
 
 - (void)setGroup:(YAGroup *)group {
     _group = group;
-    if ([group.videos count]) {
-        self.sortedVideos = [group.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
+    [self reloadSortedVideos];
+}
+
+- (void)reloadSortedVideos {
+    if ([self.group.videos count]) {
+        self.sortedVideos = [self.group.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
     } else {
         self.sortedVideos = nil;
     }
@@ -335,9 +339,10 @@ static NSString *cellID = @"Cell";
     void (^refreshBlock)(void) = ^ {
         
         //do not scroll to the top if infinite scrolling is used
-        if(!self.collectionView.infiniteScrollingView && [self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
+        if(!self.collectionView.infiniteScrollingView && [self collectionView:self.collectionView numberOfItemsInSection:0] > 0) {
             [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-        [self scrollingDidStop];
+            [self scrollingDidStop];
+        }
         
         [self delayedHidePullToRefresh];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
@@ -375,8 +380,10 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reloadCollectionView {
+    [self reloadSortedVideos];
     [self.collectionView reloadData];
 }
+
 - (void)delayedHidePullToRefresh {
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
     
