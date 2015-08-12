@@ -43,7 +43,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.searchBar.searchBarStyle = UISearchBarStyleMinimal;
     [self.view addSubview:self.searchBar];
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH, VIEW_HEIGHT - 60)];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 50, VIEW_WIDTH, VIEW_HEIGHT - 50)];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;

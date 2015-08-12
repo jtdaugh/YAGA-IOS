@@ -39,12 +39,21 @@
     self.delegate = self;
     self.tabBar.itemSpacing = VIEW_WIDTH/2;
     self.tabBar.tintColor = SECONDARY_COLOR;
-    self.tabBar.backgroundColor = [UIColor clearColor];
+    self.tabBar.translucent = NO;
+    self.tabBar.backgroundColor = [UIColor whiteColor];
     self.tabBar.barTintColor = [UIColor clearColor];
-    self.tabBar.backgroundImage = [UIImage imageNamed:@"BarBackground"];
+    CGFloat cameraWidth = VIEW_WIDTH/5-6;
+    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - cameraWidth)/2, 5, cameraWidth, self.tabBar.frame.size.height - 10)];
+    self.cameraButton.backgroundColor = PRIMARY_COLOR;
+    [self.cameraButton setImage:[UIImage imageNamed:@"Camera"] forState:UIControlStateNormal];
+    self.cameraButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.cameraButton.imageEdgeInsets = UIEdgeInsetsMake(2, 8, 5, 8);
+    self.cameraButton.layer.cornerRadius = 7;
+    self.cameraButton.layer.masksToBounds = YES;
+    [self.cameraButton addTarget:self action:@selector(cameraPressed) forControlEvents:UIControlEventTouchUpInside];
     
-    //    self.tabBar.backgroundImage = [YAUtils imageWithColor:[UIColor whiteColor]];
-//    self.tabBar.shadowImage = [UIImage imageNamed:@"BarShadow"];
+    [self.tabBar addSubview:self.cameraButton];
+    
 }
 
 //- (void)viewWillAppear:(BOOL)animated {
@@ -68,7 +77,9 @@
     }
 }
 
-
+- (void)cameraPressed {
+    [self presentCameraAnimated:YES];
+}
 
 - (void)presentCameraAnimated:(BOOL)animated {
     YACameraViewController *camVC = [YACameraViewController new];

@@ -241,7 +241,7 @@
     [self resumeJobs];
 }
 
-- (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video {
+- (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video inStream:(BOOL)inStream {
     [self pauseExecutingJobs];
     
     AFDownloadRequestOperation *nextJob = [self createJobForVideo:video gifJob:NO];
@@ -257,22 +257,37 @@
     [self.waitingUrls removeObject:video.url];
     [self.executingUrls addObject:video.url];
     
+    
+    YAVideo *leftVideo;
+    YAVideo *rightVideo;
     //add/move left and right mp4 files to the top of waiting queue
-    NSUInteger videoIndex = [video.group.videos indexOfObject:video];
-    if(videoIndex > 0) {
-        YAVideo *leftVideo = [video.group.videos objectAtIndex:videoIndex - 1];
-        if(!leftVideo.mp4Filename.length) {
-            [self.waitingUrls removeObject:leftVideo.url];
-            [self.waitingUrls addObject:leftVideo.url];
+    if (inStream) {
+        NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", kPublicStreamGroupName];
+        RLMResults *existingGroup = [YAGroup objectsWhere:predicate];
+        YAGroup *stream = [existingGroup firstObject];
+        NSUInteger videoIndex = [stream.videos indexOfObject:video];
+        if(videoIndex > 0) {
+            leftVideo = [stream.videos objectAtIndex:videoIndex - 1];
+        }
+        if(videoIndex < stream.videos.count - 1) {
+            rightVideo = [stream.videos objectAtIndex:videoIndex + 1];
+        }
+    } else {
+        NSUInteger videoIndex = [video.group.videos indexOfObject:video];
+        if(videoIndex > 0) {
+            leftVideo = [video.group.videos objectAtIndex:videoIndex - 1];
+        }
+        if(videoIndex < video.group.videos.count - 1) {
+            rightVideo = [video.group.videos objectAtIndex:videoIndex + 1];
         }
     }
-    
-    if(videoIndex < video.group.videos.count - 1) {
-        YAVideo *rightVideo = [video.group.videos objectAtIndex:videoIndex + 1];
-        if(!rightVideo.mp4Filename.length) {
-            [self.waitingUrls removeObject:rightVideo.url];
-            [self.waitingUrls addObject:rightVideo.url];
-        }
+    if(leftVideo && !leftVideo.mp4Filename.length) {
+        [self.waitingUrls removeObject:leftVideo.url];
+        [self.waitingUrls addObject:leftVideo.url];
+    }
+    if(rightVideo && !rightVideo.mp4Filename.length) {
+        [self.waitingUrls removeObject:rightVideo.url];
+        [self.waitingUrls addObject:rightVideo.url];
     }
 }
 

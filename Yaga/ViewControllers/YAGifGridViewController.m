@@ -524,6 +524,8 @@ static NSString *cellID = @"Cell";
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:array initialIndex:indexPath.item];
     swipingVC.delegate = self;
     
+    swipingVC.inStreamMode = [self.group.name isEqualToString:kPublicStreamGroupName];
+    
     swipingVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
     

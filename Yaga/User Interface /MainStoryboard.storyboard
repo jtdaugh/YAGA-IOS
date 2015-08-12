@@ -225,11 +225,10 @@
             </objects>
             <point key="canvasLocation" x="2523" y="1700"/>
         </scene>
-        <!--Stream-->
+        <!--Feed-->
         <scene sceneID="Dda-WJ-YWp">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="G6M-r1-eGb" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <viewController title="Stream" id="Mlm-GG-xwM" customClass="YAStreamViewController" sceneMemberID="viewController">
+                <viewController title="Feed" id="Mlm-GG-xwM" customClass="YAStreamViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="5yD-Kp-BhY"/>
                         <viewControllerLayoutGuide type="bottom" id="Kij-C4-ZTl"/>
@@ -244,14 +243,15 @@
                     </tabBarItem>
                     <navigationItem key="navigationItem" id="nbN-cV-gOL"/>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="G6M-r1-eGb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2647" y="-26"/>
         </scene>
-        <!--Stream-->
+        <!--Feed-->
         <scene sceneID="2EG-Nv-Dkb">
             <objects>
                 <navigationController id="cUb-Hm-IhS" customClass="YAGroupsNavigationController" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Stream" image="StreamBarItem" id="wDf-nD-RtO"/>
+                    <tabBarItem key="tabBarItem" title="Feed" image="StreamBarItem" id="wDf-nD-RtO"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="tad-zd-RUH">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -325,7 +325,7 @@
             </objects>
             <point key="canvasLocation" x="249" y="774"/>
         </scene>
-        <!--Camera-->
+        <!--View Controller-->
         <scene sceneID="0vQ-fx-Fb9">
             <objects>
                 <viewController id="t7u-0j-xTc" sceneMemberID="viewController">
@@ -338,7 +338,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Camera" image="CameraBarItem" id="zGH-EI-Z3n"/>
+                    <tabBarItem key="tabBarItem" title="" image="CameraBarItem" id="zGH-EI-Z3n"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="U2Z-fG-os4" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -384,10 +384,10 @@
     <resources>
         <image name="BarShadow" width="188" height="4"/>
         <image name="CameraBarItem" width="22" height="22"/>
-        <image name="ChannelsBarItem" width="32" height="32"/>
-        <image name="ExploreBarItem" width="22" height="22"/>
-        <image name="MeBarItem" width="22" height="22"/>
-        <image name="StreamBarItem" width="32" height="32"/>
+        <image name="ChannelsBarItem" width="33" height="33"/>
+        <image name="ExploreBarItem" width="25" height="25"/>
+        <image name="MeBarItem" width="33" height="33"/>
+        <image name="StreamBarItem" width="33" height="33"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="xo6-aF-vE0"/>
