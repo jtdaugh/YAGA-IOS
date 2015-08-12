@@ -87,6 +87,8 @@
         [indexPaths addObject:[NSIndexPath indexPathForItem:self.videosCountBeforeRefresh++ inSection:0]];
     }
     
+    [self reloadSortedVideos];
+    
     if(indexPaths.count) {
         __weak typeof(self) weakSelf = self;
         [self.collectionView performBatchUpdates:^{
@@ -94,4 +96,5 @@
         } completion:nil];
     }
 }
+
 @end

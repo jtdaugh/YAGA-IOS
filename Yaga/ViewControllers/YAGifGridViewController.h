@@ -19,6 +19,7 @@
 
 @property (strong, nonatomic) YAGroup *group;
 
+- (void)reloadSortedVideos;
 - (void)setupPullToRefresh;
 - (void)reloadCollectionView;
 @end
