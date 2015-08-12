@@ -12,12 +12,14 @@
 #import "YACameraViewController.h"
 #import "YAAnimatedTransitioningController.h"
 #import "YACameraManager.h"
+#import "UIImage+Color.h"
 
 @interface YAMainViewController () <UIViewControllerTransitioningDelegate, UITabBarControllerDelegate>
 
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 
 @property (nonatomic, weak) UIViewController *cameraTabViewController;
+@property (nonatomic, strong) UIButton *cameraButton;
 
 @end
 
@@ -36,10 +38,12 @@
     self.animationController = [YAAnimatedTransitioningController new];
     self.delegate = self;
     self.tabBar.itemSpacing = VIEW_WIDTH/2;
-    self.tabBar.tintColor = PRIMARY_COLOR;
-    self.tabBar.barTintColor = [UIColor whiteColor];
-
-//    self.tabBar.backgroundImage = [YAUtils imageWithColor:[UIColor whiteColor]];
+    self.tabBar.tintColor = SECONDARY_COLOR;
+    self.tabBar.backgroundColor = [UIColor clearColor];
+    self.tabBar.barTintColor = [UIColor clearColor];
+    self.tabBar.backgroundImage = [UIImage imageNamed:@"BarBackground"];
+    
+    //    self.tabBar.backgroundImage = [YAUtils imageWithColor:[UIColor whiteColor]];
 //    self.tabBar.shadowImage = [UIImage imageNamed:@"BarShadow"];
 }
 

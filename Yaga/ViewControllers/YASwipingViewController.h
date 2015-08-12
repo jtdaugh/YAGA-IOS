@@ -22,7 +22,7 @@
 @interface YASwipingViewController : YASwipeToDismissViewController <UIScrollViewDelegate, YASuspendableGesturesDelegate>
 
 @property (nonatomic, strong) UIScrollView *scrollView;
-- (id)initWithVideos:(RLMResults *)videos initialIndex:(NSUInteger)initialIndex;
+- (id)initWithVideos:(NSArray *)videos initialIndex:(NSUInteger)initialIndex;
 
 @property (nonatomic, weak) id<YASwipingViewControllerDelegate> delegate;
 

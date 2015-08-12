@@ -358,7 +358,7 @@ static NSString *cellID = @"Cell";
                 }
             }
         }
-        if(indexPathsToReload.count) {
+        if(indexPathsToReload && indexPathsToReload.count) {
             [self.collectionView performBatchUpdates:^{
                 [self.collectionView reloadItemsAtIndexPaths:indexPathsToReload];
             } completion:^(BOOL finished) {
@@ -517,7 +517,11 @@ static NSString *cellID = @"Cell";
     
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
 
-    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:self.sortedVideos initialIndex:indexPath.item];
+    NSMutableArray *array = [NSMutableArray new];
+    for (YAVideo *video in self.sortedVideos) {
+        [array addObject:video];
+    }
+    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:array initialIndex:indexPath.item];
     swipingVC.delegate = self;
     
     swipingVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;

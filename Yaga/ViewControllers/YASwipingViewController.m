@@ -18,7 +18,7 @@
 
 @interface YASwipingViewController ()
 
-@property (nonatomic, strong) RLMResults *videos;
+@property (nonatomic, strong) NSArray *videos;
 
 @property (nonatomic, strong) NSMutableArray *pages;
 
@@ -38,7 +38,7 @@
 
 @implementation YASwipingViewController
 
-- (id)initWithVideos:(RLMResults *)videos initialIndex:(NSUInteger)initialIndex {
+- (id)initWithVideos:(NSArray *)videos initialIndex:(NSUInteger)initialIndex {
     self = [super init];
     if(self) {
         self.videos = videos;
