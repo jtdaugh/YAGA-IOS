@@ -10,6 +10,7 @@
 
 //DEBUG
 #import "YAVideo.h"
+#import "YAStandardFlexibleHeightBar.h"
 
 @interface YAStreamViewController ()
 @property (nonatomic, assign) NSUInteger videosCountBeforeRefresh;
@@ -20,7 +21,7 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     if(self = [super initWithCoder:aDecoder]) {
         [self initStreamGroup];
-        
+
         return self;
     }
     else
@@ -37,18 +38,17 @@
         [[RLMRealm defaultRealm] beginWriteTransaction];
         self.group = [YAGroup group];
         self.group.serverId = kPublicStreamGroupId;
-        self.group.name = NSLocalizedString(@"Feed", @"");
+        self.group.name = NSLocalizedString(@"Latest Videos", @"");
         self.group.streamGroup = YES;
         [[RLMRealm defaultRealm] addObject:self.group];
         [[RLMRealm defaultRealm] commitWriteTransaction];
     }
-
 }
-
-//- (void)viewDidAppear:(BOOL)animated {
-//    [super viewDidAppear:animated];
-//    [YAUser currentUser].currentGroup = self.group;
-//}
+- (BLKFlexibleHeightBar *)createNavBar {
+    YAStandardFlexibleHeightBar *bar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
+    bar.titleLabel.text = self.group.name;
+    return bar;
+}
 
 #pragma mark - Overriden
 

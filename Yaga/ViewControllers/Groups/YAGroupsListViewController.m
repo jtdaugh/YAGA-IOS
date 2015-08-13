@@ -26,7 +26,10 @@
 
 #import "YAGroupsNavigationController.h"
 #import "YAFindGroupsViewConrtoller.h"
-#import "YAGifGridViewController.h"
+#import "YAGroupGridViewController.h"
+#import "YAMainTabBarController.h"
+#import "YAStandardFlexibleHeightBar.h"
+#import "BLKDelegateSplitter.h"
 
 #define FOOTER_HEIGHT (CAMERA_BUTTON_SIZE/2 + 170)
 
@@ -39,6 +42,8 @@
 //needed to have pull down to refresh shown for at least 1 second
 @property (nonatomic, strong) NSDate *willRefreshDate;
 @property (nonatomic) CGFloat topInset;
+@property (nonatomic, strong) YAStandardFlexibleHeightBar *flexibleNavBar;
+@property (nonatomic, strong) BLKDelegateSplitter *delegateSplitter;
 
 @end
 
@@ -48,10 +53,23 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.automaticallyAdjustsScrollViewInsets = NO;
     [self setupCollectionView];
-    self.navigationItem.title = @"Channels";
-    self.view.backgroundColor = [UIColor whiteColor];
+    self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
+    self.flexibleNavBar.titleLabel.text = @"My Channels";
+    [self.flexibleNavBar.leftBarButton setTitle:@"Explore" forState:UIControlStateNormal];
+    [self.flexibleNavBar.leftBarButton addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    self.flexibleNavBar.rightBarButton.imageEdgeInsets = UIEdgeInsetsMake(10, kFlexNavBarButtonWidth - kFlexNavBarButtonHeight + 20, 10, 0);
+
+    [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
     
+    self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
+    self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
+    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 0, 0);
+    [self setupPullToRefresh];
+    [self.view addSubview:self.flexibleNavBar];
+
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION    object:nil];
@@ -66,21 +84,18 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self updateState];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+}
+
+
 - (void)setupBarItems {
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Find" style:UIBarButtonItemStylePlain target:self action:@selector(findGroupsPressed)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(createGroupPressed)];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Explore" style:UIBarButtonItemStylePlain target:self action:@selector(findGroupsPressed)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup)];
 }
 
 - (void)findGroupsPressed {
-    UITabBarController *tabbarController = (UITabBarController*)self.navigationController.parentViewController;
-    [tabbarController setSelectedIndex:1];
-}
-
-- (void)createGroupPressed {
-    NameGroupViewController *vc = [NameGroupViewController new];
-    YAGroupsNavigationController *createGroupNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:vc];
-    
-    [self presentViewController:createGroupNavController animated:YES completion:nil];
+    self.tabBarController.selectedIndex = 1;
 }
 
 - (void)setupCollectionView {
@@ -107,8 +122,6 @@ static NSString *CellIdentifier = @"GroupsCell";
             forSupplementaryViewOfKind: UICollectionElementKindSectionFooter
                    withReuseIdentifier:@"FooterView"];
     
-    [self setupPullToRefresh];
-
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -174,10 +187,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)groupDidChange:(NSNotification*)notif {
     [self.collectionView.pullToRefreshView stopAnimating];
     
-    if (![self.navigationController.topViewController isKindOfClass:[YAGifGridViewController class]]) {
+    if (![self.navigationController.topViewController isKindOfClass:[YAGroupGridViewController class]]) {
         //open current group if needed
         if([YAUser currentUser].currentGroup) {
-            YAGifGridViewController *vc = [YAGifGridViewController new];
+            YAGroupGridViewController *vc = [YAGroupGridViewController new];
             vc.group = [YAUser currentUser].currentGroup;
             vc.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:vc animated:self.animatePush];
@@ -266,7 +279,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         label.font = [UIFont fontWithName:BIG_FONT size:16];
         label.textColor = [UIColor lightGrayColor];
         label.textAlignment = NSTextAlignmentCenter;
-        label.text=@"Looking for more?\nExplore groups your friends\nare in or create a new group!";
+        label.text=@"Looking for more?\nExplore nearby & popular channels\nor create a new one!";
         [reusableview addSubview:label];
         
         CGSize buttonSize = CGSizeMake(VIEW_WIDTH/2 - 30, 50);
@@ -278,7 +291,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         findButton.layer.borderWidth = 3;
         findButton.layer.cornerRadius = buttonSize.height/2;
         findButton.layer.masksToBounds = YES;
-        [findButton setTitle:@"Find Groups" forState:UIControlStateNormal];
+        [findButton setTitle:@"Explore" forState:UIControlStateNormal];
         [findButton addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
 
         [reusableview addSubview:findButton];
@@ -291,7 +304,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         createButton.layer.borderWidth = 3;
         createButton.layer.cornerRadius = buttonSize.height/2;
         createButton.layer.masksToBounds = YES;
-        [createButton setTitle:@"Create Group" forState:UIControlStateNormal];
+        [createButton setTitle:@"New Channel" forState:UIControlStateNormal];
         [createButton addTarget:self action:@selector(createGroupPressed) forControlEvents:UIControlEventTouchUpInside];
         [reusableview addSubview:createButton];
         

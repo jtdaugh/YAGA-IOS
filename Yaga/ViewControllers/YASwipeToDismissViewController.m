@@ -77,7 +77,7 @@
     
     self.dismissed = YES;
     if(self.showsStatusBarOnDismiss){
-        [[UIApplication sharedApplication] setStatusBarHidden:NO];        
+        [[UIApplication sharedApplication] setStatusBarHidden:NO];
     }
     
     [self dismissViewControllerAnimated:YES completion:nil];

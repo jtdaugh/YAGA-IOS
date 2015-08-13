@@ -56,7 +56,7 @@
 		6E6A090A1A562F91002F4A8B /* YAServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09041A562F91002F4A8B /* YAServer.m */; };
 		6E6A090B1A562F91002F4A8B /* YAServerTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09061A562F91002F4A8B /* YAServerTransaction.m */; };
 		6E6A090C1A562F91002F4A8B /* YAServerTransactionQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6A09081A562F91002F4A8B /* YAServerTransactionQueue.m */; };
-		6E6FEC7D1B78C5B700BE9AAB /* YAMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6FEC7C1B78C5B700BE9AAB /* YAMainViewController.m */; };
+		6E6FEC7D1B78C5B700BE9AAB /* YAMainTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6FEC7C1B78C5B700BE9AAB /* YAMainTabBarController.m */; };
 		6E6FEC801B78C60A00BE9AAB /* YAStreamViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6FEC7F1B78C60A00BE9AAB /* YAStreamViewController.m */; };
 		6E6FEC831B78C62600BE9AAB /* YAMyStreamViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6FEC821B78C62600BE9AAB /* YAMyStreamViewController.m */; };
 		6E7324E31AF109F7002CCFED /* YADownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7324E21AF109F7002CCFED /* YADownloadManager.m */; };
@@ -143,6 +143,9 @@
 		885F536D1B3F827400D359DB /* counter-shadow.png in Resources */ = {isa = PBXBuildFile; fileRef = 885F53691B3F827400D359DB /* counter-shadow.png */; };
 		885F536E1B3F827400D359DB /* counter-shadow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 885F536A1B3F827400D359DB /* counter-shadow@2x.png */; };
 		8890451D1B18FF8700B3C4D7 /* YAEventCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8890451C1B18FF8700B3C4D7 /* YAEventCell.m */; };
+		88DFCC8D1B7BF04A002448F9 /* YAGroupGridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC8C1B7BF04A002448F9 /* YAGroupGridViewController.m */; };
+		88DFCC901B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC8F1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m */; };
+		88DFCC931B7C5002002448F9 /* YAProfileFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC921B7C5002002448F9 /* YAProfileFlexibleHeightBar.m */; };
 		88E3E21C1B2FBCE000BF5E83 /* YAViewCountManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */; };
 		88E3E21F1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */; };
 		88FB0A231B1D4F36002C213C /* YAEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A221B1D4F36002C213C /* YAEvent.m */; };
@@ -258,8 +261,8 @@
 		6E6A09061A562F91002F4A8B /* YAServerTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAServerTransaction.m; sourceTree = "<group>"; };
 		6E6A09071A562F91002F4A8B /* YAServerTransactionQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAServerTransactionQueue.h; sourceTree = "<group>"; };
 		6E6A09081A562F91002F4A8B /* YAServerTransactionQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAServerTransactionQueue.m; sourceTree = "<group>"; };
-		6E6FEC7B1B78C5B700BE9AAB /* YAMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAMainViewController.h; sourceTree = "<group>"; };
-		6E6FEC7C1B78C5B700BE9AAB /* YAMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAMainViewController.m; sourceTree = "<group>"; };
+		6E6FEC7B1B78C5B700BE9AAB /* YAMainTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAMainTabBarController.h; sourceTree = "<group>"; };
+		6E6FEC7C1B78C5B700BE9AAB /* YAMainTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAMainTabBarController.m; sourceTree = "<group>"; };
 		6E6FEC7E1B78C60A00BE9AAB /* YAStreamViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAStreamViewController.h; sourceTree = "<group>"; };
 		6E6FEC7F1B78C60A00BE9AAB /* YAStreamViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAStreamViewController.m; sourceTree = "<group>"; };
 		6E6FEC811B78C62600BE9AAB /* YAMyStreamViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAMyStreamViewController.h; sourceTree = "<group>"; };
@@ -409,6 +412,12 @@
 		885F536A1B3F827400D359DB /* counter-shadow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "counter-shadow@2x.png"; path = "../../counter-shadow@2x.png"; sourceTree = "<group>"; };
 		8890451B1B18FF8700B3C4D7 /* YAEventCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAEventCell.h; sourceTree = "<group>"; };
 		8890451C1B18FF8700B3C4D7 /* YAEventCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAEventCell.m; sourceTree = "<group>"; };
+		88DFCC8B1B7BF04A002448F9 /* YAGroupGridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupGridViewController.h; sourceTree = "<group>"; };
+		88DFCC8C1B7BF04A002448F9 /* YAGroupGridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupGridViewController.m; sourceTree = "<group>"; };
+		88DFCC8E1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAStandardFlexibleHeightBar.h; sourceTree = "<group>"; };
+		88DFCC8F1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAStandardFlexibleHeightBar.m; sourceTree = "<group>"; };
+		88DFCC911B7C5002002448F9 /* YAProfileFlexibleHeightBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAProfileFlexibleHeightBar.h; sourceTree = "<group>"; };
+		88DFCC921B7C5002002448F9 /* YAProfileFlexibleHeightBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAProfileFlexibleHeightBar.m; sourceTree = "<group>"; };
 		88E3E21A1B2FBCE000BF5E83 /* YAViewCountManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAViewCountManager.h; sourceTree = "<group>"; };
 		88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAViewCountManager.m; sourceTree = "<group>"; };
 		88E3E21D1B2FE0CA00BF5E83 /* YAWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAWeakTimerTarget.h; sourceTree = "<group>"; };
@@ -714,8 +723,10 @@
 				6E6FEC821B78C62600BE9AAB /* YAMyStreamViewController.m */,
 				6E6FEC7E1B78C60A00BE9AAB /* YAStreamViewController.h */,
 				6E6FEC7F1B78C60A00BE9AAB /* YAStreamViewController.m */,
-				6E6FEC7B1B78C5B700BE9AAB /* YAMainViewController.h */,
-				6E6FEC7C1B78C5B700BE9AAB /* YAMainViewController.m */,
+				88DFCC8B1B7BF04A002448F9 /* YAGroupGridViewController.h */,
+				88DFCC8C1B7BF04A002448F9 /* YAGroupGridViewController.m */,
+				6E6FEC7B1B78C5B700BE9AAB /* YAMainTabBarController.h */,
+				6E6FEC7C1B78C5B700BE9AAB /* YAMainTabBarController.m */,
 				6E73F41B1A432FAC000B3A14 /* Groups */,
 				6E9188A41A3F3A5A0034AB63 /* Onboarding */,
 				6E5E667A1A424E3300B58E49 /* Segues */,
@@ -785,6 +796,10 @@
 				6E9188C21A3F3A5A0034AB63 /* VENTokenField */,
 				6E32D72B1A5AEEBA00EAB261 /* YACameraFocusSquare.h */,
 				6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */,
+				88DFCC8E1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.h */,
+				88DFCC8F1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m */,
+				88DFCC911B7C5002002448F9 /* YAProfileFlexibleHeightBar.h */,
+				88DFCC921B7C5002002448F9 /* YAProfileFlexibleHeightBar.m */,
 				6E5C99181A5EAFAA00A9F586 /* YAActivityView.h */,
 				6E5C99191A5EAFAA00A9F586 /* YAActivityView.m */,
 				6ECCCDF61A804EF000B1E1BC /* YAProgressView.h */,
@@ -1162,12 +1177,14 @@
 				861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailableError.m in Sources */,
 				885F53661B3F826700D359DB /* RCounter.m in Sources */,
 				6EB57DEB1B5E6F52003B7374 /* YAEditVideoViewController.m in Sources */,
+				88DFCC901B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
 				88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */,
 				861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
 				6E40C9E11B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m in Sources */,
 				6EB995451B3B005A004ACF05 /* YASharingView.m in Sources */,
+				88DFCC8D1B7BF04A002448F9 /* YAGroupGridViewController.m in Sources */,
 				4120E70B1B43624500627359 /* SocialVideoHelper.m in Sources */,
 				6E583B751A6535C400639BE5 /* YAVideoPlayerView.m in Sources */,
 				6E1603F61B184F4A00D5D90E /* YANoServerIdError.m in Sources */,
@@ -1206,8 +1223,9 @@
 				6E73F4141A4324C0000B3A14 /* YAVideoCell.m in Sources */,
 				882FA9F61B43398100B5F408 /* NSMutableArray+NSCache.m in Sources */,
 				6E9188D01A3F3A5A0034AB63 /* UIImage+Resize.m in Sources */,
-				6E6FEC7D1B78C5B700BE9AAB /* YAMainViewController.m in Sources */,
+				6E6FEC7D1B78C5B700BE9AAB /* YAMainTabBarController.m in Sources */,
 				6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */,
+				88DFCC931B7C5002002448F9 /* YAProfileFlexibleHeightBar.m in Sources */,
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
 				6EB57DF81B5E7159003B7374 /* SASliderLeft.m in Sources */,

@@ -12,6 +12,7 @@
 #import "YACameraViewController.h"
 #import "SloppySwiper.h"
 #import "YAGroupOptionsViewController.h"
+#import "UIImage+Color.h"
 
 #import "YAUser.h"
 
@@ -42,27 +43,26 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self setNavigationBarHidden:NO];
+    [self setNavigationBarHidden:YES];
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 
     [self.navigationBar setTranslucent:NO];
     [self.navigationBar setTitleTextAttributes:@{
-                                                 NSForegroundColorAttributeName: SECONDARY_COLOR
+                                                 NSForegroundColorAttributeName: [UIColor whiteColor]
                                                  }];
     
-    [self.navigationBar setShadowImage:[UIImage new]];
-    [self.navigationBar setBarTintColor:[UIColor whiteColor]];
-    [self.navigationBar setTintColor:SECONDARY_COLOR];
-    [self.navigationBar setBackgroundImage:[UIImage new]
+    [self.navigationBar setTintColor:[UIColor whiteColor]];
+    
+    [self.navigationBar setBackgroundImage:[UIImage imageWithColor:PRIMARY_COLOR]
                             forBarPosition:UIBarPositionAny
                                 barMetrics:UIBarMetricsDefault];
     
-    self.navigationBar.layer.shadowColor = [SECONDARY_COLOR CGColor];
-    self.navigationBar.layer.shadowOpacity = 0.5;
-    self.navigationBar.layer.shadowRadius = 1;
-    self.navigationBar.layer.shadowOffset = CGSizeMake(0, 0.5);
-    self.navigationBar.layer.masksToBounds = NO;
+//    self.navigationBar.layer.shadowColor = [SECONDARY_COLOR CGColor];
+//    self.navigationBar.layer.shadowOpacity = 0.5;
+//    self.navigationBar.layer.shadowRadius = 1;
+//    self.navigationBar.layer.shadowOffset = CGSizeMake(0, 0.5);
+//    self.navigationBar.layer.masksToBounds = NO;
     
     self.animationController = [YAAnimatedTransitioningController new];
 
