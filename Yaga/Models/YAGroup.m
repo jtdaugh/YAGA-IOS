@@ -574,49 +574,32 @@
     
     NSMutableSet *videosToDelete = [NSMutableSet set];
     
+    NSMutableDictionary *videosThatNeedGroupAssignment = [NSMutableDictionary dictionary]; // {groupId : @[YAVideo, YAVideo], ...}
+    
     for(NSDictionary *videoDic in videoDictionaries) {
         
-        //video exists? update name
-        if([existingIds containsObject:videoDic[YA_RESPONSE_ID]]) {
-            RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_ID]]];
-            if(videos.count) {
-                YAVideo *video = [videos firstObject];
-                BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue];
-                
-                if(deleted) {
-                    [videosToDelete addObject:video];
-                }
-                else {
-                    if (![videoDic[YA_RESPONSE_NAME] isEqual:[NSNull null]]) {
-                        video.caption = videoDic[YA_RESPONSE_NAME];
-                        video.font = (videoDic[YA_RESPONSE_FONT] == [NSNull null]) ? 0 : [videoDic[YA_RESPONSE_FONT] integerValue];
-                        if(![videoDic[YA_RESPONSE_NAMER] isKindOfClass:[NSNull class]] && ![videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME] isKindOfClass:[NSNull class]]){
-                            video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
-                        } else {
-                            video.namer = @"";
-                        }
-                        video.caption_x = ![videoDic[YA_RESPONSE_NAME_X] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_X] floatValue] : 0.5;
-                        video.caption_y = ![videoDic[YA_RESPONSE_NAME_Y] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_Y] floatValue] : 0.25;
-                        video.caption_scale = ![videoDic[YA_RESPONSE_SCALE] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_SCALE] floatValue] : 1;
-                        video.caption_rotation = ![videoDic[YA_RESPONSE_ROTATION] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_ROTATION] floatValue] : 0;
-                    }
-                    
-                    video.pending = ![videoDic[YA_RESPONSE_APPROVED] boolValue];
-                    
-                    NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
-                    if (likers.count) {
-                        [video updateLikersWithArray:likers];
-                    }
-                    
-                    //update created at
-                    if(![videoDic[YA_VIDEO_READY_AT] isEqual:[NSNull null]]) {
-                        NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
-                        video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
-                        video.uploadedToAmazon = YES;
-                    }
-                    
+        RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_ID]]];
+
+        // If video already exists locally, either add it to group's video list or just update fields.
+        if(videos.count) {
+            YAVideo *video = [videos firstObject];
+            BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue];
+            BOOL addedNewReferenceToExistingVideoObject = NO;
+            if(![existingIds containsObject:videoDic[YA_RESPONSE_ID]] && !deleted) {
+                // add video to group list
+                [self.videos addObject:video];//insertObject:video atIndex:0];
+                [newVideos addObject:video];
+                addedNewReferenceToExistingVideoObject = YES;
+            }
+            if(deleted) {
+                [videosToDelete addObject:video];
+            }
+            else {
+                [self updateVideo:video withResponseDictionary:videoDic];
+
+                if (!addedNewReferenceToExistingVideoObject)
                     [updatedVideos addObject:video];
-                }
+    
             }
         }
         else {
@@ -635,25 +618,9 @@
             YAVideo *video = [YAVideo video];
             video.serverId = videoId;
             video.creator = ![videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_USER][YA_RESPONSE_NAME] : @"";
-            NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
-            [video updateLikersWithArray:likers];
-            NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
-            video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
-            video.uploadedToAmazon = YES;
-            video.url = videoDic[YA_VIDEO_ATTACHMENT];
             
-            id gifUrl = videoDic[YA_VIDEO_ATTACHMENT_PREVIEW];
-            if(gifUrl) {
-                video.gifUrl = ![gifUrl isKindOfClass:[NSNull class]] ? gifUrl : @"";
-            }
-            video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
-            if(![videoDic[YA_RESPONSE_NAMER] isKindOfClass:[NSNull class]] && ![videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME] isKindOfClass:[NSNull class]]){
-                video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
-            } else {
-                video.namer = @"";
-            }
-            video.font = ![videoDic[YA_RESPONSE_FONT] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_FONT] integerValue] : 0;
-           
+            [self updateVideo:video withResponseDictionary:videoDic];
+            
             NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_GROUP]];
             RLMResults *existingGroup = [YAGroup objectsWhere:predicate];
             if (!videoDic[YA_RESPONSE_GROUP]) {
@@ -662,28 +629,87 @@
             } else if ([existingGroup count]) {
                 video.group = [existingGroup firstObject];
             } else {
-                [NSException raise:@"Can't fetch videos before all groups are created" format:@""];
+                // Fetched a video for a group we dont know about yet. Fetch em from the server.
+                DLog(@"Fetched a video for a group we dont know about yet. Refreshing groups");
+                NSString *groupId = videoDic[YA_RESPONSE_GROUP];
+                if (groupId) {
+                    NSMutableArray *array = [videosThatNeedGroupAssignment objectForKey:groupId];
+                    if (!array) array = [NSMutableArray array];
+                    [array addObject:video];
+                    [videosThatNeedGroupAssignment setObject:array forKey:groupId];
+                }
             }
             
-            video.caption_x = ![videoDic[YA_RESPONSE_NAME_X] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_X] floatValue] : 0.5;
-            video.caption_y = ![videoDic[YA_RESPONSE_NAME_Y] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_Y] floatValue] : 0.25;
-            video.caption_scale = ![videoDic[YA_RESPONSE_SCALE] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_SCALE] floatValue] : 1;
-            video.caption_rotation = ![videoDic[YA_RESPONSE_ROTATION] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_ROTATION] floatValue] : 0;
-            video.pending = ![videoDic[YA_RESPONSE_APPROVED] boolValue];
-
             [self.videos addObject:video];//insertObject:video atIndex:0];
-            
             [newVideos addObject:video];
+            
         }
     }
     
     [[RLMRealm defaultRealm] commitWriteTransaction];
     
+    if ([videosThatNeedGroupAssignment count]) {
+        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+            if (!error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[RLMRealm defaultRealm] beginWriteTransaction];
+                    for (NSString *groupId in [videosThatNeedGroupAssignment allKeys]) {
+                        NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", groupId];
+                        RLMResults *newlyReceivedGroup = [YAGroup objectsWhere:predicate];
+                        if ([newlyReceivedGroup count]) {
+                            DLog(@"Group refresh resolved unknown video group issue");
+                            for (YAVideo *video in videosThatNeedGroupAssignment[groupId]) {
+                                video.group = [newlyReceivedGroup firstObject];
+                                [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
+                                                                                    object:video userInfo:@{kShouldReloadVideoCell:[NSNumber numberWithBool:YES]}];
+                            }
+                        } else {
+                            DLog(@"Group refresh did NOT resolve unknown videos groupID:%@", groupId);
+                        }
+                    }
+                    [[RLMRealm defaultRealm] commitWriteTransaction];
+                });
+            }
+        }];
+    }
+    
     for(YAVideo *video in [videosToDelete copy]) {
-        [video removeFromCurrentGroupWithCompletion:nil removeFromServer:NO];
+        [video removeFromGroupAndStreamsWithCompletion:nil removeFromServer:NO];
     }
     
     return @{kUpdatedVideos:updatedVideos, kNewVideos:newVideos, kDeletedVideos:videosToDelete};
+}
+
+- (void)updateVideo:(YAVideo *)video withResponseDictionary:(NSDictionary *)videoDic {
+//    NSArray *likers = videoDic[YA_RESPONSE_LIKERS];
+//    [video updateLikersWithArray:likers];
+
+    //update created at
+    if(![videoDic[YA_VIDEO_READY_AT] isEqual:[NSNull null]]) {
+        NSTimeInterval timeInterval = [videoDic[YA_VIDEO_READY_AT] integerValue];
+        video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
+        video.uploadedToAmazon = YES;
+    }
+
+    video.url = videoDic[YA_VIDEO_ATTACHMENT];
+    
+    id gifUrl = videoDic[YA_VIDEO_ATTACHMENT_PREVIEW];
+    if(gifUrl) {
+        video.gifUrl = ![gifUrl isKindOfClass:[NSNull class]] ? gifUrl : @"";
+    }
+    video.caption = ![videoDic[YA_RESPONSE_NAME] isKindOfClass:[NSNull class]] ? videoDic[YA_RESPONSE_NAME] : @"";
+    if(![videoDic[YA_RESPONSE_NAMER] isKindOfClass:[NSNull class]] && ![videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME] isKindOfClass:[NSNull class]]){
+        video.namer = videoDic[YA_RESPONSE_NAMER][YA_RESPONSE_NAME];
+    } else {
+        video.namer = @"";
+    }
+    video.font = ![videoDic[YA_RESPONSE_FONT] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_FONT] integerValue] : 0;
+    video.caption_x = ![videoDic[YA_RESPONSE_NAME_X] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_X] floatValue] : 0.5;
+    video.caption_y = ![videoDic[YA_RESPONSE_NAME_Y] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_Y] floatValue] : 0.25;
+    video.caption_scale = ![videoDic[YA_RESPONSE_SCALE] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_SCALE] floatValue] : 1;
+    video.caption_rotation = ![videoDic[YA_RESPONSE_ROTATION] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_ROTATION] floatValue] : 0;
+    
+    video.pending = ![videoDic[YA_RESPONSE_APPROVED] boolValue];
 }
 
 @end

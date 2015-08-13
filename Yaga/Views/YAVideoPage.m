@@ -1142,7 +1142,7 @@ static NSString *commentCellID = @"CommentCell";
             // delete
             [YAUtils confirmDeleteVideo:self.video withConfirmationBlock:^{
                 if(self.video.realm)
-                    [self.video removeFromCurrentGroupWithCompletion:nil removeFromServer:self.video.group != nil];
+                    [self.video removeFromGroupAndStreamsWithCompletion:nil removeFromServer:self.video.group != nil];
                 else
                     [self closeAnimated];
             }];

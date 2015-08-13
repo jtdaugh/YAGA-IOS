@@ -53,23 +53,54 @@
     return result;
 }
 
-- (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer {
+- (void)removeFromGroupAndStreamsWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer {
     void (^deleteBlock)(void) = ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_WILL_DELETE_NOTIFICATION object:self];
-                
-        YAGroup *group = self.group;
-        
+
+        YAGroup *publicStreamGroup;
+        YAGroup *myVideosGroup;
+        YAGroup *trueGroup = self.group;
+
+        RLMResults *publicStreamGroups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", kPublicStreamGroupId]];
+        if(publicStreamGroups.count == 1) publicStreamGroup = [publicStreamGroups objectAtIndex:0];
+
+        RLMResults *myVideosGroups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", kMyStreamGroupId]];
+        if(myVideosGroups.count == 1) myVideosGroup = [myVideosGroups objectAtIndex:0];
+
         NSString *videoId = self.localId;
         [[RLMRealm defaultRealm] beginWriteTransaction];
         
         [self purgeLocalAssets];
-        [self.group.videos removeObjectAtIndex:[self.group.videos indexOfObject:self]];
+        
+        if (trueGroup) {
+            NSUInteger indexInGroup = [trueGroup.videos indexOfObject:self];
+            if (indexInGroup != NSNotFound) {
+                [trueGroup.videos removeObjectAtIndex:indexInGroup];
+            }
+        }
+        
+        if (publicStreamGroup) {
+            NSUInteger indexInPublicStream = [publicStreamGroup.videos indexOfObject:self];
+            if (indexInPublicStream != NSNotFound) {
+                [publicStreamGroup.videos removeObjectAtIndex:indexInPublicStream];
+            }
+        }
+        
+        if (myVideosGroup) {
+            NSUInteger indexInMyVideos = [myVideosGroup.videos indexOfObject:self];
+            if (indexInMyVideos != NSNotFound) {
+                [myVideosGroup.videos removeObjectAtIndex:indexInMyVideos];
+            }
+        }
+        
         [[RLMRealm defaultRealm] deleteObject:self];
         
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId userInfo:@{@"group":group}];
-        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kDeletedVideos:@[self]}];
+        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_DID_DELETE_NOTIFICATION object:videoId];
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:trueGroup userInfo:@{kDeletedVideos:@[self]}];
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:myVideosGroup userInfo:@{kDeletedVideos:@[self]}];
+        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:publicStreamGroup userInfo:@{kDeletedVideos:@[self]}];
         DLog(@"video with id:%@ deleted successfully", videoId);
     };
     

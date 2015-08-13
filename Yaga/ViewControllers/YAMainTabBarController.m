@@ -42,7 +42,7 @@
     
     UIViewController *vc0 = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAStreamViewController new]];
     vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
-    vc0.tabBarItem.title = @"Feed";
+    vc0.tabBarItem.title = @"Latest";
     
     UIViewController *vc1 = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
     vc1.tabBarItem.image = [UIImage imageNamed:@"ExploreBarItem"];

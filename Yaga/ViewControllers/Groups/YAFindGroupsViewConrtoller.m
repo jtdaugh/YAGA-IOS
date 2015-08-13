@@ -69,7 +69,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self setupFlexibleNavBar];
         self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
         self.tableView.delegate = (id<UITableViewDelegate>)self.delegateSplitter;
-        self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 0, 0);
+        self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
     }
     
     [self setupPullToRefresh];

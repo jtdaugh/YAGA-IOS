@@ -62,7 +62,7 @@ typedef void(^completionBlock)(NSError *error);
 @property BOOL pending;
 
 + (YAVideo*)video;
-- (void)removeFromCurrentGroupWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer;
+- (void)removeFromGroupAndStreamsWithCompletion:(completionBlock)completion removeFromServer:(BOOL)removeFromServer;
 
 - (void)updateCaption:(NSString*)caption
         withXPosition:(CGFloat)xPosition

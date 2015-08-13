@@ -240,7 +240,7 @@
 - (void)deletePressed {
     [YAUtils confirmDeleteVideo:self.containingVideoPage.video withConfirmationBlock:^{
         if(self.containingVideoPage.video.realm)
-            [self.containingVideoPage.video removeFromCurrentGroupWithCompletion:nil removeFromServer:YES];
+            [self.containingVideoPage.video removeFromGroupAndStreamsWithCompletion:nil removeFromServer:YES];
         else
             [self.containingVideoPage closeAnimated];
     }];;
