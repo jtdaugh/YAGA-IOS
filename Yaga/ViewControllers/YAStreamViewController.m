@@ -13,6 +13,7 @@
 #import "YAUser.h"
 //DEBUG
 #import "YAVideo.h"
+#import "YAStandardFlexibleHeightBar.h"
 
 @interface YAStreamViewController ()
 @property (nonatomic, assign) NSUInteger videosCountBeforeRefresh;
@@ -57,6 +58,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+}
+
+- (BLKFlexibleHeightBar *)createNavBar {
+    YAStandardFlexibleHeightBar *bar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
+    bar.titleLabel.text = @"Latest Videos";
+    return bar;
 }
 
 - (void)dealloc {

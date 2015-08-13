@@ -10,4 +10,10 @@
 
 @interface YAStandardFlexibleHeightBar : BLKFlexibleHeightBar
 
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UIButton *leftBarButton;
+@property (nonatomic, strong) UIButton *rightBarButton;
+
++ (YAStandardFlexibleHeightBar *)emptyStandardFlexibleBar;
+
 @end
