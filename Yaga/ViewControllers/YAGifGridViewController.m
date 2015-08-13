@@ -176,19 +176,15 @@ static NSString *cellID = @"Cell";
     if ((self.scrollingFast) || !eventCount) return; // dont update unless the collection view is still
     __weak YAGifGridViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSUInteger index = [self.sortedVideos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
         if (weakSelf.scrollingFast) return;
-        if (index == NSNotFound) {
-            return;
-        }
-        YAVideoCell *cell = (YAVideoCell *)[weakSelf.collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0]];
-        if (cell) {
-            DLog(@"Updating comment count to %ld for videoID: %@", eventCount, serverId);
-            [cell setEventCount:eventCount];
-            
+        for (YAVideoCell *cell in [weakSelf.collectionView visibleCells]) {
+            if ([cell.video.serverId isEqualToString:serverId] || [cell.video.localId isEqualToString:localId]) {
+                DLog(@"Updating comment count to %ld for videoID: %@", eventCount, serverId);
+                [cell setEventCount:eventCount];
+                break;
+            }
         }
     });
-
 }
 
 - (void)viewWillAppear:(BOOL)animated {

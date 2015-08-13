@@ -59,10 +59,10 @@ static NSString *CellIdentifier = @"GroupsCell";
     // This will remove extra separators from tableview
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:self.tableView];
-    
-    //ios8 fix for separatorInset
-    if ([self.tableView respondsToSelector:@selector(layoutMargins)])
-        self.tableView.layoutMargins = UIEdgeInsetsZero;
+//    
+//    //ios8 fix for separatorInset
+//    if ([self.tableView respondsToSelector:@selector(layoutMargins)])
+//        self.tableView.layoutMargins = UIEdgeInsetsZero;
     
     if(!self.onboardingMode) {
         self.automaticallyAdjustsScrollViewInsets = NO;
