@@ -18,8 +18,8 @@
 
 @implementation YAStreamViewController
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
-    if(self = [super initWithCoder:aDecoder]) {
+- (id)init {
+    if(self = [super init]) {
         [self initStreamGroup];
 
         return self;
