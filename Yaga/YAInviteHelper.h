@@ -13,6 +13,7 @@ typedef void (^inviteCompletion)(BOOL sent);
 @interface YAInviteHelper : NSObject
 
 - (instancetype)initWithContactsToInvite:(NSArray *)contactsToInvite
+                               groupName:(NSString *)groupName
                           viewController:(UIViewController *)viewController
                               cancelText:(NSString *)cancelText
                               completion:(inviteCompletion)completion;

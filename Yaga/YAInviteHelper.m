@@ -21,18 +21,24 @@
 @property (nonatomic, strong) NSArray *contactsThatNeedInvite;
 @property (nonatomic, weak) UIViewController *viewController;
 @property (nonatomic, copy) NSString *cancelText;
+@property (nonatomic, strong) NSString *groupName;
 
 @end
 
 @implementation YAInviteHelper
 
-- (instancetype)initWithContactsToInvite:(NSArray *)contactsToInvite viewController:(UIViewController *)viewController cancelText:(NSString *)cancelText completion:(inviteCompletion)completion {
+- (instancetype)initWithContactsToInvite:(NSArray *)contactsToInvite
+                                   groupName:(NSString *)groupName
+                          viewController:(UIViewController *)viewController
+                              cancelText:(NSString *)cancelText
+                              completion:(inviteCompletion)completion{
     self = [super init];
     if (self ) {
         _contactsThatNeedInvite = contactsToInvite;
         _viewController = viewController;
         _cancelText = cancelText;
         _completion = completion;
+        _groupName = groupName;
     }
     return self;
 }
@@ -63,7 +69,7 @@
         return;
     }
     
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), [YAUser currentUser].currentGroup.name];
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"iMESSAGE_COME_JOIN_ME_TEXT", @""), self.groupName];
     NSMutableArray *phoneNumbers = [NSMutableArray new];
     
     for(NSDictionary *contact in self.contactsThatNeedInvite) {

@@ -755,56 +755,56 @@
                            }];
 }
 
-- (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
-    NSAssert(self.authToken.length, @"auth token not set");
-    
-    NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
-    NSString *serverVideoId = video.serverId;
-    NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
-    [self.jsonOperationsManager POST:api
-            parameters:nil
-               success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                   NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-                   NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
-                   
-                   
-                   dispatch_async(dispatch_get_main_queue(), ^{
-                       [video.realm beginWriteTransaction];
-                       [video updateLikersWithArray:likers];
-                       [video.realm commitWriteTransaction];
-                   });
-                   
-                   completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
-               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                   NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
-                   DLog(@"%@", [NSString stringFromHex:hex]);
-                   completion(nil, nil);
-               }];
-}
-
-- (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
-    NSAssert(self.authToken.length, @"auth token not set");
-    
-    NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
-    NSString *serverVideoId = video.serverId;
-    NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
-    [self.jsonOperationsManager   DELETE:api
-                parameters:nil
-                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                       NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
-                       NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
-                       
-                       dispatch_async(dispatch_get_main_queue(), ^{
-                           [video.realm beginWriteTransaction];
-                           [video updateLikersWithArray:likers];
-                           [video.realm commitWriteTransaction];
-                       });
-                       
-                       completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
-                   } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                       completion(nil, nil);
-                   }];
-}
+//- (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
+//    NSAssert(self.authToken.length, @"auth token not set");
+//    
+//    NSString *serverGroupId = video.group.serverId;
+//    NSString *serverVideoId = video.serverId;
+//    NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
+//    [self.jsonOperationsManager POST:api
+//            parameters:nil
+//               success:^(AFHTTPRequestOperation *operation, id responseObject) {
+//                   NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+//                   NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
+//                   
+//                   
+//                   dispatch_async(dispatch_get_main_queue(), ^{
+//                       [video.realm beginWriteTransaction];
+//                       [video updateLikersWithArray:likers];
+//                       [video.realm commitWriteTransaction];
+//                   });
+//                   
+//                   completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
+//               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+//                   NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+//                   DLog(@"%@", [NSString stringFromHex:hex]);
+//                   completion(nil, nil);
+//               }];
+//}
+//
+//- (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
+//    NSAssert(self.authToken.length, @"auth token not set");
+//    
+//    NSString *serverGroupId = video.group.serverId;
+//    NSString *serverVideoId = video.serverId;
+//    NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
+//    [self.jsonOperationsManager   DELETE:api
+//                parameters:nil
+//                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
+//                       NSDictionary *responseDict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
+//                       NSArray *likers = responseDict[YA_RESPONSE_LIKERS];
+//                       
+//                       dispatch_async(dispatch_get_main_queue(), ^{
+//                           [video.realm beginWriteTransaction];
+//                           [video updateLikersWithArray:likers];
+//                           [video.realm commitWriteTransaction];
+//                       });
+//                       
+//                       completion([NSNumber numberWithUnsignedInteger:[likers count]], nil);
+//                   } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+//                       completion(nil, nil);
+//                   }];
+//}
 
 - (void)copyVideo:(YAVideo*)video toGroupsWithIds:(NSArray*)groupIdsToCopyTo withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
@@ -964,11 +964,8 @@
                 
                 //send local changes to the server
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
-                
-                //current group never updated or updatedAt is older than local?
-                if([[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
-                    [[[YAUser currentUser] currentGroup] refresh];
-                }
+
+#warning removed refresh current group - may want to handle refresh of visible grid from main tab bar or somewhere
             }
             else {
                 DLog(@"unable to read groups from server");

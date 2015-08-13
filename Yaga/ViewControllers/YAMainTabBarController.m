@@ -19,6 +19,8 @@
 #import "YAFindGroupsViewConrtoller.h"
 #import "YAGroupsListViewController.h"
 #import "YAMyStreamViewController.h"
+#import "YAGroupOptionsViewController.h"
+#import "YAGroupGridViewController.h"
 
 @interface YAMainTabBarController () <UIViewControllerTransitioningDelegate, UITabBarControllerDelegate>
 
@@ -81,13 +83,30 @@
 
     [self.tabBar addSubview:self.cameraButton];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGifGridFromNotification:) name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
+}
 
 - (void)presentCreateGroup {
     NameGroupViewController *vc = [NameGroupViewController new];
     YAGroupsNavigationController *createGroupNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:vc];
     [self presentViewController:createGroupNavController animated:YES completion:nil];
+}
+
+- (void)openGifGridFromNotification:(NSNotification *)notif {
+    YAGroup *group = notif.object;
+    if (!group) return;
+    
+    UINavigationController *navVC = self.viewControllers[3];
+    [navVC popToRootViewControllerAnimated:NO];
+    YAGroupGridViewController *vc = [YAGroupGridViewController new];
+    vc.group = group;
+    
+    self.selectedIndex = 3;
+    [navVC pushViewController:vc animated:YES];
 }
 
 //- (void)viewWillAppear:(BOOL)animated {

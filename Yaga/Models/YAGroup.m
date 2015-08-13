@@ -271,8 +271,6 @@
             if([serverGroupIds containsObject:group.serverId] || [[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group])
                 continue;
             
-            BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
-            
             NSMutableArray *videosToRemove = [NSMutableArray new];
             
             for(YAVideo *videoToRemove in group.videos)
@@ -284,27 +282,15 @@
             }
             
             [groupsToDelete addObject:group];
-            
-            if(currentGroupToRemove) {
-                [YAUser currentUser].currentGroup = [[YAGroup allObjects] firstObject];
-            }
         }
         
-        BOOL deletedGroupWasActive = NO;
         for(YAGroup *group in [groupsToDelete copy]) {
-            if([group isEqual:[YAUser currentUser].currentGroup])
-                deletedGroupWasActive = YES;
             [[RLMRealm defaultRealm] deleteObject:group];
         }
         
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
-        if(deletedGroupWasActive) {
-            if([YAGroup allObjects].count)
-                [YAUser currentUser].currentGroup = [YAGroup allObjects][0];
-            else
-                [YAUser currentUser].currentGroup = nil;
-        }
+#warning should check if we need to boot user out of the current grid
         
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUPS_REFRESHED_NOTIFICATION object:nil];
         
@@ -530,7 +516,8 @@
 
     [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:userInfo];
     
-    [[YAServer sharedServer] groupInfoWithId:self.serverId since:self.refreshedAt
+    // dont set since parameter if group has no videos yet. Otherwise, one buggy fetch screws state of group until reinstall.
+    [[YAServer sharedServer] groupInfoWithId:self.serverId since:([self.videos count] ? self.refreshedAt : nil)
                               withCompletion:^(id response, NSError *error) {
                                   if(self.isInvalidated)
                                       return;
@@ -669,7 +656,10 @@
            
             NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_GROUP]];
             RLMResults *existingGroup = [YAGroup objectsWhere:predicate];
-            if ([existingGroup count]) {
+            if (!videoDic[YA_RESPONSE_GROUP]) {
+                // if the video response doesn't have a group field, it was requested in a standard group posts query & group is self
+                video.group = self;
+            } else if ([existingGroup count]) {
                 video.group = [existingGroup firstObject];
             } else {
                 [NSException raise:@"Can't fetch videos before all groups are created" format:@""];

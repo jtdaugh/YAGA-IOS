@@ -23,6 +23,7 @@
     bar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];
     bar.layer.masksToBounds = YES;
     
+    
     [bar addEmptyNameLabel];
     [bar addEmptyDescriptionLabel];
     [bar addEmptyViewsLabel];

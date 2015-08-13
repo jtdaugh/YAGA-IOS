@@ -105,7 +105,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    self.title = [YAUser currentUser].currentGroup.name;
+    self.title = self.group.name;
     
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
@@ -201,7 +201,6 @@
         NSString *groupToLeave = self.group.name;
         [self.group leaveWithCompletion:^(NSError *error) {
             if(!error) {
-                [YAUser currentUser].currentGroup = nil;
                 [self.navigationController popToRootViewControllerAnimated:YES];
                 NSString *notificationMessage = [NSString stringWithFormat:@"You have left %@", groupToLeave];
                 [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
@@ -434,7 +433,7 @@ static NSString *CellID = @"CellID";
 
 - (void)inviteTapped:(UIButton*)sender {
     YAContact *contactToInvite = self.sortedMembers[sender.tag];
-    self.inviteHelper = [[YAInviteHelper alloc] initWithContactsToInvite: @[[contactToInvite dictionaryRepresentation]] viewController:self cancelText:@"Cancel" completion:^(BOOL sent) {
+    self.inviteHelper = [[YAInviteHelper alloc] initWithContactsToInvite:@[[contactToInvite dictionaryRepresentation]] groupName:self.group.name viewController:self cancelText:@"Cancel" completion:^(BOOL sent) {
         self.inviteHelper = nil;
     }];
     [self.inviteHelper show];

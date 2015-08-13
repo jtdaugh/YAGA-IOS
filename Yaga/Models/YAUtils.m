@@ -203,7 +203,7 @@
 }
 
 + (void)confirmDeleteVideo:(YAVideo*)video withConfirmationBlock:(confirmationBlock)block {
-    NSString *alertMessageText = [YAUser currentUser].currentGroup ? [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to delete this video from '%@'?", @""), [YAUser currentUser].currentGroup.name] : NSLocalizedString(@"Are you sure you want to delete this video?", @"");
+    NSString *alertMessageText = video.group ? [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to delete this video from '%@'?", @""), video.group.name] : NSLocalizedString(@"Are you sure you want to delete this video?", @"");
     
     NSString *alertMessage = NSLocalizedString(alertMessageText, nil);
     MSAlertController*confirmAlert = [MSAlertController

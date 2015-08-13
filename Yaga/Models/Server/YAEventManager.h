@@ -66,6 +66,6 @@
 - (void)removeEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
 
 // If group changed or first call, clears out any memory.
-- (void)groupChanged;
+- (void)groupChanged:(YAGroup *)group;
 
 @end

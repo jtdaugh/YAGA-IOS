@@ -16,6 +16,7 @@
 @interface YAPushNotificationHandler ()
 @property (nonatomic, strong) NSDictionary *meta;
 @property (nonatomic, strong) NSString *postIdToOpen;
+@property (nonatomic, strong) YAGroup *groupToOpen;
 @end
 
 typedef void (^groupChangedCompletionBlock)(void);
@@ -162,7 +163,7 @@ typedef void (^groupChangedCompletionBlock)(void);
 
     [self openGroupWithId:groupId refresh:YES completion:^{
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_GROUP_OPTIONS_NOTIFICATION object:self.groupToOpen];
         });
     }];
 }
@@ -198,7 +199,7 @@ typedef void (^groupChangedCompletionBlock)(void);
                 }
                 
                 //group found after refreshing list of groups
-                [self setCurrentGroup:groups[0] refresh:refresh];
+                [self sendNotificationToOpenGroup:groups[0] refresh:refresh];
                 if(completion)
                     completion();
             }
@@ -210,7 +211,7 @@ typedef void (^groupChangedCompletionBlock)(void);
     }
     else {
         //group exists? update current group and refresh if needed
-        [self setCurrentGroup:groups[0] refresh:refresh];
+        [self sendNotificationToOpenGroup:groups[0] refresh:refresh];
         if(completion)
             completion();
     }
@@ -220,21 +221,15 @@ typedef void (^groupChangedCompletionBlock)(void);
     [self openGroupWithId:groupId refresh:refresh completion:nil];
 }
 
-- (void)setCurrentGroup:(YAGroup*)newGroup refresh:(BOOL)refresh {
-    
-    if(![[YAUser currentUser].currentGroup isEqual:newGroup]) {
-        [YAUser currentUser].currentGroup = newGroup;
-    }
+- (void)sendNotificationToOpenGroup:(YAGroup*)newGroup refresh:(BOOL)refresh {
+
+    self.groupToOpen = newGroup;
     
     if(refresh) {
         [newGroup refresh:YES];
     }
     
-    //close all presented view controllers from grid
-    UIViewController *gridVC = [(UINavigationController*)[UIApplication sharedApplication].keyWindow.rootViewController topViewController];
-    if([gridVC presentedViewController]) {
-        [gridVC dismissViewControllerAnimated:NO completion:nil];
-    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_GROUP_GRID_NOTIFICATION object:newGroup];
 }
 
 - (void)groupDidRefresh:(NSNotification*)notification {
@@ -242,7 +237,7 @@ typedef void (^groupChangedCompletionBlock)(void);
         return;
     
     //group didn't change?
-    if([notification.object isEqual:[YAUser currentUser].currentGroup]) {
+    if([notification.object isEqual:self.groupToOpen]) {
         RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", self.postIdToOpen]];
         if(videos.count != 1) {
             DLog(@"unable to find video with id %@", self.postIdToOpen);

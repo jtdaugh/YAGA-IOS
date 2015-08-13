@@ -278,15 +278,14 @@
             [self updateTileAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPreload:preload];
     }
     
+    YAVideo *visibleVideo;
+    NSMutableArray *nearbyVideos = [NSMutableArray array];
+    
     for(NSUInteger i = 0; i < 3; i++) {
         YAVideoPage *page = self.pages[i];
 
         if (i == self.visibleTileIndex && preload) {
-            if (!page.video.mp4Filename.length) {
-                // stop view count and prioritise mp4 download if download not finished.
-                [[YAViewCountManager sharedManager] stoppedWatchingVideo];
-                [[YADownloadManager sharedManager] exclusivelyDownloadMp4ForVideo:page.video];
-            }
+            visibleVideo = page.video;
             YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:page.video];
             [YAEventManager sharedManager].eventReceiver = page;
             [[YAEventManager sharedManager] setCurrentVideoServerId:page.video.serverId localId:page.video.localId serverIdStatus:status];
@@ -298,10 +297,19 @@
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
         } else {
+            if (page.video) {
+                [nearbyVideos addObject:page.video];
+            }
             page.playerView.playWhenReady = NO;
             [page.playerView pause];
         }
     }
+    if (!visibleVideo.mp4Filename.length) {
+        // stop view count and prioritise mp4 download if download not finished.
+        [[YAViewCountManager sharedManager] stoppedWatchingVideo];
+    }
+    
+    [[YADownloadManager sharedManager] exclusivelyDownloadMp4IfNeededForVideo:visibleVideo thenPrioritizeNearbyDownloads:nearbyVideos];
 }
 
 - (void)adjustPageFrames {

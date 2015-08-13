@@ -48,11 +48,6 @@
     if(self) {
         _userData = [NSMutableDictionary new];
         
-        NSString *selectedGroupId = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:YA_CURRENT_GROUP_ID];
-        if(selectedGroupId) {
-            self.currentGroup = [YAGroup objectInRealm:[RLMRealm defaultRealm] forPrimaryKey:selectedGroupId];
-        }
-        
         //request an access to the contacts first time in Groups list(because we need to show correct member names)
         //next times phonebook is loaded on app start
         if([[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:kContactsAccessWasRequested]) {
@@ -60,19 +55,6 @@
         }
     }
     return self;
-}
-
-- (void)setCurrentGroup:(YAGroup *)group {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:group.localId forKey:YA_CURRENT_GROUP_ID];
-    
-    YAGroup *groupBefore = [self currentGroup];
-    
-    _currentGroup = group;
-    
-    [[YAAssetsCreator sharedCreator] stopAllJobsWithCompletion:nil];
-    
-    if(![_currentGroup isEqual:groupBefore])
-        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_CHANGE_NOTIFICATION object:nil];
 }
 
 - (BOOL)loggedIn {

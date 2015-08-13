@@ -35,7 +35,6 @@
 {
     self.delegate = nil;
     self.interactivePopGestureRecognizer.delegate = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
 }
 
 #pragma mark - UIViewController
@@ -76,11 +75,6 @@
     self.delegate = self.swiper;
 
     self.interactivePopGestureRecognizer.delegate = self;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(openGroupOptions)
-                                                 name:OPEN_GROUP_OPTIONS_NOTIFICATION
-                                               object:nil];
 }
 
 //// Any view controller that wants to maintain presence when the app enters background
@@ -115,19 +109,6 @@
 //    // Force these updates to happen before app is opened again
 //    [[NSRunLoop currentRunLoop] runUntilDate:[[NSDate date] dateByAddingTimeInterval:0.1]];
 //}
-
-- (void)openGroupOptions {
-    if(![YAUser currentUser].currentGroup)
-        return;
-    
-    if([self.topViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
-        [self popViewControllerAnimated:NO];
-    }
-    
-    YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
-    vc.group = [YAUser currentUser].currentGroup;
-    [self pushViewController:vc animated:YES];
-}
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];

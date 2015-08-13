@@ -61,7 +61,6 @@
         self.initialEventsLoadedForId = [[NSCache alloc] init];
 
         self.allQueries = [NSArray array];
-        [self groupChanged];
     }
     return self;
 }
@@ -194,8 +193,8 @@
     [[[self.firebaseRoot childByAppendingPath:serverId] childByAppendingPath:event.key] removeValue];
 }
 
-- (void)groupChanged {
-    if (![[YAUser currentUser].currentGroup.serverId isEqualToString:self.groupId]) {
+- (void)groupChanged:(YAGroup *)group {
+    if (![group.serverId isEqualToString:self.groupId]) {
         [self.eventsByServerVideoId removeAllObjects];
         for (Firebase *ref in self.allQueries) {
             [ref removeAllObservers];
@@ -204,7 +203,7 @@
         [self.queriesByVideoId removeAllObjects];
         [self.initialEventsLoadedForId removeAllObjects];
     }
-    self.groupId = [YAUser currentUser].currentGroup.serverId;
+    self.groupId = group.serverId;
 }
 
 - (void)removeEventWithKey:(NSString *)key fromEventsArray:(NSMutableArray *)eventsArray {

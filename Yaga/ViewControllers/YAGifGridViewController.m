@@ -115,17 +115,33 @@ static NSString *cellID = @"Cell";
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupWillRefresh:) name:GROUP_WILL_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION     object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoDidChange:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGroupOptions:)       name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
+    
     
     [self setupPullToRefresh];
     
     [self setupBarButtons];
     
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+}
+
+
+- (void)openGroupOptions:(NSNotification *)notif {
+    YAGroup *group = (YAGroup *)notif.object;
+    if (![group isEqual:self.group]) return;
+    
+    UINavigationController *navVC = (UINavigationController *)self.navigationController;
+    if([navVC.topViewController isKindOfClass:[YAGroupOptionsViewController class]]) {
+        [navVC popViewControllerAnimated:NO];
+    }
+    
+    YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
+    vc.group = group;
+    [navVC pushViewController:vc animated:YES];
 }
 
 
@@ -240,11 +256,11 @@ static NSString *cellID = @"Cell";
     self.collectionView.dataSource = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_WILL_REFRESH_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_REFRESH_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_DID_CHANGE_NOTIFICATION object:nil];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_VIDEO_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
 }
 
 - (void)reload {
@@ -259,11 +275,12 @@ static NSString *cellID = @"Cell";
     }
     
     [self.collectionView reloadData];
-    
+
+    [[YAEventManager sharedManager] groupChanged:self.group];
+
     if(needRefresh) {
         [self refreshCurrentGroup];
     } else {
-        [[YAEventManager sharedManager] groupChanged];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     }
 }
@@ -277,13 +294,10 @@ static NSString *cellID = @"Cell";
         if(!video.group || [video.group isInvalidated])
             return;
         
-        if(![video.group isEqual:self.group])
-            return;
-        
         if(![notif.userInfo[kShouldReloadVideoCell] boolValue])
             return;
         
-        NSUInteger index =[self.sortedVideos indexOfObject:video];
+        NSUInteger index = [self.sortedVideos indexOfObject:video];
         
         //the following line will ensure indexPathsForVisibleItems will return correct results
         [weakSelf.collectionView layoutIfNeeded];

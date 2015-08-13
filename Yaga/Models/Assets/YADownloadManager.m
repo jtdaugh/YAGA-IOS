@@ -246,53 +246,30 @@
     [self resumeJobs];
 }
 
-- (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video {
-    [self pauseExecutingJobs];
+- (void)exclusivelyDownloadMp4IfNeededForVideo:(YAVideo*)video thenPrioritizeNearbyDownloads:(NSArray *)nearbyVideosToPrioritize {
     
-    AFDownloadRequestOperation *nextJob = [self createJobForVideo:video gifJob:NO];
-    if(!nextJob)
-        return;
-    
-    [self.downloadJobs setObject:nextJob forKey:video.url];
-    if(nextJob.isPaused)
-        [nextJob resume];
-    else
-        [nextJob start];
-    
-    [self.waitingUrls removeObject:video.url];
-    [self.executingUrls addObject:video.url];
-    
-    
-    YAVideo *leftVideo;
-    YAVideo *rightVideo;
-
-    //add/move left and right mp4 files to the top of waiting queue
-    if ([YAUser currentUser].currentGroup.streamGroup) {
-        YAGroup *stream = [YAUser currentUser].currentGroup;
+    if (!video.mp4Filename.length) {
+        [self pauseExecutingJobs];
+        AFDownloadRequestOperation *nextJob = [self createJobForVideo:video gifJob:NO];
+        if(!nextJob)
+            return;
         
-        NSUInteger videoIndex = [stream.videos indexOfObject:video];
-        if(videoIndex > 0) {
-            leftVideo = [stream.videos objectAtIndex:videoIndex - 1];
-        }
-        if(videoIndex < stream.videos.count - 1) {
-            rightVideo = [stream.videos objectAtIndex:videoIndex + 1];
-        }
-    } else {
-        NSUInteger videoIndex = [video.group.videos indexOfObject:video];
-        if(videoIndex > 0) {
-            leftVideo = [video.group.videos objectAtIndex:videoIndex - 1];
-        }
-        if(videoIndex < video.group.videos.count - 1) {
-            rightVideo = [video.group.videos objectAtIndex:videoIndex + 1];
-        }
+        [self.downloadJobs setObject:nextJob forKey:video.url];
+        if(nextJob.isPaused)
+            [nextJob resume];
+        else
+            [nextJob start];
+        
+        [self.waitingUrls removeObject:video.url];
+        [self.executingUrls addObject:video.url];
     }
-    if(leftVideo && !leftVideo.mp4Filename.length) {
-        [self.waitingUrls removeObject:leftVideo.url];
-        [self.waitingUrls addObject:leftVideo.url];
-    }
-    if(rightVideo && !rightVideo.mp4Filename.length) {
-        [self.waitingUrls removeObject:rightVideo.url];
-        [self.waitingUrls addObject:rightVideo.url];
+    
+    
+    for (YAVideo *video in nearbyVideosToPrioritize) {
+        if(video && !video.mp4Filename.length) {
+            [self.waitingUrls removeObject:video.url];
+            [self.waitingUrls addObject:video.url];
+        }
     }
 }
 

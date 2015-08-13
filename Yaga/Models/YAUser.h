@@ -25,8 +25,6 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts, 
     NSDateFormatter *dateFormatter;
     NSDateFormatter *timeFormatter;
 }
-                      
-@property (nonatomic, strong) YAGroup *currentGroup;
 
 @property (nonatomic) BOOL phoneNumberIsRegistered;
 @property (nonatomic, copy) NSString *dialCode;

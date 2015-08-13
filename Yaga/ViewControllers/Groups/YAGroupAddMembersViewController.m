@@ -374,7 +374,7 @@
     if (![self.contactsThatNeedInvite count]) {
         [self changeGroupOnServer];
     } else {
-        self.inviteHelper = [[YAInviteHelper alloc] initWithContactsToInvite:self.contactsThatNeedInvite viewController:self cancelText:@"Skip" completion:^(BOOL sent) {
+        self.inviteHelper = [[YAInviteHelper alloc] initWithContactsToInvite:self.contactsThatNeedInvite groupName:self.groupName viewController:self cancelText:@"Skip" completion:^(BOOL sent) {
             self.inviteHelper = nil; // Do the weird __block and nil thing so inviteHelper doesn't get released until here. Could also make it a property.
             [self changeGroupOnServer];
         }];
@@ -436,9 +436,11 @@
                 [self showActivity:NO];
             } else {
                 YAGroup *newGroup = result;
-                [YAUser currentUser].currentGroup = newGroup;
+                
+#warning probably want to force tab bar & nav controller to take us to proper group grid here w/ notification
+                
                 if (self.initialVideo ) {
-                    [self postInitialVideo];
+                    [self postInitialVideoToGroup:newGroup];
                 }
                 
                 [newGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
@@ -474,11 +476,11 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-- (void)postInitialVideo {
+- (void)postInitialVideoToGroup:(YAGroup *)group {
     YAVideo *vid = self.initialVideo;
     [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:[NSURL URLWithString:vid.mp4Filename]
                                                 withCaptionText:vid.caption x:vid.caption_x y:vid.caption_y scale:vid.caption_scale rotation:vid.caption_rotation
-                                                    addToGroups:@[[YAUser currentUser].currentGroup]];
+                                                    addToGroups:@[group]];
 }
 
 - (NSArray *)filterContactsToInvite {

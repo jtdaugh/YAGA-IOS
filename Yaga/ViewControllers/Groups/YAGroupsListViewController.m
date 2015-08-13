@@ -72,12 +72,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidChange:)  name:GROUP_DID_CHANGE_NOTIFICATION    object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateState)  name:GROUPS_REFRESHED_NOTIFICATION    object:nil];
     
     //force to open last selected group
     self.animatePush = NO;
-    [self groupDidChange:nil];
     
     [self setupBarItems];
     
@@ -127,12 +125,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    if (self.animatePush) {
-        // Need to set group to nil when we swipe back to this screen.
-        // The animate push hack is because sometimes -viewDidAppear was getting called
-        // even when we forced the gif collection view push in -viewDidLoad
-        [YAUser currentUser].currentGroup = nil;
-    }
     self.animatePush = YES;
     
     //load phonebook if it wasn't done before
@@ -181,24 +173,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)groupDidRefresh:(NSNotification*)notif {
     [self updateState];
-}
-
-#warning refactor navigation flow when changing groups, gifGrid should push immediatelly on didSelectItemAtIndexPath, make sure push notifications are working correctly
-- (void)groupDidChange:(NSNotification*)notif {
-    [self.collectionView.pullToRefreshView stopAnimating];
-    
-    if (![self.navigationController.topViewController isKindOfClass:[YAGroupGridViewController class]]) {
-        //open current group if needed
-        if([YAUser currentUser].currentGroup) {
-            YAGroupGridViewController *vc = [YAGroupGridViewController new];
-            vc.group = [YAUser currentUser].currentGroup;
-            vc.hidesBottomBarWhenPushed = YES;
-            [self.navigationController pushViewController:vc animated:self.animatePush];
-        }
-    } else {
-        // Grid is already visible, let it reload
-    }
-    self.animatePush = YES;
 }
 
 - (void)updateState {
@@ -252,7 +226,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
     YAGroup *group = self.groups[indexPath.item];
-    [YAUser currentUser].currentGroup = group;
+    YAGroupGridViewController *vc = [YAGroupGridViewController new];
+    vc.group = group;
+    [self.navigationController pushViewController:vc animated:self.animatePush];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {

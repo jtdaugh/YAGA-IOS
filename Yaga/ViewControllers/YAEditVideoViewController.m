@@ -133,8 +133,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
     
 //    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([YAUser currentUser].currentGroup) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[self.groups indexOfObject:[YAUser currentUser].currentGroup] inSection:0];
+        if (self.preselectedGroup) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[self.groups indexOfObject:self.preselectedGroup] inSection:0];
             [self.groupsTableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
         }
         [self layoutGroupButtons];
@@ -404,8 +404,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     }
     
     if (![groupsToSendTo count]) return;
-    
-    [YAUser currentUser].currentGroup = [groupsToSendTo firstObject];
     
     __weak typeof(self) weakSelf = self;
     [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {

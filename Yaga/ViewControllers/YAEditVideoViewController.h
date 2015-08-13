@@ -15,6 +15,8 @@
 @property (nonatomic, strong) NSURL *videoUrl;
 @property (nonatomic) NSTimeInterval totalDuration;
 
+@property (nonatomic, strong) YAGroup *preselectedGroup;
+
 - (BOOL)blockCameraPresentationOnBackground;
 
 @end
