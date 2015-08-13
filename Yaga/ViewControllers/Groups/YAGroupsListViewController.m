@@ -69,7 +69,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [self.navigationController setNavigationBarHidden:NO animated:animated];
 }
 
 - (void)setupBarItems {

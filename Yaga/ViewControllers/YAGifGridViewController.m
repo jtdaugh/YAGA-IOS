@@ -139,6 +139,22 @@ static NSString *cellID = @"Cell";
     bar.minimumBarHeight = 20;
     bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
 
+    
+//    UILabel *titleLabel = [UILabel new];
+//    groupNameLabel.font = [UIFont fontWithName:BIG_FONT size:kTitleMaxFont];
+//    groupNameLabel.textColor = [UIColor whiteColor];
+//    groupNameLabel.textAlignment = NSTextAlignmentCenter;
+//    [bar addSubview:groupNameLabel];
+//    BLKFlexibleHeightBarSubviewLayoutAttributes *nameExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+//    nameExpanded.frame = CGRectMake(20, kTitleOriginExpanded, VIEW_WIDTH-40, 30);
+//    [groupNameLabel addLayoutAttributes:nameExpanded forProgress:0.0];
+//    BLKFlexibleHeightBarSubviewLayoutAttributes *nameCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+//    nameCollapsed.frame = CGRectMake(20, kTitleOriginCollapsed, VIEW_WIDTH-40, 30);
+//    nameCollapsed.transform = CGAffineTransformMakeScale(0.6, 0.6);
+//    [groupNameLabel addLayoutAttributes:nameCollapsed forProgress:1.0];
+//    
+
+    
     bar.backgroundColor = PRIMARY_COLOR;
     return bar;
 }
