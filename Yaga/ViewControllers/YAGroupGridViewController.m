@@ -13,8 +13,8 @@
 
 #define kNavBarHeight 44.0
 #define kHeaderHeight 200.0
-#define kTitleOriginCollapsed 6.0
-#define kTitleOriginExpanded 36.0
+#define kTitleOriginCollapsed 20.0
+#define kTitleOriginExpanded 40.0
 #define kTitleMaxFont 30.0
 
 @interface YAGroupGridViewController ()
@@ -51,14 +51,74 @@
 - (BLKFlexibleHeightBar *)createNavBar {
     BLKFlexibleHeightBar *bar = [[BLKFlexibleHeightBar alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width, kHeaderHeight)];
     bar.minimumBarHeight = 60;
-    bar.backgroundColor = PRIMARY_COLOR;
-    
+    bar.backgroundColor = SECONDARY_COLOR;
     bar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];
+    
+    UILabel *groupNameLabel = [UILabel new];
+    groupNameLabel.font = [UIFont fontWithName:BIG_FONT size:kTitleMaxFont];
+    groupNameLabel.textColor = [UIColor whiteColor];
+    groupNameLabel.textAlignment = NSTextAlignmentCenter;
+    [bar addSubview:groupNameLabel];
+    BLKFlexibleHeightBarSubviewLayoutAttributes *nameExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+    nameExpanded.frame = CGRectMake(20, kTitleOriginExpanded, VIEW_WIDTH-40, 30);
+    [groupNameLabel addLayoutAttributes:nameExpanded forProgress:0.0];
+    BLKFlexibleHeightBarSubviewLayoutAttributes *nameCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+    nameCollapsed.frame = CGRectMake(20, kTitleOriginCollapsed, VIEW_WIDTH-40, 30);
+    nameCollapsed.transform = CGAffineTransformMakeScale(0.6, 0.6);
+    [groupNameLabel addLayoutAttributes:nameCollapsed forProgress:1.0];
+    
+    
+    UILabel *descriptionLabel = [UILabel new];
+    descriptionLabel.font = [UIFont fontWithName:BIG_FONT size:16];
+    descriptionLabel.textColor = [UIColor whiteColor];
+    descriptionLabel.textAlignment = NSTextAlignmentCenter;
+    [bar addSubview:descriptionLabel];
+    BLKFlexibleHeightBarSubviewLayoutAttributes *descriptionExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+    descriptionExpanded.frame = CGRectMake(20, kTitleOriginExpanded + 30, VIEW_WIDTH-40, 30);
+    descriptionExpanded.alpha = 1;
+    [descriptionLabel addLayoutAttributes:descriptionExpanded forProgress:0.0];
+    BLKFlexibleHeightBarSubviewLayoutAttributes *descriptionCollapsed = [[BLKFlexibleHeightBarSubviewLayoutAttributes alloc] initWithExistingLayoutAttributes:descriptionExpanded];
+    descriptionCollapsed.alpha = 0.0;
+    [descriptionLabel addLayoutAttributes:descriptionCollapsed forProgress:1.0];
+//    
+//    UILabel *viewsLabel = [UILabel new];
+//    viewsLabel.font = [UIFont fontWithName:BIG_FONT size:16];
+//    viewsLabel.textColor = [UIColor whiteColor];
+//    viewsLabel.textAlignment = NSTextAlignmentCenter;
+//    [bar addSubview:viewsLabel];
+//    
+//    CGFloat btnWidth = 140;
+//    UIButton *followButton = [UIButton new];
+//    followButton.backgroundColor = [UIColor clearColor];
+//    [followButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//    [followButton setTitle:@"Follow" forState:UIControlStateNormal];
+//    followButton.layer.borderColor = [[UIColor whiteColor] CGColor];
+//    followButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
+//    followButton.layer.borderWidth = 2;
+//    followButton.layer.cornerRadius = 10;
+//    [bar addSubview:followButton];
+//    
+//    UIButton *backButton = [UIButton new];
+//    backButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
+//    backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+//    [backButton setImage:[UIImage imageNamed:@"Back"] forState:UIControlStateNormal];
+//    [backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
+//    [bar addSubview:backButton];
+//    
+    groupNameLabel.text = self.group.name;
+    descriptionLabel.text = @"Hosted by Arauh";
+//    viewsLabel.text = @"456 followers      123,543 views";
+    
+    self.groupNameLabel = groupNameLabel;
+    self.groupDescriptionLabel = descriptionLabel;
+//    self.groupViewsLabel = viewsLabel;
+//    self.followButton = followButton;
+//    self.backButton = backButton;
     return bar;
 }
 
 //- (CGSize)collectionView:(UICollectionView *)collectionView
-//                  layout:(UICollectionViewLayout*)collectionViewLayout 
+//                  layout:(UICollectionViewLayout*)collectionViewLayout
 //    referenceSizeForHeaderInSection:(NSInteger)section{
 //    return CGSizeMake(VIEW_WIDTH, 200);
 //}
@@ -93,64 +153,6 @@
 //    self.groupNameLabel.font = [UIFont fontWithName:BIG_FONT size:(kTitleMaxFont - 10 + (10.0 * progress))];
 //    
 //}
-//
-//- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
-//    
-//    UICollectionReusableView *headerView = nil;
-//    
-//    if (kind == CSStickyHeaderParallaxHeader) {
-//        headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
-//        headerView.backgroundColor = SECONDARY_COLOR;
-//        
-//        
-//        UILabel *groupNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, kTitleOriginExpanded, VIEW_WIDTH-40, 30)];
-//        groupNameLabel.font = [UIFont fontWithName:BIG_FONT size:kTitleMaxFont];
-//        groupNameLabel.textColor = [UIColor whiteColor];
-//        groupNameLabel.textAlignment = NSTextAlignmentCenter;
-//        [headerView addSubview:groupNameLabel];
-//        
-//        UILabel *descriptionLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 70, VIEW_WIDTH-40, 30)];
-//        descriptionLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-//        descriptionLabel.textColor = [UIColor whiteColor];
-//        descriptionLabel.textAlignment = NSTextAlignmentCenter;
-//        [headerView addSubview:descriptionLabel];
-//        
-//        UILabel *viewsLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 100, VIEW_WIDTH-40, 30)];
-//        viewsLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-//        viewsLabel.textColor = [UIColor whiteColor];
-//        viewsLabel.textAlignment = NSTextAlignmentCenter;
-//        [headerView addSubview:viewsLabel];
-//        
-//        
-//        CGFloat btnWidth = 140;
-//        UIButton *followButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-btnWidth)/2, 140, btnWidth, 40)];
-//        followButton.backgroundColor = [UIColor clearColor];
-//        [followButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-//        [followButton setTitle:@"Follow" forState:UIControlStateNormal];
-//        followButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-//        followButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
-//        followButton.layer.borderWidth = 2;
-//        followButton.layer.cornerRadius = 10;
-//        [headerView addSubview:followButton];
-//        
-//        UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
-//        backButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
-//        backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-//        [backButton setImage:[UIImage imageNamed:@"Back"] forState:UIControlStateNormal];
-//        [backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
-//        [headerView addSubview:backButton];
-//        
-//        groupNameLabel.text = self.group.name;
-//        descriptionLabel.text = @"Hosted by Arauh";
-//        viewsLabel.text = @"456 followers      123,543 views";
-//        
-//        self.groupNameLabel = groupNameLabel;
-//        self.groupViewsLabel = viewsLabel;
-//        self.groupDescriptionLabel = descriptionLabel;
-//        self.followButton = followButton;
-//        self.backButton = backButton;
-//    }
-//    return headerView;
-//}
+
 
 @end
