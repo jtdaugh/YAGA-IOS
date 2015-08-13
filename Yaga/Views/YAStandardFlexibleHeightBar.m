@@ -25,27 +25,29 @@
     titleLabel.textColor = [UIColor whiteColor];
     titleLabel.textAlignment = NSTextAlignmentCenter;
     BLKFlexibleHeightBarSubviewLayoutAttributes *titleExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    titleExpanded.frame = CGRectMake(70, kStatusBarHeight, VIEW_WIDTH-140, kBarHeight - kStatusBarHeight);
+    titleExpanded.frame = CGRectMake(kFlexNavBarButtonWidth - 20, kStatusBarHeight, VIEW_WIDTH-2*kFlexNavBarButtonWidth + 40, kBarHeight - kStatusBarHeight);
     [titleLabel addLayoutAttributes:titleExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *titleCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    titleCollapsed.frame = CGRectMake(70, -30, VIEW_WIDTH-140, 30);
+    titleCollapsed.frame = CGRectMake(kFlexNavBarButtonWidth - 20, -30, VIEW_WIDTH-2*kFlexNavBarButtonWidth + 40, 30);
     titleCollapsed.alpha = 0;
     [titleLabel addLayoutAttributes:titleCollapsed forProgress:1.0];
     
     [bar addSubview:titleLabel];
     bar.titleLabel = titleLabel;
     
-    CGFloat buttonSize = kBarHeight - kStatusBarHeight;
+    CGFloat buttonSize = kFlexNavBarButtonHeight;
     
     UIButton *leftButton = [UIButton new];
-    leftButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
+    leftButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 10);
     leftButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    leftButton.tintColor = [UIColor whiteColor];
+    leftButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
 
     BLKFlexibleHeightBarSubviewLayoutAttributes *leftButtonExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    leftButtonExpanded.frame = CGRectMake(0, kStatusBarHeight, buttonSize, buttonSize);
+    leftButtonExpanded.frame = CGRectMake(10, kStatusBarHeight, kFlexNavBarButtonWidth, buttonSize);
     [leftButton addLayoutAttributes:leftButtonExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *leftButtonCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    leftButtonCollapsed.frame = CGRectMake(0, -buttonSize, buttonSize, buttonSize);
+    leftButtonCollapsed.frame = CGRectMake(10, -buttonSize, kFlexNavBarButtonWidth, buttonSize);
     leftButtonCollapsed.alpha = 0;
     [leftButton addLayoutAttributes:leftButtonCollapsed forProgress:1.0];
     
@@ -53,14 +55,16 @@
     bar.leftBarButton = leftButton;
     
     UIButton *rightButton = [UIButton new];
-    rightButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
+    rightButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0);
     rightButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    rightButton.tintColor = [UIColor whiteColor];
+    rightButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
     
     BLKFlexibleHeightBarSubviewLayoutAttributes *rightButtonExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    rightButtonExpanded.frame = CGRectMake(VIEW_WIDTH - buttonSize, kStatusBarHeight, buttonSize, buttonSize);
+    rightButtonExpanded.frame = CGRectMake(VIEW_WIDTH - kFlexNavBarButtonWidth - 10, kStatusBarHeight, kFlexNavBarButtonWidth, buttonSize);
     [rightButton addLayoutAttributes:rightButtonExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *rightButtonCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    rightButtonCollapsed.frame = CGRectMake(VIEW_WIDTH - buttonSize, -buttonSize, buttonSize, buttonSize);
+    rightButtonCollapsed.frame = CGRectMake(VIEW_WIDTH - kFlexNavBarButtonWidth - 10, -buttonSize, kFlexNavBarButtonWidth, buttonSize);
     rightButtonCollapsed.alpha = 0;
     [rightButton addLayoutAttributes:rightButtonCollapsed forProgress:1.0];
     

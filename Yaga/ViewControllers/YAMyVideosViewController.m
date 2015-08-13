@@ -7,8 +7,11 @@
 //
 
 #import "YAMyVideosViewController.h"
+#import "YAStandardFlexibleHeightBar.h"
 
 @interface YAMyVideosViewController ()
+
+@property (nonatomic, strong) YAStandardFlexibleHeightBar *flexibleNavBar;
 
 @end
 
@@ -16,6 +19,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
+    self.flexibleNavBar.titleLabel.text = @"My Videos";
+    [self.view addSubview:self.flexibleNavBar];
+    
     // Do any additional setup after loading the view.
 }
 

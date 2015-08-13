@@ -8,6 +8,9 @@
 
 #import "BLKFlexibleHeightBar.h"
 
+#define kFlexNavBarButtonHeight 46
+#define kFlexNavBarButtonWidth 100
+
 @interface YAStandardFlexibleHeightBar : BLKFlexibleHeightBar
 
 @property (nonatomic, strong) UILabel *titleLabel;

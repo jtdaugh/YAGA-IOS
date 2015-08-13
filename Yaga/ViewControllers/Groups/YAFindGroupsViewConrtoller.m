@@ -17,6 +17,9 @@
 #import "YAPopoverView.h"
 #import "YAUserPermissions.h"
 #import "YAMainTabBarController.h"
+#import "YAStandardFlexibleHeightBar.h"
+#import "BLKDelegateSplitter.h"
+
 
 @interface YAFindGroupsViewConrtoller () <UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, strong) NSArray *groupsDataArray;
@@ -27,6 +30,10 @@
 
 @property (atomic, assign) BOOL groupsListLoaded;
 @property (atomic, assign) BOOL findGroupsFinished;
+
+@property (nonatomic, strong) YAStandardFlexibleHeightBar *flexibleNavBar;
+@property (nonatomic, strong) BLKDelegateSplitter *delegateSplitter;
+
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -40,14 +47,9 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     self.view.backgroundColor = [UIColor whiteColor];
     
-    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 10, VIEW_WIDTH-40, 30)];
-    self.searchBar.searchBarStyle = UISearchBarStyleMinimal;
-    [self.view addSubview:self.searchBar];
-    
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 50, VIEW_WIDTH, VIEW_HEIGHT - 50)];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
-    self.tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     [self.tableView setAllowsSelection:NO];
     //    [self.tableView setSeparatorColor:PRIMARY_COLOR];
@@ -62,8 +64,15 @@ static NSString *CellIdentifier = @"GroupsCell";
     if ([self.tableView respondsToSelector:@selector(layoutMargins)])
         self.tableView.layoutMargins = UIEdgeInsetsZero;
     
+    if(!self.onboardingMode) {
+        self.automaticallyAdjustsScrollViewInsets = NO;
+        [self setupFlexibleNavBar];
+        self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
+        self.tableView.delegate = (id<UITableViewDelegate>)self.delegateSplitter;
+        self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 0, 0);
+    }
+    
     [self setupPullToRefresh];
-    [self.tableView triggerPullToRefresh];
     [self.tableView reloadData];
 
     _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
@@ -82,9 +91,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self.navigationController setNavigationBarHidden:NO animated:YES];
-    
     if(self.onboardingMode) {
+        [self.navigationController setNavigationBarHidden:NO animated:YES];
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Skip", @"") style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
         
         self.navigationItem.hidesBackButton = YES;
@@ -175,8 +183,6 @@ static NSString *CellIdentifier = @"GroupsCell";
             }
         } excludingPhoneNumbers:nil];
         
-    } else {
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup)];
     }
 }
 
@@ -405,6 +411,37 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
     [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateStopped];
     [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
+}
+
+- (void)setupFlexibleNavBar {
+    
+    self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
+    CGRect barFrame = self.flexibleNavBar.frame;
+    self.flexibleNavBar.maximumBarHeight = 116;
+    self.flexibleNavBar.minimumBarHeight = 66;
+    self.flexibleNavBar.layer.masksToBounds = YES;
+    barFrame.size.height += 50;
+    self.flexibleNavBar.frame = barFrame;
+    self.flexibleNavBar.titleLabel.text = @"Explore Channels";
+    [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    self.flexibleNavBar.rightBarButton.imageEdgeInsets = UIEdgeInsetsMake(10, kFlexNavBarButtonWidth - kFlexNavBarButtonHeight + 20, 10, 0);
+    
+    [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
+    
+    self.searchBar = [UISearchBar new];
+    self.searchBar.searchBarStyle = UISearchBarStyleMinimal;
+    
+    BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+    searchBarExpanded.frame = CGRectMake(20, 70, VIEW_WIDTH-40, 30);
+    [self.searchBar addLayoutAttributes:searchBarExpanded forProgress:0.0];
+    BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+    searchBarCollapsed.frame = CGRectMake(20, 22, VIEW_WIDTH-40, 30);
+    [self.searchBar addLayoutAttributes:searchBarCollapsed forProgress:1.0];
+
+    [self.flexibleNavBar addSubview:self.searchBar];
+
+    [self.view addSubview:self.flexibleNavBar];
+    
 }
 
 @end
