@@ -119,7 +119,7 @@ static NSString *cellID = @"Cell";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoDidChange:)     name:VIDEO_CHANGED_NOTIFICATION     object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openVideo:)       name:OPEN_VIDEO_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGroupOptions:)       name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGroupOptionsFromNotification:)       name:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
     
     
     [self setupPullToRefresh];
@@ -130,7 +130,7 @@ static NSString *cellID = @"Cell";
 }
 
 
-- (void)openGroupOptions:(NSNotification *)notif {
+- (void)openGroupOptionsFromNotification:(NSNotification *)notif {
     YAGroup *group = (YAGroup *)notif.object;
     if (![group isEqual:self.group]) return;
     
@@ -139,11 +139,14 @@ static NSString *cellID = @"Cell";
         [navVC popViewControllerAnimated:NO];
     }
     
-    YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
-    vc.group = group;
-    [navVC pushViewController:vc animated:YES];
+    [self openGroupOptions];
 }
 
+- (void)openGroupOptions {
+    YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
+    vc.group = self.group;
+    [self.navigationController pushViewController:vc animated:YES];
+}
 
 - (BLKFlexibleHeightBar *)createNavBar {
     BLKFlexibleHeightBar *bar = [[BLKFlexibleHeightBar alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width, 66)];

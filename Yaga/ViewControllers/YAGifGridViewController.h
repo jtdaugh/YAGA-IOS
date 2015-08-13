@@ -29,6 +29,7 @@
 
 - (void)reloadSortedVideos;
 - (void)setupPullToRefresh;
+- (void)openGroupOptions;
 
 - (BLKFlexibleHeightBar *)createNavBar;
 
