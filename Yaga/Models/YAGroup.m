@@ -672,7 +672,7 @@
             if ([existingGroup count]) {
                 video.group = [existingGroup firstObject];
             } else {
-                video.group = self;
+                [NSException raise:@"Can't fetch videos before all groups are created" format:@""];
             }
             
             video.caption_x = ![videoDic[YA_RESPONSE_NAME_X] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_X] floatValue] : 0.5;
