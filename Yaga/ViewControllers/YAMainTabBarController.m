@@ -6,15 +6,21 @@
 //
 //
 
-#import "YAMainViewController.h"
+#import "YAMainTabBarController.h"
 #import "YAUtils.h"
 #import "YAGroupsNavigationController.h"
 #import "YACameraViewController.h"
 #import "YAAnimatedTransitioningController.h"
 #import "YACameraManager.h"
 #import "UIImage+Color.h"
+#import "NameGroupViewController.h"
+#import "YACreateGroupNavigationController.h"
+#import "YAStreamViewController.h"
+#import "YAFindGroupsViewConrtoller.h"
+#import "YAGroupsListViewController.h"
+#import "YAMyVideosViewController.h"
 
-@interface YAMainViewController () <UIViewControllerTransitioningDelegate, UITabBarControllerDelegate>
+@interface YAMainTabBarController () <UIViewControllerTransitioningDelegate, UITabBarControllerDelegate>
 
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
 
@@ -23,7 +29,7 @@
 
 @end
 
-@implementation YAMainViewController
+@implementation YAMainTabBarController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -31,6 +37,27 @@
 //    [YAUtils randomQuoteWithCompletion:^(NSString *quote, NSError *error) {
 //        self.navigationItem.prompt = quote;
 //    }];
+    
+    UIViewController *vc0 = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAStreamViewController new]];
+    vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
+    vc0.tabBarItem.title = @"Feed";
+    
+    UIViewController *vc1 = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
+    vc1.tabBarItem.image = [UIImage imageNamed:@"ExploreBarItem"];
+    vc1.tabBarItem.title = @"Explore";
+    
+    UIViewController *vc2 = [UIViewController new];
+
+    UIViewController *vc3 = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAGroupsListViewController new]];
+    vc3.tabBarItem.image = [UIImage imageNamed:@"ChannelsBarItem"];
+    vc3.tabBarItem.title = @"Channels";
+
+    UIViewController *vc4 = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAMyVideosViewController new]];
+    vc4.tabBarItem.image = [UIImage imageNamed:@"MeBarItem"];
+    vc4.tabBarItem.title = @"Me";
+
+    self.viewControllers = @[vc0, vc1, vc2, vc3, vc4];
+    
     self.cameraTabViewController = self.viewControllers[2];
     
     [[YACameraManager sharedManager] initCamera];
@@ -38,7 +65,7 @@
     self.animationController = [YAAnimatedTransitioningController new];
     self.delegate = self;
     self.tabBar.itemSpacing = VIEW_WIDTH/2;
-    self.tabBar.tintColor = SECONDARY_COLOR;
+    self.tabBar.tintColor = [UIColor whiteColor];
     self.tabBar.translucent = NO;
     self.tabBar.backgroundColor = [UIColor whiteColor];
     self.tabBar.barTintColor = [UIColor clearColor];
@@ -51,9 +78,16 @@
     self.cameraButton.layer.cornerRadius = 7;
     self.cameraButton.layer.masksToBounds = YES;
     [self.cameraButton addTarget:self action:@selector(cameraPressed) forControlEvents:UIControlEventTouchUpInside];
-    
+
     [self.tabBar addSubview:self.cameraButton];
     
+}
+
+
+- (void)presentCreateGroup {
+    NameGroupViewController *vc = [NameGroupViewController new];
+    YAGroupsNavigationController *createGroupNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:vc];
+    [self presentViewController:createGroupNavController animated:YES completion:nil];
 }
 
 //- (void)viewWillAppear:(BOOL)animated {

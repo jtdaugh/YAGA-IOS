@@ -20,8 +20,8 @@
 
 @implementation YAStreamViewController
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
-    if(self = [super initWithCoder:aDecoder]) {
+- (id)init {
+    if(self = [super init]) {
         RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"name = '%@'", kPublicStreamGroupName]];
         if(groups.count == 1) {
             self.group = [groups objectAtIndex:0];

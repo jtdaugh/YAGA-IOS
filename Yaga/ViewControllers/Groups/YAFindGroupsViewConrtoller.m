@@ -16,6 +16,7 @@
 #import "NameGroupViewController.h"
 #import "YAPopoverView.h"
 #import "YAUserPermissions.h"
+#import "YAMainTabBarController.h"
 
 @interface YAFindGroupsViewConrtoller () <UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, strong) NSArray *groupsDataArray;
@@ -67,7 +68,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 
     _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
     
-    [[UIBarButtonItem appearance] setTintColor:SECONDARY_COLOR];
+//    [[UIBarButtonItem appearance] setTintColor:SECONDARY_COLOR];
 }
 
 - (void)doneButtonPressed:(id)sender {
@@ -174,6 +175,8 @@ static NSString *CellIdentifier = @"GroupsCell";
             }
         } excludingPhoneNumbers:nil];
         
+    } else {
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup)];
     }
 }
 

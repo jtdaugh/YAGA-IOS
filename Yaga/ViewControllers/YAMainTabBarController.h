@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAMainViewController : UITabBarController
+@interface YAMainTabBarController : UITabBarController
+
+- (void)presentCreateGroup;
 
 @end

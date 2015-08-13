@@ -27,14 +27,15 @@
 
 #import "YAEventManager.h"
 #import "YAPopoverView.h"
+#import "BLKDelegateSplitter.h"
+#import "BLKFlexibleHeightBar.h"
+#import "FacebookStyleBarBehaviorDefiner.h"
 
 @protocol GridViewControllerDelegate;
 
 static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @interface YAGifGridViewController ()
-
-@property (strong, nonatomic) UICollectionViewFlowLayout *gridLayout;
 
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
@@ -58,6 +59,8 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic, strong) RLMResults *sortedVideos;
 
+@property (nonatomic, strong) BLKDelegateSplitter *delegateSplitter;
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -79,6 +82,8 @@ static NSString *cellID = @"Cell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+
     self.hasToolTipOnOneOfTheCells = NO;
     CGFloat spacing = 1.0f;
     
@@ -90,20 +95,25 @@ static NSString *cellID = @"Cell";
     self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.gridLayout];
     self.collectionView.allowsMultipleSelection = NO;
     self.collectionView.alwaysBounceVertical = YES;
-    
-    self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
+    
+    self.flexibleNavBar = [self createNavBar];
+    self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
+    self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
+
+
     [self.collectionView setAllowsMultipleSelection:NO];
-    self.collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.backgroundColor = [UIColor whiteColor];
+    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 0, 0);
+
     [self.view addSubview:self.collectionView];
-    self.collectionView.frame = self.view.bounds;
-    
+    [self.view addSubview:self.flexibleNavBar];
     self.lastOffset = self.collectionView.contentOffset;
 
     self.lastDownloadPrioritizationIndex = 0;
+    
     [self reload];
 
     [YAEventManager sharedManager].eventCountReceiver = self;
@@ -121,7 +131,16 @@ static NSString *cellID = @"Cell";
     [self setupBarButtons];
     
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
+}
 
+
+- (BLKFlexibleHeightBar *)createNavBar {
+    BLKFlexibleHeightBar *bar = [[BLKFlexibleHeightBar alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width, 66)];
+    bar.minimumBarHeight = 20;
+    bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
+
+    bar.backgroundColor = PRIMARY_COLOR;
+    return bar;
 }
 
 - (void)setupBarButtons {
@@ -240,7 +259,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reload {
-    self.navigationItem.title = [self.group.name isEqualToString:kPublicStreamGroupName] ? @"Feed" : self.group.name;
+    self.navigationItem.title = [self.group.name isEqualToString:kPublicStreamGroupName] ? @"Latest Videos" : self.group.name;
 
     BOOL needRefresh = NO;
     if(!self.sortedVideos || ![self.sortedVideos count])

@@ -26,7 +26,8 @@
 
 #import "YAGroupsNavigationController.h"
 #import "YAFindGroupsViewConrtoller.h"
-#import "YAGifGridViewController.h"
+#import "YAGroupGridViewController.h"
+#import "YAMainTabBarController.h"
 
 #define FOOTER_HEIGHT (CAMERA_BUTTON_SIZE/2 + 170)
 
@@ -66,21 +67,20 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self updateState];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+}
+
 - (void)setupBarItems {
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Find" style:UIBarButtonItemStylePlain target:self action:@selector(findGroupsPressed)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(createGroupPressed)];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Explore" style:UIBarButtonItemStylePlain target:self action:@selector(findGroupsPressed)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup)];
 }
 
 - (void)findGroupsPressed {
-    YAGroupsNavigationController *newNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
-    [self presentViewController:newNavController animated:YES completion:nil];
-}
-
-- (void)createGroupPressed {
-    NameGroupViewController *vc = [NameGroupViewController new];
-    YAGroupsNavigationController *createGroupNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:vc];
-    
-    [self presentViewController:createGroupNavController animated:YES completion:nil];
+//    YAGroupsNavigationController *newNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
+//    [self presentViewController:newNavController animated:YES completion:nil];
+    self.tabBarController.selectedIndex = 1;
 }
 
 - (void)setupCollectionView {
@@ -174,10 +174,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)groupDidChange:(NSNotification*)notif {
     [self.collectionView.pullToRefreshView stopAnimating];
     
-    if (![self.navigationController.topViewController isKindOfClass:[YAGifGridViewController class]]) {
+    if (![self.navigationController.topViewController isKindOfClass:[YAGroupGridViewController class]]) {
         //open current group if needed
         if([YAUser currentUser].currentGroup) {
-            YAGifGridViewController *vc = [YAGifGridViewController new];
+            YAGroupGridViewController *vc = [YAGroupGridViewController new];
             vc.group = [YAUser currentUser].currentGroup;
             [self.navigationController pushViewController:vc animated:self.animatePush];
         }

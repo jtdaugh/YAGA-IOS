@@ -23,6 +23,7 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - APAddressBook (0.0.10)
+  - BLKFlexibleHeightBar (1.0.2)
   - Bolts (1.2.0):
     - Bolts/AppLinks (= 1.2.0)
     - Bolts/Tasks (= 1.2.0)
@@ -64,6 +65,7 @@ DEPENDENCIES:
   - AFDownloadRequestOperation
   - AFNetworking (~> 2.0)
   - APAddressBook (~> 0.0.7)
+  - BLKFlexibleHeightBar
   - FBSDKShareKit
   - Firebase (>= 2.3.1)
   - FLAnimatedImage (from `https://github.com/yagainc/FLAnimatedImage.git`)
@@ -105,6 +107,7 @@ SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7
   AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
   APAddressBook: 11582a756dc59228effdbba0faf6d4675bac6b77
+  BLKFlexibleHeightBar: b27572a69633d8e33f1f2bbc486b04d8e86f742d
   Bolts: d176cb1e0012175589e389a9db49b85e27787576
   FBSDKCoreKit: a3a60225a84abeace291d0fe71cae29a627382c2
   FBSDKShareKit: 15806d69714de39d5dff2c84645f4cde23f5876e

@@ -22,6 +22,7 @@ target 'Yaga', :exclusive => true do
     pod 'Harpy'
     pod 'SloppySwiper'
     pod 'FBSDKShareKit'
+    pod 'BLKFlexibleHeightBar'
 end
 
 target 'YAVideoShareExtension', :exclusive => true do
