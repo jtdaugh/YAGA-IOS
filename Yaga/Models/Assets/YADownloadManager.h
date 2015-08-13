@@ -25,6 +25,6 @@
 - (void)waitUntilAllJobsAreFinished;
 - (void)cancelAllJobs;
 
-- (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video inStream:(BOOL)inStream;
+- (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video;
 
 @end

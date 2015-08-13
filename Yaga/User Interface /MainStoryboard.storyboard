@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8173.3" systemVersion="15A244d" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8142"/>
     </dependencies>
     <scenes>
         <!--Find Groups View Conrtoller-->
@@ -78,7 +78,7 @@
                         <animations/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <searchBar key="tableHeaderView" contentMode="redraw" id="s45-Mz-Fhd">
-                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                            <rect key="frame" x="0.0" y="64" width="600" height="44"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                             <animations/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -89,8 +89,10 @@
                         </searchBar>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="D73-or-5aI" customClass="CountryCell">
+                                <rect key="frame" x="0.0" y="130" width="600" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="D73-or-5aI" id="MJ8-7a-ixR">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <animations/>
                                 </tableViewCellContentView>
@@ -197,6 +199,7 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="uGx-29-egU">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                     </navigationBar>
                     <connections>
                         <segue destination="5Jb-Dh-q28" kind="relationship" relationship="rootViewController" id="Lby-gx-uFL"/>
@@ -255,6 +258,7 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="tad-zd-RUH">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                     </navigationBar>
                     <connections>
                         <segue destination="Mlm-GG-xwM" kind="relationship" relationship="rootViewController" id="tkZ-v3-Zpy"/>
@@ -272,6 +276,7 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="0Bd-5T-xbg">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                     </navigationBar>
                     <connections>
                         <segue destination="b7a-Wb-OdS" kind="relationship" relationship="rootViewController" id="qRu-CR-pUU"/>
@@ -292,6 +297,7 @@
                     <view key="view" contentMode="scaleToFill" id="hXa-9f-1EP">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" title="Explore" id="hpf-ZL-bJh"/>
@@ -336,6 +342,7 @@
                     <view key="view" contentMode="scaleToFill" id="aTP-lL-itb">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="" image="CameraBarItem" id="zGH-EI-Z3n"/>
@@ -347,7 +354,7 @@
         <!--Me-->
         <scene sceneID="md6-Vg-yKD">
             <objects>
-                <viewController title="Me" id="bob-iT-nzh" sceneMemberID="viewController">
+                <viewController title="Me" id="bob-iT-nzh" customClass="YAMyStreamViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="ztm-hD-FAF"/>
                         <viewControllerLayoutGuide type="bottom" id="CQZ-nA-FuV"/>
@@ -355,6 +362,7 @@
                     <view key="view" contentMode="scaleToFill" id="9rj-fH-nX5">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" title="Me" id="dOH-e1-rYe"/>
@@ -371,6 +379,7 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="VFx-7y-onn">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                     </navigationBar>
                     <connections>
                         <segue destination="bob-iT-nzh" kind="relationship" relationship="rootViewController" id="svs-43-eOr"/>

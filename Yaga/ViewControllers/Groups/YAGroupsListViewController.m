@@ -72,8 +72,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)findGroupsPressed {
-    YAGroupsNavigationController *newNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
-    [self presentViewController:newNavController animated:YES completion:nil];
+    UITabBarController *tabbarController = (UITabBarController*)self.navigationController.parentViewController;
+    [tabbarController setSelectedIndex:1];
 }
 
 - (void)createGroupPressed {
@@ -179,6 +179,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         if([YAUser currentUser].currentGroup) {
             YAGifGridViewController *vc = [YAGifGridViewController new];
             vc.group = [YAUser currentUser].currentGroup;
+            vc.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:vc animated:self.animatePush];
         }
     } else {
@@ -188,9 +189,10 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)updateState {
-//    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
+    //remove public stream
+    RLMResults *groups = [[YAGroup allObjects] objectsWhere:@"streamGroup = 0"];
     
-    self.groups = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    self.groups = [groups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     
     [self.collectionView reloadData];
 }

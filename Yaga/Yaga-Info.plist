@@ -75,6 +75,6 @@
 	<key>YAMixPanelAppId</key>
 	<string>30b5e350abfdd51dad650da6c8213af6</string>
 	<key>YARealmSchemaVersion</key>
-	<integer>12</integer>
+	<integer>13</integer>
 </dict>
 </plist>

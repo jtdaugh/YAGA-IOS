@@ -8,6 +8,10 @@
 #import "YAVideoCell.h"
 #import "YASwipingViewController.h"
 #import "YAEventManager.h"
+#import "UIScrollView+SVInfiniteScrolling.h"
+#import "UIScrollView+SVPullToRefresh.h"
+#import "YAGroup.h"
+#import "YAUser.h"
 
 @interface YAGifGridViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate,
     UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver>
@@ -21,5 +25,5 @@
 
 - (void)reloadSortedVideos;
 - (void)setupPullToRefresh;
-- (void)reloadCollectionView;
+
 @end

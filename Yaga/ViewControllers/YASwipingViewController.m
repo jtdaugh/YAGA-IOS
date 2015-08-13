@@ -285,7 +285,7 @@
             if (!page.video.mp4Filename.length) {
                 // stop view count and prioritise mp4 download if download not finished.
                 [[YAViewCountManager sharedManager] stoppedWatchingVideo];
-                [[YADownloadManager sharedManager] exclusivelyDownloadMp4ForVideo:page.video inStream:self.inStreamMode];
+                [[YADownloadManager sharedManager] exclusivelyDownloadMp4ForVideo:page.video];
             }
             YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:page.video];
             [YAEventManager sharedManager].eventReceiver = page;

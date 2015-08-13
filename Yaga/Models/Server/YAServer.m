@@ -390,15 +390,13 @@
     
     NSString *api;
     
-    if([serverGroupId isEqualToString:kPublicStreamGroupName]) {
-        RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"name = '%@'", kPublicStreamGroupName]];
-        
-        if (groups.count != 1) {
-            completion(nil, [NSError errorWithDomain:@"YAError" code:1 userInfo:nil]);
-            return;
-        }
-        YAGroup *streamGroup = groups[0];
-        
+    YAGroup *group;
+    RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", serverGroupId]];
+    if([groups count] == 1) {
+        group = groups[0];
+    }
+    
+    if(group && group.streamGroup) {
         //TODO: use since when all pages are downloaded
         //get oldest refreshedAt to use as since for public stream request
         //we use only one property on the client "createdAt", it's set to updatedAt when video is updated
@@ -407,8 +405,11 @@
 //        }];
 //        
 //        NSUInteger since = sortedCreatedAt.count == 0 ? 0 : [(NSDate*)sortedCreatedAt[0] timeIntervalSince1970];
-//        
-        api = [NSString stringWithFormat:API_PUBLIC_STREAM_TEMPLATE, self.base_api, (unsigned long)0, (unsigned long)kPublicStreamItemsOnPage, (unsigned long)streamGroup.nextPageIndex * kPublicStreamItemsOnPage];
+//
+        if([group.serverId isEqualToString:kPublicStreamGroupId])
+            api = [NSString stringWithFormat:API_PUBLIC_STREAM_TEMPLATE, self.base_api, (unsigned long)0, (unsigned long)kStreamItemsOnPage, (unsigned long)group.nextPageIndex * kStreamItemsOnPage];
+        else
+            api = [NSString stringWithFormat:API_MY_STREAM_TEMPLATE, self.base_api, (unsigned long)0, (unsigned long)kStreamItemsOnPage, (unsigned long)group.nextPageIndex * kStreamItemsOnPage];
     }
     else {
         NSAssert(serverGroupId, @"serverGroup is a required parameter");

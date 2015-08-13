@@ -164,7 +164,12 @@
                     RLMResults *results = [YAVideo objectsWhere:predicate];
                     
                     BOOL gifJob = results.count;
-                    
+                    if(results.count > 1) {
+                        YAVideo *v1 = [results objectAtIndex:0];
+                        YAVideo *v2 = [results objectAtIndex:1];
+                        DLog(@"WTF IS THIS:\n1. serverId:%@, localId: %@\n2. serverID:%@, localId: %@",v1.serverId, v1.localId, v2.serverId, v2.localId);
+                    }
+
                     if(!gifJob) {
                         predicate = [NSString stringWithFormat:@"url = '%@'", waitingUrl];
                         results = [YAVideo objectsWhere:predicate];
@@ -241,7 +246,7 @@
     [self resumeJobs];
 }
 
-- (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video inStream:(BOOL)inStream {
+- (void)exclusivelyDownloadMp4ForVideo:(YAVideo*)video {
     [self pauseExecutingJobs];
     
     AFDownloadRequestOperation *nextJob = [self createJobForVideo:video gifJob:NO];
@@ -260,11 +265,11 @@
     
     YAVideo *leftVideo;
     YAVideo *rightVideo;
+
     //add/move left and right mp4 files to the top of waiting queue
-    if (inStream) {
-        NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", kPublicStreamGroupName];
-        RLMResults *existingGroup = [YAGroup objectsWhere:predicate];
-        YAGroup *stream = [existingGroup firstObject];
+    if ([YAUser currentUser].currentGroup.streamGroup) {
+        YAGroup *stream = [YAUser currentUser].currentGroup;
+        
         NSUInteger videoIndex = [stream.videos indexOfObject:video];
         if(videoIndex > 0) {
             leftVideo = [stream.videos objectAtIndex:videoIndex - 1];

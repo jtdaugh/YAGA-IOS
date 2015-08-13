@@ -10,5 +10,5 @@
 #import "YAGifGridViewController.h"
 
 @interface YAStreamViewController : YAGifGridViewController
-
+- (void)initStreamGroup;
 @end

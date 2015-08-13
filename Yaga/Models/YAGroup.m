@@ -102,17 +102,17 @@
 #pragma mark - Server synchronisation: update from server
 - (void)updateFromServerResponeDictionarty:(NSDictionary*)dictionary {
     //do not update name and serverId for public stream group
-    if(![self.name isEqualToString:kPublicStreamGroupName]) {
+    if(!self.streamGroup) {
         self.serverId = dictionary[YA_RESPONSE_ID];
         self.name = dictionary[YA_RESPONSE_NAME];
     }
     //update total count and next page index for public stream group
     else {
-        self.totalPages = ceil((double)[dictionary[YA_RESPONSE_COUNT] longValue] / (double)kPublicStreamItemsOnPage);
+        self.totalPages = ceil((double)[dictionary[YA_RESPONSE_COUNT] longValue] / (double)kStreamItemsOnPage);
         NSString *next = dictionary[YA_RESPONSE_NEXT] == [NSNull null] ? nil : dictionary[YA_RESPONSE_NEXT];
         
         //extract next page information
-        self.nextPageIndex = [[[YAUtils urlParametersFromString:next] objectForKey:@"offset"] intValue] / kPublicStreamItemsOnPage;
+        self.nextPageIndex = [[[YAUtils urlParametersFromString:next] objectForKey:@"offset"] intValue] / kStreamItemsOnPage;
         
         DLog(@"updating group: %@, next page index: %d", self.name, self.nextPageIndex);
     }
@@ -264,7 +264,7 @@
         //delete old groups
         for (YAGroup *group in [[YAGroup allObjects] objectsWhere:predicate]) {
             //do not delete public stream
-            if([group.name isEqualToString:kPublicStreamGroupName])
+            if(group.streamGroup)
                 continue;
             
             //do not delete existing
@@ -547,7 +547,7 @@
                                       [self updateFromServerResponeDictionarty:response];
                                       [self.realm commitWriteTransaction];
                                       
-                                      NSArray *videoDictionaries = [self.name isEqualToString:kPublicStreamGroupName] ? response[YA_RESPONSE_RESULTS] :response[YA_VIDEO_POSTS];
+                                      NSArray *videoDictionaries = self.streamGroup ? response[YA_RESPONSE_RESULTS] :response[YA_VIDEO_POSTS];
                                       DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
                                       
                                       NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries];

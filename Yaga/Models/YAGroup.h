@@ -24,6 +24,8 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 
 @property BOOL publicGroup;
 
+@property BOOL streamGroup;
+
 @property RLMArray<YAContact> *members;
 @property RLMArray<YAContact> *pending_members;
 @property RLMArray<YAVideo> *videos;

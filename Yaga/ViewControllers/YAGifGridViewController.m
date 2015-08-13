@@ -10,13 +10,8 @@
 
 #import "YAVideoCell.h"
 
-#import "YAUser.h"
 #import "YAUtils.h"
 #import "YAServer.h"
-
-#import "UIScrollView+SVPullToRefresh.h"
-#import "UIScrollView+SVInfiniteScrolling.h"
-
 #import "YAAssetsCreator.h"
 
 #import "YAPullToRefreshLoadingView.h"
@@ -57,7 +52,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
 @property (nonatomic, strong) RLMResults *sortedVideos;
-
 @end
 
 static NSString *cellID = @"Cell";
@@ -80,6 +74,7 @@ static NSString *cellID = @"Cell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.hasToolTipOnOneOfTheCells = NO;
+    
     CGFloat spacing = 1.0f;
     
     self.gridLayout = [[UICollectionViewFlowLayout alloc] init];
@@ -121,7 +116,6 @@ static NSString *cellID = @"Cell";
     [self setupBarButtons];
     
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
-
 }
 
 - (void)setupBarButtons {
@@ -167,13 +161,7 @@ static NSString *cellID = @"Cell";
     for (YAVideoCell *cell in [self.collectionView visibleCells]) {
         [cell animateGifView:YES];
     }
-
 }
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-}
-
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
@@ -240,7 +228,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reload {
-    self.navigationItem.title = [self.group.name isEqualToString:kPublicStreamGroupName] ? @"Feed" : self.group.name;
+    self.navigationItem.title = self.group.name;
 
     BOOL needRefresh = NO;
     if(!self.sortedVideos || ![self.sortedVideos count])
@@ -349,7 +337,9 @@ static NSString *cellID = @"Cell";
     };
     
     if (newVideos.count || deletedVideos.count) {
-        [self reloadCollectionView];
+        [self reloadSortedVideos];
+        [self.collectionView reloadData];
+        
         refreshBlock();
     }
     else if(updatedVideos.count) {
@@ -377,11 +367,6 @@ static NSString *cellID = @"Cell";
     else {
         [self delayedHidePullToRefresh];
     }
-}
-
-- (void)reloadCollectionView {
-    [self reloadSortedVideos];
-    [self.collectionView reloadData];
 }
 
 - (void)delayedHidePullToRefresh {
@@ -530,8 +515,6 @@ static NSString *cellID = @"Cell";
     }
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:array initialIndex:indexPath.item];
     swipingVC.delegate = self;
-    
-    swipingVC.inStreamMode = [self.group.name isEqualToString:kPublicStreamGroupName];
     
     swipingVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;

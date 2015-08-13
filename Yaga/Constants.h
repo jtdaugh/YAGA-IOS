@@ -224,7 +224,9 @@
 #define API_GROUP_POST_COPY                 @"%@/groups/%@/posts/%@/copy/"
 
 #define API_PUBLIC_STREAM_TEMPLATE          @"%@/posts/list/?since=%lu&limit=%lu&offset=%lu"
+#define API_MY_STREAM_TEMPLATE              @"%@/posts/my/?since=%lu&limit=%lu&offset=%lu"
 
-#define kPublicStreamGroupName              @"_PublicStream_"
-#define kPublicStreamItemsOnPage            30
+#define kPublicStreamGroupId                @"_PublicStream_"
+#define kMyStreamGroupId                    @"_MyStream_"
+#define kStreamItemsOnPage                  12
 #endif

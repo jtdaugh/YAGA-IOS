@@ -22,7 +22,6 @@
 @interface YASwipingViewController : YASwipeToDismissViewController <UIScrollViewDelegate, YASuspendableGesturesDelegate>
 
 @property (nonatomic, strong) UIScrollView *scrollView;
-@property (nonatomic) BOOL inStreamMode;
 
 @property (nonatomic, weak) id<YASwipingViewControllerDelegate> delegate;
 
