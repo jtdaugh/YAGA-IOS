@@ -297,8 +297,12 @@
                                                    exportQuality:AVAssetExportPresetPassthrough
                                                limitedToDuration:MAXIMUM_TRIM_TOTAL_LENGTH
                                                       completion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
-            [weakSelf deleteRecordingData];
-            completion(filePath, totalDuration, previewFrameImage);
+                                                          
+                                                          [weakSelf deleteRecordingData];
+                                                          
+                                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                                              completion(filePath, totalDuration, previewFrameImage);
+                                                          });
         }];
         
         [[YACameraManager sharedManager] setZoomFactor:1];

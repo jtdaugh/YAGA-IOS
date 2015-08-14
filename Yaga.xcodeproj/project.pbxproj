@@ -42,6 +42,7 @@
 		6E1E20A81A6FAB500041DF54 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 6E1E20A31A6FAB500041DF54 /* README */; };
 		6E1E20A91A6FAB500041DF54 /* syllable.csv in Resources */ = {isa = PBXBuildFile; fileRef = 6E1E20A41A6FAB500041DF54 /* syllable.csv */; };
 		6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */ = {isa = PBXBuildFile; fileRef = 6E1E20A51A6FAB500041DF54 /* title.csv */; };
+		6E2DC5EC1B7DEE620072EA4C /* YAPostToGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2DC5EB1B7DEE620072EA4C /* YAPostToGroupsViewController.m */; };
 		6E32D72D1A5AEEBA00EAB261 /* YACameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */; };
 		6E40C9E11B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E40C9E01B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m */; };
 		6E4A094B1A4854BE003CF413 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4A094A1A4854BE003CF413 /* MediaPlayer.framework */; };
@@ -103,6 +104,7 @@
 		6ED379E41AB1C6F40099BDC1 /* YAUserPermissions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED379E31AB1C6F40099BDC1 /* YAUserPermissions.m */; };
 		6ED8FC0F1ADD6A0B0023750E /* YAGroupOptionsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED8FC0D1ADD6A0B0023750E /* YAGroupOptionsViewController.m */; };
 		6EEA835D1AE8CAA100E3EDCE /* YARealmMigrationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEA835C1AE8CAA100E3EDCE /* YARealmMigrationManager.m */; };
+		6EEC2BE51B7E1238004A3393 /* YAPostGroupCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEC2BE41B7E1238004A3393 /* YAPostGroupCell.m */; };
 		6EEDB8E21A8A10B7000BB909 /* push.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 6EEDB8E11A8A10B7000BB909 /* push.m4a */; };
 		6EEDB8E51A8A555C000BB909 /* YANotificationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEDB8E41A8A555C000BB909 /* YANotificationView.m */; };
 		71D0F56C190D998000C7DEE0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D0F56B190D998000C7DEE0 /* Foundation.framework */; };
@@ -234,6 +236,8 @@
 		6E1E20A31A6FAB500041DF54 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		6E1E20A41A6FAB500041DF54 /* syllable.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = syllable.csv; sourceTree = "<group>"; };
 		6E1E20A51A6FAB500041DF54 /* title.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = title.csv; sourceTree = "<group>"; };
+		6E2DC5EA1B7DEE620072EA4C /* YAPostToGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPostToGroupsViewController.h; sourceTree = "<group>"; };
+		6E2DC5EB1B7DEE620072EA4C /* YAPostToGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPostToGroupsViewController.m; sourceTree = "<group>"; };
 		6E32D72B1A5AEEBA00EAB261 /* YACameraFocusSquare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACameraFocusSquare.h; sourceTree = "<group>"; };
 		6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACameraFocusSquare.m; sourceTree = "<group>"; };
 		6E40C9DF1B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAFindGroupsViewConrtoller.h; sourceTree = "<group>"; };
@@ -355,6 +359,8 @@
 		6ED8FC0D1ADD6A0B0023750E /* YAGroupOptionsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupOptionsViewController.m; sourceTree = "<group>"; };
 		6EEA835B1AE8CAA100E3EDCE /* YARealmMigrationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YARealmMigrationManager.h; sourceTree = "<group>"; };
 		6EEA835C1AE8CAA100E3EDCE /* YARealmMigrationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YARealmMigrationManager.m; sourceTree = "<group>"; };
+		6EEC2BE31B7E1238004A3393 /* YAPostGroupCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPostGroupCell.h; sourceTree = "<group>"; };
+		6EEC2BE41B7E1238004A3393 /* YAPostGroupCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPostGroupCell.m; sourceTree = "<group>"; };
 		6EEDB8E11A8A10B7000BB909 /* push.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = push.m4a; sourceTree = "<group>"; };
 		6EEDB8E31A8A555C000BB909 /* YANotificationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YANotificationView.h; sourceTree = "<group>"; };
 		6EEDB8E41A8A555C000BB909 /* YANotificationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YANotificationView.m; sourceTree = "<group>"; };
@@ -748,6 +754,8 @@
 				6EB995411B3B0035004ACF05 /* YASwipeToDismissViewController.m */,
 				6EB57DE91B5E6F52003B7374 /* YAEditVideoViewController.h */,
 				6EB57DEA1B5E6F52003B7374 /* YAEditVideoViewController.m */,
+				6E2DC5EA1B7DEE620072EA4C /* YAPostToGroupsViewController.h */,
+				6E2DC5EB1B7DEE620072EA4C /* YAPostToGroupsViewController.m */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -818,6 +826,8 @@
 				41235F191B4C93E400B08ED5 /* YAPopoverView.m */,
 				0F46B6E41B58D8FE008E9808 /* YAApplyCaptionView.h */,
 				0F46B6E51B58D8FE008E9808 /* YAApplyCaptionView.m */,
+				6EEC2BE31B7E1238004A3393 /* YAPostGroupCell.h */,
+				6EEC2BE41B7E1238004A3393 /* YAPostGroupCell.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1154,6 +1164,7 @@
 				882F082D1AEF6F12007FAA66 /* YAPanGestureRecognizer.m in Sources */,
 				86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */,
 				6E1E209A1A6EF2E90041DF54 /* YAGifCreationOperation.m in Sources */,
+				6E2DC5EC1B7DEE620072EA4C /* YAPostToGroupsViewController.m in Sources */,
 				6E583B781A65394800639BE5 /* YAAnimatedTransitioningController.m in Sources */,
 				0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */,
 				88FB0A231B1D4F36002C213C /* YAEvent.m in Sources */,
@@ -1179,6 +1190,7 @@
 				6EB57DEB1B5E6F52003B7374 /* YAEditVideoViewController.m in Sources */,
 				88DFCC901B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m in Sources */,
 				6E9188E21A3F3A5A0034AB63 /* YASMSAuthentificationViewController.m in Sources */,
+				6EEC2BE51B7E1238004A3393 /* YAPostGroupCell.m in Sources */,
 				88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */,
 				861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
@@ -1279,9 +1291,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_ENTITLEMENTS = YAVideoShareExtension/YAVideoShareExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1310,10 +1323,11 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_ENTITLEMENTS = YAVideoShareExtension/YAVideoShareExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1415,8 +1429,9 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CODE_SIGN_ENTITLEMENTS = Yaga/Yaga.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1450,7 +1465,8 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CODE_SIGN_ENTITLEMENTS = Yaga/Yaga.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",

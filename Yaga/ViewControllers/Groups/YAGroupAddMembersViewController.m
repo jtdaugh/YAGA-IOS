@@ -461,6 +461,15 @@
 - (void)dismissAddMembers {
     // If we presented the create group flow on top of the trim screen, dimisss that & the camera as well.
     if (self.inCreateGroupFlow) {
+        
+        //dismiss in only case nameViewController is a first view controller in navigation stack, other wise pop until there is no nameViewController in the navigation stack
+        NSArray *stackClasses = [self.navigationController.viewControllers valueForKey:@"class"];
+        NSUInteger index = [stackClasses indexOfObject:[NameGroupViewController class]];
+        if(index > 0) {
+            [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:index - 1] animated:YES];
+            return;
+        }
+        
         //       EditVideoVC              CameraVC                 GroupsNavController
         if (self.presentingViewController.presentingViewController.presentingViewController) {
             [self.presentingViewController.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
