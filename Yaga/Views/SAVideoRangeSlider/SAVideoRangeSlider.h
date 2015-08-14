@@ -30,6 +30,8 @@
 #import "SASliderLeft.h"
 #import "SASliderRight.h"
 
+#define SLIDER_PADDING 60.f
+
 
 @protocol SAVideoRangeSliderDelegate;
 
@@ -44,7 +46,6 @@
 @property (nonatomic, strong) UIView *bottomBorder;
 @property (nonatomic, assign) CGFloat maxInterval;
 @property (nonatomic, assign) CGFloat minInterval;
-
 
 - (id)initWithFrame:(CGRect)frame videoUrl:(NSURL *)videoUrl duration:(NSTimeInterval)duration leftSeconds:(NSTimeInterval)leftSeconds rightSeconds:(NSTimeInterval)seconds;
 - (void)setPlayerProgress:(CGFloat)progress;

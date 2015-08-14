@@ -80,7 +80,7 @@
         _currentPositionView.backgroundColor = [UIColor whiteColor];
         [self addSubview:_currentPositionView];
         
-        _leftThumb = [[SASliderLeft alloc] initWithFrame:CGRectMake(0, 0, thumbWidth, frame.size.height)];
+        _leftThumb = [[SASliderLeft alloc] initWithFrame:CGRectMake(-SLIDER_PADDING, -SLIDER_PADDING, thumbWidth + 2*SLIDER_PADDING, frame.size.height + 2*SLIDER_PADDING)];
         _leftThumb.contentMode = UIViewContentModeLeft;
         _leftThumb.userInteractionEnabled = YES;
         _leftThumb.clipsToBounds = YES;
@@ -91,7 +91,7 @@
         UIPanGestureRecognizer *leftPan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleLeftPan:)];
         [_leftThumb addGestureRecognizer:leftPan];
         
-        _rightThumb = [[SASliderRight alloc] initWithFrame:CGRectMake(0, 0, thumbWidth, frame.size.height)];
+        _rightThumb = [[SASliderRight alloc] initWithFrame:CGRectMake(-SLIDER_PADDING, -SLIDER_PADDING, thumbWidth + 2*SLIDER_PADDING, frame.size.height + 2*SLIDER_PADDING)];
         
         _rightThumb.contentMode = UIViewContentModeRight;
         _rightThumb.userInteractionEnabled = YES;
@@ -261,13 +261,12 @@
 
 - (void)layoutSubviews
 {
-    CGFloat inset = _leftThumb.frame.size.width / 2;
+    CGFloat sliderVisualWidth = _leftThumb.frame.size.width - 2*SLIDER_PADDING;
+    _leftThumb.center = CGPointMake(_bgView.frame.origin.x + _leftPosition - sliderVisualWidth/2, _bgView.frame.size.height/2);
     
-    _leftThumb.center = CGPointMake(_leftThumb.frame.size.width + _leftPosition-inset, _leftThumb.frame.size.height/2);
+    _rightThumb.center = CGPointMake(_bgView.frame.origin.x + _rightPosition + sliderVisualWidth/2, _bgView.frame.size.height/2);
     
-    _rightThumb.center = CGPointMake(_leftThumb.frame.size.width + _rightPosition+inset, _rightThumb.frame.size.height/2);
-    
-    _centerView.frame = CGRectMake(_leftThumb.frame.origin.x + _leftThumb.frame.size.width, _centerView.frame.origin.y, _rightThumb.frame.origin.x - _leftThumb.frame.origin.x - _leftThumb.frame.size.width, _centerView.frame.size.height);
+    _centerView.frame = CGRectMake(_leftThumb.frame.origin.x + _leftThumb.frame.size.width, _centerView.frame.origin.y, _rightThumb.frame.origin.x - _leftThumb.frame.origin.x - _leftThumb.frame.size.width, _bgView.frame.size.height);
     
     _darkenLeftView.frame = CGRectMake(0, 0, _leftPosition, _bgView.frame.size.height);
     _darkenRightView.frame = CGRectMake(_rightPosition, 0, _bgView.frame.size.width - _rightPosition, _bgView.frame.size.height);
@@ -390,8 +389,8 @@
 }
 
 - (void)setPlayerProgress:(CGFloat)progress {
-    CGFloat totalWidth = self.rightThumb.frame.origin.x - self.leftThumb.frame.origin.x - self.leftThumb.frame.size.width - 1;
-    CGFloat currentPositionX = self.leftThumb.frame.origin.x + self.leftThumb.frame.size.width + totalWidth * progress;
+    CGFloat totalWidth = self.rightThumb.frame.origin.x - self.leftThumb.frame.origin.x - (self.leftThumb.frame.size.width - 2*SLIDER_PADDING) - 1;
+    CGFloat currentPositionX = self.leftThumb.frame.origin.x + self.leftThumb.frame.size.width - SLIDER_PADDING + totalWidth * progress;
     self.currentPositionView.frame = CGRectMake(currentPositionX, self.currentPositionView.frame.origin.y, self.currentPositionView.frame.size.width, self.currentPositionView.frame.size.height);
 }
 

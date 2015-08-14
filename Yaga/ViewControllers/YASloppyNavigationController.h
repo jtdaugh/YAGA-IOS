@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+@class SloppySwiper;
+
 @interface YASloppyNavigationController : UINavigationController <UIViewControllerTransitioningDelegate>
 
 - (void)pushViewController:(UIViewController *)viewController
@@ -15,5 +17,7 @@
 
 - (void)setInitialAnimationFrame:(CGRect)frame;
 - (void)setInitialAnimationTransform:(CGAffineTransform)transform;
+
+@property (nonatomic, strong) SloppySwiper *swiper;
 
 @end

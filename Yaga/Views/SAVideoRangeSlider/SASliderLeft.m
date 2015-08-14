@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 
 #import "SASliderLeft.h"
+#import "SAVideoRangeSlider.h"
 
 @implementation SASliderLeft
 
@@ -57,7 +58,7 @@
     CGGradientRef gradient3 = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)gradient3Colors, gradient3Locations);
     
     //// Frames
-    CGRect bubbleFrame = self.bounds;
+    CGRect bubbleFrame = CGRectInset(self.bounds, SLIDER_PADDING, SLIDER_PADDING);
     
     
     //// Rounded Rectangle Drawing

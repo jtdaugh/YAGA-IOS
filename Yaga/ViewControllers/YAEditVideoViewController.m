@@ -19,6 +19,7 @@
 #import "NameGroupViewController.h"
 #import "YASloppyNavigationController.h"
 #import "YAPostToGroupsViewController.h"
+#import "SloppySwiper.h"
 
 #define kGroupRowHeight 60
 #define kBottomFrameHeight 60
@@ -107,6 +108,18 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     }
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    // HACKY BUT SloppySwiper enables the pangesture on didShowViewController so we need to wait a bit
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        ((YASloppyNavigationController *)self.navigationController).swiper.panRecognizer.enabled = NO;
+    });
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+}
+
 #pragma mark - layout
 
 - (void)setupTableView {
@@ -144,6 +157,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.trimmingView.delegate = self;
     [self.view addSubview:self.trimmingView];
 }
+
+
 
 - (void)addBottomView {
     self.bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - kBottomFrameHeight, self.view.bounds.size.width, kBottomFrameHeight)];

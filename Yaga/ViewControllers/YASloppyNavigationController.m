@@ -12,6 +12,7 @@
 #import "YACameraViewController.h"
 #import "SloppySwiper.h"
 #import "YAGroupOptionsViewController.h"
+#import "YAEditVideoViewController.h"
 #import "UIImage+Color.h"
 
 #import "YAUser.h"
@@ -19,8 +20,6 @@
 @interface YASloppyNavigationController () <UINavigationControllerDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, getter = isDuringPushAnimation) BOOL duringPushAnimation;
-
-@property (nonatomic, strong) SloppySwiper *swiper;
 
 @property (weak, nonatomic) id<UINavigationControllerDelegate> realDelegate;
 @property (strong, nonatomic) YAAnimatedTransitioningController *animationController;
@@ -167,6 +166,12 @@
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
     if (gestureRecognizer == self.interactivePopGestureRecognizer) {
+        if ([self.topViewController isKindOfClass:[YAEditVideoViewController class]]) {
+            // So the pop gesture wont interfere with the trim controls EditVideoVC
+            CGPoint loc = [gestureRecognizer locationInView:self.topViewController.view];
+            return loc.y < (VIEW_HEIGHT * 0.75);
+        }
+        
         // Disable pop gesture in two situations:
         // 1) when the pop animation is in progress
         // 2) when user swipes quickly a couple of times and animations don't have time to be performed

@@ -1399,7 +1399,7 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
-#pragma mark - UIPanGestureRecognizerDelegate
+#pragma mark - UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
     return YES;
 }
