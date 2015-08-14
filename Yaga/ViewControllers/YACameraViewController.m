@@ -368,33 +368,41 @@
 }
 
 - (void)presentTrimViewWithOutputUrl:(NSURL *)url duration:(NSTimeInterval)duration {
-    YAEditVideoViewController *vc = [YAEditVideoViewController new];
-    vc.videoUrl = url;
-    vc.totalDuration = duration;
-    
-    YAGroupsNavigationController *navVC = (YAGroupsNavigationController *)self.presentingViewController;
-    vc.transitioningDelegate = navVC;
-    vc.modalPresentationStyle = UIModalPresentationCustom;
-    
-    vc.showsStatusBarOnDismiss = NO;
-    
-    CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
-    
-    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
-    initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
-    //    initialFrame.origin.y += self.view.frame.origin.y;
-    //    initialFrame.origin.x = 0;
-    
-    [navVC setInitialAnimationFrame: initialFrame];
-    [navVC setInitialAnimationTransform:initialTransform];
-
-    [self presentViewController:vc animated:YES completion:^{
-        if (self.hud) {
-            [self.hud hide:NO];
-        }
-        [self.activityIndicator removeFromSuperview];
-        self.doneRecordingButton.hidden = NO;
+    [self dismissViewControllerAnimated:YES completion:^{
+        YAEditVideoViewController *editVC = [YAEditVideoViewController new];
+        editVC.videoUrl = url;
+        editVC.totalDuration = duration;
+        YAGroupsNavigationController *editNavController = [[YAGroupsNavigationController alloc] initWithRootViewController:editVC];
+        
+        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:editNavController animated:YES completion:nil];
     }];
+
+    //old modal ui
+//    [[UIApplication sharedApplication].keyWindow.rootViewController.navigationController pushViewController:vc animated:YES];
+    
+//    YAGroupsNavigationController *navVC = (YAGroupsNavigationController *)self.presentingViewController;
+//    vc.transitioningDelegate = navVC;
+//    vc.modalPresentationStyle = UIModalPresentationCustom;
+//    
+//    vc.showsStatusBarOnDismiss = NO;
+//    
+//    CGRect initialFrame = [UIApplication sharedApplication].keyWindow.bounds;
+//    
+//    CGAffineTransform initialTransform = CGAffineTransformMakeTranslation(0, VIEW_HEIGHT * .6); //(0.2, 0.2);
+//    initialTransform = CGAffineTransformScale(initialTransform, 0.3, 0.3);
+//    //    initialFrame.origin.y += self.view.frame.origin.y;
+//    //    initialFrame.origin.x = 0;
+//    
+//    [navVC setInitialAnimationFrame: initialFrame];
+//    [navVC setInitialAnimationTransform:initialTransform];
+//
+//    [self presentViewController:vc animated:YES completion:^{
+//        if (self.hud) {
+//            [self.hud hide:NO];
+//        }
+//        [self.activityIndicator removeFromSuperview];
+//        self.doneRecordingButton.hidden = NO;
+//    }];
     
 
 }

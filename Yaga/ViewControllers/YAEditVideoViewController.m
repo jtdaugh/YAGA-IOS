@@ -18,6 +18,7 @@
 #import "YAApplyCaptionView.h"
 #import "NameGroupViewController.h"
 #import "YAGroupsNavigationController.h"
+#import "YAPostToGroupsViewController.h"
 
 #define kGroupRowHeight 60
 #define kBottomFrameHeight 60
@@ -101,6 +102,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
     if (self.videoPlayerView.URL) {
         self.videoPlayerView.playWhenReady = YES;
     }
@@ -185,8 +187,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.chooseGroupsLabel.textAlignment = NSTextAlignmentLeft;
     [self.bottomView addSubview:self.chooseGroupsLabel];
     
-    UITapGestureRecognizer *chooseGroupsTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(chooseGroupsPressed)];
-    [self.bottomView addGestureRecognizer:chooseGroupsTap];
+//    UITapGestureRecognizer *chooseGroupsTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(chooseGroupsPressed)];
+//    [self.bottomView addGestureRecognizer:chooseGroupsTap];
 
 }
 
@@ -278,7 +280,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         
     } else {
         self.chosenGroupsLabel.hidden = YES;
-        self.sendButton.enabled = NO;
+        self.sendButton.enabled = YES;
 
         self.chooseGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height / 4, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
         self.chooseGroupsLabel.textColor = [UIColor colorWithWhite:0.8 alpha:1];
@@ -397,13 +399,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)sendButtonTapped:(id)sender {
-    NSMutableArray *groupsToSendTo = [NSMutableArray array];
-    for (NSIndexPath *path in [self.groupsTableView indexPathsForSelectedRows]) {
-        YAGroup *group = [self.groups objectAtIndex:path.row];
-        [groupsToSendTo addObject:group];
-    }
-    
-    if (![groupsToSendTo count]) return;
     
     __weak typeof(self) weakSelf = self;
     [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {
@@ -416,13 +411,16 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
                 return;
             }
             [weakSelf deleteTrimmedFile];
-            
-            [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:weakSelf.videoUrl
-                                                        withCaptionText:weakSelf.captionText x:weakSelf.captionX y:weakSelf.captionY scale:weakSelf.captionScale rotation:weakSelf.captionRotation
-                                                            addToGroups:groupsToSendTo];
-            [[Mixpanel sharedInstance] track:@"Video posted"];
 
-            [weakSelf.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+            YAPostToGroupsViewController *postToGroups = [YAPostToGroupsViewController new];
+            postToGroups.settings = @{@"videoUrl" : weakSelf.videoUrl,
+                                      @"captionText":weakSelf.captionText == nil ? @"" : weakSelf.captionText,
+                                      @"captionX":[NSNumber numberWithFloat:weakSelf.captionX],
+                                      @"captionY":[NSNumber numberWithFloat:weakSelf.captionY],
+                                      @"captionScale":[NSNumber numberWithFloat:weakSelf.captionScale],
+                                      @"captionRotation":[NSNumber numberWithFloat:weakSelf.captionRotation]};
+            
+            [self.navigationController pushViewController:postToGroups animated:YES];
         }
         else {
             [YAUtils showNotification:@"Error: can't trim video" type:YANotificationTypeError];
