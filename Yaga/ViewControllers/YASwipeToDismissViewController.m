@@ -80,7 +80,7 @@
         [[UIApplication sharedApplication] setStatusBarHidden:NO];
     }
     
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     
 }
 

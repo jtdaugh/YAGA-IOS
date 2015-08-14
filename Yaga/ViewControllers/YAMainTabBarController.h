@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAMainTabBarController : UITabBarController
+@interface YAMainTabBarController : UITabBarController <UIViewControllerTransitioningDelegate>
 
 - (void)presentCreateGroup;
+- (void)setInitialAnimationFrame:(CGRect)frame;
+- (void)setInitialAnimationTransform:(CGAffineTransform)transform;
 
 @end

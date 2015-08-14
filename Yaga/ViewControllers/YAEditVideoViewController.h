@@ -11,7 +11,7 @@
 #import "YASwipingViewController.h"
 #import "YAVideoPlayerView.h"
 
-@interface YAEditVideoViewController : YASwipeToDismissViewController <SAVideoRangeSliderDelegate, YAVideoPlayerViewDelegate>
+@interface YAEditVideoViewController : UIViewController <SAVideoRangeSliderDelegate, YAVideoPlayerViewDelegate>
 @property (nonatomic, strong) NSURL *videoUrl;
 @property (nonatomic) NSTimeInterval totalDuration;
 

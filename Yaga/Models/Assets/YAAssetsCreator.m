@@ -302,14 +302,20 @@
 //            }
 //        }
         
+        YAGroup *myVideosGroup = [[YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", kMyStreamGroupId]] firstObject];
+
         [group.realm beginWriteTransaction];
+        
+        if (myVideosGroup) [myVideosGroup.videos insertObject:video atIndex:0]; // Locally put video in my videos stream
         [group.videos insertObject:video atIndex:0];
+        
         [group.realm commitWriteTransaction];
         
         //start uploading while generating gif
         [[YAServerTransactionQueue sharedQueue] addUploadVideoTransaction:video toGroup:group];
         
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kNewVideos:@[video]}];
+        if (myVideosGroup) [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:myVideosGroup userInfo:@{kNewVideos:@[video]}];
         
         [self enqueueJpgCreationForVideo:video];
 

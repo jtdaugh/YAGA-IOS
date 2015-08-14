@@ -29,7 +29,7 @@
 
 - (void)reloadSortedVideos;
 - (void)setupPullToRefresh;
-- (void)openGroupOptions;
+- (void)groupInfoPressed;
 
 - (BLKFlexibleHeightBar *)createNavBar;
 - (BOOL)cellsShouldShowGroupName;

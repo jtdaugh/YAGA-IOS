@@ -8,7 +8,7 @@
 
 #import "YAGroupOptionsViewController.h"
 #import "YAGroupAddMembersViewController.h"
-#import "YAGroupsNavigationController.h"
+#import "YASloppyNavigationController.h"
 #import "YAInviteHelper.h"
 #import "YAServer.h"
 

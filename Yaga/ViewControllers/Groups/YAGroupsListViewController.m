@@ -24,7 +24,7 @@
 #import "YAPullToRefreshLoadingView.h"
 #import "NameGroupViewController.h"
 
-#import "YAGroupsNavigationController.h"
+#import "YASloppyNavigationController.h"
 #import "YAFindGroupsViewConrtoller.h"
 #import "YAGroupGridViewController.h"
 #import "YAMainTabBarController.h"

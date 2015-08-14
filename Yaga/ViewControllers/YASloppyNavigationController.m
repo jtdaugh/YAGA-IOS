@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Raj Vir. All rights reserved.
 //
 
-#import "YAGroupsNavigationController.h"
+#import "YASloppyNavigationController.h"
 #import "YAAnimatedTransitioningController.h"
 #import "YAGroupsListViewController.h"
 #import "YACameraViewController.h"
@@ -16,7 +16,7 @@
 
 #import "YAUser.h"
 
-@interface YAGroupsNavigationController () <UINavigationControllerDelegate, UIGestureRecognizerDelegate>
+@interface YASloppyNavigationController () <UINavigationControllerDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, getter = isDuringPushAnimation) BOOL duringPushAnimation;
 
@@ -27,7 +27,7 @@
 
 @end
 
-@implementation YAGroupsNavigationController
+@implementation YASloppyNavigationController
 
 #pragma mark - NSObject
 

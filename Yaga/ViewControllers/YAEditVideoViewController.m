@@ -17,7 +17,7 @@
 #import "UIImage+Color.h"
 #import "YAApplyCaptionView.h"
 #import "NameGroupViewController.h"
-#import "YAGroupsNavigationController.h"
+#import "YASloppyNavigationController.h"
 #import "YAPostToGroupsViewController.h"
 
 #define kGroupRowHeight 60
@@ -67,7 +67,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.view.backgroundColor = [UIColor blackColor];
     self.groupsListTapOutRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseGroupList)];
     self.groupsExpanded = NO;
-    self.panGesture.delegate = self;
 
     dispatch_async(dispatch_get_main_queue(), ^{
         
@@ -106,16 +105,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     if (self.videoPlayerView.URL) {
         self.videoPlayerView.playWhenReady = YES;
     }
-}
-
-#pragma mark - UIGestureRecognizerDelegate
-
-// So the pan to dismiss gesture doesnt mess with the trim view.
-- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
-    if ([gestureRecognizer isEqual:self.panGesture]) {
-        return ([self.panGesture locationInView:self.view].y < VIEW_HEIGHT * 0.75);
-    }
-    return YES;
 }
 
 #pragma mark - layout
@@ -235,7 +224,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
             NameGroupViewController *vc = [NameGroupViewController new];
             vc.initialVideo = video;
             [weakSelf.videoPlayerView pause];
-            [weakSelf presentViewController:[[YAGroupsNavigationController alloc] initWithRootViewController:vc] animated:YES completion:nil];
+            [weakSelf presentViewController:[[YASloppyNavigationController alloc] initWithRootViewController:vc] animated:YES completion:nil];
         }];
         [tableView deselectRowAtIndexPath:indexPath animated:NO];
     } else {
@@ -329,6 +318,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.trimmingView.hidden = YES;
     self.captionButton.hidden = YES;
     self.xButton.hidden = YES;
+    self.navigationController.interactivePopGestureRecognizer.enabled = NO;
     self.bottomView.hidden = YES;
     if(self.groupsExpanded){
         [self collapseGroupList];
@@ -349,6 +339,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
         self.trimmingView.hidden = NO;
         self.captionButton.hidden = NO;
+        self.navigationController.interactivePopGestureRecognizer.enabled = YES;
         self.xButton.hidden = NO;
         self.bottomView.hidden = NO;
         [weakApplyCaptionView removeFromSuperview];
@@ -445,9 +436,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)dismissAnimated{
-    [super dismissAnimated];
-    
     [self deleteTrimmedFile];
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - SAVideoRangeSliderDelegate

@@ -48,7 +48,7 @@
     bar.descriptionLabel.text = @"Hosted by Arauh";
     bar.viewsLabel.text = @"456 followers      123,543 views";
     [bar.backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
-    [bar.moreButton addTarget:self action:@selector(openGroupOptions) forControlEvents:UIControlEventTouchUpInside];
+    [bar.moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
     
     return bar;
 }

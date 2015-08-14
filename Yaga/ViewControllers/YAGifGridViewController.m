@@ -15,7 +15,7 @@
 #import "YAAssetsCreator.h"
 
 #import "YAPullToRefreshLoadingView.h"
-#import "YAGroupsNavigationController.h"
+#import "YASloppyNavigationController.h"
 #import "YAGroupOptionsViewController.h"
 
 #import "YANotificationView.h"
@@ -123,12 +123,17 @@ static NSString *cellID = @"Cell";
     
     
     [self setupPullToRefresh];
-    
-    [self setupBarButtons];
-    
-    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
 }
 
+
+- (void)groupInfoPressed {
+    if(self.group.publicGroup) {
+#warning change this behavior for follow groups
+        [self showHumanityTooltip];
+    } else {
+        [self openGroupOptions];
+    }
+}
 
 - (void)openGroupOptionsFromNotification:(NSNotification *)notif {
     YAGroup *group = (YAGroup *)notif.object;
@@ -155,22 +160,6 @@ static NSString *cellID = @"Cell";
     
     bar.backgroundColor = PRIMARY_COLOR;
     return bar;
-}
-
-- (void)setupBarButtons {
-    UIBarButtonItem *infoButton = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"InfoBar"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
-                                                                   style:UIBarButtonItemStylePlain
-                                                                  target:self
-                                                                  action:@selector(infoPressed)];
-    self.navigationItem.rightBarButtonItem = infoButton;
-}
-
-- (void)infoPressed {
-    if(self.group.publicGroup) {
-        [self showHumanityTooltip];
-    } else {
-        [(YAGroupsNavigationController *)self.navigationController openGroupOptions];
-    }
 }
 
 - (void)videoWithServerId:(NSString *)serverId
@@ -555,7 +544,7 @@ static NSString *cellID = @"Cell";
     YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:array initialIndex:indexPath.item];
     swipingVC.delegate = self;
     
-    swipingVC.transitioningDelegate = (YAGroupsNavigationController *)self.navigationController;
+    swipingVC.transitioningDelegate = (YASloppyNavigationController *)self.navigationController;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
     
     swipingVC.showsStatusBarOnDismiss = YES;
@@ -564,8 +553,8 @@ static NSString *cellID = @"Cell";
     initialFrame.origin.y -= self.collectionView.contentOffset.y;
     initialFrame.origin.y += self.view.frame.origin.y;
     
-    [((YAGroupsNavigationController *)self.navigationController) setInitialAnimationFrame:initialFrame];
-    [((YAGroupsNavigationController *)self.navigationController) setInitialAnimationTransform:CGAffineTransformIdentity];
+    [((YASloppyNavigationController *)self.navigationController) setInitialAnimationFrame:initialFrame];
+    [((YASloppyNavigationController *)self.navigationController) setInitialAnimationTransform:CGAffineTransformIdentity];
     
 //    [self setInitialAnimationFrame:initialFrame];
     

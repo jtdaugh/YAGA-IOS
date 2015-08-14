@@ -33,7 +33,7 @@
 #import <Crashlytics/Crashlytics.h>
 #import "Harpy.h"
 #import "YARealmMigrationManager.h"
-#import "YAGroupsNavigationController.h"
+#import "YASloppyNavigationController.h"
 
 @interface AppDelegate ()
 @property (nonatomic, assign) UIBackgroundTaskIdentifier bgTask;

@@ -8,12 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAGroupsNavigationController : UINavigationController <UIViewControllerTransitioningDelegate>
+@interface YASloppyNavigationController : UINavigationController <UIViewControllerTransitioningDelegate>
 
 - (void)pushViewController:(UIViewController *)viewController
                   animated:(BOOL)animated __attribute__((objc_requires_super));
-
-- (void)openGroupOptions;
 
 - (void)setInitialAnimationFrame:(CGRect)frame;
 - (void)setInitialAnimationTransform:(CGAffineTransform)transform;
