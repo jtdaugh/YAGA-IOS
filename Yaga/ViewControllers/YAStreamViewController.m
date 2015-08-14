@@ -28,6 +28,10 @@
         return nil;
 }
 
+- (BOOL)cellsShouldShowGroupName {
+    return YES;
+}
+
 #pragma mark - To Override
 - (void)initStreamGroup {
     RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", kPublicStreamGroupId]];

@@ -244,6 +244,10 @@ static NSString *cellID = @"Cell";
     [self.collectionView triggerPullToRefresh];
 }
 
+- (BOOL)cellsShouldShowGroupName {
+    return NO;
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     
@@ -491,6 +495,8 @@ static NSString *cellID = @"Cell";
     [cell setBackgroundColor:shadeOfPinkBasedOnIndex];
 
     cell.video = video;
+    cell.showsGroupLabel = [self cellsShouldShowGroupName];
+    
     [self setupEventCountForCell:cell];
     
     if (!self.scrolling) {

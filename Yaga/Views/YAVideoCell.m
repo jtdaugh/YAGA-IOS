@@ -32,6 +32,8 @@
 @property (strong, nonatomic) UIImageView *commentIcon;
 @property (strong, nonatomic) UILabel *caption;
 @property (strong, nonatomic) UIView *captionWrapper;
+@property (strong, nonatomic) UIView *groupView;
+@property (strong, nonatomic) UILabel *groupLabel;
 
 @property (strong, atomic) NSString *gifFilename;
 
@@ -52,6 +54,8 @@
         _gifView.contentMode = UIViewContentModeScaleAspectFill;
         _gifView.clipsToBounds = YES;
         _gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        
+        _showsGroupLabel = NO;
         
         [self.contentView addSubview:self.gifView];
         self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -80,6 +84,21 @@
         self.eventCountLabel.shadowColor = [UIColor blackColor];
         self.eventCountLabel.shadowOffset = CGSizeMake(1, 1);
         [self.contentView addSubview:self.eventCountLabel];
+        
+        self.groupView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height/5)];
+        self.groupView.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.6];
+        self.groupView.hidden = YES;
+        
+        [self.contentView addSubview:self.groupView];
+        
+        self.groupLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 3, self.groupView.frame.size.width - 20, self.groupView.frame.size.height - 6)];
+        [self.groupLabel setTextAlignment:NSTextAlignmentLeft];
+        [self.groupLabel setMinimumScaleFactor:0.5];
+        [self.groupLabel setAdjustsFontSizeToFitWidth:YES];
+        [self.groupLabel setTextColor:[UIColor whiteColor]];
+        self.groupLabel.adjustsFontSizeToFitWidth = YES;
+        [self.groupLabel setFont:[UIFont fontWithName:BIG_FONT size:26]];
+        [self.groupView addSubview:self.groupLabel];
         
         
         CGRect captionFrame = CGRectMake(0, 0, MAX_CAPTION_WIDTH, CGFLOAT_MAX);
@@ -184,6 +203,11 @@
 }
 
 #pragma mark -
+
+- (void)setShowsGroupLabel:(BOOL)showsGroupLabel {
+    _showsGroupLabel = showsGroupLabel;
+    self.groupView.hidden = !showsGroupLabel;
+}
 
 - (void)setVideo:(YAVideo *)video {
     if(_video == video)
@@ -292,6 +316,7 @@
 
 - (void)renderUsername {
     self.username.text = self.video.pending ? @"Pending" : self.video.creator;
+    self.groupLabel.text = self.video.group.name;
 }
 
 - (void)renderCaption {
