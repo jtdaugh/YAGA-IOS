@@ -42,9 +42,7 @@
     [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(-1000, -1000) forBarMetrics:UIBarMetricsDefault];
     self.navigationController.navigationBar.tintColor = SECONDARY_COLOR;
     
-    [self.navigationController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                                     SECONDARY_COLOR,
-                                                                     NSForegroundColorAttributeName,nil]];
+    [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : SECONDARY_COLOR, NSFontAttributeName : [UIFont fontWithName:BOLD_FONT size:20]}];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNewGroup)];
     
@@ -71,11 +69,16 @@
     
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.sendButton.frame = CGRectMake(0, self.view.bounds.size.height, self.view.bounds.size.width, kSendButtonHeight);
-    [self.sendButton setBackgroundColor:[UIColor colorWithRed:0 green:113.0/255.0 blue:185.0/255.0 alpha:1.0]];
+    [self.sendButton setBackgroundColor:[UIColor colorWithRed:5.0/255.0 green:135.0/255.0 blue:195.0/255.0 alpha:1.0]];
 
     [self.view addSubview:self.sendButton];
     [self.sendButton addTarget:self action:@selector(sendButtonTapped) forControlEvents:UIControlEventTouchUpInside];
     self.sendButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:30];
+    
+    UIView *blackButtonLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.sendButton.bounds.size.width, 2)];
+    blackButtonLine.backgroundColor = [UIColor blackColor];
+    [self.sendButton addSubview:blackButtonLine];
+    
     //[self.sendButton setImage:[UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
     //[self.sendButton setImageEdgeInsets:UIEdgeInsetsMake(0, self.view.bounds.size.width - 50, 0, 0)];
 }
@@ -134,7 +137,7 @@
         YAGroup *group = self.groups[indexPath.item];
         
         cell.textLabel.text = group.name;
-        [cell setSelectionColor:[UIColor colorWithRed:46.0f/255.0f green:175.0f/255.0f blue:99.0f/255.0f alpha:1.0]];
+        [cell setSelectionColor:[UIColor colorWithRed:60.0f/255.0f green:184.0f/255.0f blue:120.0f/255.0f alpha:1.0]];
     }
     else {
         cell.textLabel.text = [self.pendingGroups[indexPath.item] objectForKey:@"name"];

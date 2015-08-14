@@ -41,7 +41,7 @@
 
 #define PRIMARY_COLOR [UIColor colorWithRed: 236.0f/255.0f green: 0.0f/255.0f blue:140.0f/255.0f alpha:1.0]
 #define PRIMARY_COLOR_ACCENT [UIColor blackColor]
-#define SECONDARY_COLOR [UIColor colorWithRed: 5.0f/255.0f green: 135.0f/255.0f blue:195.0f/255.0f alpha:1.0]
+#define SECONDARY_COLOR [UIColor colorWithRed: 60.0f/255.0f green: 178.0f/255.0f blue:226.0f/255.0f alpha:1.0]
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 
 #define BIG_FONT @"Avenir"
