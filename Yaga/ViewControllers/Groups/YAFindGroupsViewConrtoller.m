@@ -19,7 +19,7 @@
 #import "YAMainTabBarController.h"
 #import "YAStandardFlexibleHeightBar.h"
 #import "BLKDelegateSplitter.h"
-
+#import "SquareCashStyleBehaviorDefiner.h"
 
 @interface YAFindGroupsViewConrtoller () <UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, strong) NSArray *groupsDataArray;
@@ -52,34 +52,31 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.tableView.dataSource = self;
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     [self.tableView setAllowsSelection:NO];
-    //    [self.tableView setSeparatorColor:PRIMARY_COLOR];
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
-    
-    // This will remove extra separators from tableview
-    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-    [self.view addSubview:self.tableView];
-//    
-//    //ios8 fix for separatorInset
-//    if ([self.tableView respondsToSelector:@selector(layoutMargins)])
-//        self.tableView.layoutMargins = UIEdgeInsetsZero;
     
     if(!self.onboardingMode) {
         self.automaticallyAdjustsScrollViewInsets = NO;
         [self setupFlexibleNavBar];
+        self.flexibleNavBar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];
         self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
         self.tableView.delegate = (id<UITableViewDelegate>)self.delegateSplitter;
         self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
+        [self.view addSubview:self.tableView];
+        [self.view addSubview:self.flexibleNavBar];
+    } else {
+        [self.view addSubview:self.tableView];
     }
+    
+
     
     [self setupPullToRefresh];
 
-    [self.tableView triggerPullToRefresh];
-
+    _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
     [self.tableView reloadData];
 
-    _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
-    
+//    [self.tableView triggerPullToRefresh];
+
 //    [[UIBarButtonItem appearance] setTintColor:SECONDARY_COLOR];
 }
 
@@ -198,11 +195,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     if(!result && self.tableView.pullToRefreshView.state == SVPullToRefreshStateStopped && !self.onboardingMode)
         result = 1;
     return result;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    // This will create a "invisible" footer
-    return 0.01f;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -443,7 +435,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 
     [self.flexibleNavBar addSubview:self.searchBar];
 
-    [self.view addSubview:self.flexibleNavBar];
     
 }
 

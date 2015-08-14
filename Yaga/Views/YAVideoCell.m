@@ -91,13 +91,13 @@
         
         [self.contentView addSubview:self.groupView];
         
-        self.groupLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 3, self.groupView.frame.size.width - 20, self.groupView.frame.size.height - 6)];
+        self.groupLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.groupView.frame.size.width - 20, self.groupView.frame.size.height)];
         [self.groupLabel setTextAlignment:NSTextAlignmentLeft];
         [self.groupLabel setMinimumScaleFactor:0.5];
         [self.groupLabel setAdjustsFontSizeToFitWidth:YES];
         [self.groupLabel setTextColor:[UIColor whiteColor]];
         self.groupLabel.adjustsFontSizeToFitWidth = YES;
-        [self.groupLabel setFont:[UIFont fontWithName:BIG_FONT size:26]];
+        [self.groupLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
         [self.groupView addSubview:self.groupLabel];
         
         

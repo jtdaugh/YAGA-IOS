@@ -21,14 +21,14 @@
     bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
 
     UILabel *titleLabel = [UILabel new];
-    titleLabel.font = [UIFont fontWithName:BIG_FONT size:20];
+    titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
     titleLabel.textColor = [UIColor whiteColor];
     titleLabel.textAlignment = NSTextAlignmentCenter;
     BLKFlexibleHeightBarSubviewLayoutAttributes *titleExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    titleExpanded.frame = CGRectMake(kFlexNavBarButtonWidth - 20, kStatusBarHeight, VIEW_WIDTH-2*kFlexNavBarButtonWidth + 40, kBarHeight - kStatusBarHeight);
+    titleExpanded.frame = CGRectMake(kFlexNavBarButtonWidth - 40, kStatusBarHeight, VIEW_WIDTH-2*kFlexNavBarButtonWidth + 80, kBarHeight - kStatusBarHeight);
     [titleLabel addLayoutAttributes:titleExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *titleCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    titleCollapsed.frame = CGRectMake(kFlexNavBarButtonWidth - 20, -30, VIEW_WIDTH-2*kFlexNavBarButtonWidth + 40, 30);
+    titleCollapsed.frame = CGRectMake(kFlexNavBarButtonWidth - 40, -30, VIEW_WIDTH-2*kFlexNavBarButtonWidth + 80, 30);
     titleCollapsed.alpha = 0;
     [titleLabel addLayoutAttributes:titleCollapsed forProgress:1.0];
     
@@ -71,7 +71,7 @@
     [bar addSubview:rightButton];
     bar.rightBarButton = rightButton;
     
-    bar.backgroundColor = PRIMARY_COLOR;
+    bar.backgroundColor = [UIColor colorWithWhite:0.05 alpha:1];
     return bar;
 }
 
