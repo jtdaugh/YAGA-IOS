@@ -14,8 +14,8 @@
 #import "YAAssetsCreator.h"
 
 @interface YAPostToGroupsViewController ()
-@property (nonatomic, strong) RLMResults *groups;
-@property (nonatomic, strong) NSArray *pendingGroups;
+@property (nonatomic, strong) RLMResults *hostingGoups;
+@property (nonatomic, strong) RLMResults *followingGroups;
 
 @property (nonatomic, strong) NSMutableArray *selectedGroups;
 @property (nonatomic, strong) UIButton *sendButton;
@@ -57,12 +57,11 @@
     [self.view addSubview:self.tableView];
     
     //replace this code
-    RLMResults *groups = [[YAGroup allObjects] objectsWhere:@"streamGroup = 0 && name != 'EmptyGroup'"];
+    RLMResults *hostGroups = [[YAGroup allObjects] objectsWhere:@"amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
+    RLMResults *followGroups = [[YAGroup allObjects] objectsWhere:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
     
-    self.groups = [groups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-    
-    //mocking server code
-    self.pendingGroups = @[@{@"name" : @"Dummy"}];
+    self.hostingGoups = [hostGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    self.followingGroups = [followGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     
     self.selectedGroups = [NSMutableArray new];
     
@@ -99,16 +98,16 @@
 
 #pragma mark - Table View Data Source
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    NSUInteger result = self.groups.count ? 1 : 0;
+    NSUInteger result = self.hostingGoups.count ? 1 : 0;
     
-    result += self.pendingGroups.count ? 1 : 0;
+    result += self.followingGroups.count ? 1 : 0;
     
     DLog(@"numberOfSectionsInTableView: %lu", result);
     return result;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSUInteger result = section == 0 ? self.groups.count : self.pendingGroups.count;
+    NSUInteger result = section == 0 && self.hostingGoups.count ? self.hostingGoups.count : self.followingGroups.count;
     
     DLog(@"numberOfRows: %lu inSection: %lu", result, section);
     return result;
@@ -132,14 +131,15 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     YAPostGroupCell *cell = (YAPostGroupCell*)[tableView dequeueReusableCellWithIdentifier:kCellId forIndexPath:indexPath];
     
-    if(indexPath.section == 0) {
-        YAGroup *group = self.groups[indexPath.item];
+    if(indexPath.section == 0 && self.hostingGoups.count) {
+        YAGroup *group = self.hostingGoups[indexPath.item];
         
         cell.textLabel.text = group.name;
         [cell setSelectionColor:[UIColor colorWithRed:60.0f/255.0f green:184.0f/255.0f blue:120.0f/255.0f alpha:1.0]];
     }
     else {
-        cell.textLabel.text = [self.pendingGroups[indexPath.item] objectForKey:@"name"];
+        YAGroup *group = self.followingGroups[indexPath.item];
+        cell.textLabel.text = group.name;
         [cell setSelectionColor:[UIColor lightGrayColor]];
     }
     
@@ -187,8 +187,11 @@
     
     for (NSIndexPath *indexPath in self.tableView.indexPathsForSelectedRows) {
         //works only for my groups for now
-        if(indexPath.section == 0){
-            YAGroup *group = self.groups[indexPath.item];
+        if(indexPath.section == 0 && self.hostingGoups.count){
+            YAGroup *group = self.hostingGoups[indexPath.item];
+            [groups addObject:group];
+        } else {
+            YAGroup *group = self.followingGroups[indexPath.item];
             [groups addObject:group];
         }
     }
