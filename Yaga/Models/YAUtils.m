@@ -388,7 +388,7 @@
         NSString *membersString = [self membersStringFromMembersArray:members];
         
         BOOL isPending = [self alreadyRequestedAccessToGroup:groupData];
-        [result addObject:@{YA_RESPONSE_ID : groupData[YA_RESPONSE_ID], YA_RESPONSE_NAME : groupData[YA_RESPONSE_NAME], YA_RESPONSE_MEMBERS : membersString, YA_RESPONSE_PENDING_MEMBERS : [NSNumber numberWithBool:isPending]}];
+        [result addObject:@{YA_RESPONSE_ID : groupData[YA_RESPONSE_ID], YA_RESPONSE_PRIVATE : groupData[YA_RESPONSE_PRIVATE], YA_RESPONSE_FOLLOWER_COUNT : groupData[YA_RESPONSE_FOLLOWER_COUNT], YA_RESPONSE_NAME : groupData[YA_RESPONSE_NAME], YA_RESPONSE_MEMBERS : membersString, YA_RESPONSE_PENDING_MEMBERS : [NSNumber numberWithBool:isPending]}];
     }
     return result;
 }

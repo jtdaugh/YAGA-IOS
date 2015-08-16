@@ -127,12 +127,7 @@ static NSString *cellID = @"Cell";
 
 
 - (void)groupInfoPressed {
-    if(self.group.publicGroup) {
-#warning change this behavior for follow groups
-        [self showHumanityTooltip];
-    } else {
-        [self openGroupOptions];
-    }
+    [self openGroupOptions];
 }
 
 - (void)openGroupOptionsFromNotification:(NSNotification *)notif {

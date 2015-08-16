@@ -57,8 +57,7 @@
     [self.view addSubview:self.tableView];
     
     //replace this code
-    RLMResults *groups = [[YAGroup allObjects] objectsWhere:@"streamGroup = 0 && publicGroup == 0 && name != 'EmptyGroup'"];
-    
+    RLMResults *groups = [[YAGroup allObjects] objectsWhere:@"streamGroup = 0 && name != 'EmptyGroup'"];
     
     self.groups = [groups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     

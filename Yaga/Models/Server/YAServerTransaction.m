@@ -86,7 +86,7 @@
         return;
     }
     
-    [[YAServer sharedServer] createGroupWithName:group.name withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
+    [[YAServer sharedServer] createGroupWithName:group.name isPrivate:NO withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
         if(error) {
             [self logEvent:[NSString stringWithFormat:@"can't create remote group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             

@@ -150,17 +150,20 @@
 
 // Server
 
-#define PORT @"443"
-#define PORTNUM 443
 #define API_ENDPOINT @"/yaga/api/v1"
 
 #if (DEBUG && DEBUG_SERVER)
-#define HOST @"https://api-dev.yagaprivate.com"
+#define HOST @"http://192.168.0.3"
+#define PORT @"8000"
+#define PORTNUM 8000
 #else
 #define HOST @"https://api.yagaprivate.com"
+#define PORT @"443"
+#define PORTNUM 443
 #endif
 
 #define YA_RESPONSE_ID                  @"id"
+#define YA_RESPONSE_PRIVATE             @"private"
 #define YA_RESPONSE_NAME                @"name"
 #define YA_RESPONSE_GROUP               @"group"
 #define YA_RESPONSE_NAMER               @"namer"
@@ -173,6 +176,7 @@
 #define YA_RESPONSE_LIKERS              @"likers"
 #define YA_RESPONSE_MEMBERS             @"members"
 #define YA_RESPONSE_PENDING_MEMBERS     @"pending_members"
+#define YA_RESPONSE_FOLLOWER_COUNT      @"follower_count"
 #define YA_RESPONSE_MEMBER_PHONE        @"phone"
 #define YA_RESPONSE_MEMBER_JOINED_AT    @"joined_at"
 #define YA_RESPONSE_RESULT              @"result"
@@ -209,6 +213,7 @@
 #define API_PUBLIC_GROUPS_TEMPLATE          @"%@/groups/public/"
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
 #define API_GROUP_JOIN_TEMPLATE             @"%@/groups/%@/join/"
+#define API_GROUP_FOLLOW_TEMPLATE           @"%@/groups/%@/follow/"
 
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
 
@@ -218,6 +223,9 @@
 
 #define API_GROUP_POSTS_TEMPLATE            @"%@/groups/%@/posts/"
 #define API_GROUP_POST_TEMPLATE             @"%@/groups/%@/posts/%@/"
+
+#define API_GROUP_POST_APPROVE              @"%@/groups/%@/posts/%@/approve/"
+#define API_GROUP_POST_REJECT               @"%@/groups/%@/posts/%@/reject/"
 
 #define API_GROUP_POST_LIKE                 @"%@/groups/%@/posts/%@/like/"
 #define API_GROUP_POST_LIKERS               @"%@/groups/%@/posts/%@/likers/"

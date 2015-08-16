@@ -171,7 +171,7 @@
 }
 
 #pragma mark - Groups
-- (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion {
+- (void)createGroupWithName:(NSString*)groupName isPrivate:(BOOL)isPrivate withCompletion:(responseBlock)completion{
     if(![YAServer sharedServer].serverUp) {
         [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
         completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
@@ -183,7 +183,8 @@
     NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
     
     NSDictionary *parameters = @{
-                                 @"name": groupName
+                                 @"name": groupName,
+                                 @"private": @(isPrivate)
                                  };
     __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Creating group", @"")];
     [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -457,17 +458,16 @@
     }];
 }
 
-- (void)getGroupsWithCompletion:(responseBlock)completion publicGroups:(BOOL)publicGroups
-{
+- (void)getGroupsWithCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     
-    NSString *api = [NSString stringWithFormat:publicGroups ? API_PUBLIC_GROUPS_TEMPLATE : API_GROUPS_TEMPLATE, self.base_api];
+    NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
     
-    DLog(@"updating groups from server... public: %@", publicGroups ? @"Yes" : @"No");
+    DLog(@"updating groups from server... ");
     
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
-        DLog(@"%@ updated", publicGroups ? @"Public groups" : @"User groups");
+        DLog(@"updated groups");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         DLog(@"can't fetch remote groups, error: %@", error.localizedDescription);
         completion(nil, error);
@@ -497,6 +497,21 @@
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         [YAUtils showHudWithText:NSLocalizedString(@"Failed to join group", @"")];
+        completion(nil, error);
+    }];
+}
+
+- (void)followGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion
+{
+    NSAssert(self.authToken.length, @"auth token not set");
+    
+    NSString *api = [NSString stringWithFormat:API_GROUP_FOLLOW_TEMPLATE, self.base_api, serverGroupId];
+    
+    [self.jsonOperationsManager PUT:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        DLog(@"Successfully followed group");
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [YAUtils showHudWithText:NSLocalizedString(@"Failed to follow group", @"")];
         completion(nil, error);
     }];
 }
@@ -753,6 +768,42 @@
                                }
 
                            }];
+}
+
+- (void)approveVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
+    NSAssert(self.authToken.length, @"auth token not set");
+
+    NSString *serverGroupId = video.group.serverId;
+    NSString *serverVideoId = video.serverId;
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_APPROVE, self.base_api, serverGroupId, serverVideoId];
+    [self.jsonOperationsManager PUT:api
+            parameters:nil
+               success:^(AFHTTPRequestOperation *operation, id responseObject) {
+
+                   completion(nil, nil);
+               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                   NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+                   DLog(@"%@", [NSString stringFromHex:hex]);
+                   completion(nil, nil);
+               }];
+}
+
+- (void)rejectVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
+    NSAssert(self.authToken.length, @"auth token not set");
+    
+    NSString *serverGroupId = video.group.serverId;
+    NSString *serverVideoId = video.serverId;
+    NSString *api = [NSString stringWithFormat:API_GROUP_POST_REJECT, self.base_api, serverGroupId, serverVideoId];
+    [self.jsonOperationsManager PUT:api
+                         parameters:nil
+                            success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                
+                                completion(nil, nil);
+                            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
+                                DLog(@"%@", [NSString stringFromHex:hex]);
+                                completion(nil, error);
+                            }];
 }
 
 //- (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion {

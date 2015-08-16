@@ -67,7 +67,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
     self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
     self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 0, 0);
-    [self setupPullToRefresh];
     [self.view addSubview:self.flexibleNavBar];
 
     //notifications
@@ -77,19 +76,14 @@ static NSString *CellIdentifier = @"GroupsCell";
     //force to open last selected group
     self.animatePush = NO;
     
-    [self setupBarItems];
-    
+    [self setupPullToRefresh];
+
     [self updateState];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [self updateState];
     [super viewWillAppear:animated];
-}
-
-
-- (void)setupBarItems {
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Explore" style:UIBarButtonItemStylePlain target:self action:@selector(findGroupsPressed)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup)];
 }
 
 - (void)findGroupsPressed {
@@ -281,7 +275,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         createButton.layer.cornerRadius = buttonSize.height/2;
         createButton.layer.masksToBounds = YES;
         [createButton setTitle:@"New Channel" forState:UIControlStateNormal];
-        [createButton addTarget:self action:@selector(createGroupPressed) forControlEvents:UIControlEventTouchUpInside];
+        [createButton addTarget:(YAMainTabBarController *)self.tabBarController  action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
         [reusableview addSubview:createButton];
         
         return reusableview;

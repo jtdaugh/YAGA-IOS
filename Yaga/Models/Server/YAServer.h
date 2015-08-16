@@ -26,10 +26,11 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)registerUsername:(NSString*)name withCompletion:(responseBlock)completion;
 
 //groups and memebers
-- (void)createGroupWithName:(NSString*)groupName withCompletion:(responseBlock)completion;
-- (void)getGroupsWithCompletion:(responseBlock)completion publicGroups:(BOOL)publicGroups;
+- (void)createGroupWithName:(NSString*)groupName isPrivate:(BOOL)isPrivate withCompletion:(responseBlock)completion;
+- (void)getGroupsWithCompletion:(responseBlock)completion;
 - (void)searchGroupsWithCompletion:(responseBlock)completion;
 - (void)joinGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
+- (void)followGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 
 - (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
@@ -42,6 +43,9 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)uploadVideo:(YAVideo*)video toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)deleteVideoWithId:(NSString*)serverVideoId fromGroup:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)uploadVideoCaptionWithId:(NSString*)serverVideoId withCompletion:(responseBlock)completion;
+- (void)approveVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
+- (void)rejectVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
+
 //- (void)likeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 //- (void)unLikeVideo:(YAVideo*)video withCompletion:(responseBlock)completion;
 - (void)copyVideo:(YAVideo*)video toGroupsWithIds:(NSArray*)groupIds withCompletion:(responseBlock)completion;

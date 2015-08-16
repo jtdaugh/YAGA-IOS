@@ -202,7 +202,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    cell.textLabel.textColor = PRIMARY_COLOR;
     cell.detailTextLabel.textColor = [UIColor colorWithWhite:0.1 alpha:1];
     cell.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:cell.bounds alpha:0.3];
     
@@ -214,6 +213,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         cell.textLabel.text = NSLocalizedString(@"Wow, you're early. Create a group to get your friends on Yaga", @"");
         cell.textLabel.numberOfLines = 0;
         cell.textLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+        cell.textLabel.textColor = PRIMARY_COLOR;
         UIButton *createGroupButton = [UIButton buttonWithType:UIButtonTypeCustom];
         createGroupButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
         createGroupButton.tag = indexPath.row;
@@ -233,10 +233,16 @@ static NSString *CellIdentifier = @"GroupsCell";
     cell.textLabel.font = [UIFont fontWithName:BOLD_FONT size:26];
     
     NSDictionary *groupData = [self.groupsDataArray objectAtIndex:indexPath.row];
-    
+    BOOL private = [groupData[YA_RESPONSE_PRIVATE] boolValue];
+    UIColor *cellColor = private ? PRIMARY_COLOR : SECONDARY_COLOR;
+
+    cell.textLabel.textColor = cellColor;
     cell.textLabel.text = groupData[YA_RESPONSE_NAME];
-    cell.detailTextLabel.text = groupData[YA_RESPONSE_MEMBERS];
-    
+    if (private) {
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"Private - %@", groupData[YA_RESPONSE_MEMBERS]];
+    } else {
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld followers - Hosted by %@", (long)[groupData[YA_RESPONSE_FOLLOWER_COUNT] integerValue], groupData[YA_RESPONSE_MEMBERS]];
+    }
     if(indexPath.row == self.groupsDataArray.count - 1)
         cell.separatorInset = UIEdgeInsetsMake(0.f, 0.f, 0.f, cell.bounds.size.width);
     
@@ -262,7 +268,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         pendingLabel.textColor = [UIColor lightGrayColor];
         pendingLabel.font = [UIFont fontWithName:BIG_FONT size:18];
         pendingLabel.textAlignment = NSTextAlignmentCenter;
-        pendingLabel.text = NSLocalizedString(@"Pending", @"");
+        pendingLabel.text = private ? NSLocalizedString(@"Pending", @"") :  NSLocalizedString(@"Following", @"");
         cell.accessoryView = pendingLabel;
     }
     else {
@@ -271,17 +277,16 @@ static NSString *CellIdentifier = @"GroupsCell";
         requestButton.tag = indexPath.row;
         requestButton.frame = CGRectMake(0, 0, 90, 30);
         [requestButton addTarget:self action:@selector(requestButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-        [requestButton setTitle:NSLocalizedString(@"Join", @"") forState:UIControlStateNormal];
-        [requestButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        [requestButton setTitle:private ? NSLocalizedString(@"Join", @"") : NSLocalizedString(@"Follow", @"") forState:UIControlStateNormal];
+        [requestButton setTitleColor:cellColor forState:UIControlStateNormal];
         [requestButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateHighlighted];
-        [requestButton setTintColor:PRIMARY_COLOR];
+        [requestButton setTintColor:cellColor];
         requestButton.layer.borderWidth = 1.5f;
-        requestButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+        requestButton.layer.borderColor = [cellColor CGColor];
         requestButton.layer.cornerRadius = 4;
         
         cell.accessoryView = requestButton;
     }
-
     return cell;
 }
 
@@ -321,7 +326,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     NSDictionary *groupData = self.groupsDataArray[sender.tag];
     
-    [[YAServer sharedServer] joinGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] followGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:^(id response, NSError *error) {
 
         if(!error) {
             NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];

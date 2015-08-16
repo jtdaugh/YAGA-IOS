@@ -24,6 +24,10 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 
 @property BOOL publicGroup;
 
+@property BOOL amFollowing;
+@property BOOL amMember;
+@property NSInteger followerCount;
+
 @property BOOL streamGroup;
 
 @property RLMArray<YAContact> *members;
@@ -40,7 +44,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block;
 
 //
-+ (void)groupWithName:(NSString*)name withCompletion:(completionBlockWithResult)competion;
++ (void)groupWithName:(NSString*)name isPrivate:(BOOL)isPrivate withCompletion:(completionBlockWithResult)completion;
 - (void)rename:(NSString*)newName withCompletion:(completionBlock)completion;
 - (void)addMembers:(NSArray*)contacts withCompletion:(completionBlock)completion;
 - (void)removeMember:(YAContact*)contact withCompletion:(completionBlock)completion;

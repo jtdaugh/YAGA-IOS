@@ -38,14 +38,10 @@
 }
 
 - (NSString*)membersString {
-    if(self.publicGroup) {
-        return @"All Yaga Users";
-    }
-    
     if(!self.members.count) {
         return NSLocalizedString(@"No members", @"");
     }
-    
+
     NSString *results = @"";
     
     NSUInteger andMoreCount = 0;
@@ -81,6 +77,11 @@
         }
        
     }
+    if(self.publicGroup) {
+        results = [@"Hosted by " stringByAppendingString:results];
+    }
+    
+
     return results;
 }
 
@@ -142,12 +143,19 @@
     NSArray *members = dictionary[YA_RESPONSE_MEMBERS];
     NSArray *pending_members = dictionary[YA_RESPONSE_PENDING_MEMBERS];
     
+    self.publicGroup = ![dictionary[YA_RESPONSE_PRIVATE] boolValue];
+    if (self.publicGroup) {
+        self.followerCount = [dictionary[YA_RESPONSE_FOLLOWER_COUNT] integerValue];
+    }
+    
     for(NSDictionary *memberDic in members){
         NSString *phoneNumber = memberDic[YA_RESPONSE_USER][YA_RESPONSE_MEMBER_PHONE];
         
         //skip myself
-        if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber])
+        if([phoneNumber isEqualToString:[YAUser currentUser].phoneNumber]) {
+            self.amMember = YES;
             continue;
+        }
         
         NSString *predicate = [NSString stringWithFormat:@"number = '%@'", phoneNumber];
         RLMResults *existingContacts = [YAContact objectsWhere:predicate];
@@ -166,6 +174,7 @@
             [self.members addObject:contact];
 
     }
+    self.amFollowing = (self.publicGroup && !self.amMember);
     
     //delete local contacts which do not exist on server anymore
     NSArray *serverContactIds = [[dictionary[@"members"] valueForKey:@"user"] valueForKey:@"id"];
@@ -248,8 +257,6 @@
                 group = [YAGroup group];
             }
             
-            group.publicGroup = publicGroups;
-            
             [group updateFromServerResponeDictionarty:dict];
             
             if(!existingGroups.count)
@@ -309,39 +316,14 @@
         }
         else {
             successBlock(response, NO);
-            
-            //shall we request publc groups
-            NSDate *lastRequested = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kLastPublicGroupsRequestDate];
-            
-            //request public groups 6 hours
-            if(lastRequested && [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60*6]] == NSOrderedAscending) {
-                DLog(@"Public groups request: 6 hours hasn't passed yet, exiting");
-                return;
-            }
-            else {
-                [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
-                    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[NSDate date] forKey:kLastPublicGroupsRequestDate];
-                    
-                    if(error) {
-                        if(block)
-                            block(error);
-                        
-                        return;
-                    }
-                    else {
-                        successBlock(response, YES);
-                    }
-                } publicGroups:YES];
-            }
-            
         }
-    } publicGroups:NO];
+    }];
 }
 
 #pragma mark - Server synchronisation: send updates to server
 
-+ (void)groupWithName:(NSString*)name withCompletion:(completionBlockWithResult)completion {
-    [[YAServer sharedServer] createGroupWithName:name withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
++ (void)groupWithName:(NSString*)name isPrivate:(BOOL)isPrivate withCompletion:(completionBlockWithResult)completion {
+    [[YAServer sharedServer] createGroupWithName:name isPrivate:isPrivate withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
         if(error) {
             DLog(@"can't create remote group with name %@, error %@", name, error.localizedDescription);
             completion(error, nil);

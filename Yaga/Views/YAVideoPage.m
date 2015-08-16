@@ -55,6 +55,10 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
 
+@property (nonatomic, strong) UIButton *approveButton;
+@property (nonatomic, strong) UIButton *rejectButton;
+
+
 @property BOOL loading;
 @property (strong, nonatomic) UIView *loader;
 @property (nonatomic, strong) YAProgressView *progressView;
@@ -538,6 +542,18 @@ static NSString *commentCellID = @"CommentCell";
     [self.TButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.TButton];
     
+    self.approveButton = [[UIButton alloc] initWithFrame:CGRectMake(50, 150, 100, 50)];
+    [self.approveButton setTitle:@"APPROVE" forState:UIControlStateNormal];
+    [self.approveButton addTarget:self action:@selector(approvePressed) forControlEvents:UIControlEventTouchUpInside];
+    self.approveButton.backgroundColor = PRIMARY_COLOR;
+    [self.overlay addSubview:self.approveButton];
+    
+    self.rejectButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - 150, 150, 100, 50)];
+    [self.rejectButton setTitle:@"REJECT" forState:UIControlStateNormal];
+    [self.rejectButton addTarget:self action:@selector(rejectPressed) forControlEvents:UIControlEventTouchUpInside];
+    self.rejectButton.backgroundColor = SECONDARY_COLOR;
+    [self.overlay addSubview:self.rejectButton];
+
     self.moreButton = [YAUtils circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
     [self.moreButton addTarget:self action:@selector(moreButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
@@ -611,6 +627,27 @@ static NSString *commentCellID = @"CommentCell";
         //
     }];
 
+}
+
+- (void)approvePressed {
+    [[YAServer sharedServer] approveVideo:self.video withCompletion:^(id response, NSError *error) {
+        if (error) {
+            DLog(@"Approve Video failed with error: %@", error);
+        } else {
+            DLog(@"Approve Video success");
+        }
+    }];
+
+}
+
+- (void)rejectPressed {
+    [[YAServer sharedServer] rejectVideo:self.video withCompletion:^(id response, NSError *error) {
+        if (error) {
+            DLog(@"Reject Video failed with error: %@", error);
+        } else {
+            DLog(@"Reject Video success");
+        }
+    }];
 }
 
 #pragma mark - Comments Table View
@@ -1039,7 +1076,8 @@ static NSString *commentCellID = @"CommentCell";
          [self insertCaption];
     } else if (self.myVideo) {
         if (![self.captionTapRecognizer.view isEqual:self]) {
-            [self addGestureRecognizer:self.captionTapRecognizer];
+#warning COMMENTED JUST FOR TESTING. uncomment.
+//            [self addGestureRecognizer:self.captionTapRecognizer];
         }
     }
 }
