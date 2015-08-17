@@ -27,5 +27,7 @@
 
 - (id)initWithVideos:(NSArray *)videos initialIndex:(NSUInteger)initialIndex;
 
+@property (nonatomic, assign) BOOL pendingMode;
+
 @end
 
