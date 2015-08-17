@@ -55,9 +55,12 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
 
+@property (nonatomic, strong) UIView *viewingAccessories;
+
 @property (nonatomic, strong) UIButton *approveButton;
 @property (nonatomic, strong) UIButton *rejectButton;
 
+@property (nonatomic, strong) UIView *adminAccessories;
 
 @property BOOL loading;
 @property (strong, nonatomic) UIView *loader;
@@ -131,6 +134,15 @@ static NSString *commentCellID = @"CommentCell";
         
         self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self addSubview:self.overlay];
+        
+        self.viewingAccessories = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+        self.adminAccessories = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+
+        if(self.showAdminControls){
+            [self.overlay addSubview:self.adminAccessories];
+        } else {
+            [self.overlay addSubview:self.viewingAccessories];
+        }
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
@@ -464,7 +476,7 @@ static NSString *commentCellID = @"CommentCell";
 //                          nil];
     
     [self.commentsGradient.layer insertSublayer:gradient atIndex:0];
-    [self.overlay addSubview:self.commentsGradient];
+    [self.viewingAccessories addSubview:self.commentsGradient];
     
     UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
     
@@ -472,7 +484,7 @@ static NSString *commentCellID = @"CommentCell";
     
     self.commentsBlurOverlay.frame = self.bounds;
     self.commentsBlurOverlay.hidden = YES;
-    [self.overlay addSubview:self.commentsBlurOverlay];
+    [self.viewingAccessories addSubview:self.commentsBlurOverlay];
     
     CGFloat height = 24;
     self.userLabel = [[UILabel alloc] initWithFrame:CGRectMake(buttonRadius*2 + padding*2, 10, 200, height)];
@@ -507,7 +519,7 @@ static NSString *commentCellID = @"CommentCell";
     
     UIView *viewCountView = [[UIView alloc] initWithFrame:CGRectMake((VIEW_WIDTH-viewCountSize.width)/2, VIEW_HEIGHT - viewCountSize.height - 11, viewCountSize.width, viewCountSize.height)];
     viewCountView.backgroundColor = [UIColor clearColor];
-    [self.overlay addSubview:viewCountView];
+    [self.viewingAccessories addSubview:viewCountView];
     
     self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(viewCountSize.width/2, 0)];
                         
@@ -542,22 +554,38 @@ static NSString *commentCellID = @"CommentCell";
     [self.TButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.TButton];
     
-    self.approveButton = [[UIButton alloc] initWithFrame:CGRectMake(50, 150, 100, 50)];
-    [self.approveButton setTitle:@"APPROVE" forState:UIControlStateNormal];
-    [self.approveButton addTarget:self action:@selector(approvePressed) forControlEvents:UIControlEventTouchUpInside];
-    self.approveButton.backgroundColor = PRIMARY_COLOR;
-    [self.overlay addSubview:self.approveButton];
+    CGFloat approveButtonWidth = VIEW_WIDTH * .4;
+    CGFloat approveButtonHeight = VIEW_HEIGHT * .1;
+    CGFloat approveButtonMargin = (VIEW_WIDTH - approveButtonWidth*2)/3;
     
-    self.rejectButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - 150, 150, 100, 50)];
-    [self.rejectButton setTitle:@"REJECT" forState:UIControlStateNormal];
+    self.approveButton = [[UIButton alloc] initWithFrame:CGRectMake(approveButtonMargin, VIEW_HEIGHT - approveButtonHeight - approveButtonMargin, approveButtonWidth, approveButtonHeight)];
+    [self.approveButton setTitle:@"Approve" forState:UIControlStateNormal];
+    [self.approveButton addTarget:self action:@selector(approvePressed) forControlEvents:UIControlEventTouchUpInside];
+    self.approveButton.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:0.5];;
+    [self.approveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:22]];
+//    [self.approveButton.titleLabel setTextColor:PRIMARY_COLOR];
+    self.approveButton.layer.masksToBounds = YES;
+    self.approveButton.layer.cornerRadius = approveButtonHeight/2;
+    self.approveButton.layer.borderWidth = 5.0f;
+    self.approveButton.layer.borderColor = PRIMARY_COLOR.CGColor;
+    [self.adminAccessories addSubview:self.approveButton];
+    
+    self.rejectButton = [[UIButton alloc] initWithFrame:CGRectMake(approveButtonMargin*2 + approveButtonWidth, VIEW_HEIGHT - approveButtonHeight - approveButtonMargin, approveButtonWidth, approveButtonHeight)];
+    [self.rejectButton setTitle:@"Reject" forState:UIControlStateNormal];
     [self.rejectButton addTarget:self action:@selector(rejectPressed) forControlEvents:UIControlEventTouchUpInside];
-    self.rejectButton.backgroundColor = SECONDARY_COLOR;
-    [self.overlay addSubview:self.rejectButton];
+    self.rejectButton.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.5];
+    [self.rejectButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:22]];
+//    [self.rejectButton.titleLabel setTextColor:SECONDARY_COLOR];
+    self.rejectButton.layer.masksToBounds = YES;
+    self.rejectButton.layer.cornerRadius = approveButtonHeight/2;
+    self.rejectButton.layer.borderWidth = 5.0f;
+    self.rejectButton.layer.borderColor = SECONDARY_COLOR.CGColor;
+    [self.adminAccessories addSubview:self.rejectButton];
 
     self.moreButton = [YAUtils circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
     [self.moreButton addTarget:self action:@selector(moreButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.moreButton];
+    [self.viewingAccessories addSubview:self.moreButton];
 //    self.shareButton.layer.zPosition = 100;
     
 //    self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(padding + buttonRadius, padding*2 + buttonRadius)];
@@ -567,12 +595,12 @@ static NSString *commentCellID = @"CommentCell";
     
     self.commentButton = [YAUtils circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.commentButton];
+    [self.viewingAccessories addSubview:self.commentButton];
 
     self.heartButton = [YAUtils circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(buttonRadius*3 + padding*3, VIEW_HEIGHT - buttonRadius - padding)];
     [self.heartButton setBackgroundImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateHighlighted];
     [self.heartButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.heartButton];
+    [self.viewingAccessories addSubview:self.heartButton];
     
     [self setupCommentsContainer];
 
@@ -734,7 +762,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentsWrapperView addSubview:self.commentsTableView];
     [self.commentsWrapperView addSubview:self.commentsTextBoxView];
     self.commentsWrapperView.layer.masksToBounds = YES;
-    [self.overlay addSubview:self.commentsWrapperView];
+    [self.viewingAccessories addSubview:self.commentsWrapperView];
     
 }
 
@@ -1473,6 +1501,19 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)showSharingOptions {
     [self shareButtonPressed:nil];
+}
+
+- (void)setShowAdminControls:(BOOL)showAdminControls {
+    _showAdminControls = showAdminControls;
+    
+    if(showAdminControls){
+        [self.viewingAccessories removeFromSuperview];
+        [self.overlay addSubview:self.adminAccessories];
+    } else {
+        [self.adminAccessories removeFromSuperview];
+        [self.overlay addSubview:self.viewingAccessories];
+    }
+
 }
 
 #pragma mark - KVO
