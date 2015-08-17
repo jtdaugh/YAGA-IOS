@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YAFindGroupsViewConrtoller : UIViewController
+@interface YAFindGroupsViewConrtoller : UIViewController<UISearchBarDelegate>
 @property (nonatomic, assign) BOOL onboardingMode;
 @end
