@@ -77,6 +77,10 @@
             if (indexInGroup != NSNotFound) {
                 [trueGroup.videos removeObjectAtIndex:indexInGroup];
             }
+            NSUInteger indexInGroupPending = [trueGroup.pending_videos indexOfObject:self];
+            if (indexInGroupPending != NSNotFound) {
+                [trueGroup.pending_videos removeObjectAtIndex:indexInGroup];
+            }
         }
         
         if (publicStreamGroup) {

@@ -25,6 +25,8 @@
 @property (strong, nonatomic) YAGroup *group;
 @property (nonatomic, strong) BLKFlexibleHeightBar *flexibleNavBar;
 
+@property (nonatomic) BOOL pendingMode;
+
 - (void)reload;
 
 - (void)reloadSortedVideos;

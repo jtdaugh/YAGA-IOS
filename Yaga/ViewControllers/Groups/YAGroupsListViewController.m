@@ -171,9 +171,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)updateState {
     //remove public stream
-    RLMResults *groups = [[YAGroup allObjects] objectsWhere:@"streamGroup = 0"];
+    RLMResults *groups = [[YAGroup allObjects] objectsWhere:@"streamGroup = 0 && (amFollowing = 1 || amMember = 1)"];
     
-    self.groups = [groups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    self.groups = [groups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"amMember" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     
     [self.collectionView reloadData];
 }
@@ -214,7 +214,10 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     cell.showUpdatedIndicator = group.hasUnviewedVideos;
     
+    DLog(@"Group:%@ followerCount:%ld", group.name, (long)group.followerCount);
+    
     return cell;
+    
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {

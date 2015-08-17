@@ -66,9 +66,18 @@ static NSString *cellID = @"Cell";
     [self reloadSortedVideos];
 }
 
+- (void)setPendingMode:(BOOL)pendingMode {
+    if (pendingMode == _pendingMode)
+        return;
+    _pendingMode = pendingMode;
+    [self reloadSortedVideos];
+    [self reload];
+}
+
 - (void)reloadSortedVideos {
-    if ([self.group.videos count]) {
-        self.sortedVideos = [self.group.videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
+    RLMArray<YAVideo> *videos = self.pendingMode ? self.group.pending_videos : self.group.videos;
+    if ([videos count]) {
+        self.sortedVideos = [videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
     } else {
         self.sortedVideos = nil;
     }
@@ -214,7 +223,7 @@ static NSString *cellID = @"Cell";
     [self.collectionView addPullToRefreshWithActionHandler:^{
         [weakSelf refreshCurrentGroup];
     }];
-    
+
     YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];
     
     [self.collectionView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateLoading];
@@ -257,7 +266,7 @@ static NSString *cellID = @"Cell";
     if(!self.sortedVideos || ![self.sortedVideos count])
         needRefresh = YES;
     
-    if([self.group.updatedAt compare:self.group.refreshedAt] == NSOrderedDescending) {
+    if([self.group.updatedAt compare:self.pendingMode ? self.group.pendingRefreshedAt : self.group.refreshedAt] == NSOrderedDescending) {
         needRefresh = YES;
     }
     
@@ -268,6 +277,7 @@ static NSString *cellID = @"Cell";
     if(needRefresh) {
         [self refreshCurrentGroup];
     } else {
+        [self showNoVideosMessageIfNeeded];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     }
 }
@@ -321,7 +331,10 @@ static NSString *cellID = @"Cell";
 - (void)refreshCurrentGroup {
     [self showActivityIndicator:YES];
     
-    [self.group refresh];
+    if (self.pendingMode)
+        [self.group refreshPendingVideos];
+    else
+        [self.group refresh];
 }
 
 - (void)groupWillRefresh:(NSNotification*)notification {
@@ -414,7 +427,7 @@ static NSString *cellID = @"Cell";
             if(!self.noVideosLabel) {
                 self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.view.bounds.size.height/2)];
                 self.noVideosLabel.font = [UIFont fontWithName:BIG_FONT size:24];
-                self.noVideosLabel.text = NSLocalizedString(@"THINGS_ARE_QUIET", @"");
+                self.noVideosLabel.text = self.pendingMode ? @"Your followers\nare slacking\n\nNo pending videos." : NSLocalizedString(@"THINGS_ARE_QUIET", @"");
                 self.noVideosLabel.textAlignment = NSTextAlignmentCenter;
                 self.noVideosLabel.numberOfLines = 0;
                 self.noVideosLabel.textColor = PRIMARY_COLOR;

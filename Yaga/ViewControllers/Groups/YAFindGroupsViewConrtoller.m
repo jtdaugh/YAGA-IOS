@@ -21,6 +21,8 @@
 #import "BLKDelegateSplitter.h"
 #import "SquareCashStyleBehaviorDefiner.h"
 
+#define JOINED_OR_FOLLOWED @"JOINED_OR_FOLLOWED"
+
 @interface YAFindGroupsViewConrtoller () <UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, strong) NSArray *groupsDataArray;
 @property (nonatomic, strong) NSMutableSet *pendingRequestsInProgress;
@@ -263,9 +265,9 @@ static NSString *CellIdentifier = @"GroupsCell";
         cell.accessoryView = activityView;
         [activityView startAnimating];
     }
-    else if([groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]) {
+    else if([groupData[JOINED_OR_FOLLOWED] boolValue]) {
         UILabel *pendingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 90, 30)];
-        pendingLabel.textColor = [UIColor lightGrayColor];
+        pendingLabel.textColor = private ? [UIColor lightGrayColor] : SECONDARY_COLOR;
         pendingLabel.font = [UIFont fontWithName:BIG_FONT size:18];
         pendingLabel.textAlignment = NSTextAlignmentCenter;
         pendingLabel.text = private ? NSLocalizedString(@"Pending", @"") :  NSLocalizedString(@"Following", @"");
@@ -326,22 +328,20 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     NSDictionary *groupData = self.groupsDataArray[sender.tag];
     
-    [[YAServer sharedServer] followGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:^(id response, NSError *error) {
-
+    responseBlock block = ^(id response, NSError *error) {
         if(!error) {
             NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
-            [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
+            [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:JOINED_OR_FOLLOWED];
             NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.groupsDataArray];
             [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
             self->_groupsDataArray = upatedDataArray;
-            
+        
             if(self.onboardingMode) {
                 BOOL wasEnabled = self.navigationItem.rightBarButtonItem.enabled;
                 UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonPressed:)];
                 doneButton.enabled = wasEnabled;
                 [self.navigationItem setRightBarButtonItem:doneButton animated:YES];
             }
-            
         }
         else {
             DLog(@"Can't send request to join group");
@@ -349,8 +349,13 @@ static NSString *CellIdentifier = @"GroupsCell";
         
         [self.pendingRequestsInProgress removeObject:[NSNumber numberWithInteger:sender.tag]];
         [self.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:sender.tag inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
-        
-    }];
+    };
+
+    if ([groupData[YA_RESPONSE_PRIVATE] boolValue]) {
+        [[YAServer sharedServer] joinGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:block];
+    } else {
+        [[YAServer sharedServer] followGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:block];
+    }
 }
 
 - (void)createGroupButtonTapped:(UIButton*)sender {

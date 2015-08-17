@@ -19,6 +19,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property NSString *serverId;
 @property NSDate *updatedAt;
 @property NSDate *refreshedAt;
+@property NSDate *pendingRefreshedAt;
 @property BOOL hasUnviewedVideos;
 @property BOOL muted;
 
@@ -33,6 +34,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property RLMArray<YAContact> *members;
 @property RLMArray<YAContact> *pending_members;
 @property RLMArray<YAVideo> *videos;
+@property RLMArray<YAVideo> *pending_videos;
 
 //server side paging, we can not use self.videos.count for offset param because of deleted videos which are returned too, keeping nextPageIndex for that
 @property long totalPages;
@@ -52,6 +54,8 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 - (void)muteUnmuteWithCompletion:(completionBlock)completion;
 - (void)refresh;
 - (void)refresh:(BOOL)showPullDownToRefresh;
+- (void)refreshPendingVideos;
+
 + (YAGroup*)group;
 @end
 

@@ -386,7 +386,7 @@
     }];
 }
 
-- (void)groupInfoWithId:(NSString*)serverGroupId since:(NSDate*)since withCompletion:(responseBlock)completion {
+- (void)groupInfoWithId:(NSString*)serverGroupId getPendingVideos:(BOOL)pending since:(NSDate*)since withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api;
@@ -422,7 +422,9 @@
         }
     }
     
-    [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    NSDictionary *params = pending ? @{@"unapproved" : @(YES)} : nil;
+    
+    [self.jsonOperationsManager GET:api parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
         completion(dict, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

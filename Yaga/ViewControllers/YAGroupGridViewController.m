@@ -8,8 +8,11 @@
 
 #import "YAGroupGridViewController.h"
 #import "YAGroup.h"
+#import "YAServer.h"
+
 #import "BLKFlexibleHeightBar.h"
 #import "YAProfileFlexibleHeightBar.h"
+#import "YAPullToRefreshLoadingView.h"
 
 @interface YAGroupGridViewController ()
 
@@ -18,6 +21,8 @@
 @property (nonatomic,strong) UILabel *groupViewsLabel;
 @property (nonatomic,strong) UIButton *followButton;
 @property (nonatomic,strong) UIButton *backButton;
+@property (nonatomic, strong) UISegmentedControl *segmentedControl;
+@property (nonatomic) BOOL buttonIsUnfollow;
 
 @end
 
@@ -25,6 +30,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.pendingMode = NO;
     // Do any additional setup after loading the view.
 }
 
@@ -49,46 +55,58 @@
     bar.viewsLabel.text = @"456 followers      123,543 views";
     [bar.backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
     [bar.moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    self.followButton = bar.followButton;
+    self.segmentedControl = bar.segmentedControl;
     
+    if (self.group.amMember) {
+        // show approved/unapproved posts segmented
+        [bar.followButton removeFromSuperview];
+        if (self.group.publicGroup) {
+            [bar.segmentedControl addTarget:self action:@selector(segmentedControlChanged) forControlEvents:UIControlEventValueChanged];
+        } else {
+            [bar.segmentedControl removeFromSuperview];
+        }
+    } else {
+        // show follow/unfollow button
+        if (!self.group.publicGroup) {
+            // Enforce that it is a public group.
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+        [bar.segmentedControl removeFromSuperview];
+        if (self.group.amFollowing) {
+            self.buttonIsUnfollow = YES;
+            [bar.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
+        }
+        [bar.followButton addTarget:self action:@selector(followPressed) forControlEvents:UIControlEventTouchUpInside];
+    }
     return bar;
 }
 
-//- (CGSize)collectionView:(UICollectionView *)collectionView
-//                  layout:(UICollectionViewLayout*)collectionViewLayout
-//    referenceSizeForHeaderInSection:(NSInteger)section{
-//    return CGSizeMake(VIEW_WIDTH, 200);
-//}
+- (void)segmentedControlChanged {
+    DLog(@"Segmented control changed");
+    self.pendingMode = self.segmentedControl.selectedSegmentIndex == 1;
+}
 
-//- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-//    [super scrollViewDidScroll:scrollView];
-//    if ([scrollView isEqual:self.collectionView]) {
-//        CGFloat offset = scrollView.contentOffset.y;
-//        CGFloat headerScrollProgress;
-//        DLog(@"ContentOffset: %f", offset);
-//        if (offset < 0) {
-//            // header is expanded. do nothing
-//            headerScrollProgress = 1;
-//        } else if (offset < (kHeaderHeight - kNavBarHeight)) {
-//            // stuff needs to be adjusted
-//            headerScrollProgress = 1.0 - (offset / (kHeaderHeight - kNavBarHeight));
-//        } else {
-//            headerScrollProgress = 0;
-//        }
-//        [self updateHeaderViewsWithProgress:headerScrollProgress];
-//    }
-//}
-//
-//// 0.0 means fully collapsed, 1.0 means fully expanded
-//- (void)updateHeaderViewsWithProgress:(CGFloat)progress {
-//    self.followButton.alpha = pow(progress, 20); // higher pow fades earlier
-//    self.groupViewsLabel.alpha = pow(progress, 6);
-//    self.groupDescriptionLabel.alpha = pow(progress, 3);
-//    CGRect frame = self.groupNameLabel.frame;
-//    frame.origin.y = kTitleOriginCollapsed + (progress * (kTitleOriginExpanded - kTitleOriginCollapsed));
-//    self.groupNameLabel.frame = frame;
-//    self.groupNameLabel.font = [UIFont fontWithName:BIG_FONT size:(kTitleMaxFont - 10 + (10.0 * progress))];
-//    
-//}
-
+- (void)followPressed {
+    if (self.buttonIsUnfollow) {
+        // TODO: Unfollow group
+        DLog(@"Unfollow pressed");
+        [self.group leaveWithCompletion:^(NSError *error) {
+            if (error) {
+                DLog(@"Failed to leave group");
+            } else {
+                DLog(@"Left group");
+            }
+        }];
+    } else {
+        [[YAServer sharedServer] followGroupWithId:self.group.serverId withCompletion:^(id response, NSError *error) {
+            if (error) {
+                DLog(@"Failed to follow group");
+            } else {
+                DLog(@"Followed group");
+            }
+        }];
+    }
+}
 
 @end

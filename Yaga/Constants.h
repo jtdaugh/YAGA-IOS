@@ -70,6 +70,7 @@
 
 #define YA_DEVICE_TOKEN                         @"YAGA_DEVICE_TOKEN"
 
+#define kResultsAreForPendingVideos             @"pendingVideos"
 #define kNewVideos                              @"newVideos"
 #define kUpdatedVideos                          @"updatedVideos"
 #define kDeletedVideos                          @"deletedVideos"

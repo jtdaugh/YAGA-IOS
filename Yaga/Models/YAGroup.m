@@ -34,7 +34,7 @@
 
 + (NSDictionary *)defaultPropertyValues
 {
-    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0], @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0], @"hasUnviewedVideos" : [NSNumber numberWithBool:NO]};
+    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0], @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0], @"pendingRefreshedAt":[NSDate dateWithTimeIntervalSince1970:0], @"hasUnviewedVideos" : [NSNumber numberWithBool:NO]};
 }
 
 - (NSString*)membersString {
@@ -282,6 +282,9 @@
             
             for(YAVideo *videoToRemove in group.videos)
                 [videosToRemove addObject:videoToRemove];
+
+            for(YAVideo *videoToRemove in group.pending_videos)
+                [videosToRemove addObject:videoToRemove];
             
             for(YAVideo *videoToRemove in [videosToRemove copy]) {
                 [videoToRemove purgeLocalAssets];
@@ -499,7 +502,7 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:userInfo];
     
     // dont set since parameter if group has no videos yet. Otherwise, one buggy fetch screws state of group until reinstall.
-    [[YAServer sharedServer] groupInfoWithId:self.serverId since:([self.videos count] ? self.refreshedAt : nil)
+    [[YAServer sharedServer] groupInfoWithId:self.serverId getPendingVideos:NO since:([self.videos count] ? self.refreshedAt : nil)
                               withCompletion:^(id response, NSError *error) {
                                   if(self.isInvalidated)
                                       return;
@@ -519,7 +522,7 @@
                                       NSArray *videoDictionaries = self.streamGroup ? response[YA_RESPONSE_RESULTS] :response[YA_VIDEO_POSTS];
                                       DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
                                       
-                                      NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries];
+                                      NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries withTarget:self.videos];
                                       
                                       [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
                                   }
@@ -530,6 +533,35 @@
     [self refresh:NO];
 }
 
+- (void)refreshPendingVideos {
+    [[YAServer sharedServer] groupInfoWithId:self.serverId getPendingVideos:YES since:([self.pending_videos count] ? self.pendingRefreshedAt : nil)
+                              withCompletion:^(id response, NSError *error) {
+                                  if(self.isInvalidated)
+                                      return;
+                                  
+                                  self.videosUpdateInProgress = NO;
+                                  if(error) {
+                                      DLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
+                                      return;
+                                  }
+                                  else {
+                                      [self.realm beginWriteTransaction];
+                                      self.pendingRefreshedAt = self.updatedAt;
+                                      [self updateFromServerResponeDictionarty:response];
+                                      [self.realm commitWriteTransaction];
+                                      
+                                      NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
+                                      DLog(@"received %lu pending videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
+                                      
+                                      NSMutableDictionary *updatedAndNew = [[self updateVideosFromDictionaries:videoDictionaries withTarget:self.pending_videos] mutableCopy];
+                                      [updatedAndNew setObject:@(YES) forKey:kResultsAreForPendingVideos];
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
+                                  }
+                              }];
+
+}
+
 - (NSSet*)videoIds {
     NSMutableSet *existingIds = [NSMutableSet set];
     for (YAVideo *video in self.videos) {
@@ -537,10 +569,15 @@
             [existingIds addObject:video.serverId];
         }
     }
+    for (YAVideo *video in self.pending_videos) {
+        if(video.serverId){
+            [existingIds addObject:video.serverId];
+        }
+    }
     return existingIds;
 }
 
-- (NSDictionary*)updateVideosFromDictionaries:(NSArray*)videoDictionaries {
+- (NSDictionary*)updateVideosFromDictionaries:(NSArray*)videoDictionaries withTarget:(RLMArray<YAVideo> *)videoArray {
     NSSet *existingIds = [self videoIds];
     NSSet *newIds = [NSSet setWithArray:[videoDictionaries valueForKey:YA_RESPONSE_ID]];
     
@@ -569,7 +606,7 @@
             BOOL addedNewReferenceToExistingVideoObject = NO;
             if(![existingIds containsObject:videoDic[YA_RESPONSE_ID]] && !deleted) {
                 // add video to group list
-                [self.videos addObject:video];//insertObject:video atIndex:0];
+                [videoArray addObject:video];//insertObject:video atIndex:0];
                 [newVideos addObject:video];
                 addedNewReferenceToExistingVideoObject = YES;
             }
@@ -622,7 +659,7 @@
                 }
             }
             
-            [self.videos addObject:video];//insertObject:video atIndex:0];
+            [videoArray addObject:video];//insertObject:video atIndex:0];
             [newVideos addObject:video];
             
         }

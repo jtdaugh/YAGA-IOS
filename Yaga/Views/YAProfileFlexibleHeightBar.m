@@ -171,7 +171,24 @@
 }
 
 - (void)addSegmentCtrl {
+    UISegmentedControl *seg = [UISegmentedControl new];
+    seg.tintColor = [UIColor whiteColor];
+    [seg insertSegmentWithTitle:@"Approved" atIndex:0 animated:NO];
+    [seg insertSegmentWithTitle:@"Pending" atIndex:1 animated:NO];
+    seg.selectedSegmentIndex = 0;
     
+    CGRect frame =  CGRectMake((VIEW_WIDTH - 250)/2, kTitleOriginExpanded + 130, 250, 30);
+    BLKFlexibleHeightBarSubviewLayoutAttributes *expanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+    expanded.frame = frame;
+    expanded.alpha = 1;
+    [seg addLayoutAttributes:expanded forProgress:0.0];
+    BLKFlexibleHeightBarSubviewLayoutAttributes *collapsed = [[self class] collapsedAttributes];
+    frame.origin.y = 50;
+    collapsed.frame = frame;
+    [seg addLayoutAttributes:collapsed forProgress:1.0];
+    
+    [self addSubview:seg];
+    self.segmentedControl = seg;
 }
 
 + (BLKFlexibleHeightBarSubviewLayoutAttributes *)collapsedAttributes {
