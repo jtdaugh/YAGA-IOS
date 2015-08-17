@@ -19,6 +19,7 @@
 @property (strong, nonatomic) UIButton *nextButton;
 @property (strong, nonatomic) UIButton *backButton;
 @property (strong, nonatomic) YAGroup *group;
+@property (strong, nonatomic) UISwitch *publicSwitch;
 @end
 
 @implementation NameGroupViewController
@@ -55,6 +56,21 @@
     [self.view addSubview:self.groupNameTextField];
     
     origin = [self getNewOrigin:self.groupNameTextField];
+    
+    UILabel *publicGroupLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH-formWidth)/2, origin, formWidth, VIEW_HEIGHT*.08)];
+    publicGroupLabel.textAlignment = NSTextAlignmentCenter;
+    publicGroupLabel.font = [UIFont fontWithName:BIG_FONT size:30];
+    publicGroupLabel.text = @"Public group?";
+    publicGroupLabel.textColor = PRIMARY_COLOR;
+    [self.view addSubview:publicGroupLabel];
+    
+    origin = [self getNewOrigin:publicGroupLabel];
+    
+    self.publicSwitch = [[UISwitch alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - 30, origin - 20, 30, 30)];
+     self.publicSwitch.thumbTintColor = PRIMARY_COLOR;
+    [self.view addSubview: self.publicSwitch];
+    
+    origin = [self getNewOrigin: self.publicSwitch];
     
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
     self.nextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
@@ -109,6 +125,7 @@
 - (void)nextScreen {
     YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
     vc.inCreateGroupFlow = YES;
+    vc.publicGroup = self.publicSwitch.isOn;
     vc.initialVideo = self.initialVideo;
     vc.groupName = self.groupNameTextField.text;
     [self.navigationController pushViewController:vc animated:YES];
