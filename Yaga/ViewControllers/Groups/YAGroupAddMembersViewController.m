@@ -431,7 +431,7 @@
         // New group. Nested requests to create group and then add members
         [self showActivity:YES];
         
-        [YAGroup groupWithName:self.groupName isPrivate:NO withCompletion:^(NSError *error, id result) {
+        [YAGroup groupWithName:self.groupName isPrivate:!self.publicGroup withCompletion:^(NSError *error, id result) {
             if(error) {
                 [self showActivity:NO];
             } else {
