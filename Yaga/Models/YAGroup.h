@@ -50,6 +50,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 - (void)rename:(NSString*)newName withCompletion:(completionBlock)completion;
 - (void)addMembers:(NSArray*)contacts withCompletion:(completionBlock)completion;
 - (void)removeMember:(YAContact*)contact withCompletion:(completionBlock)completion;
+- (void)unfollowWithCompletion:(completionBlock)completion;
 - (void)leaveWithCompletion:(completionBlock)completion;
 - (void)muteUnmuteWithCompletion:(completionBlock)completion;
 - (void)refresh;

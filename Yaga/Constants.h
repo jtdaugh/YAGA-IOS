@@ -154,9 +154,9 @@
 #define API_ENDPOINT @"/yaga/api/v1"
 
 #if (DEBUG && DEBUG_SERVER)
-#define HOST @"http://192.168.0.3"
-#define PORT @"8000"
-#define PORTNUM 8000
+#define HOST @"http://35677fb9.ngrok.io"
+#define PORT @"80"
+#define PORTNUM 80
 #else
 #define HOST @"https://api.yagaprivate.com"
 #define PORT @"443"

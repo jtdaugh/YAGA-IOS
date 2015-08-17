@@ -50,9 +50,14 @@
 
 - (BLKFlexibleHeightBar *)createNavBar {
     YAProfileFlexibleHeightBar *bar = [YAProfileFlexibleHeightBar emptyProfileBar];
+    bar.backgroundColor = self.group.publicGroup ? SECONDARY_COLOR : PRIMARY_COLOR;
     bar.nameLabel.text = self.group.name;
-    bar.descriptionLabel.text = @"Hosted by Arauh";
-    bar.viewsLabel.text = @"456 followers      123,543 views";
+    bar.descriptionLabel.text = self.group.membersString;
+    if (self.group.publicGroup) {
+        bar.viewsLabel.text = [NSString stringWithFormat:@"%ld followers    ???,??? views", (long)self.group.followerCount];
+    } else {
+        bar.viewsLabel.text = [NSString stringWithFormat:@"%ld members    ?,??? views", (long)self.group.members.count];
+    }
     [bar.backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
     [bar.moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
     self.followButton = bar.followButton;
@@ -91,7 +96,7 @@
     if (self.buttonIsUnfollow) {
         // TODO: Unfollow group
         DLog(@"Unfollow pressed");
-        [self.group leaveWithCompletion:^(NSError *error) {
+        [self.group unfollowWithCompletion:^(NSError *error) {
             if (error) {
                 DLog(@"Failed to leave group");
             } else {

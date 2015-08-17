@@ -9,7 +9,7 @@
 #define kHeaderHeight 200.0
 #define kTitleOriginCollapsed 16.0
 #define kTitleOriginExpanded 30.0
-#define kTitleMaxFont 36.0
+#define kTitleMaxFont 34.0
 
 #import "YAProfileFlexibleHeightBar.h"
 #import "SquareCashStyleBehaviorDefiner.h"
@@ -93,9 +93,10 @@
     descriptionLabel.font = [UIFont fontWithName:BIG_FONT size:16];
     descriptionLabel.textColor = [UIColor whiteColor];
     descriptionLabel.textAlignment = NSTextAlignmentCenter;
-
+    descriptionLabel.numberOfLines = 0;
+    descriptionLabel.lineBreakMode = NSLineBreakByWordWrapping;
     BLKFlexibleHeightBarSubviewLayoutAttributes *descriptionExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    CGRect frame = CGRectMake(20, kTitleOriginExpanded + 50, VIEW_WIDTH - 40, 20);
+    CGRect frame = CGRectMake(10, kTitleOriginExpanded + 40, VIEW_WIDTH - 20, 50);
     descriptionExpanded.frame = frame;
     descriptionExpanded.alpha = 1;
     descriptionExpanded.transform = CGAffineTransformIdentity;
@@ -114,7 +115,7 @@
     viewsLabel.font = [UIFont fontWithName:BIG_FONT size:16];
     viewsLabel.textColor = [UIColor whiteColor];
     viewsLabel.textAlignment = NSTextAlignmentCenter;
-    CGRect frame =  CGRectMake(20, kTitleOriginExpanded + 90, VIEW_WIDTH - 40, 20);
+    CGRect frame =  CGRectMake(10, kTitleOriginExpanded + 95, VIEW_WIDTH - 20, 20);
     BLKFlexibleHeightBarSubviewLayoutAttributes *viewsExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     viewsExpanded.frame = frame;
     viewsExpanded.alpha = 1;
