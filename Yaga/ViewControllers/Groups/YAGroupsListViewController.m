@@ -67,6 +67,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
     self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
     self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 0, 0);
+    self.collectionView.alwaysBounceVertical = YES;
     [self.view addSubview:self.flexibleNavBar];
 
     //notifications
