@@ -123,7 +123,7 @@
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(5, 15, VIEW_WIDTH - 5, 20)];
     label.font = [UIFont fontWithName:BOLD_FONT size:14];
     label.textColor = SECONDARY_COLOR;
-    label.text = section == 0 ? @"HOSTING" : @"ALL (Pending approval from Host)";
+    label.text = section == 0 && self.hostingGoups.count ? @"HOSTING" : @"ALL (Pending approval from Host)";
     [result addSubview:label];
     return result;
 }
