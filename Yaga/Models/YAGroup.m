@@ -105,6 +105,7 @@
 + (YAGroup*)groupWithServerResponseDictionary:(NSDictionary*)dictionary {
     YAGroup *result = [YAGroup group];
     result.serverId = dictionary[YA_RESPONSE_ID];
+    result.name = dictionary[YA_RESPONSE_NAME];
     return result;
 }
 

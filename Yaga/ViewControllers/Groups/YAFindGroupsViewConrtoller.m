@@ -369,7 +369,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         filtered = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
             return [evaluatedObject[YA_RESPONSE_NAME] rangeOfString:self.searchBar.text].location != NSNotFound || [evaluatedObject[YA_RESPONSE_MEMBERS] rangeOfString:self.searchBar.text].location != NSNotFound;
         }]];
-                         
+    
     self.featuredGroups = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
         return [evaluatedObject[@"featured"]  isEqual: @YES];
     }]];
@@ -507,7 +507,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     //    } else {
     //        cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld followers - Hosted by %@", (long)[groupData[YA_RESPONSE_FOLLOWER_COUNT] integerValue], groupData[YA_RESPONSE_MEMBERS]];
     //    }
-
+    
     //ios8 fix
     if ([cell respondsToSelector:@selector(layoutMargins)]) {
         cell.layoutMargins = UIEdgeInsetsZero;
@@ -551,17 +551,23 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *groupData = [self groupDataAtIndexPath:indexPath];
-    RLMResults *results = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", groupData[@"serverId"]]];
+    RLMResults *results = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", groupData[YA_RESPONSE_ID]]];
     
     //try to find an existing group
-    __block YAGroup *group;
-    
     if(results.count) {
-        group = results[0];
+        YAGroup *group = results[0];
+        
+        YAGifGridViewController *gridVC = [YAGifGridViewController new];
+        gridVC.group = group;
+        [self.navigationController pushViewController:gridVC animated:YES];
     }
     //or create new group from server response data, refresh and push grid to navigation stack
     else {
-        group = [YAGroup groupWithServerResponseDictionary:groupData];
+        YAGroup *group = [YAGroup groupWithServerResponseDictionary:groupData];
+        [[RLMRealm defaultRealm] beginWriteTransaction];
+        [[RLMRealm defaultRealm] addObject:group];
+        [[RLMRealm defaultRealm] commitWriteTransaction];
+        
         MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Fetching group data.."];
         [group refreshWithCompletion:^(NSError *error) {
             [hud hide:YES];
@@ -573,6 +579,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
             }
             
             YAGifGridViewController *gridVC = [YAGifGridViewController new];
+            gridVC.group = group;
             [self.navigationController pushViewController:gridVC animated:YES];
             
         } showPullDownToRefresh:NO];
