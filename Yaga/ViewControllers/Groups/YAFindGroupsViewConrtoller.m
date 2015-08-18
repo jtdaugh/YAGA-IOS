@@ -364,11 +364,17 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 #pragma mark - Private
 - (void)filterAndReload {
-    self.featuredGroups = [self.groupsDataArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+    NSArray *filtered = self.groupsDataArray;
+    if(self.searchBar.text.length != 0)
+        filtered = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            return [evaluatedObject[YA_RESPONSE_NAME] rangeOfString:self.searchBar.text].location != NSNotFound || [evaluatedObject[YA_RESPONSE_MEMBERS] rangeOfString:self.searchBar.text].location != NSNotFound;
+        }]];
+                         
+    self.featuredGroups = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
         return [evaluatedObject[@"featured"]  isEqual: @YES];
     }]];
     
-    NSMutableArray *suggested = [NSMutableArray arrayWithArray:self.groupsDataArray];
+    NSMutableArray *suggested = [NSMutableArray arrayWithArray:filtered];
     [suggested removeObjectsInArray:self.featuredGroups];
     self.suggestedGroups = suggested;
     
@@ -572,14 +578,4 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         } showPullDownToRefresh:NO];
     }
 }
-
-#pragma mark - UIScrollView
-//- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-//    CGFloat sectionHeaderHeight = -70;
-//    if (scrollView.contentOffset.y<=sectionHeaderHeight&&scrollView.contentOffset.y>=0) {
-//        scrollView.contentInset = UIEdgeInsetsMake(-scrollView.contentOffset.y, 0, 0, 0);
-//    } else if (scrollView.contentOffset.y>=sectionHeaderHeight) {
-//        scrollView.contentInset = UIEdgeInsetsMake(-sectionHeaderHeight, 0, 0, 0);
-//    }
-//}
 @end
