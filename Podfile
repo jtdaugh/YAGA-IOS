@@ -10,7 +10,7 @@ target 'Yaga', :exclusive => true do
     pod 'FrameAccessor', '~> 1.0'
     pod 'FLAnimatedImage', :git => 'https://github.com/yagainc/FLAnimatedImage.git'
     pod 'NSDate-Time-Ago', :inhibit_warnings => true
-    pod 'SVPullToRefresh', :git => 'https://github.com/yagainc/SVPullToRefresh.git', :commit => '760fba6a731e621d00ea937b31a1a45beccfe450'
+    pod 'SVPullToRefresh', :git => 'https://github.com/yagainc/SVPullToRefresh.git', :commit => '79220c9b0ddeb6a0fb7aa3bdc8b7681be8f3fdf7'
     pod 'UCZProgressView', :git => 'https://github.com/yagainc/UCZProgressView.git'
     pod 'OrderedDictionary'
     pod 'AFDownloadRequestOperation'
@@ -32,7 +32,7 @@ target 'YAVideoShareExtension', :exclusive => true do
 end
 
 post_install do |installer_representation|
-    installer_representation.project.targets.each do |target|
+    installer_representation.pods_project.targets.each do |target|
         if target.name == "Pods-YAVideoShareExtension-AFNetworking"
             target.build_configurations.each do |config|
                     config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'AF_APP_EXTENSIONS=1']
