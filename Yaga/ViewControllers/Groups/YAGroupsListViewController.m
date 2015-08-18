@@ -174,7 +174,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     //remove stream groups && dont get groups not following or member of
     RLMResults *groups = [[YAGroup allObjects] objectsWhere:@"streamGroup = 0 && (amFollowing = 1 || amMember = 1)"];
     
-    self.groups = [groups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"amMember" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    self.groups = [groups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     
     [self.collectionView reloadData];
 }

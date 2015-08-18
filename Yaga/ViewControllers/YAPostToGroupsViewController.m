@@ -56,7 +56,6 @@
     self.tableView.editing = NO;
     [self.view addSubview:self.tableView];
     
-    //replace this code
     RLMResults *hostGroups = [[YAGroup allObjects] objectsWhere:@"amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
     RLMResults *followGroups = [[YAGroup allObjects] objectsWhere:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
     
