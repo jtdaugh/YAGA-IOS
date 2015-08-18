@@ -582,11 +582,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         YAGroup *group = results[0];
         
         openGroupBlock(group, indexPath);
-        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-        
-        YAGroupGridViewController *vc = [YAGroupGridViewController new];
-        vc.group = group;
-        [self.navigationController pushViewController:vc animated:YES];
     }
     //or create new group from server response data, refresh and push grid to navigation stack
     else {
