@@ -10,7 +10,7 @@ target 'Yaga', :exclusive => true do
     pod 'FrameAccessor', '~> 1.0'
     pod 'FLAnimatedImage', :git => 'https://github.com/yagainc/FLAnimatedImage.git'
     pod 'NSDate-Time-Ago', :inhibit_warnings => true
-    pod 'SVPullToRefresh'
+    pod 'SVPullToRefresh', :git => 'https://github.com/yagainc/SVPullToRefresh.git', :commit => '760fba6a731e621d00ea937b31a1a45beccfe450'
     pod 'UCZProgressView', :git => 'https://github.com/yagainc/UCZProgressView.git'
     pod 'OrderedDictionary'
     pod 'AFDownloadRequestOperation'
