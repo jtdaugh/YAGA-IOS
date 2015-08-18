@@ -20,7 +20,7 @@
 #import "YAStandardFlexibleHeightBar.h"
 #import "BLKDelegateSplitter.h"
 #import "SquareCashStyleBehaviorDefiner.h"
-#import "YAGifGridViewController.h"
+#import "YAGroupGridViewController.h"
 
 #define headerAndAccessoryColor [UIColor colorWithRed:46.0/255.0 green:30.0/255.0 blue:117.0/255.0 alpha:1.0]
 #define kAccessoryButtonWidth 70
@@ -572,9 +572,11 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     if(results.count) {
         YAGroup *group = results[0];
         
-        YAGifGridViewController *gridVC = [YAGifGridViewController new];
-        gridVC.group = group;
-        [self.navigationController pushViewController:gridVC animated:YES];
+        YAGroupGridViewController *vc = [YAGroupGridViewController new];
+        vc.group = group;
+        
+        vc.group = group;
+        [self.navigationController pushViewController:vc animated:YES];
     }
     //or create new group from server response data, refresh and push grid to navigation stack
     else {
@@ -593,9 +595,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                 return;
             }
             
-            YAGifGridViewController *gridVC = [YAGifGridViewController new];
-            gridVC.group = group;
-            [self.navigationController pushViewController:gridVC animated:YES];
+            YAGroupGridViewController *vc = [YAGroupGridViewController new];
+            vc.group = group;
+            [self.navigationController pushViewController:vc animated:YES];
             
         } showPullDownToRefresh:NO];
     }
