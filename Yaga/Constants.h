@@ -223,7 +223,7 @@
 
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
 
-#define API_GROUPS_SEARCH_TEMPLATE          @"%@/groups/discover/"
+#define API_GROUPS_DISCOVER_TEMPLATE        @"%@/groups/discover/"
 
 #define API_GROUP_MEMBERS_TEMPLATE          @"%@/groups/%@/members/"
 
@@ -240,6 +240,8 @@
 
 #define API_PUBLIC_STREAM_TEMPLATE          @"%@/posts/list/?since=%lu&limit=%lu&offset=%lu"
 #define API_MY_STREAM_TEMPLATE              @"%@/posts/my/?since=%lu&limit=%lu&offset=%lu"
+
+#define API_GROUPS_SEARCH_TEMPLATE          @"%@/groups/search/?name=%@"
 
 #define kPublicStreamGroupId                @"_PublicStream_"
 #define kMyStreamGroupId                    @"_MyStream_"

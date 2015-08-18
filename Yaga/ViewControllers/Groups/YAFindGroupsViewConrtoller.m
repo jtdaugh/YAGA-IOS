@@ -1,3 +1,4 @@
+
 //
 //  YAFindGroupsViewConrtoller.m
 //
@@ -31,6 +32,11 @@
 
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UISearchBar *searchBar;
+@property (nonatomic, strong) UIActivityIndicatorView *searchActivity;
+@property (nonatomic, strong) UIActivityIndicatorView *searchTableActivity;
+@property (nonatomic, strong) UILabel *searchResultLabel;
+
+@property (nonatomic, strong) UIView *remindersBar;
 
 @property (atomic, assign) BOOL groupsListLoaded;
 @property (atomic, assign) BOOL findGroupsFinished;
@@ -78,8 +84,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     [self setupPullToRefresh];
     
-    //    [self.tableView triggerPullToRefresh];
-    
     _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
     
     [self filterAndReload];
@@ -89,6 +93,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [super viewDidAppear:animated];
     
     [self.tableView triggerPullToRefresh];
+    
+    [self showPendingReminders];
 }
 
 - (void)doneButtonPressed:(id)sender {
@@ -160,7 +166,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                     [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
             } else {
                 if(sentToServer) {
-                    [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+                    [[YAServer sharedServer] discoverGroupsWithCompletion:^(id response, NSError *error) {
                         self.findGroupsFinished = YES;
                         
                         if(!error) {
@@ -171,7 +177,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                                 dispatch_async(dispatch_get_main_queue(), ^{
                                     if(readableArray.count) {
                                         weakSelf.groupsDataArray = readableArray;
-                                        [self filterAndReload];
+                                        [weakSelf filterAndReload];
                                         
                                         [activityView removeFromSuperview];
                                         [findingGroupsLabel removeFromSuperview];
@@ -292,12 +298,12 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         if(!weakSelf.groupsDataArray.count)
             [weakSelf filterAndReload];
         
-        void (^searchGroupsBlock)(void) = ^{
-            [[YAServer sharedServer] searchGroupsWithCompletion:^(id response, NSError *error) {
+        void (^discoverGroupsBlock)(void) = ^{
+            [[YAServer sharedServer] discoverGroupsWithCompletion:^(id response, NSError *error) {
                 [weakSelf.tableView.pullToRefreshView stopAnimating];
                 
                 if(error) {
-                    [YAUtils showHudWithText:NSLocalizedString(@"Failed to search groups", @"")];
+                    [YAUtils showHudWithText:NSLocalizedString(@"Failed to discover groups", @"")];
                 }
                 else {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -315,11 +321,11 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         if(!lastYagaUsersRequested) {
             //force upload phone contacts in case there is no information on server yet otherwise searchGroups will return nothgin
             [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts, BOOL sentToServer) {
-                searchGroupsBlock();
+                discoverGroupsBlock();
             } excludingPhoneNumbers:nil];
         }
         else {
-            searchGroupsBlock();
+            discoverGroupsBlock();
         }
         
     }];
@@ -347,13 +353,13 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
     
     self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 70, VIEW_WIDTH-40, 30)];
+    self.searchBar.searchTextPositionAdjustment = UIOffsetMake(20, 0);
     self.searchBar.barStyle = UIBarStyleBlack;
     self.searchBar.translucent = NO;
     self.searchBar.barTintColor = [UIColor blackColor];
     self.searchBar.tintColor = [UIColor whiteColor];
     self.searchBar.backgroundColor = [UIColor blackColor];
     self.searchBar.delegate = self;
-    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeUnlessEditing];
     
     BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     searchBarExpanded.frame = CGRectMake(20, 70, VIEW_WIDTH-40, 30);
@@ -364,23 +370,110 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     [self.flexibleNavBar addSubview:self.searchBar];
     
+    
+//        self.remindersBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 70)];
+//        self.remindersBar.backgroundColor = [UIColor redColor];
+//    
+//        BLKFlexibleHeightBarSubviewLayoutAttributes *remindersBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+//        remindersBarExpanded.frame = CGRectMake(0, 92, VIEW_WIDTH, 70);
+//        [self.remindersBar addLayoutAttributes:remindersBarExpanded forProgress:0.0];
+//        BLKFlexibleHeightBarSubviewLayoutAttributes *remindersBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+//        remindersBarCollapsed.frame = CGRectMake(0, 0, VIEW_WIDTH, 70);
+//        [self.remindersBar addLayoutAttributes:remindersBarCollapsed forProgress:1.0];
+//    
+//        [self.flexibleNavBar addSubview:self.remindersBar];
+    
+    
 }
 
 #pragma mark - UISearchBarDelegate
 
 //doesn't work?
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
-    searchBar.text  = @"";
+    searchBar.text = @"";
     [searchBar resignFirstResponder];
     [searchBar setShowsCancelButton:NO animated:YES];
     
+    self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
     [self filterAndReload];
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
     [searchBar setShowsCancelButton:YES animated:YES];
     
-    [self filterAndReload];
+    void (^restoreBlock)(void) = ^{
+        [self.searchResultLabel removeFromSuperview];
+        [self.searchTableActivity removeFromSuperview];
+        [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
+        [self.searchActivity removeFromSuperview];
+        self.searchActivity = nil;
+        
+        self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
+        [self filterAndReload];
+    };
+    
+    __weak typeof(self) weakSelf = self;
+    if(searchBar.text.length) {
+        if(!self.searchActivity)
+            self.searchActivity = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        self.searchActivity.frame = CGRectMake(15, 10, 10, 10);
+        [self.searchBar addSubview:self.searchActivity];
+        [self.searchActivity  startAnimating];
+        [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeNever];
+        
+        if(!self.searchTableActivity)
+            self.searchTableActivity = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        self.searchTableActivity.frame = CGRectMake(self.tableView.frame.size.width/2- self.searchTableActivity.frame.size.width/2, self.tableView.frame.size.height/4,  self.searchTableActivity.frame.size.width,  self.searchTableActivity.frame.size.height);
+        self.searchTableActivity.color = PRIMARY_COLOR;
+        [self.searchTableActivity startAnimating];
+        [self.tableView addSubview:self.searchTableActivity];
+        
+        if(!self.searchResultLabel)
+            self.searchResultLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.searchTableActivity.frame.origin.y + self.searchTableActivity.frame.size.height, self.tableView.frame.size.width, 50)];
+        self.searchResultLabel.text =[NSString stringWithFormat:@"Searching %@", searchBar.text];
+        self.searchResultLabel.textColor = PRIMARY_COLOR;
+        self.searchResultLabel.font = [UIFont fontWithName:BIG_FONT size:26];
+        self.searchResultLabel.textAlignment = NSTextAlignmentCenter;
+        [self.tableView addSubview:self.searchResultLabel];
+        
+        self.groupsDataArray = nil;
+        [self filterAndReload];
+
+        [[YAServer sharedServer] searchGroupsByName:[searchBar.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] withCompletion:^(id response, NSError *error) {
+            if(error) {
+                [YAUtils showHudWithText:@"Error occured, try later"];
+                
+                restoreBlock();
+                return;
+            }
+            [weakSelf.searchTableActivity removeFromSuperview];
+
+            [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
+            [self.searchActivity removeFromSuperview];
+            self.searchActivity = nil;
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                NSArray *readableArray = [YAUtils readableGroupsArrayFromResponse:response];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if(readableArray.count) {
+                        weakSelf.groupsDataArray = readableArray;
+                        [weakSelf.searchResultLabel removeFromSuperview];
+                        weakSelf.searchResultLabel = nil;
+                    }
+                    else {
+                        weakSelf.groupsDataArray = nil;
+                        weakSelf.searchResultLabel.text = [NSString stringWithFormat:@"Nothing found for %@", searchBar.text];
+                    }
+                    
+                    [weakSelf filterAndReload];
+                });
+            });
+            
+        }];
+    }
+    else {
+        restoreBlock();
+    }
 }
 
 #pragma mark - Private
@@ -425,6 +518,26 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         secondLine = [NSString stringWithFormat:@"Hosted by %@",  groupData[YA_RESPONSE_MEMBERS]];
     }
     return [NSString stringWithFormat:@"%@\n%@", firstLine, secondLine];
+}
+
+- (void)showPendingReminders {
+    RLMResults *pendingVideos = [YAVideo objectsWhere:@"pending = 1"];
+    NSMutableArray *pendingGroupNames = [NSMutableArray new];
+    for(YAVideo *video in pendingVideos) {
+        if(!video.group)
+            continue;
+        
+        //my group?
+        NSArray *memberPhones = [video.group.members valueForKey:@"number"];
+        if(![memberPhones containsObject:[YAUser currentUser].phoneNumber])
+            continue;
+        
+        //added already
+        if([pendingGroupNames containsObject:video.group.name])
+            continue;
+        
+        [pendingGroupNames addObject:video.group.name];
+    }
 }
 
 #pragma mark - TableView DataSource
@@ -592,7 +705,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         YAGroupGridViewController *vc = [YAGroupGridViewController new];
         vc.group = group;
         [self.navigationController pushViewController:vc animated:YES];
-
+        
     };
     
     //try to find an existing group

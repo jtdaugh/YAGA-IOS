@@ -476,11 +476,24 @@
     }];
 }
 
-- (void)searchGroupsWithCompletion:(responseBlock)completion
+- (void)discoverGroupsWithCompletion:(responseBlock)completion
 {
     NSAssert(self.authToken.length, @"auth token not set");
     
-    NSString *api = [NSString stringWithFormat:API_GROUPS_SEARCH_TEMPLATE, self.base_api];
+    NSString *api = [NSString stringWithFormat:API_GROUPS_DISCOVER_TEMPLATE, self.base_api];
+    
+    [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+}
+
+- (void)searchGroupsByName:(NSString*)name withCompletion:(responseBlock)completion
+{
+    NSAssert(self.authToken.length, @"auth token not set");
+    
+    NSString *api = [NSString stringWithFormat:API_GROUPS_SEARCH_TEMPLATE, self.base_api, name];
     
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
