@@ -93,6 +93,7 @@
 		6EA942161A404B00001803C5 /* YAGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942151A404B00001803C5 /* YAGroup.m */; };
 		6EA942191A405C80001803C5 /* YAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942181A405C80001803C5 /* YAUtils.m */; };
 		6EA9421C1A41E5C9001803C5 /* YAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA9421B1A41E5C9001803C5 /* YAVideo.m */; };
+		6EB5061C1B834EE400484D96 /* YAPendingRemindersView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB5061B1B834EE400484D96 /* YAPendingRemindersView.m */; };
 		6EB57DEB1B5E6F52003B7374 /* YAEditVideoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DEA1B5E6F52003B7374 /* YAEditVideoViewController.m */; };
 		6EB57DF81B5E7159003B7374 /* SASliderLeft.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DF21B5E7159003B7374 /* SASliderLeft.m */; };
 		6EB57DF91B5E7159003B7374 /* SASliderRight.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EB57DF41B5E7159003B7374 /* SASliderRight.m */; };
@@ -338,6 +339,8 @@
 		6EA942181A405C80001803C5 /* YAUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAUtils.m; sourceTree = "<group>"; };
 		6EA9421A1A41E5C9001803C5 /* YAVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAVideo.h; sourceTree = "<group>"; };
 		6EA9421B1A41E5C9001803C5 /* YAVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAVideo.m; sourceTree = "<group>"; };
+		6EB5061A1B834EE400484D96 /* YAPendingRemindersView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPendingRemindersView.h; sourceTree = "<group>"; };
+		6EB5061B1B834EE400484D96 /* YAPendingRemindersView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPendingRemindersView.m; sourceTree = "<group>"; };
 		6EB57DE91B5E6F52003B7374 /* YAEditVideoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAEditVideoViewController.h; sourceTree = "<group>"; };
 		6EB57DEA1B5E6F52003B7374 /* YAEditVideoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAEditVideoViewController.m; sourceTree = "<group>"; };
 		6EB57DF11B5E7159003B7374 /* SASliderLeft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASliderLeft.h; sourceTree = "<group>"; };
@@ -828,6 +831,8 @@
 				0F46B6E51B58D8FE008E9808 /* YAApplyCaptionView.m */,
 				6EEC2BE31B7E1238004A3393 /* YAPostGroupCell.h */,
 				6EEC2BE41B7E1238004A3393 /* YAPostGroupCell.m */,
+				6EB5061A1B834EE400484D96 /* YAPendingRemindersView.h */,
+				6EB5061B1B834EE400484D96 /* YAPendingRemindersView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1165,6 +1170,7 @@
 				86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */,
 				6E1E209A1A6EF2E90041DF54 /* YAGifCreationOperation.m in Sources */,
 				6E2DC5EC1B7DEE620072EA4C /* YAPostToGroupsViewController.m in Sources */,
+				6EB5061C1B834EE400484D96 /* YAPendingRemindersView.m in Sources */,
 				6E583B781A65394800639BE5 /* YAAnimatedTransitioningController.m in Sources */,
 				0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */,
 				88FB0A231B1D4F36002C213C /* YAEvent.m in Sources */,

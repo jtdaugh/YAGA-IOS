@@ -22,6 +22,7 @@
 #import "BLKDelegateSplitter.h"
 #import "SquareCashStyleBehaviorDefiner.h"
 #import "YAGroupGridViewController.h"
+#import "YAPendingRemindersView.h"
 
 #define headerAndAccessoryColor SECONDARY_COLOR
 #define kAccessoryButtonWidth 70
@@ -36,7 +37,7 @@
 @property (nonatomic, strong) UIActivityIndicatorView *searchTableActivity;
 @property (nonatomic, strong) UILabel *searchResultLabel;
 
-@property (nonatomic, strong) UIView *remindersBar;
+@property (nonatomic, strong) YAPendingRemindersView *remindersBar;
 
 @property (atomic, assign) BOOL groupsListLoaded;
 @property (atomic, assign) BOOL findGroupsFinished;
@@ -46,7 +47,6 @@
 
 @property (nonatomic, strong) NSArray *featuredGroups;
 @property (nonatomic, strong) NSArray *suggestedGroups;
-
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -56,6 +56,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.automaticallyAdjustsScrollViewInsets = NO;
     
     self.navigationItem.title = NSLocalizedString(@"Explore Channels", @"");
     
@@ -69,18 +71,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
     
-    if(!self.onboardingMode) {
-        self.automaticallyAdjustsScrollViewInsets = NO;
-        [self setupFlexibleNavBar];
-        self.flexibleNavBar.behaviorDefiner = nil;//[SquareCashStyleBehaviorDefiner new];
-        self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
-        self.tableView.delegate = (id<UITableViewDelegate>)self.delegateSplitter;
-        self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
+    if(self.onboardingMode)
         [self.view addSubview:self.tableView];
-        [self.view addSubview:self.flexibleNavBar];
-    } else {
-        [self.view addSubview:self.tableView];
-    }
+    else
+        [self setupFlexibleNavBarWithRemindersBar];
     
     [self setupPullToRefresh];
     
@@ -94,7 +88,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     [self.tableView triggerPullToRefresh];
     
-    [self showPendingReminders];
+    //recreate reminders
+    [self setupFlexibleNavBarWithRemindersBar];
 }
 
 - (void)doneButtonPressed:(id)sender {
@@ -337,11 +332,14 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
 }
 
-- (void)setupFlexibleNavBar {
+- (void)setupFlexibleNavBarWithRemindersBar {
+    self.remindersBar = [[YAPendingRemindersView alloc] init];
+    self.remindersBar.frame = CGRectMake(0, 120, VIEW_WIDTH, self.remindersBar.maxHeight);
+    [self.flexibleNavBar addSubview:self.remindersBar];
     
     self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
     CGRect barFrame = self.flexibleNavBar.frame;
-    self.flexibleNavBar.maximumBarHeight = 116;
+    self.flexibleNavBar.maximumBarHeight = 116 + self.remindersBar.maxHeight;
     self.flexibleNavBar.minimumBarHeight = 66;
     self.flexibleNavBar.layer.masksToBounds = YES;
     barFrame.size.height += 50;
@@ -352,6 +350,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
     
+    //search bar
     self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 70, VIEW_WIDTH-40, 30)];
     self.searchBar.searchTextPositionAdjustment = UIOffsetMake(20, 0);
     self.searchBar.barStyle = UIBarStyleBlack;
@@ -367,23 +366,28 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     searchBarCollapsed.frame = CGRectMake(20, 22, VIEW_WIDTH-40, 30);
     [self.searchBar addLayoutAttributes:searchBarCollapsed forProgress:1.0];
-    
     [self.flexibleNavBar addSubview:self.searchBar];
     
+    //reminders bar
+    BLKFlexibleHeightBarSubviewLayoutAttributes *remindersBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+    remindersBarExpanded.frame = CGRectMake(0, 120, VIEW_WIDTH, self.remindersBar.maxHeight);
+    [self.remindersBar addLayoutAttributes:remindersBarExpanded forProgress:0.0];
+    BLKFlexibleHeightBarSubviewLayoutAttributes *remindersBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+    remindersBarCollapsed.frame = CGRectMake(0, 82, VIEW_WIDTH, 0);
+    [self.remindersBar addLayoutAttributes:remindersBarCollapsed forProgress:1.0];
+    [self.flexibleNavBar addSubview:self.remindersBar];
     
-//        self.remindersBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 70)];
-//        self.remindersBar.backgroundColor = [UIColor redColor];
-//    
-//        BLKFlexibleHeightBarSubviewLayoutAttributes *remindersBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-//        remindersBarExpanded.frame = CGRectMake(0, 92, VIEW_WIDTH, 70);
-//        [self.remindersBar addLayoutAttributes:remindersBarExpanded forProgress:0.0];
-//        BLKFlexibleHeightBarSubviewLayoutAttributes *remindersBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-//        remindersBarCollapsed.frame = CGRectMake(0, 0, VIEW_WIDTH, 70);
-//        [self.remindersBar addLayoutAttributes:remindersBarCollapsed forProgress:1.0];
-//    
-//        [self.flexibleNavBar addSubview:self.remindersBar];
-    
-    
+    //post adjustments
+    self.flexibleNavBar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];
+    self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
+    self.tableView.delegate = (id<UITableViewDelegate>)self.delegateSplitter;
+    self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
+    [self.view addSubview:self.tableView];
+    [self.view addSubview:self.flexibleNavBar];
+    self.navigationController.navigationBar.translucent = NO;
+
+    //important to reassign initial pull to refresh inset, there is no way to recreate it
+    self.tableView.pullToRefreshView.originalTopInset = self.tableView.contentInset.top;
 }
 
 #pragma mark - UISearchBarDelegate
@@ -520,26 +524,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     return [NSString stringWithFormat:@"%@\n%@", firstLine, secondLine];
 }
 
-- (void)showPendingReminders {
-    RLMResults *pendingVideos = [YAVideo objectsWhere:@"pending = 1"];
-    NSMutableArray *pendingGroupNames = [NSMutableArray new];
-    for(YAVideo *video in pendingVideos) {
-        if(!video.group)
-            continue;
-        
-        //my group?
-        NSArray *memberPhones = [video.group.members valueForKey:@"number"];
-        if(![memberPhones containsObject:[YAUser currentUser].phoneNumber])
-            continue;
-        
-        //added already
-        if([pendingGroupNames containsObject:video.group.name])
-            continue;
-        
-        [pendingGroupNames addObject:video.group.name];
-    }
-}
-
 #pragma mark - TableView DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     NSUInteger result = self.featuredGroups.count ? 1 : 0;
@@ -558,13 +542,14 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     return result;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     return 40;
+
 }
 
 - (nullable UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     //todo:use UITableViewHeaderFooterView for reuse
-    UIView *result = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 40)];
+    UIView *result = [[UIView alloc] initWithFrame:CGRectMake(100, self.tableView.contentOffset.y, VIEW_WIDTH, 40)];
     result.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.9];
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(15, 15, VIEW_WIDTH - 15, 20)];
     label.font = [UIFont fontWithName:BOLD_FONT size:14];
@@ -636,18 +621,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     cell.textLabel.text = groupData[YA_RESPONSE_NAME];
     cell.detailTextLabel.text = [self twoLinesDescriptionFromGroupData:groupData];
-    
-    //    NSDictionary *groupData = [self.groupsDataArray objectAtIndex:indexPath.row];
-    //    BOOL private = [groupData[YA_RESPONSE_PRIVATE] boolValue];
-    //    UIColor *cellColor = private ? PRIMARY_COLOR : SECONDARY_COLOR;
-    //
-    //    cell.textLabel.textColor = cellColor;
-    //    cell.textLabel.text = groupData[YA_RESPONSE_NAME];
-    //    if (private) {
-    //        cell.detailTextLabel.text = [NSString stringWithFormat:@"Private - %@", groupData[YA_RESPONSE_MEMBERS]];
-    //    } else {
-    //        cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld followers - Hosted by %@", (long)[groupData[YA_RESPONSE_FOLLOWER_COUNT] integerValue], groupData[YA_RESPONSE_MEMBERS]];
-    //    }
+
     
     //ios8 fix
     if ([cell respondsToSelector:@selector(layoutMargins)]) {
