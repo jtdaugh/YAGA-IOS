@@ -15,7 +15,7 @@
 #import "UIImage+Color.h"
 #import "NameGroupViewController.h"
 #import "YACreateGroupNavigationController.h"
-#import "YAStreamViewController.h"
+#import "YALatestStreamViewController.h"
 #import "YAFindGroupsViewConrtoller.h"
 #import "YAGroupsListViewController.h"
 #import "YAMyStreamViewController.h"
@@ -40,7 +40,7 @@
 //        self.navigationItem.prompt = quote;
 //    }];
     
-    UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAStreamViewController new]];
+    UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YALatestStreamViewController new]];
     vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
     vc0.tabBarItem.title = @"Latest";
     

@@ -81,7 +81,7 @@ DEPENDENCIES:
   - Realm (~> 0.93.2)
   - SloppySwiper
   - SVPullToRefresh (from `https://github.com/yagainc/SVPullToRefresh.git`, commit
-    `760fba6a731e621d00ea937b31a1a45beccfe450`)
+    `79220c9b0ddeb6a0fb7aa3bdc8b7681be8f3fdf7`)
   - UCZProgressView (from `https://github.com/yagainc/UCZProgressView.git`)
 
 EXTERNAL SOURCES:
@@ -91,7 +91,7 @@ EXTERNAL SOURCES:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019
     :git: https://github.com/yagainc/GPUImage.git
   SVPullToRefresh:
-    :commit: 760fba6a731e621d00ea937b31a1a45beccfe450
+    :commit: 79220c9b0ddeb6a0fb7aa3bdc8b7681be8f3fdf7
     :git: https://github.com/yagainc/SVPullToRefresh.git
   UCZProgressView:
     :git: https://github.com/yagainc/UCZProgressView.git
@@ -104,7 +104,7 @@ CHECKOUT OPTIONS:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019
     :git: https://github.com/yagainc/GPUImage.git
   SVPullToRefresh:
-    :commit: 760fba6a731e621d00ea937b31a1a45beccfe450
+    :commit: 79220c9b0ddeb6a0fb7aa3bdc8b7681be8f3fdf7
     :git: https://github.com/yagainc/SVPullToRefresh.git
   UCZProgressView:
     :commit: 3c6b5cc6a90de216675e144494b699277304d32e
@@ -119,7 +119,7 @@ SPEC CHECKSUMS:
   FBSDKCoreKit: f335eaf6865e1e1597dee1debfb533045500da47
   FBSDKShareKit: 642034ac9f30793dfd897851b724bb4281750266
   Firebase: 2db60272f68ce40c7d47e5ae6eddc16977c65d4c
-  FLAnimatedImage: 7599ec218dceacdcacbdfccb2947415c2619cd11
+  FLAnimatedImage: f9422f796135aff80d8c00b2afc48015bb746e24
   FrameAccessor: 0f7ba6ce37be9a5d0302a27c731dca70af8d438b
   GPUImage: 733a5f0fab92df9de1c37ba9df520a833ccb406d
   Harpy: 7cb3e32eea8a21af0e89b7f9f7bccd23f9427139
@@ -132,6 +132,6 @@ SPEC CHECKSUMS:
   Realm: 2fdd0ae74f730e190384e0338d8a0d3654df8220
   SloppySwiper: 9518b65478d92b8ea9ffd283c1ce3e5d123bf3a9
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
-  UCZProgressView: bb634a328b25327be99d9a6e3408387536426a5d
+  UCZProgressView: 32fa5c572ff1300bf22553c8286600d9ae42f50f
 
-COCOAPODS: 0.38.2
+COCOAPODS: 0.37.2

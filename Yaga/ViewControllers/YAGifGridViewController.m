@@ -174,10 +174,12 @@ static NSString *cellID = @"Cell";
     dispatch_async(dispatch_get_main_queue(), ^{
         if (weakSelf.scrollingFast) return;
         for (YAVideoCell *cell in [weakSelf.collectionView visibleCells]) {
-            if ([cell.video.serverId isEqualToString:serverId] || [cell.video.localId isEqualToString:localId]) {
-                DLog(@"Updating comment count to %ld for videoID: %@", eventCount, serverId);
-                [cell setEventCount:eventCount];
-                break;
+            if ([cell isKindOfClass:[YAVideoCell class]]) {
+                if ([cell.video.serverId isEqualToString:serverId] || [cell.video.localId isEqualToString:localId]) {
+                    DLog(@"Updating comment count to %ld for videoID: %@", eventCount, serverId);
+                    [cell setEventCount:eventCount];
+                    break;
+                }
             }
         }
     });
@@ -187,7 +189,9 @@ static NSString *cellID = @"Cell";
     [super viewWillAppear:animated];
     
     for (YAVideoCell *cell in [self.collectionView visibleCells]) {
-        [cell animateGifView:YES];
+        if ([cell isKindOfClass:[YAVideoCell class]]) {
+            [cell animateGifView:YES];
+        }
     }
 }
 
@@ -212,7 +216,9 @@ static NSString *cellID = @"Cell";
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     for (YAVideoCell *cell in [self.collectionView visibleCells]) {
-        [cell animateGifView:NO];
+        if ([cell isKindOfClass:[YAVideoCell class]]) {
+            [cell animateGifView:NO];
+        }
     }
 }
 
@@ -300,10 +306,10 @@ static NSString *cellID = @"Cell";
             return;
         }
         
-        NSUInteger countOfItems = [weakSelf collectionView:weakSelf.collectionView numberOfItemsInSection:0];
+        NSUInteger countOfItems = [weakSelf collectionView:weakSelf.collectionView numberOfItemsInSection:[self gifGridSection]];
         
         if(index != NSNotFound && index <= countOfItems) {
-            [weakSelf.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:index inSection:0]]];
+            [weakSelf.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:index inSection:[self gifGridSection]]]];
         }
         else {
             [NSException raise:@"something is really wrong" format:@""];
@@ -357,8 +363,8 @@ static NSString *cellID = @"Cell";
     void (^refreshBlock)(void) = ^ {
         
         //do not scroll to the top if infinite scrolling is used
-        if(!self.collectionView.infiniteScrollingView && [self collectionView:self.collectionView numberOfItemsInSection:0] > 0) {
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+        if(!self.collectionView.infiniteScrollingView && [self collectionView:self.collectionView numberOfItemsInSection:[self gifGridSection]] > 0) {
+            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:[self gifGridSection]] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
             [self scrollingDidStop];
         }
         
@@ -379,7 +385,7 @@ static NSString *cellID = @"Cell";
             NSUInteger index = [self.sortedVideos indexOfObject:video];
             if (index != NSNotFound) {
                 if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:index]]) {
-                    [indexPathsToReload addObject:[NSIndexPath indexPathForItem:index inSection:0]];
+                    [indexPathsToReload addObject:[NSIndexPath indexPathForItem:index inSection:[self gifGridSection]]];
                 }
             }
         }
@@ -522,7 +528,8 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(YAVideoCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-    [cell animateGifView:NO];
+    if (indexPath.section == [self gifGridSection])
+        [cell animateGifView:NO];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -575,7 +582,7 @@ static NSString *cellID = @"Cell";
         return;
     }
     
-    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:videoIndex inSection:0];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:videoIndex inSection:[self gifGridSection]];
     [self openVideoAtIndexPath:indexPath];
 }
 
@@ -638,7 +645,9 @@ static NSString *cellID = @"Cell";
 - (void)scrollingDidSlowDown {
     [self.collectionView layoutIfNeeded]; // Ensure visibleCells returns correct cells
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
-        [videoCell renderLightweightContent];
+        if ([videoCell isKindOfClass:[YAVideoCell class]]) {
+            [videoCell renderLightweightContent];
+        }
     }
 }
 
@@ -648,8 +657,10 @@ static NSString *cellID = @"Cell";
     
     [self.collectionView layoutIfNeeded]; // Ensure visibleCells returns correct cells
     for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
-        [videoCell renderLightweightContent]; // Will know if its already been rendered
-        [videoCell renderHeavyWeightContent];
+        if ([videoCell isKindOfClass:[YAVideoCell class]]) {
+            [videoCell renderLightweightContent]; // Will know if its already been rendered
+            [videoCell renderHeavyWeightContent];
+        }
     }
 
     if (!self.assetsPrioritisationHandled) {
@@ -703,11 +714,11 @@ static NSString *cellID = @"Cell";
         return;
     }
     
-    if(index < [self collectionView:self.collectionView numberOfItemsInSection:0]) {
+    if(index < [self collectionView:self.collectionView numberOfItemsInSection:[self gifGridSection]]) {
         UIEdgeInsets tmp = self.collectionView.contentInset;
         
         [self.collectionView setContentInset:UIEdgeInsetsZero];//Make(collectionViewHeight/2, 0, collectionViewHeight/2, 0)];
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:[self gifGridSection]] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
         
         //even not animated scrollToItemAtIndexPath call takes some time, using hack
         __weak typeof(self) weakSelf = self;
@@ -717,6 +728,10 @@ static NSString *cellID = @"Cell";
             [weakSelf scrollingDidStop];
         });
     }
+}
+
+- (NSInteger)gifGridSection {
+    return 0;
 }
 
 #pragma mark - tooltips

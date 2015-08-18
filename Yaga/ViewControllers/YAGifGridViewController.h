@@ -33,6 +33,8 @@
 - (void)setupPullToRefresh;
 - (void)groupInfoPressed;
 
+- (NSInteger)gifGridSection;
+
 - (BLKFlexibleHeightBar *)createNavBar;
 
 @end

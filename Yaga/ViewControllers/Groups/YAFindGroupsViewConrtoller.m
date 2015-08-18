@@ -22,7 +22,6 @@
 #import "BLKDelegateSplitter.h"
 #import "SquareCashStyleBehaviorDefiner.h"
 #import "YAGroupGridViewController.h"
-#import "YAPendingRemindersView.h"
 
 #define headerAndAccessoryColor SECONDARY_COLOR
 #define kAccessoryButtonWidth 70
@@ -36,8 +35,6 @@
 @property (nonatomic, strong) UIActivityIndicatorView *searchActivity;
 @property (nonatomic, strong) UIActivityIndicatorView *searchTableActivity;
 @property (nonatomic, strong) UILabel *searchResultLabel;
-
-@property (nonatomic, strong) YAPendingRemindersView *remindersBar;
 
 @property (atomic, assign) BOOL groupsListLoaded;
 @property (atomic, assign) BOOL findGroupsFinished;
@@ -333,13 +330,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 - (void)setupFlexibleNavBarWithRemindersBar {
-    self.remindersBar = [[YAPendingRemindersView alloc] init];
-    self.remindersBar.frame = CGRectMake(0, 120, VIEW_WIDTH, self.remindersBar.maxHeight);
-    [self.flexibleNavBar addSubview:self.remindersBar];
-    
     self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
     CGRect barFrame = self.flexibleNavBar.frame;
-    self.flexibleNavBar.maximumBarHeight = 116 + self.remindersBar.maxHeight;
+    self.flexibleNavBar.maximumBarHeight = 116;
     self.flexibleNavBar.minimumBarHeight = 66;
     self.flexibleNavBar.layer.masksToBounds = YES;
     barFrame.size.height += 50;
@@ -367,15 +360,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     searchBarCollapsed.frame = CGRectMake(20, 22, VIEW_WIDTH-40, 30);
     [self.searchBar addLayoutAttributes:searchBarCollapsed forProgress:1.0];
     [self.flexibleNavBar addSubview:self.searchBar];
-    
-    //reminders bar
-    BLKFlexibleHeightBarSubviewLayoutAttributes *remindersBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    remindersBarExpanded.frame = CGRectMake(0, 120, VIEW_WIDTH, self.remindersBar.maxHeight);
-    [self.remindersBar addLayoutAttributes:remindersBarExpanded forProgress:0.0];
-    BLKFlexibleHeightBarSubviewLayoutAttributes *remindersBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    remindersBarCollapsed.frame = CGRectMake(0, 82, VIEW_WIDTH, 0);
-    [self.remindersBar addLayoutAttributes:remindersBarCollapsed forProgress:1.0];
-    [self.flexibleNavBar addSubview:self.remindersBar];
     
     //post adjustments
     self.flexibleNavBar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];

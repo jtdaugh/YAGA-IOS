@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "YAGifGridViewController.h"
 
-@interface YAStreamViewController : YAGifGridViewController
+@interface YAStreamViewController : YAGifGridViewController <UICollectionViewDelegateFlowLayout>
 - (void)initStreamGroup;
 @end

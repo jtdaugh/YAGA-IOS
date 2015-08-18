@@ -10,4 +10,6 @@
 
 @interface YAGroupGridViewController : YAGifGridViewController
 
+@property (nonatomic) BOOL openStraightToPendingSection;
+
 @end

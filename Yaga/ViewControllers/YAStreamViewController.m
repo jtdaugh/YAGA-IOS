@@ -25,11 +25,14 @@
 - (id)init {
     if(self = [super init]) {
         [self initStreamGroup];
-
         return self;
     }
     else
         return nil;
+}
+
+- (void)initStreamGroup {
+    [NSException raise:@"AbstractMethodCall" format:@"YAStreamViewController must be subclassed"];
 }
 
 - (void)viewDidLoad {
@@ -37,6 +40,9 @@
     [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT * (1 + GROUP_LABEL_PROP))];
 }
 
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT * (1 + GROUP_LABEL_PROP));
+}
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = (YAVideoCell *) [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
@@ -46,22 +52,6 @@
     return cell;
 }
 
-#pragma mark - To Override
-- (void)initStreamGroup {
-    RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", kPublicStreamGroupId]];
-    if(groups.count == 1) {
-        self.group = [groups objectAtIndex:0];
-    }
-    else {
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        self.group = [YAGroup group];
-        self.group.serverId = kPublicStreamGroupId;
-        self.group.name = NSLocalizedString(@"Latest Videos", @"");
-        self.group.streamGroup = YES;
-        [[RLMRealm defaultRealm] addObject:self.group];
-        [[RLMRealm defaultRealm] commitWriteTransaction];
-    }
-}
 - (BLKFlexibleHeightBar *)createNavBar {
     YAStandardFlexibleHeightBar *bar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
     bar.titleLabel.text = self.group.name;

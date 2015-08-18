@@ -32,7 +32,7 @@ target 'YAVideoShareExtension', :exclusive => true do
 end
 
 post_install do |installer_representation|
-    installer_representation.pods_project.targets.each do |target|
+    installer_representation.project.targets.each do |target|
         if target.name == "Pods-YAVideoShareExtension-AFNetworking"
             target.build_configurations.each do |config|
                     config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'AF_APP_EXTENSIONS=1']

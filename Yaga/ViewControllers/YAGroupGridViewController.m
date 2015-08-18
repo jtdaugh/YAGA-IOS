@@ -30,7 +30,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.pendingMode = NO;
+    self.pendingMode = self.openStraightToPendingSection;
+    self.segmentedControl.selectedSegmentIndex = self.openStraightToPendingSection ? 1 : 0;
+    
     // Do any additional setup after loading the view.
 }
 
