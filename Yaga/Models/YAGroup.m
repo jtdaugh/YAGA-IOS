@@ -76,13 +76,7 @@
             results = [results stringByAppendingFormat:NSLocalizedString(@"OTHER_CONTACTS_TEMPLATE", @""), andMoreCount];
         }
        
-    }
-    if(self.publicGroup) {
-        results = [@"Hosted by " stringByAppendingString:results];
-    } else {
-        results = [@"Private channel with " stringByAppendingString:results]; 
-    }
-    
+    }    
 
     return results;
 }

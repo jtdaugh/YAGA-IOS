@@ -14,15 +14,11 @@ typedef void (^editButtonClickedBlock)(void);
 
 @property (nonatomic, copy) editButtonClickedBlock editBlock;
 
-@property (nonatomic, strong) NSString *groupName;
-@property (nonatomic, strong) NSString *membersString;
-@property (nonatomic) BOOL muted;
-@property (nonatomic) BOOL publicGroup;
-@property (nonatomic) BOOL showUpdatedIndicator;
+@property (nonatomic, strong) YAGroup *group;
 
 + (CGFloat)cellHeight;
 + (CGFloat)contentWidth;
 
-+ (CGSize) sizeForMembersString:(NSString *)string;
++ (CGSize)sizeForGroup:(YAGroup *)group;
 
 @end

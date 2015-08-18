@@ -200,25 +200,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    GroupsCollectionViewCell *cell;
-    
-    cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
-    YAGroup *group = [self.groups objectAtIndex:indexPath.item];
-    
-    cell.groupName = group.name;
-    
-    cell.membersString = group.membersString;
-    
-    cell.muted = group.muted;
-
-    cell.publicGroup = group.publicGroup;
-    
-    cell.showUpdatedIndicator = group.hasUnviewedVideos;
-    
-    DLog(@"Group:%@ followerCount:%ld", group.name, (long)group.followerCount);
-    
+    GroupsCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
+    cell.group = [self.groups objectAtIndex:indexPath.item];;
     return cell;
-    
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -230,10 +214,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    YAGroup *group = self.groups[indexPath.item];
-    NSString *membersString = group.membersString;
-    
-    return [GroupsCollectionViewCell sizeForMembersString:membersString];
+    return [GroupsCollectionViewCell sizeForGroup:self.groups[indexPath.item]];
 }
 
 

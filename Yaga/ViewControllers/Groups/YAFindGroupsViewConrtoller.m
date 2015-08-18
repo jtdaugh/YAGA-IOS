@@ -22,7 +22,7 @@
 #import "SquareCashStyleBehaviorDefiner.h"
 #import "YAGroupGridViewController.h"
 
-#define headerAndAccessoryColor [UIColor colorWithRed:46.0/255.0 green:30.0/255.0 blue:117.0/255.0 alpha:1.0]
+#define headerAndAccessoryColor SECONDARY_COLOR
 #define kAccessoryButtonWidth 70
 
 @interface YAFindGroupsViewConrtoller () <UITableViewDelegate, UITableViewDataSource>
@@ -409,8 +409,15 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 - (NSString*)twoLinesDescriptionFromGroupData:(NSDictionary*)groupData {
-    NSString *firstLine = [NSString stringWithFormat:@"%@ Followers", groupData[YA_RESPONSE_FOLLOWER_COUNT]];
-    NSString *secondLine = [NSString stringWithFormat:@"Hosted by %@",  groupData[YA_RESPONSE_MEMBERS]];
+    NSString *firstLine;
+    NSString *secondLine;
+    if ([groupData[YA_RESPONSE_PRIVATE] boolValue]) {
+        firstLine = @"🔒 Private Channel";
+        secondLine = groupData[YA_RESPONSE_MEMBERS];
+    } else {
+        firstLine = [NSString stringWithFormat:@"%@ Followers", groupData[YA_RESPONSE_FOLLOWER_COUNT]];
+        secondLine = [NSString stringWithFormat:@"Hosted by %@",  groupData[YA_RESPONSE_MEMBERS]];
+    }
     return [NSString stringWithFormat:@"%@\n%@", firstLine, secondLine];
 }
 
