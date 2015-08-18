@@ -85,6 +85,12 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self filterAndReload];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [self.tableView triggerPullToRefresh];
+}
+
 - (void)doneButtonPressed:(id)sender {
     if(self.onboardingMode) {
         [self performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:self];

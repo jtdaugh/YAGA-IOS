@@ -80,7 +80,8 @@ DEPENDENCIES:
   - OrderedDictionary
   - Realm (~> 0.93.2)
   - SloppySwiper
-  - SVPullToRefresh
+  - SVPullToRefresh (from `https://github.com/yagainc/SVPullToRefresh.git`, commit
+    `760fba6a731e621d00ea937b31a1a45beccfe450`)
   - UCZProgressView (from `https://github.com/yagainc/UCZProgressView.git`)
 
 EXTERNAL SOURCES:
@@ -89,6 +90,9 @@ EXTERNAL SOURCES:
   GPUImage:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019
     :git: https://github.com/yagainc/GPUImage.git
+  SVPullToRefresh:
+    :commit: 760fba6a731e621d00ea937b31a1a45beccfe450
+    :git: https://github.com/yagainc/SVPullToRefresh.git
   UCZProgressView:
     :git: https://github.com/yagainc/UCZProgressView.git
 
@@ -99,6 +103,9 @@ CHECKOUT OPTIONS:
   GPUImage:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019
     :git: https://github.com/yagainc/GPUImage.git
+  SVPullToRefresh:
+    :commit: 760fba6a731e621d00ea937b31a1a45beccfe450
+    :git: https://github.com/yagainc/SVPullToRefresh.git
   UCZProgressView:
     :commit: 3c6b5cc6a90de216675e144494b699277304d32e
     :git: https://github.com/yagainc/UCZProgressView.git

@@ -88,4 +88,10 @@
     [self.navigationController pushViewController:vc animated:YES];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [self.collectionView triggerPullToRefresh];
+}
+
 @end
