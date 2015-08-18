@@ -288,7 +288,7 @@
         video.createdAt = currentDate;
         video.mp4Filename = mp4Filename;
         video.group = group;
-        video.pending = group.publicGroup;
+        video.pending = group.publicGroup && !group.amMember;
         
         if ([captionText length]) {
             [video updateCaption:captionText withXPosition:x yPosition:y scale:scale rotation:rotation];
