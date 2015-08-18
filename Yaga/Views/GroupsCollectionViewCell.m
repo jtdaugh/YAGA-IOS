@@ -49,7 +49,6 @@
         
         self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN, Y_MARGIN, [GroupsCollectionViewCell contentWidth], NAME_HEIGHT)];
         [self.nameLabel setFont:[UIFont fontWithName:BOLD_FONT size:26]];
-        self.nameLabel.textColor = PRIMARY_COLOR;
         self.nameLabel.adjustsFontSizeToFitWidth = YES;
 
         self.membersLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.nameLabel.frame.origin.x,
@@ -74,7 +73,6 @@
         [self setBackgroundColor:[UIColor clearColor]];
                 
         self.disclosureImageView = [[UIImageView alloc] initWithFrame:CGRectMake(self.frame.size.width - RIGHT_MARGIN - ACCESSORY_SIZE, (TOTAL_HEIGHT - ACCESSORY_SIZE)/2, ACCESSORY_SIZE, ACCESSORY_SIZE)];
-        self.disclosureImageView.tintColor = PRIMARY_COLOR;
         [self.disclosureImageView setImage:[[UIImage imageNamed:@"Disclosure"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         self.disclosureImageView.contentMode = UIViewContentModeScaleAspectFit;
         
@@ -101,13 +99,13 @@
     if(self.group.publicGroup) {
 //        self.groupEmoji.text = self.group.amMember ? @"👑" : @"👀"; //@"🙉";
         self.groupEmoji.image = [[UIImage imageNamed:self.group.amMember ? @"Host" : @"Public"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        color = self.group.amMember ? PRIMARY_COLOR : [UIColor grayColor];
+        color = self.group.amMember ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR;
     } else {
         self.groupEmoji.image = [[UIImage imageNamed:@"Private"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 //        self.groupEmoji.text = @"🔐"; // @"🙈";
-        color = [UIColor colorWithWhite:0.1 alpha:1];
+        color = PRIVATE_GROUP_COLOR;
     }
-    if (self.group.muted) color = [UIColor lightGrayColor];
+    if (self.group.muted) color = MUTED_GROUP_COLOR;
     self.groupEmoji.tintColor = color;
     self.nameLabel.textColor = color;
     self.followerCountLabel.textColor = color;

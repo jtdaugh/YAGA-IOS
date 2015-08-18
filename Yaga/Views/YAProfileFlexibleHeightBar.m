@@ -75,12 +75,13 @@
     groupNameLabel.font = [UIFont fontWithName:BOLD_FONT size:kTitleMaxFont];
     groupNameLabel.textColor = [UIColor whiteColor];
     groupNameLabel.textAlignment = NSTextAlignmentCenter;
+    groupNameLabel.adjustsFontSizeToFitWidth = YES;
     
     BLKFlexibleHeightBarSubviewLayoutAttributes *nameExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    nameExpanded.frame = CGRectMake(20, kTitleOriginExpanded, VIEW_WIDTH-40, 40);
+    nameExpanded.frame = CGRectMake(40, kTitleOriginExpanded, VIEW_WIDTH-80, 40);
     [groupNameLabel addLayoutAttributes:nameExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *nameCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    nameCollapsed.frame = CGRectMake(20, kTitleOriginCollapsed, VIEW_WIDTH-40, 40);
+    nameCollapsed.frame = CGRectMake(40, kTitleOriginCollapsed, VIEW_WIDTH-80, 40);
     nameCollapsed.transform = CGAffineTransformMakeScale(0.6, 0.6);
     [groupNameLabel addLayoutAttributes:nameCollapsed forProgress:1.0];
 

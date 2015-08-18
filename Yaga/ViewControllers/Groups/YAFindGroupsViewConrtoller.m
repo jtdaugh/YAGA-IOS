@@ -506,8 +506,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     NSDictionary *groupData = [self groupDataAtIndexPath:indexPath];
     BOOL private = [groupData[YA_RESPONSE_PRIVATE] boolValue];
     
-    UIColor *accessoryColor = private ? [UIColor darkGrayColor] : headerAndAccessoryColor;
-    UIColor *textColor = private ? [UIColor darkGrayColor] : SECONDARY_COLOR;
+    UIColor *accessoryColor = private ? PRIVATE_GROUP_COLOR : headerAndAccessoryColor;
+    UIColor *textColor = private ? PRIVATE_GROUP_COLOR : PUBLIC_GROUP_COLOR;
     cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:[YAUtils imageWithColor:[textColor colorWithAlphaComponent:0.3]]];
     
     cell.textLabel.font = [UIFont fontWithName:BOLD_FONT size:26];
@@ -544,7 +544,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     }
     else if([groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]) {
         UILabel *pendingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, kAccessoryButtonWidth, 35)];
-        pendingLabel.textColor = private ? [UIColor lightGrayColor] : SECONDARY_COLOR;
+        pendingLabel.textColor = private ? [UIColor lightGrayColor] : PUBLIC_GROUP_COLOR;
         pendingLabel.font = [UIFont fontWithName:BIG_FONT size:15];
         pendingLabel.textAlignment = NSTextAlignmentCenter;
         pendingLabel.text = NSLocalizedString(@"Pending", @"");

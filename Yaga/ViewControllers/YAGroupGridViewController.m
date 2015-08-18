@@ -50,12 +50,20 @@
 
 - (BLKFlexibleHeightBar *)createNavBar {
     YAProfileFlexibleHeightBar *bar = [YAProfileFlexibleHeightBar emptyProfileBar];
-    bar.backgroundColor = self.group.publicGroup ? SECONDARY_COLOR : PRIMARY_COLOR;
+    if (!self.group.publicGroup) {
+        bar.maximumBarHeight -= 40;
+        CGRect frame = bar.frame;
+        frame.size.height -= 40;
+        bar.frame = frame;
+    }
+    
+    bar.backgroundColor = self.group.publicGroup ? (self.group.amMember ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR) : PRIVATE_GROUP_COLOR;
     bar.nameLabel.text = self.group.name;
-    bar.descriptionLabel.text = self.group.membersString;
     if (self.group.publicGroup) {
+        bar.descriptionLabel.text = self.group.amMember ? @"You're the host!" : [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
         bar.viewsLabel.text = [NSString stringWithFormat:@"%ld followers    ???,??? views", (long)self.group.followerCount];
     } else {
+        bar.descriptionLabel.text = self.group.membersString;
         bar.viewsLabel.text = [NSString stringWithFormat:@"%ld members    ?,??? views", (long)self.group.members.count];
     }
     [bar.backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
