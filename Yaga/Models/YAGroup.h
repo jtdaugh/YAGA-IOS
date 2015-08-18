@@ -55,9 +55,11 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 - (void)muteUnmuteWithCompletion:(completionBlock)completion;
 - (void)refresh;
 - (void)refresh:(BOOL)showPullDownToRefresh;
+- (void)refreshWithCompletion:(completionBlock)completion showPullDownToRefresh:(BOOL)showPullDownToRefresh;
 - (void)refreshPendingVideos;
 
 + (YAGroup*)group;
++ (YAGroup*)groupWithServerResponseDictionary:(NSDictionary*)dictionary;
 @end
 
 // This protocol enables typed collections. i.e.:

@@ -102,14 +102,12 @@
     
     result += self.followingGroups.count ? 1 : 0;
     
-    DLog(@"numberOfSectionsInTableView: %lu", result);
     return result;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSUInteger result = section == 0 && self.hostingGoups.count ? self.hostingGoups.count : self.followingGroups.count;
     
-    DLog(@"numberOfRows: %lu inSection: %lu", result, section);
     return result;
 }
 

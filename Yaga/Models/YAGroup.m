@@ -102,6 +102,12 @@
     return result;
 }
 
++ (YAGroup*)groupWithServerResponseDictionary:(NSDictionary*)dictionary {
+    YAGroup *result = [YAGroup group];
+    result.serverId = dictionary[YA_RESPONSE_ID];
+    return result;
+}
+
 #pragma mark - Server synchronisation: update from server
 - (void)updateFromServerResponeDictionarty:(NSDictionary*)dictionary {
     //do not update name and serverId for public stream group
@@ -515,6 +521,14 @@
 #pragma mark - Videos
 
 - (void)refresh:(BOOL)showPullDownToRefresh {
+    [self refreshWithCompletion:nil showPullDownToRefresh:showPullDownToRefresh];
+}
+
+- (void)refresh {
+    [self refresh:NO];
+}
+
+- (void)refreshWithCompletion:(completionBlock)completion showPullDownToRefresh:(BOOL)showPullDownToRefresh {
     if(self.videosUpdateInProgress)
         return;
     
@@ -522,19 +536,25 @@
     
     //since
     NSDictionary *userInfo = @{kShowPullDownToRefreshWhileRefreshingGroup:[NSNumber numberWithBool:showPullDownToRefresh]};
-
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:userInfo];
     
     // dont set since parameter if group has no videos yet. Otherwise, one buggy fetch screws state of group until reinstall.
     [[YAServer sharedServer] groupInfoWithId:self.serverId getPendingVideos:NO since:([self.videos count] ? self.refreshedAt : nil)
                               withCompletion:^(id response, NSError *error) {
-                                  if(self.isInvalidated)
+                                  if(self.isInvalidated) {
+                                      if(completion)
+                                          completion([NSError errorWithDomain:@"YADomain" code:100 userInfo:nil]);
                                       return;
+                                  }
                                   
                                   self.videosUpdateInProgress = NO;
                                   if(error) {
                                       DLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
                                       [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
+                                      if(completion)
+                                          completion(error);
+
                                       return;
                                   }
                                   else {
@@ -549,12 +569,12 @@
                                       NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries withTarget:self.videos];
                                       
                                       [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
+                                      
+                                      if(completion)
+                                          completion(nil);
                                   }
                               }];
-}
 
-- (void)refresh {
-    [self refresh:NO];
 }
 
 - (void)refreshPendingVideos {
