@@ -95,10 +95,10 @@
 - (void)updateColorsAndEmojisBasedGroupType {
     UIColor *color;
     if(self.group.publicGroup) {
-        self.groupEmoji.text = self.group.amMember ? @"👑" : @"🙉";
+        self.groupEmoji.text = self.group.amMember ? @"👑" : @"👀"; //@"🙉";
         color = self.group.amMember ? PRIMARY_COLOR : [UIColor grayColor];
     } else {
-        self.groupEmoji.text = @"🙈";
+        self.groupEmoji.text = @"🔐"; // @"🙈";
         color = [UIColor colorWithWhite:0.1 alpha:1];
     }
     if (self.group.muted) color = [UIColor lightGrayColor];
