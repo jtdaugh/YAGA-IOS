@@ -22,7 +22,6 @@
 #import "SquareCashStyleBehaviorDefiner.h"
 #import "YAGifGridViewController.h"
 
-#define JOINED_OR_FOLLOWED @"JOINED_OR_FOLLOWED"
 #define headerAndAccessoryColor [UIColor colorWithRed:46.0/255.0 green:30.0/255.0 blue:117.0/255.0 alpha:1.0]
 #define kAccessoryButtonWidth 70
 
@@ -222,10 +221,20 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     responseBlock block = ^(id response, NSError *error) {
         if(!error) {
             NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
-            [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:JOINED_OR_FOLLOWED];
+            [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
             NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.groupsDataArray];
-            [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
+            
+            //update private group cell so it changes to "Pending"
+            if([groupData[YA_RESPONSE_PRIVATE] boolValue]){
+                [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
+            }
+            //remove public group cell with a success message
+            else {
+                [upatedDataArray removeObject:groupData];
+            }
+            
             self->_groupsDataArray = upatedDataArray;
+            
             [self filterAndReload];
             
             if(self.onboardingMode) {
@@ -233,6 +242,11 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                 UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonPressed:)];
                 doneButton.enabled = wasEnabled;
                 [self.navigationItem setRightBarButtonItem:doneButton animated:YES];
+            }
+            
+            if(![groupData[YA_RESPONSE_PRIVATE] boolValue]){
+                [YAUtils showHudWithText:[NSString stringWithFormat:@"Following %@!", groupData[YA_RESPONSE_NAME]]];
+                
             }
         }
         else {
@@ -243,6 +257,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     };
     
+    //adding [YAUser currentUser].username to pending members, not making another call to server
     if ([groupData[YA_RESPONSE_PRIVATE] boolValue]) {
         [[YAServer sharedServer] joinGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:block];
     } else {
@@ -520,12 +535,12 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         cell.accessoryView = activityView;
         [activityView startAnimating];
     }
-    else if([groupData[JOINED_OR_FOLLOWED] boolValue]) {
+    else if([groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]) {
         UILabel *pendingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, kAccessoryButtonWidth, 35)];
         pendingLabel.textColor = private ? [UIColor lightGrayColor] : SECONDARY_COLOR;
         pendingLabel.font = [UIFont fontWithName:BIG_FONT size:15];
         pendingLabel.textAlignment = NSTextAlignmentCenter;
-        pendingLabel.text = private ? NSLocalizedString(@"Pending", @"") :  NSLocalizedString(@"Following", @"");
+        pendingLabel.text = NSLocalizedString(@"Pending", @"");
         cell.accessoryView = pendingLabel;
     }
     else {
