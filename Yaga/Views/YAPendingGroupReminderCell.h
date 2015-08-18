@@ -8,11 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-#define kReminderCellHeight 50
+#define kReminderCellHeight 60
 
 @interface YAPendingGroupReminderCell : UICollectionViewCell
 
 @property (nonatomic, strong) UILabel *textLabel;
 @property(nonatomic, strong) UIView *separatorView;
+@property(nonatomic, strong) UIView *boldSeparatorView;
 
 @end

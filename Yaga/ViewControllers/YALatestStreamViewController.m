@@ -80,6 +80,7 @@ static NSString *CellIdentifier = @"PendingCell";
         
         // Hide separator for last cell.
         cell.separatorView.hidden = (indexPath.row == [self.groupsWithPendingUnapproved count] - 1);
+        cell.boldSeparatorView.hidden = (indexPath.row != [self.groupsWithPendingUnapproved count] - 1);
         return cell;
         
     } else {

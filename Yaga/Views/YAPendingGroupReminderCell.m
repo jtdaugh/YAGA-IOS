@@ -26,6 +26,8 @@
         self.backgroundColor = PRIMARY_COLOR;
         self.separatorView = [[UIView alloc] initWithFrame:CGRectMake(LEFT_MARGIN, kReminderCellHeight - 1, frame.size.width - LEFT_MARGIN, 1)];
         self.separatorView.backgroundColor = [UIColor whiteColor];
+        self.boldSeparatorView = [[UIView alloc] initWithFrame:CGRectMake(0, kReminderCellHeight - 2, frame.size.width, 2)];
+        self.boldSeparatorView.backgroundColor = [UIColor whiteColor];
 
         self.disclosureImageView = [[UIImageView alloc] initWithFrame:CGRectMake(frame.size.width - RIGHT_MARGIN - ACCESSORY_SIZE, (kReminderCellHeight - ACCESSORY_SIZE)/2, ACCESSORY_SIZE, ACCESSORY_SIZE)];
         [self.disclosureImageView setImage:[[UIImage imageNamed:@"Disclosure"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
@@ -38,6 +40,7 @@
         self.textLabel.adjustsFontSizeToFitWidth = YES;
         
         [self.contentView addSubview:self.separatorView];
+        [self.contentView addSubview:self.boldSeparatorView];
         [self.contentView addSubview:self.disclosureImageView];
         [self.contentView addSubview:self.textLabel];
     }

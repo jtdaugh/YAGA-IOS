@@ -60,7 +60,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     self.view.backgroundColor = [UIColor whiteColor];
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) style:UITableViewStylePlain];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) style:UITableViewStyleGrouped];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
@@ -540,6 +540,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     label.textColor = headerAndAccessoryColor;
     label.text = section == 0 && self.featuredGroups.count ? @"FEATURED" : @"SUGGESTED";
     [result addSubview:label];
+    
     return result;
 }
 
