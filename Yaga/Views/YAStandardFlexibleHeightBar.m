@@ -30,6 +30,10 @@
     BLKFlexibleHeightBarSubviewLayoutAttributes *titleCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     titleCollapsed.frame = CGRectMake(kFlexNavBarButtonWidth - 40, -30, VIEW_WIDTH-2*kFlexNavBarButtonWidth + 80, 30);
     titleCollapsed.alpha = 0;
+    CGAffineTransform translation = CGAffineTransformMakeTranslation(0.0, -30.0);
+    CGAffineTransform scale = CGAffineTransformMakeScale(0.2, 0.2);
+    titleCollapsed.transform = CGAffineTransformConcat(scale, translation);
+
     [titleLabel addLayoutAttributes:titleCollapsed forProgress:1.0];
     
     [bar addSubview:titleLabel];
@@ -49,6 +53,9 @@
     BLKFlexibleHeightBarSubviewLayoutAttributes *leftButtonCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     leftButtonCollapsed.frame = CGRectMake(10, -buttonSize, kFlexNavBarButtonWidth, buttonSize);
     leftButtonCollapsed.alpha = 0;
+    
+    leftButtonCollapsed.transform = CGAffineTransformConcat(scale, translation);
+
     [leftButton addLayoutAttributes:leftButtonCollapsed forProgress:1.0];
     
     [bar addSubview:leftButton];
@@ -66,6 +73,9 @@
     BLKFlexibleHeightBarSubviewLayoutAttributes *rightButtonCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     rightButtonCollapsed.frame = CGRectMake(VIEW_WIDTH - kFlexNavBarButtonWidth - 10, -buttonSize, kFlexNavBarButtonWidth, buttonSize);
     rightButtonCollapsed.alpha = 0;
+    
+    rightButtonCollapsed.transform = CGAffineTransformConcat(scale, translation);
+    
     [rightButton addLayoutAttributes:rightButtonCollapsed forProgress:1.0];
     
     [bar addSubview:rightButton];
