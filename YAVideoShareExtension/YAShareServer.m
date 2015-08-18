@@ -51,7 +51,7 @@ static YAShareServer *_sharedServer = nil;
     self = [super init];
     
     if (self) {
-        _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
+        _base_api = [NSString stringWithFormat:@"%@:%d%@", HOST, PORTNUM, API_ENDPOINT];
         _jsonOperationsManager = [AFHTTPRequestOperationManager manager];
         _jsonOperationsManager.requestSerializer = [AFJSONRequestSerializer serializer];
         
