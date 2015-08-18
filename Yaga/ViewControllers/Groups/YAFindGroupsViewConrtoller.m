@@ -366,11 +366,11 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (void)filterAndReload {
     NSArray *filtered = self.groupsDataArray;
     if(self.searchBar.text.length != 0)
-        filtered = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        filtered = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
             return [evaluatedObject[YA_RESPONSE_NAME] rangeOfString:self.searchBar.text].location != NSNotFound || [evaluatedObject[YA_RESPONSE_MEMBERS] rangeOfString:self.searchBar.text].location != NSNotFound;
         }]];
                          
-    self.featuredGroups = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+    self.featuredGroups = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
         return [evaluatedObject[@"featured"]  isEqual: @YES];
     }]];
     
