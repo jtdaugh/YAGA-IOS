@@ -68,4 +68,10 @@
     }];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [self.collectionView triggerPullToRefresh];
+}
+
 @end
