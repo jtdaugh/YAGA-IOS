@@ -568,13 +568,23 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     NSDictionary *groupData = [self groupDataAtIndexPath:indexPath];
     RLMResults *results = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", groupData[YA_RESPONSE_ID]]];
     
+    void (^openGroupBlock)(YAGroup *group, NSIndexPath *indexPath) = ^(YAGroup *group, NSIndexPath *indexPath){
+        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+        
+        YAGroupGridViewController *vc = [YAGroupGridViewController new];
+        vc.group = group;
+        [self.navigationController pushViewController:vc animated:YES];
+
+    };
+    
     //try to find an existing group
     if(results.count) {
         YAGroup *group = results[0];
         
-        YAGroupGridViewController *vc = [YAGroupGridViewController new];
-        vc.group = group;
+        openGroupBlock(group, indexPath);
+        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
         
+        YAGroupGridViewController *vc = [YAGroupGridViewController new];
         vc.group = group;
         [self.navigationController pushViewController:vc animated:YES];
     }
@@ -588,16 +598,13 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Fetching group data.."];
         [group refreshWithCompletion:^(NSError *error) {
             [hud hide:YES];
-            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
             
             if(error) {
                 [YAUtils showHudWithText:[NSString stringWithFormat:@"Can not fetch group info, error %@", error.localizedDescription]];
                 return;
             }
             
-            YAGroupGridViewController *vc = [YAGroupGridViewController new];
-            vc.group = group;
-            [self.navigationController pushViewController:vc animated:YES];
+            openGroupBlock(group, indexPath);
             
         } showPullDownToRefresh:NO];
     }
