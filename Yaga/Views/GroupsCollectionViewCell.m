@@ -98,7 +98,11 @@
     UIColor *color;
     if(self.group.publicGroup) {
 //        self.groupEmoji.text = self.group.amMember ? @"👑" : @"👀"; //@"🙉";
-        self.groupEmoji.image = [[UIImage imageNamed:self.group.amMember ? @"Host" : @"Public"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        if (self.group.amMember) {
+            self.groupEmoji.image = [[UIImage imageNamed:@"Host"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        } else {
+            self.groupEmoji.image = [UIImage imageNamed:@"Monkey"];
+        }
         color = self.group.amMember ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR;
     } else {
         self.groupEmoji.image = [[UIImage imageNamed:@"Private"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];

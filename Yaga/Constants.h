@@ -46,7 +46,7 @@
 
 #define HOSTING_GROUP_COLOR PRIMARY_COLOR
 #define PRIVATE_GROUP_COLOR [UIColor colorWithWhite:0.2 alpha:1]
-#define PUBLIC_GROUP_COLOR SECONDARY_COLOR
+#define PUBLIC_GROUP_COLOR [UIColor blackColor]
 #define MUTED_GROUP_COLOR [UIColor colorWithWhite:0.75 alpha:1]
 
 #define BIG_FONT @"Avenir"

@@ -14,7 +14,7 @@
 #import "YAVideoCell.h"
 #import "YAGroupGridViewController.h"
 
-#define GROUP_LABEL_PROP 0.3
+#define GROUP_LABEL_PROP 0.25
 
 @interface YAStreamViewController () <YAOpenGroupFromVideoCell>
 @property (nonatomic, assign) NSUInteger videosCountBeforeRefresh;
