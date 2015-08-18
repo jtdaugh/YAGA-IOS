@@ -34,6 +34,5 @@
 - (void)groupInfoPressed;
 
 - (BLKFlexibleHeightBar *)createNavBar;
-- (BOOL)cellsShouldShowGroupName;
 
 @end

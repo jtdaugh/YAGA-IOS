@@ -17,10 +17,19 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
     YAVideoCellStateVideoPreview,
 };
 
+@protocol YAOpenGroupFromVideoCell <NSObject>
+
+- (void)openGroupForVideo:(YAVideo *)video;
+
+@end
+
 @interface YAVideoCell : UICollectionViewCell<UITextFieldDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
+
+@property (nonatomic, weak) id<YAOpenGroupFromVideoCell> groupOpener;
 @property (nonatomic) BOOL showsGroupLabel;
+@property (nonatomic) CGFloat groupLabelHeightProportion;
 
 - (void)animateGifView:(BOOL)animate;
 

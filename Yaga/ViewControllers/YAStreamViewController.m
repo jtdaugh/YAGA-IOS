@@ -11,8 +11,12 @@
 //DEBUG
 #import "YAVideo.h"
 #import "YAStandardFlexibleHeightBar.h"
+#import "YAVideoCell.h"
+#import "YAGroupGridViewController.h"
 
-@interface YAStreamViewController ()
+#define GROUP_LABEL_PROP 0.3
+
+@interface YAStreamViewController () <YAOpenGroupFromVideoCell>
 @property (nonatomic, assign) NSUInteger videosCountBeforeRefresh;
 @end
 
@@ -28,8 +32,18 @@
         return nil;
 }
 
-- (BOOL)cellsShouldShowGroupName {
-    return YES;
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT * (1 + GROUP_LABEL_PROP))];
+}
+
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    YAVideoCell *cell = (YAVideoCell *) [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
+    cell.groupLabelHeightProportion = GROUP_LABEL_PROP;
+    cell.showsGroupLabel = YES;
+    cell.groupOpener = self;
+    return cell;
 }
 
 #pragma mark - To Override
@@ -66,6 +80,12 @@
         weakSelf.videosCountBeforeRefresh = weakSelf.group.videos.count;
         [weakSelf.group refresh];
     }];
+}
+
+- (void)openGroupForVideo:(YAVideo *)video {
+    YAGroupGridViewController *vc = [YAGroupGridViewController new];
+    vc.group = video.group;
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 @end

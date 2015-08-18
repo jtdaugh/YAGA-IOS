@@ -27,13 +27,14 @@
 @property (nonatomic, assign) YAVideoCellState state;
 @property (nonatomic, strong) dispatch_queue_t imageLoadingQueue;
 
+@property (strong, nonatomic) UIView *containerView;
 @property (strong, nonatomic) UILabel *username;
 @property (strong, nonatomic) UILabel *eventCountLabel;
 @property (strong, nonatomic) UIImageView *commentIcon;
 @property (strong, nonatomic) UILabel *caption;
 @property (strong, nonatomic) UIView *captionWrapper;
 @property (strong, nonatomic) UIView *groupView;
-@property (strong, nonatomic) UILabel *groupLabel;
+@property (strong, nonatomic) UIButton *groupButton;
 
 @property (strong, atomic) NSString *gifFilename;
 
@@ -50,16 +51,20 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if(self) {
-        _gifView = [[FLAnimatedImageView alloc] initWithFrame:self.bounds];
+        _showsGroupLabel = NO;
+        
+        self.containerView = [[UIView alloc] initWithFrame:self.bounds];
+        [self.contentView addSubview:self.containerView];
+
+        _gifView = [[FLAnimatedImageView alloc] initWithFrame:self.containerView.bounds];
         _gifView.contentMode = UIViewContentModeScaleAspectFill;
         _gifView.clipsToBounds = YES;
         _gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
-        _showsGroupLabel = NO;
-        
-        [self.contentView addSubview:self.gifView];
+        [self.containerView addSubview:self.gifView];
         self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        
+        self.containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
         self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
@@ -72,33 +77,33 @@
         [self.username setFont:[UIFont fontWithName:BIG_FONT size:20]];
         self.username.shadowColor = [UIColor blackColor];
         self.username.shadowOffset = CGSizeMake(1, 1);
-        [self.contentView addSubview:self.username];
+        [self.containerView addSubview:self.username];
 
         self.commentIcon = [[UIImageView alloc] initWithFrame:CGRectMake(5, self.bounds.size.height-8-15, 15, 15)];
         [self.commentIcon setImage:[UIImage imageNamed:@"Comment_Filled"]];
-        [self.contentView addSubview:self.commentIcon];
+        [self.containerView addSubview:self.commentIcon];
         
         self.eventCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(5 + 15 + 3, self.bounds.size.height - 25, 40, 20)];
         [self.eventCountLabel setTextColor:[UIColor whiteColor]];
         [self.eventCountLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
         self.eventCountLabel.shadowColor = [UIColor blackColor];
         self.eventCountLabel.shadowOffset = CGSizeMake(1, 1);
-        [self.contentView addSubview:self.eventCountLabel];
+        [self.containerView addSubview:self.eventCountLabel];
         
-        self.groupView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height/5)];
-        self.groupView.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.6];
+        self.groupView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height/4)];
+        self.groupView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.1];
         self.groupView.hidden = YES;
         
         [self.contentView addSubview:self.groupView];
         
-        self.groupLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.groupView.frame.size.width - 20, self.groupView.frame.size.height)];
-        [self.groupLabel setTextAlignment:NSTextAlignmentLeft];
-        [self.groupLabel setMinimumScaleFactor:0.5];
-        [self.groupLabel setAdjustsFontSizeToFitWidth:YES];
-        [self.groupLabel setTextColor:[UIColor whiteColor]];
-        self.groupLabel.adjustsFontSizeToFitWidth = YES;
-        [self.groupLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
-        [self.groupView addSubview:self.groupLabel];
+        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 0, self.groupView.frame.size.width - 20, self.groupView.frame.size.height)];
+        
+        self.groupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+        self.groupButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+        self.groupButton.titleLabel.textColor = [UIColor whiteColor];
+        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+        [self.groupButton addTarget:self action:@selector(groupButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.groupView addSubview:self.groupButton];
         
         
         CGRect captionFrame = CGRectMake(0, 0, MAX_CAPTION_WIDTH, CGFLOAT_MAX);
@@ -110,7 +115,7 @@
         self.caption.userInteractionEnabled = NO;
         self.caption.textAlignment = NSTextAlignmentCenter;
         [self.captionWrapper addSubview:self.caption];
-        [self.contentView addSubview:self.captionWrapper];
+        [self.containerView addSubview:self.captionWrapper];
 
         self.contentView.layer.masksToBounds = YES;
         
@@ -205,8 +210,19 @@
 #pragma mark -
 
 - (void)setShowsGroupLabel:(BOOL)showsGroupLabel {
+    if (_showsGroupLabel == showsGroupLabel) return;
     _showsGroupLabel = showsGroupLabel;
-    self.groupView.hidden = !showsGroupLabel;
+    if (showsGroupLabel) {
+        CGFloat prop = (self.groupLabelHeightProportion > 0) ? self.groupLabelHeightProportion : 0.25;
+        self.groupView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height * prop);
+        self.groupButton.frame = CGRectMake(10, 0, self.groupView.frame.size.width - 20, self.groupView.frame.size.height);
+        self.groupView.hidden = NO;
+        CGRect frame = self.containerView.frame;
+        frame.origin.y = self.groupView.frame.size.height;
+        frame.size.height = self.contentView.frame.size.height - frame.origin.y;
+        self.containerView.frame = frame;
+        [self.containerView setNeedsLayout];
+    }
 }
 
 - (void)setVideo:(YAVideo *)video {
@@ -316,7 +332,7 @@
 
 - (void)renderUsername {
     self.username.text = self.video.pending && self.video.group.publicGroup ? @"Pending" : self.video.creator;
-    self.groupLabel.text = self.video.group.name;
+    [self.groupButton setTitle:self.video.group.name forState:UIControlStateNormal];
 }
 
 - (void)renderCaption {
@@ -389,6 +405,12 @@
             self.gifView.animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:loaderData];
             [self.gifView startAnimating];
         });
+    }
+}
+
+- (void)groupButtonPressed {
+    if (self.groupOpener) {
+        [self.groupOpener openGroupForVideo:self.video];
     }
 }
 
