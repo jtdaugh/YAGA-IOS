@@ -189,6 +189,7 @@
         
         YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:pageFrame];
         page.presentingVC = self;
+        [page setShowAdminControls:self.pendingMode];
         
         pageFrame.origin.x = pageFrame.size.width;
         pageFrame.size.width = kSeparator;

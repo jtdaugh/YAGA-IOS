@@ -434,8 +434,14 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
     
     self.searchBar = [UISearchBar new];
-    self.searchBar.searchBarStyle = UISearchBarStyleMinimal;
-    
+    self.searchBar.barStyle = UIBarStyleBlack;
+    self.searchBar.translucent = NO;
+    self.searchBar.barTintColor = [UIColor blackColor];
+    self.searchBar.tintColor = [UIColor whiteColor];
+    self.searchBar.backgroundColor = [UIColor blackColor];
+    self.searchBar.delegate = self;
+    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeUnlessEditing];
+
     BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     searchBarExpanded.frame = CGRectMake(20, 70, VIEW_WIDTH-40, 30);
     [self.searchBar addLayoutAttributes:searchBarExpanded forProgress:0.0];
@@ -445,6 +451,27 @@ static NSString *CellIdentifier = @"GroupsCell";
 
     [self.flexibleNavBar addSubview:self.searchBar];
 
+}
+
+#pragma mark - UISearchBarDelegate
+
+//doesn't work?
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    searchBar.text  = @"";
+    [searchBar resignFirstResponder];
+    [searchBar setShowsCancelButton:NO animated:YES];
+    
+    [self filterAndReload];
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    [searchBar setShowsCancelButton:YES animated:YES];
+    
+    [self filterAndReload];
+}
+
+#pragma mark - Private
+- (void)filterAndReload {
     
 }
 
