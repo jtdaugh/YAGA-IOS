@@ -110,7 +110,7 @@ static NSString *cellID = @"Cell";
     [self.collectionView setAllowsMultipleSelection:NO];
     self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.backgroundColor = [UIColor whiteColor];
-    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 0, 0);
+    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 49, 0);
 
     [self.view addSubview:self.collectionView];
     [self.view addSubview:self.flexibleNavBar];

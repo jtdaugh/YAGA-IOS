@@ -89,7 +89,7 @@
         self.groupView.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.6];
         self.groupView.hidden = YES;
         
-//        [self.contentView addSubview:self.groupView];
+        [self.contentView addSubview:self.groupView];
         
         self.groupLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.groupView.frame.size.width - 20, self.groupView.frame.size.height)];
         [self.groupLabel setTextAlignment:NSTextAlignmentLeft];
@@ -315,7 +315,7 @@
 }
 
 - (void)renderUsername {
-    self.username.text = self.video.pending ? @"Pending" : self.video.creator;
+    self.username.text = self.video.pending && self.video.group.publicGroup ? @"Pending" : self.video.creator;
     self.groupLabel.text = self.video.group.name;
 }
 

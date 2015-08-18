@@ -66,7 +66,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     if(!self.onboardingMode) {
         self.automaticallyAdjustsScrollViewInsets = NO;
         [self setupFlexibleNavBar];
-        self.flexibleNavBar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];
+        self.flexibleNavBar.behaviorDefiner = nil;//[SquareCashStyleBehaviorDefiner new];
         self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
         self.tableView.delegate = (id<UITableViewDelegate>)self.delegateSplitter;
         self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
@@ -566,6 +566,11 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *groupData = [self groupDataAtIndexPath:indexPath];
+    if ([groupData[YA_RESPONSE_PRIVATE] boolValue]) {
+        [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+        return; // Can't view a private group
+    }
+    
     RLMResults *results = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", groupData[YA_RESPONSE_ID]]];
     
     void (^openGroupBlock)(YAGroup *group, NSIndexPath *indexPath) = ^(YAGroup *group, NSIndexPath *indexPath){
@@ -580,7 +585,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     //try to find an existing group
     if(results.count) {
         YAGroup *group = results[0];
-        
         openGroupBlock(group, indexPath);
     }
     //or create new group from server response data, refresh and push grid to navigation stack
