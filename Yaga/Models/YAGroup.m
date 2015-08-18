@@ -566,7 +566,7 @@
                                       NSArray *videoDictionaries = self.streamGroup ? response[YA_RESPONSE_RESULTS] :response[YA_VIDEO_POSTS];
                                       DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
                                       
-                                      NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries withTarget:self.videos];
+                                      NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries forPendingList:NO];
                                       
                                       [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
                                       
@@ -598,7 +598,7 @@
                                       NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
                                       DLog(@"received %lu pending videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
                                       
-                                      NSMutableDictionary *updatedAndNew = [[self updateVideosFromDictionaries:videoDictionaries withTarget:self.pending_videos] mutableCopy];
+                                      NSMutableDictionary *updatedAndNew = [[self updateVideosFromDictionaries:videoDictionaries forPendingList:YES] mutableCopy];
                                       [updatedAndNew setObject:@(YES) forKey:kResultsAreForPendingVideos];
                                       [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
                                   }
@@ -606,13 +606,18 @@
 
 }
 
-- (NSSet*)videoIds {
+- (NSSet*)approvedVideoIds {
     NSMutableSet *existingIds = [NSMutableSet set];
     for (YAVideo *video in self.videos) {
         if(video.serverId){
             [existingIds addObject:video.serverId];
         }
     }
+    return existingIds;
+}
+
+- (NSSet*)pendingVideoIds {
+    NSMutableSet *existingIds = [NSMutableSet set];
     for (YAVideo *video in self.pending_videos) {
         if(video.serverId){
             [existingIds addObject:video.serverId];
@@ -621,8 +626,9 @@
     return existingIds;
 }
 
-- (NSDictionary*)updateVideosFromDictionaries:(NSArray*)videoDictionaries withTarget:(RLMArray<YAVideo> *)videoArray {
-    NSSet *existingIds = [self videoIds];
+
+- (NSDictionary*)updateVideosFromDictionaries:(NSArray*)videoDictionaries forPendingList:(BOOL)forPendingList {
+    NSSet *existingIds = forPendingList ? [self pendingVideoIds] : [self approvedVideoIds];
     NSSet *newIds = [NSSet setWithArray:[videoDictionaries valueForKey:YA_RESPONSE_ID]];
     
     NSMutableSet *idsToAdd = [NSMutableSet setWithSet:newIds];
@@ -642,15 +648,27 @@
     for(NSDictionary *videoDic in videoDictionaries) {
         
         RLMResults *videos = [YAVideo objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", videoDic[YA_RESPONSE_ID]]];
-
+        
         // If video already exists locally, either add it to group's video list or just update fields.
         if(videos.count) {
             YAVideo *video = [videos firstObject];
-            BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue];
+            
+            BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue]; // Treat non-pending videos as deleted if targeting the pending array
             BOOL addedNewReferenceToExistingVideoObject = NO;
             if(![existingIds containsObject:videoDic[YA_RESPONSE_ID]] && !deleted) {
+                NSSet *complimentaryIds = !forPendingList ? [self pendingVideoIds] : [self approvedVideoIds];
+                if ([complimentaryIds containsObject:videoDic[YA_RESPONSE_ID]]) {
+                    // Video switched between pending and unpending group videos array, so remove video reference from complimentary array
+                    RLMArray<YAVideo> *complimentaryArray = !forPendingList ? self.pending_videos : self.videos;
+                    NSUInteger index = [complimentaryArray indexOfObject:video];
+                    if (index != NSNotFound) [complimentaryArray removeObjectAtIndex:index];
+                }
                 // add video to group list
-                [videoArray addObject:video];//insertObject:video atIndex:0];
+                if (forPendingList) {
+                    [self.pending_videos addObject:video];
+                } else {
+                    [self.videos addObject:video];
+                }
                 [newVideos addObject:video];
                 addedNewReferenceToExistingVideoObject = YES;
             }
@@ -669,7 +687,7 @@
             NSString *videoId = videoDic[YA_RESPONSE_ID];
             
             //skip deleted vids
-            if([videoDic[YA_VIDEO_DELETED] boolValue]) {
+            if([videoDic[YA_VIDEO_DELETED] boolValue] ) {
                 DLog(@"skipping deleted videos");
                 continue;
             }
@@ -703,7 +721,11 @@
                 }
             }
             
-            [videoArray addObject:video];//insertObject:video atIndex:0];
+            if (forPendingList) {
+                [self.pending_videos addObject:video];
+            } else {
+                [self.videos addObject:video];
+            }
             [newVideos addObject:video];
             
         }
@@ -753,7 +775,9 @@
         video.createdAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
         video.uploadedToAmazon = YES;
     }
-
+    
+    video.pending = ![videoDic[YA_RESPONSE_APPROVED] boolValue];
+    
     video.url = videoDic[YA_VIDEO_ATTACHMENT];
     
     id gifUrl = videoDic[YA_VIDEO_ATTACHMENT_PREVIEW];
@@ -771,8 +795,6 @@
     video.caption_y = ![videoDic[YA_RESPONSE_NAME_Y] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_NAME_Y] floatValue] : 0.25;
     video.caption_scale = ![videoDic[YA_RESPONSE_SCALE] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_SCALE] floatValue] : 1;
     video.caption_rotation = ![videoDic[YA_RESPONSE_ROTATION] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_ROTATION] floatValue] : 0;
-    
-    video.pending = ![videoDic[YA_RESPONSE_APPROVED] boolValue];
 }
 
 @end
