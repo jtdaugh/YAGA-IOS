@@ -45,8 +45,10 @@
     [self.navBar.leftBarButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.navBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [self.navBar.rightBarButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
-    
+    self.navBar.backgroundColor = self.group.publicGroup ? (self.group.amMember ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR) : PRIVATE_GROUP_COLOR;
     self.view.backgroundColor = [UIColor colorWithWhite:0.98 alpha:1];
+    
+    [self.navBar.titleLabel addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(editTitleTapped:)]];
     
     const CGFloat buttonWidth = VIEW_WIDTH - 40;
     CGFloat buttonHeight = 54;
@@ -230,21 +232,15 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return self.membersPendingJoin.count > 0 ? 40 : 0;
+    return 40;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     NSString *name = @"";
-    switch (section) {
-        case 0:
-            name = NSLocalizedString(@"Requests", @"");;
-            break;
-        case 1:
-            name = NSLocalizedString(@"Members", @"");
-            break;
-        default:
-            name = @"";
-            break;
+    if (section == 0 && self.membersPendingJoin.count > 0) {
+        name = NSLocalizedString(@"Requests", @"");;
+    } else {
+        name = self.group.publicGroup ? @"Co-Hosts" : @"Members";
     }
     
     UIView *headerView = [UIView.alloc initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, 40)];
