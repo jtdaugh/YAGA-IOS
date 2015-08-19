@@ -59,8 +59,8 @@
 //    [[UILabel appearanceWhenContainedIn:[UISearchBar class], nil] setTextColor:[UIColor redColor]];
 //    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setDefaultTextAttributes:@{NSForegroundColorAttributeName:[UIColor redColor]}];
     [searchBar setPlaceholderText:NSLocalizedString(@"SEARCH_TIP", @"")];
-    [searchBar setColorScheme:PRIMARY_COLOR];
-    [searchBar setInputTextFieldTextColor:PRIMARY_COLOR];
+    [searchBar setColorScheme:[self publicMode] ? HOSTING_GROUP_COLOR : PRIVATE_GROUP_COLOR];
+    [searchBar setInputTextFieldTextColor:[self publicMode] ? HOSTING_GROUP_COLOR : PRIVATE_GROUP_COLOR];
     searchBar.delegate = self;
     searchBar.dataSource = self;
     
@@ -119,14 +119,22 @@
 
 }
 
+- (BOOL)publicMode {
+    return self.publicGroup || (self.existingGroup && self.existingGroup.publicGroup);
+}
+
+- (BOOL)addingIsOptional {
+    return self.publicGroup || self.existingGroup;
+}
+
 - (void)setDoneButton {
     UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneTapped)];
     [doneButton setTitleTextAttributes:@{
                                          NSFontAttributeName: [UIFont fontWithName:BIG_FONT size:18],
                                          } forState:UIControlStateNormal];
-    [doneButton setEnabled:NO];
+    [doneButton setEnabled:[self addingIsOptional]];
     
-    [doneButton setTintColor:[UIColor lightGrayColor]];
+    [doneButton setTintColor:[self addingIsOptional] ? [UIColor whiteColor] : [UIColor lightGrayColor]];
     self.navigationItem.rightBarButtonItem = doneButton;
 
 }
@@ -137,8 +145,9 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    self.title = self.existingGroup ? self.existingGroup.name : @"Add Members";
+    [self.navigationController setNavigationBarHidden:NO animated:animated];
+    self.navigationController.navigationBar.barTintColor = [self publicMode] ? HOSTING_GROUP_COLOR : PRIVATE_GROUP_COLOR;
+    self.title = [self publicMode] ? @"Add Co-Hosts" : @"Add Members";
 
     self.edgesForExtendedLayout = UIRectEdgeNone;
 }
@@ -213,8 +222,8 @@
     }
     
     if ([contact[nYagaUser] boolValue]){
-        [cell.textLabel       setTextColor:PRIMARY_COLOR];
-        [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+        [cell.textLabel       setTextColor:[self publicMode] ? HOSTING_GROUP_COLOR : PRIVATE_GROUP_COLOR];
+        [cell.detailTextLabel setTextColor:[self publicMode] ? HOSTING_GROUP_COLOR : PRIVATE_GROUP_COLOR];
         
 //        UIImage *img = [UIImage imageNamed:@"Ball"];
 //        cell.imageView.image = img;
@@ -251,9 +260,9 @@
 - (void)reloadSearchBox {
     [self.searchBar reloadData];
     
-    if([self numberOfTokensInTokenField:self.searchBar] > 0){
+    if([self numberOfTokensInTokenField:self.searchBar] > 0 || [self addingIsOptional]){
         [self.navigationItem.rightBarButtonItem setEnabled:YES];
-        [self.navigationItem.rightBarButtonItem setTintColor:SECONDARY_COLOR];
+        [self.navigationItem.rightBarButtonItem setTintColor:[UIColor whiteColor]];
     } else {
         [self.navigationItem.rightBarButtonItem setEnabled:NO];
         [self.navigationItem.rightBarButtonItem setTintColor:[UIColor grayColor]];
@@ -402,8 +411,10 @@
 
     __weak typeof(self) weakSelf = self;
 
-    if(self.existingGroup && self.existingGroupDirty) {
-        // Existing Group
+    if(self.existingGroup && (!self.existingGroupDirty || (self.selectedContacts.count == 0))) {
+        [self dismissAddMembers];
+    } else if (self.existingGroup) {
+        // Existing Group needs update
         [self showActivity:YES];
         
         [self.existingGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
@@ -466,28 +477,12 @@
                 [presentingVC dismissViewControllerAnimated:YES completion:^{
                     [(YAPostToGroupsViewController *)previousTopVC addNewlyCreatedGroupToList:group];
                 }];
+                return;
             }
-        } else {
-            [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
-        
-//        //dismiss in only case nameViewController is a first view controller in navigation stack, other wise pop until there is no nameViewController in the navigation stack
-//        NSArray *stackClasses = [self.navigationController.viewControllers valueForKey:@"class"];
-//        NSUInteger index = [stackClasses indexOfObject:[NameGroupViewController class]];
-//        if(index > 0) {
-//            [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:index - 1] animated:YES];
-//            return;
-//        }
-//        
-//        //       EditVideoVC              CameraVC                 GroupsNavController
-//        if (self.presentingViewController.presentingViewController.presentingViewController) {
-//            [self.presentingViewController.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-//        } else {
-//            [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-//        }
-    } else {
-        [self.navigationController popViewControllerAnimated:YES];
     }
+    
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 

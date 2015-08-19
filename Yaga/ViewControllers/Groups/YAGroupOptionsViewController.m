@@ -11,6 +11,7 @@
 #import "YASloppyNavigationController.h"
 #import "YAInviteHelper.h"
 #import "YAServer.h"
+#import "YAStandardFlexibleHeightBar.h"
 
 @interface YAGroupOptionsViewController ()
 
@@ -28,26 +29,31 @@
 @property (nonatomic, strong) YANotificationView *notificationView;
 
 @property (nonatomic, strong) YAInviteHelper *inviteHelper;
+
+@property (nonatomic, strong) YAStandardFlexibleHeightBar *navBar;
+
 @end
 
 @implementation YAGroupOptionsViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    
+    self.navBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
+    [self.navBar.leftBarButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [self.navBar.leftBarButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.navBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [self.navBar.rightBarButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
     
     self.view.backgroundColor = [UIColor colorWithWhite:0.98 alpha:1];
-    
-    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addMembersTapped:)];
-    self.navigationItem.rightBarButtonItem = addButton;
-//    UIBarButtonItem *newBackButton = [[UIBarButtonItem alloc] initWithTitle:@"Back" style:UIBarButtonItemStylePlain target:nil action:nil];
-//    [[self navigationItem] setBackBarButtonItem:newBackButton];
-    
-    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
     
     const CGFloat buttonWidth = VIEW_WIDTH - 40;
     CGFloat buttonHeight = 54;
     
-    self.muteButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, VIEW_HEIGHT - NAV_BAR_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
+    CGFloat tabBarHeight = 49;
+    
+    self.muteButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, VIEW_HEIGHT - tabBarHeight - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
     [self.muteButton setBackgroundColor:[UIColor whiteColor]];
     [self.muteButton setTitle:NSLocalizedString(@"Mute", @"") forState:UIControlStateNormal];
     [self.muteButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
@@ -59,7 +65,7 @@
     [self.muteButton addTarget:self action:@selector(muteTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.muteButton];
     
-    self.leaveButton = [[UIButton alloc] initWithFrame:CGRectMake(self.muteButton.frame.origin.x + self.muteButton.frame.size.width + 16, VIEW_HEIGHT - NAV_BAR_HEIGHT - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
+    self.leaveButton = [[UIButton alloc] initWithFrame:CGRectMake(self.muteButton.frame.origin.x + self.muteButton.frame.size.width + 16, VIEW_HEIGHT - tabBarHeight - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
     [self.leaveButton setBackgroundColor:PRIMARY_COLOR];
     [self.leaveButton setTitle:NSLocalizedString(@"Leave", @"") forState:UIControlStateNormal];
     [self.leaveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
@@ -72,14 +78,16 @@
     [self.view addSubview:self.leaveButton];
     
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.muteButton.frame.origin.y) style:UITableViewStylePlain];
-
-    [self.view addSubview:self.tableView];
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    self.tableView.contentInset = UIEdgeInsetsMake(self.navBar.frame.size.height, 0, 0, 0);
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
 
+    [self.view addSubview:self.tableView];
+    [self.view addSubview:self.navBar]; // Nav bar must be above tableView
+
+    
     [self updateMembersPendingJoin];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -92,7 +100,6 @@
                                                  name:GROUPS_REFRESHED_NOTIFICATION
                                                object:nil];
     
-//    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Back"]]];
 }
 
 - (void)dealloc {
@@ -105,15 +112,14 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    self.title = self.group.name;
+
+    self.navBar.titleLabel.text = self.group.name;
     
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
     [self.muteButton setTitle:muteTitle forState:UIControlStateNormal];
     
     [self.tableView reloadData];
-    
-    self.muteButton.hidden = self.leaveButton.hidden = self.group.publicGroup;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -160,7 +166,9 @@
     YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
     vc.inCreateGroupFlow = NO;
     vc.existingGroup = self.group;
-    [self.navigationController pushViewController:vc animated:YES];
+
+    YASloppyNavigationController *navVC = [[YASloppyNavigationController alloc] initWithRootViewController:vc];
+    [self presentViewController:navVC animated:YES completion:nil];
 }
 
 - (void)muteTapped:(id)sender {
