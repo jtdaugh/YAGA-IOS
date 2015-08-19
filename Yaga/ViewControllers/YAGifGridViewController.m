@@ -239,6 +239,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)manualTriggerPullToRefresh {
+
     self.collectionView.contentOffset = CGPointMake(0, -(self.collectionView.contentInset.top + self.collectionView.pullToRefreshView.bounds.size.height));
     [self.collectionView triggerPullToRefresh];
 }
@@ -363,10 +364,10 @@ static NSString *cellID = @"Cell";
     void (^refreshBlock)(void) = ^ {
         
         //do not scroll to the top if infinite scrolling is used
-        if(!self.collectionView.infiniteScrollingView && [self collectionView:self.collectionView numberOfItemsInSection:[self gifGridSection]] > 0) {
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:[self gifGridSection]] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-            [self scrollingDidStop];
-        }
+//        if(!self.collectionView.infiniteScrollingView && [self collectionView:self.collectionView numberOfItemsInSection:[self gifGridSection]] > 0) {
+//            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:[self gifGridSection]] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+//            [self scrollingDidStop];
+//        }
         
         [self delayedHidePullToRefresh];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
@@ -413,7 +414,11 @@ static NSString *cellID = @"Cell";
         hidePullToRefreshAfter = 0;
     __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [weakSelf.collectionView.pullToRefreshView stopAnimating];
+        if (weakSelf.collectionView.contentInset.top != weakSelf.collectionView.pullToRefreshView.originalTopInset) {
+            [weakSelf.collectionView.pullToRefreshView stopAnimating];
+            weakSelf.collectionView.contentOffset = CGPointMake(0, -weakSelf.flexibleNavBar.maximumBarHeight);
+            [weakSelf.flexibleNavBar.behaviorDefiner snapToProgress:0.0 scrollView:nil];
+        }
         [weakSelf.collectionView.infiniteScrollingView stopAnimating];
         [weakSelf showNoVideosMessageIfNeeded];
     });

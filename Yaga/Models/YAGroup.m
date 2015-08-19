@@ -34,7 +34,12 @@
 
 + (NSDictionary *)defaultPropertyValues
 {
-    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0], @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0], @"pendingRefreshedAt":[NSDate dateWithTimeIntervalSince1970:0], @"hasUnviewedVideos" : [NSNumber numberWithBool:NO]};
+    return @{@"serverId":@"",
+             @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0],
+             @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0],
+             @"pendingRefreshedAt":[NSDate dateWithTimeIntervalSince1970:0],
+             @"lastInfiniteScrollEmptyResponseTime":[NSDate dateWithTimeIntervalSince1970:0],
+             @"hasUnviewedVideos" : [NSNumber numberWithBool:NO]};
 }
 
 - (NSString*)membersString {
@@ -564,6 +569,11 @@
                                       DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
                                       
                                       NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries forPendingList:NO];
+                                      if (self.streamGroup && !([updatedAndNew[kNewVideos] count] ||[updatedAndNew[kDeletedVideos] count])) {
+                                          [self.realm beginWriteTransaction];
+                                          self.lastInfiniteScrollEmptyResponseTime = [NSDate date];
+                                          [self.realm commitWriteTransaction];
+                                      }
                                       
                                       [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
                                       

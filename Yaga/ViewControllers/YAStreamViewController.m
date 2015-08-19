@@ -57,6 +57,8 @@
     YAStandardFlexibleHeightBar *bar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
     bar.titleLabel.text = self.group.name;
     bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
+    [bar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
+    [bar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
     return bar;
 }
 
@@ -68,9 +70,15 @@
     __weak typeof(self) weakSelf = self;
     
     // setup infinite scrolling
+    
     [self.collectionView addInfiniteScrollingWithActionHandler:^{
-        weakSelf.videosCountBeforeRefresh = weakSelf.group.videos.count;
-        [weakSelf.group refresh];
+        NSTimeInterval oneHour = 60*60;
+        if ([[NSDate date] timeIntervalSinceDate:weakSelf.group.lastInfiniteScrollEmptyResponseTime] > oneHour) {
+            weakSelf.videosCountBeforeRefresh = weakSelf.group.videos.count;
+            [weakSelf.group refresh];
+        } else {
+            [weakSelf.collectionView.infiniteScrollingView stopAnimating];
+        }
     }];
 }
 

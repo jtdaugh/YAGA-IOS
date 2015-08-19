@@ -20,6 +20,9 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property NSDate *updatedAt;
 @property NSDate *refreshedAt;
 @property NSDate *pendingRefreshedAt;
+
+@property NSDate *lastInfiniteScrollEmptyResponseTime; // The last time an infinite scroll returned 0 new or deleted videos
+
 @property BOOL hasUnviewedVideos;
 @property BOOL muted;
 
