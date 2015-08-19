@@ -20,7 +20,7 @@ target 'Yaga', :exclusive => true do
     pod 'MSAlertController'
     pod 'GPUImage', :git => 'https://github.com/yagainc/GPUImage.git', :commit => '714beb8f3d8a477245d95b1610ccdd40f7867019'
     pod 'Harpy'
-    pod 'SloppySwiper'
+    pod 'SloppySwiper', :git => 'https://github.com/yagainc/SloppySwiper.git'
     pod 'FBSDKShareKit'
     pod 'BLKFlexibleHeightBar'
 end

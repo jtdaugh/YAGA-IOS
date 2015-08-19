@@ -812,8 +812,14 @@
     [self.jsonOperationsManager PUT:api
                          parameters:nil
                             success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                                
-                                completion(nil, nil);
+                                [video removeFromGroupAndStreamsWithCompletion:^(NSError *error) {
+                                    if (error) {
+                                        DLog(@"Error removing video");
+                                        completion(nil, error);
+                                    } else {
+                                        completion(nil, nil);
+                                    }
+                                } removeFromServer:NO];
                             } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                                 NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
                                 DLog(@"%@", [NSString stringFromHex:hex]);

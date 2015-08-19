@@ -18,7 +18,7 @@
 
 @interface YASwipingViewController ()
 
-@property (nonatomic, strong) NSArray *videos;
+@property (nonatomic, strong) NSMutableArray *videos;
 
 @property (nonatomic, strong) NSMutableArray *pages;
 
@@ -41,7 +41,7 @@
 - (id)initWithVideos:(NSArray *)videos initialIndex:(NSUInteger)initialIndex {
     self = [super init];
     if(self) {
-        self.videos = videos;
+        self.videos = [videos mutableCopy];
         self.initialIndex = initialIndex;
         self.currentPageIndex = self.initialIndex;
         self.previousPageIndex = self.initialIndex;
@@ -220,7 +220,7 @@
     self.currentPageIndex = index;
     
     if(self.currentPageIndex != self.previousPageIndex) {
-        [self.delegate swipingController:self scrollToIndex:index];
+        [self.delegate swipingController:self didScrollToIndex:index];
         [self updatePages:NO];
     }
     
@@ -364,6 +364,8 @@
 
 - (void)didDeleteVideo:(id)sender {
     // Need to dismiss the alert delete confirmation first.
+    if (self.pendingMode) return;
+    
     __weak YASwipingViewController *weakSelf = self;
     if ([[self presentedViewController] isKindOfClass:[MSAlertController class]]) {
         [self dismissViewControllerAnimated:NO completion:^{
@@ -372,6 +374,23 @@
     } else {
         [self dismissAnimated];
     }
+}
+
+- (void)currentVideoRemovedFromList {
+    [self.videos removeObjectAtIndex:self.currentPageIndex];
+    
+    if(!self.videos.count) {
+        [self dismissAnimated];
+        return;
+    }
+    
+    for(UIView *page in [self.scrollView.subviews copy]) {
+        [page removeFromSuperview];
+    }
+    
+    self.initialIndex = self.currentPageIndex - ((self.currentPageIndex == self.videos.count) ? 1 : 0);
+    
+    [self initPages];
 }
 
 #pragma mark - YASuspendableGestureDelegate

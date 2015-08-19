@@ -9,17 +9,20 @@
 #import <UIKit/UIKit.h>
 #import "YASwipeToDismissViewController.h"
 
-@protocol YASuspendableGesturesDelegate <NSObject>
+@protocol YASwipableContainer <NSObject>
+
 - (void)suspendAllGestures:(id)sender;
 - (void)restoreAllGestures:(id)sender;
 - (void)dismissAnimated;
+- (void)currentVideoRemovedFromList;
+
 @end
 
 @protocol YASwipingViewControllerDelegate <NSObject>
-- (void)swipingController:(id)controller scrollToIndex:(NSUInteger)index;
+- (void)swipingController:(id)controller didScrollToIndex:(NSUInteger)index;
 @end
 
-@interface YASwipingViewController : YASwipeToDismissViewController <UIScrollViewDelegate, YASuspendableGesturesDelegate>
+@interface YASwipingViewController : YASwipeToDismissViewController <UIScrollViewDelegate, YASwipableContainer>
 
 @property (nonatomic, strong) UIScrollView *scrollView;
 

@@ -12,14 +12,14 @@
 #import "YAEventManager.h"
 #import "YAViewCountManager.h"
 
-@protocol YASuspendableGesturesDelegate;
+@protocol YASwipableContainer;
 
 @interface YAVideoPage : UIView<UITextViewDelegate, UIActionSheetDelegate,
     UIGestureRecognizerDelegate, YAEventReceiver, YAViewCountDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
 @property (nonatomic, readonly) YAVideoPlayerView *playerView;
-@property (nonatomic, weak) id<YASuspendableGesturesDelegate> presentingVC;
+@property (nonatomic, weak) id<YASwipableContainer> presentingVC;
 
 - (void)setVideo:(YAVideo *)video shouldPreload:(BOOL)shouldPreload;
 - (void)collapseCrosspost;

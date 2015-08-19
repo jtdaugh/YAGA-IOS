@@ -46,8 +46,11 @@
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNewGroup)];
     
-    self.tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+    CGRect frame = self.view.bounds;
+    frame.size.height -= NAV_BAR_HEIGHT;
+    self.tableView = [[UITableView alloc] initWithFrame:frame style:UITableViewStylePlain];
     self.tableView.dataSource = self;
+    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, kSendButtonHeight, 0);
     self.tableView.delegate = self;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[YAPostGroupCell class] forCellReuseIdentifier:kCellId];

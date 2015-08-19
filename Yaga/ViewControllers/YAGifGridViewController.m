@@ -706,7 +706,7 @@ static NSString *cellID = @"Cell";
 }
 
 #pragma mark - YASwipingControllerDelegate
-- (void)swipingController:(id)controller scrollToIndex:(NSUInteger)index {
+- (void)swipingController:(id)controller didScrollToIndex:(NSUInteger)index {
     NSSet *visibleIndexes = [NSSet setWithArray:[[self.collectionView indexPathsForVisibleItems] valueForKey:@"item"]];
     
     //don't do anything if it's visible already

@@ -648,7 +648,7 @@
         if(videos.count) {
             YAVideo *video = [videos firstObject];
             
-            BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue]; // Treat non-pending videos as deleted if targeting the pending array
+            BOOL deleted = [videoDic[YA_VIDEO_DELETED] boolValue];
             BOOL addedNewReferenceToExistingVideoObject = NO;
             if(![existingIds containsObject:videoDic[YA_RESPONSE_ID]] && !deleted) {
                 NSSet *complimentaryIds = !forPendingList ? [self pendingVideoIds] : [self approvedVideoIds];

@@ -665,7 +665,24 @@ static NSString *commentCellID = @"CommentCell";
             DLog(@"Approve Video success");
         }
     }];
+    
+    UILabel *tempApproveLabel = [UILabel new];
+    tempApproveLabel.font = [UIFont systemFontOfSize:100];
+    tempApproveLabel.text = @"✓";
+    [tempApproveLabel sizeToFit];
+    tempApproveLabel.center = [self.approveButton.superview convertPoint:self.approveButton.center toView:self];
 
+    tempApproveLabel.textColor = [self.approveButton.backgroundColor colorWithAlphaComponent:1.0];
+    [self addSubview:tempApproveLabel];
+    [UIView animateWithDuration:0.3 animations:^{
+        tempApproveLabel.transform = CGAffineTransformMakeScale(8, 8);
+        // animate to center
+        tempApproveLabel.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
+        tempApproveLabel.alpha = 0.1;
+    } completion:^(BOOL finished) {
+        [tempApproveLabel removeFromSuperview];
+        [self.presentingVC currentVideoRemovedFromList];
+    }];
 }
 
 - (void)rejectPressed {
@@ -674,7 +691,26 @@ static NSString *commentCellID = @"CommentCell";
             DLog(@"Reject Video failed with error: %@", error);
         } else {
             DLog(@"Reject Video success");
+            // SHOW SUCCESSFUL REJECT ANIMATION
         }
+    }];
+    
+    UILabel *tempRejectLabel = [UILabel new];
+    tempRejectLabel.font = [UIFont systemFontOfSize:100];
+    tempRejectLabel.text = @"x";
+    [tempRejectLabel sizeToFit];
+    tempRejectLabel.center = [self.rejectButton.superview convertPoint:self.rejectButton.center toView:self];
+    tempRejectLabel.textColor = [self.rejectButton.backgroundColor colorWithAlphaComponent:1.0];
+    [self addSubview:tempRejectLabel];
+    [UIView animateWithDuration:0.3 animations:^{
+        tempRejectLabel.transform = CGAffineTransformMakeScale(8, 8);
+        // animate toward opposite top corner
+//        tempRejectLabel.center = CGPointMake(tempRejectLabel.center.x > VIEW_WIDTH/2 ? 0 : VIEW_WIDTH, 0);
+        tempRejectLabel.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2);
+        tempRejectLabel.alpha = 0.1;
+    } completion:^(BOOL finished) {
+        [tempRejectLabel removeFromSuperview];
+        [self.presentingVC currentVideoRemovedFromList];
     }];
 }
 
