@@ -38,6 +38,12 @@ static NSString *CellIdentifier = @"PendingCell";
     [self updatePending];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [self.collectionView triggerPullToRefresh];
+}
+
 - (void)updatePending {
     NSMutableArray *pendingGroups = [NSMutableArray new];
     RLMResults *pendingVideos = [YAVideo objectsWhere:@"pending = 1"];

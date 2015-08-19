@@ -83,7 +83,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    [self.tableView triggerPullToRefresh];
+//    [self.tableView triggerPullToRefresh]; // Don't auto trigger this, shouldn't change that often
     
     //recreate reminders
     [self setupFlexibleNavBarWithRemindersBar];
@@ -362,6 +362,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     //post adjustments
     self.flexibleNavBar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];
+    [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
+    [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
+
     self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
     self.tableView.delegate = (id<UITableViewDelegate>)self.delegateSplitter;
     self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
