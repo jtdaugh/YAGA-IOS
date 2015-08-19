@@ -9,15 +9,16 @@
 #import "YAPostToGroupsViewController.h"
 #import "UIImage+Color.h"
 #import "NameGroupViewController.h"
+#import "YASloppyNavigationController.h"
 #import "YAGroup.h"
 #import "YAPostGroupCell.h"
 #import "YAAssetsCreator.h"
+#import "YAStandardFlexibleHeightBar.h"
 
 @interface YAPostToGroupsViewController ()
-@property (nonatomic, strong) RLMResults *hostingGoups;
-@property (nonatomic, strong) RLMResults *followingGroups;
+@property (nonatomic, strong) NSMutableArray *hostingGoups;
+@property (nonatomic, strong) NSMutableArray *followingGroups;
 
-@property (nonatomic, strong) NSMutableArray *selectedGroups;
 @property (nonatomic, strong) UIButton *sendButton;
 
 @property (nonatomic, strong) UITableView *tableView;
@@ -31,41 +32,41 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    self.automaticallyAdjustsScrollViewInsets = NO;
+
     self.view.backgroundColor = [UIColor whiteColor];
     self.title = NSLocalizedString(@"Post To Channel", @"");
     
-    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageWithColor:[UIColor whiteColor]]
-                                                 forBarPosition:UIBarPositionAny
-                                                     barMetrics:UIBarMetricsDefault];
-    
-    [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(-1000, -1000) forBarMetrics:UIBarMetricsDefault];
-    self.navigationController.navigationBar.tintColor = SECONDARY_COLOR;
-    
-    [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : SECONDARY_COLOR, NSFontAttributeName : [UIFont fontWithName:BOLD_FONT size:20]}];
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNewGroup)];
+    YAStandardFlexibleHeightBar *navBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
+    navBar.titleLabel.text = @"Select Channels";
+    [navBar.leftBarButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [navBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [navBar.leftBarButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
+    [navBar.rightBarButton addTarget:self action:@selector(addNewGroup) forControlEvents:UIControlEventTouchUpInside];
+
     
     CGRect frame = self.view.bounds;
-    frame.size.height -= NAV_BAR_HEIGHT;
     self.tableView = [[UITableView alloc] initWithFrame:frame style:UITableViewStylePlain];
     self.tableView.dataSource = self;
-    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, kSendButtonHeight, 0);
+    self.tableView.contentInset = UIEdgeInsetsMake(navBar.frame.size.height, 0, kSendButtonHeight, 0);
     self.tableView.delegate = self;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:[YAPostGroupCell class] forCellReuseIdentifier:kCellId];
     self.tableView.rowHeight = 60;
+    self.tableView.showsVerticalScrollIndicator = NO;
     self.tableView.allowsMultipleSelection = YES;
     self.tableView.editing = NO;
     [self.view addSubview:self.tableView];
-    
+    [self.view addSubview:navBar]; // Need the navBar on top of tableView
+
     RLMResults *hostGroups = [[YAGroup allObjects] objectsWhere:@"amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
     RLMResults *followGroups = [[YAGroup allObjects] objectsWhere:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
     
-    self.hostingGoups = [hostGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-    self.followingGroups = [followGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    RLMResults *hostingSorted = [hostGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    RLMResults *followSorted = [followGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     
-    self.selectedGroups = [NSMutableArray new];
+    self.hostingGoups = [self arrayFromRLMResults:hostingSorted];
+    self.followingGroups = [self arrayFromRLMResults:followSorted];
     
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.sendButton.frame = CGRectMake(0, self.view.bounds.size.height, self.view.bounds.size.width, kSendButtonHeight);
@@ -83,19 +84,37 @@
     //[self.sendButton setImageEdgeInsets:UIEdgeInsetsMake(0, self.view.bounds.size.width - 50, 0, 0)];
 }
 
+- (NSMutableArray *)arrayFromRLMResults:(RLMResults *)results {
+    NSMutableArray *arr = [NSMutableArray array];
+    for (id obj in results) {
+        [arr addObject:obj];
+    }
+    return arr;
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
-    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     
-    [self.navigationController setNavigationBarHidden:YES animated:YES];
+}
+
+- (void)addNewlyCreatedGroupToList:(YAGroup *)group {
+    [self.hostingGoups insertObject:group atIndex:0];
+    NSIndexPath *newIndex = [NSIndexPath indexPathForRow:0 inSection:0];
+    [self.tableView insertRowsAtIndexPaths:@[newIndex] withRowAnimation:UITableViewRowAnimationFade];
+    [self.tableView selectRowAtIndexPath:newIndex animated:YES scrollPosition:UITableViewScrollPositionNone];
+    [self showHidePostMessage];
+}
+
+- (void)backPressed {
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark - Table View Data Source
@@ -158,7 +177,9 @@
 #pragma mark - Private
 - (void)addNewGroup {
     NameGroupViewController *nameGroupVC = [NameGroupViewController new];
-    [self.navigationController pushViewController:nameGroupVC animated:YES];
+    YASloppyNavigationController *navVC = [[YASloppyNavigationController alloc] initWithRootViewController:nameGroupVC];
+    
+    [self presentViewController:navVC animated:YES completion:nil];
 }
 
 - (void)showHidePostMessage {

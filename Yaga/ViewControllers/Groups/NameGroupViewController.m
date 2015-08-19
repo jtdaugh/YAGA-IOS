@@ -126,7 +126,7 @@
     YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
     vc.inCreateGroupFlow = YES;
     vc.publicGroup = self.publicSwitch.isOn;
-    vc.initialVideo = self.initialVideo;
+//    vc.initialVideo = self.initialVideo;
     vc.groupName = self.groupNameTextField.text;
     [self.navigationController pushViewController:vc animated:YES];
 }

@@ -7,7 +7,6 @@
 //
 
 #import "YAStandardFlexibleHeightBar.h"
-#import "FacebookStyleBarBehaviorDefiner.h"
 
 #define kBarHeight 66.0
 #define kStatusBarHeight 20.0
@@ -18,7 +17,6 @@
 
     YAStandardFlexibleHeightBar *bar = [[YAStandardFlexibleHeightBar alloc] initWithFrame:CGRectMake(0.0, 0.0, VIEW_WIDTH, 66)];
     bar.minimumBarHeight = 20;
-    bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
 
     UILabel *titleLabel = [UILabel new];
     titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
@@ -42,7 +40,7 @@
     CGFloat buttonSize = kFlexNavBarButtonHeight;
     
     UIButton *leftButton = [UIButton new];
-    leftButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, 10);
+    leftButton.imageEdgeInsets = UIEdgeInsetsMake(10, 0, 10, kFlexNavBarButtonWidth - kFlexNavBarButtonHeight + 20);
     leftButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     leftButton.tintColor = [UIColor whiteColor];
     leftButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
@@ -62,7 +60,7 @@
     bar.leftBarButton = leftButton;
     
     UIButton *rightButton = [UIButton new];
-    rightButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 0);
+    rightButton.imageEdgeInsets = UIEdgeInsetsMake(10, kFlexNavBarButtonWidth - kFlexNavBarButtonHeight + 20, 10, 0);
     rightButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     rightButton.tintColor = [UIColor whiteColor];
     rightButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
@@ -84,6 +82,5 @@
     bar.backgroundColor = [UIColor colorWithWhite:0.05 alpha:1];
     return bar;
 }
-
 
 @end

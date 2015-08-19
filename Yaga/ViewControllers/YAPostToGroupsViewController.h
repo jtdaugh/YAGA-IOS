@@ -9,5 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface YAPostToGroupsViewController : UIViewController<UITableViewDelegate, UITableViewDataSource>
+
 @property (nonatomic, strong) NSDictionary *settings;
+
+- (void)addNewlyCreatedGroupToList:(YAGroup *)group;
+
 @end

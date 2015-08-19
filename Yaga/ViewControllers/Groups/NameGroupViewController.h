@@ -11,6 +11,6 @@
 @interface NameGroupViewController : UIViewController<UITextFieldDelegate>
 @property (strong, nonatomic) NSMutableArray *membersDic;
 
-@property (nonatomic, strong) YAVideo *initialVideo;
+//@property (nonatomic, strong) YAVideo *initialVideo;
 
 @end

@@ -19,7 +19,7 @@
 @property (nonatomic, assign) BOOL publicGroup;
 @property (nonatomic, copy) NSString *groupName;
 
-@property (nonatomic, assign) YAVideo *initialVideo;
+//@property (nonatomic, assign) YAVideo *initialVideo;
 
 - (BOOL)blockCameraPresentationOnBackground;
 

@@ -109,13 +109,6 @@
     [navVC pushViewController:vc animated:YES];
 }
 
-//- (void)viewWillAppear:(BOOL)animated {
-//    
-//    
-//    if(self.navigationController.viewControllers.count == 1)
-//        [self.navigationController setNavigationBarHidden:YES animated:YES];
-//    [super viewWillAppear:animated];
-//}
 
 - (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController
 {

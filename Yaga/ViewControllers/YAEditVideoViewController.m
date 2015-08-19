@@ -237,7 +237,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
             video.mp4Filename = [[weakSelf trimmedFileUrl] absoluteString];;
             [video updateCaption:self.captionText withXPosition:self.captionX yPosition:self.captionY scale:self.captionScale rotation:self.captionRotation];
             NameGroupViewController *vc = [NameGroupViewController new];
-            vc.initialVideo = video;
+//            vc.initialVideo = video;
             [weakSelf.videoPlayerView pause];
             [weakSelf presentViewController:[[YASloppyNavigationController alloc] initWithRootViewController:vc] animated:YES completion:nil];
         }];

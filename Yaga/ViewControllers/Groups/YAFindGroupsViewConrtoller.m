@@ -339,7 +339,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     self.flexibleNavBar.frame = barFrame;
     self.flexibleNavBar.titleLabel.text = @"Explore Channels";
     [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    self.flexibleNavBar.rightBarButton.imageEdgeInsets = UIEdgeInsetsMake(10, kFlexNavBarButtonWidth - kFlexNavBarButtonHeight + 20, 10, 0);
     
     [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
     

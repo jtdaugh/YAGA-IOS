@@ -13,6 +13,7 @@
 #import "YAStandardFlexibleHeightBar.h"
 #import "YAVideoCell.h"
 #import "YAGroupGridViewController.h"
+#import "FacebookStyleBarBehaviorDefiner.h"
 
 #define GROUP_LABEL_PROP 0.25
 
@@ -55,6 +56,7 @@
 - (BLKFlexibleHeightBar *)createNavBar {
     YAStandardFlexibleHeightBar *bar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
     bar.titleLabel.text = self.group.name;
+    bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
     return bar;
 }
 

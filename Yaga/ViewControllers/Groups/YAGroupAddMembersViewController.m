@@ -15,6 +15,7 @@
 #import "YAServer.h"
 #import "YAAssetsCreator.h"
 #import "YAInviteHelper.h"
+#import "YAPostToGroupsViewController.h"
 
 @interface YAGroupAddMembersViewController ()
 @property (strong, nonatomic) UIActivityIndicatorView *activityView;
@@ -28,6 +29,8 @@
 @property (nonatomic, strong) NSArray *contactsThatNeedInvite;
 
 @property (nonatomic, readonly) BOOL existingGroupDirty;
+
+@property (nonatomic, strong) YAGroup *newlyCreatedGroup;
 
 @end
 
@@ -433,16 +436,10 @@
         
         [YAGroup groupWithName:self.groupName isPrivate:!self.publicGroup withCompletion:^(NSError *error, id result) {
             if(error) {
-                [self showActivity:NO];
+                [weakSelf showActivity:NO];
             } else {
                 YAGroup *newGroup = result;
-                
-#warning probably want to force tab bar & nav controller to take us to proper group grid here w/ notification
-                
-                if (self.initialVideo ) {
-                    [self postInitialVideoToGroup:newGroup];
-                }
-                
+                weakSelf.newlyCreatedGroup = newGroup;
                 [newGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
                     [weakSelf showActivity:NO];
                     if(!error) {
@@ -461,36 +458,38 @@
 - (void)dismissAddMembers {
     // If we presented the create group flow on top of the trim screen, dimisss that & the camera as well.
     if (self.inCreateGroupFlow) {
-        
-        //dismiss in only case nameViewController is a first view controller in navigation stack, other wise pop until there is no nameViewController in the navigation stack
-        NSArray *stackClasses = [self.navigationController.viewControllers valueForKey:@"class"];
-        NSUInteger index = [stackClasses indexOfObject:[NameGroupViewController class]];
-        if(index > 0) {
-            [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:index - 1] animated:YES];
-            return;
-        }
-        
-        //       EditVideoVC              CameraVC                 GroupsNavController
-        if (self.presentingViewController.presentingViewController.presentingViewController) {
-            [self.presentingViewController.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+        UIViewController *presentingVC = self.presentingViewController;
+        if ([presentingVC isKindOfClass:[UINavigationController class]]) {
+            UIViewController *previousTopVC = ((UINavigationController *)presentingVC).topViewController;
+            if ([previousTopVC isKindOfClass:[YAPostToGroupsViewController class]]) {
+                YAGroup *group = self.newlyCreatedGroup;
+                [presentingVC dismissViewControllerAnimated:YES completion:^{
+                    [(YAPostToGroupsViewController *)previousTopVC addNewlyCreatedGroupToList:group];
+                }];
+            }
         } else {
             [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
+        
+//        //dismiss in only case nameViewController is a first view controller in navigation stack, other wise pop until there is no nameViewController in the navigation stack
+//        NSArray *stackClasses = [self.navigationController.viewControllers valueForKey:@"class"];
+//        NSUInteger index = [stackClasses indexOfObject:[NameGroupViewController class]];
+//        if(index > 0) {
+//            [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:index - 1] animated:YES];
+//            return;
+//        }
+//        
+//        //       EditVideoVC              CameraVC                 GroupsNavController
+//        if (self.presentingViewController.presentingViewController.presentingViewController) {
+//            [self.presentingViewController.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+//        } else {
+//            [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+//        }
     } else {
-        [self popToGridViewController];
+        [self.navigationController popViewControllerAnimated:YES];
     }
 }
 
-- (void)popToGridViewController {
-    [self.navigationController popViewControllerAnimated:YES];
-}
-
-- (void)postInitialVideoToGroup:(YAGroup *)group {
-    YAVideo *vid = self.initialVideo;
-    [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:[NSURL URLWithString:vid.mp4Filename]
-                                                withCaptionText:vid.caption x:vid.caption_x y:vid.caption_y scale:vid.caption_scale rotation:vid.caption_rotation
-                                                    addToGroups:@[group]];
-}
 
 - (NSArray *)filterContactsToInvite {
     NSMutableArray *contactsNotOnYaga = [NSMutableArray new];
