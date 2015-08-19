@@ -306,7 +306,7 @@
 }
 
 
-- (void)leaveGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion {
+- (void)leaveGroupWithId:(NSString*)serverGroupId amMember:(BOOL)amMember withCompletion:(responseBlock)completion {
     if(![YAServer sharedServer].serverUp) {
         [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
         completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);

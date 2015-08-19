@@ -88,7 +88,13 @@
         bar.descriptionLabel.text = self.group.membersString;
     }
     [bar.backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
-    [bar.moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    
+    if (self.group.amMember) {
+        [bar.moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    } else {
+        [bar.moreButton removeFromSuperview];
+    }
+    
     self.followButton = bar.followButton;
     self.segmentedControl = bar.segmentedControl;
     
@@ -136,16 +142,22 @@
         [self.group unfollowWithCompletion:^(NSError *error) {
             if (error) {
                 DLog(@"Failed to leave group");
+                [YAUtils showHudWithText:@"Oops. Try again later."];
             } else {
                 DLog(@"Left group");
+                self.buttonIsUnfollow = NO;
+                [self.followButton setTitle:@"Follow" forState:UIControlStateNormal];
             }
         }];
     } else {
         [[YAServer sharedServer] followGroupWithId:self.group.serverId withCompletion:^(id response, NSError *error) {
             if (error) {
                 DLog(@"Failed to follow group");
+                [YAUtils showHudWithText:@"Oops. Try again later."];
             } else {
                 DLog(@"Followed group");
+                self.buttonIsUnfollow = YES;
+                [self.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
             }
         }];
     }

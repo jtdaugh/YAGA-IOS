@@ -347,6 +347,7 @@
                 group.name = name;
                 group.serverId = [responseDictionary objectForKey:YA_RESPONSE_ID];
                 group.amMember = YES;
+                group.publicGroup = !isPrivate;
                 
                 // will fix the spinning monkey issue for new groups https://trello.com/c/aMDEodm9/792-monkey-is-spinning-all-the-time-after-group-creation
                 // Note: regressed to using current date so groups will immediately be at tops of lists. Infinite spinning doesn't seem to be an issue anymore.
@@ -460,7 +461,7 @@
 }
 
 - (void)leaveWithCompletion:(completionBlock)completion {
-    [[YAServer sharedServer] leaveGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] leaveGroupWithId:self.serverId isUnfollow:NO withCompletion:^(id response, NSError *error) {
         if(error) {
             DLog(@"can't leave group with name: %@, error %@", self.name, error.localizedDescription);
             completion(error);
@@ -481,7 +482,7 @@
 }
 
 - (void)unfollowWithCompletion:(completionBlock)completion {
-    [[YAServer sharedServer] leaveGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
+    [[YAServer sharedServer] leaveGroupWithId:self.serverId isUnfollow:YES withCompletion:^(id response, NSError *error) {
         if(error) {
             DLog(@"can't unfollow group with name: %@, error %@", self.name, error.localizedDescription);
             completion(error);

@@ -52,10 +52,9 @@
     
     [self.navigationBar setTintColor:[UIColor whiteColor]];
     
-    [self.navigationBar setBackgroundImage:[UIImage imageWithColor:PRIMARY_COLOR]
-                            forBarPosition:UIBarPositionAny
-                                barMetrics:UIBarMetricsDefault];
-    
+    [self.navigationBar setBackgroundColor:PRIMARY_COLOR];
+    [self.navigationBar setBarTintColor:PRIMARY_COLOR];
+        
 //    self.navigationBar.layer.shadowColor = [SECONDARY_COLOR CGColor];
 //    self.navigationBar.layer.shadowOpacity = 0.5;
 //    self.navigationBar.layer.shadowRadius = 1;
