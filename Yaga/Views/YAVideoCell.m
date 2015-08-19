@@ -20,6 +20,7 @@
 #define COMMENTS_ICON_BOTTOM_MARGIN 8
 #define COMMENT_COUNT_BOTTOM_MARGIN 5
 #define USERNAME_BOTTOM_MARGIN 0
+#define VIDEO_STATUS_BOTTOM_MARGIN 6
 
 @interface YAVideoCell ()
 
@@ -79,8 +80,11 @@
         self.username.shadowOffset = CGSizeMake(1, 1);
         [self.containerView addSubview:self.username];
         
-        self.videoStatus = [[UIView alloc] initWithFrame:CGRectMake(self.bounds.size.width - 15, self.bounds.size.height - 60, 10, 10)];
-        self.videoStatus.layer.cornerRadius = 5;
+        CGFloat statusSize = 12;
+        self.videoStatus = [[UIView alloc] initWithFrame:CGRectMake(self.bounds.size.width - VIDEO_STATUS_BOTTOM_MARGIN - statusSize,
+                                                                    self.bounds.size.height - statusSize - VIDEO_STATUS_BOTTOM_MARGIN,
+                                                                    statusSize, statusSize)];
+        self.videoStatus.layer.cornerRadius = statusSize/2.0;
         self.videoStatus.backgroundColor = [UIColor redColor];
         self.videoStatus.hidden = YES;
         [self.containerView addSubview:self.videoStatus];
@@ -132,6 +136,28 @@
     }
     
     return self;
+}
+
+- (void)layoutSubviews {
+    
+    CGRect frame = self.containerView.frame;
+    
+    CGRect userFrame = self.username.frame;
+    userFrame.origin.y = frame.size.height - userFrame.size.height - USERNAME_BOTTOM_MARGIN;
+    self.username.frame = userFrame;
+    
+    CGRect eventCountFrame = self.eventCountLabel.frame;
+    eventCountFrame.origin.y = frame.size.height - eventCountFrame.size.height - COMMENT_COUNT_BOTTOM_MARGIN;
+    self.eventCountLabel.frame = eventCountFrame;
+    
+    CGRect commentFrame = self.commentIcon.frame;
+    commentFrame.origin.y = frame.size.height - commentFrame.size.height - COMMENTS_ICON_BOTTOM_MARGIN;
+    self.commentIcon.frame = commentFrame;
+    
+    CGRect videoStatusFrame = self.videoStatus.frame;
+    videoStatusFrame.origin.y = frame.size.height - videoStatusFrame.size.height - VIDEO_STATUS_BOTTOM_MARGIN;
+    self.videoStatus.frame = videoStatusFrame;
+
 }
 
 - (void)animateGifView:(BOOL)animate {
@@ -228,18 +254,8 @@
         frame.origin.y = self.groupView.frame.size.height;
         frame.size.height = self.contentView.frame.size.height - frame.origin.y;
         self.containerView.frame = frame;
-        
-        CGRect userFrame = self.username.frame;
-        userFrame.origin.y = frame.size.height - userFrame.size.height - USERNAME_BOTTOM_MARGIN;
-        self.username.frame = userFrame;
-        
-        CGRect eventCountFrame = self.eventCountLabel.frame;
-        eventCountFrame.origin.y = frame.size.height - eventCountFrame.size.height - COMMENT_COUNT_BOTTOM_MARGIN;
-        self.eventCountLabel.frame = eventCountFrame;
-        
-        CGRect commentFrame = self.commentIcon.frame;
-        commentFrame.origin.y = frame.size.height - commentFrame.size.height - COMMENTS_ICON_BOTTOM_MARGIN;
-        self.commentIcon.frame = commentFrame;
+
+        [self setNeedsLayout];
     }
 }
 
@@ -255,7 +271,7 @@
 }
 
 - (void)updateState {
-    self.videoStatus.backgroundColor = self.video.pending ? [[UIColor yellowColor] colorWithAlphaComponent:0.7] : [[UIColor greenColor] colorWithAlphaComponent:0.7];
+    self.videoStatus.backgroundColor = self.video.pending ? [[UIColor yellowColor] colorWithAlphaComponent:0.9] : [[UIColor greenColor] colorWithAlphaComponent:0.7];
     
     if(self.video.gifFilename.length)
         self.state = YAVideoCellStateGIFPreview;
