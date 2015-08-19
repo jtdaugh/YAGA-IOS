@@ -89,6 +89,7 @@
 		6E9188F21A3F3A5A0034AB63 /* VENToken.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E9188C71A3F3A5A0034AB63 /* VENToken.xib */; };
 		6E9188F31A3F3A5A0034AB63 /* VENTokenField.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9188C91A3F3A5A0034AB63 /* VENTokenField.m */; };
 		6E9D87171B15DED600FA70EC /* loader.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6E9D87161B15DED600FA70EC /* loader.gif */; };
+		6EA69BE61B84818400F82BC3 /* YABubbleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA69BE51B84818400F82BC3 /* YABubbleView.m */; };
 		6EA942131A403E1D001803C5 /* YAContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942121A403E1D001803C5 /* YAContact.m */; };
 		6EA942161A404B00001803C5 /* YAGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942151A404B00001803C5 /* YAGroup.m */; };
 		6EA942191A405C80001803C5 /* YAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA942181A405C80001803C5 /* YAUtils.m */; };
@@ -332,6 +333,8 @@
 		6E9188C81A3F3A5A0034AB63 /* VENTokenField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VENTokenField.h; sourceTree = "<group>"; };
 		6E9188C91A3F3A5A0034AB63 /* VENTokenField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VENTokenField.m; sourceTree = "<group>"; };
 		6E9D87161B15DED600FA70EC /* loader.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = loader.gif; sourceTree = "<group>"; };
+		6EA69BE41B84818400F82BC3 /* YABubbleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YABubbleView.h; sourceTree = "<group>"; };
+		6EA69BE51B84818400F82BC3 /* YABubbleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YABubbleView.m; sourceTree = "<group>"; };
 		6EA942111A403E1D001803C5 /* YAContact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAContact.h; sourceTree = "<group>"; };
 		6EA942121A403E1D001803C5 /* YAContact.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAContact.m; sourceTree = "<group>"; };
 		6EA942141A404B00001803C5 /* YAGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroup.h; sourceTree = "<group>"; };
@@ -838,6 +841,8 @@
 				0F46B6E51B58D8FE008E9808 /* YAApplyCaptionView.m */,
 				6EEC2BE31B7E1238004A3393 /* YAPostGroupCell.h */,
 				6EEC2BE41B7E1238004A3393 /* YAPostGroupCell.m */,
+				6EA69BE41B84818400F82BC3 /* YABubbleView.h */,
+				6EA69BE51B84818400F82BC3 /* YABubbleView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1257,6 +1262,7 @@
 				88FB0A261B1D5250002C213C /* YAEventManager.m in Sources */,
 				8890451D1B18FF8700B3C4D7 /* YAEventCell.m in Sources */,
 				882222AD1B675ACE00A39CB8 /* YAInviteHelper.m in Sources */,
+				6EA69BE61B84818400F82BC3 /* YABubbleView.m in Sources */,
 				8830D8EA1B35E09A006F841D /* YASloppyNavigationController.m in Sources */,
 				6E6FEC801B78C60A00BE9AAB /* YAStreamViewController.m in Sources */,
 				6EEA835D1AE8CAA100E3EDCE /* YARealmMigrationManager.m in Sources */,

@@ -80,4 +80,8 @@ typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 
 //server side paging
 + (NSDictionary*)urlParametersFromString:(NSString*)urlString;
+
++ (void)showBubbleWithText:(NSString*)text bubbleWidth:(CGFloat)width forView:(UIView*)view;
++ (void)showBubbleWithTextOnce:(NSString*)text bubbleWidth:(CGFloat)width forView:(UIView*)view;
++ (void)hideBubbleWithText:(NSString*)text;
 @end

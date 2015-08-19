@@ -21,6 +21,7 @@
 #import "YAMyStreamViewController.h"
 #import "YAGroupOptionsViewController.h"
 #import "YAGroupGridViewController.h"
+#import "YABubbleView.h"
 
 @interface YAMainTabBarController () <UITabBarControllerDelegate>
 

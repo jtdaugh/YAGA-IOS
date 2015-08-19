@@ -17,6 +17,7 @@
 #import "YAServer.h"
 #import "Constants.h"
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
+#import "YABubbleView.h"
 
 #define HUMANITY_VISITED @"humanityVisited"
 #define PRIVATE_GROUP_VISITED @"groupVisited"
@@ -28,7 +29,10 @@
 @interface YAUtils ()
 @property (copy) void (^acceptAction)();
 @property (copy) void (^dismissAction)();
+
 @end
+
+static NSMutableDictionary *bubblesDictionary;
 
 @implementation YAUtils
 
@@ -557,6 +561,64 @@
         [result setObject:value forKey:key];
     }
     return result;
+}
+
++ (void)showBubbleWithText:(NSString*)text bubbleWidth:(CGFloat)width forView:(UIView*)view {
+    UIFont *bubbleFont = [UIFont fontWithName:BIG_FONT size:14];
+    CGRect boundingRect = [text boundingRectWithSize:CGSizeMake(width - 20, NSIntegerMax)
+                                                   options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
+                                                attributes:@{NSFontAttributeName:bubbleFont} context:nil];
+    
+    CGRect viewFrame = view.frame;
+    BOOL arrowUp = viewFrame.origin.y + viewFrame.size.height + boundingRect.size.height + 20 < view.superview.frame.size.height;
+    
+    CGFloat x = viewFrame.origin.x + viewFrame.size.width/2 - width/2;
+    CGFloat y = arrowUp ? viewFrame.origin.y + viewFrame.size.height + 5 : viewFrame.origin.y - boundingRect.size.height - 25;
+    
+    YABubbleView *bubbleView = [[YABubbleView alloc] initWithFrame:CGRectMake(x, y, width, boundingRect.size.height + 20)];
+    bubbleView.arrowDirectionUp = arrowUp;
+    bubbleView.backgroundColor = [UIColor clearColor];
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, arrowUp ? 15 : 5, boundingRect.size.width, boundingRect.size.height)];
+    label.font = bubbleFont;
+    label.textColor = [UIColor whiteColor];
+    label.numberOfLines = 0;
+    label.text = text;
+    label.textAlignment = NSTextAlignmentCenter;
+    [bubbleView addSubview:label];
+    bubbleView.alpha = 0;
+    [view.superview addSubview:bubbleView];
+
+    [UIView animateWithDuration:2.0 delay:0.0f usingSpringWithDamping:0.4f initialSpringVelocity:1.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
+        bubbleView.alpha = 1;
+    } completion:^(BOOL finished) {
+       
+    }];
+    if(!bubblesDictionary)
+        bubblesDictionary = [NSMutableDictionary new];
+    
+    [bubblesDictionary setObject:bubbleView forKey:text];
+}
+
++ (void)showBubbleWithTextOnce:(NSString*)text bubbleWidth:(CGFloat)width arrowDirectionUp:(BOOL)arrowUp forView:(UIView*)view {
+    NSMutableSet *popupTextsShown = [NSMutableSet setWithArray:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kPopupsShown]];
+    if(![popupTextsShown containsObject:text]) {
+        [popupTextsShown addObject:text];
+        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[popupTextsShown allObjects] forKey:kPopupsShown];
+    }
+}
+
++ (void)hideBubbleWithText:(NSString*)text {
+    if(!text)
+        return;
+    
+    UIView *bubbleView = [bubblesDictionary objectForKey:text];
+    [UIView animateWithDuration:.8 delay:0.0f usingSpringWithDamping:0.4f initialSpringVelocity:3.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
+        bubbleView.alpha = 0;
+    } completion:^(BOOL finished) {
+        [bubbleView removeFromSuperview];
+        [bubblesDictionary removeObjectForKey:text];
+    }];
 }
 
 @end

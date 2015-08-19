@@ -247,4 +247,6 @@
 #define kPublicStreamGroupId                @"_PublicStream_"
 #define kMyStreamGroupId                    @"_MyStream_"
 #define kStreamItemsOnPage                  30
+#define kPopupsShown                        @"kPopupsShown"
+
 #endif
