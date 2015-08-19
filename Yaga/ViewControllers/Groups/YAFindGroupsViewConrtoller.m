@@ -83,7 +83,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-//    [self.tableView triggerPullToRefresh]; // Don't auto trigger this, shouldn't change that often
+    if (![self.groupsDataArray count]) {
+        // Don't auto trigger this if already populated, shouldn't change that often
+        [self.tableView triggerPullToRefresh];
+    }
     
     //recreate reminders
     [self setupFlexibleNavBarWithRemindersBar];
