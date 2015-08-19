@@ -37,11 +37,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT * (1 + GROUP_LABEL_PROP))];
+    [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT * (1.0 + GROUP_LABEL_PROP))];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT * (1 + GROUP_LABEL_PROP));
+    return CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT * (1.0 + GROUP_LABEL_PROP));
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {

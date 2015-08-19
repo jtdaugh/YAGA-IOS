@@ -17,7 +17,9 @@
 #import "AFDownloadRequestOperation.h"
 
 #define LIKE_HEART_SIDE 40.f
-
+#define COMMENTS_ICON_BOTTOM_MARGIN 8
+#define COMMENT_COUNT_BOTTOM_MARGIN 5
+#define USERNAME_BOTTOM_MARGIN 0
 
 @interface YAVideoCell ()
 
@@ -59,17 +61,14 @@
         _gifView = [[FLAnimatedImageView alloc] initWithFrame:self.containerView.bounds];
         _gifView.contentMode = UIViewContentModeScaleAspectFill;
         _gifView.clipsToBounds = YES;
-        _gifView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
         [self.containerView addSubview:self.gifView];
-        self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        self.containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
         self.imageLoadingQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         
-        self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30, self.bounds.size.width/2 - 5, 30)];
+        self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30 - USERNAME_BOTTOM_MARGIN, self.bounds.size.width/2 - 5, 30)];
         [self.username setTextAlignment:NSTextAlignmentRight];
         [self.username setMinimumScaleFactor:0.5];
         [self.username setAdjustsFontSizeToFitWidth:YES];
@@ -79,11 +78,12 @@
         self.username.shadowOffset = CGSizeMake(1, 1);
         [self.containerView addSubview:self.username];
 
-        self.commentIcon = [[UIImageView alloc] initWithFrame:CGRectMake(5, self.bounds.size.height-8-15, 15, 15)];
+        CGFloat iconSize = 15;
+        self.commentIcon = [[UIImageView alloc] initWithFrame:CGRectMake(5, self.bounds.size.height-iconSize - COMMENTS_ICON_BOTTOM_MARGIN, iconSize, iconSize)];
         [self.commentIcon setImage:[UIImage imageNamed:@"Comment_Filled"]];
         [self.containerView addSubview:self.commentIcon];
         
-        self.eventCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(5 + 15 + 3, self.bounds.size.height - 25, 40, 20)];
+        self.eventCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(5 + 15 + 3, self.bounds.size.height - 20 - COMMENT_COUNT_BOTTOM_MARGIN, 40, 20)];
         [self.eventCountLabel setTextColor:[UIColor whiteColor]];
         [self.eventCountLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
         self.eventCountLabel.shadowColor = [UIColor blackColor];
@@ -213,15 +213,26 @@
     if (_showsGroupLabel == showsGroupLabel) return;
     _showsGroupLabel = showsGroupLabel;
     if (showsGroupLabel) {
-        CGFloat prop = (self.groupLabelHeightProportion > 0) ? self.groupLabelHeightProportion : 0.25;
-        self.groupView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height * prop);
+        CGFloat prop = self.groupLabelHeightProportion;
+        self.groupView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.width * prop); // purposely used width not height for header proportion
         self.groupButton.frame = CGRectMake(10, 0, self.groupView.frame.size.width - 20, self.groupView.frame.size.height);
         self.groupView.hidden = NO;
         CGRect frame = self.containerView.frame;
         frame.origin.y = self.groupView.frame.size.height;
         frame.size.height = self.contentView.frame.size.height - frame.origin.y;
         self.containerView.frame = frame;
-        [self.containerView setNeedsLayout];
+        
+        CGRect userFrame = self.username.frame;
+        userFrame.origin.y = frame.size.height - userFrame.size.height - USERNAME_BOTTOM_MARGIN;
+        self.username.frame = userFrame;
+        
+        CGRect eventCountFrame = self.eventCountLabel.frame;
+        eventCountFrame.origin.y = frame.size.height - eventCountFrame.size.height - COMMENT_COUNT_BOTTOM_MARGIN;
+        self.eventCountLabel.frame = eventCountFrame;
+        
+        CGRect commentFrame = self.commentIcon.frame;
+        commentFrame.origin.y = frame.size.height - commentFrame.size.height - COMMENTS_ICON_BOTTOM_MARGIN;
+        self.commentIcon.frame = commentFrame;
     }
 }
 
