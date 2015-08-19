@@ -32,8 +32,13 @@
     [super viewDidLoad];
     self.pendingMode = self.openStraightToPendingSection;
     self.segmentedControl.selectedSegmentIndex = self.openStraightToPendingSection ? 1 : 0;
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadDueToApprovalOrRejection) name:VIDEO_REJECTED_OR_APPROVED_NOTIFICATION object:nil];
     // Do any additional setup after loading the view.
+}
+
+- (void)reloadDueToApprovalOrRejection {
+    [self reloadSortedVideos];
+    [self.collectionView reloadData];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -122,6 +127,10 @@
             }
         }];
     }
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_REJECTED_OR_APPROVED_NOTIFICATION object:nil];
 }
 
 @end

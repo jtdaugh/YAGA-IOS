@@ -156,7 +156,7 @@
 
 }
 
-- (NSUInteger)tileIndexFromPageIndex:(NSUInteger)pageIndex {
+- (NSUInteger)firstTileIndexFromInitialPageIndex:(NSUInteger)pageIndex {
     NSUInteger result = 0;
     
     if(pageIndex == 0) {
@@ -182,7 +182,7 @@
     
     self.scrollView.contentSize = CGSizeMake(self.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
     
-    NSUInteger initialTileIndex = [self tileIndexFromPageIndex:self.initialIndex];
+    NSUInteger initialTileIndex = [self firstTileIndexFromInitialPageIndex:self.initialIndex];
     
     for(NSUInteger i = initialTileIndex; i < initialTileIndex + 3; i++) {
         CGRect pageFrame = CGRectMake(i * self.scrollView.bounds.size.width, 0, self.scrollView.bounds.size.width - kSeparator, self.scrollView.bounds.size.height);
@@ -389,7 +389,9 @@
     }
     
     self.initialIndex = self.currentPageIndex - ((self.currentPageIndex == self.videos.count) ? 1 : 0);
-    
+    self.currentPageIndex = self.initialIndex;
+    self.previousPageIndex = self.initialIndex;
+
     [self initPages];
 }
 

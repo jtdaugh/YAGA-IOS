@@ -788,24 +788,47 @@
 - (void)approveVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
 
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+
     NSString *serverGroupId = video.group.serverId;
     NSString *serverVideoId = video.serverId;
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_APPROVE, self.base_api, serverGroupId, serverVideoId];
     [self.jsonOperationsManager PUT:api
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
-
+                   
+                   [[RLMRealm defaultRealm] beginWriteTransaction];
+                   // Swap video to non-pending group videos array
+                   NSUInteger indexPending = [video.group.pending_videos indexOfObject:video];
+                   NSUInteger indexNonPending = [video.group.videos indexOfObject:video];
+                   if (indexPending != NSNotFound)
+                       [video.group.pending_videos removeObjectAtIndex:indexPending];
+                   if (indexNonPending == NSNotFound)
+                       [video.group.videos insertObject:video atIndex:0];
+                   
+                   [[RLMRealm defaultRealm] commitWriteTransaction];
+                   [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_REJECTED_OR_APPROVED_NOTIFICATION object:nil];
                    completion(nil, nil);
                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                    NSString *hex = [error.userInfo[ERROR_DATA] hexRepresentationWithSpaces_AS:NO];
                    DLog(@"%@", [NSString stringFromHex:hex]);
-                   completion(nil, nil);
+                   completion(nil, error);
                }];
 }
 
 - (void)rejectVideo:(YAVideo*)video withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     
+    if(![YAServer sharedServer].serverUp) {
+        [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
+        completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
+        return;
+    }
+
     NSString *serverGroupId = video.group.serverId;
     NSString *serverVideoId = video.serverId;
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_REJECT, self.base_api, serverGroupId, serverVideoId];
@@ -817,6 +840,7 @@
                                         DLog(@"Error removing video");
                                         completion(nil, error);
                                     } else {
+                                        [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_REJECTED_OR_APPROVED_NOTIFICATION object:nil];
                                         completion(nil, nil);
                                     }
                                 } removeFromServer:NO];

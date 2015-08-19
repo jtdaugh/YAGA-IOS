@@ -186,7 +186,7 @@
     NSMutableArray *groups = [NSMutableArray new];
     
     for (NSIndexPath *indexPath in self.tableView.indexPathsForSelectedRows) {
-        //works only for my groups for now
+
         if(indexPath.section == 0 && self.hostingGoups.count){
             YAGroup *group = self.hostingGoups[indexPath.item];
             [groups addObject:group];
