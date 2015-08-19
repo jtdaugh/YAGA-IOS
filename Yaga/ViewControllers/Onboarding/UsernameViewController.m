@@ -134,14 +134,9 @@
                                        [[YAUser currentUser] saveObject:weakSelf.usernameTextField.text forKey:nUsername];
                                        [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
                                        
-                                       [weakSelf performSegueWithIdentifier:@"ShowFindGroupsAfterUsername" sender:weakSelf];
+                                       [weakSelf performSegueWithIdentifier:@"ShowMainTabBarAfterUsername" sender:weakSelf];
                                    }
                                }];
 }
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[YAFindGroupsViewConrtoller class]]) {
-        ((YAFindGroupsViewConrtoller*)segue.destinationViewController).onboardingMode = YES;
-    }
-}
 @end

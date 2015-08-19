@@ -188,7 +188,7 @@
                         [[Mixpanel sharedInstance].people set:@{@"$name":[YAUser currentUser].username}];
 
                         //show find groups immediately
-                        [weakSelf performSegueWithIdentifier:@"ShowFindGroupsAfterAuthentication" sender:weakSelf];
+                        [weakSelf performSegueWithIdentifier:@"ShowMainTabBarAfterAuthentication" sender:weakSelf];
                     }
                     else {
                         //new user
@@ -213,9 +213,4 @@
     }];
 }
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if([segue.destinationViewController isKindOfClass:[YAFindGroupsViewConrtoller class]]) {
-        ((YAFindGroupsViewConrtoller*)segue.destinationViewController).onboardingMode = YES;
-    }
-}
 @end
