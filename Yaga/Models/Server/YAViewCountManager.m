@@ -13,24 +13,32 @@
 #import "YAUser.h"
 #import "YAWeakTimerTarget.h"
 
+
 #if (DEBUG && DEBUG_SERVER)
-#define FIREBASE_VC_ROOT (@"https://yagadev.firebaseio.com/view_counts")
+#define FIREBASE_ROOT (@"https://yagadev.firebaseio.com/")
 #else
-#define FIREBASE_VC_ROOT (@"https://yaga.firebaseio.com/view_counts")
+#define FIREBASE_ROOT (@"https://yaga.firebaseio.com/")
 #endif
+
+#define FIREBASE_VIDEO_VC_PATH (@"view_counts")
+#define FIREBASE_GROUP_VC_ROOT (@"group_view_counts")
+#define FIREBASE_USER_VC_ROOT (@"user_view_counts")
 
 @interface YAViewCountManager ()
 
-@property (nonatomic, strong) NSString *videoId;
-@property (nonatomic, strong) NSString *username;
+@property (nonatomic, strong) NSString *monitoringVideoId;
+@property (nonatomic, strong) NSString *monitoringGroupId;
+@property (nonatomic, strong) NSString *monitoringUserName;
 
-@property (nonatomic, readwrite) NSUInteger myViewCount;
-@property (nonatomic, readwrite) NSUInteger othersViewCount;
+@property (nonatomic, strong) NSString *myUsername;
 
-@property (nonatomic, strong) Firebase *viewCountRoot;
-@property (nonatomic, strong) Firebase *currentVideoRef;
+@property (nonatomic, strong) Firebase *videoViewCountRoot;
+@property (nonatomic, strong) Firebase *userViewCountRoot;
+@property (nonatomic, strong) Firebase *groupViewCountRoot;
 
-@property (nonatomic, strong) NSTimer *addViewTimer;
+@property (nonatomic, strong) Firebase *currentMonitoringVideoRef;
+@property (nonatomic, strong) Firebase *currentMonitoringUserRef;
+@property (nonatomic, strong) Firebase *currentMonitoringGroupRef;
 
 @end
 
@@ -48,72 +56,144 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _viewCountRoot = [[Firebase alloc] initWithUrl:FIREBASE_VC_ROOT];
-        _myViewCount = 0;
-        _othersViewCount = 0;
-        _videoId = nil;
-        _username = [YAUser currentUser].username; // thread issues with realm who knows!!!
+        _videoViewCountRoot = [[Firebase alloc] initWithUrl:[FIREBASE_ROOT stringByAppendingString:FIREBASE_VIDEO_VC_PATH]];
+        _userViewCountRoot = [[Firebase alloc] initWithUrl:[FIREBASE_ROOT stringByAppendingString:FIREBASE_USER_VC_ROOT]];
+        _groupViewCountRoot = [[Firebase alloc] initWithUrl:[FIREBASE_ROOT stringByAppendingString:FIREBASE_GROUP_VC_ROOT]];
+
+        _myUsername = [YAUser currentUser].username; // thread issues with realm who knows!!!
     }
     return self;
 }
 
-- (void)switchVideoId:(NSString *)videoId {
-    if ([videoId isEqualToString:_videoId]) return; // Video id didnt change
+- (void)monitorVideoWithId:(NSString *)videoId {
+    if ([videoId isEqualToString:self.monitoringVideoId]) return; // Video id didnt change
     DLog(@"view count Switched video id");
-    _videoId = videoId;
-    self.myViewCount = 0;
-    self.othersViewCount = 0;
-    [self.currentVideoRef removeAllObservers];
-    self.currentVideoRef = nil;
+    self.monitoringVideoId = videoId;
+    [self.currentMonitoringVideoRef removeAllObservers];
+    self.currentMonitoringVideoRef = nil;
     
     if (![videoId length]) return;
-
-    self.currentVideoRef = [self.viewCountRoot childByAppendingPath:videoId];
+    
+    self.currentMonitoringVideoRef = [self.videoViewCountRoot childByAppendingPath:videoId];
     __weak YAViewCountManager *weakSelf = self;
-    [self.currentVideoRef observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        int othersCount = 0;
+    [self.currentMonitoringVideoRef observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        NSUInteger othersCount = 0;
+        NSUInteger myViewCount = 0;
         for (FDataSnapshot *child in snapshot.children) {
             NSUInteger val = [child.value unsignedIntValue];
             NSString *username = child.key;
-            if ([username isEqualToString:weakSelf.username]) {
-                weakSelf.myViewCount = val;
+            if ([username isEqualToString:weakSelf.myUsername]) {
+                myViewCount = val;
             } else {
                 othersCount += val;
             }
         }
-        weakSelf.othersViewCount = othersCount;
-        [weakSelf.viewCountDelegate updatedWithMyViewCount:weakSelf.myViewCount
-                                            otherViewCount:weakSelf.othersViewCount];
+        [weakSelf.videoViewCountDelegate videoUpdatedWithMyViewCount:myViewCount otherViewCount:othersCount];
     }];
 }
 
-- (void)didBeginWatchingVideoWithInterval:(NSTimeInterval)interval {
-    [self.addViewTimer invalidate];
-    if (interval > 0.1) {
-        [self addViewToCurrentVideo];
-        self.addViewTimer = [YAWeakTimerTarget scheduledTimerWithTimeInterval:interval target:self selector:@selector(addViewToCurrentVideo) userInfo:nil repeats:YES];
+- (void)monitorGroupWithId:(NSString *)groupId {
+    if ([groupId isEqualToString:self.monitoringGroupId]) return; // Video id didnt change
+    DLog(@"view count Switched video id");
+    self.monitoringGroupId = groupId;
+    [self.currentMonitoringGroupRef removeAllObservers];
+    self.currentMonitoringGroupRef = nil;
+    
+    if (![groupId length]) return;
+    
+    self.currentMonitoringGroupRef = [self.groupViewCountRoot childByAppendingPath:groupId];
+    __weak YAViewCountManager *weakSelf = self;
+    [self.currentMonitoringGroupRef observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        NSUInteger othersCount = 0;
+        NSUInteger myViewCount = 0;
+        for (FDataSnapshot *child in snapshot.children) {
+            NSUInteger val = [child.value unsignedIntValue];
+            NSString *username = child.key;
+            if ([username isEqualToString:weakSelf.myUsername]) {
+                myViewCount = val;
+            } else {
+                othersCount += val;
+            }
+        }
+        [weakSelf.groupViewCountDelegate groupUpdatedWithMyViewCount:myViewCount otherViewCount:othersCount];
+    }];
+}
+
+- (void)monitorUser:(NSString *)username {
+    if ([username isEqualToString:self.monitoringUserName]) return; // Video id didnt change
+    DLog(@"view count Switched video id");
+    self.monitoringUserName = username;
+    [self.currentMonitoringUserRef removeAllObservers];
+    self.currentMonitoringUserRef = nil;
+    
+    if (![username length]) return;
+    
+    self.currentMonitoringUserRef = [self.userViewCountRoot childByAppendingPath:username];
+    __weak YAViewCountManager *weakSelf = self;
+    [self.currentMonitoringUserRef observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+        NSUInteger othersCount = 0;
+        NSUInteger myViewCount = 0;
+        for (FDataSnapshot *child in snapshot.children) {
+            NSUInteger val = [child.value unsignedIntValue];
+            NSString *username = child.key;
+            if ([username isEqualToString:weakSelf.myUsername]) {
+                myViewCount = val;
+            } else {
+                othersCount += val;
+            }
+        }
+        [weakSelf.userViewCountDelegate userUpdatedWithMyViewCount:myViewCount otherViewCount:othersCount];
+    }];
+}
+
+
+- (void)addViewToVideoWithId:(NSString *)videoId groupId:(NSString *)groupId user:(NSString *)user {
+    if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) return;
+    
+    if ([videoId length]) {
+        // Increment counter for video
+        [[[self.videoViewCountRoot childByAppendingPath:videoId] childByAppendingPath:self.myUsername]
+            runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
+            NSNumber *value = currentData.value;
+            if (currentData.value == [NSNull null]) {
+                value = nil;
+            }
+            [currentData setValue:[NSNumber numberWithInt:(1 + [value intValue])]];
+            return [FTransactionResult successWithValue:currentData];
+        }];
+    }
+    
+    // Increment counter for group
+    if ([groupId length]) {
+        [[[self.groupViewCountRoot childByAppendingPath:groupId] childByAppendingPath:self.myUsername]
+         runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
+             NSNumber *value = currentData.value;
+             if (currentData.value == [NSNull null]) {
+                 value = nil;
+             }
+             [currentData setValue:[NSNumber numberWithInt:(1 + [value intValue])]];
+             return [FTransactionResult successWithValue:currentData];
+         }];
+    }
+
+    // Increment counter for user profile
+    if ([user length]) {
+        [[[self.userViewCountRoot childByAppendingPath:user] childByAppendingPath:self.myUsername]
+         runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
+             NSNumber *value = currentData.value;
+             if (currentData.value == [NSNull null]) {
+                 value = nil;
+             }
+             [currentData setValue:[NSNumber numberWithInt:(1 + [value intValue])]];
+             return [FTransactionResult successWithValue:currentData];
+         }];
     }
 }
 
-- (void)stoppedWatchingVideo {
-    [self.addViewTimer invalidate];
-}
-
-- (void)addViewToCurrentVideo {
-    if (!self.currentVideoRef || ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground)) return;
-    [[self.currentVideoRef childByAppendingPath:self.username]
-        runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
-        NSNumber *value = currentData.value;
-        if (currentData.value == [NSNull null]) {
-            value = nil;
-        }
-        [currentData setValue:[NSNumber numberWithInt:(1 + [value intValue])]];
-        return [FTransactionResult successWithValue:currentData];
-    }];
-}
-
-- (void)killMonitoring {
-    [self.currentVideoRef removeAllObservers];
+- (void)killAllMonitoring {
+    [self.currentMonitoringVideoRef removeAllObservers];
+    [self.currentMonitoringGroupRef removeAllObservers];
+    [self.currentMonitoringUserRef removeAllObservers];
 }
 
 @end

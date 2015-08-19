@@ -101,9 +101,9 @@
 
     if([notification.object isEqual:visibleVideo]) {
         if ([YAVideo serverIdStatusForVideo:visibleVideo] == YAVideoServerIdStatusConfirmed) {
-            [[YAViewCountManager sharedManager] switchVideoId:visibleVideo.serverId];
+            [[YAViewCountManager sharedManager] monitorVideoWithId:visibleVideo.serverId];
         } else {
-            [[YAViewCountManager sharedManager] switchVideoId:nil];
+            [[YAViewCountManager sharedManager] monitorVideoWithId:nil];
         }
         
         // Reload comments, which will initialize with firebase if serverID just became ready.
@@ -153,7 +153,8 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION      object:nil];
-
+    [YAViewCountManager sharedManager].videoViewCountDelegate = nil;
+    [[YAViewCountManager sharedManager] monitorVideoWithId:nil];
 }
 
 - (NSUInteger)firstTileIndexFromInitialPageIndex:(NSUInteger)pageIndex {
@@ -292,8 +293,8 @@
             [[YAEventManager sharedManager] setCurrentVideoServerId:page.video.serverId localId:page.video.localId serverIdStatus:status];
             [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:page.video.serverId localId:page.video.localId inGroup:page.video.group.serverId withServerIdStatus:status];
             
-            [YAViewCountManager sharedManager].viewCountDelegate = page;
-            [[YAViewCountManager sharedManager] switchVideoId:(status == YAVideoServerIdStatusConfirmed) ? page.video.serverId : nil];
+            [YAViewCountManager sharedManager].videoViewCountDelegate = page;
+            [[YAViewCountManager sharedManager] monitorVideoWithId:(status == YAVideoServerIdStatusConfirmed) ? page.video.serverId : nil];
 
             if(![page.playerView isPlaying])
                 page.playerView.playWhenReady = YES;
@@ -304,10 +305,6 @@
             page.playerView.playWhenReady = NO;
             [page.playerView pause];
         }
-    }
-    if (!visibleVideo.mp4Filename.length) {
-        // stop view count and prioritise mp4 download if download not finished.
-        [[YAViewCountManager sharedManager] stoppedWatchingVideo];
     }
     
     [[YADownloadManager sharedManager] exclusivelyDownloadMp4IfNeededForVideo:visibleVideo thenPrioritizeNearbyDownloads:nearbyVideos];

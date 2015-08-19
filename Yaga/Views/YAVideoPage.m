@@ -36,7 +36,7 @@
 static NSString *commentCellID = @"CommentCell";
 
 
-@interface YAVideoPage ()  <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>
+@interface YAVideoPage ()  <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, YAVideoPlayerViewDelegate>
 
 @property (nonatomic, strong) YAActivityView *activityView;
 
@@ -112,6 +112,8 @@ static NSString *commentCellID = @"CommentCell";
 
 @property (strong, nonatomic) YASharingView *sharingView;
 
+@property (nonatomic) CGFloat lastPlaybackProgress;
+
 @end
 
 @implementation YAVideoPage
@@ -126,6 +128,7 @@ static NSString *commentCellID = @"CommentCell";
 
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
+        _playerView.delegate = self;
         [_playerView setSmoothLoopingComposition:YES];
         [self addSubview:self.playerView];
         
@@ -232,9 +235,20 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentsTableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationTop];
 }
 
+#pragma mark - YAVideoPlayerViewDelegate
+
+- (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
+    if (progress < self.lastPlaybackProgress) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[YAViewCountManager sharedManager] addViewToVideoWithId:self.video.serverId groupId:self.video.group.serverId user:self.video.creator];
+        });
+    }
+    self.lastPlaybackProgress = progress;
+}
+
 #pragma mark - YAViewCountDelegate
 
-- (void)updatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount {
+- (void)videoUpdatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount {
     if ((myViewCount + othersViewCount) > 0) {
         if (self.viewCounter.hidden) {
             self.viewCounter.alpha = 0;
@@ -363,7 +377,8 @@ static NSString *commentCellID = @"CommentCell";
     if([_video isInvalidated] || ![_video.localId isEqualToString:video.localId]) {
         
         _video = video;
-
+        self.lastPlaybackProgress = CGFLOAT_MAX; // So that any initial player progress adds viewCount
+        
 //        self.debugLabel.text = video.serverId;
         
         [self updateControls];

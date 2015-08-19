@@ -13,8 +13,9 @@
 #import "BLKFlexibleHeightBar.h"
 #import "YAProfileFlexibleHeightBar.h"
 #import "YAPullToRefreshLoadingView.h"
+#import "YAViewCountManager.h"
 
-@interface YAGroupGridViewController ()
+@interface YAGroupGridViewController () <YAGroupViewCountDelegate>
 
 @property (nonatomic,strong) UILabel *groupNameLabel;
 @property (nonatomic,strong) UILabel *groupDescriptionLabel;
@@ -24,13 +25,18 @@
 @property (nonatomic, strong) UISegmentedControl *segmentedControl;
 @property (nonatomic) BOOL buttonIsUnfollow;
 
+@property (nonatomic) NSUInteger groupViewCount;
+
 @end
 
 @implementation YAGroupGridViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.groupViewCount = 0;
+    
     self.pendingMode = self.openStraightToPendingSection;
+    
     self.segmentedControl.selectedSegmentIndex = self.openStraightToPendingSection ? 1 : 0;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadDueToApprovalOrRejection) name:VIDEO_REJECTED_OR_APPROVED_NOTIFICATION object:nil];
     // Do any additional setup after loading the view.
@@ -43,6 +49,15 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    [self updateViewCountLabel];
+    [YAViewCountManager sharedManager].groupViewCountDelegate = self;
+    [[YAViewCountManager sharedManager] monitorGroupWithId:self.group.serverId];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    [YAViewCountManager sharedManager].groupViewCountDelegate = nil;
+    [[YAViewCountManager sharedManager] monitorGroupWithId:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -69,10 +84,8 @@
     bar.nameLabel.text = self.group.name;
     if (self.group.publicGroup) {
         bar.descriptionLabel.text = self.group.amMember ? @"You're the host!" : [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
-        bar.viewsLabel.text = [NSString stringWithFormat:@"%ld followers    ???,??? views", (long)self.group.followerCount];
     } else {
         bar.descriptionLabel.text = self.group.membersString;
-        bar.viewsLabel.text = [NSString stringWithFormat:@"%ld members    ?,??? views", (long)self.group.members.count];
     }
     [bar.backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
     [bar.moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -101,6 +114,14 @@
         [bar.followButton addTarget:self action:@selector(followPressed) forControlEvents:UIControlEventTouchUpInside];
     }
     return bar;
+}
+
+- (void)updateViewCountLabel {
+    if (self.group.publicGroup) {
+        ((YAProfileFlexibleHeightBar *)self.flexibleNavBar).viewsLabel.text = [NSString stringWithFormat:@"%ld followers    %ld views", (long)self.group.followerCount, self.groupViewCount];
+    } else {
+        ((YAProfileFlexibleHeightBar *)self.flexibleNavBar).viewsLabel.text = [NSString stringWithFormat:@"%ld members    %ld views", (long)self.group.members.count, self.groupViewCount];
+    }
 }
 
 - (void)segmentedControlChanged {
@@ -132,6 +153,13 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_REJECTED_OR_APPROVED_NOTIFICATION object:nil];
+}
+
+#pragma mark - YAGroupViewCountDelegate
+
+- (void)groupUpdatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount {
+    self.groupViewCount = myViewCount + othersViewCount;
+    [self updateViewCountLabel];
 }
 
 @end

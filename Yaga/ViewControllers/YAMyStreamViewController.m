@@ -7,7 +7,13 @@
 //
 
 #import "YAMyStreamViewController.h"
-@interface YAMyStreamViewController ()
+#import "BLKFlexibleHeightBar.h"
+#import "YAViewCountManager.h"
+
+@interface YAMyStreamViewController () <YAUserViewCountDelegate>
+
+@property (nonatomic) NSUInteger viewCount;
+@property (nonatomic, strong) UILabel *viewCountLabel;
 
 @end
 
@@ -29,5 +35,58 @@
     }
 }
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.viewCount = 0;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self updateViewCount];
+    [YAViewCountManager sharedManager].userViewCountDelegate = self;
+    [[YAViewCountManager sharedManager] monitorUser:[YAUser currentUser].username];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    [YAViewCountManager sharedManager].userViewCountDelegate = nil;
+    [[YAViewCountManager sharedManager] monitorUser:nil];
+}
+
+- (BLKFlexibleHeightBar *)createNavBar {
+    BLKFlexibleHeightBar *bar = [super createNavBar];
+    CGRect frame = bar.frame;
+    frame.size.height += 30;
+    bar.frame = frame;
+    bar.maximumBarHeight = frame.size.height;
+    
+    UILabel *viewCountLabel = [UILabel new];
+    viewCountLabel.textColor = [UIColor whiteColor];
+    viewCountLabel.font = [UIFont fontWithName:BOLD_FONT size:13];
+    viewCountLabel.textAlignment = NSTextAlignmentCenter;
+    BLKFlexibleHeightBarSubviewLayoutAttributes *expanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
+    expanded.frame = CGRectMake(50, bar.frame.size.height - 30, VIEW_WIDTH - 100, 20);
+    [viewCountLabel addLayoutAttributes:expanded forProgress:0.0];
+    
+    BLKFlexibleHeightBarSubviewLayoutAttributes *collapsed = [[BLKFlexibleHeightBarSubviewLayoutAttributes alloc] initWithExistingLayoutAttributes:expanded];
+    collapsed.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -frame.size.height), 0.5, 0.5);
+    collapsed.alpha = 0.0;
+    [viewCountLabel addLayoutAttributes:collapsed forProgress:1.0];
+    
+    [bar addSubview:viewCountLabel];
+    self.viewCountLabel = viewCountLabel;
+    return bar;
+}
+
+- (void)updateViewCount {
+    self.viewCountLabel.text = [NSString stringWithFormat:@"%lu Total Views", self.viewCount];
+}
+
+#pragma mark - YAUserViewCountDelegate
+
+- (void)userUpdatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount {
+    self.viewCount = myViewCount + othersViewCount;
+    [self updateViewCount];
+}
 
 @end
