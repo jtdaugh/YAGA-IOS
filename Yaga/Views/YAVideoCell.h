@@ -31,6 +31,8 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 @property (nonatomic) BOOL showsGroupLabel;
 @property (nonatomic) CGFloat groupLabelHeightProportion;
 
+@property (nonatomic) BOOL showVideoStatus;
+
 - (void)animateGifView:(BOOL)animate;
 
 - (void)renderLightweightContent;

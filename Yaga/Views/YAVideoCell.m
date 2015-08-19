@@ -31,6 +31,7 @@
 
 @property (strong, nonatomic) UIView *containerView;
 @property (strong, nonatomic) UILabel *username;
+@property (strong, nonatomic) UIView *videoStatus;
 @property (strong, nonatomic) UILabel *eventCountLabel;
 @property (strong, nonatomic) UIImageView *commentIcon;
 @property (strong, nonatomic) UILabel *caption;
@@ -77,6 +78,12 @@
         self.username.shadowColor = [UIColor blackColor];
         self.username.shadowOffset = CGSizeMake(1, 1);
         [self.containerView addSubview:self.username];
+        
+        self.videoStatus = [[UIView alloc] initWithFrame:CGRectMake(self.bounds.size.width - 15, self.bounds.size.height - 60, 10, 10)];
+        self.videoStatus.layer.cornerRadius = 5;
+        self.videoStatus.backgroundColor = [UIColor redColor];
+        self.videoStatus.hidden = YES;
+        [self.containerView addSubview:self.videoStatus];
 
         CGFloat iconSize = 15;
         self.commentIcon = [[UIImageView alloc] initWithFrame:CGRectMake(5, self.bounds.size.height-iconSize - COMMENTS_ICON_BOTTOM_MARGIN, iconSize, iconSize)];
@@ -248,6 +255,8 @@
 }
 
 - (void)updateState {
+    self.videoStatus.backgroundColor = self.video.pending ? [[UIColor yellowColor] colorWithAlphaComponent:0.7] : [[UIColor greenColor] colorWithAlphaComponent:0.7];
+    
     if(self.video.gifFilename.length)
         self.state = YAVideoCellStateGIFPreview;
     else if(self.video.jpgFilename.length)
@@ -425,5 +434,10 @@
     }
 }
 
+- (void)setShowVideoStatus:(BOOL)showVideoStatus {
+    _showVideoStatus = showVideoStatus;
+    self.username.hidden = self.showVideoStatus;
+    self.videoStatus.hidden = !self.showVideoStatus;
+}
 @end
 

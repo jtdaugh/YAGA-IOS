@@ -495,6 +495,8 @@ static NSString *cellID = @"Cell";
 
     cell.video = video;
     
+    cell.showVideoStatus = [self.group.serverId isEqualToString:kMyStreamGroupId];
+    
     [self setupEventCountForCell:cell];
     
     if (!self.scrolling) {
