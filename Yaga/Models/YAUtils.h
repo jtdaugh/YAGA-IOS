@@ -79,6 +79,12 @@ typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 + (BOOL)hasSeenPendingApprovalMessage;
 + (void)setSeenPendingApprovalMessage;
 
++ (BOOL)hasSeenCamera;
++ (void)setSeenCamera;
+
++ (BOOL)hasSeenTrimView;
++ (void)setSeenTrimView;
+
 //etc
 
 //get random quote of the day
@@ -89,6 +95,7 @@ typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 + (NSDictionary*)urlParametersFromString:(NSString*)urlString;
 
 + (void)showBubbleWithText:(NSString*)text bubbleWidth:(CGFloat)width forView:(UIView*)view;
++ (void)showBubbleWithText:(NSString*)text bubbleWidth:(CGFloat)width forView:(UIView*)view arrowDirection:(BOOL)arrowUp;
 + (void)showBubbleWithTextOnce:(NSString*)text bubbleWidth:(CGFloat)width forView:(UIView*)view;
 + (void)hideBubbleWithText:(NSString*)text;
 @end
