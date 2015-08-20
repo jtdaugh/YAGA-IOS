@@ -124,11 +124,10 @@
             } else {
                 self.membersLabel.text = [NSString stringWithFormat:@"Hosted by You, %@", self.group.membersString];
             }
-            self.followerCountLabel.text = [NSString stringWithFormat:@"%lu followers", self.group.followerCount];
         } else {
             self.membersLabel.text = [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
-            self.followerCountLabel.text = [NSString stringWithFormat:@"%lu followers", self.group.followerCount];
         }
+        self.followerCountLabel.text = [NSString stringWithFormat:@"%lu %@", self.group.followerCount, (self.group.followerCount == 1)?@"Follower":@"Followers"];
     } else {
         self.membersLabel.text = self.group.membersString;
         self.followerCountLabel.text = @"🔒 Private Channel";
@@ -161,7 +160,7 @@
 
 + (CGSize)sizeForGroup:(YAGroup *)group {
     if (group.publicGroup) {
-        NSString *string = group.amMember ? [NSString stringWithFormat:@"Co-Hosts: %@", group.membersString] : [NSString stringWithFormat:@"Hosted by %@", group.membersString];
+        NSString *string = group.amMember ? [NSString stringWithFormat:@"Hosted by You, %@", group.membersString] : [NSString stringWithFormat:@"Hosted by %@", group.membersString];
         NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
         CGRect rect = [string boundingRectWithSize:CGSizeMake([GroupsCollectionViewCell contentWidth], CGFLOAT_MAX)
                                            options:NSStringDrawingUsesLineFragmentOrigin

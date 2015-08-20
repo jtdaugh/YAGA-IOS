@@ -409,7 +409,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         firstLine = @"🔒 Private Channel";
         secondLine = groupData[YA_RESPONSE_MEMBERS];
     } else {
-        firstLine = [NSString stringWithFormat:@"%@ Followers", groupData[YA_RESPONSE_FOLLOWER_COUNT]];
+        firstLine = [NSString stringWithFormat:@"%@ %@", groupData[YA_RESPONSE_FOLLOWER_COUNT], ([groupData[YA_RESPONSE_FOLLOWER_COUNT] intValue] == 1)?@"Follower":@"Followers"];
         secondLine = [NSString stringWithFormat:@"Hosted by %@",  groupData[YA_RESPONSE_MEMBERS]];
     }
     return [NSString stringWithFormat:@"%@\n%@", firstLine, secondLine];
