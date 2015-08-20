@@ -814,6 +814,10 @@
                    if (indexNonPending == NSNotFound)
                        [video.group.videos insertObject:video atIndex:0];
                    
+                   if (![video.group.pending_videos count]) {
+                       video.group.pendingPostsCount = 0;
+                   }
+                   
                    [[RLMRealm defaultRealm] commitWriteTransaction];
                    [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_REJECTED_OR_APPROVED_NOTIFICATION object:nil];
                    completion(nil, nil);
@@ -834,16 +838,25 @@
     }
 
     NSString *serverGroupId = video.group.serverId;
+    YAGroup *group = video.group;
     NSString *serverVideoId = video.serverId;
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_REJECT, self.base_api, serverGroupId, serverVideoId];
     [self.jsonOperationsManager PUT:api
                          parameters:nil
                             success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                
                                 [video removeFromGroupAndStreamsWithCompletion:^(NSError *error) {
                                     if (error) {
                                         DLog(@"Error removing video");
                                         completion(nil, error);
                                     } else {
+                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                            [[RLMRealm defaultRealm] beginWriteTransaction];
+                                            if (![group.pending_videos count]) {
+                                                group.pendingPostsCount = 0;
+                                            }
+                                            [[RLMRealm defaultRealm] commitWriteTransaction];
+                                        });
                                         [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_REJECTED_OR_APPROVED_NOTIFICATION object:nil];
                                         completion(nil, nil);
                                     }
