@@ -149,8 +149,9 @@
 
 - (void)addViewToVideoWithId:(NSString *)videoId groupId:(NSString *)groupId user:(NSString *)user {
     if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) return;
-    
+//    DLog(@"Incrementing view counts");
     if ([videoId length]) {
+//        DLog(@"Incrementing video view count");
         // Increment counter for video
         [[[self.videoViewCountRoot childByAppendingPath:videoId] childByAppendingPath:self.myUsername]
             runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
@@ -165,6 +166,7 @@
     
     // Increment counter for group
     if ([groupId length]) {
+//        DLog(@"Incrementing group view count");
         [[[self.groupViewCountRoot childByAppendingPath:groupId] childByAppendingPath:self.myUsername]
          runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
              NSNumber *value = currentData.value;
@@ -178,6 +180,7 @@
 
     // Increment counter for user profile
     if ([user length]) {
+//        DLog(@"Incrementing user view count");
         [[[self.userViewCountRoot childByAppendingPath:user] childByAppendingPath:self.myUsername]
          runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
              NSNumber *value = currentData.value;

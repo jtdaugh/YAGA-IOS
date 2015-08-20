@@ -236,7 +236,11 @@ static NSString *commentCellID = @"CommentCell";
 #pragma mark - YAVideoPlayerViewDelegate
 
 - (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
-    if (progress < self.lastPlaybackProgress) {
+//    DLog(@"progress: %f, priorProgress: %f", progress, self.lastPlaybackProgress);
+    
+    // If progress went from high to low (looped) or from 0 to valid value.
+    if ((progress < self.lastPlaybackProgress && progress != 0.0)
+        || (self.lastPlaybackProgress == 0 && progress > 0.0 && progress < CGFLOAT_MAX)) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [[YAViewCountManager sharedManager] addViewToVideoWithId:self.video.serverId groupId:self.video.group.serverId user:self.video.creator];
         });

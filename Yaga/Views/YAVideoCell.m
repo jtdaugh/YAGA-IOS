@@ -106,7 +106,7 @@
         self.groupView.hidden = YES;
         self.gradient = [CAGradientLayer layer];
         self.gradient.frame = self.groupView.bounds;
-        self.gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor blackColor] CGColor], (id)[[UIColor clearColor] CGColor], nil];
+        self.gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithWhite:0.05 alpha:1] CGColor], (id)[[UIColor clearColor] CGColor], nil];
         [self.groupView.layer insertSublayer:self.gradient atIndex:0];
 
         [self.contentView addSubview:self.groupView];
