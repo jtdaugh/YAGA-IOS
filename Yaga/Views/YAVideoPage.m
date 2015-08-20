@@ -1578,9 +1578,11 @@ static NSString *commentCellID = @"CommentCell";
     if(showAdminControls){
         [self.viewingAccessories removeFromSuperview];
         [self.overlay addSubview:self.adminAccessories];
+        [self.overlay sendSubviewToBack:self.adminAccessories];
     } else {
         [self.adminAccessories removeFromSuperview];
         [self.overlay addSubview:self.viewingAccessories];
+        [self.overlay sendSubviewToBack:self.viewingAccessories];
     }
 
 }
