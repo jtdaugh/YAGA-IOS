@@ -30,7 +30,7 @@
 #import "YAMainTabBarController.h"
 #import "YAStandardFlexibleHeightBar.h"
 #import "BLKDelegateSplitter.h"
-#import "FacebookStyleBarBehaviorDefiner.h"
+#import "YABarBehaviorDefiner.h"
 
 #define FOOTER_HEIGHT (CAMERA_BUTTON_SIZE/2 + 170)
 
@@ -63,7 +63,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
 
     [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
-    self.flexibleNavBar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
+    self.flexibleNavBar.behaviorDefiner = [YABarBehaviorDefiner new];
     
     self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
     self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;

@@ -38,6 +38,7 @@
 @property (strong, nonatomic) UILabel *caption;
 @property (strong, nonatomic) UIView *captionWrapper;
 @property (strong, nonatomic) UIView *groupView;
+@property (strong, nonatomic) CAGradientLayer *gradient;
 @property (strong, nonatomic) UIButton *groupButton;
 
 @property (strong, atomic) NSString *gifFilename;
@@ -101,18 +102,21 @@
         self.eventCountLabel.shadowOffset = CGSizeMake(1, 1);
         [self.containerView addSubview:self.eventCountLabel];
         
-        self.groupView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height/4)];
-        self.groupView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.1];
+        self.groupView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, 46)];
         self.groupView.hidden = YES;
-        
+        self.gradient = [CAGradientLayer layer];
+        self.gradient.frame = self.groupView.bounds;
+        self.gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor blackColor] CGColor], (id)[[UIColor clearColor] CGColor], nil];
+        [self.groupView.layer insertSublayer:self.gradient atIndex:0];
+
         [self.contentView addSubview:self.groupView];
         
-        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 0, self.groupView.frame.size.width - 20, self.groupView.frame.size.height)];
+        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 0, self.groupView.frame.size.width - 20, 36)];
         
         self.groupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
         self.groupButton.titleLabel.adjustsFontSizeToFitWidth = YES;
         self.groupButton.titleLabel.textColor = [UIColor whiteColor];
-        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
         [self.groupButton addTarget:self action:@selector(groupButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.groupView addSubview:self.groupButton];
         
@@ -246,16 +250,7 @@
     if (_showsGroupLabel == showsGroupLabel) return;
     _showsGroupLabel = showsGroupLabel;
     if (showsGroupLabel) {
-        CGFloat prop = self.groupLabelHeightProportion;
-        self.groupView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.width * prop); // purposely used width not height for header proportion
-        self.groupButton.frame = CGRectMake(10, 0, self.groupView.frame.size.width - 20, self.groupView.frame.size.height);
         self.groupView.hidden = NO;
-        CGRect frame = self.containerView.frame;
-        frame.origin.y = self.groupView.frame.size.height;
-        frame.size.height = self.contentView.frame.size.height - frame.origin.y;
-        self.containerView.frame = frame;
-
-        [self setNeedsLayout];
     }
 }
 

@@ -13,6 +13,7 @@
 @interface YALatestStreamViewController ()
 
 @property (nonatomic, strong) NSArray *groupsWithPendingUnapproved;
+@property (nonatomic) BOOL shouldForcePullToRefresh;
 
 @end
 
@@ -38,11 +39,26 @@ static NSString *CellIdentifier = @"PendingCell";
     [self updatePending];
 }
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appBecameActive) name:UIApplicationDidBecomeActiveNotification object:nil];
+}
+
+- (void)appBecameActive {
+    if (self.collectionView.pullToRefreshView) {
+        [self manualTriggerPullToRefresh];
+    } else {
+        self.shouldForcePullToRefresh = YES;
+    }
+}
+
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
-    [self.collectionView triggerPullToRefresh];
+    if (self.shouldForcePullToRefresh)
+        [self manualTriggerPullToRefresh];
+    self.shouldForcePullToRefresh = NO;
 }
+
 
 - (void)updatePending {
     NSMutableArray *pendingGroups = [NSMutableArray new];
@@ -136,6 +152,10 @@ static NSString *CellIdentifier = @"PendingCell";
 
 - (NSInteger)gifGridSection {
     return 1;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
 @end

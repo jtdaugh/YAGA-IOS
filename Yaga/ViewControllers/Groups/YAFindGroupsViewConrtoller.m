@@ -71,7 +71,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     if(self.onboardingMode)
         [self.view addSubview:self.tableView];
     else
-        [self setupFlexibleNavBarWithRemindersBar];
+        [self setupFlexibleNavBar];
     
     [self setupPullToRefresh];
     
@@ -87,9 +87,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         // Don't auto trigger this if already populated, shouldn't change that often
         [self.tableView triggerPullToRefresh];
     }
-    
-    //recreate reminders
-    [self setupFlexibleNavBarWithRemindersBar];
 }
 
 - (void)doneButtonPressed:(id)sender {
@@ -332,7 +329,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.tableView.pullToRefreshView setCustomView:loadingView forState:SVPullToRefreshStateTriggered];
 }
 
-- (void)setupFlexibleNavBarWithRemindersBar {
+- (void)setupFlexibleNavBar {
     self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
     CGRect barFrame = self.flexibleNavBar.frame;
     self.flexibleNavBar.maximumBarHeight = 116;
@@ -348,12 +345,13 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     //search bar
     self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 70, VIEW_WIDTH-40, 30)];
     self.searchBar.searchTextPositionAdjustment = UIOffsetMake(20, 0);
-    self.searchBar.barStyle = UIBarStyleBlack;
+    self.searchBar.backgroundImage = [[UIImage alloc] init];
+    self.searchBar.barStyle = UIBarStyleDefault;
+    self.searchBar.barTintColor = self.flexibleNavBar.backgroundColor;
     self.searchBar.translucent = NO;
-    self.searchBar.barTintColor = [UIColor blackColor];
-    self.searchBar.tintColor = [UIColor whiteColor];
-    self.searchBar.backgroundColor = [UIColor blackColor];
+    self.searchBar.tintColor = [UIColor colorWithWhite:0.5 alpha:1];
     self.searchBar.delegate = self;
+    self.searchBar.alpha = 0.8;
     
     BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     searchBarExpanded.frame = CGRectMake(20, 70, VIEW_WIDTH-40, 30);
@@ -391,9 +389,16 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self filterAndReload];
 }
 
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
     [searchBar setShowsCancelButton:YES animated:YES];
-    
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    [searchBar resignFirstResponder];
+    [searchBar setShowsCancelButton:NO animated:YES];
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
     void (^restoreBlock)(void) = ^{
         [self.searchResultLabel removeFromSuperview];
         [self.searchTableActivity removeFromSuperview];
