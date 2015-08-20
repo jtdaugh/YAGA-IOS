@@ -199,19 +199,17 @@ static NSString *cellID = @"Cell";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
 
-    [YAUtils setVisitedGifGrid];
-
-    if(self.group.publicGroup) {
-        if (![YAUtils hasVisitedHumanity]) {
-            [self showHumanityTooltip];
-            [YAUtils setVisitedHumanity];
-        }
-    } else {
-        if (![YAUtils hasVisitedPrivateGroup]) {
-            [self showPrivateGroupTooltip];
-            [YAUtils setVisitedPrivateGroup];
-        }
-    }
+//    if(self.group.publicGroup) {
+//        if (![YAUtils hasVisitedPublicGroup]) {
+//            [self showHumanityTooltip];
+//            [YAUtils setVisitedPublicGroup];
+//        }
+//    } else {
+//        if (![YAUtils hasVisitedPrivateGroup]) {
+//            [self showPrivateGroupTooltip];
+//            [YAUtils setVisitedPrivateGroup];
+//        }
+//    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated {

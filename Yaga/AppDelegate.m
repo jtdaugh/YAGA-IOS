@@ -84,7 +84,6 @@
     else
     {
         [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:ALREADY_LAUNCHED_KEY];
-        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:GIF_GRID_UNSEEN];
         [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
         
         // This is the first launch ever

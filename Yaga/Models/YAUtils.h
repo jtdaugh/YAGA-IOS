@@ -58,19 +58,26 @@ typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 + (NSArray*)readableGroupsArrayFromResponse:(NSArray *)response;
 
 // Tooltip/defaults helpers
-+ (BOOL)hasVisitedGifGrid;
-+ (void)setVisitedGifGrid;
++ (BOOL)hasCompletedForcedFollowing;
++ (void)setCompletedForcedFollowing;
 
-+ (BOOL)hasVisitedHumanity;
-+ (void)setVisitedHumanity;
++ (BOOL)hasVisitedStream;
++ (void)setVisitedStream;
+
++ (BOOL)hasVisitedPublicGroup;
++ (void)setVisitedPublicGroup;
+
 + (BOOL)hasVisitedPrivateGroup;
 + (void)setVisitedPrivateGroup;
-+ (BOOL)hasRecordedPrivateVideo;
-+ (void)setRecordedPrivateVideo;
-+ (BOOL)hasRecordedPublicVideo;
-+ (void)setRecordedPublicVideo;
-+ (BOOL)hasRecordedUngroupedVideo;
-+ (void)setRecordedUngroupedVideo;
+
++ (BOOL)hasCreatedPrivateGroup;
++ (void)setCreatedPrivateGroup;
+
++ (BOOL)hasCreatedPublicGroup;
++ (void)setCreatedPublicGroup;
+
++ (BOOL)hasSeenPendingApprovalMessage;
++ (void)setSeenPendingApprovalMessage;
 
 //etc
 

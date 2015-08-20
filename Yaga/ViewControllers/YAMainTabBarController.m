@@ -22,6 +22,7 @@
 #import "YAGroupOptionsViewController.h"
 #import "YAGroupGridViewController.h"
 #import "YABubbleView.h"
+#import "YAUserPermissions.h"
 
 @interface YAMainTabBarController () <UITabBarControllerDelegate>
 
@@ -29,7 +30,7 @@
 
 @property (nonatomic, weak) UIViewController *cameraTabViewController;
 @property (nonatomic, strong) UIButton *cameraButton;
-
+@property (nonatomic) BOOL onboardingFinished;
 @end
 
 @implementation YAMainTabBarController
@@ -41,29 +42,45 @@
 //        self.navigationItem.prompt = quote;
 //    }];
     
+//    if ([[[YAGroup allObjects] objectsWhere:@"(amFollowing = 1 || amMember = 1)"] count]) {
+//        [YAUtils setCompletedForcedFollowing];
+//    }
+    
+    self.onboardingFinished = [YAUtils hasCompletedForcedFollowing];
+    
+    NSMutableArray *vcArray = [NSMutableArray array];
+    
     UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YALatestStreamViewController new]];
     vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
     vc0.tabBarItem.title = @"Latest";
+    [vcArray addObject:vc0];
     
     UIViewController *vc1 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
     vc1.tabBarItem.image = [UIImage imageNamed:@"ExploreBarItem"];
     vc1.tabBarItem.title = @"Explore";
-    
-    UIViewController *vc2 = [UIViewController new];
+    [vcArray addObject:vc1];
 
+    if (self.onboardingFinished) {
+        UIViewController *vc2 = [UIViewController new];
+        [vcArray addObject:vc2];
+    }
+    
     UIViewController *vc3 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAGroupsListViewController new]];
     vc3.tabBarItem.image = [UIImage imageNamed:@"ChannelsBarItem"];
     vc3.tabBarItem.title = @"Channels";
+    [vcArray addObject:vc3];
 
     UIViewController *vc4 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAMyStreamViewController new]];
     vc4.tabBarItem.image = [UIImage imageNamed:@"MeBarItem"];
     vc4.tabBarItem.title = @"Me";
+    [vcArray addObject:vc4];
 
-    self.viewControllers = @[vc0, vc1, vc2, vc3, vc4];
-    
+    self.viewControllers = vcArray;
     self.cameraTabViewController = self.viewControllers[2];
     
-    [[YACameraManager sharedManager] initCamera];
+    if (self.onboardingFinished) {
+        [[YACameraManager sharedManager] initCamera];
+    }
     
     self.animationController = [YAAnimatedTransitioningController new];
     self.delegate = self;
@@ -81,14 +98,37 @@
     self.cameraButton.layer.cornerRadius = 7;
     self.cameraButton.layer.masksToBounds = YES;
     [self.cameraButton addTarget:self action:@selector(cameraPressed) forControlEvents:UIControlEventTouchUpInside];
-
-    [self.tabBar addSubview:self.cameraButton];
+    
+    if (self.onboardingFinished) {
+        [self.tabBar addSubview:self.cameraButton];
+        self.selectedIndex = 0;
+    } else {
+        self.selectedIndex = 1;
+    }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGifGridFromNotification:) name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(finishedOnboarding) name:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if(![YAUserPermissions pushPermissionsRequestedBefore])
+        [YAUserPermissions registerUserNotificationSettings];
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
+}
+
+- (void)finishedOnboarding {
+    if (self.onboardingFinished) return;
+    self.onboardingFinished = YES;
+    
+    NSMutableArray *vcArray = [self.viewControllers mutableCopy];
+    [vcArray insertObject:[UIViewController new] atIndex:2];
+    self.cameraTabViewController = self.viewControllers[2];
+    [self.tabBar addSubview:self.cameraButton];
 }
 
 - (void)presentCreateGroup {
@@ -113,6 +153,9 @@
 
 - (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController
 {
+    if (!self.onboardingFinished)
+        return NO;
+    
     return viewController != self.cameraTabViewController;
 }
 
@@ -130,7 +173,6 @@
 
 - (void)presentCameraAnimated:(BOOL)animated {
     YACameraViewController *camVC = [YACameraViewController new];
-    
     
     YASloppyNavigationController *navVC = [[YASloppyNavigationController alloc] initWithRootViewController:camVC];
     navVC.view.backgroundColor = [UIColor clearColor];

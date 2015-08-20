@@ -44,6 +44,7 @@
 
 @property (nonatomic, strong) NSArray *featuredGroups;
 @property (nonatomic, strong) NSArray *suggestedGroups;
+
 @end
 
 static NSString *CellIdentifier = @"GroupsCell";
@@ -68,10 +69,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
     
-    if(self.onboardingMode)
-        [self.view addSubview:self.tableView];
-    else
-        [self setupFlexibleNavBar];
+    [self setupFlexibleNavBar];
     
     [self setupPullToRefresh];
     
@@ -83,124 +81,15 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    if (![self.groupsDataArray count]) {
+    if (![self.groupsDataArray count] && ![self.searchBar.text length]) {
         // Don't auto trigger this if already populated, shouldn't change that often
         [self.tableView triggerPullToRefresh];
-    }
-}
-
-- (void)doneButtonPressed:(id)sender {
-    if(self.onboardingMode) {
-        [self performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:self];
-    }
-    else
-        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    
-    if(self.onboardingMode) {
-        [self.navigationController setNavigationBarHidden:NO animated:YES];
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Skip", @"") style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
-        
-        self.navigationItem.hidesBackButton = YES;
-        self.navigationItem.rightBarButtonItem.enabled = NO;
-        
-        __weak typeof(self) weakSelf = self;
-        //load groups first time here
-        [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
-            if(!error) {
-                // TODO: Adjust mixpanel for humanity
-                if([YAGroup allObjects].count) {
-                    [[Mixpanel sharedInstance] track:@"Onboarding user already a part of some groups"];
-                    
-                    NSLog(@"groups count: %lu", (unsigned long)[YAGroup allObjects].count);
-                    
-                    if(self.onboardingMode){
-                        [self doneButtonPressed:nil];
-                    }
-                }
-                else {
-                    [[Mixpanel sharedInstance] track:@"Onboarding user doesn't have any groups"];
-                }
-                
-                weakSelf.navigationItem.rightBarButtonItem.enabled = YES;
-            }
-            
-            weakSelf.groupsListLoaded = YES;
-            if(self.findGroupsFinished && self.groupsDataArray.count == 0) {
-                [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
-            }
-        }];
-        
-        __block UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-        activityView.frame = CGRectMake(self.tableView.frame.size.width/2- activityView.frame.size.width/2, self.tableView.frame.size.height/3,  activityView.frame.size.width,  activityView.frame.size.height);
-        activityView.color = PRIMARY_COLOR;
-        [activityView startAnimating];
-        [self.tableView addSubview:activityView];
-        
-        __block UILabel *findingGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, activityView.frame.origin.y + activityView.frame.size.height, self.tableView.frame.size.width, 50)];
-        findingGroupsLabel.text = NSLocalizedString(@"Finding groups", @"");
-        findingGroupsLabel.textColor = PRIMARY_COLOR;
-        findingGroupsLabel.font = [UIFont fontWithName:BIG_FONT size:26];
-        findingGroupsLabel.textAlignment = NSTextAlignmentCenter;
-        [self.tableView addSubview:findingGroupsLabel];
-        
-        [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts, BOOL sentToServer) {
-            //request push permissions here
-            if(![YAUserPermissions pushPermissionsRequestedBefore])
-                [YAUserPermissions registerUserNotificationSettings];
-            
-            if(error) {
-                self.findGroupsFinished = YES;
-                if(self.groupsListLoaded)
-                    [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
-            } else {
-                if(sentToServer) {
-                    [[YAServer sharedServer] discoverGroupsWithCompletion:^(id response, NSError *error) {
-                        self.findGroupsFinished = YES;
-                        
-                        if(!error) {
-                            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                                NSArray *readableArray = [YAUtils readableGroupsArrayFromResponse:response];
-                                [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:readableArray forKey:kFindGroupsCachedResponse];
-                                
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    if(readableArray.count) {
-                                        weakSelf.groupsDataArray = readableArray;
-                                        [weakSelf filterAndReload];
-                                        
-                                        [activityView removeFromSuperview];
-                                        [findingGroupsLabel removeFromSuperview];
-                                        [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_JOIN_GROUPS_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_JOIN_GROUPS_BODY", @"") dismissText:@"Got it" addToView:self.parentViewController.view] show];
-                                        
-                                    }
-                                    else {
-                                        if(self.groupsListLoaded)
-                                            [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
-                                    }
-                                });
-                            });
-                        }
-                        else {
-                            if(self.groupsListLoaded)
-                                [weakSelf performSegueWithIdentifier:@"ResetRootAfterFindGroups" sender:weakSelf];
-                        }
-                    }];
-                }
-            }
-        } excludingPhoneNumbers:nil];
-        
     }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
 }
-
-- (IBAction)unwindToGrid:(id)source {}
-
 
 - (void)accessoryButtonTapped:(UIButton*)sender event:(id)event{
     if(![YAServer sharedServer].serverUp) {
@@ -215,7 +104,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     if(!self.pendingRequestsInProgress)
         self.pendingRequestsInProgress = [NSMutableSet set];
-    
     
     NSDictionary *groupData = [self groupDataAtIndexPath:indexPath];
     [self.pendingRequestsInProgress addObject:groupData[YA_RESPONSE_ID]];
@@ -241,16 +129,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
             
             [self filterAndReload];
             
-            if(self.onboardingMode) {
-                BOOL wasEnabled = self.navigationItem.rightBarButtonItem.enabled;
-                UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButtonPressed:)];
-                doneButton.enabled = wasEnabled;
-                [self.navigationItem setRightBarButtonItem:doneButton animated:YES];
-            }
-            
             if(![groupData[YA_RESPONSE_PRIVATE] boolValue]){
                 [YAUtils showHudWithText:[NSString stringWithFormat:@"Following %@!", groupData[YA_RESPONSE_NAME]]];
-                
             }
         }
         else {
@@ -530,7 +410,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSUInteger result = section == 0 && self.featuredGroups.count ? self.featuredGroups.count : self.suggestedGroups.count;
     
-    if(!result && self.tableView.pullToRefreshView.state == SVPullToRefreshStateStopped && !self.onboardingMode)
+    if(!result && self.tableView.pullToRefreshView.state == SVPullToRefreshStateStopped)
         result = 1;
     
     return result;
@@ -581,7 +461,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     cell.backgroundView = [[UIView alloc] initWithFrame:cell.bounds];
     
-    if(self.suggestedGroups.count == 0 && self.featuredGroups.count == 0 && self.tableView.pullToRefreshView.state == SVPullToRefreshStateStopped && !self.onboardingMode) {
+    if(self.suggestedGroups.count == 0 && self.featuredGroups.count == 0 && self.tableView.pullToRefreshView.state == SVPullToRefreshStateStopped) {
         cell.textLabel.text = NSLocalizedString(@"Wow, you're early. Create a group to get your friends on Yaga", @"");
         cell.textLabel.numberOfLines = 0;
         cell.textLabel.font = [UIFont fontWithName:BOLD_FONT size:18];

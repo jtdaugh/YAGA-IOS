@@ -19,11 +19,13 @@
 #import <AFNetworking/AFHTTPRequestOperationManager.h>
 #import "YABubbleView.h"
 
-#define HUMANITY_VISITED @"humanityVisited"
-#define PRIVATE_GROUP_VISITED @"groupVisited"
-#define HAS_RECORDED_PUBLIC_VIDEO @"publicRecorded"
-#define HAS_RECORDED_PRIVATE_VIDEO @"privateRecorded"
-#define HAS_RECORDED_UNGROUPED_VIDEO @"ungroupedRecorded"
+#define FORCED_FOLLOWING_COMPLETED @"forceFollowComplete"
+#define STREAM_VISITED @"streamVisited"
+#define PUBLIC_GROUP_VISITED @"publicGroupVisited"
+#define PRIVATE_GROUP_VISITED @"privateGroupVisited"
+#define HAS_CREATED_HOSTED_GROUP @"createdPublicGroup"
+#define HAS_CREATED_PRIVATE_GROUP @"createdPrivateGroup"
+#define PENDING_APPROVAL_SEEN @"pendingApprovalSeen"
 
 
 @interface YAUtils ()
@@ -469,59 +471,64 @@ static NSMutableDictionary *bubblesDictionary;
 
 #pragma mark - Tooltip and userdefaults helpers
 
-+ (BOOL)hasVisitedGifGrid {
-    return ![[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:GIF_GRID_UNSEEN];
++ (BOOL)defaultsBoolForKey:(NSString *)key {
+    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:key];
 }
 
-+ (void)setVisitedGifGrid {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:NO forKey:GIF_GRID_UNSEEN];
++ (void)setDefaultsForKey:(NSString *)key {
+    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:key];
     [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
 }
 
-+ (BOOL)hasVisitedHumanity {
-    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:HUMANITY_VISITED];
++ (BOOL)hasCompletedForcedFollowing {
+    return [self defaultsBoolForKey:FORCED_FOLLOWING_COMPLETED];
+}
++ (void)setCompletedForcedFollowing {
+    [self setDefaultsForKey:FORCED_FOLLOWING_COMPLETED];
 }
 
-+ (void)setVisitedHumanity {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:HUMANITY_VISITED];
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
++ (BOOL)hasVisitedStream {
+    return [self defaultsBoolForKey:STREAM_VISITED];
+}
++ (void)setVisitedStream {
+    [self setDefaultsForKey:STREAM_VISITED];
+}
+
++ (BOOL)hasVisitedPublicGroup {
+    return [self defaultsBoolForKey:PUBLIC_GROUP_VISITED];
+}
++ (void)setVisitedPublicGroup {
+    [self setDefaultsForKey:PUBLIC_GROUP_VISITED];
 }
 
 + (BOOL)hasVisitedPrivateGroup {
-    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:PRIVATE_GROUP_VISITED];
+    return [self defaultsBoolForKey:PRIVATE_GROUP_VISITED];
 }
-
 + (void)setVisitedPrivateGroup {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:PRIVATE_GROUP_VISITED];
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
+    [self setDefaultsForKey:PRIVATE_GROUP_VISITED];
 }
 
-+ (BOOL)hasRecordedPrivateVideo {
-    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:HAS_RECORDED_PRIVATE_VIDEO];
++ (BOOL)hasCreatedPrivateGroup {
+    return [self defaultsBoolForKey:HAS_CREATED_PRIVATE_GROUP];
+}
++ (void)setCreatedPrivateGroup {
+    [self setDefaultsForKey:HAS_CREATED_PRIVATE_GROUP];
 }
 
-+ (void)setRecordedPrivateVideo {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:HAS_RECORDED_PRIVATE_VIDEO];
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
++ (BOOL)hasCreatedPublicGroup {
+    return [self defaultsBoolForKey:HAS_CREATED_HOSTED_GROUP];
+}
++ (void)setCreatedPublicGroup {
+    [self setDefaultsForKey:HAS_CREATED_HOSTED_GROUP];
 }
 
-+ (BOOL)hasRecordedPublicVideo {
-    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:HAS_RECORDED_PUBLIC_VIDEO];
++ (BOOL)hasSeenPendingApprovalMessage {
+    return [self defaultsBoolForKey:PENDING_APPROVAL_SEEN];
+}
++ (void)setSeenPendingApprovalMessage {
+    [self setDefaultsForKey:PENDING_APPROVAL_SEEN];
 }
 
-+ (void)setRecordedPublicVideo {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:HAS_RECORDED_PUBLIC_VIDEO];
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
-}
-
-+ (BOOL)hasRecordedUngroupedVideo {
-    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:HAS_RECORDED_UNGROUPED_VIDEO];
-}
-
-+ (void)setRecordedUngroupedVideo {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:HAS_RECORDED_UNGROUPED_VIDEO];
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
-}
 
 + (void)randomQuoteWithCompletion:(stringCompletionBlock)completion {
     
