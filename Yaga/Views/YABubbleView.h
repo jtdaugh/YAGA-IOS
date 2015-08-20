@@ -10,4 +10,5 @@
 
 @interface YABubbleView : UIView
 @property (nonatomic, assign) BOOL arrowDirectionUp;
+@property (nonatomic, assign) CGFloat arrowXPosition;//relative to self.bounds
 @end

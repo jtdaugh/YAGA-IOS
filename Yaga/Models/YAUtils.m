@@ -580,9 +580,15 @@ static NSMutableDictionary *bubblesDictionary;
     BOOL arrowUp = viewFrame.origin.y + viewFrame.size.height + boundingRect.size.height + 20 < view.superview.frame.size.height;
     
     CGFloat x = viewFrame.origin.x + viewFrame.size.width/2 - width/2;
-    CGFloat y = arrowUp ? viewFrame.origin.y + viewFrame.size.height + 5 : viewFrame.origin.y - boundingRect.size.height - 25;
+    if(x < 0)
+        x = 5;
+    if(x + width + 5 >= VIEW_WIDTH)
+        x = VIEW_WIDTH - width - 5;
     
+    CGFloat y = arrowUp ? viewFrame.origin.y + viewFrame.size.height + 5 : viewFrame.origin.y - boundingRect.size.height - 25;
+
     YABubbleView *bubbleView = [[YABubbleView alloc] initWithFrame:CGRectMake(x, y, width, boundingRect.size.height + 20)];
+    bubbleView.arrowXPosition = view.center.x - x;
     bubbleView.arrowDirectionUp = arrowUp;
     bubbleView.backgroundColor = [UIColor clearColor];
     

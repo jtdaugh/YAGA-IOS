@@ -28,12 +28,12 @@
     CGContextBeginPath(context);
     if(self.arrowDirectionUp) {
         CGContextMoveToPoint(context, borderRadius + strokeWidth + 0.5f, strokeWidth + HEIGHTOFPOPUPTRIANGLE + 0.5f);
-        CGContextAddLineToPoint(context, round(currentFrame.size.width / 2.0f - WIDTHOFPOPUPTRIANGLE/2 ) + 0.5f, HEIGHTOFPOPUPTRIANGLE + strokeWidth + 0.5f);
-        CGContextAddLineToPoint(context, round(currentFrame.size.width / 2.0f) + 0.5f, strokeWidth + 0.5f);
+        CGContextAddLineToPoint(context, round(self.arrowXPosition - WIDTHOFPOPUPTRIANGLE/2 ) + 0.5f, HEIGHTOFPOPUPTRIANGLE + strokeWidth + 0.5f);
+        CGContextAddLineToPoint(context, round(self.arrowXPosition) + 0.5f, strokeWidth + 0.5f);
         
-        CGContextAddLineToPoint(context, round(currentFrame.size.width / 2.0f) + WIDTHOFPOPUPTRIANGLE/2 + 0.5f, HEIGHTOFPOPUPTRIANGLE + strokeWidth + 0.5f);
+        CGContextAddLineToPoint(context, round(self.arrowXPosition) + WIDTHOFPOPUPTRIANGLE/2 + 0.5f, HEIGHTOFPOPUPTRIANGLE + strokeWidth + 0.5f);
         CGContextAddArcToPoint(context, currentFrame.size.width - strokeWidth - 0.5f, strokeWidth + HEIGHTOFPOPUPTRIANGLE + 0.5f, currentFrame.size.width - strokeWidth - 0.5f, currentFrame.size.height - strokeWidth - 0.5f, borderRadius - strokeWidth);
-        CGContextAddArcToPoint(context, currentFrame.size.width - strokeWidth - 0.5f, currentFrame.size.height - strokeWidth - 0.5f, round(currentFrame.size.width / 2.0f + WIDTHOFPOPUPTRIANGLE / 2.0f) - strokeWidth + 0.5f, currentFrame.size.height - strokeWidth - 0.5f, borderRadius - strokeWidth);
+        CGContextAddArcToPoint(context, currentFrame.size.width - strokeWidth - 0.5f, currentFrame.size.height - strokeWidth - 0.5f, round(self.arrowXPosition + WIDTHOFPOPUPTRIANGLE / 2.0f) - strokeWidth + 0.5f, currentFrame.size.height - strokeWidth - 0.5f, borderRadius - strokeWidth);
         CGContextAddArcToPoint(context, strokeWidth + 0.5f, currentFrame.size.height - strokeWidth - 0.5f, strokeWidth + 0.5f, HEIGHTOFPOPUPTRIANGLE + strokeWidth + 0.5f, borderRadius - strokeWidth);
         CGContextAddArcToPoint(context, strokeWidth + 0.5f, strokeWidth + HEIGHTOFPOPUPTRIANGLE + 0.5f, currentFrame.size.width - strokeWidth - 0.5f, HEIGHTOFPOPUPTRIANGLE + strokeWidth + 0.5f, borderRadius - strokeWidth);
         CGContextClosePath(context);
@@ -43,12 +43,12 @@
         CGContextMoveToPoint(context, borderRadius + strokeWidth + 0.5f, strokeWidth + 0.5f);
         CGContextAddLineToPoint(context, currentFrame.size.width - borderRadius - strokeWidth + 0.5f, strokeWidth + 0.5f);
         CGContextAddArcToPoint(context, currentFrame.size.width - strokeWidth - 0.5f, strokeWidth + 0.5f, currentFrame.size.width - strokeWidth - 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE - 0.5f, borderRadius - strokeWidth);
-        CGContextAddArcToPoint(context, currentFrame.size.width - strokeWidth - 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE - 0.5f, round(currentFrame.size.width / 2.0f + WIDTHOFPOPUPTRIANGLE / 2.0f) - strokeWidth + 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE - 0.5f, borderRadius - strokeWidth);
+        CGContextAddArcToPoint(context, currentFrame.size.width - strokeWidth - 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE - 0.5f, round(self.arrowXPosition + WIDTHOFPOPUPTRIANGLE / 2.0f) - strokeWidth + 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE - 0.5f, borderRadius - strokeWidth);
         
-        CGContextAddLineToPoint(context, round(currentFrame.size.width / 2.0f + WIDTHOFPOPUPTRIANGLE/2 ) + 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE + 0.5f);
+        CGContextAddLineToPoint(context, round(self.arrowXPosition + WIDTHOFPOPUPTRIANGLE/2 ) + 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE + 0.5f);
         
-        CGContextAddLineToPoint(context, round(currentFrame.size.width / 2.0f) + 0.5f, currentFrame.size.height - strokeWidth + 0.5f);
-        CGContextAddLineToPoint(context, round(currentFrame.size.width / 2.0f - WIDTHOFPOPUPTRIANGLE/2 ) + 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE + 0.5f);
+        CGContextAddLineToPoint(context, round(self.arrowXPosition) + 0.5f, currentFrame.size.height - strokeWidth + 0.5f);
+        CGContextAddLineToPoint(context, round(self.arrowXPosition - WIDTHOFPOPUPTRIANGLE/2 ) + 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE + 0.5f);
         CGContextAddLineToPoint(context, borderRadius + strokeWidth + 0.5f, currentFrame.size.height - strokeWidth - HEIGHTOFPOPUPTRIANGLE + 0.5f);
         CGContextAddArcToPoint(context, strokeWidth + 0.5f, currentFrame.size.height - HEIGHTOFPOPUPTRIANGLE - strokeWidth - 0.5f, strokeWidth - HEIGHTOFPOPUPTRIANGLE + 0.5f, strokeWidth + 0.5f, borderRadius - strokeWidth);
         CGContextAddArcToPoint(context, strokeWidth + 0.5f, strokeWidth + 0.5f, currentFrame.size.width - strokeWidth - 0.5f, strokeWidth + 0.5f, borderRadius - strokeWidth);
@@ -61,7 +61,7 @@
     //    CGContextBeginPath(context);
     //    CGContextMoveToPoint(context, borderRadius + strokeWidth + 0.5f, round((currentFrame.size.height + HEIGHTOFPOPUPTRIANGLE) * 0.50f) + 0.5f);
     //    CGContextAddArcToPoint(context, currentFrame.size.width - strokeWidth - 0.5f, round((currentFrame.size.height + HEIGHTOFPOPUPTRIANGLE) * 0.50f) + 0.5f, currentFrame.size.width - strokeWidth - 0.5f, currentFrame.size.height - strokeWidth - 0.5f, borderRadius - strokeWidth);
-    //    CGContextAddArcToPoint(context, currentFrame.size.width - strokeWidth - 0.5f, currentFrame.size.height - strokeWidth - 0.5f, round(currentFrame.size.width / 2.0f + WIDTHOFPOPUPTRIANGLE / 2.0f) - strokeWidth + 0.5f, currentFrame.size.height - strokeWidth - 0.5f, borderRadius - strokeWidth);
+    //    CGContextAddArcToPoint(context, currentFrame.size.width - strokeWidth - 0.5f, currentFrame.size.height - strokeWidth - 0.5f, round(self.arrowXPosition + WIDTHOFPOPUPTRIANGLE / 2.0f) - strokeWidth + 0.5f, currentFrame.size.height - strokeWidth - 0.5f, borderRadius - strokeWidth);
     //    CGContextAddArcToPoint(context, strokeWidth + 0.5f, currentFrame.size.height - strokeWidth - 0.5f, strokeWidth + 0.5f, HEIGHTOFPOPUPTRIANGLE + strokeWidth + 0.5f, borderRadius - strokeWidth);
     //    CGContextAddArcToPoint(context, strokeWidth + 0.5f, round((currentFrame.size.height + HEIGHTOFPOPUPTRIANGLE) * 0.50f) + 0.5f, currentFrame.size.width - strokeWidth - 0.5f, round((currentFrame.size.height + HEIGHTOFPOPUPTRIANGLE) * 0.50f) + 0.5f, borderRadius - strokeWidth);
     //    CGContextClosePath(context);

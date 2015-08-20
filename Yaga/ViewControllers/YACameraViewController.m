@@ -211,6 +211,8 @@
     [self.cameraAccessories addObject:self.switchCameraButton];
     [self.view addSubview:self.switchCameraButton];
     
+    //[YAUtils showBubbleWithText:@"Switch camera tooltip" bubbleWidth:220 forView:self.switchCameraButton];
+    
     CGFloat flashSize = BUTTON_SIZE - 8;
     UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(bottomButtonPaddingX+4, bottomButtonTopY+4, flashSize, flashSize)];
     //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -222,7 +224,8 @@
     self.flashButton = flashButton;
     [self.cameraAccessories addObject:self.flashButton];
     [self.view addSubview:self.flashButton];
-
+    
+    //[YAUtils showBubbleWithText:@"Flash tooltip" bubbleWidth:220 forView:self.flashButton];
     
     self.recordingCircle = [[UIView alloc] initWithFrame:self.doneRecordingButton.frame];
     
