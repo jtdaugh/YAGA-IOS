@@ -66,7 +66,7 @@
                                                                            self.nameLabel.frame.size.height + Y_MARGIN + 2,
                                                                            self.nameLabel.frame.size.width,
                                                                            FOLLOWERS_HEIGHT)];
-        [self.followerCountLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
+        [self.followerCountLabel setFont:[UIFont fontWithName:BOLD_FONT size:14]];
         
         [self setBackgroundColor:[UIColor clearColor]];
                 
@@ -120,18 +120,18 @@
         if (self.group.amMember) {
             NSString *string = self.group.membersString;
             if ([string isEqualToString:@"No members"]) {
-                self.membersLabel.text = @"You're the only host";
+                self.membersLabel.text = @"Hosted by You";
             } else {
-                self.membersLabel.text = [NSString stringWithFormat:@"Co-Hosts: %@", self.group.membersString];
+                self.membersLabel.text = [NSString stringWithFormat:@"Hosted by You, %@", self.group.membersString];
             }
-            self.followerCountLabel.text = [NSString stringWithFormat:@"HOST: %lu followers", self.group.followerCount];
+            self.followerCountLabel.text = [NSString stringWithFormat:@"%lu followers", self.group.followerCount];
         } else {
             self.membersLabel.text = [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
             self.followerCountLabel.text = [NSString stringWithFormat:@"%lu followers", self.group.followerCount];
         }
     } else {
         self.membersLabel.text = self.group.membersString;
-        self.followerCountLabel.text = @"Private Group";
+        self.followerCountLabel.text = @"🔒 Private Channel";
     }
     
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
@@ -171,13 +171,13 @@
         return CGSizeMake(VIEW_WIDTH, rect.size.height + 2*Y_MARGIN + NAME_HEIGHT + FOLLOWERS_HEIGHT + BETWEEN_MARGIN);
     } else {
     
-    NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
-    CGRect rect = [group.membersString boundingRectWithSize:CGSizeMake([GroupsCollectionViewCell contentWidth], CGFLOAT_MAX)
-                                              options:NSStringDrawingUsesLineFragmentOrigin
-                                           attributes:attributes
-                                              context:nil];
-    
-    return CGSizeMake(VIEW_WIDTH, rect.size.height + 2*Y_MARGIN + NAME_HEIGHT + BETWEEN_MARGIN);
+        NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
+        CGRect rect = [group.membersString boundingRectWithSize:CGSizeMake([GroupsCollectionViewCell contentWidth], CGFLOAT_MAX)
+                                                  options:NSStringDrawingUsesLineFragmentOrigin
+                                               attributes:attributes
+                                                  context:nil];
+        
+        return CGSizeMake(VIEW_WIDTH, rect.size.height + 2*Y_MARGIN + NAME_HEIGHT + FOLLOWERS_HEIGHT + BETWEEN_MARGIN);
     }
 }
 
