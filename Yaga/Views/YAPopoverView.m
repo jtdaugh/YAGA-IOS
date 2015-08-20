@@ -36,7 +36,7 @@
     CGFloat fullWidth = self.frame.size.width;
     CGFloat fullHeight = self.frame.size.height;
     
-    CGFloat width = MAX(x*self.frame.size.width, 280);
+    CGFloat width = MAX(x*self.frame.size.width, 270);
     
     UIFont *bodyFont = [UIFont fontWithName:BIG_FONT size:16];
     

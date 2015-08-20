@@ -23,6 +23,7 @@
 #import "YAGroupGridViewController.h"
 #import "YABubbleView.h"
 #import "YAUserPermissions.h"
+#import "YAPopoverView.h"
 
 @interface YAMainTabBarController () <UITabBarControllerDelegate>
 
@@ -48,39 +49,27 @@
     
     self.onboardingFinished = [YAUtils hasCompletedForcedFollowing];
     
-    NSMutableArray *vcArray = [NSMutableArray array];
     
     UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YALatestStreamViewController new]];
     vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
     vc0.tabBarItem.title = @"Latest";
-    [vcArray addObject:vc0];
     
     UIViewController *vc1 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
     vc1.tabBarItem.image = [UIImage imageNamed:@"ExploreBarItem"];
     vc1.tabBarItem.title = @"Explore";
-    [vcArray addObject:vc1];
 
-    if (self.onboardingFinished) {
-        UIViewController *vc2 = [UIViewController new];
-        [vcArray addObject:vc2];
-    }
+    UIViewController *vc2 = [UIViewController new];
     
     UIViewController *vc3 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAGroupsListViewController new]];
     vc3.tabBarItem.image = [UIImage imageNamed:@"ChannelsBarItem"];
     vc3.tabBarItem.title = @"Channels";
-    [vcArray addObject:vc3];
 
     UIViewController *vc4 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAMyStreamViewController new]];
     vc4.tabBarItem.image = [UIImage imageNamed:@"MeBarItem"];
     vc4.tabBarItem.title = @"Me";
-    [vcArray addObject:vc4];
 
-    self.viewControllers = vcArray;
+    self.viewControllers = @[vc0, vc1, vc2, vc3, vc4];
     self.cameraTabViewController = self.viewControllers[2];
-    
-    if (self.onboardingFinished) {
-        [[YACameraManager sharedManager] initCamera];
-    }
     
     self.animationController = [YAAnimatedTransitioningController new];
     self.delegate = self;
@@ -98,12 +87,14 @@
     self.cameraButton.layer.cornerRadius = 7;
     self.cameraButton.layer.masksToBounds = YES;
     [self.cameraButton addTarget:self action:@selector(cameraPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.tabBar addSubview:self.cameraButton];
     
     if (self.onboardingFinished) {
-        [self.tabBar addSubview:self.cameraButton];
+        [[YACameraManager sharedManager] initCamera];
         self.selectedIndex = 0;
     } else {
         self.selectedIndex = 1;
+        self.tabBar.frame = CGRectMake(0, VIEW_HEIGHT, self.tabBar.frame.size.width, self.tabBar.frame.size.height);
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGifGridFromNotification:) name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
@@ -114,6 +105,10 @@
     [super viewDidAppear:animated];
     if(![YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
+    
+    if (!self.onboardingFinished) {
+        [self showForceFollowTooltip];
+    }
 }
 
 - (void)dealloc {
@@ -124,11 +119,12 @@
 - (void)finishedOnboarding {
     if (self.onboardingFinished) return;
     self.onboardingFinished = YES;
+    CGRect frame = self.tabBar.frame;
+    frame.origin.y -= frame.size.height;
     
-    NSMutableArray *vcArray = [self.viewControllers mutableCopy];
-    [vcArray insertObject:[UIViewController new] atIndex:2];
-    self.cameraTabViewController = self.viewControllers[2];
-    [self.tabBar addSubview:self.cameraButton];
+    [UIView animateWithDuration:0.5 animations:^{
+        self.tabBar.frame = frame;
+    }];
 }
 
 - (void)presentCreateGroup {
@@ -215,6 +211,11 @@
     
     return self.animationController;
 }
+
+- (void)showForceFollowTooltip {
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FORCE_FOLLOW_TITLE", @"") bodyText:NSLocalizedString(@"FORCE_FOLLOW_BODY", @"") dismissText:@"Got it" addToView:self.view] show];
+}
+
 
 
 @end

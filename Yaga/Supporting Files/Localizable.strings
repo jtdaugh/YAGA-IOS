@@ -62,6 +62,9 @@
 
 "iMESSAGE_COME_JOIN_ME_TEXT" = "I added you to the %@ group on Yaga. Get it now on the App Store!\nhttp://getyaga.com";
 
+"FORCE_FOLLOW_TITLE" = "Welcome";
+"FORCE_FOLLOW_BODY" = "Here's the best channels on Yaga.\n\nFollow at least one channel to get started.";
+
 "FIRST_HUMANITY_VISIT_TITLE" = "Humanity";
 "FIRST_HUMANITY_VISIT_BODY" = "Humanity contains every Yaga user in the world. \n\n We go through all posts and only approve the best.";
 

@@ -357,17 +357,26 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 #pragma mark - Private
 - (void)filterAndReload {
     NSArray *filtered = self.groupsDataArray;
-    if(self.searchBar.text.length != 0)
+    
+    if(self.searchBar.text.length != 0) {
         filtered = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
             return [evaluatedObject[YA_RESPONSE_NAME] rangeOfString:self.searchBar.text].location != NSNotFound || [evaluatedObject[YA_RESPONSE_MEMBERS] rangeOfString:self.searchBar.text].location != NSNotFound;
         }]];
+    }
     
     self.featuredGroups = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
-        return [evaluatedObject[@"featured"]  isEqual: @YES];
+        return [evaluatedObject[@"featured"] isEqual: @YES];
     }]];
     
     NSMutableArray *suggested = [NSMutableArray arrayWithArray:filtered];
     [suggested removeObjectsInArray:self.featuredGroups];
+    
+    // Sort non-featured groups by public first
+    [suggested sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult(id obj1, id obj2) {
+        BOOL onePrivate = obj1[YA_RESPONSE_PRIVATE], twoPrivate = obj2[YA_RESPONSE_PRIVATE];
+        return (onePrivate == twoPrivate) ? NSOrderedSame : (onePrivate ? NSOrderedDescending : NSOrderedAscending);
+    }];
+    
     self.suggestedGroups = suggested;
     
     [self.tableView reloadData];
@@ -376,7 +385,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (NSDictionary*)groupDataAtIndexPath:(NSIndexPath*)indexPath {
     NSDictionary *result;
     if(indexPath.section == 0) {
-        result = indexPath.section == 0 && self.featuredGroups.count != 0 ? self.featuredGroups[indexPath.row] : self.suggestedGroups[indexPath.row];
+        result = self.featuredGroups.count != 0 ? self.featuredGroups[indexPath.row] : self.suggestedGroups[indexPath.row];
     }
     else {
         result = self.suggestedGroups[indexPath.row];
