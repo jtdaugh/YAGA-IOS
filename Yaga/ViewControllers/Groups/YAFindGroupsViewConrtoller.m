@@ -338,17 +338,18 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 NSArray *readableArray = [YAUtils readableGroupsArrayFromResponse:response];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    if(readableArray.count) {
-                        weakSelf.groupsDataArray = readableArray;
-                        [weakSelf.searchResultLabel removeFromSuperview];
-                        weakSelf.searchResultLabel = nil;
+                    if (weakSelf.searchBar.text.length != 0) { // If search bar is empty, should be using cached results.
+                        if(readableArray.count) {
+                            weakSelf.groupsDataArray = readableArray;
+                            [weakSelf.searchResultLabel removeFromSuperview];
+                            weakSelf.searchResultLabel = nil;
+                        }
+                        else {
+                            weakSelf.groupsDataArray = nil;
+                            weakSelf.searchResultLabel.text = [NSString stringWithFormat:@"Nothing found for %@", searchBar.text];
+                        }
+                        [weakSelf filterAndReload:YES];
                     }
-                    else {
-                        weakSelf.groupsDataArray = nil;
-                        weakSelf.searchResultLabel.text = [NSString stringWithFormat:@"Nothing found for %@", searchBar.text];
-                    }
-                    
-                    [weakSelf filterAndReload:YES];
                 });
             });
             
