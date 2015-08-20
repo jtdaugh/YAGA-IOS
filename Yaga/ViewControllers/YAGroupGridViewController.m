@@ -82,8 +82,14 @@
     [bar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
     bar.backgroundColor = self.group.publicGroup ? (self.group.amMember ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR) : PRIVATE_GROUP_COLOR;
     bar.nameLabel.text = self.group.name;
+    
     if (self.group.publicGroup) {
-        bar.descriptionLabel.text = self.group.amMember ? @"You're the host!" : [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
+        NSString *string = self.group.membersString;
+        if ([string isEqualToString:@"No members"]) {
+            bar.descriptionLabel.text = @"You're the only host";
+        } else {
+            bar.descriptionLabel.text = [NSString stringWithFormat:@"Co-Hosts: %@", self.group.membersString];
+        }
     } else {
         bar.descriptionLabel.text = self.group.membersString;
     }
