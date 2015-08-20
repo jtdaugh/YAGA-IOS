@@ -156,6 +156,13 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.trimmingView.maxInterval = MAX_VIDEO_DURATION;
     self.trimmingView.delegate = self;
     [self.view addSubview:self.trimmingView];
+    
+    if(![YAUtils hasSeenTrimView]){
+        [YAUtils showBubbleWithText:@"Trim just what you want to keep" bubbleWidth:230 forView:self.trimmingView arrowDirection:0];
+        [YAUtils setSeenTrimView];
+    }
+    
+
 }
 
 

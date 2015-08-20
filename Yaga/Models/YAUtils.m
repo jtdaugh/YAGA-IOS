@@ -26,6 +26,8 @@
 #define HAS_CREATED_HOSTED_GROUP @"createdPublicGroup"
 #define HAS_CREATED_PRIVATE_GROUP @"createdPrivateGroup"
 #define PENDING_APPROVAL_SEEN @"pendingApprovalSeen"
+#define SEEN_CAMERA @"seenCamera"
+#define SEEN_TRIM_VIEW @"seenTrimView"
 
 
 @interface YAUtils ()
@@ -529,6 +531,21 @@ static NSMutableDictionary *bubblesDictionary;
     [self setDefaultsForKey:PENDING_APPROVAL_SEEN];
 }
 
++ (BOOL)hasSeenCamera {
+    return [self defaultsBoolForKey:SEEN_CAMERA];
+}
+
++ (void)setSeenCamera {
+    [self setDefaultsForKey:SEEN_CAMERA];
+}
+
++ (BOOL)hasSeenTrimView {
+    return [self defaultsBoolForKey:SEEN_TRIM_VIEW];
+}
+
++ (void)setSeenTrimView {
+    [self setDefaultsForKey:SEEN_TRIM_VIEW];
+}
 
 + (void)randomQuoteWithCompletion:(stringCompletionBlock)completion {
     
@@ -570,14 +587,13 @@ static NSMutableDictionary *bubblesDictionary;
     return result;
 }
 
-+ (void)showBubbleWithText:(NSString*)text bubbleWidth:(CGFloat)width forView:(UIView*)view {
++ (void)showBubbleWithText:(NSString*)text bubbleWidth:(CGFloat)width forView:(UIView*)view arrowDirection:(BOOL)arrowUp{
     UIFont *bubbleFont = [UIFont fontWithName:BIG_FONT size:14];
     CGRect boundingRect = [text boundingRectWithSize:CGSizeMake(width - 20, NSIntegerMax)
-                                                   options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
-                                                attributes:@{NSFontAttributeName:bubbleFont} context:nil];
+                                             options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
+                                          attributes:@{NSFontAttributeName:bubbleFont} context:nil];
     
     CGRect viewFrame = view.frame;
-    BOOL arrowUp = viewFrame.origin.y + viewFrame.size.height + boundingRect.size.height + 20 < view.superview.frame.size.height;
     
     CGFloat x = viewFrame.origin.x + viewFrame.size.width/2 - width/2;
     if(x < 0)
@@ -586,7 +602,7 @@ static NSMutableDictionary *bubblesDictionary;
         x = VIEW_WIDTH - width - 5;
     
     CGFloat y = arrowUp ? viewFrame.origin.y + viewFrame.size.height + 5 : viewFrame.origin.y - boundingRect.size.height - 25;
-
+    
     YABubbleView *bubbleView = [[YABubbleView alloc] initWithFrame:CGRectMake(x, y, width, boundingRect.size.height + 20)];
     bubbleView.arrowXPosition = view.center.x - x;
     bubbleView.arrowDirectionUp = arrowUp;
@@ -601,16 +617,29 @@ static NSMutableDictionary *bubblesDictionary;
     [bubbleView addSubview:label];
     bubbleView.alpha = 0;
     [view.superview addSubview:bubbleView];
-
+    
     [UIView animateWithDuration:2.0 delay:0.0f usingSpringWithDamping:0.4f initialSpringVelocity:1.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
         bubbleView.alpha = 1;
     } completion:^(BOOL finished) {
-       
+        
     }];
     if(!bubblesDictionary)
         bubblesDictionary = [NSMutableDictionary new];
     
     [bubblesDictionary setObject:bubbleView forKey:text];
+    
+}
+
++ (void)showBubbleWithText:(NSString*)text bubbleWidth:(CGFloat)width forView:(UIView*)view {
+    UIFont *bubbleFont = [UIFont fontWithName:BIG_FONT size:14];
+    CGRect boundingRect = [text boundingRectWithSize:CGSizeMake(width - 20, NSIntegerMax)
+                                             options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
+                                          attributes:@{NSFontAttributeName:bubbleFont} context:nil];
+    
+    CGRect viewFrame = view.frame;
+    BOOL arrowUp = viewFrame.origin.y + viewFrame.size.height + boundingRect.size.height + 20 < view.superview.frame.size.height;
+    
+    [self showBubbleWithText:text bubbleWidth:width forView:view arrowDirection:arrowUp];
 }
 
 + (void)showBubbleWithTextOnce:(NSString*)text bubbleWidth:(CGFloat)width arrowDirectionUp:(BOOL)arrowUp forView:(UIView*)view {

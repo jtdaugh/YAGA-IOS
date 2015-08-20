@@ -244,7 +244,7 @@
     [self.gridButton addTarget:self action:@selector(gridButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.gridButton];
 
-    [YAUtils showBubbleWithText:@"Another bubble tooltip with arrow up" bubbleWidth:180 forView:self.gridButton];
+//    [YAUtils showBubbleWithText:@"Another bubble tooltip with arrow up" bubbleWidth:180 forView:self.gridButton];
     
     self.uploadButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, BUTTON_SIZE, BUTTON_SIZE)];
     self.uploadButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
@@ -318,9 +318,12 @@
     [self.animatedRecorder.textLabel setAlpha:0.0];
     
     [self.animatedRecorder.textLabel setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
-
-    [YAUtils showBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording" bubbleWidth:230 forView:self.animatedRecorder];
     
+    if(![YAUtils hasSeenCamera]){
+        [YAUtils showBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording" bubbleWidth:230 forView:self.animatedRecorder];
+        [YAUtils setSeenCamera];
+    }
+
     [UIView animateWithDuration:.618 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         //
         [self.animatedRecorder setAlpha:1.0];
