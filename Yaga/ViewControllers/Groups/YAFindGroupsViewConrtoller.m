@@ -75,7 +75,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
     
-    [self filterAndReload];
+    [self filterAndReload:YES];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -111,24 +111,28 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     
     responseBlock block = ^(id response, NSError *error) {
+        BOOL private = [groupData[YA_RESPONSE_PRIVATE] boolValue];
+        [self.pendingRequestsInProgress removeObject:groupData[YA_RESPONSE_ID]];
         if(!error) {
-            NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
-            [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
-            NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.groupsDataArray];
             
-            //update private group cell so it changes to "Pending"
-            if([groupData[YA_RESPONSE_PRIVATE] boolValue]){
+            NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.groupsDataArray];
+
+            if (private) {
+                NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
+                [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
                 [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
-            }
-            //remove public group cell with a success message
-            else {
+            } else {
                 [upatedDataArray removeObject:groupData];
             }
             
-            self->_groupsDataArray = upatedDataArray;
-            
-            [self filterAndReload];
-            
+            self.groupsDataArray = upatedDataArray;
+            [self filterAndReload:NO];
+
+            if (!private && !error) {
+                [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            } else {
+                [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            }
             if(![groupData[YA_RESPONSE_PRIVATE] boolValue]){
                 [YAUtils showHudWithText:[NSString stringWithFormat:@"Following %@!", groupData[YA_RESPONSE_NAME]]];
             }
@@ -136,9 +140,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         else {
             DLog(@"Can't send request to join group");
         }
-        
-        [self.pendingRequestsInProgress removeObject:groupData[YA_RESPONSE_ID]];
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     };
     
     //adding [YAUser currentUser].username to pending members, not making another call to server
@@ -168,7 +169,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         }
         
         if(!weakSelf.groupsDataArray.count)
-            [weakSelf filterAndReload];
+            [weakSelf filterAndReload:YES];
         
         void (^discoverGroupsBlock)(void) = ^{
             [[YAServer sharedServer] discoverGroupsWithCompletion:^(id response, NSError *error) {
@@ -182,7 +183,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                         weakSelf.groupsDataArray = [YAUtils readableGroupsArrayFromResponse:response];
                         [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            [weakSelf filterAndReload];
+                            [weakSelf filterAndReload:YES];
                         });
                     });
                 }
@@ -269,7 +270,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
 
     self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
-    [self filterAndReload];
+    [self filterAndReload:YES];
 }
 
 - (void)restoreNonSearchResults {
@@ -280,7 +281,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     self.searchActivity = nil;
     
     self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
-    [self filterAndReload];
+    [self filterAndReload:YES];
 }
 
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
@@ -319,7 +320,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         [self.tableView addSubview:self.searchResultLabel];
         
         self.groupsDataArray = nil;
-        [self filterAndReload];
+        [self filterAndReload:YES];
 
         [[YAServer sharedServer] searchGroupsByName:[searchBar.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] withCompletion:^(id response, NSError *error) {
             if(error) {
@@ -347,7 +348,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                         weakSelf.searchResultLabel.text = [NSString stringWithFormat:@"Nothing found for %@", searchBar.text];
                     }
                     
-                    [weakSelf filterAndReload];
+                    [weakSelf filterAndReload:YES];
                 });
             });
             
@@ -359,7 +360,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 #pragma mark - Private
-- (void)filterAndReload {
+- (void)filterAndReload:(BOOL)reload {
     NSArray *filtered = self.groupsDataArray;
     
     if(self.searchBar.text.length != 0) {
@@ -367,9 +368,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         filtered = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
             return [[((NSString *)evaluatedObject[YA_RESPONSE_NAME]) lowercaseString] rangeOfString:[self.searchBar.text lowercaseString]].location != NSNotFound;
         }]];
-    } else {
-        self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
-        filtered = self.groupsDataArray;
     }
     
     self.featuredGroups = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
@@ -385,7 +383,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         return (onePrivate == twoPrivate) ? NSOrderedSame : (onePrivate ? NSOrderedDescending : NSOrderedAscending);
     }];
     
-    [self.tableView reloadData];
+    if (reload)
+        [self.tableView reloadData];
 }
 
 - (NSDictionary*)groupDataAtIndexPath:(NSIndexPath*)indexPath {
