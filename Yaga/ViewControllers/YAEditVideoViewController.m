@@ -171,15 +171,16 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [self.bottomView addSubview:transparentView];
     
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.sendButton.frame = CGRectMake(self.view.bounds.size.width - self.bottomView.bounds.size.height, 0, self.bottomView.bounds.size.height, self.bottomView.bounds.size.height);
+    self.sendButton.frame = CGRectMake(0, 0, self.bottomView.bounds.size.width, self.bottomView.bounds.size.height);
     [self.sendButton setImage:[[UIImage imageNamed:@"Send"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [self.sendButton addTarget:self action:@selector(sendButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    self.sendButton.imageEdgeInsets = UIEdgeInsetsMake(15, 15, 15, 15);
+    self.sendButton.imageEdgeInsets = UIEdgeInsetsMake(15,
+                                                       self.bottomView.bounds.size.width - self.bottomView.bounds.size.height - 15, 15, 15);
     self.sendButton.tintColor = [UIColor whiteColor];
     [self.sendButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.bottomView addSubview:self.sendButton];
     
-    self.chosenGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2)];
+    self.chosenGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2)];
     self.chosenGroupsLabel.textColor = [UIColor whiteColor];
     self.chosenGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:16];
     [self.bottomView addSubview:self.chosenGroupsLabel];
@@ -264,14 +265,14 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.sendButton.enabled = YES;
 
         if (!self.groupsExpanded) {
-            self.chosenGroupsLabel.frame = CGRectMake(10, 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
+            self.chosenGroupsLabel.frame = CGRectMake(20, 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
             self.chosenGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:16];
         } else {
-            self.chosenGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height/4, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
+            self.chosenGroupsLabel.frame = CGRectMake(20, self.bottomView.bounds.size.height/4, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
             self.chosenGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
         }
         
-        self.chooseGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
+        self.chooseGroupsLabel.frame = CGRectMake(20, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
         self.chooseGroupsLabel.font = [UIFont fontWithName:BIG_FONT size:12];
         [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to add more channels" : @"")];
 
@@ -286,7 +287,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.chosenGroupsLabel.hidden = YES;
         self.sendButton.enabled = YES;
 
-        self.chooseGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height / 4, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
+        self.chooseGroupsLabel.frame = CGRectMake(20, self.bottomView.bounds.size.height / 4, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
         self.chooseGroupsLabel.textColor = [UIColor colorWithWhite:0.8 alpha:1];
         self.chooseGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
         [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to choose channels" : @"Choose channels")];

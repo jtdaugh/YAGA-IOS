@@ -17,6 +17,7 @@
 
 @interface YAPostToGroupsViewController ()
 @property (nonatomic, strong) NSMutableArray *hostingGoups;
+@property (nonatomic, strong) NSMutableArray *privateGroups;
 @property (nonatomic, strong) NSMutableArray *followingGroups;
 
 @property (nonatomic, strong) UIButton *sendButton;
@@ -59,14 +60,17 @@
     [self.view addSubview:self.tableView];
     [self.view addSubview:navBar]; // Need the navBar on top of tableView
 
-    RLMResults *hostGroups = [[YAGroup allObjects] objectsWhere:@"amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
+    RLMResults *hostGroups = [[YAGroup allObjects] objectsWhere:@"publicGroup = 1 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
+    RLMResults *privateGroups = [[YAGroup allObjects] objectsWhere:@"publicGroup = 0 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
     RLMResults *followGroups = [[YAGroup allObjects] objectsWhere:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
     
     RLMResults *hostingSorted = [hostGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    RLMResults *privateSorted = [privateGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     RLMResults *followSorted = [followGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     
     self.hostingGoups = [self arrayFromRLMResults:hostingSorted];
     self.followingGroups = [self arrayFromRLMResults:followSorted];
+    self.privateGroups = [self arrayFromRLMResults:privateSorted];
     
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.sendButton.frame = CGRectMake(0, self.view.bounds.size.height, self.view.bounds.size.width, kSendButtonHeight);
@@ -92,6 +96,18 @@
     return arr;
 }
 
+- (NSMutableArray *)arrayForSection:(NSUInteger)section {
+    if (section == 0) {
+        if (self.hostingGoups.count) return self.hostingGoups;
+        if (self.privateGroups.count) return self.privateGroups;
+        return self.followingGroups;
+    } else if (section == 1) {
+        if (self.hostingGoups.count && self.privateGroups.count) return self.privateGroups;
+        return self.followingGroups;
+    }
+    return self.followingGroups;
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
@@ -106,8 +122,14 @@
 }
 
 - (void)addNewlyCreatedGroupToList:(YAGroup *)group {
-    [self.hostingGoups insertObject:group atIndex:0];
-    NSIndexPath *newIndex = [NSIndexPath indexPathForRow:0 inSection:0];
+    NSIndexPath *newIndex;
+    if (group.publicGroup) {
+        [self.hostingGoups insertObject:group atIndex:0];
+        newIndex = [NSIndexPath indexPathForRow:0 inSection:0];
+    } else {
+        [self.privateGroups insertObject:group atIndex:0];
+        newIndex = [NSIndexPath indexPathForRow:0 inSection:self.hostingGoups.count ? 1 : 0];
+    }
     [self.tableView insertRowsAtIndexPaths:@[newIndex] withRowAnimation:UITableViewRowAnimationFade];
     [self.tableView selectRowAtIndexPath:newIndex animated:YES scrollPosition:UITableViewScrollPositionNone];
     [self showHidePostMessage];
@@ -120,16 +142,14 @@
 #pragma mark - Table View Data Source
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     NSUInteger result = self.hostingGoups.count ? 1 : 0;
-    
+    result += self.privateGroups.count ? 1 : 0;
     result += self.followingGroups.count ? 1 : 0;
     
     return result;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSUInteger result = section == 0 && self.hostingGoups.count ? self.hostingGoups.count : self.followingGroups.count;
-    
-    return result;
+    return [self arrayForSection:section].count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
@@ -137,12 +157,21 @@
 }
 
 - (nullable UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    NSArray *arr = [self arrayForSection:section];
     UIView *result = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 40)];
     result.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.9];
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(5, 15, VIEW_WIDTH - 5, 20)];
     label.font = [UIFont fontWithName:BOLD_FONT size:14];
-    label.textColor = SECONDARY_COLOR;
-    label.text = section == 0 && self.hostingGoups.count ? @"HOSTING" : @"ALL (Pending approval from Host)";
+    if (arr == self.hostingGoups) {
+        label.textColor = HOSTING_GROUP_COLOR;
+        label.text = @"HOSTING";
+    } else if (arr == self.privateGroups) {
+        label.textColor = PRIVATE_GROUP_COLOR;
+        label.text = @"PRIVATE";
+    } else {
+        label.textColor = PUBLIC_GROUP_COLOR;
+        label.text = @"FOLLOWING (Pending approval from Host)";
+    }
     [result addSubview:label];
     return result;
 }
@@ -150,17 +179,10 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     YAPostGroupCell *cell = (YAPostGroupCell*)[tableView dequeueReusableCellWithIdentifier:kCellId forIndexPath:indexPath];
     
-    if(indexPath.section == 0 && self.hostingGoups.count) {
-        YAGroup *group = self.hostingGoups[indexPath.item];
-        
-        cell.textLabel.text = group.name;
-        [cell setSelectionColor:[UIColor colorWithRed:60.0f/255.0f green:184.0f/255.0f blue:120.0f/255.0f alpha:1.0]];
-    }
-    else {
-        YAGroup *group = self.followingGroups[indexPath.item];
-        cell.textLabel.text = group.name;
-        [cell setSelectionColor:[UIColor lightGrayColor]];
-    }
+    YAGroup *group = [[self arrayForSection:indexPath.section] objectAtIndex:indexPath.item];
+    
+    cell.textLabel.text = group.name;
+    [cell setSelectionColor:group.amMember ? (group.publicGroup ? HOSTING_GROUP_COLOR :  PRIVATE_GROUP_COLOR) : PUBLIC_GROUP_COLOR];
     
     return cell;
 }
@@ -207,14 +229,7 @@
     NSMutableArray *groups = [NSMutableArray new];
     
     for (NSIndexPath *indexPath in self.tableView.indexPathsForSelectedRows) {
-
-        if(indexPath.section == 0 && self.hostingGoups.count){
-            YAGroup *group = self.hostingGoups[indexPath.item];
-            [groups addObject:group];
-        } else {
-            YAGroup *group = self.followingGroups[indexPath.item];
-            [groups addObject:group];
-        }
+        [groups addObject:[[self arrayForSection:indexPath.section] objectAtIndex:indexPath.item]];
     }
     if(groups.count) {
         [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:
@@ -228,9 +243,7 @@
         [[Mixpanel sharedInstance] track:@"Video posted"];
         
         [self dismissViewControllerAnimated:YES completion:nil];
-        
     }
-    
 }
 
 @end

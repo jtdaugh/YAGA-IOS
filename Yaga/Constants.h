@@ -45,10 +45,10 @@
 #define SECONDARY_COLOR [UIColor colorWithRed: 60.0f/255.0f green: 178.0f/255.0f blue:226.0f/255.0f alpha:1.0]
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 
-#define HOSTING_GROUP_COLOR PRIMARY_COLOR
-#define PRIVATE_GROUP_COLOR [UIColor colorWithWhite:0.2 alpha:1]
-#define PUBLIC_GROUP_COLOR [UIColor blackColor]
-#define MUTED_GROUP_COLOR [UIColor colorWithWhite:0.75 alpha:1]
+#define HOSTING_GROUP_COLOR [UIColor colorWithRed:126.0/255.0 green:73.0/255.0 blue:172.0/255.0 alpha:1.0]
+#define PRIVATE_GROUP_COLOR [UIColor colorWithWhite:0.15 alpha:1]
+#define PUBLIC_GROUP_COLOR PRIMARY_COLOR
+#define MUTED_GROUP_COLOR [UIColor colorWithWhite:0.66 alpha:1]
 
 #define BIG_FONT @"Avenir"
 #define BOLD_FONT @"Avenir-Black"

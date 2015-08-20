@@ -500,7 +500,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     NSDictionary *groupData = [self groupDataAtIndexPath:indexPath];
     BOOL private = [groupData[YA_RESPONSE_PRIVATE] boolValue];
     
-    UIColor *accessoryColor = private ? PRIVATE_GROUP_COLOR : headerAndAccessoryColor;
+    UIColor *accessoryColor = private ? PRIVATE_GROUP_COLOR : PUBLIC_GROUP_COLOR;
     UIColor *textColor = private ? PRIVATE_GROUP_COLOR : PUBLIC_GROUP_COLOR;
     cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:[YAUtils imageWithColor:[textColor colorWithAlphaComponent:0.3]]];
     

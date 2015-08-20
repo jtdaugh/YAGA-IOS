@@ -22,7 +22,7 @@
 
 #define ACCESSORY_SIZE 26
 #define EMOJI_SIZE 36
-#define LEFT_MARGIN 60
+#define LEFT_MARGIN 15
 #define RIGHT_MARGIN 10
 #define Y_MARGIN 20
 #define NAME_HEIGHT 30
@@ -30,8 +30,6 @@
 #define MEMBERS_HEIGHT 24
 #define BETWEEN_MARGIN 5
 #define TOTAL_HEIGHT (Y_MARGIN*2 + NAME_HEIGHT + MEMBERS_HEIGHT + BETWEEN_MARGIN)
-
-#define YOURE_THE_HOST (@"You're the host!")
 
 @implementation GroupsCollectionViewCell
 
@@ -76,10 +74,11 @@
         [self.disclosureImageView setImage:[[UIImage imageNamed:@"Disclosure"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         self.disclosureImageView.contentMode = UIViewContentModeScaleAspectFit;
         
-        [self addSubview:self.groupEmoji];
+//        [self addSubview:self.groupEmoji];
         [self addSubview:self.nameLabel];
         [self addSubview:self.membersLabel];
         [self addSubview:self.followerCountLabel];
+        [self addSubview:self.disclosureImageView];
     }
     
     return self;
@@ -119,14 +118,20 @@
 - (void)updateMembersAndFollowersString {
     if (self.group.publicGroup) {
         if (self.group.amMember) {
-            self.membersLabel.text = YOURE_THE_HOST;
+            NSString *string = self.group.membersString;
+            if ([string isEqualToString:@"No members"]) {
+                self.membersLabel.text = @"You're the only host";
+            } else {
+                self.membersLabel.text = [NSString stringWithFormat:@"Co-Hosts: %@", self.group.membersString];
+            }
+            self.followerCountLabel.text = [NSString stringWithFormat:@"HOST: %lu followers", self.group.followerCount];
         } else {
             self.membersLabel.text = [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
+            self.followerCountLabel.text = [NSString stringWithFormat:@"%lu followers", self.group.followerCount];
         }
-        self.followerCountLabel.text = [NSString stringWithFormat:@"%lu followers", self.group.followerCount];
     } else {
         self.membersLabel.text = self.group.membersString;
-        self.followerCountLabel.text = @"";
+        self.followerCountLabel.text = @"Private Group";
     }
     
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
@@ -136,7 +141,7 @@
                                        context:nil];
 
     CGRect frame = self.membersLabel.frame;
-    frame.origin.y = self.nameLabel.frame.size.height + Y_MARGIN + BETWEEN_MARGIN + (self.group.publicGroup ? FOLLOWERS_HEIGHT : 0);
+    frame.origin.y = self.nameLabel.frame.size.height + Y_MARGIN + BETWEEN_MARGIN + FOLLOWERS_HEIGHT;
     frame.size.height = rect.size.height;
     self.membersLabel.frame = frame;
 //    [self.membersLabel sizeToFit];
@@ -156,7 +161,7 @@
 
 + (CGSize)sizeForGroup:(YAGroup *)group {
     if (group.publicGroup) {
-        NSString *string = group.amMember ? YOURE_THE_HOST : [NSString stringWithFormat:@"Hosted by %@", group.membersString];
+        NSString *string = group.amMember ? [NSString stringWithFormat:@"Co-Hosts: %@", group.membersString] : [NSString stringWithFormat:@"Hosted by %@", group.membersString];
         NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
         CGRect rect = [string boundingRectWithSize:CGSizeMake([GroupsCollectionViewCell contentWidth], CGFLOAT_MAX)
                                            options:NSStringDrawingUsesLineFragmentOrigin
