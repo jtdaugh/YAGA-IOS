@@ -31,7 +31,9 @@
     // Do any additional setup after loading the view.
     [self.navigationController setNavigationBarHidden:NO];
     [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
-    
+    self.navigationController.navigationBar.backgroundColor = HOSTING_GROUP_COLOR;
+    self.navigationController.navigationBar.barTintColor = HOSTING_GROUP_COLOR;
+
     [self.view setBackgroundColor:[UIColor whiteColor]];
     self.navigationItem.title = @"New Channel";
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(closeButtonPressed:)];
@@ -43,7 +45,7 @@
     
     CGSize segSize = CGSizeMake(VIEW_WIDTH *.8, 30);
     self.publicControl = [[UISegmentedControl alloc] initWithFrame:CGRectMake((VIEW_WIDTH - segSize.width)/2, origin, segSize.width, segSize.height)];
-    self.publicControl.tintColor = PRIMARY_COLOR;
+    self.publicControl.tintColor = HOSTING_GROUP_COLOR;
     [self.publicControl insertSegmentWithTitle:@"Public" atIndex:0 animated:NO];
     [self.publicControl insertSegmentWithTitle:@"Private" atIndex:1 animated:NO];
     self.publicControl.selectedSegmentIndex = 0;
@@ -65,9 +67,9 @@
     [self.groupNameTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.groupNameTextField setTextAlignment:NSTextAlignmentCenter];
     [self.groupNameTextField setFont:[UIFont fontWithName:BIG_FONT size:30]];
-    [self.groupNameTextField setTextColor:PRIMARY_COLOR];
+    [self.groupNameTextField setTextColor:HOSTING_GROUP_COLOR];
     [self.groupNameTextField becomeFirstResponder];
-    [self.groupNameTextField setTintColor:PRIMARY_COLOR];
+    [self.groupNameTextField setTintColor:HOSTING_GROUP_COLOR];
     [self.groupNameTextField setReturnKeyType:UIReturnKeyDone];
     [self.groupNameTextField addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
     [self.view addSubview:self.groupNameTextField];
