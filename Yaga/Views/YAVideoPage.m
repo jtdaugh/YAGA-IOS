@@ -42,7 +42,6 @@ static NSString *commentCellID = @"CommentCell";
 
 //overlay controls
 @property (strong, nonatomic) UIButton *XButton;
-@property (strong, nonatomic) UIButton *TButton;
 @property (nonatomic, strong) UILabel *userLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) RCounter *viewCounter;
@@ -71,7 +70,6 @@ static NSString *commentCellID = @"CommentCell";
 @property NSUInteger fontIndex;
 
 @property (strong, nonatomic) UITapGestureRecognizer *likeDoubleTapRecognizer;
-@property (strong, nonatomic) UITapGestureRecognizer *captionTapRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
 @property (strong, nonatomic) CAGradientLayer *commentsViewMask;
@@ -563,11 +561,6 @@ static NSString *commentCellID = @"CommentCell";
     [self.XButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.XButton];
     
-    self.TButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
-    self.TButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
-    self.TButton.alpha = 0.7;
-    [self.TButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.overlay addSubview:self.TButton];
     
     CGFloat approveButtonWidth = VIEW_WIDTH * .4;
     CGFloat approveButtonHeight = VIEW_HEIGHT * .1;
@@ -649,12 +642,6 @@ static NSString *commentCellID = @"CommentCell";
     self.likeDoubleTapRecognizer.delegate = self;
     [self addGestureRecognizer:self.likeDoubleTapRecognizer];
     
-    self.captionTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-    [self.captionTapRecognizer setNumberOfTapsRequired:1];
-    self.captionTapRecognizer.delegate = self;
-    
-    [self.captionTapRecognizer requireGestureRecognizerToFail:self.likeDoubleTapRecognizer];
-
     self.hideGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(hideHold:)];
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
     [self addGestureRecognizer:self.hideGestureRecognizer];
@@ -933,10 +920,6 @@ static NSString *commentCellID = @"CommentCell";
     self.serverCaptionTextView = textView;
     self.serverCaptionTextView.userInteractionEnabled = NO;
     
-    if ([[self gestureRecognizers] containsObject:self.captionTapRecognizer]) {
-        [self removeGestureRecognizer:self.captionTapRecognizer];
-    }
-    
     textWrapper.alpha = 0;
     CGAffineTransform original = textWrapper.transform;
     textWrapper.transform = CGAffineTransformScale(textWrapper.transform, 0.75, 0.75);
@@ -956,7 +939,6 @@ static NSString *commentCellID = @"CommentCell";
 - (void)setGesturesEnabled:(BOOL)enabled {
     if ([self.video isInvalidated]) {
         self.hideGestureRecognizer.enabled = enabled;
-        self.captionTapRecognizer.enabled = NO;
         self.likeDoubleTapRecognizer.enabled = NO;
         if (enabled) {
             [self.presentingVC restoreAllGestures:self];
@@ -965,56 +947,12 @@ static NSString *commentCellID = @"CommentCell";
         }
     } else {
         self.hideGestureRecognizer.enabled = enabled;
-        self.captionTapRecognizer.enabled = enabled;
         self.likeDoubleTapRecognizer.enabled = enabled;
         if (enabled) {
             [self.presentingVC restoreAllGestures:self];
         } else {
             [self.presentingVC suspendAllGestures:self];
         }
-    }
-}
-
-- (void)toggleEditingCaption:(BOOL)editing {
-    if (!self.video.group) {
-        // Toggle sharing view and caption editing for unposted video state
-        self.sharingView.hidden = NO;
-        [UIView animateWithDuration:0.2 animations:^{
-            self.sharingView.alpha = editing ? 0.0 : 1.0;
-        } completion:^(BOOL finished) {
-            self.sharingView.hidden = editing;
-        }];
-    }
-    
-    self.editingCaption = editing;
-    if (editing) {
-        [self setGesturesEnabled:NO];
-        self.serverCaptionWrapperView.hidden = YES;
-//        self.textButton.hidden = YES;
-        self.deleteButton.hidden = YES;
-        self.moreButton.hidden = YES;
-        self.commentsWrapperView.hidden = YES;
-        self.XButton.hidden = YES;
-        self.commentButton.hidden = YES;
-        self.heartButton.hidden = YES;
-        self.viewCounter.superview.alpha = 0.0;
-        self.viewCountImageView.alpha = 0.0;
-    } else {
-        [self setGesturesEnabled:YES];
-        
-        self.serverCaptionWrapperView.hidden = NO;
-
-        // could be prettier if i fade all of this
-//        self.textButton.hidden = NO;
-        self.deleteButton.hidden = NO;
-        self.moreButton.hidden = !self.showBottomControls;
-        self.commentsWrapperView.hidden = !self.showBottomControls;
-        self.XButton.hidden = NO;
-        
-        self.commentButton.hidden = !self.showBottomControls;
-        self.heartButton.hidden = !self.showBottomControls;
-        self.viewCounter.superview.alpha = 1.0;
-        self.viewCountImageView.alpha = 1.0;
     }
 }
 
@@ -1025,69 +963,11 @@ static NSString *commentCellID = @"CommentCell";
     return YES;
 }
 
-- (void)beginEditableCaptionAtPoint:(CGPoint)point initalText:(NSString *)text initalTransform:(CGAffineTransform)transform {
-    YAApplyCaptionView *applyCaptionView = [[YAApplyCaptionView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) captionPoint:point initialText:text initialTransform:transform];
-    
-    __weak YAApplyCaptionView *weakApplyCaptionView = applyCaptionView;
-    
-    applyCaptionView.completionHandler = ^(BOOL completed, UIView *captionView, UITextView *captionTextView, NSString *text, CGFloat x, CGFloat y, CGFloat scale, CGFloat rotation){
-        self.serverCaptionWrapperView = captionView;
-        self.serverCaptionTextView = captionTextView;
-        self.serverCaptionTextView.editable = NO;
-        [self.overlay addSubview:self.serverCaptionWrapperView];
-        [self toggleEditingCaption:NO];
-        
-        if (completed) {
-            [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
-        }
-        
-        [weakApplyCaptionView removeFromSuperview];
-    };
-    
-    [self addSubview:applyCaptionView];
-}
-
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     if (self.editingCaption) return;
     if ([recognizer isEqual:self.likeDoubleTapRecognizer]) {
         [self addLike];
-    } else if ([recognizer isEqual:self.captionTapRecognizer] ||
-               [recognizer isEqual:self.sharingView.crosspostTapOutRecognizer]) {
-        [self toggleEditingCaption:YES];
-        CGPoint loc = [recognizer locationInView:self];
-        
-        float randomRotation = ((float)rand() / RAND_MAX) * .4;
-        CGAffineTransform t = CGAffineTransformConcat(CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER,
-                                                                                 CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER), CGAffineTransformMakeRotation(-.2 + randomRotation));
-
-        [self beginEditableCaptionAtPoint:loc
-                                initalText:@""
-                           initalTransform:t];
     }
-}
-
-- (void)captionButtonPressed {
-//    if(self.video.group){
-//        
-//    }
-    if (self.video.group) {
-        [self collapseCrosspost];
-    }
-    
-    [self toggleEditingCaption:YES];
-    
-    float randomX = ((float)rand() / RAND_MAX) * 100;
-    float randomY = ((float)rand() / RAND_MAX) * 200;
-    CGPoint loc = CGPointMake(VIEW_WIDTH/2 - 50 + randomX, VIEW_HEIGHT/2 - randomY);
-    
-    float randomRotation = ((float)rand() / RAND_MAX) * .4;
-    CGAffineTransform t = CGAffineTransformConcat(CGAffineTransformMakeScale(CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER,
-                                                       CAPTION_DEFAULT_SCALE * CAPTION_SCREEN_MULTIPLIER), CGAffineTransformMakeRotation(-.2 + randomRotation));
-    
-    [self beginEditableCaptionAtPoint:loc
-                           initalText:@""
-                      initalTransform:t];
-
 }
 
 - (void)addLike {
@@ -1167,15 +1047,8 @@ static NSString *commentCellID = @"CommentCell";
 - (void)initializeCaption {
     [self.serverCaptionWrapperView removeFromSuperview];
     
-    self.TButton.hidden = [self.video.caption length] != 0;
-    
     if ([self.video.caption length]) {
          [self insertCaption];
-    } else if (self.myVideo) {
-        if (![self.captionTapRecognizer.view isEqual:self]) {
-#warning COMMENTED JUST FOR TESTING. uncomment.
-//            [self addGestureRecognizer:self.captionTapRecognizer];
-        }
     }
 }
 
@@ -1220,7 +1093,6 @@ static NSString *commentCellID = @"CommentCell";
 //                    forState:UIControlStateNormal];
 //
     
-    self.captionTapRecognizer.enabled = mp4Downloaded;
     self.likeDoubleTapRecognizer.enabled = mp4Downloaded;
     self.commentButton.enabled = mp4Downloaded;
     self.heartButton.enabled = mp4Downloaded;
@@ -1253,42 +1125,6 @@ static NSString *commentCellID = @"CommentCell";
 //    actionSheet.cancelButtonIndex = 5;
 //    [actionSheet showInView:self];
 }
-
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    DLog(@"button index: %lu", buttonIndex);
-    switch (buttonIndex) {
-        case 0: {
-            // Post to other groups
-            [self shareButtonPressed:nil];
-            break;
-        } case 1: {
-            // export and share
-            [self externalShareButtonPressed];
-            break;
-        } case 2: {
-            // Add Caption
-            [self captionButtonPressed];
-            break;
-        } case 3: {
-            // save to camera roll
-            [self saveToCameraRollPressed];
-            break;
-        } case 4: {
-            // delete
-            [YAUtils confirmDeleteVideo:self.video withConfirmationBlock:^{
-                if(self.video.realm)
-                    [self.video removeFromGroupAndStreamsWithCompletion:nil removeFromServer:self.video.group != nil];
-                else
-                    [self closeAnimated];
-            }];
-            
-            break;
-        } default: {
-            DLog(@"no switch case for button with index: %lu", (unsigned long)buttonIndex);
-        }
-    }
-}
-
 
 # pragma saving stuff
 - (void)externalShareButtonPressed {
