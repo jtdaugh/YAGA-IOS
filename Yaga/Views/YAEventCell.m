@@ -10,6 +10,8 @@
 
 #import "YAUser.h"
 
+#define USERNAME_HEIGHT 26
+
 @interface YAEventCell ()
 
 @property (nonatomic, strong) UILabel *usernameLabel;
@@ -31,13 +33,14 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.backgroundColor = [UIColor clearColor];
-        CGFloat initialUsernameWidth = 100, initialHeight = 26;
+        CGFloat initialUsernameWidth = 100, initialHeight = USERNAME_HEIGHT;
         self.usernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, initialUsernameWidth, initialHeight)];
         self.usernameLabel.textColor = PRIMARY_COLOR;
         self.usernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
         self.usernameLabel.shadowColor = [UIColor blackColor];
         self.usernameLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         self.usernameLabel.userInteractionEnabled = NO;
+        self.usernameLabel.adjustsFontSizeToFitWidth = YES;
         
         self.likeCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(initialUsernameWidth + 11, 0, self.frame.size.width - (initialUsernameWidth + 30), initialHeight)];
         self.likeCountLabel.textColor = [UIColor whiteColor];
@@ -164,7 +167,10 @@
 }
 
 - (void)layoutUsername:(NSString *)username {
-    self.usernameLabel.frame = [[self class] frameForUsernameLabel:username];
+    CGFloat width = [[self class] frameForUsernameLabel:username].size.width;
+    CGRect frame = self.usernameLabel.frame;
+    frame.size.width = width;
+    self.usernameLabel.frame = frame;
 }
 
 - (void)layoutImageViewWithYOffset:(CGFloat)yOffset {
@@ -269,7 +275,7 @@
 
 + (CGRect)frameForUsernameLabel:(NSString *)username {
     NSDictionary *usernameAttributes = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE]};
-    CGRect rect = [username boundingRectWithSize:CGSizeMake(VIEW_WIDTH/2, CGFLOAT_MAX)
+    CGRect rect = [username boundingRectWithSize:CGSizeMake(VIEW_WIDTH*0.6, CGFLOAT_MAX)
                                          options:NSStringDrawingUsesLineFragmentOrigin
                                       attributes:usernameAttributes
                                          context:nil];

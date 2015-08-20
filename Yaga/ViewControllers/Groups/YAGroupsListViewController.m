@@ -85,6 +85,9 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [self updateState];
+    if (![self.groups count]) {
+        [self.collectionView triggerPullToRefresh];
+    }
     [super viewWillAppear:animated];
 }
 
