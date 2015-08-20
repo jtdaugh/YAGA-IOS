@@ -66,12 +66,13 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 - (void)setPlayWhenReady:(BOOL)playWhenReady {
     _playWhenReady = playWhenReady;
     
-    if(self.readyToPlay && playWhenReady)
+    if(self.readyToPlay && playWhenReady) {
         if (self.initialSeekTime.value && !self.initialSeekHappened) {
             self.initialSeekHappened = YES;
             [self.player seekToTime:self.initialSeekTime];
         }
         [self play];
+    }
 }
 
 #pragma mark Asset URL
