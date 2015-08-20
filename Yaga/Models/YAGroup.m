@@ -105,6 +105,7 @@
     YAGroup *result = [YAGroup group];
     result.serverId = dictionary[YA_RESPONSE_ID];
     result.name = dictionary[YA_RESPONSE_NAME];
+    result.publicGroup = ![dictionary[YA_RESPONSE_PRIVATE] boolValue];
     return result;
 }
 
@@ -502,6 +503,26 @@
     }];
 }
 
+- (void)followWithCompletion:(completionBlock)completion {
+    [[YAServer sharedServer] followGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
+        if(error) {
+            DLog(@"can't unfollow group with name: %@, error %@", self.name, error.localizedDescription);
+            completion(error);
+        }
+        else {
+            NSString *name = self.name;
+            [[RLMRealm defaultRealm] beginWriteTransaction];
+            self.amFollowing = YES;
+            [[RLMRealm defaultRealm] commitWriteTransaction];
+            
+            //will force groups list to update
+            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:nil userInfo:nil];
+            
+            DLog(@"successfully unfollowed group with name: %@", name);
+            completion(nil);
+        }
+    }];
+}
 
 - (void)muteUnmuteWithCompletion:(completionBlock)completion {
     [[YAServer sharedServer] muteGroupWithId:self.serverId mute:!self.muted withCompletion:^(id response, NSError *error) {

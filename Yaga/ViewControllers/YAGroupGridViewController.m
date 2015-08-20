@@ -116,6 +116,9 @@
         if (self.group.amFollowing) {
             self.buttonIsUnfollow = YES;
             [bar.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
+        } else {
+            self.buttonIsUnfollow = NO;
+            [bar.followButton setTitle:@"Follow" forState:UIControlStateNormal];
         }
         [bar.followButton addTarget:self action:@selector(followPressed) forControlEvents:UIControlEventTouchUpInside];
     }
@@ -150,7 +153,7 @@
             }
         }];
     } else {
-        [[YAServer sharedServer] followGroupWithId:self.group.serverId withCompletion:^(id response, NSError *error) {
+        [self.group followWithCompletion:^(NSError *error) {
             if (error) {
                 DLog(@"Failed to follow group");
                 [YAUtils showHudWithText:@"Oops. Try again later."];
