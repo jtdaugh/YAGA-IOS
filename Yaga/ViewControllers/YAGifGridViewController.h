@@ -32,6 +32,7 @@
 - (void)reloadSortedVideos;
 - (void)setupPullToRefresh;
 - (void)groupInfoPressed;
+- (void)manualTriggerPullToRefresh;
 
 - (NSInteger)gifGridSection;
 

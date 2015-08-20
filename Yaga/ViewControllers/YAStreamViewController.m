@@ -13,9 +13,7 @@
 #import "YAStandardFlexibleHeightBar.h"
 #import "YAVideoCell.h"
 #import "YAGroupGridViewController.h"
-#import "FacebookStyleBarBehaviorDefiner.h"
-
-#define GROUP_LABEL_PROP 0.25
+#import "YABarBehaviorDefiner.h"
 
 @interface YAStreamViewController () <YAOpenGroupFromVideoCell>
 @property (nonatomic, assign) NSUInteger videosCountBeforeRefresh;
@@ -38,16 +36,15 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT * (1.0 + GROUP_LABEL_PROP))];
+    [self.gridLayout setItemSize:CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT - 1)];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    return CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT * (1.0 + GROUP_LABEL_PROP));
+    return CGSizeMake(TILE_WIDTH - 1.0f, TILE_HEIGHT - 1);
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = (YAVideoCell *) [super collectionView:collectionView cellForItemAtIndexPath:indexPath];
-    cell.groupLabelHeightProportion = GROUP_LABEL_PROP;
     cell.showsGroupLabel = YES;
     cell.groupOpener = self;
     return cell;
@@ -56,7 +53,7 @@
 - (BLKFlexibleHeightBar *)createNavBar {
     YAStandardFlexibleHeightBar *bar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
     bar.titleLabel.text = self.group.name;
-    bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
+    bar.behaviorDefiner = [YABarBehaviorDefiner new];
     [bar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
     [bar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
     return bar;

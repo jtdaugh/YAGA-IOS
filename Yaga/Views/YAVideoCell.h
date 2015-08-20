@@ -29,7 +29,6 @@ typedef NS_ENUM(NSUInteger, YAVideoCellState) {
 
 @property (nonatomic, weak) id<YAOpenGroupFromVideoCell> groupOpener;
 @property (nonatomic) BOOL showsGroupLabel;
-@property (nonatomic) CGFloat groupLabelHeightProportion;
 
 @property (nonatomic) BOOL showVideoStatus;
 
