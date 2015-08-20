@@ -264,6 +264,20 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     searchBar.text = @"";
     [searchBar resignFirstResponder];
     [searchBar setShowsCancelButton:NO animated:YES];
+    [self.searchResultLabel removeFromSuperview];
+    [self.searchTableActivity removeFromSuperview];
+    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
+
+    self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
+    [self filterAndReload];
+}
+
+- (void)restoreNonSearchResults {
+    [self.searchResultLabel removeFromSuperview];
+    [self.searchTableActivity removeFromSuperview];
+    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
+    [self.searchActivity removeFromSuperview];
+    self.searchActivity = nil;
     
     self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
     [self filterAndReload];
@@ -279,17 +293,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
-    void (^restoreBlock)(void) = ^{
-        [self.searchResultLabel removeFromSuperview];
-        [self.searchTableActivity removeFromSuperview];
-        [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
-        [self.searchActivity removeFromSuperview];
-        self.searchActivity = nil;
-        
-        self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
-        [self filterAndReload];
-    };
-    
+
     __weak typeof(self) weakSelf = self;
     if(searchBar.text.length) {
         if(!self.searchActivity)
@@ -321,7 +325,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
             if(error) {
                 [YAUtils showHudWithText:@"Error occured, try later"];
                 
-                restoreBlock();
+                [self restoreNonSearchResults];
                 return;
             }
             [weakSelf.searchTableActivity removeFromSuperview];
@@ -350,7 +354,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         }];
     }
     else {
-        restoreBlock();
+        [self restoreNonSearchResults];
     }
 }
 
@@ -359,9 +363,13 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     NSArray *filtered = self.groupsDataArray;
     
     if(self.searchBar.text.length != 0) {
+        // Re-filter in case search query changed since request.
         filtered = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
-            return [evaluatedObject[YA_RESPONSE_NAME] rangeOfString:self.searchBar.text].location != NSNotFound || [evaluatedObject[YA_RESPONSE_MEMBERS] rangeOfString:self.searchBar.text].location != NSNotFound;
+            return [[((NSString *)evaluatedObject[YA_RESPONSE_NAME]) lowercaseString] rangeOfString:[self.searchBar.text lowercaseString]].location != NSNotFound;
         }]];
+    } else {
+        [self restoreNonSearchResults];
+        return;
     }
     
     self.featuredGroups = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
@@ -372,12 +380,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [suggested removeObjectsInArray:self.featuredGroups];
     
     // Sort non-featured groups by public first
-    [suggested sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult(id obj1, id obj2) {
-        BOOL onePrivate = obj1[YA_RESPONSE_PRIVATE], twoPrivate = obj2[YA_RESPONSE_PRIVATE];
+    self.suggestedGroups = [suggested sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult(id obj1, id obj2) {
+        BOOL onePrivate = [obj1[YA_RESPONSE_PRIVATE] boolValue], twoPrivate = [obj2[YA_RESPONSE_PRIVATE] boolValue];
         return (onePrivate == twoPrivate) ? NSOrderedSame : (onePrivate ? NSOrderedDescending : NSOrderedAscending);
     }];
-    
-    self.suggestedGroups = suggested;
     
     [self.tableView reloadData];
 }
