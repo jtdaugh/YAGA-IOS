@@ -337,7 +337,7 @@
 + (void)groupWithName:(NSString*)name isPrivate:(BOOL)isPrivate withCompletion:(completionBlockWithResult)completion {
     [[YAServer sharedServer] createGroupWithName:name isPrivate:isPrivate withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
         if(error) {
-            DLog(@"can't create remote group with name %@, error %@", name, error.localizedDescription);
+            DLog(@"can't create remote channel with name %@, error %@", name, error.localizedDescription);
             completion(error, nil);
         }
         else {
@@ -359,7 +359,7 @@
                 
                 [[RLMRealm defaultRealm] commitWriteTransaction];
                 
-                DLog(@"remote group: %@ created on server with id: %@", group.name, group.serverId);
+                DLog(@"remote channel: %@ created on server with id: %@", group.name, group.serverId);
                 
                 completion(nil, group);
             });
@@ -370,7 +370,7 @@
 - (void)rename:(NSString*)newName withCompletion:(completionBlock)completion {
     [[YAServer sharedServer] renameGroupWithId:self.serverId newName:(NSString*)newName withCompletion:^(id response, NSError *error) {
         if(error) {
-            DLog(@"can't rename group with name %@, error %@", self.name, response);
+            DLog(@"can't rename channel with name %@, error %@", self.name, response);
             completion(error);
         }
         else {
@@ -378,7 +378,7 @@
             self.name = newName;
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
-            DLog(@"group renamed");
+            DLog(@"channel renamed");
             completion(nil);
         }
     }];
@@ -406,7 +406,7 @@
     
     [[YAServer sharedServer] addGroupMembersByPhones:phones andUsernames:usernames toGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
-            DLog(@"can't add members to the group with name %@, error %@", self.name, response);
+            DLog(@"can't add members to the channel with name %@, error %@", self.name, response);
             completion(error);
         }
         else {
@@ -434,7 +434,7 @@
             }
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
-            DLog(@"members %@ added to the group: %@", phones, self.name);
+            DLog(@"members %@ added to the channel: %@", phones, self.name);
             completion(nil);
         }
     }];
@@ -445,7 +445,7 @@
     
     [[YAServer sharedServer] removeGroupMemberByPhone:memberPhone fromGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
-            DLog(@"can't remove member from the group with name %@, error %@", self.name, error.localizedDescription);
+            DLog(@"can't remove member from the channel with name %@, error %@", self.name, error.localizedDescription);
             if(completion)
                 completion(error);
         }
@@ -453,7 +453,7 @@
             [[RLMRealm defaultRealm] beginWriteTransaction];
             [self.members removeObjectAtIndex:[self.members indexOfObject:contact]];
             [[RLMRealm defaultRealm] commitWriteTransaction];
-            DLog(@"member %@ removed from the group: %@", memberPhone, self.name);
+            DLog(@"member %@ removed from the channel: %@", memberPhone, self.name);
             if(completion)
                 completion(nil);
         }
@@ -464,7 +464,7 @@
 - (void)leaveWithCompletion:(completionBlock)completion {
     [[YAServer sharedServer] leaveGroupWithId:self.serverId isUnfollow:NO withCompletion:^(id response, NSError *error) {
         if(error) {
-            DLog(@"can't leave group with name: %@, error %@", self.name, error.localizedDescription);
+            DLog(@"can't leave channel with name: %@, error %@", self.name, error.localizedDescription);
             completion(error);
         }
         else {
@@ -476,7 +476,7 @@
             //will force groups list to update
             [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:nil userInfo:nil];
             
-            DLog(@"successfully left group with name: %@", name);
+            DLog(@"successfully left channel with name: %@", name);
             completion(nil);
         }
     }];
@@ -485,7 +485,7 @@
 - (void)unfollowWithCompletion:(completionBlock)completion {
     [[YAServer sharedServer] leaveGroupWithId:self.serverId isUnfollow:YES withCompletion:^(id response, NSError *error) {
         if(error) {
-            DLog(@"can't unfollow group with name: %@, error %@", self.name, error.localizedDescription);
+            DLog(@"can't unfollow channel with name: %@, error %@", self.name, error.localizedDescription);
             completion(error);
         }
         else {
@@ -497,7 +497,7 @@
             //will force groups list to update
             [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:nil userInfo:nil];
             
-            DLog(@"successfully unfollowed group with name: %@", name);
+            DLog(@"successfully unfollowed channel with name: %@", name);
             completion(nil);
         }
     }];
@@ -506,7 +506,7 @@
 - (void)followWithCompletion:(completionBlock)completion {
     [[YAServer sharedServer] followGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
-            DLog(@"can't unfollow group with name: %@, error %@", self.name, error.localizedDescription);
+            DLog(@"can't unfollow channel with name: %@, error %@", self.name, error.localizedDescription);
             completion(error);
         }
         else {
@@ -518,7 +518,7 @@
             //will force groups list to update
             [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:nil userInfo:nil];
             
-            DLog(@"successfully unfollowed group with name: %@", name);
+            DLog(@"successfully unfollowed channel with name: %@", name);
             completion(nil);
         }
     }];
@@ -527,7 +527,7 @@
 - (void)muteUnmuteWithCompletion:(completionBlock)completion {
     [[YAServer sharedServer] muteGroupWithId:self.serverId mute:!self.muted withCompletion:^(id response, NSError *error) {
         if(error) {
-            DLog(@"mute/unmute group with name %@, error %@", self.name, error.localizedDescription);
+            DLog(@"mute/unmute channel with name %@, error %@", self.name, error.localizedDescription);
             completion(error);
         }
         else {
@@ -535,7 +535,7 @@
             self.muted = !self.muted;
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
-            DLog(@"%@ group %@", self.name, self.muted ? @"muted" : @"unmuted");
+            DLog(@"%@ channel %@", self.name, self.muted ? @"muted" : @"unmuted");
             completion(nil);
         }
     }];
@@ -574,7 +574,7 @@
                                   
                                   self.videosUpdateInProgress = NO;
                                   if(error) {
-                                      DLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
+                                      DLog(@"can't get channel %@ info, error %@", self.name, [error localizedDescription]);
                                       [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
                                       if(completion)
                                           completion(error);
@@ -588,7 +588,7 @@
                                       [self.realm commitWriteTransaction];
                                       
                                       NSArray *videoDictionaries = self.streamGroup ? response[YA_RESPONSE_RESULTS] :response[YA_VIDEO_POSTS];
-                                      DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
+                                      DLog(@"received %lu videos for %@ channel", (unsigned long)videoDictionaries.count, self.name);
                                       
                                       NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries forPendingList:NO];
                                       if (self.streamGroup && !([updatedAndNew[kNewVideos] count] ||[updatedAndNew[kDeletedVideos] count])) {
@@ -614,7 +614,7 @@
                                   
                                   self.videosUpdateInProgress = NO;
                                   if(error) {
-                                      DLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
+                                      DLog(@"can't get channel %@ info, error %@", self.name, [error localizedDescription]);
                                       [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
                                       return;
                                   }
@@ -625,7 +625,7 @@
                                       [self.realm commitWriteTransaction];
                                       
                                       NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
-                                      DLog(@"received %lu pending videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
+                                      DLog(@"received %lu pending videos for %@ channel", (unsigned long)videoDictionaries.count, self.name);
                                       
                                       NSMutableDictionary *updatedAndNew = [[self updateVideosFromDictionaries:videoDictionaries forPendingList:YES] mutableCopy];
                                       [updatedAndNew setObject:@(YES) forKey:kResultsAreForPendingVideos];
@@ -771,14 +771,14 @@
                         NSString *predicate = [NSString stringWithFormat:@"serverId = '%@'", groupId];
                         RLMResults *newlyReceivedGroup = [YAGroup objectsWhere:predicate];
                         if ([newlyReceivedGroup count]) {
-                            DLog(@"Group refresh resolved unknown video group issue");
+                            DLog(@"Channel refresh resolved unknown video channel issue");
                             for (YAVideo *video in videosThatNeedGroupAssignment[groupId]) {
                                 video.group = [newlyReceivedGroup firstObject];
                                 [[NSNotificationCenter defaultCenter] postNotificationName:VIDEO_CHANGED_NOTIFICATION
                                                                                     object:video userInfo:@{kShouldReloadVideoCell:[NSNumber numberWithBool:YES]}];
                             }
                         } else {
-                            DLog(@"Group refresh did NOT resolve unknown videos groupID:%@", groupId);
+                            DLog(@"Channel refresh did NOT resolve unknown videos chanelID:%@", groupId);
                         }
                     }
                     [[RLMRealm defaultRealm] commitWriteTransaction];

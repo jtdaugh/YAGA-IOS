@@ -138,7 +138,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
             }
         }
         else {
-            DLog(@"Can't send request to join group");
+            DLog(@"Can't send request to join channel");
         }
     };
     
@@ -587,7 +587,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         [[RLMRealm defaultRealm] addObject:group];
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
-        MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Fetching group data.."];
+        MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Fetching channel data.."];
         [group refreshWithCompletion:^(NSError *error) {
             [hud hide:YES];
             

@@ -306,7 +306,7 @@
 }
 
 
-- (void)leaveGroupWithId:(NSString*)serverGroupId amMember:(BOOL)amMember withCompletion:(responseBlock)completion {
+- (void)leaveGroupWithId:(NSString*)serverGroupId isUnfollow:(BOOL)isUnfollow withCompletion:(responseBlock)completion {
     if(![YAServer sharedServer].serverUp) {
         [YAUtils showHudWithText:NSLocalizedString(@"No internet connection, try later.", @"")];
         completion(nil, [NSError errorWithDomain:@"YANoConnection" code:0 userInfo:nil]);
@@ -465,13 +465,13 @@
     
     NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
     
-    DLog(@"updating groups from server... ");
+    DLog(@"updating channels from server... ");
     
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
-        DLog(@"updated groups");
+        DLog(@"channels updated");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        DLog(@"can't fetch remote groups, error: %@", error.localizedDescription);
+        DLog(@"can't fetch remote channels, error: %@", error.localizedDescription);
         completion(nil, error);
     }];
 }
@@ -525,7 +525,7 @@
     NSString *api = [NSString stringWithFormat:API_GROUP_FOLLOW_TEMPLATE, self.base_api, serverGroupId];
     
     [self.jsonOperationsManager PUT:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        DLog(@"Successfully followed group");
+        DLog(@"Successfully followed channel");
         [YAUtils setCompletedForcedFollowing];
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
         completion(responseObject, nil);
@@ -1060,7 +1060,7 @@
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
             if(!error) {
                 self.lastUpdateTime = [NSDate date];
-                DLog(@"groups updated from server successfully");
+                DLog(@"channels updated from server successfully");
                 
                 //send local changes to the server
                 [[YAServerTransactionQueue sharedQueue] processPendingTransactions];
@@ -1068,7 +1068,7 @@
 #warning removed refresh current group - may want to handle refresh of visible grid from main tab bar or somewhere
             }
             else {
-                DLog(@"unable to read groups from server");
+                DLog(@"unable to read channels from server");
             }
         }];
     }
