@@ -131,7 +131,7 @@
         self.crossPostPrompt = [[UILabel alloc] initWithFrame:CGRectMake(24, tableOrigin - topGap, VIEW_WIDTH-24, 24)];
         self.crossPostPrompt.font = [UIFont fontWithName:BOLD_FONT size:20];
         self.crossPostPrompt.textColor = [UIColor whiteColor];
-        NSString *title =([self.groups count] ? @"Share to other groups" : @"");
+        NSString *title =([self.groups count] ? @"Share to other channels" : @"");
         self.crossPostPrompt.text = title;
         self.crossPostPrompt.hidden = !myVideo;
         self.crossPostPrompt.layer.shadowRadius = 0.5f;
@@ -463,7 +463,7 @@
         if(count == 1){
             title = @"Post to 1 group";
         } else {
-            title = [NSString stringWithFormat:@"Post to %lu groups", (unsigned long)count];
+            title = [NSString stringWithFormat:@"Post to %lu channels", (unsigned long)count];
         }
         [self.confirmCrosspost setTitle:title forState:UIControlStateNormal];
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionAllowAnimatedContent animations:^{
@@ -491,7 +491,7 @@
             [yaGroups addObject:group];
         }
     }
-    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Copying video to groups", @"")];
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Copying video to channels", @"")];
     [[YAServer sharedServer] copyVideo:self.video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
         [hud hide:NO];
         
@@ -500,7 +500,7 @@
         }
         else {
             DLog(@"%@", error);
-            [YAUtils showHudWithText:NSLocalizedString(@"Can not copy video to groups", @"")];
+            [YAUtils showHudWithText:NSLocalizedString(@"Can not copy video to channels", @"")];
         }
     }];
     [self.page collapseCrosspost];

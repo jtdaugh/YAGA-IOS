@@ -82,13 +82,13 @@ static YAShareServer *_sharedServer = nil;
     
     NSString *api = [NSString stringWithFormat:publicGroups ? API_PUBLIC_GROUPS_TEMPLATE : API_GROUPS_TEMPLATE, self.base_api];
     
-    DLog(@"updating groups from server... public: %@", publicGroups ? @"Yes" : @"No");
+    DLog(@"updating channels from server... public: %@", publicGroups ? @"Yes" : @"No");
     
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
         DLog(@"updated");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        DLog(@"can't fetch remote groups, error: %@", error.localizedDescription);
+        DLog(@"can't fetch remote channels, error: %@", error.localizedDescription);
         completion(nil, error);
     }];
 }

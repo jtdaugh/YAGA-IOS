@@ -218,7 +218,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         UIImageView *disclosure = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
         disclosure.image = [UIImage imageNamed:@"Disclosure"];
         cell.accessoryView = disclosure;
-        cell.textLabel.text = @" Create new group";
+        cell.textLabel.text = @" Create new channel";
         cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:[UIImage imageWithColor:PRIMARY_COLOR]];
         return cell;
     } else {
@@ -273,7 +273,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         
         self.chooseGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
         self.chooseGroupsLabel.font = [UIFont fontWithName:BIG_FONT size:12];
-        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to add more groups" : @"")];
+        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to add more channels" : @"")];
 
         YAGroup *group = [self.groups objectAtIndex:((NSIndexPath *)selectedPaths[0]).row];
         if (count == 1) {
@@ -289,7 +289,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.chooseGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height / 4, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
         self.chooseGroupsLabel.textColor = [UIColor colorWithWhite:0.8 alpha:1];
         self.chooseGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
-        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to choose groups" : @"Choose groups")];
+        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to choose channels" : @"Choose channels")];
     }
     
 }

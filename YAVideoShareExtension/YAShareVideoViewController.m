@@ -252,7 +252,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.chooseGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2)];
     self.chooseGroupsLabel.textColor = [UIColor whiteColor];
     self.chooseGroupsLabel.font = [UIFont fontWithName:BIG_FONT size:12];
-    [self.chooseGroupsLabel setText:@"Tap to add more groups"];
+    [self.chooseGroupsLabel setText:@"Tap to add more channels"];
     self.chooseGroupsLabel.textAlignment = NSTextAlignmentLeft;
     [self.bottomView addSubview:self.chooseGroupsLabel];
     
@@ -305,7 +305,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         
         self.chooseGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
         self.chooseGroupsLabel.font = [UIFont fontWithName:BIG_FONT size:12];
-        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to add more groups" : @"")];
+        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to add more channels" : @"")];
         
         YAShareGroup *group = [self.groups objectAtIndex:((NSIndexPath *)selectedPaths[0]).row];
         if (count == 1) {
@@ -321,7 +321,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.chooseGroupsLabel.frame = CGRectMake(10, self.bottomView.bounds.size.height / 4, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2);
         self.chooseGroupsLabel.textColor = [UIColor colorWithWhite:0.8 alpha:1];
         self.chooseGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
-        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to choose groups" : @"Choose groups")];
+        [self.chooseGroupsLabel setText:(!self.groupsExpanded ? @"Tap to choose channels" : @"Choose channels")];
     }
     
 }

@@ -88,7 +88,7 @@
     
     [[YAServer sharedServer] createGroupWithName:group.name isPrivate:NO withCompletion:^(NSDictionary *responseDictionary, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't create remote group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't create remote channel with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             
             completion(nil, error);
         }
@@ -130,12 +130,12 @@
         }
         
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't rename remote group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't rename remote channel with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
             
-            [self logEvent:[NSString stringWithFormat:@"remote group: %@ renamed", group.name] type:YANotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"remote channel: %@ renamed", group.name] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -162,11 +162,11 @@
         }
         
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't add members to the group with name %@, error %@", group.name, response] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't add members to the channel with name %@, error %@", group.name, response] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"members %@ added to the group: %@", phones, group.name] type:YANotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"members %@ added to the channel: %@", phones, group.name] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -193,11 +193,11 @@
         }
         
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't remove member from the group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't remove member from the channel with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"member %@ removed from the group: %@", phone, group.name] type:YANotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"member %@ removed from the channel: %@", phone, group.name] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -212,11 +212,11 @@
     
     [[YAServer sharedServer] removeGroupMemberByPhone:phone fromGroupWithId:groupId withCompletion:^(id response, NSError *error) {
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"can't leave group with id: %@, error %@", groupId, error.localizedDescription] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"can't leave channel with id: %@, error %@", groupId, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"successfully left group with id: %@", groupId] type:YANotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"successfully left channel with id: %@", groupId] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];
@@ -240,11 +240,11 @@
         }
 
         if(error) {
-            [self logEvent:[NSString stringWithFormat:@"mute/unmute group with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
+            [self logEvent:[NSString stringWithFormat:@"mute/unmute channel with name %@, error %@", group.name, error.localizedDescription] type:YANotificationTypeError];
             completion(nil, error);
         }
         else {
-            [self logEvent:[NSString stringWithFormat:@"%@ group %@", group.name, group.muted ? @"muted" : @"unmuted"] type:YANotificationTypeSuccess];
+            [self logEvent:[NSString stringWithFormat:@"%@ channel %@", group.name, group.muted ? @"muted" : @"unmuted"] type:YANotificationTypeSuccess];
             completion(nil, nil);
         }
     }];

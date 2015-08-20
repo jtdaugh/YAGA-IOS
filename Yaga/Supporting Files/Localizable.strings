@@ -21,46 +21,45 @@
 "Muted" = "Muted";
 "Unmuted" = "Unmuted";
 "Leave" = "Leave";
-"Group" = "Group";
+"Group" = "Channel";
 "Remove" = "Remove";
 "Retry" = "Retry";
 "Skip" = "Skip";
 "No members" = "No members";
 "Application error" = "Application error";
 "Choose your Country" = "Choose your Country";
-"Groups" = "Groups";
+"Groups" = "Channels";
 "Can't save photos" = "Couldn't save photos. Check your Settings -> Privacy -> Photos";
 "Please wait.." = "Please wait..";
 "Exporting" = "Exporting";
 "Please wait, video is loading.." = "Please wait, video is loading..";
 "Enter phone number" = "Enter phone number";
 
-"Looks like you're not in any groups 😔. Create a group to start using Yaga" = "Looks like you're not in any groups 😔. Create a group to start using Yaga";
-"Looks like you're already a part of a group" = "Looks like you're already a part of a group. Pick which one you'd like to go to now.";
+"Looks like you're already a part of a group" = "Looks like you're already a part of a channel. Pick which one you'd like to go to now.";
 "Incorrect confirmation code entered, try again" = "Incorrect confirmation code entered, try again";
-"Stop receiving notifications from this group" = "Stop receiving notifications from this group";
-"Recieve notifications from this group" = "Recieve  notifications from this group";
+"Stop receiving notifications from this group" = "Stop receiving notifications from this channel";
+"Recieve notifications from this group" = "Recieve  notifications from this channel";
 "Are you sure you would like to leave?" = "Are you sure you would like to leave?";
 "Add Members" = "Add Members";
 "+ Add Members" = "+ Add Members";//button caption
 "Are you sure you would like to remove %@ from %@?" = "Are you sure you would like to remove %@ from %@?";
 "Updated successfully" = "Updated successfully";
 "You have left" = "You have left";
-"Can't remove self from the group, use 'Leave' option when selecting group options." = "Can't remove self from the group, use 'Leave' option when selecting group options.";
+"Can't remove self from the group, use 'Leave' option when selecting group options." = "Can't remove self from the channel, use 'Leave' option when selecting channel options.";
 " and one more" = " and one more";
 "OTHER_CONTACTS_TEMPLATE" = " and %lu others";
 "N_UNKOWN_USERS_TEMPLATE" = "%lu users";
 "ONE_UNKOWN_USER" = "one user";
 
-"SOME PHONE NUMBERS ARE INCORRECT MESSAGE" = "The following contacts have incorrect phone number, please fix phone numbers or remove them from the group";
+"SOME PHONE NUMBERS ARE INCORRECT MESSAGE" = "The following contacts have incorrect phone number, please fix phone numbers or remove them from the channel";
 "NO CAMERA ALERT MESSAGE" = "The application needs access to camera.\n Please grant it in 'Settings'->'Yaga'";
 "NO VIDOES IN NEW GROUP MESSAGE" = "You don't have videos yet, tap record button to record";
 "RECORD_TIP" = "Tap and hold to record";
 "SEARCH_TIP" = "Search contacts and usernames";
-"CHANGE_GROUP_TITLE" = "Change group name";
+"CHANGE_GROUP_TITLE" = "Change channel name";
 "CHANGE_GROUP_PLACEHOLDER" = "can not be empty";
 
-"iMESSAGE_COME_JOIN_ME_TEXT" = "I added you to the %@ group on Yaga. Get it now on the App Store!\nhttp://getyaga.com";
+"iMESSAGE_COME_JOIN_ME_TEXT" = "I added you to the %@ channel on Yaga. Get it now on the App Store!\nhttp://getyaga.com";
 
 "FORCE_FOLLOW_TITLE" = "Welcome";
 "FORCE_FOLLOW_BODY" = "Here's the best channels on Yaga.\n\nFollow at least one channel to get started.";
@@ -69,19 +68,19 @@
 "FIRST_HUMANITY_VISIT_BODY" = "Humanity contains every Yaga user in the world. \n\n We go through all posts and only approve the best.";
 
 "FIRST_GROUP_VISIT_TITLE" = "Welcome";
-"FIRST_GROUP_VISIT_BODY" = "\"%@\" is a closed group with %i other members.\n\nVideos to the group are private and you'll never lose them.";
+"FIRST_GROUP_VISIT_BODY" = "\"%@\" is a closed channel with %i other members.\n\nVideos to the channel are private and you'll never lose them.";
 
 "FIRST_GROUP_POST_TITLE" = "That was easy";
 "FIRST_GROUP_POST_BODY" = "Your video is now sending to \"%@\".\n\nTap the video to caption.\n\nSwipe it down to return to the camera.";
 
-"FIRST_NOGROUP_POST_TITLE" = "Pick groups";
-"FIRST_NOGROUP_POST_BODY" = "You weren't inside a group when you took this video.\n\nSo, pick which groups you'd like to send it to.\n\nOr swipe the video away to delete it forever.";
+"FIRST_NOGROUP_POST_TITLE" = "Pick channels";
+"FIRST_NOGROUP_POST_BODY" = "You weren't inside a channels when you took this video.\n\nSo, pick which channels you'd like to send it to.\n\nOr swipe the video away to delete it forever.";
 
 "FIRST_HUMANITY_POST_TITLE" = "Pending approval";
 "FIRST_HUMANITY_POST_BODY" = "Only the best videos are featured in Humanity.\n\nWe'll notify you if yours gets approved.";
 
 "FIRST_JOIN_GROUPS_TITLE" = "Join Groups";
-"FIRST_JOIN_GROUPS_BODY" = "Looks like some of your friends are using Yaga. \n\n Request to join groups that they are in.";
+"FIRST_JOIN_GROUPS_BODY" = "Looks like some of your friends are using Yaga. \n\n Request to join channels that they are in.";
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
 
@@ -126,9 +125,9 @@
 "Delete video" = "Delete video";
 
 //pushes
-"CANT_OPEN_GROUP_MESSAGE" = "Can not open group because it doesn't exist or you are not a member anymore";
-"CANT_FETCH_GROUPS_ON_PUSH" = "Unable to fetch groups from server, try later";
-"CANT_FETCH_GROUP_VIDEOS_ON_PUSH" = "Unable to fetch group videos from server, try later";
+"CANT_OPEN_GROUP_MESSAGE" = "Can not open channel because it doesn't exist or you are not a member anymore";
+"CANT_FETCH_GROUPS_ON_PUSH" = "Unable to fetch channels from server, try later";
+"CANT_FETCH_GROUP_VIDEOS_ON_PUSH" = "Unable to fetch channel videos from server, try later";
 
 
 //onboarding
@@ -155,20 +154,20 @@
 "Removing member" = "Removing member";
 "Member removed" = "Member removed";
 "Can not remove member" = "Can not remove member";
-"Renaming group" = "Renaming group";
-"Group renamed" = "Group renamed";
-"Can not rename group" = "Can not rename group";
-"Muting group" = "Muting group";
-"Group muted" = "Group muted";
-"Can not mute group" = "Can not mute group";
-"Unmuting group" = "Unmuting group";
-"Group unmuted" = "Group unmuted";
-"Can not unmute group" = "Can not unmute group";
-"Leaving group" = "Leaving group";
-"Group left" = "Group left";
-"Can not leave group" = "Can not leave group";
-"Creating group" = "Creating group";
-"Can not create group" = "Can not create group";
+"Renaming group" = "Renaming channel";
+"Group renamed" = "Channel renamed";
+"Can not rename group" = "Can not rename channel";
+"Muting group" = "Muting channel";
+"Group muted" = "Channel muted";
+"Can not mute group" = "Can not mute channel";
+"Unmuting group" = "Unmuting channel";
+"Group unmuted" = "Channel unmuted";
+"Can not unmute group" = "Can not unmute channel";
+"Leaving group" = "Leaving channel";
+"Group left" = "Channel left";
+"Can not leave group" = "Can not leave channel";
+"Creating group" = "Creating channel";
+"Can not create group" = "Can not create channel";
 "Deleting video" = "Deleting video";
 "Video deleted" = "Video deleted";
 "Can't delete video" = "Can't delete video";
@@ -177,20 +176,21 @@
 "THINGS_ARE_QUIET" = "Things are a bit\nquiet in here.\n\n\nAdd a video!\n↓";
 
 "Video failed to upload" = "Video failed to upload";
-"Copying video to groups" = "Copying video to groups";
+"Copying video to groups" = "Copying video to channels";
 "Copied successfully" = "Copied successfully";
-"Can not copy video to groups" = "Can not copy video to groups";
+"Can not copy video to groups" = "Can not copy video to channels";
 
-"Find Groups" = "Find Groups";
-"Finding groups" = "Finding groups";
-"Join Groups" = "Join Groups";
+"Find Groups" = "Find Channels";
+"Finding groups" = "Finding channels";
+"Join Groups" = "Join Channels";
 "Request" = "Request";
 "Join" = "Join";
 "Pending" = "Pending";
-"Searching groups" = "Searching groups";
-"Failed to search groups" = "Failed to search groups";
+"Searching groups" = "Searching channels";
+"Failed to search groups" = "Failed to search channels";
 "Requests" = "Requests";
 "Members" = "Members";
-"Requesting to join to group" = "Requesting to join to group";
-"Failed to join group" = "Failed to join group";
-"Wow, you're early. Create a group to get your friends on Yaga" = "Wow, you're early. Create a group to get your friends on Yaga";
+"Requesting to join to group" = "Requesting to join to channel";
+"Failed to join group" = "Failed to join channel";
+"Wow, you're early. Create a group to get your friends on Yaga" = "Wow, you're early. Create a channel to get your friends on Yaga";
+"Failed to follow group" = "Failed to follow channel";
