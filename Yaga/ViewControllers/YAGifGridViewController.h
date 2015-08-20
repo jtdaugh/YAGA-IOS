@@ -34,6 +34,8 @@
 - (void)groupInfoPressed;
 - (void)manualTriggerPullToRefresh;
 
+- (void)performAdditionalRefreshRequests;
+
 - (NSInteger)gifGridSection;
 
 - (BLKFlexibleHeightBar *)createNavBar;

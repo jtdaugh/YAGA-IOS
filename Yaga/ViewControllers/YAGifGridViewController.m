@@ -331,11 +331,15 @@ static NSString *cellID = @"Cell";
 
 - (void)refreshCurrentGroup {
     [self showActivityIndicator:YES];
-    
+    [self performAdditionalRefreshRequests];
     if (self.pendingMode)
         [self.group refreshPendingVideos];
     else
         [self.group refresh];
+}
+
+- (void)performAdditionalRefreshRequests {
+    // Subclasses will implement this if needed.
 }
 
 - (void)groupWillRefresh:(NSNotification*)notification {

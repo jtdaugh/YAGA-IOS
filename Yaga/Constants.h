@@ -173,6 +173,7 @@
 
 #define YA_RESPONSE_ID                  @"id"
 #define YA_RESPONSE_PRIVATE             @"private"
+#define YA_RESPONSE_FEATURED            @"featured"
 #define YA_RESPONSE_NAME                @"name"
 #define YA_RESPONSE_GROUP               @"group"
 #define YA_RESPONSE_NAMER               @"namer"
@@ -186,6 +187,7 @@
 #define YA_RESPONSE_MEMBERS             @"members"
 #define YA_RESPONSE_PENDING_MEMBERS     @"pending_members"
 #define YA_RESPONSE_FOLLOWER_COUNT      @"follower_count"
+#define YA_RESPONSE_PENDING_POSTS_COUNT @"pending_posts_count"
 #define YA_RESPONSE_MEMBER_PHONE        @"phone"
 #define YA_RESPONSE_MEMBER_JOINED_AT    @"joined_at"
 #define YA_RESPONSE_RESULT              @"result"

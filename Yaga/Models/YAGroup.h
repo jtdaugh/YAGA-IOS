@@ -30,6 +30,7 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 
 @property BOOL amFollowing;
 @property BOOL amMember;
+@property NSInteger pendingPostsCount;
 @property NSInteger followerCount;
 
 @property BOOL streamGroup;

@@ -36,7 +36,6 @@ static NSString *CellIdentifier = @"PendingCell";
         [[RLMRealm defaultRealm] commitWriteTransaction];
     }
     self.groupsWithPendingUnapproved = @[];
-    [self updatePending];
 }
 
 - (void)viewDidLoad {
@@ -59,24 +58,26 @@ static NSString *CellIdentifier = @"PendingCell";
     self.shouldForcePullToRefresh = NO;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self updatePending];
+}
 
 - (void)updatePending {
     NSMutableArray *pendingGroups = [NSMutableArray new];
-    RLMResults *pendingVideos = [YAVideo objectsWhere:@"pending = 1"];
-    for(YAVideo *video in pendingVideos) {
-        if(!video.group)
-            continue;
-        
-        if (!(video.group.amMember && video.group.publicGroup)) {
+    RLMResults *groups = [YAGroup objectsWhere:@"pendingPostsCount != 0"];
+    for(YAGroup *group in groups) {
+        if (!(group.amMember && group.publicGroup)) {
             continue;
         }
         
-        if([pendingGroups containsObject:video.group])
-            continue;
-        
-        [pendingGroups addObject:video.group];
+        [pendingGroups addObject:group];
     }
+    BOOL reload = (([pendingGroups count] && ![self.groupsWithPendingUnapproved count]) || (![pendingGroups count] && [self.groupsWithPendingUnapproved count]));
     self.groupsWithPendingUnapproved = [NSArray arrayWithArray:pendingGroups];
+    if (reload) {
+        [self.collectionView reloadData];
+    }
 }
 
 // Hijack some collection view delegate methods to insert the pending rows
@@ -148,6 +149,12 @@ static NSString *CellIdentifier = @"PendingCell";
     vc.group = group;
     vc.openStraightToPendingSection = YES;
     [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void)performAdditionalRefreshRequests {
+    [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
+        [self updatePending];
+    }];
 }
 
 - (NSInteger)gifGridSection {

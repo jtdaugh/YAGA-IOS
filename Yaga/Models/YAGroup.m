@@ -39,7 +39,9 @@
              @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0],
              @"pendingRefreshedAt":[NSDate dateWithTimeIntervalSince1970:0],
              @"lastInfiniteScrollEmptyResponseTime":[NSDate dateWithTimeIntervalSince1970:0],
-             @"hasUnviewedVideos" : [NSNumber numberWithBool:NO]};
+             @"hasUnviewedVideos" : [NSNumber numberWithBool:NO],
+             @"pendingPostsCount" : @(0)
+             };
 }
 
 - (NSString*)membersString {
@@ -126,6 +128,8 @@
         
         DLog(@"updating group: %@, next page index: %d", self.name, self.nextPageIndex);
     }
+    
+    self.pendingPostsCount = [dictionary[YA_RESPONSE_PENDING_POSTS_COUNT] integerValue];
     
     NSTimeInterval timeInterval = [dictionary[YA_GROUP_UPDATED_AT] integerValue];
     self.updatedAt = [NSDate dateWithTimeIntervalSince1970:timeInterval];
