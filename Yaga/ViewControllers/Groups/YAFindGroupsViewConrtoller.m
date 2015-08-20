@@ -121,8 +121,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                 NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
                 [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
                 [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
+                [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:upatedDataArray forKey:kFindGroupsCachedResponse];
             } else {
                 [upatedDataArray removeObject:groupData];
+                [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:upatedDataArray forKey:kFindGroupsCachedResponse];
             }
             
             self.groupsDataArray = upatedDataArray;
