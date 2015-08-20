@@ -41,7 +41,7 @@
     
     CGFloat origin = VIEW_HEIGHT *.03;
     
-    CGSize segSize = CGSizeMake(240, 30);
+    CGSize segSize = CGSizeMake(VIEW_WIDTH *.8, 30);
     self.publicControl = [[UISegmentedControl alloc] initWithFrame:CGRectMake((VIEW_WIDTH - segSize.width)/2, origin, segSize.width, segSize.height)];
     self.publicControl.tintColor = PRIMARY_COLOR;
     [self.publicControl insertSegmentWithTitle:@"Public" atIndex:0 animated:NO];
@@ -74,7 +74,7 @@
     
     origin = [self getNewOrigin:self.groupNameTextField];
     
-    CGFloat halfButtonWidth = ceil(VIEW_WIDTH * 0.44);
+    CGFloat halfButtonWidth = (VIEW_WIDTH * .4) - 10;
     self.addCohostsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - 10 - halfButtonWidth, origin, halfButtonWidth, VIEW_HEIGHT*.1)];
     [self.addCohostsButton setBackgroundColor:[UIColor clearColor]];
     [self.addCohostsButton setTitle:NSLocalizedString(@"Add Hosts", @"") forState:UIControlStateNormal];
@@ -91,7 +91,7 @@
     self.doneButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + 10, origin, halfButtonWidth, VIEW_HEIGHT*.1)];
     [self.doneButton setBackgroundColor:HOSTING_GROUP_COLOR];
     [self.doneButton setTitle:NSLocalizedString(@"Done", @"") forState:UIControlStateNormal];
-    [self.doneButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:24]];
+    [self.doneButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
     [self.doneButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.doneButton setAlpha:0.0];
     self.doneButton.layer.cornerRadius = VIEW_HEIGHT*.1/2.0f;
@@ -99,7 +99,7 @@
     [self.doneButton addTarget:self action:@selector(donePressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.doneButton];
     
-    CGFloat buttonWidth = VIEW_WIDTH * 0.7;
+    CGFloat buttonWidth = VIEW_WIDTH * 0.8;
     self.nextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
     [self.nextButton setBackgroundColor:[UIColor clearColor]];
     [self.nextButton setTitle:NSLocalizedString(@"Next", @"") forState:UIControlStateNormal];
@@ -181,6 +181,7 @@
         self.nextButton.alpha = nextAlpha;
         self.publicControl.tintColor = color;
         self.groupNameTextField.textColor = color;
+        self.groupNameTextField.tintColor = color;
         self.navigationController.navigationBar.backgroundColor = color;
         self.navigationController.navigationBar.barTintColor = color;
     }];
