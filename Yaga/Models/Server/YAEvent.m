@@ -39,7 +39,8 @@
 + (YAEvent *)eventForCreationOfVideo:(YAVideo *)video {
     YAEvent *event = [YAEvent new];
     event.eventType = YAEventTypePost;
-    event.username = video.creator;
+    
+    event.username = [NSString stringWithFormat:@"%@ ▸ %@", video.creator, video.group.name];
     event.timestamp = [[YAUser currentUser] formatDate:video.createdAt];
     return event;
 }
