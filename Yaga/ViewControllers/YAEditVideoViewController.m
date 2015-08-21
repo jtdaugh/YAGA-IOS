@@ -304,12 +304,12 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
 - (void)addTopButtons {
     CGFloat buttonSize = 50;
-    self.xButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - buttonSize - 10, 10, buttonSize, buttonSize)];
+    self.xButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, buttonSize, buttonSize)];
     [self.xButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
     [self.xButton addTarget:self action:@selector(dismissAnimated) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.xButton];
     
-    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, buttonSize, buttonSize)];
+    self.captionButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - buttonSize - 10, 10, buttonSize, buttonSize)];
     [self.captionButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
     [self.captionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.captionButton];
@@ -461,7 +461,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
 - (void)dismissAnimated{
     [self deleteTrimmedFile];
-    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    [self.navigationController popViewControllerAnimated:YES];
+//    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - SAVideoRangeSliderDelegate
