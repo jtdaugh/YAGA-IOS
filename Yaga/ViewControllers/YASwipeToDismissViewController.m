@@ -27,7 +27,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
 }
 
 #pragma mark - Animated dismissal
@@ -89,7 +89,6 @@
 }
 
 - (void)restoreAnimated {
-    
 
     [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0 animations:^{
         self.view.transform = CGAffineTransformMakeScale(1.0f, 1.0f);

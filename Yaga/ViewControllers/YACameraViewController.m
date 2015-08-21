@@ -95,6 +95,7 @@
 @implementation YACameraViewController
 
 - (void)viewWillAppear:(BOOL)animated {
+    self.edgesForExtendedLayout = UIRectEdgeAll;
     [super viewWillAppear:animated];
     [YACameraManager sharedManager].delegate = self;
     [[YACameraManager sharedManager] setCameraView:self.cameraView];

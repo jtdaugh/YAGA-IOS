@@ -42,7 +42,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.edgesForExtendedLayout = UIRectEdgeAll;
 //    [YAUtils randomQuoteWithCompletion:^(NSString *quote, NSError *error) {
 //        self.navigationItem.prompt = quote;
 //    }];
@@ -106,7 +107,7 @@
             self.overlay = overlay;
         }
     } else {
-        [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+        [[UIApplication sharedApplication] setStatusBarHidden:NO];
         self.selectedIndex = 1;
         self.tabBar.frame = CGRectMake(0, VIEW_HEIGHT, self.tabBar.frame.size.width, self.tabBar.frame.size.height);
     }
@@ -189,6 +190,7 @@
             [self.selectedViewController dismissViewControllerAnimated:NO completion:nil];
         }
     }
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     [self presentCameraAnimated:NO shownViaBackgrounding:YES withCompletion:nil];
 }
 
