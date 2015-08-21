@@ -10,6 +10,8 @@
 
 #import "YAUser.h"
 
+#define USERNAME_HEIGHT 26
+#define MAX_USERNAME_WIDTH (VIEW_WIDTH*0.5)
 @interface YAEventCell ()
 
 @property (nonatomic, strong) UILabel *usernameLabel;
@@ -31,13 +33,16 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.backgroundColor = [UIColor clearColor];
-        CGFloat initialUsernameWidth = 100, initialHeight = 26;
+        CGFloat initialUsernameWidth = 100, initialHeight = USERNAME_HEIGHT;
         self.usernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, initialUsernameWidth, initialHeight)];
         self.usernameLabel.textColor = PRIMARY_COLOR;
         self.usernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
         self.usernameLabel.shadowColor = [UIColor blackColor];
         self.usernameLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         self.usernameLabel.userInteractionEnabled = NO;
+        self.usernameLabel.adjustsFontSizeToFitWidth = YES;
+        self.usernameLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+        self.usernameLabel.minimumScaleFactor = 0.5;
         
         self.likeCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(initialUsernameWidth + 11, 0, self.frame.size.width - (initialUsernameWidth + 30), initialHeight)];
         self.likeCountLabel.textColor = [UIColor whiteColor];
@@ -77,7 +82,7 @@
         self.iconImageView.contentMode = UIViewContentModeScaleAspectFit;
         [self addSubview:self.iconImageView];
         
-        self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 3, initialUsernameWidth, initialHeight)];
+        self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 5, initialUsernameWidth, initialHeight)];
         self.timestampLabel.textColor = [UIColor colorWithWhite:0.85 alpha:0.75];
         self.timestampLabel.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE-3.f];
         self.timestampLabel.userInteractionEnabled = NO;
@@ -119,7 +124,7 @@
         case YAEventTypePost:
             [self configurePostCellWithUsername:event.username
                                       timestamp:event.timestamp
-                                     isOwnVideo:[event.username isEqualToString:[YAUser currentUser].username]];
+                                     isOwnVideo:[[[event.username componentsSeparatedByString:@" "] firstObject] isEqualToString:[YAUser currentUser].username]];
             break;
     }
 }
@@ -164,7 +169,10 @@
 }
 
 - (void)layoutUsername:(NSString *)username {
-    self.usernameLabel.frame = [[self class] frameForUsernameLabel:username];
+    CGFloat width = [[self class] frameForUsernameLabel:username].size.width;
+    CGRect frame = self.usernameLabel.frame;
+    frame.size.width = width > MAX_USERNAME_WIDTH ? MAX_USERNAME_WIDTH : width;
+    self.usernameLabel.frame = frame;
 }
 
 - (void)layoutImageViewWithYOffset:(CGFloat)yOffset {
@@ -189,6 +197,9 @@
     timestampFrame.size.width = self.frame.size.width - timestampFrame.origin.x - deleteWidth;
     self.timestampLabel.frame = timestampFrame;
     [self.timestampLabel sizeToFit];
+    timestampFrame = self.timestampLabel.frame;
+    timestampFrame.origin.y = (USERNAME_HEIGHT - timestampFrame.size.height)/2;
+    self.timestampLabel.frame = timestampFrame;
     
     CGRect deleteFrame = self.deleteButton.frame;
     deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + COMMENTS_SPACE_AFTER_USERNAME;
@@ -203,7 +214,7 @@
             [self.deleteButton setTitle:@"Cancel" forState:UIControlStateNormal];
             break;
         case YAEventCellVideoStateUnapproved:
-            self.timestampLabel.text = @"Pending Approval";
+            self.timestampLabel.text = @"Pending";
             [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
             break;
         case YAEventCellVideoStateApproved:
@@ -269,8 +280,8 @@
 
 + (CGRect)frameForUsernameLabel:(NSString *)username {
     NSDictionary *usernameAttributes = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE]};
-    CGRect rect = [username boundingRectWithSize:CGSizeMake(VIEW_WIDTH/2, CGFLOAT_MAX)
-                                         options:NSStringDrawingUsesLineFragmentOrigin
+    CGRect rect = [username boundingRectWithSize:CGSizeMake(MAX_USERNAME_WIDTH, USERNAME_HEIGHT)
+                                         options:NSStringDrawingTruncatesLastVisibleLine
                                       attributes:usernameAttributes
                                          context:nil];
     

@@ -42,7 +42,6 @@
 {
     [super viewDidLoad];
     [self setNavigationBarHidden:YES];
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 
     [self.navigationBar setTranslucent:NO];

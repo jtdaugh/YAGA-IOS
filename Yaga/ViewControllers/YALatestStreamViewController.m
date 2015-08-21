@@ -66,16 +66,19 @@ static NSString *CellIdentifier = @"PendingCell";
 - (void)updatePending {
     NSMutableArray *pendingGroups = [NSMutableArray new];
     RLMResults *groups = [YAGroup objectsWhere:@"pendingPostsCount != 0"];
+    BOOL pendingChanged = NO;
     for(YAGroup *group in groups) {
         if (!(group.amMember && group.publicGroup)) {
             continue;
         }
         
         [pendingGroups addObject:group];
+        if (![self.groupsWithPendingUnapproved containsObject:group]) {
+            pendingChanged = YES;
+        }
     }
-    BOOL reload = (([pendingGroups count] && ![self.groupsWithPendingUnapproved count]) || (![pendingGroups count] && [self.groupsWithPendingUnapproved count]));
-    self.groupsWithPendingUnapproved = [NSArray arrayWithArray:pendingGroups];
-    if (reload) {
+    if (pendingChanged || [self.groupsWithPendingUnapproved count] != [pendingGroups count]) {
+        self.groupsWithPendingUnapproved = [NSArray arrayWithArray:pendingGroups];
         [self.collectionView reloadData];
     }
 }

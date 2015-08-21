@@ -860,7 +860,7 @@ static NSString *commentCellID = @"CommentCell";
     [cell configureCellWithEvent:event];
 
     if (event.eventType == YAEventTypePost) {
-        [cell setVideoState:self.uploadInProgress ? YAEventCellVideoStateUploading : (self.video.pending ? YAEventCellVideoStateUnapproved : YAEventCellVideoStateApproved)];
+        [self updateEventCellVideoState:cell];
     }
     
     return cell;
@@ -1354,8 +1354,13 @@ static NSString *commentCellID = @"CommentCell";
 
     YAEventCell *postCell = (YAEventCell *)[self.commentsTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:[self.events count] - 1 inSection:0]];
     if (postCell) {
-        [postCell setVideoState:self.uploadInProgress ? YAEventCellVideoStateUploading : (self.video.pending ? YAEventCellVideoStateUnapproved : YAEventCellVideoStateApproved)];
+        [self updateEventCellVideoState:postCell];
     }
+}
+
+- (void)updateEventCellVideoState:(YAEventCell *)cell {
+    [cell setVideoState:self.uploadInProgress ? YAEventCellVideoStateUploading :
+     ((self.video.pending && [self.video.creator isEqualToString:[YAUser currentUser].username]) ? YAEventCellVideoStateUnapproved : YAEventCellVideoStateApproved)];
 }
 
 - (void)videoChanged:(NSNotification*)notif {

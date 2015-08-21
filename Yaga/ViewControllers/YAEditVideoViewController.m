@@ -434,6 +434,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
                                       @"captionScale":[NSNumber numberWithFloat:weakSelf.captionScale],
                                       @"captionRotation":[NSNumber numberWithFloat:weakSelf.captionRotation]};
             
+            [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
             [self.navigationController pushViewController:postToGroups animated:YES];
         }
         else {

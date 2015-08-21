@@ -307,6 +307,12 @@ static NSString *cellID = @"Cell";
         
         NSUInteger countOfItems = [weakSelf collectionView:weakSelf.collectionView numberOfItemsInSection:[self gifGridSection]];
         
+        if (countOfItems != weakSelf.sortedVideos.count) {
+            // If these don't match, we'll get an NSInternalInconsistencyException, so reload the whole table
+            [weakSelf.collectionView reloadData];
+            return;
+        }
+        
         if(index != NSNotFound && index <= countOfItems) {
             [weakSelf.collectionView reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForItem:index inSection:[self gifGridSection]]]];
         }
@@ -393,11 +399,19 @@ static NSString *cellID = @"Cell";
             }
         }
         if(indexPathsToReload && indexPathsToReload.count) {
-            [self.collectionView performBatchUpdates:^{
-                [self.collectionView reloadItemsAtIndexPaths:indexPathsToReload];
-            } completion:^(BOOL finished) {
+            NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:[self gifGridSection]];
+
+            if (countOfItems != self.sortedVideos.count) {
+                // If these don't match, we'll get an NSInternalInconsistencyException, so reload the whole table
+                [self.collectionView reloadData];
                 refreshBlock();
-            }];
+            } else {
+                [self.collectionView performBatchUpdates:^{
+                    [self.collectionView reloadItemsAtIndexPaths:indexPathsToReload];
+                } completion:^(BOOL finished) {
+                    refreshBlock();
+                }];
+            }
         }
         else {
             [self delayedHidePullToRefresh];
