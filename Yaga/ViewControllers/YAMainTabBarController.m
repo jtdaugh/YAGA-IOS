@@ -32,6 +32,10 @@
 @property (nonatomic, weak) UIViewController *cameraTabViewController;
 @property (nonatomic, strong) UIButton *cameraButton;
 @property (nonatomic) BOOL onboardingFinished;
+
+@property (nonatomic) BOOL forceCamera;
+@property (nonatomic, strong) UIImageView *overlay;
+
 @end
 
 @implementation YAMainTabBarController
@@ -39,10 +43,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // change when force camera
-    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-
 //    [YAUtils randomQuoteWithCompletion:^(NSString *quote, NSError *error) {
 //        self.navigationItem.prompt = quote;
 //    }];
@@ -53,6 +53,7 @@
     
     self.onboardingFinished = [YAUtils hasCompletedForcedFollowing];
     
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
     UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YALatestStreamViewController new]];
     vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
@@ -94,16 +95,29 @@
     [self.tabBar addSubview:self.cameraButton];
     
     if (self.onboardingFinished) {
-        [[YACameraManager sharedManager] initCamera];
         self.selectedIndex = 0;
+        
+        self.forceCamera = YES;
+        UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
+        overlay.backgroundColor = [UIColor blackColor];
+        [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
+        overlay.contentMode = UIViewContentModeScaleAspectFill;
+        [self.view addSubview:overlay];
+        self.overlay = overlay;
     } else {
+        [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
         self.selectedIndex = 1;
         self.tabBar.frame = CGRectMake(0, VIEW_HEIGHT, self.tabBar.frame.size.width, self.tabBar.frame.size.height);
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGifGridFromNotification:) name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(finishedOnboarding) name:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didEnterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
 }
+
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
@@ -112,12 +126,75 @@
     
     if (!self.onboardingFinished) {
         [self showForceFollowTooltip];
+    } else {
+        if (self.forceCamera) {
+            self.forceCamera = NO;
+            [self presentCameraAnimated:NO shownViaBackgrounding:NO withCompletion:^{
+                [self.overlay removeFromSuperview];
+            }];
+        }
     }
+}
+
+- (UIViewController *)getTopmostViewControllerFromBaseVC:(UIViewController *)baseVC {
+    UIViewController *visibleVC = baseVC;
+    while (true) {
+        if ([visibleVC presentedViewController]) {
+            visibleVC = [visibleVC presentedViewController];
+        } else {
+            break;
+        }
+    }
+    return visibleVC;
+}
+
+// Any view controller that wants to maintain presence when the app enters background
+// must implement -blockCameraPresentationOnBackground and return YES.
+- (void)didEnterBackground {
+    if (![self isEqual:[UIApplication sharedApplication].keyWindow.rootViewController]) {
+        // Only the root should be doing this
+        return;
+    }
+    if (!self.onboardingFinished) return;
+    
+    UIViewController *visibleVC;
+    if (self.presentedViewController) {
+        visibleVC = [self getTopmostViewControllerFromBaseVC:self];
+    } else {
+        // Check deepest presented from
+        visibleVC = [self getTopmostViewControllerFromBaseVC:self.selectedViewController];
+    }
+    SEL presentCameraSelector = @selector(blockCameraPresentationOnBackground);
+    BOOL presentCamera = YES;
+    if ([visibleVC respondsToSelector:presentCameraSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        presentCamera = ![visibleVC performSelector:presentCameraSelector];
+#pragma clang diagnostic pop
+    }
+    if (presentCamera) {
+        [self dismissAnyViewControllersAndPresentCamera];
+    }
+    
+    // Force these updates to happen before app is opened again
+    [[NSRunLoop currentRunLoop] runUntilDate:[[NSDate date] dateByAddingTimeInterval:0.1]];
+}
+
+- (void)dismissAnyViewControllersAndPresentCamera {
+    if (self.presentedViewController) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+    } else {
+        if (self.selectedViewController.presentedViewController) {
+            [self.selectedViewController dismissViewControllerAnimated:NO completion:nil];
+        }
+    }
+    [self presentCameraAnimated:NO shownViaBackgrounding:YES withCompletion:nil];
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
 }
 
 - (void)finishedOnboarding {
@@ -163,16 +240,18 @@
 - (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item {
     if ([item isEqual:self.cameraTabViewController.tabBarItem]) {
         // This is the camera button. Present modal camera instead of selecting tab
-        [self presentCameraAnimated:YES];
+        [self presentCameraAnimated:YES shownViaBackgrounding:NO withCompletion:nil];
     }
 }
 
 - (void)cameraPressed {
-    [self presentCameraAnimated:YES];
+    [self presentCameraAnimated:YES shownViaBackgrounding:NO withCompletion:nil];
 }
 
-- (void)presentCameraAnimated:(BOOL)animated {
+- (void)presentCameraAnimated:(BOOL)animated shownViaBackgrounding:(BOOL)shownViaBackgrounding withCompletion:(void (^)(void))completion {
+    
     YACameraViewController *camVC = [YACameraViewController new];
+    camVC.shownViaBackgrounding = shownViaBackgrounding;
     
     YASloppyNavigationController *navVC = [[YASloppyNavigationController alloc] initWithRootViewController:camVC];
     navVC.view.backgroundColor = [UIColor clearColor];
@@ -190,8 +269,7 @@
     [self setInitialAnimationFrame: initialFrame];
     [self setInitialAnimationTransform:initialTransform];
     //    self.animationController.initialTransform = initialTransform;
-    camVC.shownViaBackgrounding = NO;
-    [self presentViewController:navVC animated:animated completion:nil];
+    [self presentViewController:navVC animated:animated completion:completion];
 }
 
 

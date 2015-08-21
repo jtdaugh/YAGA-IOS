@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
@@ -137,7 +138,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
-                        <segue destination="n1S-wK-pIu" kind="showDetail" identifier="ShowMainTabBarAfterUsername" id="SQZ-of-6cD"/>
+                        <segue destination="n1S-wK-pIu" kind="custom" identifier="ShowMainTabBarAfterUsername" customClass="YASetNewRootVCSegue" id="SQZ-of-6cD"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lgf-Jx-pmq" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -161,7 +162,7 @@
                     <navigationItem key="navigationItem" id="KmW-Ag-nmx"/>
                     <connections>
                         <segue destination="Xo8-xg-cRY" kind="show" identifier="UserNameViewController" id="2A8-ou-e1j"/>
-                        <segue destination="n1S-wK-pIu" kind="showDetail" identifier="ShowMainTabBarAfterAuthentication" id="UQR-vT-Lgh"/>
+                        <segue destination="n1S-wK-pIu" kind="custom" identifier="ShowMainTabBarAfterAuthentication" customClass="YASetNewRootVCSegue" id="UQR-vT-Lgh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dTj-X0-Iz4" userLabel="First Responder" sceneMemberID="firstResponder"/>

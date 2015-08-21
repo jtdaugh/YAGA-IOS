@@ -303,10 +303,12 @@
 //        }
         
         YAGroup *myVideosGroup = [[YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", kMyStreamGroupId]] firstObject];
+        YAGroup *latestStreamGroup = [[YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", kPublicStreamGroupId]] firstObject];
 
         [group.realm beginWriteTransaction];
         
         if (myVideosGroup) [myVideosGroup.videos insertObject:video atIndex:0]; // Locally put video in my videos stream
+        if (latestStreamGroup) [latestStreamGroup.videos insertObject:video atIndex:0]; // Locally put video in my videos stream
         [group.videos insertObject:video atIndex:0];
         
         [group.realm commitWriteTransaction];
@@ -316,6 +318,7 @@
         
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:group userInfo:@{kNewVideos:@[video]}];
         if (myVideosGroup) [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:myVideosGroup userInfo:@{kNewVideos:@[video]}];
+        if (latestStreamGroup) [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:latestStreamGroup userInfo:@{kNewVideos:@[video]}];
         
         [self enqueueJpgCreationForVideo:video];
 
