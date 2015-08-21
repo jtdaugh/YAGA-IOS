@@ -45,12 +45,8 @@
 @property (nonatomic, strong) NSArray *accounts;
 @property (strong, nonatomic) UIView *topBar;
 
+@property (nonatomic, strong) NSMutableArray *gpuImageRetainables; // Just for retaining various GPUImage components until export finishes
 
-//watermark
-@property (nonatomic, strong) GPUImageMovie *movieFile;
-@property (nonatomic, strong) GPUImageFilter *filter;
-@property (nonatomic, strong) GPUImageMovieWriter *movieWriter;
-@property (nonatomic, strong) GPUImageUIElement *uiElementInput;
 @end
 
 @implementation YASharingView
@@ -318,24 +314,24 @@
 
             break;
         } case 3: {
-            // save
-            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-            [library writeVideoAtPathToSavedPhotosAlbum:fileUrl completionBlock:^(NSURL *assetURL, NSError *error){
-                if(error) {
-                    NSLog(@"CameraViewController: Error on saving movie : %@ {imagePickerController}", error);
-                }
-                else {
-                    NSLog(@"URL: %@", assetURL);
-                }
-                
-                [self showSuccessHud];
-            }];
+//            // save
+//            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+//            [library writeVideoAtPathToSavedPhotosAlbum:fileUrl completionBlock:^(NSURL *assetURL, NSError *error){
+//                if(error) {
+//                    NSLog(@"CameraViewController: Error on saving movie : %@ {imagePickerController}", error);
+//                }
+//                else {
+//                    NSLog(@"URL: %@", assetURL);
+//                }
+//                
+//                [self showSuccessHud];
+//            }];
             
 //TODO watermark
-//            __weak typeof(self) weakSelf = self;
-//            [self addCaptionWatermakAndSaveToPhotosAlbumWithCompletion:^(NSError *error) {
-//                [weakSelf showSuccessHud];
-//            }];
+            __weak typeof(self) weakSelf = self;
+            [self addCaptionWatermakAndSaveToPhotosAlbumWithCompletion:^(NSError *error) {
+                [weakSelf showSuccessHud];
+            }];
             
             break;
         } default:
@@ -584,16 +580,16 @@
                                                 }];
 }
 
-- (void)video:(NSString*)videoPath didFinishSavingWithError:(NSError*)error contextInfo:(void*)contextInfo {
-    if (error) {
-        NSString *message = @"Video Saving Failed";
-        [YAUtils showHudWithText:message];
-        
-    } else {
-        NSString *message = @"Saved! ✌️";
-        [YAUtils showHudWithText:message];
-    }
-}
+//- (void)video:(NSString*)videoPath didFinishSavingWithError:(NSError*)error contextInfo:(void*)contextInfo {
+//    if (error) {
+//        NSString *message = @"Video Saving Failed";
+//        [YAUtils showHudWithText:message];
+//        
+//    } else {
+//        NSString *message = @"Saved! ✌️";
+//        [YAUtils showHudWithText:message];
+//    }
+//}
 
 #pragma mark - UITableViewDataSource / UITableViewDelegate
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -621,16 +617,20 @@
 
 #pragma mark - Watermark
 - (void)addCaptionWatermakAndSaveToPhotosAlbumWithCompletion:(completionBlock)completion {
-    NSURL *url = [YAUtils urlFromFileName:self.video.mp4Filename];
+    self.gpuImageRetainables = [NSMutableArray array];
+    AVURLAsset *asset = [AVURLAsset assetWithURL:[YAUtils urlFromFileName:self.video.mp4Filename]];
+    [self.gpuImageRetainables addObject:asset];
     
-    self.movieFile = [[GPUImageMovie alloc] initWithURL:url];
-    self.movieFile.runBenchmark = YES;
-    self.movieFile.playAtActualSpeed = NO;
+    GPUImageMovie *movieFile = [[GPUImageMovie alloc] initWithAsset:asset];
+    [self.gpuImageRetainables addObject:movieFile];
     
-    self.filter = [[GPUImageFilter alloc] init];
+    movieFile.runBenchmark = YES;
+    movieFile.playAtActualSpeed = NO;
     
-    GPUImageAlphaBlendFilter *blendFilter = [[GPUImageAlphaBlendFilter alloc] init];
-    blendFilter.mix = 1.0;
+    GPUImageBrightnessFilter *blendFilter = [[GPUImageBrightnessFilter alloc] init];
+    [self.gpuImageRetainables addObject:blendFilter];
+    
+    blendFilter.brightness = 0.0;
     
     UIView *contentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     contentView.backgroundColor = [UIColor clearColor];
@@ -649,52 +649,74 @@
     captionLabel.text = self.video.caption;
     captionLabel.backgroundColor = [UIColor clearColor];
     [contentView addSubview:captionLabel];
-    
+    [self.gpuImageRetainables addObject:contentView];
+
     //test
     captionLabel.transform = CGAffineTransformRotate(captionLabel.transform, M_PI/6);
     
     GPUImageUIElement *uiElementInput = [[GPUImageUIElement alloc] initWithView:contentView];
-    
-    [self.filter addTarget:blendFilter];
-    [uiElementInput addTarget:blendFilter];
-    
-    [self.movieFile addTarget:self.filter];
-    
-    GPUImageView *filterView = nil;//[YACameraManager sharedManager].currentCameraView ?
-    [self.filter addTarget:filterView];
-    [blendFilter addTarget:filterView];
-    
-    [self.filter setFrameProcessingCompletionBlock:^(GPUImageOutput * filter, CMTime frameTime){
-        //set label.hidden to YES and here to NO in case it should be shown at the beginning/end of the video
-        //        if (frameTime.value/frameTime.timescale == 2) {
-        //            [contentView viewWithTag:1].hidden = NO;
-        //        }
-        [uiElementInput update];
-    }];
+    [self.gpuImageRetainables addObject:uiElementInput];
+
+//    [uiElementInput addTarget:blendFilter atTextureLocation:1];
+    [movieFile addTarget:blendFilter];
+
+//    [filter setFrameProcessingCompletionBlock:^(GPUImageOutput * filter, CMTime frameTime){
+//        //set label.hidden to YES and here to NO in case it should be shown at the beginning/end of the video
+//        //        if (frameTime.value/frameTime.timescale == 2) {
+//        //            [contentView viewWithTag:1].hidden = NO;
+//        //        }
+//        [uiElementInput update];
+//    }];
     
     // In addition to displaying to the screen, write out a processed version of the movie to disk
     NSString *pathToMovie = [NSTemporaryDirectory() stringByAppendingPathComponent:@"video_with_watermark.mp4"];
     unlink([pathToMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
     
-    self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:[NSURL fileURLWithPath:pathToMovie] size:CGSizeMake(640.0, 480.0)];
-    [self.filter addTarget:self.movieWriter];
-    [blendFilter addTarget:self.movieWriter];
+    CGSize size = [[[asset tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
+    
+    GPUImageMovieWriter *movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:[NSURL fileURLWithPath:pathToMovie] size:size];
+    [self.gpuImageRetainables addObject:movieWriter];
+    [blendFilter addTarget:movieWriter];
+    
+//    movieWriter.encodingLiveVideo = NO;
     
     // Configure this for video from the movie file, where we want to preserve all video frames and audio samples
-    self.movieWriter.shouldPassthroughAudio = YES;
-    //self.movieFile.audioEncodingTarget = self.movieWriter;
-    [self.movieFile enableSynchronizedEncodingUsingMovieWriter:self.movieWriter];
-    //self.movieFile.audioEncodingTarget = self.movieWriter;
+//    movieWriter.shouldPassthroughAudio = YES;
+    movieFile.audioEncodingTarget = movieWriter;
+    [movieFile enableSynchronizedEncodingUsingMovieWriter:movieWriter];
     
-    [self.movieWriter startRecording];
-    [self.movieFile startProcessing];
+    [movieWriter startRecording];
+    [movieFile startProcessing];
     
-    [self.movieWriter setCompletionBlock:^{
-        UISaveVideoAtPathToSavedPhotosAlbum(pathToMovie, nil, nil, nil);
-        DLog(@"video with watermark saved to the camera roll %@", pathToMovie);
-        if(completion)
-            completion(nil);
+    [movieWriter setCompletionBlock:^{
+//        [movieFile removeAllTargets];
+//        [uiElementInput removeAllTargets];
+//        [filter removeAllTargets];
+        movieFile.audioEncodingTarget = nil;
+        [blendFilter removeTarget:movieWriter];
+        [movieWriter finishRecording];
+
+        UISaveVideoAtPathToSavedPhotosAlbum(pathToMovie, self, @selector(video:didFinishSavingWithError: contextInfo:), (__bridge void *)(completion));
     }];
+}
+
+- (void)video:(NSString *)videoPath didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
+    completionBlock completion;
+    if (contextInfo)
+        completion = (__bridge completionBlock) contextInfo;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.gpuImageRetainables removeAllObjects];
+        if (!error) {
+            DLog(@"video with watermark saved to the camera roll");
+            if(completion)
+                completion(nil);
+        } else {
+            DLog(@"Save to cam roll error: %@", error);
+            if(completion)
+                completion(error);
+        };
+    });
+
 }
 
 
