@@ -100,9 +100,10 @@
     [[YACameraManager sharedManager] setCameraView:self.cameraView];
     if (![YACameraManager sharedManager].initialized) {
         [[YACameraManager sharedManager] initCamera];
-    }
-    if (!self.shownViaBackgrounding) { // Otherwise let app delegate handle it
         [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
+    } else if (!self.shownViaBackgrounding) { // Otherwise let app delegate handle it
+        self.shownViaBackgrounding = NO;
+        [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:NO];
     }
 }
 

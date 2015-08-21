@@ -233,4 +233,8 @@
     }
 }
 
+- (BOOL)blockCameraPresentationOnBackground {
+    return YES;
+}
+
 @end

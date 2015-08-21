@@ -74,39 +74,6 @@
     self.interactivePopGestureRecognizer.delegate = self;
 }
 
-//// Any view controller that wants to maintain presence when the app enters background
-//// must implement -blockCameraPresentationOnBackground and return YES.
-//- (void)didEnterBackground {
-//    if (![self isEqual:[UIApplication sharedApplication].keyWindow.rootViewController]) {
-//        // Only the root should be doing this
-//        return;
-//    }
-//    id visibleVC;
-//    if (self.presentedViewController) {
-//        if (self.presentedViewController.presentedViewController) {
-//            visibleVC = self.presentedViewController.presentedViewController;
-//        } else {
-//            visibleVC = self.presentedViewController;
-//        }
-//    } else {
-//        visibleVC = self.visibleViewController;
-//    }
-//    SEL presentCameraSelector = @selector(blockCameraPresentationOnBackground);
-//    BOOL presentCamera = YES;
-//    if ([visibleVC respondsToSelector:presentCameraSelector]) {
-//#pragma clang diagnostic push
-//#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-//        presentCamera = ![visibleVC performSelector:presentCameraSelector];
-//#pragma clang diagnostic pop
-//    }
-//    if (presentCamera) {
-//        [self dismissAnyNecessaryViewControllersAndShowCamera];
-//    }
-//    
-//    // Force these updates to happen before app is opened again
-//    [[NSRunLoop currentRunLoop] runUntilDate:[[NSDate date] dateByAddingTimeInterval:0.1]];
-//}
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 }

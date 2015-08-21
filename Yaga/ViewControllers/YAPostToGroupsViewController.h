@@ -13,5 +13,6 @@
 @property (nonatomic, strong) NSDictionary *settings;
 
 - (void)addNewlyCreatedGroupToList:(YAGroup *)group;
+- (BOOL)blockCameraPresentationOnBackground;
 
 @end

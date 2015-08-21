@@ -199,7 +199,8 @@
     
     [self removeNotificationsBadge];
 
-//    [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
+    // This won't have any effect if camera is not initialized, so no need to check
+    [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
 }
 
 - (void)removeNotificationsBadge {
@@ -210,7 +211,8 @@
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     
-//    [[YACameraManager sharedManager] pauseCameraAndStop:YES];
+    // This won't have any effect if camera is not initialized, so no need to check
+    [[YACameraManager sharedManager] pauseCameraAndStop:YES];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
