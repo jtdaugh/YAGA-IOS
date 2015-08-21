@@ -670,6 +670,8 @@
     self.hud = [YAUtils showIndeterminateHudWithText:@"One sec..."];
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
     picker.delegate = self;
+    [picker setVideoMaximumDuration:MAXIMUM_TRIM_TOTAL_LENGTH];
+
     picker.allowsEditing = YES;
     picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     [picker setMediaTypes: [NSArray arrayWithObject:(NSString *)kUTTypeMovie]];

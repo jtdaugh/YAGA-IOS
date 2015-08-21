@@ -222,7 +222,6 @@
     unlink([pathToProcessedMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
     NSURL *outputURL = [NSURL fileURLWithPath:pathToProcessedMovie];
     
-    
     AVMutableVideoComposition* videoComposition = [AVMutableVideoComposition videoComposition];
     videoComposition.renderSize = correctSize;
     videoComposition.frameDuration = CMTimeMake(1, 30);
@@ -230,14 +229,41 @@
     AVMutableVideoCompositionInstruction *instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
     instruction.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration);
 
-    AVAssetTrack *clipVideoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+    CGAffineTransform rotateTransform = CGAffineTransformIdentity;
     
+    AVAssetTrack *clipVideoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+    CGAffineTransform preferred = clipVideoTrack.preferredTransform;
+    CGFloat desiredRotation = atan2(preferred.b, preferred.a);
+    BOOL adjustTranslationDueToRotation = NO;
+    if (desiredRotation != 0.0) {
+        if (fmodf(ABS(desiredRotation), M_PI) < 0.0001) {
+            // is flipped. Screw it.
+            rotateTransform = CGAffineTransformMakeRotation(desiredRotation);
+        } else if (fmodf(ABS(desiredRotation), M_PI_2) < 0.0001) {
+            // is Rotated +/- 90 degrees
+            CGSize calcdSize = vidSize;
+            calcdSize.width = vidSize.height;
+            calcdSize.height = vidSize.width;
+            vidSize = calcdSize;
+            
+            // This works but im too tired to know exactly why...
+            rotateTransform = CGAffineTransformMakeRotation(desiredRotation);
+            adjustTranslationDueToRotation = YES;
+        }
+    }
     CGFloat yMultiple = correctSize.height / vidSize.height;
-
+    
+    CGAffineTransform finalTransform = CGAffineTransformIdentity;
+    
     AVMutableVideoCompositionLayerInstruction* transformer = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:clipVideoTrack];
-    CGAffineTransform finalTransform = CGAffineTransformMakeScale(yMultiple, yMultiple);
+    finalTransform = CGAffineTransformScale(finalTransform, yMultiple, yMultiple);
     CGFloat dx = (((vidSize.width * yMultiple) - correctSize.width) / 2.0);
     finalTransform = CGAffineTransformTranslate(finalTransform, -dx, 0);
+    finalTransform = CGAffineTransformConcat(finalTransform, rotateTransform);
+    
+    if (adjustTranslationDueToRotation)
+        finalTransform = CGAffineTransformTranslate(finalTransform, 0, -vidSize.width);
+
     [transformer setTransform:finalTransform atTime:kCMTimeZero];
     instruction.layerInstructions = [NSArray arrayWithObject:transformer];
     videoComposition.instructions = [NSArray arrayWithObject: instruction];
@@ -247,16 +273,18 @@
     self.exportSession.outputURL = outputURL;
     self.exportSession.outputFileType = AVFileTypeMPEG4;
     
+    NSTimeInterval maxTime = MAXIMUM_TRIM_TOTAL_LENGTH; // its ok to double the time for imports
+    
     NSTimeInterval duration = CMTimeGetSeconds(asset.duration);
-    if (duration > MAXIMUM_TRIM_TOTAL_LENGTH) {
-        [self.exportSession setTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(MAXIMUM_TRIM_TOTAL_LENGTH, asset.duration.timescale))];
+    if (duration > maxTime) {
+        [self.exportSession setTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(maxTime, asset.duration.timescale))];
     } else {
         [self.exportSession setTimeRange:CMTimeRangeMake(kCMTimeZero, asset.duration)];
     }
 
     __weak typeof(self) weakSelf = self;
     [self.exportSession exportAsynchronouslyWithCompletionHandler:^(void ) {
-        completion(weakSelf.exportSession.outputURL, MIN(duration, MAXIMUM_TRIM_TOTAL_LENGTH), nil);
+        completion(weakSelf.exportSession.outputURL, MIN(duration, maxTime), nil);
         weakSelf.exportSession = nil;
     }];
 
