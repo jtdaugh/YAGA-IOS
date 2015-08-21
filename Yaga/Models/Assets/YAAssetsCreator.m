@@ -521,9 +521,8 @@
 
 - (UIImage *)deviceSpecificFullscreenImageFromImage:(UIImage *)image{
     //make resized fullscreen image
-    CGFloat f = [UIScreen mainScreen].bounds.size.height/image.size.height;
-    CGSize fullscreenSize = CGSizeMake(image.size.width * f, image.size.height *f);
-    
+//    CGFloat f = [UIScreen mainScreen].bounds.size.height/image.size.height;
+    CGSize fullscreenSize = CGSizeMake(VIEW_WIDTH, VIEW_HEIGHT);//image.size.width * f, image.size.height *f);
     image = [image resizedImageToFitInSize:fullscreenSize scaleIfSmaller:YES];
     
     image = [self croppedImageFromImage:image cropSize:[UIScreen mainScreen].bounds.size];
