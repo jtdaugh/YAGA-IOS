@@ -24,19 +24,3 @@ target 'Yaga', :exclusive => true do
     pod 'FBSDKShareKit'
     pod 'BLKFlexibleHeightBar'
 end
-
-target 'YAVideoShareExtension', :exclusive => true do
-	platform :ios, '8.0'
-	pod 'AFNetworking', '~> 2.0'
-    pod 'MBProgressHUD', '~> 0.8'
-end
-
-post_install do |installer_representation|
-    installer_representation.project.targets.each do |target|
-        if target.name == "Pods-YAVideoShareExtension-AFNetworking"
-            target.build_configurations.each do |config|
-                    config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'AF_APP_EXTENSIONS=1']
-            end
-        end
-    end
-end
