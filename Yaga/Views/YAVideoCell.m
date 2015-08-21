@@ -107,7 +107,7 @@
         self.gradient = [CAGradientLayer layer];
         self.gradient.frame = self.groupView.bounds;
         self.gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithWhite:0.05 alpha:1] CGColor], (id)[[UIColor clearColor] CGColor], nil];
-        [self.groupView.layer insertSublayer:self.gradient atIndex:0];
+//        [self.groupView.layer insertSublayer:self.gradient atIndex:0];
 
         [self.contentView addSubview:self.groupView];
         
@@ -116,7 +116,13 @@
         self.groupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
         self.groupButton.titleLabel.adjustsFontSizeToFitWidth = YES;
         self.groupButton.titleLabel.textColor = [UIColor whiteColor];
-        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+        
+        self.groupButton.titleLabel.layer.shadowColor = [UIColor blackColor].CGColor;
+        self.groupButton.titleLabel.layer.shadowOffset = CGSizeMake(1.0,1.0);
+        self.groupButton.titleLabel.layer.shadowOpacity = 1.0;
+        self.groupButton.titleLabel.layer.shadowRadius = 0.0;
+        
         [self.groupButton addTarget:self action:@selector(groupButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.groupView addSubview:self.groupButton];
         

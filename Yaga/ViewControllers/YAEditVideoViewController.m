@@ -179,7 +179,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.sendButton.frame = CGRectMake(0, 0, self.bottomView.bounds.size.width, self.bottomView.bounds.size.height);
-    [self.sendButton setImage:[[UIImage imageNamed:@"Send"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [self.sendButton setImage:[UIImage imageNamed:@"Send"] forState:UIControlStateNormal];
     [self.sendButton addTarget:self action:@selector(sendButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
     self.sendButton.imageEdgeInsets = UIEdgeInsetsMake(15,
                                                        self.bottomView.bounds.size.width - self.bottomView.bounds.size.height - 15, 15, 15);
@@ -305,7 +305,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 - (void)addTopButtons {
     CGFloat buttonSize = 50;
     self.xButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, buttonSize, buttonSize)];
-    [self.xButton setImage:[UIImage imageNamed:@"Cancel"] forState:UIControlStateNormal];
+    [self.xButton setImage:[UIImage imageNamed:@"X"] forState:UIControlStateNormal];
     [self.xButton addTarget:self action:@selector(dismissAnimated) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.xButton];
     

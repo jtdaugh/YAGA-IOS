@@ -238,9 +238,9 @@
     [self.view addSubview:self.recordingCircle];
 
     
-    self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - BUTTON_SIZE)/2, 10, BUTTON_SIZE, BUTTON_SIZE)];
+    self.gridButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, BUTTON_SIZE, BUTTON_SIZE)];
     self.gridButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    [self.gridButton setImage:[UIImage imageNamed:@"Grid"] forState:UIControlStateNormal];
+    [self.gridButton setImage:[UIImage imageNamed:@"X"] forState:UIControlStateNormal];
     self.gridButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.gridButton addTarget:self action:@selector(gridButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.gridButton];
