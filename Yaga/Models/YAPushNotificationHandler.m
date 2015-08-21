@@ -101,6 +101,9 @@ typedef void (^groupChangedCompletionBlock)(void);
     else if([eventName isEqualToString:@"reject"]) {
         [self handleReject];
     }
+    else if([eventName isEqualToString:@"pending"]) {
+        [self handleNewPendingVideos];
+    }
 }
 
 - (void)handlePostEvent {
@@ -132,6 +135,11 @@ typedef void (^groupChangedCompletionBlock)(void);
     [self openGroupWithId:groupId refresh:YES];
 }
 
+- (void)handleNewPendingVideos {
+    NSString *groupId = self.meta[@"group_id"];
+    [self openGroupWithId:groupId toPending:YES refresh:YES completion:nil];
+}
+
 - (void)handleRegistration {
     //don't do anything on registration event, there will be no group id
 }
@@ -161,7 +169,7 @@ typedef void (^groupChangedCompletionBlock)(void);
 - (void)handleGroupJoinRequest {
     NSString *groupId = self.meta[@"group_id"];
 
-    [self openGroupWithId:groupId refresh:YES completion:^{
+    [self openGroupWithId:groupId toPending:NO refresh:YES completion:^{
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_GROUP_OPTIONS_NOTIFICATION object:self.groupToOpen];
         });
@@ -170,7 +178,7 @@ typedef void (^groupChangedCompletionBlock)(void);
 
 - (void)handleApprovePublic {
     NSString *groupId = self.meta[@"group_id"];
-    [self openGroupWithId:groupId refresh:YES completion:nil];
+    [self openGroupWithId:groupId toPending:NO refresh:YES completion:nil];
 }
 
 - (void)handleReject {
@@ -179,7 +187,7 @@ typedef void (^groupChangedCompletionBlock)(void);
 }
 
 #pragma mark - Utils
-- (void)openGroupWithId:(NSString*)groupId refresh:(BOOL)refresh completion:(groupChangedCompletionBlock)completion {
+- (void)openGroupWithId:(NSString*)groupId toPending:(BOOL)toPending refresh:(BOOL)refresh completion:(groupChangedCompletionBlock)completion {
     RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", groupId]];
     
     //no local group? load groups list from server
@@ -199,7 +207,7 @@ typedef void (^groupChangedCompletionBlock)(void);
                 }
                 
                 //group found after refreshing list of groups
-                [self sendNotificationToOpenGroup:groups[0] refresh:refresh];
+                [self sendNotificationToOpenGroup:groups[0] toPending:toPending refresh:refresh];
                 if(completion)
                     completion();
             }
@@ -211,25 +219,28 @@ typedef void (^groupChangedCompletionBlock)(void);
     }
     else {
         //group exists? update current group and refresh if needed
-        [self sendNotificationToOpenGroup:groups[0] refresh:refresh];
+        [self sendNotificationToOpenGroup:groups[0] toPending:toPending refresh:refresh];
         if(completion)
             completion();
     }
 }
 
 - (void)openGroupWithId:(NSString*)groupId refresh:(BOOL)refresh {
-    [self openGroupWithId:groupId refresh:refresh completion:nil];
+    [self openGroupWithId:groupId toPending:NO refresh:refresh completion:nil];
 }
 
-- (void)sendNotificationToOpenGroup:(YAGroup*)newGroup refresh:(BOOL)refresh {
+- (void)sendNotificationToOpenGroup:(YAGroup*)newGroup toPending:(BOOL)toPending refresh:(BOOL)refresh {
 
     self.groupToOpen = newGroup;
     
     if(refresh) {
-        [newGroup refresh:YES];
+        if (toPending)
+            [newGroup refreshPendingVideos];
+        else
+            [newGroup refresh:YES];
     }
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_GROUP_GRID_NOTIFICATION object:newGroup];
+    [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_GROUP_GRID_NOTIFICATION object:newGroup userInfo:@{kOpenToPendingVideos : @(toPending)}];
 }
 
 - (void)groupDidRefresh:(NSNotification*)notification {
@@ -257,7 +268,7 @@ typedef void (^groupChangedCompletionBlock)(void);
     
     NSString *eventName = meta[@"event"];
     
-    if([eventName isEqualToString:@"kick"] || [eventName isEqualToString:@"request"]) {
+    if([eventName isEqualToString:@"kick"]) {
         return YES;
     }
     
