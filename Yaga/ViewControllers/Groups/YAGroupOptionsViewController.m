@@ -396,9 +396,6 @@ static NSString *CellID = @"CellID";
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(self.group.publicGroup)
-        return NO;
-    
     if (indexPath.section == 0 && self.membersPendingJoin.count) {
         return NO;
     }
@@ -526,8 +523,6 @@ static NSString *CellID = @"CellID";
 
 - (void)setGroup:(YAGroup *)group {
     _group = group;
-    
-    self.muteButton.hidden = self.leaveButton.hidden = self.group.publicGroup;
     
     __weak typeof(self) weakSelf = self;
     self.notificationToken = [self.group.realm addNotificationBlock:^(NSString *notification, RLMRealm *realm) {
