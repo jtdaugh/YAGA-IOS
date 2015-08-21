@@ -54,6 +54,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self.navigationController setNavigationBarHidden:YES];
     
     self.automaticallyAdjustsScrollViewInsets = NO;
     

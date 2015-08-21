@@ -238,7 +238,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         label.font = [UIFont fontWithName:BIG_FONT size:16];
         label.textColor = [UIColor lightGrayColor];
         label.textAlignment = NSTextAlignmentCenter;
-        label.text=@"Looking for more?\nExplore nearby & popular channels\nor create a new one!";
+        label.text=@"Looking for more?\nExplore popular channels\nor create a new one!";
         [reusableview addSubview:label];
         
         CGSize buttonSize = CGSizeMake(VIEW_WIDTH/2 - 30, 50);
