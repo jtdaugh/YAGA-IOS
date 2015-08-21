@@ -172,10 +172,10 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.bottomView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:self.bottomView];
     
-    UIView *transparentView = [[UIView alloc] initWithFrame:self.bottomView.bounds];
-    transparentView.backgroundColor = [UIColor blackColor];
-    transparentView.alpha = 0.42;
-    [self.bottomView addSubview:transparentView];
+//    UIView *transparentView = [[UIView alloc] initWithFrame:self.bottomView.bounds];
+//    transparentView.backgroundColor = [UIColor blackColor];
+//    transparentView.alpha = 0.42;
+//    [self.bottomView addSubview:transparentView];
     
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.sendButton.frame = CGRectMake(0, 0, self.bottomView.bounds.size.width, self.bottomView.bounds.size.height);
@@ -191,13 +191,22 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.chosenGroupsLabel.textColor = [UIColor whiteColor];
     self.chosenGroupsLabel.font = [UIFont fontWithName:BOLD_FONT size:16];
     [self.bottomView addSubview:self.chosenGroupsLabel];
-        
+    
+    /*  usingSpringWithDamping:0.7 initialSpringVelocity:0.0 */
+    [UIView animateWithDuration:0.618 delay:0.0 options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat | UIViewAnimationOptionAllowUserInteraction animations:^{
+        //
+        self.sendButton.alpha = 0.5;
+        self.sendButton.imageView.transform = CGAffineTransformMakeScale(0.88, 0.88);
+    } completion:^(BOOL finished) {
+        //
+    }];
+    
     self.chooseGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, self.bottomView.bounds.size.height/2 - 5, self.view.bounds.size.width - 80, self.bottomView.bounds.size.height/2)];
     self.chooseGroupsLabel.textColor = [UIColor whiteColor];
     self.chooseGroupsLabel.font = [UIFont fontWithName:BIG_FONT size:12];
     [self.chooseGroupsLabel setText:@"Tap to add more groups"];
     self.chooseGroupsLabel.textAlignment = NSTextAlignmentLeft;
-    [self.bottomView addSubview:self.chooseGroupsLabel];
+//    [self.bottomView addSubview:self.chooseGroupsLabel];
     
 //    UITapGestureRecognizer *chooseGroupsTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(chooseGroupsPressed)];
 //    [self.bottomView addGestureRecognizer:chooseGroupsTap];
