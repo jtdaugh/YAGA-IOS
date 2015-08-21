@@ -137,9 +137,9 @@
             self.jpgImageView = [[UIImageView alloc] initWithImage:jpgImage];
             self.jpgImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         }
-        else
+        else {
             self.jpgImageView.image = jpgImage;
-        
+        }
 
         [self.view addSubview:self.jpgImageView];
     }
