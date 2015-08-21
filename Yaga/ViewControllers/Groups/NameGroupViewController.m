@@ -30,7 +30,6 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     [self.navigationController setNavigationBarHidden:NO];
-    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     self.navigationController.navigationBar.backgroundColor = HOSTING_GROUP_COLOR;
     self.navigationController.navigationBar.barTintColor = HOSTING_GROUP_COLOR;
 

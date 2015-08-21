@@ -39,6 +39,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    // change when force camera
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+
 //    [YAUtils randomQuoteWithCompletion:^(NSString *quote, NSError *error) {
 //        self.navigationItem.prompt = quote;
 //    }];
