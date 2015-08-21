@@ -509,8 +509,6 @@
     NSString *api = [NSString stringWithFormat:API_GROUP_JOIN_TEMPLATE, self.base_api, serverGroupId];
     
     [self.jsonOperationsManager PUT:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        [YAUtils setCompletedForcedFollowing];
-        [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         [YAUtils showHudWithText:NSLocalizedString(@"Failed to join group", @"")];
