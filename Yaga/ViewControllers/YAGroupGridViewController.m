@@ -98,15 +98,24 @@
 
 - (void)updateBarWithGroupInfo {
     self.groupNameLabel.text = self.group.name;
+    NSString *string = self.group.membersString;
     if (self.group.publicGroup) {
-        NSString *string = self.group.membersString;
-        if ([string isEqualToString:@"No members"]) {
-            self.groupDescriptionLabel.text = @"You're the only host";
+        if (self.group.amMember) {
+            if ([string isEqualToString:@"No members"]) {
+                self.groupDescriptionLabel.text = @"You're the only host";
+            } else {
+                self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Co-Hosts: %@", self.group.membersString];
+            }
         } else {
-            self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Co-Hosts: %@", self.group.membersString];
+            self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
         }
     } else {
-        self.groupDescriptionLabel.text = self.group.membersString;
+        // Private group
+        if ([string isEqualToString:@"No members"]) {
+            self.groupDescriptionLabel.text = @"No other members";
+        } else {
+            self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Private group with %@", self.group.membersString];
+        }
     }
     
     if (!self.group.amMember) {
@@ -126,7 +135,6 @@
             [self.navigationController popViewControllerAnimated:YES];
         }
         [self.segmentedControl removeFromSuperview];
-        [self.flexibleNavBar addSubview:self.followButton];
         if (self.group.amFollowing) {
             self.buttonIsUnfollow = YES;
             [self.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
@@ -157,7 +165,6 @@
         [self.group unfollowWithCompletion:^(NSError *error) {
             if (error) {
                 DLog(@"Failed to leave group");
-                [YAUtils showHudWithText:@"Oops. Try again later."];
             } else {
                 DLog(@"Left group");
                 self.buttonIsUnfollow = NO;
@@ -168,8 +175,9 @@
         [self.group followWithCompletion:^(NSError *error) {
             if (error) {
                 DLog(@"Failed to follow group");
-                [YAUtils showHudWithText:@"Oops. Try again later."];
+                [YAUtils showHudWithText:@"👎"];
             } else {
+                [YAUtils showHudWithText:@"👍"];
                 DLog(@"Followed group");
                 self.buttonIsUnfollow = YES;
                 [self.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];

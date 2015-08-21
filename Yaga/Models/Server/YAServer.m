@@ -334,7 +334,7 @@
     [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
-    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Leaving group", @"")];
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:isUnfollow ? NSLocalizedString(@"Unfollowing...", @"") : NSLocalizedString(@"Leaving group", @"")];
     
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
@@ -343,11 +343,17 @@
                                [hud hide:NO];
                                
                                if([(NSHTTPURLResponse*)response statusCode] == 200) {
-                                   [YAUtils showHudWithText:NSLocalizedString(@"Group left", @"")];
+                                   if (isUnfollow)
+                                       [YAUtils showHudWithText:@"👍"];
+                                   else
+                                       [YAUtils showHudWithText:NSLocalizedString(@"Group left", @"")];
                                    completion(nil, nil);
                                }
                                else {
-                                   [YAUtils showHudWithText:NSLocalizedString(@"Can not leave group", @"")];
+                                   if (isUnfollow)
+                                       [YAUtils showHudWithText:NSLocalizedString(@"Oops", @"")];
+                                   else
+                                       [YAUtils showHudWithText:NSLocalizedString(@"Can not leave group", @"")];
                                    NSString *str = [data hexRepresentationWithSpaces_AS:NO];
                                    if(response)
                                        completion([NSString stringFromHex:str], [NSError errorWithDomain:@"YADomain" code:[(NSHTTPURLResponse*)response statusCode] userInfo:@{@"response":response}]);
@@ -522,13 +528,16 @@
     
     NSString *api = [NSString stringWithFormat:API_GROUP_FOLLOW_TEMPLATE, self.base_api, serverGroupId];
     
+    __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Following..."];
+
     [self.jsonOperationsManager PUT:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         DLog(@"Successfully followed channel");
+        [hud hide:NO];
         [YAUtils setCompletedForcedFollowing];
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [YAUtils showHudWithText:NSLocalizedString(@"Failed to follow group", @"")];
+        [hud hide:NO];
         completion(nil, error);
     }];
 }
