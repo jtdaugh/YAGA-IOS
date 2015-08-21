@@ -125,7 +125,7 @@
             // Enforce that it is a public group.
             [self.navigationController popViewControllerAnimated:YES];
         }
-        self.segmentedControl.hidden = YES;
+        [self.segmentedControl removeFromSuperview];
         [self.flexibleNavBar addSubview:self.followButton];
         if (self.group.amFollowing) {
             self.buttonIsUnfollow = YES;
