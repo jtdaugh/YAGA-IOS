@@ -38,7 +38,6 @@
 @property (strong, nonatomic) UIButton *saveButton;
 @property (strong, nonatomic) UIButton *confirmCrosspost;
 @property (strong, nonatomic) UIButton *collapseCrosspostButton;
-@property (strong, nonatomic) UIButton *captionButton;
 @property (strong, nonatomic) MBProgressHUD *hud;
 
 @property (nonatomic, copy) void (^completionBlock)(ACAccount *account);
@@ -173,17 +172,7 @@
         
         
         CGFloat buttonRadius = 22.f, padding = 4.f;
-        self.captionButton = [YAUtils circleButtonWithImage:@"Text" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, padding + buttonRadius)];
-        [self.captionButton addTarget:self action:@selector(captionPressed) forControlEvents:UIControlEventTouchUpInside];
-        self.captionButton.alpha = 0.0;
-        [self addSubview:self.captionButton];
-        
-#if (DEBUG && CAPTION_OVERWRITING_ALLOWED)
-        self.captionButton.hidden = NO;
-#else
-        self.captionButton.hidden = ([video.caption length] > 0) || !myVideo;
-#endif
-        
+                
         self.collapseCrosspostButton = [YAUtils circleButtonWithImage:@"X" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding, padding + buttonRadius)];
         [self.collapseCrosspostButton addTarget:self action:@selector(collapseCrosspost) forControlEvents:UIControlEventTouchUpInside];
         self.collapseCrosspostButton.alpha = 0.0;
@@ -200,17 +189,13 @@
 
 - (void)setTopButtonsHidden:(BOOL)hidden animated:(BOOL)animated {
     [UIView animateWithDuration:animated ? 0.2 : 0.0 animations:^{
-        self.captionButton.alpha = hidden ? 0.0 : 1.0;
         self.collapseCrosspostButton.alpha = hidden ? 0.0 : 1.0;
     }];
 }
 
-- (void)captionPressed {
-    [self.page captionButtonPressed];
-}
 
 - (void)collapseCrosspost {
-        [self.page collapseCrosspost];
+    [self.page collapseCrosspost];
 }
 
 - (void)externalShareAction:(UIButton *)sender {
