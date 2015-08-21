@@ -37,7 +37,8 @@ typedef void (^jpgCompletion)(void);
                        addToGroups:(NSArray *)groups;
 
 + (UIImage *)thumbnailImageForVideoUrl:(NSURL *)videoUrl atTime:(NSTimeInterval)time;
-+ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoConcatenationCompletion)completion;
+
+- (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoConcatenationCompletion)completion;
 
 // If durationLimit is set, it will chop off as much time as needed from the beginning of the video. 
 - (void)concatenateAssetsAtURLs:(NSArray *)assetURLs

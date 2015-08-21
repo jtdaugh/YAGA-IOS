@@ -835,6 +835,8 @@
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    
                    [[RLMRealm defaultRealm] beginWriteTransaction];
+                   video.pending = NO;
+                   
                    // Swap video to non-pending group videos array
                    NSUInteger indexPending = [video.group.pending_videos indexOfObject:video];
                    NSUInteger indexNonPending = [video.group.videos indexOfObject:video];

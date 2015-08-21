@@ -241,6 +241,8 @@
     if ([notif.userInfo[kOpenToPendingVideos] boolValue])
         vc.openStraightToPendingSection = YES;
     
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    
     self.selectedIndex = 3;
     [navVC pushViewController:vc animated:YES];
 }

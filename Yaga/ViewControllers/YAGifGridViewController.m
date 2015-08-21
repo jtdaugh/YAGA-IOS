@@ -322,19 +322,6 @@ static NSString *cellID = @"Cell";
     });
 }
 
-#warning refactor, GifGridController shouldn't pop itself when group is changed
-- (void)groupDidChange:(NSNotification*)notif {
-//    if (!self.group) {
-//        [self.navigationController popViewControllerAnimated:NO];
-//        return;
-//    }
-//    [self.noVideosLabel removeFromSuperview];
-//    self.noVideosLabel = nil;
-//    [self.toolTipLabel removeFromSuperview];
-//    self.toolTipLabel = nil;
-//    [self reload];
-}
-
 - (void)refreshCurrentGroup {
     [self showActivityIndicator:YES];
     [self performAdditionalRefreshRequests];

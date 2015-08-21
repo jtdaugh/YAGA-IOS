@@ -29,6 +29,7 @@
 @property (nonatomic, strong) UIImage *capturePreviewImage;
 
 @property (nonatomic, strong) AVAssetExportSession *exportSession;
+
 @end
 
 
@@ -211,7 +212,7 @@
     return thumbnailImage;
 }
 
-+ (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoConcatenationCompletion)completion {
+- (void)reformatExternalVideoAtUrl:(NSURL *)videoUrl withCompletion:(videoConcatenationCompletion)completion {
     
     AVAsset *asset = [AVAsset assetWithURL:videoUrl];
     CGSize vidSize = ((AVAssetTrack *)([asset tracksWithMediaType:AVMediaTypeVideo][0])).naturalSize;
@@ -241,19 +242,22 @@
     instruction.layerInstructions = [NSArray arrayWithObject:transformer];
     videoComposition.instructions = [NSArray arrayWithObject: instruction];
     
-    AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetPassthrough];
-    exportSession.videoComposition = videoComposition;
-    exportSession.outputURL = outputURL;
-    exportSession.outputFileType = AVFileTypeMPEG4;
+    self.exportSession = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
+    self.exportSession.videoComposition = videoComposition;
+    self.exportSession.outputURL = outputURL;
+    self.exportSession.outputFileType = AVFileTypeMPEG4;
     
     NSTimeInterval duration = CMTimeGetSeconds(asset.duration);
     if (duration > MAXIMUM_TRIM_TOTAL_LENGTH) {
-        [exportSession setTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(MAXIMUM_TRIM_TOTAL_LENGTH, 100000))];
+        [self.exportSession setTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(MAXIMUM_TRIM_TOTAL_LENGTH, asset.duration.timescale))];
+    } else {
+        [self.exportSession setTimeRange:CMTimeRangeMake(kCMTimeZero, asset.duration)];
     }
 
-    
-    [exportSession exportAsynchronouslyWithCompletionHandler:^(void ) {
-        completion(exportSession.outputURL, CMTimeGetSeconds(exportSession.timeRange.duration), nil);
+    __weak typeof(self) weakSelf = self;
+    [self.exportSession exportAsynchronouslyWithCompletionHandler:^(void ) {
+        completion(weakSelf.exportSession.outputURL, MIN(duration, MAXIMUM_TRIM_TOTAL_LENGTH), nil);
+        weakSelf.exportSession = nil;
     }];
 
 }

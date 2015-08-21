@@ -261,6 +261,9 @@
 
 - (void)layoutSubviews
 {
+    if (isnan(_leftPosition)) _leftPosition = 0;
+    if (isnan(_rightPosition)) _rightPosition = _bgView.frame.size.width;
+    
     CGFloat sliderVisualWidth = _leftThumb.frame.size.width - 2*SLIDER_PADDING;
     _leftThumb.center = CGPointMake(_bgView.frame.origin.x + _leftPosition - sliderVisualWidth/2, _bgView.frame.size.height/2);
     

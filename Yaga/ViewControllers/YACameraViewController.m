@@ -249,12 +249,12 @@
 
 //    [YAUtils showBubbleWithText:@"Another bubble tooltip with arrow up" bubbleWidth:180 forView:self.gridButton];
     
-    self.uploadButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, BUTTON_SIZE, BUTTON_SIZE)];
+    self.uploadButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BUTTON_SIZE - 10, 10, BUTTON_SIZE, BUTTON_SIZE)];
     self.uploadButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
     [self.uploadButton setImage:[UIImage imageNamed:@"Import"] forState:UIControlStateNormal];
     self.uploadButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.uploadButton addTarget:self action:@selector(chooseFromCameraRoll) forControlEvents:UIControlEventTouchUpInside];
-//    [self.view addSubview:self.uploadButton];
+    [self.view addSubview:self.uploadButton];
     
     //stop recording on incoming call
     void (^block)(CTCall*) = ^(CTCall* call) {
@@ -379,14 +379,14 @@
     YAEditVideoViewController *vc = [YAEditVideoViewController new];
     vc.videoUrl = url;
     vc.totalDuration = duration;
-
-    if (self.hud) {
-        [self.hud hide:YES];
-    }
-    
-    [self.activityIndicator removeFromSuperview];
-    self.doneRecordingButton.hidden = NO;
-    [self.navigationController pushViewController:vc animated:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.activityIndicator removeFromSuperview];
+        self.doneRecordingButton.hidden = NO;
+        if (self.hud) {
+            [self.hud hide:YES];
+        }
+        [self.navigationController pushViewController:vc animated:YES];
+    });
 }
 
 - (void)stopRecordingVideo {
@@ -673,17 +673,20 @@
     picker.allowsEditing = YES;
     picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     [picker setMediaTypes: [NSArray arrayWithObject:(NSString *)kUTTypeMovie]];
-    [self presentViewController:picker animated:YES completion:nil];;
+    [self presentViewController:picker animated:YES completion:^{
+        [self.hud hide:NO];
+    }];;
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     DLog(@"Did pick video from camera roll");
+    self.hud = [YAUtils showIndeterminateHudWithText:@"One sec..."];
     [picker dismissViewControllerAnimated:YES completion:^{
         NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
         if ([mediaType isEqualToString:(NSString *)kUTTypeMovie])
         {
             NSURL *videoURL = [info objectForKey:UIImagePickerControllerMediaURL];
-            [YAAssetsCreator reformatExternalVideoAtUrl:videoURL withCompletion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
+            [[YAAssetsCreator sharedCreator] reformatExternalVideoAtUrl:videoURL withCompletion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
                 [self presentTrimViewWithOutputUrl:filePath duration:totalDuration]; // hud will be dismissed after presenting trim
             }];
         } else {
@@ -694,7 +697,6 @@
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     DLog(@"Cancelled picking video from camera roll");
-    [self.hud hide:NO];
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 
