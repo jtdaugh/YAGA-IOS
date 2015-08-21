@@ -31,43 +31,7 @@
     [bar addBackBtn];
     [bar addMoreBtn];
     [bar addSegmentCtrl];
-
-    //
-    //    UILabel *viewsLabel = [UILabel new];
-    //    viewsLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-    //    viewsLabel.textColor = [UIColor whiteColor];
-    //    viewsLabel.textAlignment = NSTextAlignmentCenter;
-    //    [bar addSubview:viewsLabel];
-    //
-    //    CGFloat btnWidth = 140;
-    //    UIButton *followButton = [UIButton new];
-    //    followButton.backgroundColor = [UIColor clearColor];
-    //    [followButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    //    [followButton setTitle:@"Follow" forState:UIControlStateNormal];
-    //    followButton.layer.borderColor = [[UIColor whiteColor] CGColor];
-    //    followButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
-    //    followButton.layer.borderWidth = 2;
-    //    followButton.layer.cornerRadius = 10;
-    //    [bar addSubview:followButton];
-    //
-    //    UIButton *backButton = [UIButton new];
-    //    backButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
-    //    backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-    //    [backButton setImage:[UIImage imageNamed:@"Back"] forState:UIControlStateNormal];
-    //    [backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
-    //    [bar addSubview:backButton];
-    //
-//    groupNameLabel.text = self.group.name;
-//    descriptionLabel.text = @"Hosted by Arauh";
-//    //    viewsLabel.text = @"456 followers      123,543 views";
-//    
-//    self.groupNameLabel = groupNameLabel;
-//    self.groupDescriptionLabel = descriptionLabel;
-    //    self.groupViewsLabel = viewsLabel;
-    //    self.followButton = followButton;
-    //    self.backButton = backButton;
     return bar;
-
 }
 
 - (void)addEmptyNameLabel {
