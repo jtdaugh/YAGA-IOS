@@ -266,7 +266,8 @@
 }
 
 - (void)updateState {
-    self.videoStatus.backgroundColor = self.video.pending ? [[UIColor yellowColor] colorWithAlphaComponent:0.9] : [[UIColor greenColor] colorWithAlphaComponent:0.7];
+    UIColor *yellow = [UIColor colorWithRed:(241.0/255.0) green:(196.0/255.0) blue:(15.0/255.0) alpha:0.9];
+    self.videoStatus.backgroundColor = self.video.pending ? yellow : [[UIColor greenColor] colorWithAlphaComponent:0.7];
     
     if(self.video.gifFilename.length)
         self.state = YAVideoCellStateGIFPreview;
