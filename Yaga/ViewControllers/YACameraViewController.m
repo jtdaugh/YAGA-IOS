@@ -232,6 +232,7 @@
     
     self.recordingCircle.layer.borderColor = [UIColor whiteColor].CGColor;
     self.recordingCircle.layer.borderWidth = 5.0f;
+    [self.recordingCircle setBackgroundColor:[UIColor colorWithWhite:1 alpha:0.2]];
     self.recordingCircle.layer.cornerRadius = doneButtonWidth/2;
     [self.recordingCircle setAlpha:0.0];
     [self.recordingCircle setUserInteractionEnabled:NO];
@@ -260,15 +261,6 @@
     };
     self.callCenter = [[CTCallCenter alloc] init];
     self.callCenter.callEventHandler = block;
-    
-    CGFloat redDotSize = 24;
-    self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - redDotSize/2, 24, redDotSize, redDotSize)];
-    [self.recordingIndicator setBackgroundColor:[UIColor redColor]];
-    self.recordingIndicator.layer.cornerRadius = redDotSize/2;
-    self.recordingIndicator.layer.masksToBounds = YES;
-    
-    [self.recordingIndicator setAlpha:1.0];
-//    [self.view addSubview:self.recordingIndicator];
     
 //    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Recording" attributes:@{
 //                                                                                                     NSStrokeWidthAttributeName: @8.0,

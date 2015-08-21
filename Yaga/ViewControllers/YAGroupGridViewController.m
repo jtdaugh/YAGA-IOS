@@ -114,7 +114,7 @@
         if ([string isEqualToString:@"No members"]) {
             self.groupDescriptionLabel.text = @"No other members";
         } else {
-            self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Private group with %@", self.group.membersString];
+            self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Private channel with %@", self.group.membersString];
         }
     }
     
