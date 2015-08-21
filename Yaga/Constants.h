@@ -253,4 +253,6 @@
 #define kStreamItemsOnPage                  30
 #define kPopupsShown                        @"kPopupsShown"
 
+#define kOpenToPendingVideos                @"kOpenToPending"
+
 #endif

@@ -223,6 +223,9 @@
     YAGroupGridViewController *vc = [YAGroupGridViewController new];
     vc.group = group;
     
+    if ([notif.userInfo[kOpenToPendingVideos] boolValue])
+        vc.openStraightToPendingSection = YES;
+    
     self.selectedIndex = 3;
     [navVC pushViewController:vc animated:YES];
 }

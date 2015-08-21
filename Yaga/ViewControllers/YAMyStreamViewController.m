@@ -69,7 +69,7 @@
     [viewCountLabel addLayoutAttributes:expanded forProgress:0.0];
     
     BLKFlexibleHeightBarSubviewLayoutAttributes *collapsed = [[BLKFlexibleHeightBarSubviewLayoutAttributes alloc] initWithExistingLayoutAttributes:expanded];
-    collapsed.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -frame.size.height), 0.5, 0.5);
+    collapsed.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -frame.size.height + 20), 0.2, 0.2);
     collapsed.alpha = 0.0;
     [viewCountLabel addLayoutAttributes:collapsed forProgress:1.0];
     

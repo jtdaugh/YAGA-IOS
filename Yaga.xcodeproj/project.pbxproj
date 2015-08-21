@@ -134,6 +134,7 @@
 		8890451D1B18FF8700B3C4D7 /* YAEventCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8890451C1B18FF8700B3C4D7 /* YAEventCell.m */; };
 		88A4B0281B83B19000D0D34E /* YALatestStreamViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A4B0271B83B19000D0D34E /* YALatestStreamViewController.m */; };
 		88A4B02B1B83B63200D0D34E /* YAPendingGroupReminderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A4B02A1B83B63200D0D34E /* YAPendingGroupReminderCell.m */; };
+		88AAC39F1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88AAC39E1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m */; };
 		88DFCC8D1B7BF04A002448F9 /* YAGroupGridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC8C1B7BF04A002448F9 /* YAGroupGridViewController.m */; };
 		88DFCC901B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC8F1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m */; };
 		88DFCC931B7C5002002448F9 /* YAProfileFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC921B7C5002002448F9 /* YAProfileFlexibleHeightBar.m */; };
@@ -391,6 +392,8 @@
 		88A4B0271B83B19000D0D34E /* YALatestStreamViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YALatestStreamViewController.m; sourceTree = "<group>"; };
 		88A4B0291B83B63200D0D34E /* YAPendingGroupReminderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPendingGroupReminderCell.h; sourceTree = "<group>"; };
 		88A4B02A1B83B63200D0D34E /* YAPendingGroupReminderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPendingGroupReminderCell.m; sourceTree = "<group>"; };
+		88AAC39D1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAStreamFlexibleNavBar.h; sourceTree = "<group>"; };
+		88AAC39E1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAStreamFlexibleNavBar.m; sourceTree = "<group>"; };
 		88DFCC8B1B7BF04A002448F9 /* YAGroupGridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupGridViewController.h; sourceTree = "<group>"; };
 		88DFCC8C1B7BF04A002448F9 /* YAGroupGridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupGridViewController.m; sourceTree = "<group>"; };
 		88DFCC8E1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAStandardFlexibleHeightBar.h; sourceTree = "<group>"; };
@@ -752,6 +755,8 @@
 				6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */,
 				88DFCC8E1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.h */,
 				88DFCC8F1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m */,
+				88AAC39D1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.h */,
+				88AAC39E1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m */,
 				88DFCC911B7C5002002448F9 /* YAProfileFlexibleHeightBar.h */,
 				88DFCC921B7C5002002448F9 /* YAProfileFlexibleHeightBar.m */,
 				6E5C99181A5EAFAA00A9F586 /* YAActivityView.h */,
@@ -1082,6 +1087,7 @@
 				6E9188CD1A3F3A5A0034AB63 /* NSString+Hash.m in Sources */,
 				6E9188EA1A3F3A5A0034AB63 /* CliqueTextField.m in Sources */,
 				41D53FF01B1FB4A4004DB886 /* YACenterImageButton.m in Sources */,
+				88AAC39F1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m in Sources */,
 				86B864A61A433185002256FF /* YACountriesTableViewController.m in Sources */,
 				0FE7A6B41B53542C00B35DCD /* YACreateGroupNavigationController.m in Sources */,
 				6E9188CB1A3F3A5A0034AB63 /* NSMutableArray+Shuffle.m in Sources */,

@@ -216,10 +216,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (void)setupFlexibleNavBar {
     self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
     CGRect barFrame = self.flexibleNavBar.frame;
-    self.flexibleNavBar.maximumBarHeight = 116;
+    self.flexibleNavBar.maximumBarHeight = 110;
     self.flexibleNavBar.minimumBarHeight = 66;
     self.flexibleNavBar.layer.masksToBounds = YES;
-    barFrame.size.height += 50;
+    barFrame.size.height += 44;
     self.flexibleNavBar.frame = barFrame;
     self.flexibleNavBar.titleLabel.text = @"Explore Channels";
     [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
@@ -227,7 +227,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
     
     //search bar
-    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 70, VIEW_WIDTH-40, 30)];
+    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 68, VIEW_WIDTH-40, 30)];
     self.searchBar.searchTextPositionAdjustment = UIOffsetMake(20, 0);
     self.searchBar.backgroundImage = [[UIImage alloc] init];
     self.searchBar.barStyle = UIBarStyleDefault;
@@ -238,10 +238,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     self.searchBar.alpha = 0.8;
     
     BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    searchBarExpanded.frame = CGRectMake(20, 70, VIEW_WIDTH-40, 30);
+    searchBarExpanded.frame = CGRectMake(20, 68, VIEW_WIDTH-40, 30);
     [self.searchBar addLayoutAttributes:searchBarExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    searchBarCollapsed.frame = CGRectMake(20, 22, VIEW_WIDTH-40, 30);
+    searchBarCollapsed.frame = CGRectMake(20, 28, VIEW_WIDTH-40, 30);
     [self.searchBar addLayoutAttributes:searchBarCollapsed forProgress:1.0];
     [self.flexibleNavBar addSubview:self.searchBar];
     

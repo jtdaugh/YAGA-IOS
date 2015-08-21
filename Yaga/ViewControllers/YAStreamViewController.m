@@ -10,7 +10,7 @@
 
 //DEBUG
 #import "YAVideo.h"
-#import "YAStandardFlexibleHeightBar.h"
+#import "YAStreamFlexibleNavBar.h"
 #import "YAVideoCell.h"
 #import "YAGroupGridViewController.h"
 #import "YABarBehaviorDefiner.h"
@@ -51,7 +51,7 @@
 }
 
 - (BLKFlexibleHeightBar *)createNavBar {
-    YAStandardFlexibleHeightBar *bar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
+    YAStreamFlexibleNavBar *bar = [YAStreamFlexibleNavBar emptyStreamNavBar];
     bar.titleLabel.text = self.group.name;
     bar.behaviorDefiner = [YABarBehaviorDefiner new];
     [bar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];

@@ -22,6 +22,7 @@
 @property (nonatomic,strong) UILabel *groupViewsLabel;
 @property (nonatomic,strong) UIButton *followButton;
 @property (nonatomic,strong) UIButton *backButton;
+@property (nonatomic,strong) UIButton *moreButton;
 @property (nonatomic, strong) UISegmentedControl *segmentedControl;
 @property (nonatomic) BOOL buttonIsUnfollow;
 
@@ -49,6 +50,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    [self updateBarWithGroupInfo];
     [self updateViewCountLabel];
     [YAViewCountManager sharedManager].groupViewCountDelegate = self;
     [[YAViewCountManager sharedManager] monitorGroupWithId:self.group.serverId];
@@ -77,40 +79,54 @@
         frame.size.height -= 40;
         bar.frame = frame;
     }
-    
     [bar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
     [bar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
     bar.backgroundColor = self.group.publicGroup ? (self.group.amMember ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR) : PRIVATE_GROUP_COLOR;
-    bar.nameLabel.text = self.group.name;
-    
-    if (self.group.publicGroup) {
-        NSString *string = self.group.membersString;
-        if ([string isEqualToString:@"No members"]) {
-            bar.descriptionLabel.text = @"You're the only host";
-        } else {
-            bar.descriptionLabel.text = [NSString stringWithFormat:@"Co-Hosts: %@", self.group.membersString];
-        }
-    } else {
-        bar.descriptionLabel.text = self.group.membersString;
-    }
     [bar.backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
-    
-    if (self.group.amMember) {
-        [bar.moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
-    } else {
-        [bar.moreButton removeFromSuperview];
-    }
-    
     self.followButton = bar.followButton;
     self.segmentedControl = bar.segmentedControl;
+    self.groupDescriptionLabel = bar.descriptionLabel;
+    self.groupViewsLabel = bar.viewsLabel;
+    self.moreButton = bar.moreButton;
+    self.groupNameLabel = bar.nameLabel;
+    [bar.followButton addTarget:self action:@selector(followPressed) forControlEvents:UIControlEventTouchUpInside];
+    [bar.segmentedControl addTarget:self action:@selector(segmentedControlChanged) forControlEvents:UIControlEventValueChanged];
+    [bar.moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    
+    return bar;
+}
+
+- (void)updateBarWithGroupInfo {
+    self.groupNameLabel.text = self.group.name;
+    NSString *string = self.group.membersString;
+    if (self.group.publicGroup) {
+        if (self.group.amMember) {
+            if ([string isEqualToString:@"No members"]) {
+                self.groupDescriptionLabel.text = @"You're the only host";
+            } else {
+                self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Co-Hosts: %@", self.group.membersString];
+            }
+        } else {
+            self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
+        }
+    } else {
+        // Private group
+        if ([string isEqualToString:@"No members"]) {
+            self.groupDescriptionLabel.text = @"No other members";
+        } else {
+            self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Private group with %@", self.group.membersString];
+        }
+    }
+    
+    if (!self.group.amMember) {
+        [self.moreButton removeFromSuperview];
+    }
     
     if (self.group.amMember) {
         // show approved/unapproved posts segmented
-        [bar.followButton removeFromSuperview];
-        if (self.group.publicGroup) {
-            [bar.segmentedControl addTarget:self action:@selector(segmentedControlChanged) forControlEvents:UIControlEventValueChanged];
-        } else {
-            [bar.segmentedControl removeFromSuperview];
+        [self.followButton removeFromSuperview];
+        if (!self.group.publicGroup) {
+            [self.segmentedControl removeFromSuperview];
         }
     } else {
         // show follow/unfollow button
@@ -118,17 +134,15 @@
             // Enforce that it is a public group.
             [self.navigationController popViewControllerAnimated:YES];
         }
-        [bar.segmentedControl removeFromSuperview];
+        [self.segmentedControl removeFromSuperview];
         if (self.group.amFollowing) {
             self.buttonIsUnfollow = YES;
-            [bar.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
+            [self.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
         } else {
             self.buttonIsUnfollow = NO;
-            [bar.followButton setTitle:@"Follow" forState:UIControlStateNormal];
+            [self.followButton setTitle:@"Follow" forState:UIControlStateNormal];
         }
-        [bar.followButton addTarget:self action:@selector(followPressed) forControlEvents:UIControlEventTouchUpInside];
     }
-    return bar;
 }
 
 - (void)updateViewCountLabel {
@@ -151,7 +165,6 @@
         [self.group unfollowWithCompletion:^(NSError *error) {
             if (error) {
                 DLog(@"Failed to leave group");
-                [YAUtils showHudWithText:@"Oops. Try again later."];
             } else {
                 DLog(@"Left group");
                 self.buttonIsUnfollow = NO;
@@ -162,8 +175,9 @@
         [self.group followWithCompletion:^(NSError *error) {
             if (error) {
                 DLog(@"Failed to follow group");
-                [YAUtils showHudWithText:@"Oops. Try again later."];
+                [YAUtils showHudWithText:@"👎"];
             } else {
+                [YAUtils showHudWithText:@"👍"];
                 DLog(@"Followed group");
                 self.buttonIsUnfollow = YES;
                 [self.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];

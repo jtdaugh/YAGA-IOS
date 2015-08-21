@@ -165,6 +165,8 @@
 "Can not unmute group" = "Can not unmute channel";
 "Leaving group" = "Leaving channel";
 "Group left" = "Channel left";
+"Unfollowing..." = "Unfollowing...";
+"Unfollowed" = "Unfollowed";
 "Can not leave group" = "Can not leave channel";
 "Creating group" = "Creating channel";
 "Can not create group" = "Can not create channel";
