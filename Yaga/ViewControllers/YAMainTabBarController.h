@@ -14,6 +14,8 @@
 - (void)setInitialAnimationFrame:(CGRect)frame;
 - (void)setInitialAnimationTransform:(CGAffineTransform)transform;
 
+- (void)returnToStreamViewController;
+
 @property (nonatomic) BOOL overrideForceCamera;
 
 @end

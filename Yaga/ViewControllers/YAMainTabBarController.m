@@ -138,6 +138,14 @@
     }
 }
 
+- (void)returnToStreamViewController {
+    self.selectedIndex = 0;
+    UINavigationController *navVC = self.viewControllers[0];
+    if ([navVC.viewControllers count] > 1) {
+        [navVC popToRootViewControllerAnimated:NO];
+    }
+}
+
 - (UIViewController *)getTopmostViewControllerFromBaseVC:(UIViewController *)baseVC {
     UIViewController *visibleVC = baseVC;
     while (true) {
@@ -198,7 +206,6 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-
 }
 
 - (void)finishedOnboarding {

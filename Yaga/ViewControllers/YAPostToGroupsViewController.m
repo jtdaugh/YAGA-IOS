@@ -14,6 +14,7 @@
 #import "YAPostGroupCell.h"
 #import "YAAssetsCreator.h"
 #import "YAStandardFlexibleHeightBar.h"
+#import "YAMainTabBarController.h"
 
 @interface YAPostToGroupsViewController ()
 @property (nonatomic, strong) NSMutableArray *hostingGoups;
@@ -229,6 +230,7 @@
         
         [[Mixpanel sharedInstance] track:@"Video posted"];
         
+        [((YAMainTabBarController *)[UIApplication sharedApplication].keyWindow.rootViewController) returnToStreamViewController];
         [self dismissViewControllerAnimated:YES completion:nil];
     }
 }
