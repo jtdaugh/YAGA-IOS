@@ -96,14 +96,15 @@
     
     if (self.onboardingFinished) {
         self.selectedIndex = 0;
-        
-        self.forceCamera = YES;
-        UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
-        overlay.backgroundColor = [UIColor blackColor];
-        [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
-        overlay.contentMode = UIViewContentModeScaleAspectFill;
-        [self.view addSubview:overlay];
-        self.overlay = overlay;
+        self.forceCamera = !self.overrideForceCamera;
+        if (self.forceCamera) {
+            UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
+            overlay.backgroundColor = [UIColor blackColor];
+            [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
+            overlay.contentMode = UIViewContentModeScaleAspectFill;
+            [self.view addSubview:overlay];
+            self.overlay = overlay;
+        }
     } else {
         [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
         self.selectedIndex = 1;
@@ -195,6 +196,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+
 }
 
 - (void)finishedOnboarding {
@@ -217,6 +219,10 @@
 - (void)openGifGridFromNotification:(NSNotification *)notif {
     YAGroup *group = notif.object;
     if (!group) return;
+    
+    if (self.presentedViewController) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+    }
     
     UINavigationController *navVC = self.viewControllers[3];
     [navVC popToRootViewControllerAnimated:NO];

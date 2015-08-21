@@ -14,4 +14,6 @@
 - (void)setInitialAnimationFrame:(CGRect)frame;
 - (void)setInitialAnimationTransform:(CGAffineTransform)transform;
 
+@property (nonatomic) BOOL overrideForceCamera;
+
 @end

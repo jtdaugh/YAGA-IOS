@@ -241,7 +241,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     searchBarExpanded.frame = CGRectMake(20, 68, VIEW_WIDTH-40, 30);
     [self.searchBar addLayoutAttributes:searchBarExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    searchBarCollapsed.frame = CGRectMake(20, 28, VIEW_WIDTH-40, 30);
+    searchBarCollapsed.frame = CGRectMake(20, 27, VIEW_WIDTH-40, 30);
     [self.searchBar addLayoutAttributes:searchBarCollapsed forProgress:1.0];
     [self.flexibleNavBar addSubview:self.searchBar];
     

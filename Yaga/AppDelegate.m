@@ -18,6 +18,7 @@
 #import "YAServerTransactionQueue.h"
 #import "YAAssetsCreator.h"
 #import "YACameraManager.h"
+#import "YAMainTabBarController.h"
 
 #import "YANotificationView.h"
 #import "YAPushNotificationHandler.h"
@@ -110,20 +111,20 @@
     
     [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
 #endif
-        NSString *identifier;
-        if([[YAUser currentUser] loggedIn]) {
-            identifier = @"LoggedInUserInitialViewController";
-        }
-        else {
-            identifier = @"OnboardingNavigationController";
-        }
-        
-        UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
+    NSString *identifier;
+    if([[YAUser currentUser] loggedIn]) {
+        identifier = @"LoggedInUserInitialViewController";
+    }
+    else {
+        identifier = @"OnboardingNavigationController";
+    }
+    
+    UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:identifier];
 
-        self.window.rootViewController = viewController;
-        
-        [self.window makeKeyAndVisible];
-        
+    self.window.rootViewController = viewController;
+    [self.window makeKeyAndVisible];
+
+    
 #ifdef TESTING_MODE
     }];
 #endif
@@ -178,8 +179,10 @@
     if(pushInfo && pushInfo[@"meta"]) {
         [[YAPushNotificationHandler sharedHandler] handlePushWithUserInfo:@{@"meta":pushInfo[@"meta"]}];
         [[NSUserDefaults standardUserDefaults] setObject:pushInfo forKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+        if ([viewController isKindOfClass:[YAMainTabBarController class]]) {
+            ((YAMainTabBarController *)viewController).overrideForceCamera = YES;
+        }
     }
-    
     return YES;
 }
 
