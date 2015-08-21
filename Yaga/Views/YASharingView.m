@@ -25,6 +25,7 @@
 
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "YAAssetsCreator.h"
+#import "YACameraManager.h"
 
 @interface YASharingView () <FBSDKSharingDelegate, MFMessageComposeViewControllerDelegate, UIActionSheetDelegate>
 
@@ -43,6 +44,13 @@
 @property (nonatomic, copy) void (^completionBlock)(ACAccount *account);
 @property (nonatomic, strong) NSArray *accounts;
 @property (strong, nonatomic) UIView *topBar;
+
+
+//watermark
+@property (nonatomic, strong) GPUImageMovie *movieFile;
+@property (nonatomic, strong) GPUImageFilter *filter;
+@property (nonatomic, strong) GPUImageMovieWriter *movieWriter;
+@property (nonatomic, strong) GPUImageUIElement *uiElementInput;
 @end
 
 @implementation YASharingView
@@ -322,6 +330,12 @@
                 
                 [self showSuccessHud];
             }];
+            
+//TODO watermark
+//            __weak typeof(self) weakSelf = self;
+//            [self addCaptionWatermakAndSaveToPhotosAlbumWithCompletion:^(NSError *error) {
+//                [weakSelf showSuccessHud];
+//            }];
             
             break;
         } default:
@@ -604,5 +618,84 @@
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self renderButton:[[tableView indexPathsForSelectedRows] count]];
 }
+
+#pragma mark - Watermark
+- (void)addCaptionWatermakAndSaveToPhotosAlbumWithCompletion:(completionBlock)completion {
+    NSURL *url = [YAUtils urlFromFileName:self.video.mp4Filename];
+    
+    self.movieFile = [[GPUImageMovie alloc] initWithURL:url];
+    self.movieFile.runBenchmark = YES;
+    self.movieFile.playAtActualSpeed = NO;
+    
+    self.filter = [[GPUImageFilter alloc] init];
+    
+    GPUImageAlphaBlendFilter *blendFilter = [[GPUImageAlphaBlendFilter alloc] init];
+    blendFilter.mix = 1.0;
+    
+    UIView *contentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    contentView.backgroundColor = [UIColor clearColor];
+    
+    UILabel *captionLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 50, VIEW_WIDTH, VIEW_HEIGHT)];
+    
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
+                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
+                                                                                              }];
+    [captionLabel setAttributedText:string];
+    [captionLabel setBackgroundColor: [UIColor clearColor]];
+    [captionLabel setTextColor:PRIMARY_COLOR];
+    [captionLabel setFont:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]];
+    captionLabel.textAlignment = NSTextAlignmentCenter;
+    captionLabel.text = self.video.caption;
+    captionLabel.backgroundColor = [UIColor clearColor];
+    [contentView addSubview:captionLabel];
+    
+    //test
+    captionLabel.transform = CGAffineTransformRotate(captionLabel.transform, M_PI/6);
+    
+    GPUImageUIElement *uiElementInput = [[GPUImageUIElement alloc] initWithView:contentView];
+    
+    [self.filter addTarget:blendFilter];
+    [uiElementInput addTarget:blendFilter];
+    
+    [self.movieFile addTarget:self.filter];
+    
+    GPUImageView *filterView = nil;//[YACameraManager sharedManager].currentCameraView ?
+    [self.filter addTarget:filterView];
+    [blendFilter addTarget:filterView];
+    
+    [self.filter setFrameProcessingCompletionBlock:^(GPUImageOutput * filter, CMTime frameTime){
+        //set label.hidden to YES and here to NO in case it should be shown at the beginning/end of the video
+        //        if (frameTime.value/frameTime.timescale == 2) {
+        //            [contentView viewWithTag:1].hidden = NO;
+        //        }
+        [uiElementInput update];
+    }];
+    
+    // In addition to displaying to the screen, write out a processed version of the movie to disk
+    NSString *pathToMovie = [NSTemporaryDirectory() stringByAppendingPathComponent:@"video_with_watermark.mp4"];
+    unlink([pathToMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
+    
+    self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:[NSURL fileURLWithPath:pathToMovie] size:CGSizeMake(640.0, 480.0)];
+    [self.filter addTarget:self.movieWriter];
+    [blendFilter addTarget:self.movieWriter];
+    
+    // Configure this for video from the movie file, where we want to preserve all video frames and audio samples
+    self.movieWriter.shouldPassthroughAudio = YES;
+    //self.movieFile.audioEncodingTarget = self.movieWriter;
+    [self.movieFile enableSynchronizedEncodingUsingMovieWriter:self.movieWriter];
+    //self.movieFile.audioEncodingTarget = self.movieWriter;
+    
+    [self.movieWriter startRecording];
+    [self.movieFile startProcessing];
+    
+    [self.movieWriter setCompletionBlock:^{
+        UISaveVideoAtPathToSavedPhotosAlbum(pathToMovie, nil, nil, nil);
+        DLog(@"video with watermark saved to the camera roll %@", pathToMovie);
+        if(completion)
+            completion(nil);
+    }];
+}
+
 
 @end
