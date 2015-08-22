@@ -57,7 +57,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.automaticallyAdjustsScrollViewInsets = NO;
     [self setupCollectionView];
     self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
-    self.flexibleNavBar.titleLabel.text = @"My Channels";
+    [self.flexibleNavBar.titleButton setTitle:@"My Channels" forState:UIControlStateNormal];
     [self.flexibleNavBar.leftBarButton setTitle:@"Explore" forState:UIControlStateNormal];
     [self.flexibleNavBar.leftBarButton addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];

@@ -231,7 +231,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     self.flexibleNavBar.layer.masksToBounds = YES;
     barFrame.size.height += 44;
     self.flexibleNavBar.frame = barFrame;
-    self.flexibleNavBar.titleLabel.text = @"Explore Channels";
+    [self.flexibleNavBar.titleButton setTitle:@"Explore Channels" forState:UIControlStateNormal];
     [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     
     [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];

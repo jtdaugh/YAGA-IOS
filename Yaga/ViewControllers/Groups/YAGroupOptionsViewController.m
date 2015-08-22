@@ -25,7 +25,6 @@
 @property (nonatomic, strong) NSMutableArray *membersPendingJoin;
 @property (nonatomic, strong) NSMutableSet *pendingMembersInProgress;
 
-@property (nonatomic, strong) UIButton *groupNameButton;
 @property (nonatomic, strong) YANotificationView *notificationView;
 
 @property (nonatomic, strong) YAInviteHelper *inviteHelper;
@@ -47,8 +46,7 @@
     [self.navBar.rightBarButton addTarget:self action:@selector(addMembersTapped:) forControlEvents:UIControlEventTouchUpInside];
     self.navBar.backgroundColor = self.group.publicGroup ? (self.group.amMember ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR) : PRIVATE_GROUP_COLOR;
     self.view.backgroundColor = [UIColor colorWithWhite:0.98 alpha:1];
-    
-    [self.navBar.titleLabel addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(editTitleTapped:)]];
+    [self.navBar.titleButton addTarget:self action:@selector(editTitleTapped:) forControlEvents:UIControlEventTouchUpInside];
     
     const CGFloat buttonWidth = VIEW_WIDTH - 40;
     CGFloat buttonHeight = 54;
@@ -115,7 +113,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
-    self.navBar.titleLabel.text = self.group.name;
+    [self.navBar.titleButton setTitle:self.group.name forState:UIControlStateNormal];
     
     self.sortedMembers = [self.group.members sortedResultsUsingProperty:@"registered" ascending:NO];
     NSString *muteTitle = self.group.muted  ?  NSLocalizedString(@"Unmute", @"") : NSLocalizedString(@"Mute", @"");
@@ -155,7 +153,7 @@
         
         [self.group rename:newname withCompletion:^(NSError *error) {
             if(!error)
-                [self.groupNameButton setTitle:newname forState:UIControlStateNormal];
+                [self.navBar.titleButton setTitle:newname forState:UIControlStateNormal];
         }];
         
     }]];

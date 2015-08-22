@@ -18,23 +18,23 @@
     YAStandardFlexibleHeightBar *bar = [[YAStandardFlexibleHeightBar alloc] initWithFrame:CGRectMake(0.0, 0.0, VIEW_WIDTH, 66)];
     bar.minimumBarHeight = 20;
 
-    UILabel *titleLabel = [UILabel new];
-    titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
-    titleLabel.textColor = [UIColor whiteColor];
-    titleLabel.textAlignment = NSTextAlignmentCenter;
+    UIButton *titleButton = [UIButton new];
+    titleButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
+    titleButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    titleButton.titleLabel.textColor = [UIColor whiteColor];
     BLKFlexibleHeightBarSubviewLayoutAttributes *titleExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     titleExpanded.frame = CGRectMake(kFlexNavBarButtonWidth - 40, kStatusBarHeight, VIEW_WIDTH-2*kFlexNavBarButtonWidth + 80, kBarHeight - kStatusBarHeight);
-    [titleLabel addLayoutAttributes:titleExpanded forProgress:0.0];
+    [titleButton addLayoutAttributes:titleExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *titleCollapsed = [[BLKFlexibleHeightBarSubviewLayoutAttributes alloc] initWithExistingLayoutAttributes:titleExpanded];
     titleCollapsed.alpha = 0;
     CGAffineTransform translation = CGAffineTransformMakeTranslation(0.0, -30.0);
     CGAffineTransform scale = CGAffineTransformMakeScale(0.2, 0.2);
     titleCollapsed.transform = CGAffineTransformConcat(scale, translation);
 
-    [titleLabel addLayoutAttributes:titleCollapsed forProgress:1.0];
+    [titleButton addLayoutAttributes:titleCollapsed forProgress:1.0];
     
-    [bar addSubview:titleLabel];
-    bar.titleLabel = titleLabel;
+    [bar addSubview:titleButton];
+    bar.titleButton = titleButton;
     
     CGFloat buttonSize = kFlexNavBarButtonHeight;
     

@@ -41,7 +41,7 @@
     self.title = NSLocalizedString(@"Post To Channel", @"");
     
     YAStandardFlexibleHeightBar *navBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
-    navBar.titleLabel.text = @"Select Channels";
+    [navBar.titleButton setTitle:@"Select Channels" forState:UIControlStateNormal];
     [navBar.leftBarButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [navBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [navBar.leftBarButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
