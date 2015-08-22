@@ -64,7 +64,7 @@
 
 // Popover text
 "FORCE_FOLLOW_TITLE" = "Welcome";
-"FORCE_FOLLOW_BODY" = "Here's the best channels on Yaga.\n\nFollow at least one channel to get started.";
+"FORCE_FOLLOW_BODY" = "There's all kinds of channels on Yaga.\n\nFollow at least one channel to get started.";
 
 "FIRST_STREAM_VISIT_TITLE" = "Latest Videos";
 "FIRST_STREAM_VISIT_BODY" = "This is a stream of all the channels you follow.";
@@ -74,7 +74,7 @@
 "FIRST_PUBLIC_GROUP_VISIT_BODY" = "Anyone can send in videos, but only a host can choose which ones go to all the followers.";
 
 // Used when they first create a group OR open a group theyre hosting
-"FIRST_CREATE_PUBLIC_GROUP_TITLE" = "Here's Your Channel";
+"FIRST_CREATE_PUBLIC_GROUP_TITLE" = "Hosting!";
 "FIRST_CREATE_PUBLIC_GROUP_BODY" = "Woo!\n\nNow anyone can try to post to your channel.\n\nPost a video to start it out.";
 
 "FIRST_PRIVATE_GROUP_TITLE" = "🔒";

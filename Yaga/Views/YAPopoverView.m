@@ -38,7 +38,7 @@
     
     CGFloat width = MAX(x*self.frame.size.width, 270);
     
-    UIFont *bodyFont = [UIFont fontWithName:BIG_FONT size:16];
+    UIFont *bodyFont = [UIFont fontWithName:BIG_FONT size:17];
     
     CGSize maximumLabelSize = CGSizeMake(width - padding*2, CGFLOAT_MAX);
     
