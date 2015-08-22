@@ -241,7 +241,8 @@ static NSString *commentCellID = @"CommentCell";
     // If progress went from high to low (looped) or from 0 to valid value.
     if ((progress < self.lastPlaybackProgress && progress != 0.0)
         || (self.lastPlaybackProgress == 0 && progress > 0.0 && progress < CGFLOAT_MAX)) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        // Slight delay to possibly alleviate grid lag.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [[YAViewCountManager sharedManager] addViewToVideoWithId:self.video.serverId groupId:self.video.group.serverId user:self.video.creator];
         });
     }

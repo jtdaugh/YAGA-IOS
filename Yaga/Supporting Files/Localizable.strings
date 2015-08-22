@@ -67,7 +67,7 @@
 "FORCE_FOLLOW_BODY" = "There's all kinds of channels on Yaga.\n\nFollow at least one channel to get started.";
 
 "FIRST_STREAM_VISIT_TITLE" = "Latest Videos";
-"FIRST_STREAM_VISIT_BODY" = "This is a stream of all the channels you follow.";
+"FIRST_STREAM_VISIT_BODY" = "This is a stream of all the channels you follow. Follow";
 
 
 "FIRST_PUBLIC_GROUP_VISIT_TITLE" = "Public Channel";

@@ -138,7 +138,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
             if (!private && !error) {
                 // Need to delete section if now empty
                 if ([self.tableView numberOfRowsInSection:indexPath.section] == 1)
-                    [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:indexPath.section] withRowAnimation:UITableViewRowAnimationAutomatic];
                 else
                     [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else {

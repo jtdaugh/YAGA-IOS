@@ -54,10 +54,10 @@ static NSString *CellIdentifier = @"PendingCell";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if (![YAUtils hasVisitedStream]) {
-        [YAUtils setVisitedStream];
-        [self showFirstStreamVisitPopover];
-    }
+//    if (![YAUtils hasVisitedStream]) {
+//        [YAUtils setVisitedStream];
+//        [self showFirstStreamVisitPopover];
+//    }
     
     if (self.shouldForcePullToRefresh)
         [self manualTriggerPullToRefresh];
