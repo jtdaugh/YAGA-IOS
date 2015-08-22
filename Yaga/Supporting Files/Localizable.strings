@@ -66,20 +66,20 @@
 "FORCE_FOLLOW_TITLE" = "Welcome";
 "FORCE_FOLLOW_BODY" = "Here's the best channels on Yaga.\n\nFollow at least one channel to get started.";
 
-"FIRST_STREAM_VISIT_TITLE" = "FIRST_STREAM_VISIT_TITLE";
-"FIRST_STREAM_VISIT_BODY" = "FIRST_STREAM_VISIT_BODY";
+"FIRST_STREAM_VISIT_TITLE" = "Latest Videos";
+"FIRST_STREAM_VISIT_BODY" = "This is a stream of all the channels you follow.";
 
-"FIRST_PUBLIC_GROUP_VISIT_TITLE" = "FIRST_PUBLIC_GROUP_VISIT_TITLE";
-"FIRST_PUBLIC_GROUP_VISIT_BODY" = "FIRST_PUBLIC_GROUP_VISIT_BODY";
+"FIRST_PUBLIC_GROUP_VISIT_TITLE" = "Public Channel";
+"FIRST_PUBLIC_GROUP_VISIT_BODY" = "This is a public channel. Anyone can post, but only a host can approve videos for everyone to see.";
 
-"FIRST_CREATE_PUBLIC_GROUP_TITLE" = "FIRST_CREATE_PUBLIC_GROUP_TITLE";
-"FIRST_CREATE_PUBLIC_GROUP_BODY" = "FIRST_CREATE_PUBLIC_GROUP_BODY";
+"FIRST_CREATE_PUBLIC_GROUP_TITLE" = "Here's Your Channel";
+"FIRST_CREATE_PUBLIC_GROUP_BODY" = "Woo! \n\n Now anyone can try to post to your channel. \n\n Post a video to start it out.";
 
-"FIRST_PRIVATE_GROUP_TITLE" = "FIRST_PRIVATE_GROUP_TITLE";
-"FIRST_PRIVATE_GROUP_BODY" = "FIRST_PRIVATE_GROUP_BODY";
+"FIRST_PRIVATE_GROUP_TITLE" = "🔒";
+"FIRST_PRIVATE_GROUP_BODY" = "This channel is private to it's members. \n\n";
 
-"FIRST_PENDING_APPROVAL_POST_TITLE" = "FIRST_PENDING_APPROVAL_POST_TITLE";
-"FIRST_PENDING_APPROVAL_POST_BODY" = "FIRST_PENDING_APPROVAL_POST_BODY";
+"FIRST_PENDING_APPROVAL_POST_TITLE" = "Almost Famous";
+"FIRST_PENDING_APPROVAL_POST_BODY" = "Your Video is pending approval from the host. \n\n Stay Tuned.";
 
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
