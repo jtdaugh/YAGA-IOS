@@ -58,58 +58,64 @@
     return self;
 }
 
+- (void)permissionGrantedInitCamera {
+    _initialized = YES;
+    self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPresetHigh cameraPosition:AVCaptureDevicePositionBack];
+    self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
+    self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
+    _zoomFactor = 1.0;
+    [self setupCameraSettings];
+    
+    // only init camera if not simulator
+    if(TARGET_IPHONE_SIMULATOR){
+        DLog(@"no camera, simulator");
+    } else {
+        
+        DLog(@"init camera");
+        
+        if (self.currentCameraView) {
+            if (![[self.videoCamera targets] containsObject:self.currentCameraView]) {
+                [self.videoCamera addTarget:self.currentCameraView];
+            }
+        }
+    }
+}
+
+- (void)showUpsetNeedPermissionsPrompt {
+    //Not granted access to mediaType
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[[UIAlertView alloc] initWithTitle:@"👎"
+                                    message:@"Yaga needs the camera and microphone to work correctly. Please change privacy settings"
+                                   delegate:self
+                          cancelButtonTitle:@"OK"
+                          otherButtonTitles:nil] show];
+    });
+}
+
 - (void)initCamera {
     if (self.initialized) {
         return;
     }
-    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL camGranted) {
-        if (camGranted) {
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL micGranted) {
-                if (micGranted) {
-                    self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPresetHigh cameraPosition:AVCaptureDevicePositionBack];
-                    self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
-                    self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
-                    _zoomFactor = 1.0;
-                    [self setupCameraSettings];
-                    _initialized = YES;
-                    
-                    // only init camera if not simulator
-                    if(TARGET_IPHONE_SIMULATOR){
-                        DLog(@"no camera, simulator");
-                    } else {
-                        
-                        DLog(@"init camera");
-                        
-                        if (self.currentCameraView) {
-                            if (![[self.videoCamera targets] containsObject:self.currentCameraView]) {
-                                [self.videoCamera addTarget:self.currentCameraView];
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //Not granted access to mediaType
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [[[UIAlertView alloc] initWithTitle:@"👎"
-                                                    message:@"Yaga needs the camera and microphone to work correctly. Please change privacy settings"
-                                                   delegate:self
-                                          cancelButtonTitle:@"OK"
-                                          otherButtonTitles:nil] show];
-                    });
-                }
-            }];
-        } else {
-            //Not granted access to mediaType
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[[UIAlertView alloc] initWithTitle:@"👎"
-                                            message:@"Yaga needs the camera and microphone to work correctly. Please change privacy settings"
-                                           delegate:self
-                                  cancelButtonTitle:@"OK"
-                                  otherButtonTitles:nil] show];
-            });
-        }
-    }];
+    AVAuthorizationStatus camStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    AVAuthorizationStatus micStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+    if (camStatus == AVAuthorizationStatusAuthorized && micStatus == AVAuthorizationStatusAuthorized) {
+        [self permissionGrantedInitCamera];
+    } else {
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL camGranted) {
+            if (camGranted) {
+                [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL micGranted) {
+                    if (micGranted)
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self permissionGrantedInitCamera];
+                        });
+                    else
+                        [self showUpsetNeedPermissionsPrompt];
+                    }];
+            } else {
+                [self showUpsetNeedPermissionsPrompt];
+            }
+        }];
+    }
 }
 
 
