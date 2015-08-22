@@ -648,6 +648,7 @@ static NSMutableDictionary *bubblesDictionary;
         return;
     
     UIView *bubbleView = [bubblesDictionary objectForKey:text];
+    if (!bubbleView) return;
     [UIView animateWithDuration:.8 delay:0.0f usingSpringWithDamping:0.4f initialSpringVelocity:3.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
         bubbleView.alpha = 0;
     } completion:^(BOOL finished) {
