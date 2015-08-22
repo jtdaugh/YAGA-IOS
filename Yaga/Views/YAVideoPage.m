@@ -699,6 +699,8 @@ static NSString *commentCellID = @"CommentCell";
             [self.presentingVC currentVideoRemovedFromList];
         }
     }];
+    [[Mixpanel sharedInstance] track:@"Approve Pressed"];
+
     
     
 }
@@ -719,7 +721,9 @@ static NSString *commentCellID = @"CommentCell";
             // SHOW SUCCESSFUL REJECT ANIMATION
         }
     }];
-//    
+    [[Mixpanel sharedInstance] track:@"Reject Pressed"];
+
+//
 //    UILabel *tempRejectLabel = [UILabel new];
 //    tempRejectLabel.font = [UIFont systemFontOfSize:100];
 //    tempRejectLabel.text = @"x";
@@ -841,6 +845,8 @@ static NSString *commentCellID = @"CommentCell";
 //        self.likeButton.hidden = NO;
 //        [self.commentsTextField resignFirstResponder]; // do we want to hide the keyboard after each comment?
     }
+    [[Mixpanel sharedInstance] track:@"Comment Sended"];
+
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
@@ -996,6 +1002,8 @@ static NSString *commentCellID = @"CommentCell";
     
     // Scroll to bottom
     [self.commentsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+    [[Mixpanel sharedInstance] track:@"Liked Video"];
+
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
@@ -1133,6 +1141,8 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)shareButtonPressed:(id)sender {
     DLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
+    [[Mixpanel sharedInstance] track:@"Share Button Pressed"];
+
     self.sharingView = [[YASharingView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) video:self.video];
     self.sharingView.page = self;
     [self setGesturesEnabled:NO];

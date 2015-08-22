@@ -189,6 +189,8 @@
 }
 
 - (void)nextScreen {
+    [[Mixpanel sharedInstance] track:@"Next Pressed"];
+
     YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
     vc.inCreateGroupFlow = YES;
     vc.publicGroup = (self.publicControl.selectedSegmentIndex == 0);
@@ -199,6 +201,8 @@
 
 -(void)donePressed {
     DLog(@"Done pressed");
+    [[Mixpanel sharedInstance] track:@"Done Creating Public Channel"];
+
     NSString *groupName = self.groupNameTextField.text;
     BOOL isPrivate = (self.publicControl.selectedSegmentIndex != 0);
     __weak typeof(self) weakSelf = self;

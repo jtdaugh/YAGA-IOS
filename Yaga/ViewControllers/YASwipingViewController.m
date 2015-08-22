@@ -328,6 +328,8 @@
     YAVideoPage *left = self.pages[0];
     YAVideoPage *right = self.pages[2];
     
+    [[Mixpanel sharedInstance] track:@"Swiped to Another Video"];
+
     //moving left page to the right
     if(self.currentPageIndex != 1 && scrolledRight) {
         CGRect frame = left.frame;

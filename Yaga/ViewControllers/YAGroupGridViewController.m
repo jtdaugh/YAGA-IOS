@@ -55,6 +55,8 @@
     [self updateViewCountLabel];
     [YAViewCountManager sharedManager].groupViewCountDelegate = self;
     [[YAViewCountManager sharedManager] monitorGroupWithId:self.group.serverId];
+    [[Mixpanel sharedInstance] track:@"Viewed Group Grid"];
+
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -186,6 +188,7 @@
 
 - (void)followPressed {
     if (self.buttonIsUnfollow) {
+        [[Mixpanel sharedInstance] track:@"Unfollow Pressed"];
         // TODO: Unfollow group
         DLog(@"Unfollow pressed");
         [self.group unfollowWithCompletion:^(NSError *error) {
@@ -198,6 +201,7 @@
             }
         }];
     } else {
+        [[Mixpanel sharedInstance] track:@"Follow Pressed"];
         [self.group followWithCompletion:^(NSError *error) {
             if (error) {
                 DLog(@"Failed to follow group");

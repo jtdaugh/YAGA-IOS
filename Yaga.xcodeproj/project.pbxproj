@@ -18,6 +18,10 @@
 		418BA7FB1B69E99100629C2B /* bumper.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 418BA7FA1B69E99100629C2B /* bumper.mp4 */; };
 		41BD42C91B162E76008553A8 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C71B162E76008553A8 /* Fabric.framework */; };
 		41BD42CA1B162E76008553A8 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41BD42C81B162E76008553A8 /* Crashlytics.framework */; };
+		41BE041B1B882479006737A7 /* YASplashViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BE041A1B882479006737A7 /* YASplashViewController.m */; };
+		41BE04201B883A86006737A7 /* o1.png in Resources */ = {isa = PBXBuildFile; fileRef = 41BE041D1B883A86006737A7 /* o1.png */; };
+		41BE04221B883A86006737A7 /* o3.png in Resources */ = {isa = PBXBuildFile; fileRef = 41BE041F1B883A86006737A7 /* o3.png */; };
+		41BE04241B883B75006737A7 /* o2.png in Resources */ = {isa = PBXBuildFile; fileRef = 41BE04231B883B75006737A7 /* o2.png */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
 		41D53FF01B1FB4A4004DB886 /* YACenterImageButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 41D53FEF1B1FB4A4004DB886 /* YACenterImageButton.m */; };
 		6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */; };
@@ -180,6 +184,11 @@
 		418BA7FA1B69E99100629C2B /* bumper.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = bumper.mp4; sourceTree = "<group>"; };
 		41BD42C71B162E76008553A8 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		41BD42C81B162E76008553A8 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		41BE04191B882479006737A7 /* YASplashViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YASplashViewController.h; sourceTree = "<group>"; };
+		41BE041A1B882479006737A7 /* YASplashViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YASplashViewController.m; sourceTree = "<group>"; };
+		41BE041D1B883A86006737A7 /* o1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = o1.png; sourceTree = "<group>"; };
+		41BE041F1B883A86006737A7 /* o3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = o3.png; sourceTree = "<group>"; };
+		41BE04231B883B75006737A7 /* o2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = o2.png; sourceTree = "<group>"; };
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		41D53FEE1B1FB4A4004DB886 /* YACenterImageButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACenterImageButton.h; sourceTree = "<group>"; };
 		41D53FEF1B1FB4A4004DB886 /* YACenterImageButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACenterImageButton.m; sourceTree = "<group>"; };
@@ -455,6 +464,16 @@
 			name = Filters;
 			sourceTree = "<group>";
 		};
+		41BE041C1B883A66006737A7 /* Onboarding Images */ = {
+			isa = PBXGroup;
+			children = (
+				41BE04231B883B75006737A7 /* o2.png */,
+				41BE041D1B883A86006737A7 /* o1.png */,
+				41BE041F1B883A86006737A7 /* o3.png */,
+			);
+			name = "Onboarding Images";
+			sourceTree = "<group>";
+		};
 		6E1E208E1A6EF2E90041DF54 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
@@ -643,6 +662,7 @@
 		6E91888C1A3F3A5A0034AB63 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				41BE041C1B883A66006737A7 /* Onboarding Images */,
 				418BA7FA1B69E99100629C2B /* bumper.mp4 */,
 				412DAA191B26573600D92EB8 /* Filters */,
 				6EC1F0891B27394E00297D0F /* uploading.gif */,
@@ -712,6 +732,8 @@
 				86B864A81A43322F002256FF /* CountryListDataSource.m */,
 				86B864AA1A433343002256FF /* CountryCell.h */,
 				86B864AB1A433343002256FF /* CountryCell.m */,
+				41BE04191B882479006737A7 /* YASplashViewController.h */,
+				41BE041A1B882479006737A7 /* YASplashViewController.m */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -948,6 +970,7 @@
 				418BA7FB1B69E99100629C2B /* bumper.mp4 in Resources */,
 				6EC1F08A1B27394E00297D0F /* uploading.gif in Resources */,
 				885F536E1B3F827400D359DB /* counter-shadow@2x.png in Resources */,
+				41BE04221B883A86006737A7 /* o3.png in Resources */,
 				885F536C1B3F827400D359DB /* counter-numbers@2x.png in Resources */,
 				86EF0B8F1A40592F00FF4E3C /* Localizable.strings in Resources */,
 				6E1E20AA1A6FAB500041DF54 /* title.csv in Resources */,
@@ -955,7 +978,9 @@
 				6E9187DC1A3F2C270034AB63 /* MainStoryboard.storyboard in Resources */,
 				885F536D1B3F827400D359DB /* counter-shadow.png in Resources */,
 				86B864A01A43287C002256FF /* countries.json in Resources */,
+				41BE04201B883A86006737A7 /* o1.png in Resources */,
 				8668D3F41ADE6A90002ADA45 /* Images.xcassets in Resources */,
+				41BE04241B883B75006737A7 /* o2.png in Resources */,
 				6E9187C61A3F2C270034AB63 /* InfoPlist.strings in Resources */,
 				6E1E20A61A6FAB500041DF54 /* name.csv in Resources */,
 				6E9D87171B15DED600FA70EC /* loader.gif in Resources */,
@@ -1053,6 +1078,7 @@
 				6E40C9E11B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m in Sources */,
 				6EB995451B3B005A004ACF05 /* YASharingView.m in Sources */,
 				88DFCC8D1B7BF04A002448F9 /* YAGroupGridViewController.m in Sources */,
+				41BE041B1B882479006737A7 /* YASplashViewController.m in Sources */,
 				4120E70B1B43624500627359 /* SocialVideoHelper.m in Sources */,
 				6E583B751A6535C400639BE5 /* YAVideoPlayerView.m in Sources */,
 				6E1603F61B184F4A00D5D90E /* YANoServerIdError.m in Sources */,

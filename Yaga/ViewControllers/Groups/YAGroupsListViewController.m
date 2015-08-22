@@ -91,6 +91,8 @@ static NSString *CellIdentifier = @"GroupsCell";
         [self.collectionView triggerPullToRefresh];
     }
     [super viewWillAppear:animated];
+    [[Mixpanel sharedInstance] track:@"Viewed My Channels"];
+
 }
 
 - (void)findGroupsPressed {

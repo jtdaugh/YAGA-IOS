@@ -86,6 +86,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         // Don't auto trigger this if already populated, shouldn't change that often
         [self.tableView triggerPullToRefresh];
     }
+    
+    [[Mixpanel sharedInstance] track:@"Viewed Explore"];
+
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -148,8 +151,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     //adding [YAUser currentUser].username to pending members, not making another call to server
     if ([groupData[YA_RESPONSE_PRIVATE] boolValue]) {
         [[YAServer sharedServer] joinGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:block];
+        [[Mixpanel sharedInstance] track:@"Channel Requested to join"];
     } else {
         [[YAServer sharedServer] followGroupWithId:groupData[YA_RESPONSE_ID] withCompletion:block];
+        [[Mixpanel sharedInstance] track:@"Channel Followed"];
     }
 }
 
@@ -289,6 +294,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
     [searchBar setShowsCancelButton:YES animated:YES];
+    [[Mixpanel sharedInstance] track:@"Searched Channels"];
+
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
@@ -575,9 +582,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         YAGroupGridViewController *vc = [YAGroupGridViewController new];
         vc.group = group;
         [self.navigationController pushViewController:vc animated:YES];
-        
     };
     
+    [[Mixpanel sharedInstance] track:@"Tapped into unfollowed group"];
+
     //try to find an existing group
     if(results.count) {
         YAGroup *group = results[0];

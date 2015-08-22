@@ -76,6 +76,8 @@
 - (void)dismissAnimated:(BOOL)dismissToBottom {
     
     self.dismissed = YES;
+    [[Mixpanel sharedInstance] track:@"Swiped to Dismiss"];
+
     if(self.showsStatusBarOnDismiss){
         [[UIApplication sharedApplication] setStatusBarHidden:NO];
     }

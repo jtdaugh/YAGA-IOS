@@ -62,6 +62,8 @@ static NSString *CellIdentifier = @"PendingCell";
     if (self.shouldForcePullToRefresh)
         [self manualTriggerPullToRefresh];
     self.shouldForcePullToRefresh = NO;
+    [[Mixpanel sharedInstance] track:@"Viewed Latest Stream"];
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -140,6 +142,8 @@ static NSString *CellIdentifier = @"PendingCell";
     if (indexPath.section == 0) {
         YAGroup *group = [self.groupsWithPendingUnapproved objectAtIndex:indexPath.item];
         [self openGroup:group];
+        [[Mixpanel sharedInstance] track:@"Tapped Pending Notification on 'Latest'"];
+
     } else {
         [super collectionView:collectionView didSelectItemAtIndexPath:indexPath]; // Don't need to manipulate indexPath.section
     }
