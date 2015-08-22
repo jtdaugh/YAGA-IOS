@@ -120,8 +120,6 @@ static NSString *cellID = @"Cell";
     self.lastDownloadPrioritizationIndex = 0;
     
     [self reload];
-
-    [YAEventManager sharedManager].eventCountReceiver = self;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupWillRefresh:) name:GROUP_WILL_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
@@ -176,6 +174,7 @@ static NSString *cellID = @"Cell";
         if (weakSelf.scrollingFast) return;
         for (YAVideoCell *cell in [weakSelf.collectionView visibleCells]) {
             if ([cell isKindOfClass:[YAVideoCell class]]) {
+                DLog(@"vidId:%@ cellId:%@", serverId, cell.video.serverId);
                 if ([cell.video.serverId isEqualToString:serverId] || [cell.video.localId isEqualToString:localId]) {
                     DLog(@"Updating comment count to %ld for videoID: %@", eventCount, serverId);
                     [cell setEventCount:eventCount];
@@ -194,6 +193,13 @@ static NSString *cellID = @"Cell";
             [cell animateGifView:YES];
         }
     }
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    [YAEventManager sharedManager].eventCountReceiver = self;
+    [[YAEventManager sharedManager] groupChanged:self.group];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -256,8 +262,6 @@ static NSString *cellID = @"Cell";
     }
     
     [self.collectionView reloadData];
-
-    [[YAEventManager sharedManager] groupChanged:self.group];
 
     if(needRefresh) {
         [self refreshCurrentGroup];

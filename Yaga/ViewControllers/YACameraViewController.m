@@ -26,6 +26,7 @@
 #import "YAEditVideoViewController.h"
 #import "YAGroupsListViewController.h"
 #import "YAProgressView.h"
+#import "YABubbleView.h"
 
 #import "YAPopoverView.h"
 #import "QuartzCore/CALayer.h"
@@ -314,8 +315,9 @@
     [self.animatedRecorder.textLabel setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
     
     if(![YAUtils hasSeenCamera]){
+        // Hide before showing so we don't add bubbles on bubbles on bubbles.
+        [YAUtils hideBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording"];
         [YAUtils showBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording" bubbleWidth:230 forView:self.animatedRecorder];
-        [YAUtils setSeenCamera];
     }
 
     [UIView animateWithDuration:.618 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
@@ -362,7 +364,8 @@
 //val: refactor, method copied from endHold but without if(self.recording) condition
 - (void)doneRecordingTapped {
     [YAUtils hideBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording"];
-    
+    [YAUtils setSeenCamera];
+
     if(self.flash){
         [self setFlashMode:NO];
     }

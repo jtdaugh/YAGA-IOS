@@ -669,9 +669,7 @@
     
     NSMutableArray *newVideos = [NSMutableArray new];
     NSMutableArray *updatedVideos = [NSMutableArray new];
-    
-    videoDictionaries = [videoDictionaries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:YA_VIDEO_READY_AT ascending:YES]]];
-    
+        
     [[RLMRealm defaultRealm] beginWriteTransaction];
     
     NSMutableSet *videosToDelete = [NSMutableSet set];

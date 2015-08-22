@@ -207,6 +207,8 @@
         if(dict && dict[nName]) {
             NSString *serverError = [dict[nName] componentsJoinedByString:@"\n"];
             [YAUtils showNotification:serverError type:YANotificationTypeError];
+        } else {
+            [YAUtils showNotification:@"Something went wrong" type:YANotificationTypeError];
         }
         completion(nil, error);
     }];
