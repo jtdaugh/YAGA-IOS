@@ -73,7 +73,7 @@
 
 - (void)applySavedAuthToken {
     
-    _authToken = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:YA_RESPONSE_TOKEN];
+    _authToken = [[NSUserDefaults standardUserDefaults] objectForKey:YA_RESPONSE_TOKEN];
     
     if(self.authToken.length) {
         NSString *tokenString = [NSString stringWithFormat:@"Token %@", self.authToken];
@@ -89,12 +89,12 @@
 
 - (void)setPhoneNumber:(NSString *)phoneNumber
 {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:phoneNumber forKey:USER_PHONE];
+    [[NSUserDefaults standardUserDefaults] setObject:phoneNumber forKey:USER_PHONE];
 }
 
 - (NSString*)phoneNumber
 {
-    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:USER_PHONE];
+    return [[NSUserDefaults standardUserDefaults] objectForKey:USER_PHONE];
 }
 
 - (void)getInfoForCurrentUserWithCompletion:(responseBlock)completion {
@@ -152,7 +152,7 @@
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil] ;
         NSString *token = [dict objectForKey:YA_RESPONSE_TOKEN];
         
-        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:token forKey:YA_RESPONSE_TOKEN];
+        [[NSUserDefaults standardUserDefaults] setObject:token forKey:YA_RESPONSE_TOKEN];
         [self applySavedAuthToken];
         
         completion(nil, nil);
@@ -604,9 +604,9 @@
                        NSDictionary *videoFields =  meta[@"attachment"][@"fields"];
                        
                        //save gif upload credentials for later use
-                       NSMutableDictionary *gifsUploadCredentials = [NSMutableDictionary dictionaryWithDictionary:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kGIFUploadCredentials]];
+                       NSMutableDictionary *gifsUploadCredentials = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kGIFUploadCredentials]];
                        [gifsUploadCredentials setObject:meta[@"attachment_preview"] forKey:video.serverId];
-                       [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:gifsUploadCredentials forKey:kGIFUploadCredentials];
+                       [[NSUserDefaults standardUserDefaults] setObject:gifsUploadCredentials forKey:kGIFUploadCredentials];
                        
                        NSData *videoData = [[NSFileManager defaultManager] contentsAtPath:[YAUtils urlFromFileName:video.mp4Filename].path];
                        
@@ -660,7 +660,7 @@
 }
 
 - (void)uploadGIFForVideoWithServerId:(NSString*)videoServerId {
-    NSMutableDictionary *gifsUploadCredentials = [NSMutableDictionary dictionaryWithDictionary:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kGIFUploadCredentials]];
+    NSMutableDictionary *gifsUploadCredentials = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kGIFUploadCredentials]];
     NSDictionary *credentials = [gifsUploadCredentials objectForKey:videoServerId];
     
     if(credentials.allKeys.count) {
@@ -698,7 +698,7 @@
         }];
         
         [gifsUploadCredentials removeObjectForKey:videoServerId];
-        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:gifsUploadCredentials forKey:kGIFUploadCredentials];
+        [[NSUserDefaults standardUserDefaults] setObject:gifsUploadCredentials forKey:kGIFUploadCredentials];
     }
 }
 
@@ -973,26 +973,26 @@
     }
     //otherwise save copy data for later execution when video is uploaded
     else {
-        NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kCrosspostData]];
+        NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
         NSMutableSet *groupIds = [NSMutableSet setWithArray:crosspostData[video.localId]];
         [groupIds addObjectsFromArray:groupIdsToCopyTo];
         
         [crosspostData setObject:groupIds.allObjects forKey:video.localId];
-        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:crosspostData forKey:kCrosspostData];
+        [[NSUserDefaults standardUserDefaults] setObject:crosspostData forKey:kCrosspostData];
         
         completion(nil, nil);
     }
 }
 
 - (void)executePendingCopyForVideo:(YAVideo*)video {
-    NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kCrosspostData]];
+    NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
     NSArray *groupIds = crosspostData[video.localId];
     
     if(groupIds.count) {
         [self copyVideo:video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
             if(!error) {
                 [crosspostData removeObjectForKey:video.localId];
-                [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:crosspostData forKey:kCrosspostData];
+                [[NSUserDefaults standardUserDefaults] setObject:crosspostData forKey:kCrosspostData];
             }
         }];
     }
@@ -1014,7 +1014,7 @@
     
     [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[NSDate date] forKey:YA_LAST_DEVICE_TOKEN_SYNC_DATE];
+        [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:YA_LAST_DEVICE_TOKEN_SYNC_DATE];
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         completion(nil, error);
@@ -1089,7 +1089,7 @@
     if(![YAUser currentUser].deviceToken.length)
         return;
     //every day? maybe every month?
-    NSTimeInterval lastRegistrationDate = [[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:YA_LAST_DEVICE_TOKEN_SYNC_DATE] timeIntervalSinceNow];
+    NSTimeInterval lastRegistrationDate = [[[NSUserDefaults standardUserDefaults] objectForKey:YA_LAST_DEVICE_TOKEN_SYNC_DATE] timeIntervalSinceNow];
     if(!lastRegistrationDate || fabs(lastRegistrationDate) > 24 * 60 * 60) {
         [self registerDeviceTokenWithCompletion:^(id response, NSError *error) {
             if(error) {

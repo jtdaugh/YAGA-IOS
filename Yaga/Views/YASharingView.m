@@ -45,12 +45,6 @@
 @property (nonatomic, strong) NSArray *accounts;
 @property (strong, nonatomic) UIView *topBar;
 
-
-//watermark
-@property (nonatomic, strong) GPUImageMovie *movieFile;
-@property (nonatomic, strong) GPUImageFilter *filter;
-@property (nonatomic, strong) GPUImageMovieWriter *movieWriter;
-@property (nonatomic, strong) GPUImageUIElement *uiElementInput;
 @end
 
 @implementation YASharingView
@@ -214,7 +208,17 @@
     self.hud.mode = MBProgressHUDModeIndeterminate;
     self.hud.labelText = @"Exporting";
     
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:url completion:^(NSURL *filePath, NSError *error) {
+
+    NSDictionary *captionDetails = nil;
+    if ([self.video.caption length]) {
+        captionDetails = @{@"text" : self.video.caption,
+                           @"x" : @(self.video.caption_x),
+                           @"y" : @(self.video.caption_y),
+                           @"scale" : @(self.video.caption_scale),
+                           @"rotation" : @(self.video.caption_rotation)
+                           };
+    }
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:url withCaption:captionDetails completion:^(NSURL *filePath, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.hud hide:NO];
             
@@ -339,12 +343,6 @@
                 
                 [self showSuccessHud];
             }];
-            
-//TODO watermark
-//            __weak typeof(self) weakSelf = self;
-//            [self addCaptionWatermakAndSaveToPhotosAlbumWithCompletion:^(NSError *error) {
-//                [weakSelf showSuccessHud];
-//            }];
             
             break;
         } default:
@@ -520,96 +518,6 @@
     [self.page collapseCrosspost];
 }
 
-- (void)externalShareButtonPressed {
-    //    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
-    NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
-    NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-    
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.labelText = NSLocalizedString(@"Exporting", @"");
-    hud.mode = MBProgressHUDModeIndeterminate;
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-                                                completion:^(NSURL *filePath, NSError *error) {
-                                                    if (error) {
-                                                        DLog(@"Error: can't add bumber");
-                                                    } else {
-                                                        
-                                                        NSURL *videoFile = filePath;
-                                                        //            YACopyVideoToClipboardActivity *copyActivity = [YACopyVideoToClipboardActivity new];
-                                                        UIActivityViewController *activityViewController =
-                                                        [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
-                                                                                          applicationActivities:@[]];
-                                                        
-                                                        UIViewController *presentingVC = (UIViewController *) self.page.presentingVC;
-                                                        [presentingVC presentViewController:activityViewController
-                                                                                                                   animated:YES
-                                                                                                                 completion:^{
-                                                                                                                     [hud hide:YES];
-                                                                                                                 }];
-                                                        
-                                                        [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-                                                            if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
-                                                                NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
-                                                                [YAUtils showHudWithText:message];
-                                                            }
-                                                            else if ([activityType isEqualToString:@"yaga.copy.video"]) {
-                                                                NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
-                                                                [YAUtils showHudWithText:message];
-                                                            }
-                                                            if(completed){
-                                                                [self.page collapseCrosspost];
-                                                            }
-                                                        }];
-                                                    }
-                                                }];
-}
-
-
-#pragma mark - Sharing
-- (void)saveToCameraRollPressed {
-    /*
-     if (UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(path)) {
-     UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
-     }
-     */
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.labelText = NSLocalizedString(@"Saving", @"");
-    hud.mode = MBProgressHUDModeIndeterminate;
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-                                                completion:^(NSURL *filePath, NSError *error) {
-                                                    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-                                                        
-                                                        [hud hide:YES];
-                                                        [self.page collapseCrosspost];
-                                                        //Your code goes in here
-                                                        DLog(@"Main Thread Code");
-                                                        
-                                                    }];
-                                                    if (error) {
-                                                        DLog(@"Error: can't add bumber");
-                                                    } else {
-                                                        
-                                                        if(UIVideoAtPathIsCompatibleWithSavedPhotosAlbum([filePath path])) {
-                                                            UISaveVideoAtPathToSavedPhotosAlbum([filePath path], self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
-                                                        }
-                                                        
-                                                    }
-                                                }];
-}
-
-- (void)video:(NSString*)videoPath didFinishSavingWithError:(NSError*)error contextInfo:(void*)contextInfo {
-    if (error) {
-        NSString *message = @"Video Saving Failed";
-        [YAUtils showHudWithText:message];
-        
-    } else {
-        NSString *message = @"Saved! ✌️";
-        [YAUtils showHudWithText:message];
-    }
-}
-
 #pragma mark - UITableViewDataSource / UITableViewDelegate
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
         YACrosspostCell *cell = [tableView dequeueReusableCellWithIdentifier:kCrosspostCellId forIndexPath:indexPath];
@@ -632,84 +540,6 @@
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self renderButton:[[tableView indexPathsForSelectedRows] count]];
-}
-
-#pragma mark - Watermark
-- (void)addCaptionWatermakAndSaveToPhotosAlbumWithCompletion:(completionBlock)completion {
-    NSURL *url = [YAUtils urlFromFileName:self.video.mp4Filename];
-    
-    self.movieFile = [[GPUImageMovie alloc] initWithURL:url];
-    self.movieFile.runBenchmark = YES;
-    self.movieFile.playAtActualSpeed = NO;
-    
-    self.filter = [[GPUImageFilter alloc] init];
-    
-    GPUImageAlphaBlendFilter *blendFilter = [[GPUImageAlphaBlendFilter alloc] init];
-    blendFilter.mix = 1.0;
-    
-    UIView *contentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-    contentView.backgroundColor = [UIColor clearColor];
-    
-    UILabel *captionLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 50, VIEW_WIDTH, VIEW_HEIGHT)];
-    
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
-                                                                                              }];
-    [captionLabel setAttributedText:string];
-    [captionLabel setBackgroundColor: [UIColor clearColor]];
-    [captionLabel setTextColor:PRIMARY_COLOR];
-    [captionLabel setFont:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]];
-    captionLabel.textAlignment = NSTextAlignmentCenter;
-    captionLabel.text = self.video.caption;
-    captionLabel.backgroundColor = [UIColor clearColor];
-    [contentView addSubview:captionLabel];
-    
-    //test
-    captionLabel.transform = CGAffineTransformRotate(captionLabel.transform, M_PI/6);
-    
-    GPUImageUIElement *uiElementInput = [[GPUImageUIElement alloc] initWithView:contentView];
-    
-    [self.filter addTarget:blendFilter];
-    [uiElementInput addTarget:blendFilter];
-    
-    [self.movieFile addTarget:self.filter];
-    
-    GPUImageView *filterView = nil;//[YACameraManager sharedManager].currentCameraView ?
-    [self.filter addTarget:filterView];
-    [blendFilter addTarget:filterView];
-    
-    [self.filter setFrameProcessingCompletionBlock:^(GPUImageOutput * filter, CMTime frameTime){
-        //set label.hidden to YES and here to NO in case it should be shown at the beginning/end of the video
-        //        if (frameTime.value/frameTime.timescale == 2) {
-        //            [contentView viewWithTag:1].hidden = NO;
-        //        }
-        [uiElementInput update];
-    }];
-    
-    // In addition to displaying to the screen, write out a processed version of the movie to disk
-    NSString *pathToMovie = [NSTemporaryDirectory() stringByAppendingPathComponent:@"video_with_watermark.mp4"];
-    unlink([pathToMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
-    
-    self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:[NSURL fileURLWithPath:pathToMovie] size:CGSizeMake(640.0, 480.0)];
-    [self.filter addTarget:self.movieWriter];
-    [blendFilter addTarget:self.movieWriter];
-    
-    // Configure this for video from the movie file, where we want to preserve all video frames and audio samples
-    self.movieWriter.shouldPassthroughAudio = YES;
-    //self.movieFile.audioEncodingTarget = self.movieWriter;
-    [self.movieFile enableSynchronizedEncodingUsingMovieWriter:self.movieWriter];
-    //self.movieFile.audioEncodingTarget = self.movieWriter;
-    
-    [self.movieWriter startRecording];
-    [self.movieFile startProcessing];
-    
-    [self.movieWriter setCompletionBlock:^{
-        UISaveVideoAtPathToSavedPhotosAlbum(pathToMovie, nil, nil, nil);
-        DLog(@"video with watermark saved to the camera roll %@", pathToMovie);
-        if(completion)
-            completion(nil);
-    }];
 }
 
 

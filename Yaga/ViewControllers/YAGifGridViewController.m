@@ -196,22 +196,6 @@ static NSString *cellID = @"Cell";
     }
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-
-//    if(self.group.publicGroup) {
-//        if (![YAUtils hasVisitedPublicGroup]) {
-//            [self showHumanityTooltip];
-//            [YAUtils setVisitedPublicGroup];
-//        }
-//    } else {
-//        if (![YAUtils hasVisitedPrivateGroup]) {
-//            [self showPrivateGroupTooltip];
-//            [YAUtils setVisitedPrivateGroup];
-//        }
-//    }
-}
-
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     for (YAVideoCell *cell in [self.collectionView visibleCells]) {
@@ -541,8 +525,8 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (![[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:kCellWasAlreadyTapped]) {
-        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:kCellWasAlreadyTapped];
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:kCellWasAlreadyTapped]) {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kCellWasAlreadyTapped];
         if(self.toolTipLabel){
             [self.toolTipLabel removeFromSuperview];
         }

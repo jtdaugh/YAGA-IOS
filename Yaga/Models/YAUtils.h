@@ -67,14 +67,11 @@ typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 + (BOOL)hasVisitedPublicGroup;
 + (void)setVisitedPublicGroup;
 
-+ (BOOL)hasVisitedPrivateGroup;
-+ (void)setVisitedPrivateGroup;
-
-+ (BOOL)hasCreatedPrivateGroup;
-+ (void)setCreatedPrivateGroup;
-
 + (BOOL)hasCreatedPublicGroup;
 + (void)setCreatedPublicGroup;
+
++ (BOOL)hasVisitedPrivateGroup;
++ (void)setVisitedPrivateGroup;
 
 + (BOOL)hasSeenPendingApprovalMessage;
 + (void)setSeenPendingApprovalMessage;

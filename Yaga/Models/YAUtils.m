@@ -474,12 +474,12 @@ static NSMutableDictionary *bubblesDictionary;
 #pragma mark - Tooltip and userdefaults helpers
 
 + (BOOL)defaultsBoolForKey:(NSString *)key {
-    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:key];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:key];
 }
 
 + (void)setDefaultsForKey:(NSString *)key {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:key];
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:key];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 + (BOOL)hasCompletedForcedFollowing {
@@ -503,25 +503,18 @@ static NSMutableDictionary *bubblesDictionary;
     [self setDefaultsForKey:PUBLIC_GROUP_VISITED];
 }
 
-+ (BOOL)hasVisitedPrivateGroup {
-    return [self defaultsBoolForKey:PRIVATE_GROUP_VISITED];
-}
-+ (void)setVisitedPrivateGroup {
-    [self setDefaultsForKey:PRIVATE_GROUP_VISITED];
-}
-
-+ (BOOL)hasCreatedPrivateGroup {
-    return [self defaultsBoolForKey:HAS_CREATED_PRIVATE_GROUP];
-}
-+ (void)setCreatedPrivateGroup {
-    [self setDefaultsForKey:HAS_CREATED_PRIVATE_GROUP];
-}
-
 + (BOOL)hasCreatedPublicGroup {
     return [self defaultsBoolForKey:HAS_CREATED_HOSTED_GROUP];
 }
 + (void)setCreatedPublicGroup {
     [self setDefaultsForKey:HAS_CREATED_HOSTED_GROUP];
+}
+
++ (BOOL)hasVisitedPrivateGroup {
+    return [self defaultsBoolForKey:PRIVATE_GROUP_VISITED];
+}
++ (void)setVisitedPrivateGroup {
+    [self setDefaultsForKey:PRIVATE_GROUP_VISITED];
 }
 
 + (BOOL)hasSeenPendingApprovalMessage {
@@ -643,10 +636,10 @@ static NSMutableDictionary *bubblesDictionary;
 }
 
 + (void)showBubbleWithTextOnce:(NSString*)text bubbleWidth:(CGFloat)width arrowDirectionUp:(BOOL)arrowUp forView:(UIView*)view {
-    NSMutableSet *popupTextsShown = [NSMutableSet setWithArray:[[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kPopupsShown]];
+    NSMutableSet *popupTextsShown = [NSMutableSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:kPopupsShown]];
     if(![popupTextsShown containsObject:text]) {
         [popupTextsShown addObject:text];
-        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[popupTextsShown allObjects] forKey:kPopupsShown];
+        [[NSUserDefaults standardUserDefaults] setObject:[popupTextsShown allObjects] forKey:kPopupsShown];
     }
 }
 

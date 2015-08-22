@@ -107,6 +107,7 @@
             self.overlay = overlay;
         }
     } else {
+        [self showForceFollowTooltip];
         [[UIApplication sharedApplication] setStatusBarHidden:NO];
         self.selectedIndex = 1;
         self.tabBar.frame = CGRectMake(0, VIEW_HEIGHT, self.tabBar.frame.size.width, self.tabBar.frame.size.height);
@@ -126,9 +127,7 @@
     if(![YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
     
-    if (!self.onboardingFinished) {
-        [self showForceFollowTooltip];
-    } else {
+    if (self.onboardingFinished) {
         if (self.forceCamera) {
             self.forceCamera = NO;
             [self presentCameraAnimated:NO shownViaBackgrounding:NO withCompletion:^{

@@ -61,26 +61,26 @@
 
 "iMESSAGE_COME_JOIN_ME_TEXT" = "I added you to the %@ channel on Yaga. Get it now on the App Store!\nhttp://getyaga.com";
 
+
+// Popover text
 "FORCE_FOLLOW_TITLE" = "Welcome";
 "FORCE_FOLLOW_BODY" = "Here's the best channels on Yaga.\n\nFollow at least one channel to get started.";
 
-"FIRST_HUMANITY_VISIT_TITLE" = "Humanity";
-"FIRST_HUMANITY_VISIT_BODY" = "Humanity contains every Yaga user in the world. \n\n We go through all posts and only approve the best.";
+"FIRST_STREAM_VISIT_TITLE" = "FIRST_STREAM_VISIT_TITLE";
+"FIRST_STREAM_VISIT_BODY" = "FIRST_STREAM_VISIT_BODY";
 
-"FIRST_GROUP_VISIT_TITLE" = "Welcome";
-"FIRST_GROUP_VISIT_BODY" = "\"%@\" is a closed channel with %i other members.\n\nVideos to the channel are private and you'll never lose them.";
+"FIRST_PUBLIC_GROUP_VISIT_TITLE" = "FIRST_PUBLIC_GROUP_VISIT_TITLE";
+"FIRST_PUBLIC_GROUP_VISIT_BODY" = "FIRST_PUBLIC_GROUP_VISIT_BODY";
 
-"FIRST_GROUP_POST_TITLE" = "That was easy";
-"FIRST_GROUP_POST_BODY" = "Your video is now sending to \"%@\".\n\nTap the video to caption.\n\nSwipe it down to return to the camera.";
+"FIRST_CREATE_PUBLIC_GROUP_TITLE" = "FIRST_CREATE_PUBLIC_GROUP_TITLE";
+"FIRST_CREATE_PUBLIC_GROUP_BODY" = "FIRST_CREATE_PUBLIC_GROUP_BODY";
 
-"FIRST_NOGROUP_POST_TITLE" = "Pick channels";
-"FIRST_NOGROUP_POST_BODY" = "You weren't inside a channels when you took this video.\n\nSo, pick which channels you'd like to send it to.\n\nOr swipe the video away to delete it forever.";
+"FIRST_PRIVATE_GROUP_TITLE" = "FIRST_PRIVATE_GROUP_TITLE";
+"FIRST_PRIVATE_GROUP_BODY" = "FIRST_PRIVATE_GROUP_BODY";
 
-"FIRST_HUMANITY_POST_TITLE" = "Pending approval";
-"FIRST_HUMANITY_POST_BODY" = "Only the best videos are featured in Humanity.\n\nWe'll notify you if yours gets approved.";
+"FIRST_PENDING_APPROVAL_POST_TITLE" = "FIRST_PENDING_APPROVAL_POST_TITLE";
+"FIRST_PENDING_APPROVAL_POST_BODY" = "FIRST_PENDING_APPROVAL_POST_BODY";
 
-"FIRST_JOIN_GROUPS_TITLE" = "Join Groups";
-"FIRST_JOIN_GROUPS_BODY" = "Looks like some of your friends are using Yaga. \n\n Request to join channels that they are in.";
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
 
