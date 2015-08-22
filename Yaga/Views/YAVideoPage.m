@@ -571,7 +571,20 @@ static NSString *commentCellID = @"CommentCell";
     CGFloat approveButtonHeight = VIEW_HEIGHT * .1;
     CGFloat approveButtonMargin = (VIEW_WIDTH - approveButtonWidth*2)/3;
     
-    self.approveButton = [[UIButton alloc] initWithFrame:CGRectMake(approveButtonMargin, VIEW_HEIGHT - approveButtonHeight - approveButtonMargin, approveButtonWidth, approveButtonHeight)];
+    self.rejectButton = [[UIButton alloc] initWithFrame:CGRectMake(approveButtonMargin, VIEW_HEIGHT - approveButtonHeight - approveButtonMargin, approveButtonWidth, approveButtonHeight)];
+    [self.rejectButton setTitle:@"Reject" forState:UIControlStateNormal];
+    [self.rejectButton addTarget:self action:@selector(rejectPressed) forControlEvents:UIControlEventTouchUpInside];
+    self.rejectButton.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.5];
+    [self.rejectButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:22]];
+    //    [self.rejectButton.titleLabel setTextColor:SECONDARY_COLOR];
+    self.rejectButton.layer.masksToBounds = YES;
+    self.rejectButton.layer.cornerRadius = approveButtonHeight/2;
+    self.rejectButton.layer.borderWidth = 5.0f;
+    self.rejectButton.layer.borderColor = SECONDARY_COLOR.CGColor;
+    [self.adminAccessories addSubview:self.rejectButton];
+    
+
+    self.approveButton = [[UIButton alloc] initWithFrame:CGRectMake(approveButtonMargin*2 + approveButtonWidth, VIEW_HEIGHT - approveButtonHeight - approveButtonMargin, approveButtonWidth, approveButtonHeight)];
     [self.approveButton setTitle:@"Approve" forState:UIControlStateNormal];
     [self.approveButton addTarget:self action:@selector(approvePressed) forControlEvents:UIControlEventTouchUpInside];
     self.approveButton.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:0.5];;
@@ -583,18 +596,6 @@ static NSString *commentCellID = @"CommentCell";
     self.approveButton.layer.borderColor = PRIMARY_COLOR.CGColor;
     [self.adminAccessories addSubview:self.approveButton];
     
-    self.rejectButton = [[UIButton alloc] initWithFrame:CGRectMake(approveButtonMargin*2 + approveButtonWidth, VIEW_HEIGHT - approveButtonHeight - approveButtonMargin, approveButtonWidth, approveButtonHeight)];
-    [self.rejectButton setTitle:@"Reject" forState:UIControlStateNormal];
-    [self.rejectButton addTarget:self action:@selector(rejectPressed) forControlEvents:UIControlEventTouchUpInside];
-    self.rejectButton.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.5];
-    [self.rejectButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:22]];
-//    [self.rejectButton.titleLabel setTextColor:SECONDARY_COLOR];
-    self.rejectButton.layer.masksToBounds = YES;
-    self.rejectButton.layer.cornerRadius = approveButtonHeight/2;
-    self.rejectButton.layer.borderWidth = 5.0f;
-    self.rejectButton.layer.borderColor = SECONDARY_COLOR.CGColor;
-    [self.adminAccessories addSubview:self.rejectButton];
-
     self.moreButton = [YAUtils circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
     [self.moreButton addTarget:self action:@selector(moreButtonPressed:) forControlEvents:UIControlEventTouchUpInside];

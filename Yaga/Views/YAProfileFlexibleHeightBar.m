@@ -77,7 +77,7 @@
 
 - (void)addEmptyViewsLabel {
     UILabel *viewsLabel = [UILabel new];
-    viewsLabel.font = [UIFont fontWithName:BIG_FONT size:16];
+    viewsLabel.font = [UIFont fontWithName:BOLD_FONT size:16];
     viewsLabel.textColor = [UIColor whiteColor];
     viewsLabel.textAlignment = NSTextAlignmentCenter;
     CGRect frame =  CGRectMake(10, kTitleOriginExpanded + 95, VIEW_WIDTH - 20, 20);
