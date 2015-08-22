@@ -377,6 +377,8 @@
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if ([gestureRecognizer isEqual:self.pinchZoomGesture]) {
         self.beginGestureScale = self.zoomFactor;
+        [[Mixpanel sharedInstance] track:@"Started Zooming"];
+
     }
     return YES;
 }

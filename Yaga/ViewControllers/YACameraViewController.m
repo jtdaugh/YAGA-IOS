@@ -113,6 +113,8 @@
     
     [self startRecordingAnimation];
     self.recordingTime = [NSDate date];
+    [[Mixpanel sharedInstance] track:@"Opened Camera"];
+
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -361,6 +363,8 @@
 
 //val: refactor, method copied from endHold but without if(self.recording) condition
 - (void)doneRecordingTapped {
+    [[Mixpanel sharedInstance] track:@"Done Recording Pressed"];
+
     [YAUtils hideBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording"];
     
     if(self.flash){
@@ -404,6 +408,8 @@
 - (void)switchCamera:(id)sender {
     [self setFlashMode:NO];
     [[YACameraManager sharedManager] switchCamera];
+    [[Mixpanel sharedInstance] track:@"Switch Camera Pressed"];
+
 }
 
 - (YACameraView *)currentCameraView {
@@ -429,6 +435,7 @@
 
 - (void)startFlashTimer {
     [self toggleFlash:nil];
+
     self.flashTimer = [NSTimer scheduledTimerWithTimeInterval:kStrobeInterval*3 target:self selector:@selector(startStrobe) userInfo:nil repeats:NO];
     self.panGesture.enabled = NO; // So you can drag while strobing
 }
@@ -450,6 +457,8 @@
 
 - (void)toggleFlash:(id)sender {
     [self setFlashMode:!self.flash];
+    [[Mixpanel sharedInstance] track:@"Toggled Flash"];
+
 }
 
 - (void)setFlashMode:(BOOL)flashOn {
@@ -667,6 +676,8 @@
 
 - (void)chooseFromCameraRoll {
     DLog(@"Upload from camera roll pressed");
+    [[Mixpanel sharedInstance] track:@"Upload from camera roll pressed"];
+
     self.hud = [YAUtils showIndeterminateHudWithText:@"One sec..."];
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
     picker.delegate = self;
@@ -682,6 +693,8 @@
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     DLog(@"Did pick video from camera roll");
+    [[Mixpanel sharedInstance] track:@"Did pick video from camera roll"];
+
     self.hud = [YAUtils showIndeterminateHudWithText:@"One sec..."];
     [picker dismissViewControllerAnimated:YES completion:^{
         NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
@@ -699,6 +712,8 @@
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     DLog(@"Cancelled picking video from camera roll");
+    [[Mixpanel sharedInstance] track:@"Cancelled picking video from camera roll"];
+
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 

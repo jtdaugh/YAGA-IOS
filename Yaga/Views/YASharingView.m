@@ -232,6 +232,8 @@
 - (void)shareVideoWithActionType:(NSUInteger)type fileUrl:(NSURL *)fileUrl {
     switch (type) {
         case 0: {
+            [[Mixpanel sharedInstance] track:@"Share to iMessage Pressed"];
+
             //iMessage
             
             NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
@@ -253,7 +255,8 @@
             
             break;
         } case 1: {
-            
+            [[Mixpanel sharedInstance] track:@"Share to Facebook Pressed"];
+
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
             ALAssetsLibraryWriteVideoCompletionBlock videoWriteCompletionBlock =
             ^(NSURL *newURL, NSError *error) {
@@ -287,6 +290,8 @@
             
             break;
         } case 2: {
+            [[Mixpanel sharedInstance] track:@"Share to Twitter Pressed"];
+
             // Twitter
             [self.hud hide:YES];
 
@@ -309,6 +314,8 @@
                         [SocialVideoHelper uploadTwitterVideo:data account:account text:detailText withCompletion:^{
                             
                             [self showSuccessHud];
+                            [[Mixpanel sharedInstance] track:@"Shared to Twitter succeeded"];
+
                             
                         }];
                     }];
@@ -319,6 +326,8 @@
             break;
         } case 3: {
             // save
+            [[Mixpanel sharedInstance] track:@"Save to Camera Roll Pressed"];
+
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
             [library writeVideoAtPathToSavedPhotosAlbum:fileUrl completionBlock:^(NSURL *assetURL, NSError *error){
                 if(error) {
@@ -363,21 +372,22 @@
     [(UIViewController *)self.page.presentingVC dismissViewControllerAnimated:YES completion:nil];
     switch (result) {
         case MessageComposeResultCancelled: {
-            [[Mixpanel sharedInstance] track:@"iMessage cancelled"];
+            [[Mixpanel sharedInstance] track:@"Share to iMessage cancelled"];
             break;
         }
         case MessageComposeResultFailed:
         {
-            [[Mixpanel sharedInstance] track:@"iMessage failed"];
+            [[Mixpanel sharedInstance] track:@"Share to iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
 //            [self popToGridViewController];
             break;
         }
             
         case MessageComposeResultSent:
-            [[Mixpanel sharedInstance] track:@"iMessage sent"];
+            [[Mixpanel sharedInstance] track:@"Share to iMessage sent"];
             //            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
 //            [self popToGridViewController];
+            
             
             break;
     }
@@ -446,14 +456,19 @@
 #pragma mark - FBSDKSharingDelegate
 - (void)sharer:(id<FBSDKSharing>)sharer didCompleteWithResults :(NSDictionary *)results {
     NSLog(@"FB: SHARE RESULTS=%@\n",[results debugDescription]);
+    [[Mixpanel sharedInstance] track:@"Shared to FB"];
+
 }
 
 - (void)sharer:(id<FBSDKSharing>)sharer didFailWithError:(NSError *)error {
     NSLog(@"FB: ERROR=%@\n",[error debugDescription]);
+    [[Mixpanel sharedInstance] track:@"Shared to FB failed"];
+
 }
 
 - (void)sharerDidCancel:(id<FBSDKSharing>)sharer {
     NSLog(@"FB: CANCELED SHARER=%@\n",[sharer debugDescription]);
+    [[Mixpanel sharedInstance] track:@"Shared to FB cancelled"];
 }
 
 - (void)renderButton:(NSUInteger) count {

@@ -36,7 +36,7 @@
     [self.scrollView setShowsHorizontalScrollIndicator:NO];
     [self.view addSubview:self.scrollView];
 
-    
+    [[Mixpanel sharedInstance] track:@"Splash Viewed"];
     [self.view setBackgroundColor:PRIMARY_COLOR];
     
     CGFloat buttonHeight = VIEW_HEIGHT * .1;
@@ -98,6 +98,7 @@
 }
 
 - (void)nextStep {
+    [[Mixpanel sharedInstance] track:@"Get started pressed"];
     [self performSegueWithIdentifier:@"PhoneNumberViewController" sender:self];
 }
 

@@ -175,6 +175,8 @@
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [[Mixpanel sharedInstance] track:@"Selected Group"];
+
     [self showHidePostMessage];
 }
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -188,7 +190,8 @@
 - (void)addNewGroup {
     NameGroupViewController *nameGroupVC = [NameGroupViewController new];
     YASloppyNavigationController *navVC = [[YASloppyNavigationController alloc] initWithRootViewController:nameGroupVC];
-    
+    [[Mixpanel sharedInstance] track:@"Create New Channel after post"];
+
     [self presentViewController:navVC animated:YES completion:nil];
 }
 
@@ -233,6 +236,9 @@
         [((YAMainTabBarController *)[UIApplication sharedApplication].keyWindow.rootViewController) returnToStreamViewController];
         [self dismissViewControllerAnimated:YES completion:nil];
     }
+    
+    [[Mixpanel sharedInstance] track:@"Posted to channels" properties:@{@"count": [NSNumber numberWithInteger:self.tableView.indexPathsForSelectedRows.count]}];
+
 }
 
 - (BOOL)blockCameraPresentationOnBackground {

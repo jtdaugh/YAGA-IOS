@@ -448,6 +448,7 @@
 
 - (void)groupButtonPressed {
     if (self.groupOpener) {
+        [[Mixpanel sharedInstance] track:@"Tapped Channel Name on Cell Header"];
         [self.groupOpener openGroupForVideo:self.video];
     }
 }

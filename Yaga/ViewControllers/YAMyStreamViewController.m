@@ -45,6 +45,9 @@
     [self updateViewCount];
     [YAViewCountManager sharedManager].userViewCountDelegate = self;
     [[YAViewCountManager sharedManager] monitorUser:[YAUser currentUser].username];
+    
+    [[Mixpanel sharedInstance] track:@"Viewed My Videos"];
+
 }
 
 - (void)viewDidDisappear:(BOOL)animated {

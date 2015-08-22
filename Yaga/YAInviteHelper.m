@@ -46,9 +46,11 @@
 - (void)show {
     MSAlertController *inviteAlert = [MSAlertController alertControllerWithTitle:@"Send Invites" message:[self getFriendNamesTitle] preferredStyle:MSAlertControllerStyleAlert];
     [inviteAlert addAction:[MSAlertAction actionWithTitle:self.cancelText style:MSAlertActionStyleCancel handler:^(MSAlertAction *action) {
+        [[Mixpanel sharedInstance] track:@"Skipped Inviting"];
         self.completion(NO);
     }]];
     [inviteAlert addAction:[MSAlertAction actionWithTitle:@"Invite" style:MSAlertActionStyleDefault handler:^(MSAlertAction *action) {
+        [[Mixpanel sharedInstance] track:@"Invited Friends"];
         [self.viewController dismissViewControllerAnimated:YES completion:^{
             [self showMessageController];
         }];

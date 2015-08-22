@@ -552,7 +552,8 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)openVideoAtIndexPath:(NSIndexPath*)indexPath {
-    
+    [[Mixpanel sharedInstance] track:@"Opened Video"];
+
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
 
     NSMutableArray *array = [NSMutableArray new];

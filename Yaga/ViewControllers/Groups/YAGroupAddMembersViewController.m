@@ -381,6 +381,7 @@
     if(![self validateSelectedContacts])
         return;
 
+    [[Mixpanel sharedInstance] track:@"Added Members"];
 
     self.contactsThatNeedInvite = [self filterContactsToInvite];
     if (![self.contactsThatNeedInvite count]) {

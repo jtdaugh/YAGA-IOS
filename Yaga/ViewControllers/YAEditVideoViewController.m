@@ -325,6 +325,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)captionButtonPressed {
+    [[Mixpanel sharedInstance] track:@"Caption Button Pressed"];
     
     float randomX = ((float)rand() / RAND_MAX) * 100;
     float randomY = ((float)rand() / RAND_MAX) * 200;
@@ -358,6 +359,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     
     applyCaptionView.completionHandler = ^(BOOL completed, UIView *captionView, UITextView *captionTextView, NSString *text, CGFloat x, CGFloat y, CGFloat scale, CGFloat rotation){
         if (completed) {
+            [[Mixpanel sharedInstance] track:@"Completed Caption"];
+
             [self.view addSubview:captionView];
             self.currentCaptionView = captionView;
             [captionView setUserInteractionEnabled:NO];
@@ -422,7 +425,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)sendButtonTapped:(id)sender {
-    
+    [[Mixpanel sharedInstance] track:@"Done Trimming Tapped"];
+
     __weak typeof(self) weakSelf = self;
     [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {
         if(!error) {
@@ -470,6 +474,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
 - (void)dismissAnimated{
     [self deleteTrimmedFile];
+    [[Mixpanel sharedInstance] track:@"Dismiss Trim View Tapped"];
+
     [self.navigationController popViewControllerAnimated:YES];
 //    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
@@ -516,6 +522,9 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
         self.dragging = NO;
         self.videoPlayerView.playWhenReady = YES;
     }];
+    
+    [[Mixpanel sharedInstance] track:@"Trimmed Video"];
+
 }
 
 #pragma mark - Trimming

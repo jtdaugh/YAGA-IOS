@@ -220,6 +220,7 @@
 }
 
 - (void)presentCreateGroup {
+    [[Mixpanel sharedInstance] track:@"Create Group Pressed"];
     NameGroupViewController *vc = [NameGroupViewController new];
     YASloppyNavigationController *createGroupNavController = [[YASloppyNavigationController alloc] initWithRootViewController:vc];
     [self presentViewController:createGroupNavController animated:YES completion:nil];
@@ -265,6 +266,8 @@
 }
 
 - (void)cameraPressed {
+    [[Mixpanel sharedInstance] track:@"Camera Pressed"];
+
     [self presentCameraAnimated:YES shownViaBackgrounding:NO withCompletion:nil];
 }
 
