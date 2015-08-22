@@ -127,41 +127,33 @@
 
     CGSize videoSize = [clipVideoTrack naturalSize];
 
-// PRY NEED THIS FOR CORRECTNESS BUT LETS GET IT WORKING AT ALL FIRST
-//    CGFloat scale = videoSize.width / VIEW_WIDTH;
-//    captionLayer.transform = CATransform3DScale(captionLayer.transform, scale, scale, 1);
-//    captionLayer.affineTransform = CGAffineTransformScale(captionLayer.affineTransform, scale, scale);
-
-    UIView *textWrapper = [[UIView alloc] initWithFrame:CGRectInfinite];
-    UITextView *textView = [YAApplyCaptionView textViewWithCaptionAttributes];
-    textView.text = caption[@"text"];
+    CGFloat xCenter = [caption[@"x"] floatValue] * videoSize.width;
+    CGFloat yCenter = [caption[@"y"] floatValue] * videoSize.height;
+    CGFloat displayScale = [caption[@"scale"] floatValue] * (videoSize.width / STANDARDIZED_DEVICE_WIDTH);
     
-    CGSize newSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
-    CGRect captionFrame = CGRectMake(0, 0, newSize.width, newSize.height);
-    textView.frame = captionFrame;
+    CGAffineTransform final = preferredTransform;
+    final = CGAffineTransformRotate(final, [caption[@"rotation"] floatValue]);
+    final = CGAffineTransformScale(final, displayScale, displayScale);
     
-    CGFloat xPos = [caption[@"x"] floatValue] * VIEW_WIDTH;
-    CGFloat yPos = [caption[@"y"] floatValue] * VIEW_HEIGHT;
-    
-    CGRect wrapperFrame = CGRectMake(xPos - (newSize.width/2.f),
-                                     yPos - (newSize.height/2.f),
-                                     newSize.width,
-                                     newSize.height);
-    textWrapper.frame = wrapperFrame;
-    [textWrapper addSubview:textView];
-    
-    CGFloat displayScale = [caption[@"scale"] floatValue] * CAPTION_SCREEN_MULTIPLIER;
-    
-    CGAffineTransform transform = CGAffineTransformRotate(preferredTransform, [caption[@"rotation"] floatValue]);
-    CGAffineTransform final = CGAffineTransformScale(transform, displayScale, displayScale);
-    textWrapper.transform = final;
-    
+    CATextLayer *captionLayer = [[CATextLayer alloc] init];
+    captionLayer.frame = CGRectMake(xCenter - (MAX_CAPTION_WIDTH/2), yCenter - (MAX_CAPTION_WIDTH /2), MAX_CAPTION_WIDTH, MAX_CAPTION_WIDTH);
+    captionLayer.anchorPoint = CGPointMake(0.5, 0.5);
+    captionLayer.affineTransform = final;
+    captionLayer.wrapped = YES;
+    captionLayer.alignmentMode = @"center";
+    NSAttributedString *string = [[NSAttributedString alloc] initWithString:caption[@"text"] attributes:@{
+                                                                 NSStrokeColorAttributeName:[UIColor whiteColor],
+                                                                 NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH],
+                                                                 NSForegroundColorAttributeName:PRIMARY_COLOR,
+                                                                 NSFontAttributeName:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]
+                                                                 }];
+    captionLayer.string = string;
     CALayer *parentLayer = [CALayer layer];
     CALayer *videoLayer = [CALayer layer];
     parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
     videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
     [parentLayer addSublayer:videoLayer];
-    [parentLayer addSublayer:textWrapper.layer];
+    [parentLayer addSublayer:captionLayer];
     
     AVMutableVideoComposition* videoComp = [AVMutableVideoComposition videoComposition];
     videoComp.renderSize = videoSize;
@@ -191,7 +183,6 @@
     
     
     [self.exportSession exportAsynchronouslyWithCompletionHandler:^{
-        [textWrapper description]; // dont wanna lose this guy early
         completion(exportUrl, nil);
     }];
 }
