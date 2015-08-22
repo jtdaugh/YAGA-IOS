@@ -161,11 +161,8 @@
 
 /* Begin PBXFileReference section */
 		06099F2997CD40A8B4FA1754 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		06298255B668038D8C0EB4ED /* Pods-YAVideoShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YAVideoShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-YAVideoShareExtension/Pods-YAVideoShareExtension.release.xcconfig"; sourceTree = "<group>"; };
-		0F46B6DC1B587597008E9808 /* Yaga.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Yaga.entitlements; sourceTree = "<group>"; };
 		0F46B6E41B58D8FE008E9808 /* YAApplyCaptionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAApplyCaptionView.h; sourceTree = "<group>"; };
 		0F46B6E51B58D8FE008E9808 /* YAApplyCaptionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAApplyCaptionView.m; sourceTree = "<group>"; };
-		0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		0FD720F61B57AC8B00BCF17F /* libPods.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPods.a; path = "Pods/../build/Debug-iphoneos/libPods.a"; sourceTree = "<group>"; };
 		0FD720F81B57ACE700BCF17F /* libPods.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPods.a; path = "Pods/../build/Debug-iphoneos/libPods.a"; sourceTree = "<group>"; };
 		0FDC3AF61B0E69C0003A688D /* UIImage+YABlur.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+YABlur.h"; sourceTree = "<group>"; };
@@ -174,7 +171,6 @@
 		0FDC3AF91B0E69C0003A688D /* UIWindow+YASnapshot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+YASnapshot.m"; sourceTree = "<group>"; };
 		0FE7A6B21B53542C00B35DCD /* YACreateGroupNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YACreateGroupNavigationController.h; path = Groups/YACreateGroupNavigationController.h; sourceTree = "<group>"; };
 		0FE7A6B31B53542C00B35DCD /* YACreateGroupNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YACreateGroupNavigationController.m; path = Groups/YACreateGroupNavigationController.m; sourceTree = "<group>"; };
-		1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		4120E7091B43624500627359 /* SocialVideoHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocialVideoHelper.h; sourceTree = "<group>"; };
 		4120E70A1B43624500627359 /* SocialVideoHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocialVideoHelper.m; sourceTree = "<group>"; };
 		41235F181B4C93E400B08ED5 /* YAPopoverView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPopoverView.h; sourceTree = "<group>"; };
@@ -414,7 +410,6 @@
 		88FB0A2B1B1D6D78002C213C /* NSArray+Reverse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Reverse.m"; sourceTree = "<group>"; };
 		B8DB16454F57F65456424710 /* libPods-Yaga.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Yaga.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7B11E1CE397737CD4EB4D4B /* Pods-Yaga.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaga.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Yaga/Pods-Yaga.debug.xcconfig"; sourceTree = "<group>"; };
-		CDDE97FAA18F5668E2DC66B7 /* Pods-YAVideoShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-YAVideoShareExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-YAVideoShareExtension/Pods-YAVideoShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		F365E23CEB3BDF63467042B1 /* libPods-YAVideoShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-YAVideoShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -447,10 +442,6 @@
 		1BBA4B12A846B58A5DE9BE9C /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				1FCBFC502ACA66CA85FD0392 /* Pods.debug.xcconfig */,
-				0F9D6BD06CEA973CDE015975 /* Pods.release.xcconfig */,
-				CDDE97FAA18F5668E2DC66B7 /* Pods-YAVideoShareExtension.debug.xcconfig */,
-				06298255B668038D8C0EB4ED /* Pods-YAVideoShareExtension.release.xcconfig */,
 				C7B11E1CE397737CD4EB4D4B /* Pods-Yaga.debug.xcconfig */,
 				8394ED2916D646D04322332B /* Pods-Yaga.release.xcconfig */,
 			);
@@ -558,7 +549,6 @@
 		6E9187611A3F2C270034AB63 /* Yaga */ = {
 			isa = PBXGroup;
 			children = (
-				0F46B6DC1B587597008E9808 /* Yaga.entitlements */,
 				6E9188741A3F3A5A0034AB63 /* Categories */,
 				6E9188831A3F3A5A0034AB63 /* Models */,
 				6E9188951A3F3A5A0034AB63 /* ViewControllers */,
@@ -919,7 +909,7 @@
 						DevelopmentTeam = QWZRQYKU9P;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
-								enabled = 1;
+								enabled = 0;
 							};
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -1226,8 +1216,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CODE_SIGN_ENTITLEMENTS = Yaga/Yaga.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yaga Mobile Inc";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1261,8 +1250,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CODE_SIGN_ENTITLEMENTS = Yaga/Yaga.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yaga Mobile Inc";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (

@@ -15,6 +15,7 @@
 #import "YAAssetsCreator.h"
 #import "YAStandardFlexibleHeightBar.h"
 #import "YAMainTabBarController.h"
+#import "YAPopoverView.h"
 
 @interface YAPostToGroupsViewController ()
 @property (nonatomic, strong) NSMutableArray *hostingGoups;
@@ -175,6 +176,12 @@
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([self arrayForSection:indexPath.section] == self.followingGroups) {
+        if (![YAUtils hasSeenPendingApprovalMessage]) {
+            [YAUtils setSeenPendingApprovalMessage];
+            [self showFirstPendingApprovalSelectionPopover];
+        }
+    }
     [self showHidePostMessage];
 }
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -237,6 +244,11 @@
 
 - (BOOL)blockCameraPresentationOnBackground {
     return YES;
+}
+
+
+- (void)showFirstPendingApprovalSelectionPopover {
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_PENDING_APPROVAL_POST_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_PENDING_APPROVAL_POST_BODY", @"") dismissText:@"Got it" addToView:self.view] show];
 }
 
 @end

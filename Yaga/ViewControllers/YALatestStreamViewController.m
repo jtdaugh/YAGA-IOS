@@ -9,6 +9,7 @@
 #import "YALatestStreamViewController.h"
 #import "YAPendingGroupReminderCell.h"
 #import "YAGroupGridViewController.h"
+#import "YAPopoverView.h"
 
 @interface YALatestStreamViewController ()
 
@@ -53,6 +54,11 @@ static NSString *CellIdentifier = @"PendingCell";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    if (![YAUtils hasVisitedStream]) {
+        [YAUtils setVisitedStream];
+        [self showFirstStreamVisitPopover];
+    }
+    
     if (self.shouldForcePullToRefresh)
         [self manualTriggerPullToRefresh];
     self.shouldForcePullToRefresh = NO;
@@ -166,6 +172,10 @@ static NSString *CellIdentifier = @"PendingCell";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+}
+
+- (void)showFirstStreamVisitPopover {
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_STREAM_VISIT_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_STREAM_VISIT_BODY", @"") dismissText:@"Got it" addToView:self.view] show];
 }
 
 @end

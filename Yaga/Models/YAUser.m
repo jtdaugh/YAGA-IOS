@@ -29,7 +29,7 @@
     dispatch_once(&onceToken, ^{
         sharedUser = [[self alloc] init];
 
-        sharedUser.countryCode = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kCountryCode];
+        sharedUser.countryCode = [[NSUserDefaults standardUserDefaults] objectForKey:kCountryCode];
         if(!sharedUser.countryCode)
             sharedUser.countryCode = [[NSLocale currentLocale] objectForKey: NSLocaleCountryCode];
 
@@ -50,7 +50,7 @@
         
         //request an access to the contacts first time in Groups list(because we need to show correct member names)
         //next times phonebook is loaded on app start
-        if([[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:kContactsAccessWasRequested]) {
+        if([[NSUserDefaults standardUserDefaults] boolForKey:kContactsAccessWasRequested]) {
             [self importContactsWithCompletion:nil excludingPhoneNumbers:nil];
         }
     }
@@ -66,17 +66,17 @@
 }
 
 - (void)logout {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
+    [[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
     [self.userData removeAllObjects];
 }
 
 - (void)saveObject:(NSObject *)value forKey:(NSString *)key {
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:value forKey:key];
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
+    [[NSUserDefaults standardUserDefaults] setObject:value forKey:key];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (id)objectForKey:(NSString*)key {
-    return [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:key];
+    return [[NSUserDefaults standardUserDefaults] objectForKey:key];
 }
 
 - (NSString *)humanName {
@@ -134,7 +134,7 @@
     
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
-            [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:kContactsAccessWasRequested];
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kContactsAccessWasRequested];
             
             NSMutableArray *phoneResults = [NSMutableArray new];
             self->_phonebook = [NSMutableDictionary new];

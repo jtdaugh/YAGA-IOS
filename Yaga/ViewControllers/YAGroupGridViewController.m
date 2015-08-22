@@ -14,6 +14,7 @@
 #import "YAProfileFlexibleHeightBar.h"
 #import "YAPullToRefreshLoadingView.h"
 #import "YAViewCountManager.h"
+#import "YAPopoverView.h"
 
 @interface YAGroupGridViewController () <YAGroupViewCountDelegate>
 
@@ -54,6 +55,31 @@
     [self updateViewCountLabel];
     [YAViewCountManager sharedManager].groupViewCountDelegate = self;
     [[YAViewCountManager sharedManager] monitorGroupWithId:self.group.serverId];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (self.group.publicGroup) {
+        if (self.group.amMember) {
+            // Host
+            if (![YAUtils hasCreatedPublicGroup]) {
+                [YAUtils setCreatedPublicGroup];
+                [self showFirstCreatePublicGroupPopover];
+            }
+        } else {
+            // Follower
+            if (![YAUtils hasVisitedPublicGroup]) {
+                [YAUtils setVisitedPublicGroup];
+                [self showFirstPublicGroupVisitPopover];
+            }
+        }
+    } else {
+        // Member of private group
+        if (![YAUtils hasVisitedPrivateGroup]) {
+            [YAUtils setVisitedPrivateGroup];
+            [self showFirstPrivateGroupVisitPopover];
+        }
+    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -196,5 +222,18 @@
     self.groupViewCount = myViewCount + othersViewCount;
     [self updateViewCountLabel];
 }
+
+- (void)showFirstPublicGroupVisitPopover {
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_PUBLIC_GROUP_VISIT_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_PUBLIC_GROUP_VISIT_BODY", @"") dismissText:@"Got it" addToView:self.view] show];
+}
+
+- (void)showFirstCreatePublicGroupPopover {
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_CREATE_PUBLIC_GROUP_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_CREATE_PUBLIC_GROUP_BODY", @"") dismissText:@"Got it" addToView:self.view] show];
+}
+
+- (void)showFirstPrivateGroupVisitPopover {
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_PRIVATE_GROUP_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_PRIVATE_GROUP_BODY", @"") dismissText:@"Got it" addToView:self.view] show];
+}
+
 
 @end

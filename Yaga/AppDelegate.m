@@ -78,14 +78,14 @@
     } else {
         
     }
-    if ([[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] boolForKey:ALREADY_LAUNCHED_KEY])
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:ALREADY_LAUNCHED_KEY])
     {
        
     }
     else
     {
-        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:YES forKey:ALREADY_LAUNCHED_KEY];
-        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] synchronize];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:ALREADY_LAUNCHED_KEY];
+        [[NSUserDefaults standardUserDefaults] synchronize];
         
         // This is the first launch ever
         
@@ -97,8 +97,8 @@
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
 
     // Uncomments for testing tooltips
-//    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:NO forKey:kFirstVideoRecorded];
-//    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setBool:NO forKey:kCellWasAlreadyTapped];
+//    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFirstVideoRecorded];
+//    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kCellWasAlreadyTapped];
     
 //#define TESTING_MODE - uncomment that line to cleanup everything
 
@@ -261,7 +261,7 @@
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     DLog(@"didRegisterForRemoteNotificationsWithDeviceToken %@", deviceToken);
     
-    [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
+    [[NSUserDefaults standardUserDefaults] setObject:[self deviceTokenFromData:deviceToken] forKey:YA_DEVICE_TOKEN];
     Mixpanel *mixpanel = [Mixpanel sharedInstance];
     [mixpanel.people addPushDeviceToken:deviceToken];
     

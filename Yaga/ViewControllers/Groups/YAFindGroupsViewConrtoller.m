@@ -74,7 +74,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     [self setupPullToRefresh];
     
-    _groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
+    _groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
     
     [self filterAndReload:YES];
 }
@@ -122,10 +122,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                 NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
                 [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
                 [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
-                [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:upatedDataArray forKey:kFindGroupsCachedResponse];
+                [[NSUserDefaults standardUserDefaults] setObject:upatedDataArray forKey:kFindGroupsCachedResponse];
             } else {
                 [upatedDataArray removeObject:groupData];
-                [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:upatedDataArray forKey:kFindGroupsCachedResponse];
+                [[NSUserDefaults standardUserDefaults] setObject:upatedDataArray forKey:kFindGroupsCachedResponse];
             }
             
             self.groupsDataArray = upatedDataArray;
@@ -184,7 +184,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                 else {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                         weakSelf.groupsDataArray = [YAUtils readableGroupsArrayFromResponse:response];
-                        [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
+                        [[NSUserDefaults standardUserDefaults] setObject:weakSelf.groupsDataArray forKey:kFindGroupsCachedResponse];
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf filterAndReload:YES];
                         });
@@ -193,7 +193,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
             }];
         };
         
-        NSDate *lastYagaUsersRequested = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kLastYagaUsersRequestDate];
+        NSDate *lastYagaUsersRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
         if(!lastYagaUsersRequested) {
             //force upload phone contacts in case there is no information on server yet otherwise searchGroups will return nothgin
             [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts, BOOL sentToServer) {
@@ -272,7 +272,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.searchTableActivity removeFromSuperview];
     [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
 
-    self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
+    self.groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
     [self filterAndReload:YES];
 }
 
@@ -283,7 +283,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.searchActivity removeFromSuperview];
     self.searchActivity = nil;
     
-    self.groupsDataArray = [[[NSUserDefaults alloc] initWithSuiteName:@"group.com.yaga.yagaapp"] objectForKey:kFindGroupsCachedResponse];
+    self.groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
     [self filterAndReload:YES];
 }
 
