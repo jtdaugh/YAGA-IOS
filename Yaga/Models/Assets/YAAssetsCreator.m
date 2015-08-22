@@ -123,24 +123,41 @@
 
     CGAffineTransform preferredTransform = [[[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] preferredTransform];
     [compositionVideoTrack setPreferredTransform:preferredTransform];
-    CGFloat desiredRotation = atan2(preferredTransform.b, preferredTransform.a);
+//    CGFloat desiredRotation = atan2(preferredTransform.b, preferredTransform.a);
 
     CGSize videoSize = [clipVideoTrack naturalSize];
 
+    // Just to get the layer size
+    UITextView *textView = [YAApplyCaptionView textViewWithCaptionAttributes];
+    textView.text = caption[@"text"];
+    CGSize layerSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
+
+    
     CGFloat xCenter = [caption[@"x"] floatValue] * videoSize.width;
     CGFloat yCenter = [caption[@"y"] floatValue] * videoSize.height;
     CGFloat displayScale = [caption[@"scale"] floatValue] * (videoSize.width / STANDARDIZED_DEVICE_WIDTH);
     
     CGAffineTransform final = preferredTransform;
-    final = CGAffineTransformRotate(final, [caption[@"rotation"] floatValue]);
-    final = CGAffineTransformScale(final, displayScale, displayScale);
     
+    // Why is the negative rotation needed? Who the hell knows :/
+    final = CGAffineTransformRotate(final, -[caption[@"rotation"] floatValue]);
+    final = CGAffineTransformScale(final, displayScale, displayScale);
+
     CATextLayer *captionLayer = [[CATextLayer alloc] init];
-    captionLayer.frame = CGRectMake(xCenter - (MAX_CAPTION_WIDTH/2), yCenter - (MAX_CAPTION_WIDTH /2), MAX_CAPTION_WIDTH, MAX_CAPTION_WIDTH);
-    captionLayer.anchorPoint = CGPointMake(0.5, 0.5);
+    captionLayer.contentsScale = [UIScreen mainScreen].scale;
+
+    // Why is flipping the vertical center needed? Who the hell knows :/
+    if (yCenter > videoSize.height / 2) {
+        yCenter = (videoSize.height / 2) - (yCenter - videoSize.height/2);
+    } else {
+        yCenter = (videoSize.height / 2) + (videoSize.height/2 - yCenter);
+    }
+    
+    captionLayer.frame = CGRectMake(xCenter - (layerSize.width/2), yCenter - (layerSize.height /2), layerSize.width, layerSize.height);
     captionLayer.affineTransform = final;
+    captionLayer.anchorPoint = CGPointMake(0.5, 0.5);
     captionLayer.wrapped = YES;
-    captionLayer.alignmentMode = @"center";
+    captionLayer.alignmentMode = kCAAlignmentCenter;
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:caption[@"text"] attributes:@{
                                                                  NSStrokeColorAttributeName:[UIColor whiteColor],
                                                                  NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH],
@@ -148,6 +165,8 @@
                                                                  NSFontAttributeName:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]
                                                                  }];
     captionLayer.string = string;
+    
+
     CALayer *parentLayer = [CALayer layer];
     CALayer *videoLayer = [CALayer layer];
     parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
