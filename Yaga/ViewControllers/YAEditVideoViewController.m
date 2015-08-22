@@ -178,11 +178,10 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 //    [self.bottomView addSubview:transparentView];
     
     self.sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.sendButton.frame = CGRectMake(0, 0, self.bottomView.bounds.size.width, self.bottomView.bounds.size.height);
+    self.sendButton.frame = CGRectMake(VIEW_WIDTH - 100, 0, 100, self.bottomView.bounds.size.height);
     [self.sendButton setImage:[UIImage imageNamed:@"Send"] forState:UIControlStateNormal];
     [self.sendButton addTarget:self action:@selector(sendButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    self.sendButton.imageEdgeInsets = UIEdgeInsetsMake(15,
-                                                       self.bottomView.bounds.size.width - self.bottomView.bounds.size.height - 15, 15, 15);
+    self.sendButton.imageEdgeInsets = UIEdgeInsetsMake(12, 100 - self.bottomView.bounds.size.height - 12, 12, 12);
     self.sendButton.tintColor = [UIColor whiteColor];
     [self.sendButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.bottomView addSubview:self.sendButton];
@@ -196,7 +195,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     [UIView animateWithDuration:0.618 delay:0.0 options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat | UIViewAnimationOptionAllowUserInteraction animations:^{
         //
         self.sendButton.alpha = 0.5;
-        self.sendButton.imageView.transform = CGAffineTransformMakeScale(0.88, 0.88);
+        self.sendButton.imageView.transform = CGAffineTransformMakeScale(0.85, 0.85);
     } completion:^(BOOL finished) {
         //
     }];

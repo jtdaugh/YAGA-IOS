@@ -97,7 +97,7 @@
     
     if (self.onboardingFinished) {
         self.selectedIndex = 0;
-        self.forceCamera = !self.overrideForceCamera;
+        self.forceCamera = !self.overrideForceCamera && [YAUtils hasSeenCamera];
         if (self.forceCamera) {
             UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
             overlay.backgroundColor = [UIColor blackColor];
@@ -164,8 +164,7 @@
         // Only the root should be doing this
         return;
     }
-    if (!self.onboardingFinished) return;
-    
+    if (!self.onboardingFinished || ![YAUtils hasSeenCamera]) return;
     UIViewController *visibleVC;
     if (self.presentedViewController) {
         visibleVC = [self getTopmostViewControllerFromBaseVC:self];

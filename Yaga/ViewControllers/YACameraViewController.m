@@ -318,7 +318,7 @@
     
     if(![YAUtils hasSeenCamera]){
         // Hide before showing so we don't add bubbles on bubbles on bubbles.
-        [YAUtils hideBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording"];
+        [YAUtils setSeenCamera];
         [YAUtils showBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording" bubbleWidth:230 forView:self.animatedRecorder];
     }
 
@@ -368,7 +368,6 @@
     [[Mixpanel sharedInstance] track:@"Done Recording Pressed"];
 
     [YAUtils hideBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording"];
-    [YAUtils setSeenCamera];
 
     if(self.flash){
         [self setFlashMode:NO];

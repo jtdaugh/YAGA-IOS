@@ -62,27 +62,56 @@
     if (self.initialized) {
         return;
     }
-    self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPresetHigh cameraPosition:AVCaptureDevicePositionBack];
-    self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
-    self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
-    _zoomFactor = 1.0;
-    [self setupCameraSettings];
-    _initialized = YES;
-    
-    // only init camera if not simulator
-    if(TARGET_IPHONE_SIMULATOR){
-        DLog(@"no camera, simulator");
-    } else {
-        
-        DLog(@"init camera");
-        
-        if (self.currentCameraView) {
-            if (![[self.videoCamera targets] containsObject:self.currentCameraView]) {
-                [self.videoCamera addTarget:self.currentCameraView];
-            }
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL camGranted) {
+        if (camGranted) {
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL micGranted) {
+                if (micGranted) {
+                    self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPresetHigh cameraPosition:AVCaptureDevicePositionBack];
+                    self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
+                    self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
+                    _zoomFactor = 1.0;
+                    [self setupCameraSettings];
+                    _initialized = YES;
+                    
+                    // only init camera if not simulator
+                    if(TARGET_IPHONE_SIMULATOR){
+                        DLog(@"no camera, simulator");
+                    } else {
+                        
+                        DLog(@"init camera");
+                        
+                        if (self.currentCameraView) {
+                            if (![[self.videoCamera targets] containsObject:self.currentCameraView]) {
+                                [self.videoCamera addTarget:self.currentCameraView];
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //Not granted access to mediaType
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [[[UIAlertView alloc] initWithTitle:@"👎"
+                                                    message:@"Yaga needs the camera and microphone to work correctly. Please change privacy settings"
+                                                   delegate:self
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil] show];
+                    });
+                }
+            }];
+        } else {
+            //Not granted access to mediaType
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[[UIAlertView alloc] initWithTitle:@"👎"
+                                            message:@"Yaga needs the camera and microphone to work correctly. Please change privacy settings"
+                                           delegate:self
+                                  cancelButtonTitle:@"OK"
+                                  otherButtonTitles:nil] show];
+            });
         }
-    }
+    }];
 }
+
 
 - (void)setupCameraSettings {
     if ([self.videoCamera inputCamera]) {
