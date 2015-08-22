@@ -114,8 +114,11 @@
     
     [self startRecordingAnimation];
     self.recordingTime = [NSDate date];
+    
+    if (![YAUtils hasSeenCamera])
+        [YAUtils setSeenCamera];
+   
     [[Mixpanel sharedInstance] track:@"Opened Camera"];
-
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -316,9 +319,9 @@
     
     [self.animatedRecorder.textLabel setTransform:CGAffineTransformMakeScale(0.5, 0.5)];
     
-    if(![YAUtils hasSeenCamera]){
+    if(![YAUtils hasTappedRecord]){
         // Hide before showing so we don't add bubbles on bubbles on bubbles.
-        [YAUtils setSeenCamera];
+        [YAUtils hideBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording"];
         [YAUtils showBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording" bubbleWidth:230 forView:self.animatedRecorder];
     }
 
@@ -366,7 +369,8 @@
 //val: refactor, method copied from endHold but without if(self.recording) condition
 - (void)doneRecordingTapped {
     [[Mixpanel sharedInstance] track:@"Done Recording Pressed"];
-
+    
+    [YAUtils setTappedRecord];
     [YAUtils hideBubbleWithText:@"The camera is always rolling.\nTap the check to finish recording"];
 
     if(self.flash){

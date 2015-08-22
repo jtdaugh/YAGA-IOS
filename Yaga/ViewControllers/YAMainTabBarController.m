@@ -124,8 +124,6 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if(![YAUserPermissions pushPermissionsRequestedBefore])
-        [YAUserPermissions registerUserNotificationSettings];
     
     if (self.onboardingFinished) {
         if (self.forceCamera) {
@@ -215,6 +213,10 @@
     [UIView animateWithDuration:0.5 animations:^{
         self.tabBar.frame = frame;
     }];
+    
+    if(![YAUserPermissions pushPermissionsRequestedBefore])
+        [YAUserPermissions registerUserNotificationSettings];
+
 }
 
 - (void)presentCreateGroup {

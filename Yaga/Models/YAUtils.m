@@ -27,6 +27,7 @@
 #define HAS_CREATED_PRIVATE_GROUP @"createdPrivateGroup"
 #define PENDING_APPROVAL_SEEN @"pendingApprovalSeen"
 #define SEEN_CAMERA @"seenCamera"
+#define TAPPED_RECORD @"tappedRecord"
 #define SEEN_TRIM_VIEW @"seenTrimView"
 
 
@@ -522,6 +523,13 @@ static NSMutableDictionary *bubblesDictionary;
 }
 + (void)setSeenPendingApprovalMessage {
     [self setDefaultsForKey:PENDING_APPROVAL_SEEN];
+}
+
++ (BOOL)hasTappedRecord {
+    return [self defaultsBoolForKey:TAPPED_RECORD];
+}
++ (void)setTappedRecord {
+    [self setDefaultsForKey:TAPPED_RECORD];
 }
 
 + (BOOL)hasSeenCamera {

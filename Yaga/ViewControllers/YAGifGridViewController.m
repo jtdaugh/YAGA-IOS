@@ -295,7 +295,7 @@ static NSString *cellID = @"Cell";
         
         NSUInteger countOfItems = [weakSelf collectionView:weakSelf.collectionView numberOfItemsInSection:[self gifGridSection]];
         
-        if (countOfItems != weakSelf.sortedVideos.count) {
+        if (countOfItems == 0 || countOfItems != weakSelf.sortedVideos.count) {
             // If these don't match, we'll get an NSInternalInconsistencyException, so reload the whole table
             [weakSelf.collectionView reloadData];
             return;
@@ -376,7 +376,7 @@ static NSString *cellID = @"Cell";
         if(indexPathsToReload && indexPathsToReload.count) {
             NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:[self gifGridSection]];
 
-            if (countOfItems != self.sortedVideos.count) {
+            if (countOfItems != self.sortedVideos.count || countOfItems == 0) {
                 // If these don't match, we'll get an NSInternalInconsistencyException, so reload the whole table
                 [self.collectionView reloadData];
                 refreshBlock();

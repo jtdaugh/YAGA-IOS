@@ -105,7 +105,7 @@
             if (camGranted) {
                 [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL micGranted) {
                     if (micGranted)
-                        dispatch_async(dispatch_get_main_queue(), ^{
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                             [self permissionGrantedInitCamera];
                         });
                     else
