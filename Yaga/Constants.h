@@ -119,7 +119,7 @@
 
 #define kCountryCode        @"kCountryCode"
 
-#define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"
+#define kFindGroupsCachedResponse @"kDiscoverGroupsCachedResponse"
 
 #define kLastYagaUsersRequestDate   @"kLastYagaUsersRequestDate"
 #define kYagaUsersRequested         @"kYagaUsersRequested"
