@@ -21,6 +21,7 @@
 #import "YADownloadManager.h"
 #import "UIImage+Resize.h"
 #import "YACameraManager.h"
+#import "YAApplyCaptionView.h"
 
 @interface YAAssetsCreator ()
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
@@ -102,21 +103,120 @@
     }];
 }
 
-- (void)addBumberToVideoAtURL:(NSURL *)videoURL completion:(videoOperationCompletion)completion {
-    NSURL *outputUrl = [YAUtils urlFromFileName:@"YAGA.mp4"];
-    [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
-    NSMutableArray *assetURLsToConcatenate = [NSMutableArray arrayWithObject:videoURL];
-    NSString *bumperPath = [[NSBundle mainBundle] pathForResource:@"bumper" ofType:@"mp4"];
-    [assetURLsToConcatenate addObject:[NSURL fileURLWithPath:bumperPath]];
+- (void)addCaption:(NSDictionary *)caption toVideoAtUrl:(NSURL *)videoUrl completion:(videoOperationCompletion)completion {
+    if (!caption) {
+        completion(videoUrl, nil);
+        return;
+    }
+    AVURLAsset* videoAsset = [[AVURLAsset alloc]initWithURL:videoUrl options:nil];
+    AVMutableComposition* mixComposition = [AVMutableComposition composition];
     
-    [self concatenateAssetsAtURLs:assetURLsToConcatenate
-                    withOutputURL:outputUrl
-                    exportQuality:AVAssetExportPresetHighestQuality
-                limitedToDuration:CGFLOAT_MAX
-                       completion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
-                           if(completion)
-                               completion(filePath, error);
-                       }];
+    AVMutableCompositionTrack *compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo  preferredTrackID:kCMPersistentTrackID_Invalid];
+    AVAssetTrack *clipVideoTrack = [[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+    [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration)
+                                   ofTrack:clipVideoTrack
+                                    atTime:kCMTimeZero error:nil];
+    
+    AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+    AVAssetTrack *clipAudioTrack = [videoAsset tracksWithMediaType:AVMediaTypeAudio][0];
+    [compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration) ofTrack:clipAudioTrack atTime:kCMTimeZero error:nil];
+
+    CGAffineTransform preferredTransform = [[[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] preferredTransform];
+    [compositionVideoTrack setPreferredTransform:preferredTransform];
+    CGFloat desiredRotation = atan2(preferredTransform.b, preferredTransform.a);
+
+    CGSize videoSize = [clipVideoTrack naturalSize];
+
+// PRY NEED THIS FOR CORRECTNESS BUT LETS GET IT WORKING AT ALL FIRST
+//    CGFloat scale = videoSize.width / VIEW_WIDTH;
+//    captionLayer.transform = CATransform3DScale(captionLayer.transform, scale, scale, 1);
+//    captionLayer.affineTransform = CGAffineTransformScale(captionLayer.affineTransform, scale, scale);
+
+    UIView *textWrapper = [[UIView alloc] initWithFrame:CGRectInfinite];
+    UITextView *textView = [YAApplyCaptionView textViewWithCaptionAttributes];
+    textView.text = caption[@"text"];
+    
+    CGSize newSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
+    CGRect captionFrame = CGRectMake(0, 0, newSize.width, newSize.height);
+    textView.frame = captionFrame;
+    
+    CGFloat xPos = [caption[@"x"] floatValue] * VIEW_WIDTH;
+    CGFloat yPos = [caption[@"y"] floatValue] * VIEW_HEIGHT;
+    
+    CGRect wrapperFrame = CGRectMake(xPos - (newSize.width/2.f),
+                                     yPos - (newSize.height/2.f),
+                                     newSize.width,
+                                     newSize.height);
+    textWrapper.frame = wrapperFrame;
+    [textWrapper addSubview:textView];
+    
+    CGFloat displayScale = [caption[@"scale"] floatValue] * CAPTION_SCREEN_MULTIPLIER;
+    
+    CGAffineTransform transform = CGAffineTransformRotate(preferredTransform, [caption[@"rotation"] floatValue]);
+    CGAffineTransform final = CGAffineTransformScale(transform, displayScale, displayScale);
+    textWrapper.transform = final;
+    
+    CALayer *parentLayer = [CALayer layer];
+    CALayer *videoLayer = [CALayer layer];
+    parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+    videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+    [parentLayer addSublayer:videoLayer];
+    [parentLayer addSublayer:textWrapper.layer];
+    
+    AVMutableVideoComposition* videoComp = [AVMutableVideoComposition videoComposition];
+    videoComp.renderSize = videoSize;
+    videoComp.frameDuration = CMTimeMake(1, 30);
+    videoComp.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
+    
+    AVMutableVideoCompositionInstruction *instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+    instruction.timeRange = CMTimeRangeMake(kCMTimeZero, [mixComposition duration]);
+    AVAssetTrack *videoTrack = [[mixComposition tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+    AVMutableVideoCompositionLayerInstruction* layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
+    instruction.layerInstructions = [NSArray arrayWithObject:layerInstruction];
+    videoComp.instructions = [NSArray arrayWithObject: instruction];
+
+    self.exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];
+    self.exportSession.videoComposition = videoComp;
+    
+    NSString* videoName = @"video_with_caption.mp4";
+    
+    NSString *exportPath = [NSTemporaryDirectory() stringByAppendingPathComponent:videoName];
+    NSURL *exportUrl = [NSURL fileURLWithPath:exportPath];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:exportPath]) {
+        [[NSFileManager defaultManager] removeItemAtPath:exportPath error:nil];
+    }
+    
+    self.exportSession.outputFileType = AVFileTypeMPEG4;
+    self.exportSession.outputURL = exportUrl;
+    
+    
+    [self.exportSession exportAsynchronouslyWithCompletionHandler:^{
+        [textWrapper description]; // dont wanna lose this guy early
+        completion(exportUrl, nil);
+    }];
+}
+
+- (void)addBumberToVideoAtURL:(NSURL *)videoURL withCaption:(NSDictionary *)captionDetails completion:(videoOperationCompletion)completion {
+    __weak typeof(self) weakSelf = self;
+    // First add the caption to the video
+    [self addCaption:captionDetails toVideoAtUrl:videoURL completion:^(NSURL *filePath, NSError *error) {
+        NSURL *outputUrl = [YAUtils urlFromFileName:@"YAGA.mp4"];
+        [[NSFileManager defaultManager] removeItemAtURL:outputUrl error:nil];
+        NSMutableArray *assetURLsToConcatenate = [NSMutableArray arrayWithObject:filePath];
+        NSString *bumperPath = [[NSBundle mainBundle] pathForResource:@"bumper" ofType:@"mp4"];
+        [assetURLsToConcatenate addObject:[NSURL fileURLWithPath:bumperPath]];
+
+        [weakSelf concatenateAssetsAtURLs:assetURLsToConcatenate
+                        withOutputURL:outputUrl
+                        exportQuality:AVAssetExportPresetHighestQuality
+                    limitedToDuration:CGFLOAT_MAX
+                           completion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
+                               if(completion)
+                                   completion(filePath, error);
+                           }];
+    }];
+    
+    // Then append the bumper
 }
 
 

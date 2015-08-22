@@ -26,7 +26,7 @@ typedef void (^jpgCompletion)(void);
 
 + (instancetype)sharedCreator;
 
-- (void)addBumberToVideoAtURL:(NSURL*)videoURL completion:(videoOperationCompletion)completion;
+- (void)addBumberToVideoAtURL:(NSURL*)videoURL withCaption:(NSDictionary *)captionDetails completion:(videoOperationCompletion)completion;
 
 - (void)createVideoFromRecodingURL:(NSURL*)recordingUrl
                    withCaptionText:(NSString *)captionText
