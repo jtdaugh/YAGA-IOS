@@ -66,23 +66,24 @@
 "FORCE_FOLLOW_TITLE" = "Welcome";
 "FORCE_FOLLOW_BODY" = "There's all kinds of channels on Yaga.\n\nFollow at least one channel to get started.";
 
+// Not shown for now...
 "FIRST_STREAM_VISIT_TITLE" = "Latest Videos";
-"FIRST_STREAM_VISIT_BODY" = "This is a stream of all the channels you follow. Follow";
+"FIRST_STREAM_VISIT_BODY" = "This is a stream of all the channels you follow.";
 
 
 "FIRST_PUBLIC_GROUP_VISIT_TITLE" = "Public Channel";
-"FIRST_PUBLIC_GROUP_VISIT_BODY" = "Anyone can send in videos, but only a host can choose which ones go to all the followers.";
+"FIRST_PUBLIC_GROUP_VISIT_BODY" = "You and other followers can send in videos.\n\nBut only a host can decide which ones get seen.";
 
 // Used when they first create a group OR open a group theyre hosting
 "FIRST_CREATE_PUBLIC_GROUP_TITLE" = "Hosting!";
-"FIRST_CREATE_PUBLIC_GROUP_BODY" = "Woo!\n\nNow anyone can try to post to your channel.\n\nPost a video to start it out.";
+"FIRST_CREATE_PUBLIC_GROUP_BODY" = "Now anyone can try to post to your channel.\n\nIt's your job to approve the best.\n\nPost a video to start it out!";
 
 "FIRST_PRIVATE_GROUP_TITLE" = "🔒";
 "FIRST_PRIVATE_GROUP_BODY" = "This channel is private.\n\nOnly you and the other members can view it.";
 
 // This is currently shown right when they check a pending group box for the first time, not after the send button is pressed.
 "FIRST_PENDING_APPROVAL_POST_TITLE" = "Almost Famous";
-"FIRST_PENDING_APPROVAL_POST_BODY" = "That's a public channel, so your video will be pending approval from the host. \n\n Stay Tuned.";
+"FIRST_PENDING_APPROVAL_POST_BODY" = "That's a public channel, so your video will be pending approval from the host.\n\nStay Tuned.";
 
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
