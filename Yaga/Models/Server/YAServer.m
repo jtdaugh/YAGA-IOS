@@ -408,7 +408,7 @@
     }];
 }
 
-- (void)groupInfoWithId:(NSString*)serverGroupId getPendingVideos:(BOOL)pending since:(NSDate*)since withCompletion:(responseBlock)completion {
+- (void)groupInfoWithId:(NSString*)serverGroupId getPendingVideos:(BOOL)pending pageOffset:(NSUInteger)pageOffset since:(NSDate*)since withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api;
@@ -430,9 +430,9 @@
 //        NSUInteger since = sortedCreatedAt.count == 0 ? 0 : [(NSDate*)sortedCreatedAt[0] timeIntervalSince1970];
 //
         if([group.serverId isEqualToString:kPublicStreamGroupId])
-            api = [NSString stringWithFormat:API_PUBLIC_STREAM_TEMPLATE, self.base_api, (unsigned long)0, (unsigned long)kStreamItemsOnPage, (unsigned long)group.nextPageIndex * kStreamItemsOnPage];
+            api = [NSString stringWithFormat:API_PUBLIC_STREAM_TEMPLATE, self.base_api, (unsigned long)0, (unsigned long)kStreamItemsOnPage, (unsigned long)pageOffset * kStreamItemsOnPage];
         else
-            api = [NSString stringWithFormat:API_MY_STREAM_TEMPLATE, self.base_api, (unsigned long)0, (unsigned long)kStreamItemsOnPage, (unsigned long)group.nextPageIndex * kStreamItemsOnPage];
+            api = [NSString stringWithFormat:API_MY_STREAM_TEMPLATE, self.base_api, (unsigned long)0, (unsigned long)kStreamItemsOnPage, (unsigned long)pageOffset * kStreamItemsOnPage];
     }
     else {
         NSAssert(serverGroupId, @"serverGroup is a required parameter");

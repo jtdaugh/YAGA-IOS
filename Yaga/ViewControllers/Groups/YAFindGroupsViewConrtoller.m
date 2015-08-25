@@ -614,7 +614,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
             
             openGroupBlock(group, indexPath);
             
-        } showPullDownToRefresh:NO];
+        } pageOffset:0 showPullDownToRefresh:NO];
     }
 }
 @end

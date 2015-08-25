@@ -36,7 +36,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)leaveGroupWithId:(NSString*)serverGroupId isUnfollow:(BOOL)isUnfollow withCompletion:(responseBlock)completion; //same as removeGroupMemberByPhone but show other localised messages
-- (void)groupInfoWithId:(NSString*)serverGroupId getPendingVideos:(BOOL)pending since:(NSDate*)since withCompletion:(responseBlock)completion;
+- (void)groupInfoWithId:(NSString*)serverGroupId getPendingVideos:(BOOL)pending pageOffset:(NSUInteger)pageOffset since:(NSDate*)since withCompletion:(responseBlock)completion;
 - (void)renameGroupWithId:(NSString*)serverGroupId newName:(NSString*)newName withCompletion:(responseBlock)completion;
 - (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion;
 

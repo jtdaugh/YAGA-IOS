@@ -72,7 +72,7 @@
         NSTimeInterval oneHour = 60*60;
         if ([[NSDate date] timeIntervalSinceDate:weakSelf.group.lastInfiniteScrollEmptyResponseTime] > oneHour) {
             weakSelf.videosCountBeforeRefresh = weakSelf.group.videos.count;
-            [weakSelf.group refresh];
+            [weakSelf.group loadNextPageWithCompletion:nil];
         } else {
             [weakSelf.collectionView.infiniteScrollingView stopAnimating];
         }

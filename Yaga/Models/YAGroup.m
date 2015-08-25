@@ -549,14 +549,14 @@
 #pragma mark - Videos
 
 - (void)refresh:(BOOL)showPullDownToRefresh {
-    [self refreshWithCompletion:nil showPullDownToRefresh:showPullDownToRefresh];
+    [self refreshWithCompletion:nil pageOffset:0 showPullDownToRefresh:showPullDownToRefresh];
 }
 
 - (void)refresh {
     [self refresh:NO];
 }
 
-- (void)refreshWithCompletion:(completionBlock)completion showPullDownToRefresh:(BOOL)showPullDownToRefresh {
+- (void)refreshWithCompletion:(completionBlock)completion pageOffset:(NSUInteger)pageOffset showPullDownToRefresh:(BOOL)showPullDownToRefresh {
     if(self.videosUpdateInProgress)
         return;
     
@@ -568,7 +568,7 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:userInfo];
     
     // dont set since parameter if group has no videos yet. Otherwise, one buggy fetch screws state of group until reinstall.
-    [[YAServer sharedServer] groupInfoWithId:self.serverId getPendingVideos:NO since:([self.videos count] ? self.refreshedAt : nil)
+    [[YAServer sharedServer] groupInfoWithId:self.serverId getPendingVideos:NO pageOffset:pageOffset since:([self.videos count] ? self.refreshedAt : nil)
                               withCompletion:^(id response, NSError *error) {
                                   if(self.isInvalidated) {
                                       if(completion)
@@ -610,8 +610,12 @@
 
 }
 
+- (void)loadNextPageWithCompletion:(completionBlock)completion {
+    [self refreshWithCompletion:completion pageOffset:self.nextPageIndex showPullDownToRefresh:NO];
+}
+
 - (void)refreshPendingVideos {
-    [[YAServer sharedServer] groupInfoWithId:self.serverId getPendingVideos:YES since:([self.pending_videos count] ? self.pendingRefreshedAt : nil)
+    [[YAServer sharedServer] groupInfoWithId:self.serverId getPendingVideos:YES pageOffset:0 since:([self.pending_videos count] ? self.pendingRefreshedAt : nil)
                               withCompletion:^(id response, NSError *error) {
                                   if(self.isInvalidated)
                                       return;

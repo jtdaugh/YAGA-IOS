@@ -60,8 +60,9 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 - (void)muteUnmuteWithCompletion:(completionBlock)completion;
 - (void)refresh;
 - (void)refresh:(BOOL)showPullDownToRefresh;
-- (void)refreshWithCompletion:(completionBlock)completion showPullDownToRefresh:(BOOL)showPullDownToRefresh;
+- (void)refreshWithCompletion:(completionBlock)completion pageOffset:(NSUInteger)pageOffset showPullDownToRefresh:(BOOL)showPullDownToRefresh;
 - (void)refreshPendingVideos;
+- (void)loadNextPageWithCompletion:(completionBlock)completion;
 
 + (YAGroup*)group;
 + (YAGroup*)groupWithServerResponseDictionary:(NSDictionary*)dictionary;
