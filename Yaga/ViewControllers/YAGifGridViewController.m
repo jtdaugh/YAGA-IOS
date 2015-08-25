@@ -216,6 +216,12 @@ static NSString *cellID = @"Cell";
     __weak typeof(self) weakSelf = self;
     
     [self.collectionView addPullToRefreshWithActionHandler:^{
+        //reset to the first page for stream groups
+        if(weakSelf.group.streamGroup) {
+            [weakSelf.group.realm beginWriteTransaction];
+            weakSelf.group.nextPageIndex = 0;
+            [weakSelf.group.realm commitWriteTransaction];
+        }
         [weakSelf refreshCurrentGroup];
     }];
 
