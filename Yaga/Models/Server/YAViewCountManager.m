@@ -149,11 +149,21 @@
 
 - (void)addViewToVideoWithId:(NSString *)videoId groupId:(NSString *)groupId user:(NSString *)user {
     if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) return;
-//    DLog(@"Incrementing view counts");
+    
+    NSString *myNonNullUsername = self.myUsername;
+    // reset current user username incase it was nil when object instantiated.
+    if (![myNonNullUsername length]) {
+        myNonNullUsername = @"null";
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.myUsername = [YAUser currentUser].username;
+        });
+    }
+    
+    //    DLog(@"Incrementing view counts");
     if ([videoId length]) {
 //        DLog(@"Incrementing video view count");
         // Increment counter for video
-        [[[self.videoViewCountRoot childByAppendingPath:videoId] childByAppendingPath:self.myUsername]
+        [[[self.videoViewCountRoot childByAppendingPath:videoId] childByAppendingPath:myNonNullUsername]
             runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
             NSNumber *value = currentData.value;
             if (currentData.value == [NSNull null]) {
@@ -167,7 +177,7 @@
     // Increment counter for group
     if ([groupId length]) {
 //        DLog(@"Incrementing group view count");
-        [[[self.groupViewCountRoot childByAppendingPath:groupId] childByAppendingPath:self.myUsername]
+        [[[self.groupViewCountRoot childByAppendingPath:groupId] childByAppendingPath:myNonNullUsername]
          runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
              NSNumber *value = currentData.value;
              if (currentData.value == [NSNull null]) {
@@ -181,7 +191,7 @@
     // Increment counter for user profile
     if ([user length]) {
 //        DLog(@"Incrementing user view count");
-        [[[self.userViewCountRoot childByAppendingPath:user] childByAppendingPath:self.myUsername]
+        [[[self.userViewCountRoot childByAppendingPath:user] childByAppendingPath:myNonNullUsername]
          runTransactionBlock:^FTransactionResult *(FMutableData *currentData) {
              NSNumber *value = currentData.value;
              if (currentData.value == [NSNull null]) {
