@@ -127,12 +127,12 @@
     [super viewDidAppear:animated];
     
     if (self.onboardingFinished) {
-        if (self.forceCamera) {
-            self.forceCamera = NO;
-            [self presentCameraAnimated:NO shownViaBackgrounding:NO withCompletion:^{
-                [self.overlay removeFromSuperview];
-            }];
-        }
+//        if (self.forceCamera) {
+//            self.forceCamera = NO;
+//            [self presentCameraAnimated:NO shownViaBackgrounding:NO withCompletion:^{
+//                [self.overlay removeFromSuperview];
+//            }];
+//        }
     }
 }
 
@@ -196,7 +196,7 @@
         }
     }
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    [self presentCameraAnimated:NO shownViaBackgrounding:YES withCompletion:nil];
+//    [self presentCameraAnimated:NO shownViaBackgrounding:YES withCompletion:nil];
 }
 
 - (void)dealloc {
