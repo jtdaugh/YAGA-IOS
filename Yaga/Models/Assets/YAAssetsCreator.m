@@ -427,11 +427,13 @@
     UIImageOrientation videoOrientation = [self videoOrientationFromAsset:asset];
     BOOL isPortrait = videoOrientation == UIImageOrientationUp || videoOrientation == UIImageOrientationDown;
 
+    CGSize origSize = videoTrack.naturalSize;
+    CGSize screenSize = [UIScreen mainScreen].bounds.size;
     CGFloat scale = [UIScreen mainScreen].bounds.size.height /  (isPortrait ? videoTrack.naturalSize.width : videoTrack.naturalSize.height);
     CGAffineTransform scaleTransform = CGAffineTransformMakeScale(scale, scale);
     CGAffineTransform transform = CGAffineTransformConcat(videoTrack.preferredTransform, scaleTransform);
     if(!isPortrait) {
-        CGFloat dx = (((videoTrack.naturalSize.width * scale) - [UIScreen mainScreen].bounds.size.width)) / 2;
+        CGFloat dx = (((videoTrack.naturalSize.width - ([UIScreen mainScreen].bounds.size.width)*(1.0/scale))) / 2);
         if(videoOrientation == UIImageOrientationRight)
             dx *= -1;
         transform = CGAffineTransformTranslate(transform, dx, 0);
