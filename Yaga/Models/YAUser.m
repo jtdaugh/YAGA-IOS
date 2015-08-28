@@ -129,9 +129,6 @@
     //using last requested yaga users
     NSDictionary *yagaUsersData = [[NSUserDefaults standardUserDefaults] objectForKey:kYagaUsersRequested];
     
-    __block NSMutableArray *usersResults = [NSMutableArray new];
-    __block NSMutableArray *nonUsersResults = [NSMutableArray new];
-    
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
             [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kContactsAccessWasRequested];
@@ -140,6 +137,9 @@
             self->_phonebook = [NSMutableDictionary new];
             
             NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
+            
+            NSMutableArray *usersResults = [NSMutableArray new];
+            NSMutableArray *nonUsersResults = [NSMutableArray new];
             
             for(int i = 0; i<[contacts count]; i++){
                 APContact *contact = contacts[i];
