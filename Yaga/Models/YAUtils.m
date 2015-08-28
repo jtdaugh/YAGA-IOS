@@ -483,10 +483,10 @@ static NSMutableDictionary *bubblesDictionary;
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-+ (BOOL)hasCompletedForcedFollowing {
++ (BOOL)hasSeenFollowingScreen {
     return [self defaultsBoolForKey:FORCED_FOLLOWING_COMPLETED];
 }
-+ (void)setCompletedForcedFollowing {
++ (void)setSeenFollowingScreen {
     [self setDefaultsForKey:FORCED_FOLLOWING_COMPLETED];
 }
 
@@ -530,14 +530,6 @@ static NSMutableDictionary *bubblesDictionary;
 }
 + (void)setTappedRecord {
     [self setDefaultsForKey:TAPPED_RECORD];
-}
-
-+ (BOOL)hasSeenCamera {
-    return [self defaultsBoolForKey:SEEN_CAMERA];
-}
-
-+ (void)setSeenCamera {
-    [self setDefaultsForKey:SEEN_CAMERA];
 }
 
 + (BOOL)hasSeenTrimView {

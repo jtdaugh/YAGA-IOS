@@ -31,7 +31,6 @@
 
 @property (nonatomic, weak) UIViewController *cameraTabViewController;
 @property (nonatomic, strong) UIButton *cameraButton;
-@property (nonatomic) BOOL onboardingFinished;
 
 @property (nonatomic) BOOL forceCamera;
 @property (nonatomic, strong) UIImageView *overlay;
@@ -48,11 +47,6 @@
 //        self.navigationItem.prompt = quote;
 //    }];
     
-//    if ([[[YAGroup allObjects] objectsWhere:@"(amFollowing = 1 || amMember = 1)"] count]) {
-//        [YAUtils setCompletedForcedFollowing];
-//    }
-    
-    self.onboardingFinished = [YAUtils hasCompletedForcedFollowing];
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
@@ -97,25 +91,28 @@
     [self.cameraButton addTarget:self action:@selector(cameraPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.tabBar addSubview:self.cameraButton];
     
-    if (self.onboardingFinished) {
+    if(![YAUserPermissions pushPermissionsRequestedBefore])
+        [YAUserPermissions registerUserNotificationSettings];
+
+    if ([YAUtils hasSeenFollowingScreen]) {
         self.selectedIndex = 0;
-        self.forceCamera = !self.overrideForceCamera && [YAUtils hasSeenCamera];
+        self.forceCamera = !self.overrideForceCamera && ALWAYS_LAUNCH_TO_CAMERA;
         if (self.forceCamera) {
-//            UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
-//            overlay.backgroundColor = [UIColor blackColor];
-//            [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
-//            overlay.contentMode = UIViewContentModeScaleAspectFill;
-//            [self.view addSubview:overlay];
-//            self.overlay = overlay;
+            UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
+            overlay.backgroundColor = [UIColor blackColor];
+            [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
+            overlay.contentMode = UIViewContentModeScaleAspectFill;
+            [self.view addSubview:overlay];
+            self.overlay = overlay;
         }
     } else {
+        [YAUtils setSeenFollowingScreen];
         [self showForceFollowTooltip];
         [[UIApplication sharedApplication] setStatusBarHidden:NO];
         self.selectedIndex = 2;
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGifGridFromNotification:) name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(finishedOnboarding) name:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didEnterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
@@ -157,11 +154,12 @@
 // Any view controller that wants to maintain presence when the app enters background
 // must implement -blockCameraPresentationOnBackground and return YES.
 - (void)didEnterBackground {
+    if (!ALWAYS_LAUNCH_TO_CAMERA) return;
+    
     if (![self isEqual:[UIApplication sharedApplication].keyWindow.rootViewController]) {
         // Only the root should be doing this
         return;
     }
-    if (!self.onboardingFinished || ![YAUtils hasSeenCamera]) return;
     UIViewController *visibleVC;
     if (self.presentedViewController) {
         visibleVC = [self getTopmostViewControllerFromBaseVC:self];
@@ -194,22 +192,12 @@
         }
     }
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
-//    [self presentCameraAnimated:NO shownViaBackgrounding:YES withCompletion:nil];
+    [self presentCameraAnimated:NO shownViaBackgrounding:YES withCompletion:nil];
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:GROUP_FOLLOW_OR_REQUEST_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-}
-
-- (void)finishedOnboarding {
-    if (self.onboardingFinished) return;
-    self.onboardingFinished = YES;
-    
-    if(![YAUserPermissions pushPermissionsRequestedBefore])
-        [YAUserPermissions registerUserNotificationSettings];
-
 }
 
 - (void)presentCreateGroup {

@@ -64,7 +64,7 @@
 
 // Popover text
 "FORCE_FOLLOW_TITLE" = "Welcome";
-"FORCE_FOLLOW_BODY" = "Follow channels so you can receive their videos and send them new ones.\n\nFollow at least one channel to get started.";
+"FORCE_FOLLOW_BODY" = "Following a channel lets you receive their videos and send them new ones.\n\nWe've tailored these channels just for you.";
 
 // Not shown for now...
 "FIRST_STREAM_VISIT_TITLE" = "Latest Videos";

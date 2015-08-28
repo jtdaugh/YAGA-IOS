@@ -114,10 +114,7 @@
     
     [self startRecordingAnimation];
     self.recordingTime = [NSDate date];
-    
-    if (![YAUtils hasSeenCamera])
-        [YAUtils setSeenCamera];
-   
+       
     [[Mixpanel sharedInstance] track:@"Opened Camera"];
 }
 

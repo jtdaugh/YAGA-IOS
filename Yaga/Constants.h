@@ -16,6 +16,7 @@
 #define VIEW_HEIGHT ([[UIScreen mainScreen] applicationFrame].size.height + (([UIApplication sharedApplication].statusBarHidden)?0:20))
 #define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width
 
+#define ALWAYS_LAUNCH_TO_CAMERA 1
 
 #define NUM_TILES 96
 #define TILE_WIDTH (VIEW_WIDTH/2)
@@ -65,8 +66,6 @@
 #define VIDEO_DID_DELETE_NOTIFICATION           @"VIDEO_DID_DELETE_NOTIFICATION"
 #define VIDEO_REJECTED_OR_APPROVED_NOTIFICATION @"VIDEO_REJECTED_OR_APPROVED"
 #define OPEN_VIDEO_NOTIFICATION                 @"OPEN_VIDEO_NOTIFICATION"
-
-#define GROUP_FOLLOW_OR_REQUEST_NOTIFICATION    @"GROUP_FOLLOW_OR_REQUEST_NOTIFICATION"
 
 #define VIDEO_DID_DOWNLOAD_PART_NOTIFICATION    @"VIDEO_DID_DOWNLOAD_PART_NOTIFICATION"
 

@@ -58,8 +58,8 @@ typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 + (NSArray*)readableGroupsArrayFromResponse:(NSArray *)response;
 
 // Tooltip/defaults helpers
-+ (BOOL)hasCompletedForcedFollowing;
-+ (void)setCompletedForcedFollowing;
++ (BOOL)hasSeenFollowingScreen;
++ (void)setSeenFollowingScreen;
 
 + (BOOL)hasVisitedStream;
 + (void)setVisitedStream;
@@ -78,9 +78,6 @@ typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 
 + (BOOL)hasTappedRecord;
 + (void)setTappedRecord;
-
-+ (BOOL)hasSeenCamera;
-+ (void)setSeenCamera;
 
 + (BOOL)hasSeenTrimView;
 + (void)setSeenTrimView;
