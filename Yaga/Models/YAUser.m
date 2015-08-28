@@ -193,8 +193,8 @@
                 completion(nil, orderedResults, NO);
                 
                 NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
-                //request yaga users once per hour
-                if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60]] == NSOrderedDescending) {
+                //request yaga users once per hour, or far more often when debugging.
+                if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:(DEBUG ? 5 : 60*60)]] == NSOrderedDescending) {
                     [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
                         if(error) {
                             if (completion)
