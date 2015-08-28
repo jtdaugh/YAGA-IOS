@@ -175,14 +175,14 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)updateState {
     self.groupsDictionary = [MutableOrderedDictionary new];
-//    for(NSString *sectionName in self.queriesForSection.allKeys) {
-//        NSString *query = self.queriesForSection[sectionName];
-//        RLMResults *queryResult = [[YAGroup allObjects] objectsWhere:query];
-//        if(queryResult.count) {
-//            queryResult = [queryResult sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-//            [self.groupsDictionary setObject:[self arrayFromRLMResults:queryResult] forKey:sectionName];
-//        }
-//    }
+    for(NSString *sectionName in self.queriesForSection.allKeys) {
+        NSString *query = self.queriesForSection[sectionName];
+        RLMResults *queryResult = [[YAGroup allObjects] objectsWhere:query];
+        if(queryResult.count) {
+            queryResult = [queryResult sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+            [self.groupsDictionary setObject:[self arrayFromRLMResults:queryResult] forKey:sectionName];
+        }
+    }
  
     [self showNoDataMessage:self.groupsDictionary.count == 0];
 
