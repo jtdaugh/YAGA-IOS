@@ -54,7 +54,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         _video = video;
-        NSString *predicate = [NSString stringWithFormat:@"localId != '%@'", video.group.localId];
+        NSString *predicate = [NSString stringWithFormat:@"localId != '%@' && streamGroup = 0", video.group.localId];
         
         self.groups = [[[YAGroup allObjects] objectsWhere:predicate] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
         
