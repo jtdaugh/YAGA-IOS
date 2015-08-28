@@ -403,7 +403,13 @@
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         [hud hide:NO];
-        [YAUtils showHudWithText:NSLocalizedString(@"Can not rename group", @"")];
+        NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:error.userInfo[ERROR_DATA] withError:nil];
+        if(dict && dict[nName]) {
+            NSString *serverError = [dict[nName] componentsJoinedByString:@"\n"];
+            [YAUtils showNotification:serverError type:YANotificationTypeError];
+        } else {
+            [YAUtils showHudWithText:NSLocalizedString(@"Can not rename group", @"")];
+        }
         completion(nil, error);
     }];
 }

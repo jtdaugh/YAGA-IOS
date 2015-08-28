@@ -455,7 +455,8 @@
     videoComposition.instructions = [self layerInstructionsForAsset:asset];
     
     NSString *pathToProcessedMovie = [NSTemporaryDirectory() stringByAppendingPathComponent:@"ProcessedMovie.mp4"];
-    unlink([pathToProcessedMovie UTF8String]); // If a file already exists, AVAssetWriter won't let you record new frames, so delete the old movie
+    NSError *error;
+    [[NSFileManager defaultManager] removeItemAtPath:pathToProcessedMovie error:&error];
     NSURL *outputUrl = [NSURL fileURLWithPath:pathToProcessedMovie];
     
     self.exportSession = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
@@ -473,7 +474,7 @@
     
     __weak typeof(self) weakSelf = self;
     [self.exportSession exportAsynchronouslyWithCompletionHandler:^(void ) {
-        completion(weakSelf.exportSession.outputURL, MIN(duration, maxTime), nil);
+        completion(outputUrl, MIN(duration, maxTime), nil);
         weakSelf.exportSession = nil;
     }];
 }
