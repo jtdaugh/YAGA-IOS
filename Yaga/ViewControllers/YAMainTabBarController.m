@@ -227,7 +227,7 @@
         [self dismissViewControllerAnimated:NO completion:nil];
     }
     
-    UINavigationController *navVC = self.viewControllers[3];
+    UINavigationController *navVC = self.viewControllers[2];
     [navVC popToRootViewControllerAnimated:NO];
     YAGroupGridViewController *vc = [YAGroupGridViewController new];
     vc.group = group;
@@ -237,7 +237,7 @@
     
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     
-    self.selectedIndex = 3;
+    self.selectedIndex = 2;
     [navVC pushViewController:vc animated:YES];
 }
 
