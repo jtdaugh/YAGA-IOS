@@ -111,7 +111,6 @@
         [self showForceFollowTooltip];
         [[UIApplication sharedApplication] setStatusBarHidden:NO];
         self.selectedIndex = 2;
-        self.tabBar.frame = CGRectMake(0, VIEW_HEIGHT, self.tabBar.frame.size.width, self.tabBar.frame.size.height);
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGifGridFromNotification:) name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
@@ -126,13 +125,11 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    if (self.onboardingFinished) {
-//        if (self.forceCamera) {
-//            self.forceCamera = NO;
-//            [self presentCameraAnimated:NO shownViaBackgrounding:NO withCompletion:^{
-//                [self.overlay removeFromSuperview];
-//            }];
-//        }
+    if (self.forceCamera) {
+        self.forceCamera = NO;
+        [self presentCameraAnimated:NO shownViaBackgrounding:NO withCompletion:^{
+            [self.overlay removeFromSuperview];
+        }];
     }
 }
 
@@ -208,12 +205,6 @@
 - (void)finishedOnboarding {
     if (self.onboardingFinished) return;
     self.onboardingFinished = YES;
-    CGRect frame = self.tabBar.frame;
-    frame.origin.y -= frame.size.height;
-    
-    [UIView animateWithDuration:0.5 animations:^{
-        self.tabBar.frame = frame;
-    }];
     
     if(![YAUserPermissions pushPermissionsRequestedBefore])
         [YAUserPermissions registerUserNotificationSettings];
@@ -252,9 +243,6 @@
 
 - (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController
 {
-    if (!self.onboardingFinished)
-        return NO;
-    
     return viewController != self.cameraTabViewController;
 }
 
