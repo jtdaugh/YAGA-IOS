@@ -49,8 +49,14 @@
     [self.publicControl insertSegmentWithTitle:@"Private" atIndex:1 animated:NO];
     self.publicControl.selectedSegmentIndex = 0;
     [self.publicControl addTarget:self action:@selector(publicSwitchChanged) forControlEvents:UIControlEventValueChanged];
+    
+    UIFont *font = [UIFont fontWithName:BIG_FONT size:20.0];
+    NSDictionary *attributes = [NSDictionary dictionaryWithObject:font
+                                                           forKey:NSFontAttributeName];
+    [self.publicControl setTitleTextAttributes:attributes
+                                         forState:UIControlStateNormal];
+
     [self.view addSubview: self.publicControl];
-    [[UISegmentedControl appearanceWhenContainedIn:[self.view class], nil] setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIFont fontWithName:BIG_FONT size:20.0], NSFontAttributeName, nil] forState:UIControlStateNormal];
 
     origin = [self getNewOrigin:self.publicControl] + 10;
     
