@@ -255,4 +255,5 @@
 
 #define kOpenToPendingVideos                @"kOpenToPending"
 
+#define kNoSectionName                      @"kNoSectionName"
 #endif

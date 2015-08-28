@@ -11,6 +11,8 @@
 @interface YAMainTabBarController : UITabBarController <UIViewControllerTransitioningDelegate>
 
 - (void)presentCreateGroup;
+- (void)presentFindGroups;
+
 - (void)setInitialAnimationFrame:(CGRect)frame;
 - (void)setInitialAnimationTransform:(CGAffineTransform)transform;
 

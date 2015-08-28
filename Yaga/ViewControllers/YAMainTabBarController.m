@@ -17,7 +17,7 @@
 #import "YACreateGroupNavigationController.h"
 #import "YALatestStreamViewController.h"
 #import "YAFindGroupsViewConrtoller.h"
-#import "YAGroupsListViewController.h"
+#import "YAChannelsViewController.h"
 #import "YAMyStreamViewController.h"
 #import "YAGroupOptionsViewController.h"
 #import "YAGroupGridViewController.h"
@@ -62,7 +62,7 @@
     
     UIViewController *vc1 = [UIViewController new];
 
-    UIViewController *vc2 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAGroupsListViewController new]];
+    UIViewController *vc2 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAChannelsViewController new]];
     vc2.tabBarItem.image = [UIImage imageNamed:@"ChannelsBarItem"];
     vc2.tabBarItem.title = @"Channels";
 
@@ -217,6 +217,17 @@
     NameGroupViewController *vc = [NameGroupViewController new];
     YASloppyNavigationController *createGroupNavController = [[YASloppyNavigationController alloc] initWithRootViewController:vc];
     [self presentViewController:createGroupNavController animated:YES completion:nil];
+}
+
+- (void)presentFindGroups {
+    self.selectedIndex = 2;
+    YASloppyNavigationController *navController = self.viewControllers[2];
+    [navController popToRootViewControllerAnimated:NO];
+    YAChannelsViewController *channels = navController.viewControllers[0];
+    
+    channels.segmentedControl.selectedSegmentIndex = 0;
+    [channels.segmentedControl sendActionsForControlEvents:UIControlEventValueChanged];
+    channels.flexibleNavBar.progress = 0;
 }
 
 - (void)openGifGridFromNotification:(NSNotification *)notif {

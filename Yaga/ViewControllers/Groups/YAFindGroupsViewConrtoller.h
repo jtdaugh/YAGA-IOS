@@ -7,6 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "YAFlexibleNavbarExtending.h"
 
-@interface YAFindGroupsViewConrtoller : UIViewController<UISearchBarDelegate>
+@interface YAFindGroupsViewConrtoller : UIViewController<UISearchBarDelegate, YAFlexibleNavbarExtending>
+
+@property (nonatomic, strong) YAStandardFlexibleHeightBar *flexibleNavBar;
 @end

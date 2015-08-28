@@ -22,8 +22,8 @@
 #import "BLKDelegateSplitter.h"
 #import "SquareCashStyleBehaviorDefiner.h"
 #import "YAGroupGridViewController.h"
+#import "BLKDelegateSplitter.h"
 
-#define headerAndAccessoryColor SECONDARY_COLOR
 #define kAccessoryButtonWidth 70
 
 @interface YAFindGroupsViewConrtoller () <UITableViewDelegate, UITableViewDataSource>
@@ -39,11 +39,10 @@
 @property (atomic, assign) BOOL groupsListLoaded;
 @property (atomic, assign) BOOL findGroupsFinished;
 
-@property (nonatomic, strong) YAStandardFlexibleHeightBar *flexibleNavBar;
-@property (nonatomic, strong) BLKDelegateSplitter *delegateSplitter;
-
 @property (nonatomic, strong) NSArray *featuredGroups;
 @property (nonatomic, strong) NSArray *suggestedGroups;
+
+@property (nonatomic, strong) BLKDelegateSplitter *delegateSplitter;
 
 @end
 
@@ -60,23 +59,26 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     self.navigationItem.title = NSLocalizedString(@"Explore Channels", @"");
     
-    self.view.backgroundColor = [UIColor whiteColor];
-    
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) style:UITableViewStyleGrouped];
+    self.tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStyleGrouped];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
+    [self.view addSubview:self.tableView];
     
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self.tableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
-    
-    [self setupFlexibleNavBar];
     
     [self setupPullToRefresh];
     
     _groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
     
     [self filterAndReload:YES];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self setupFlexibleNavBar];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -88,11 +90,12 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     }
     
     [[Mixpanel sharedInstance] track:@"Viewed Explore"];
-
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    
+    [self.searchBar removeFromSuperview];
 }
 
 - (void)accessoryButtonTapped:(UIButton*)sender event:(id)event{
@@ -224,20 +227,11 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 - (void)setupFlexibleNavBar {
-    self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
-    CGRect barFrame = self.flexibleNavBar.frame;
-    self.flexibleNavBar.maximumBarHeight = 110;
+    self.flexibleNavBar.maximumBarHeight = 150;
     self.flexibleNavBar.minimumBarHeight = 66;
-    self.flexibleNavBar.layer.masksToBounds = YES;
-    barFrame.size.height += 44;
-    self.flexibleNavBar.frame = barFrame;
-    [self.flexibleNavBar.titleButton setTitle:@"Explore Channels" forState:UIControlStateNormal];
-    [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    
-    [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
     
     //search bar
-    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 68, VIEW_WIDTH-40, 30)];
+    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 108, VIEW_WIDTH-40, 30)];
     self.searchBar.searchTextPositionAdjustment = UIOffsetMake(20, 0);
     self.searchBar.backgroundImage = [[UIImage alloc] init];
     self.searchBar.barStyle = UIBarStyleDefault;
@@ -248,7 +242,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     self.searchBar.alpha = 0.8;
     
     BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    searchBarExpanded.frame = CGRectMake(20, 68, VIEW_WIDTH-40, 30);
+    searchBarExpanded.frame = CGRectMake(20, 108, VIEW_WIDTH-40, 30);
     [self.searchBar addLayoutAttributes:searchBarExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     searchBarCollapsed.frame = CGRectMake(20, 27, VIEW_WIDTH-40, 30);
@@ -259,16 +253,17 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     self.flexibleNavBar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];
     [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
     [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
-
+    self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
     self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
     self.tableView.delegate = (id<UITableViewDelegate>)self.delegateSplitter;
-    self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
-    [self.view addSubview:self.tableView];
-    [self.view addSubview:self.flexibleNavBar];
+    
+    [self.view bringSubviewToFront:self.flexibleNavBar];
+    
     self.navigationController.navigationBar.translucent = NO;
 
     //important to reassign initial pull to refresh inset, there is no way to recreate it
     self.tableView.pullToRefreshView.originalTopInset = self.tableView.contentInset.top;
+    self.tableView.contentOffset = CGPointMake(0, -self.flexibleNavBar.maximumBarHeight);
 }
 
 #pragma mark - UISearchBarDelegate
@@ -448,7 +443,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     return 40;
-
 }
 
 - (nullable UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
@@ -457,7 +451,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     result.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.9];
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(15, 15, VIEW_WIDTH - 15, 20)];
     label.font = [UIFont fontWithName:BOLD_FONT size:14];
-    label.textColor = headerAndAccessoryColor;
+    label.textColor = SECONDARY_COLOR;
     label.text = section == 0 && self.featuredGroups.count ? @"FEATURED" : @"SUGGESTED";
     [result addSubview:label];
     
