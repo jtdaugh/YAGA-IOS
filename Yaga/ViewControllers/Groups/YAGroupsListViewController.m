@@ -59,10 +59,11 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.automaticallyAdjustsScrollViewInsets = NO;
     [self setupCollectionView];
     self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
-    [self.flexibleNavBar.titleButton setTitle:@"My Channels" forState:UIControlStateNormal];
-    [self.flexibleNavBar.leftBarButton setTitle:@"Explore" forState:UIControlStateNormal];
-    [self.flexibleNavBar.leftBarButton addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [self.flexibleNavBar.titleButton setTitle:@"Channels" forState:UIControlStateNormal];
+//    [self.flexibleNavBar.leftBarButton setTitle:@"Explore" forState:UIControlStateNormal];
+//    [self.flexibleNavBar.leftBarButton addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
+//    [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [self.flexibleNavBar.rightBarButton setTitle:@"New" forState:UIControlStateNormal];
     self.flexibleNavBar.maximumBarHeight = 110;
     self.flexibleNavBar.minimumBarHeight = 20;
 
@@ -398,15 +399,28 @@ referenceSizeForFooterInSection:(NSInteger)section {
         self.segmentedControl = [UISegmentedControl new];
         self.segmentedControl.tintColor = [UIColor whiteColor];
         
-        [self.segmentedControl insertSegmentWithTitle:@"Hosting" atIndex:0 animated:NO];
-        [self.segmentedControl insertSegmentWithTitle:@"All" atIndex:1 animated:NO];
+        [self.segmentedControl insertSegmentWithTitle:@"Suggested" atIndex:0 animated:NO];
+        [self.segmentedControl insertSegmentWithTitle:@"Hosting" atIndex:1 animated:NO];
+        [self.segmentedControl insertSegmentWithTitle:@"Following" atIndex:2 animated:NO];
+        [self.segmentedControl insertSegmentWithTitle:@"Private" atIndex:3 animated:NO];
+        
+        if(VIEW_WIDTH <= 320.0f){
+            // iphone 5 or smaller width
+            UIFont *font = [UIFont systemFontOfSize:11.0f];
+            NSDictionary *attributes = [NSDictionary dictionaryWithObject:font
+                                                                   forKey:NSFontAttributeName];
+            [self.segmentedControl setTitleTextAttributes:attributes
+                                                 forState:UIControlStateNormal];
+        }
+        
+        // Suggested + Hosting + Following + Private
         self.segmentedControl.selectedSegmentIndex = 0;
         BLKFlexibleHeightBarSubviewLayoutAttributes *expanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-        expanded.frame = CGRectMake(VIEW_WIDTH/4, self.flexibleNavBar.frame.size.height, VIEW_WIDTH/2, 30);
+        expanded.frame = CGRectMake(VIEW_WIDTH * .05, self.flexibleNavBar.frame.size.height, VIEW_WIDTH * .9, 30);
         expanded.alpha = 1;
         [self.segmentedControl addLayoutAttributes:expanded forProgress:0.0];
         BLKFlexibleHeightBarSubviewLayoutAttributes *collapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-        collapsed.frame = CGRectMake(VIEW_WIDTH/4, 0, VIEW_WIDTH/2, 0);
+        collapsed.frame = CGRectMake(VIEW_WIDTH * .05, 0, VIEW_WIDTH * .9, 0);
         collapsed.alpha = -1; //to hide it even quicker
         [self.segmentedControl addLayoutAttributes:collapsed forProgress:1.0];
         [self.segmentedControl addTarget:self action:@selector(segmentedControlChanged:) forControlEvents:UIControlEventValueChanged];

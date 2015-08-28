@@ -60,23 +60,24 @@
     vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
     vc0.tabBarItem.title = @"Latest";
     
-    UIViewController *vc1 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAGroupsListViewController new]];
-    vc1.tabBarItem.image = [UIImage imageNamed:@"ChannelsBarItem"];
-    vc1.tabBarItem.title = @"Channels";
+    UIViewController *vc1 = [UIViewController new];
 
-    UIViewController *vc2 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
-    vc2.tabBarItem.image = [UIImage imageNamed:@"ExploreBarItem"];
-    vc2.tabBarItem.title = @"Explore";
+    UIViewController *vc2 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAGroupsListViewController new]];
+    vc2.tabBarItem.image = [UIImage imageNamed:@"ChannelsBarItem"];
+    vc2.tabBarItem.title = @"Channels";
+
+//    UIViewController *vc2 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
+//    vc2.tabBarItem.image = [UIImage imageNamed:@"ExploreBarItem"];
+//    vc2.tabBarItem.title = @"Explore";
 
 //    UIViewController *vc4 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAMyStreamViewController new]];
 //    vc4.tabBarItem.image = [UIImage imageNamed:@"MeBarItem"];
 //    vc4.tabBarItem.title = @"Me";
 
-    UIViewController *vc3 = [UIViewController new];
     
 
-    self.viewControllers = @[vc0, vc1, vc2, vc3];
-    self.cameraTabViewController = self.viewControllers[3];
+    self.viewControllers = @[vc0, vc1, vc2];
+    self.cameraTabViewController = self.viewControllers[1];
     
     self.animationController = [YAAnimatedTransitioningController new];
     self.delegate = self;
@@ -86,7 +87,7 @@
     self.tabBar.backgroundColor = [UIColor whiteColor];
     self.tabBar.barTintColor = [UIColor clearColor];
     CGFloat cameraWidth = VIEW_WIDTH/5-6;
-    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH * 7/8 - cameraWidth/2, 5, cameraWidth, self.tabBar.frame.size.height - 10)];
+    self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH * .5 - cameraWidth/2, 5, cameraWidth, self.tabBar.frame.size.height - 10)];
     self.cameraButton.backgroundColor = PRIMARY_COLOR;
     [self.cameraButton setImage:[UIImage imageNamed:@"Camera"] forState:UIControlStateNormal];
     self.cameraButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -100,12 +101,12 @@
         self.selectedIndex = 0;
         self.forceCamera = !self.overrideForceCamera && [YAUtils hasSeenCamera];
         if (self.forceCamera) {
-            UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
-            overlay.backgroundColor = [UIColor blackColor];
-            [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
-            overlay.contentMode = UIViewContentModeScaleAspectFill;
-            [self.view addSubview:overlay];
-            self.overlay = overlay;
+//            UIImageView *overlay = [[UIImageView alloc] initWithFrame:self.view.bounds];
+//            overlay.backgroundColor = [UIColor blackColor];
+//            [overlay setImage:[UIImage imageNamed:@"LaunchImage"]];
+//            overlay.contentMode = UIViewContentModeScaleAspectFill;
+//            [self.view addSubview:overlay];
+//            self.overlay = overlay;
         }
     } else {
         [self showForceFollowTooltip];
