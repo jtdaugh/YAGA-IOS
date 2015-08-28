@@ -1297,6 +1297,13 @@
 					"$(inherited)",
 					"COCOAPODS=1",
 					"YAGA_APP=1",
+					"DEBUG=0",
+				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"YAGA_APP=1",
+					"DEBUG=0",
 				);
 				INFOPLIST_FILE = "Yaga/Yaga-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
