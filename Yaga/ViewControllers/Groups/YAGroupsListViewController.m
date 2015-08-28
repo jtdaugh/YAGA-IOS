@@ -79,10 +79,6 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self setupFlexibleBar];
 }
 
-- (void)findGroupsPressed {
-#warning TODO
-}
-
 - (void)setupCollectionView {
     if (self.collectionView) {
         [self.collectionView removeFromSuperview];
@@ -179,14 +175,14 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)updateState {
     self.groupsDictionary = [MutableOrderedDictionary new];
-    for(NSString *sectionName in self.queriesForSection.allKeys) {
-        NSString *query = self.queriesForSection[sectionName];
-        RLMResults *queryResult = [[YAGroup allObjects] objectsWhere:query];
-        if(queryResult.count) {
-            queryResult = [queryResult sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-            [self.groupsDictionary setObject:[self arrayFromRLMResults:queryResult] forKey:sectionName];
-        }
-    }
+//    for(NSString *sectionName in self.queriesForSection.allKeys) {
+//        NSString *query = self.queriesForSection[sectionName];
+//        RLMResults *queryResult = [[YAGroup allObjects] objectsWhere:query];
+//        if(queryResult.count) {
+//            queryResult = [queryResult sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+//            [self.groupsDictionary setObject:[self arrayFromRLMResults:queryResult] forKey:sectionName];
+//        }
+//    }
  
     [self showNoDataMessage:self.groupsDictionary.count == 0];
 
@@ -343,7 +339,7 @@ referenceSizeForFooterInSection:(NSInteger)section {
 - (void)showNoDataMessage:(BOOL)show {
     if(show && !self.noDataView) {
         self.noDataView = [[UIView alloc] initWithFrame:self.collectionView.bounds];
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, self.noDataView.bounds.size.height/2 - 40, VIEW_WIDTH, 60)];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, self.noDataView.bounds.size.height/2 - 140, VIEW_WIDTH, 60)];
         label.font = [UIFont fontWithName:BIG_FONT size:24];
         label.text = @"Nothing here yet";
         label.textAlignment = NSTextAlignmentCenter;
@@ -352,8 +348,8 @@ referenceSizeForFooterInSection:(NSInteger)section {
         [self.noDataView addSubview:label];
         
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        [button addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
-        button.frame = CGRectMake(VIEW_WIDTH / 4, self.noDataView.bounds.size.height/2 + 20, VIEW_WIDTH / 2, 40);
+        [button addTarget:(YAMainTabBarController *)self.tabBarController  action:@selector(presentFindGroups) forControlEvents:UIControlEventTouchUpInside];
+        button.frame = CGRectMake(VIEW_WIDTH / 4, self.noDataView.bounds.size.height/2 - 90, VIEW_WIDTH / 2, 40);
         [button setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
 
         button.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
