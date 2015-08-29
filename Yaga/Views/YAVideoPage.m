@@ -433,11 +433,11 @@ static NSString *commentCellID = @"CommentCell";
     if(self.video.jpgFullscreenFilename.length) {
         UIImageView *jpgImageView;
         
-        if(self.playerView.subviews.count)
+        if(self.playerView.subviews.count) {
             jpgImageView = self.playerView.subviews[0];
-        else {
+        } else {
             jpgImageView = [[UIImageView alloc] init];
-            jpgImageView.frame = self.bounds;
+            jpgImageView.contentMode = UIViewContentModeScaleAspectFill;
             [self.playerView addSubview:jpgImageView];
         }
         
