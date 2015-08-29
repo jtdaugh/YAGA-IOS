@@ -6,13 +6,13 @@
     },
     {
       "idiom" : "universal",
-      "scale" : "2x",
-      "filename" : "Grid-67-1.png"
+      "filename" : "grid3s.png",
+      "scale" : "2x"
     },
     {
       "idiom" : "universal",
-      "scale" : "3x",
-      "filename" : "Grid-100.png"
+      "filename" : "grid3.png",
+      "scale" : "3x"
     }
   ],
   "info" : {
