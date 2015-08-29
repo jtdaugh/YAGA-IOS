@@ -438,6 +438,7 @@ static NSString *commentCellID = @"CommentCell";
         } else {
             jpgImageView = [[UIImageView alloc] init];
             jpgImageView.contentMode = UIViewContentModeScaleAspectFill;
+            jpgImageView.frame = self.bounds;
             [self.playerView addSubview:jpgImageView];
         }
         
