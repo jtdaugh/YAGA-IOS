@@ -35,6 +35,7 @@
 
 @property (nonatomic, strong) NSMutableArray *recordingSequenceUrls; // Array of NSURLs
 @property (nonatomic, strong) NSMutableArray *recordingSequenceDurations; // Array of CMTimes or NSTimeIntervals (dunno yet)
+@property (nonatomic, assign) BOOL switchCamEnabled;
 
 @end
 
@@ -54,6 +55,7 @@
     if (self) {
         _initialized = NO;
         _isPaused = YES;
+        _switchCamEnabled = YES;
     }
     return self;
 }
@@ -219,6 +221,8 @@
 }
 
 - (void)createBackupAndProceedRecording {
+    self.switchCamEnabled = YES;
+    
     __weak typeof(self) weakSelf = self;
     [self stopRecordingWithCompletion:^(NSURL *recordedURL) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -345,11 +349,15 @@
 }
 
 - (void)switchCamera {
+    if (!self.switchCamEnabled) return;
+    
+    self.switchCamEnabled = NO;
     self.zoomFactor = 1;
     [self.videoCamera rotateCamera];
     // Do the change during/immediately after blip. If we swithed immediately audio may be out of sync
     
 #warning crashes if u tap 2x within 0.1s i think.
+    
     [self performSelector:@selector(createBackupAndProceedRecording) withObject:nil afterDelay:0.07];
 }
 
