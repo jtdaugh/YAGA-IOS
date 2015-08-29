@@ -76,7 +76,7 @@
 
 // Used when they first create a group OR open a group theyre hosting
 "FIRST_CREATE_PUBLIC_GROUP_TITLE" = "Hosting!";
-"FIRST_CREATE_PUBLIC_GROUP_BODY" = "Now anyone can try to post to your channel.\n\nIt's your job to approve the best.\n\nPost a video to start it out!";
+"FIRST_CREATE_PUBLIC_GROUP_BODY" = "Anyone can try to post to your channel.\n\nIt's your job to approve the best videos.\n\nPost a video to start it out!";
 
 "FIRST_PRIVATE_GROUP_TITLE" = "🔒";
 "FIRST_PRIVATE_GROUP_BODY" = "This channel is private.\n\nOnly you and the other members can view it.";

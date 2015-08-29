@@ -47,7 +47,7 @@
 //        self.navigationItem.prompt = quote;
 //    }];
     
-    
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
     UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YALatestStreamViewController new]];
@@ -108,7 +108,6 @@
     } else {
         [YAUtils setSeenFollowingScreen];
         [self showForceFollowTooltip];
-        [[UIApplication sharedApplication] setStatusBarHidden:NO];
         self.selectedIndex = 2;
     }
     
