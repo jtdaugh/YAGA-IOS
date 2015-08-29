@@ -80,7 +80,7 @@
     self.tabBar.translucent = NO;
     self.tabBar.backgroundColor = [UIColor whiteColor];
     self.tabBar.barTintColor = [UIColor clearColor];
-    CGFloat cameraWidth = VIEW_WIDTH/5-6;
+    CGFloat cameraWidth = VIEW_WIDTH/4-6;
     self.cameraButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH * .5 - cameraWidth/2, 5, cameraWidth, self.tabBar.frame.size.height - 10)];
     self.cameraButton.backgroundColor = PRIMARY_COLOR;
     [self.cameraButton setImage:[UIImage imageNamed:@"Camera"] forState:UIControlStateNormal];

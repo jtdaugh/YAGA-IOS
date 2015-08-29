@@ -41,7 +41,6 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property RLMArray<YAVideo> *pending_videos;
 
 //server side paging, we can not use self.videos.count for offset param because of deleted videos which are returned too, keeping nextPageIndex for that
-@property long totalPages;
 @property int  nextPageIndex;
 
 - (NSString*)membersString;

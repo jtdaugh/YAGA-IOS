@@ -118,16 +118,6 @@
         self.serverId = dictionary[YA_RESPONSE_ID];
         self.name = dictionary[YA_RESPONSE_NAME];
     }
-    //update total count and next page index for public stream group
-    else {
-        self.totalPages = ceil((double)[dictionary[YA_RESPONSE_COUNT] longValue] / (double)kStreamItemsOnPage);
-        NSString *next = dictionary[YA_RESPONSE_NEXT] == [NSNull null] ? nil : dictionary[YA_RESPONSE_NEXT];
-        
-        //extract next page information
-        self.nextPageIndex = [[[YAUtils urlParametersFromString:next] objectForKey:@"offset"] intValue] / kStreamItemsOnPage;
-        
-        DLog(@"updating group: %@, next page index: %d", self.name, self.nextPageIndex);
-    }
     
     self.pendingPostsCount = [dictionary[YA_RESPONSE_PENDING_POSTS_COUNT] integerValue];
     
@@ -568,7 +558,7 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:userInfo];
     
     // dont set since parameter if group has no videos yet. Otherwise, one buggy fetch screws state of group until reinstall.
-    [[YAServer sharedServer] groupInfoWithId:self.serverId getPendingVideos:NO pageOffset:pageOffset since:([self.videos count] ? self.refreshedAt : nil)
+    [[YAServer sharedServer] groupInfoWithId:self.serverId getPendingVideos:NO pageOffset:pageOffset since:(([self.videos count] && pageOffset == 0) ? self.refreshedAt : nil)
                               withCompletion:^(id response, NSError *error) {
                                   if(self.isInvalidated) {
                                       if(completion)
@@ -595,9 +585,20 @@
                                       DLog(@"received %lu videos for %@ channel", (unsigned long)videoDictionaries.count, self.name);
                                       
                                       NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries forPendingList:NO];
-                                      if (self.streamGroup && !([updatedAndNew[kNewVideos] count] ||[updatedAndNew[kDeletedVideos] count])) {
+                                      
+                                      if (self.streamGroup && (self.nextPageIndex == 0 || pageOffset)) {
                                           [self.realm beginWriteTransaction];
-                                          self.lastInfiniteScrollEmptyResponseTime = [NSDate date];
+                                          if ([updatedAndNew[kNewVideos] count] || [updatedAndNew[kUpdatedVideos] count] || [updatedAndNew[kDeletedVideos] count]) {
+                                              //update next page index for public stream group if there are any results.
+                                              NSString *next = response[YA_RESPONSE_NEXT] == [NSNull null] ? nil : response[YA_RESPONSE_NEXT];
+                                              self.nextPageIndex = [[[YAUtils urlParametersFromString:next] objectForKey:@"offset"] intValue] / kStreamItemsOnPage;
+                                              
+                                              DLog(@"updating group: %@, next page index: %d", self.name, self.nextPageIndex);
+                                          } else {
+                                              // If theres no videos in the response, decrement
+                                              self.nextPageIndex = MAX(self.nextPageIndex - 1, 0);
+                                              self.lastInfiniteScrollEmptyResponseTime = [NSDate date];
+                                          }
                                           [self.realm commitWriteTransaction];
                                       }
                                       

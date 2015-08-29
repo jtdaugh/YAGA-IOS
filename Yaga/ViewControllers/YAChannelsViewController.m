@@ -49,11 +49,11 @@
     // Suggested + Hosting + Following + Private
     self.segmentedControl.selectedSegmentIndex = 0;
     BLKFlexibleHeightBarSubviewLayoutAttributes *expanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    expanded.frame = CGRectMake(VIEW_WIDTH * .1, self.flexibleNavBar.frame.size.height, VIEW_WIDTH * .8, 30);
+    expanded.frame = CGRectMake(20, self.flexibleNavBar.frame.size.height, VIEW_WIDTH - 40, 30);
     expanded.alpha = 1;
     [self.segmentedControl addLayoutAttributes:expanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *collapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    collapsed.frame = CGRectMake(VIEW_WIDTH * .1, 0, VIEW_WIDTH * .8, 0);
+    collapsed.frame = CGRectMake(20, 0, VIEW_WIDTH - 40, 0);
     collapsed.alpha = -1; //to hide it even quicker
     [self.segmentedControl addLayoutAttributes:collapsed forProgress:1.0];
     [self.segmentedControl addTarget:self action:@selector(segmentedControlChanged:) forControlEvents:UIControlEventValueChanged];

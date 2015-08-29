@@ -69,8 +69,7 @@
     // setup infinite scrolling
     
     [self.collectionView addInfiniteScrollingWithActionHandler:^{
-        NSTimeInterval oneHour = 60*60;
-        if ([[NSDate date] timeIntervalSinceDate:weakSelf.group.lastInfiniteScrollEmptyResponseTime] > oneHour) {
+        if ([[NSDate date] timeIntervalSinceDate:weakSelf.group.lastInfiniteScrollEmptyResponseTime] > 10) {
             weakSelf.videosCountBeforeRefresh = weakSelf.group.videos.count;
             [weakSelf.group loadNextPageWithCompletion:nil];
         } else {
