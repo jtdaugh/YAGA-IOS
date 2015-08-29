@@ -21,6 +21,12 @@
 
 #define kContactsAccessWasRequested @"kContactsAccessWasRequested"
 
+@interface YAUser ()
+
+@property (nonatomic, strong, readwrite) NSMutableDictionary *phonebook;
+
+@end
+
 @implementation YAUser
 
 + (YAUser*)currentUser {
@@ -134,7 +140,7 @@
             [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kContactsAccessWasRequested];
             
             NSMutableArray *phoneResults = [NSMutableArray new];
-            self->_phonebook = [NSMutableDictionary new];
+            self.phonebook = [NSMutableDictionary new];
             
             NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
             
