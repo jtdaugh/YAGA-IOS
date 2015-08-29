@@ -52,7 +52,7 @@
     
     UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YALatestStreamViewController new]];
     vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
-    vc0.tabBarItem.title = @"Latest";
+    vc0.tabBarItem.title = @"Grid";
     
     UIViewController *vc1 = [UIViewController new];
 
