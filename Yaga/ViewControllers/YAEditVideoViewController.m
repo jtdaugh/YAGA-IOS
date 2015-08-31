@@ -103,6 +103,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+    
     if (self.videoPlayerView.URL) {
         self.videoPlayerView.playWhenReady = YES;
     }
@@ -114,6 +116,12 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         ((YASloppyNavigationController *)self.navigationController).swiper.panRecognizer.enabled = NO;
     });
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
