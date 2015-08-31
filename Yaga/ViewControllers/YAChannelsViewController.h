@@ -13,4 +13,7 @@
 @property (nonatomic, readonly) YAStandardFlexibleHeightBar *flexibleNavBar;
 
 @property (nonatomic, readonly) UISegmentedControl *segmentedControl;
+
+- (void)setupNavbar;
+- (void)setupSegments;
 @end

@@ -16,8 +16,6 @@
 #import "BLKDelegateSplitter.h"
 
 @interface YAChannelsViewController ()
-
-@property (nonatomic, strong) UIView *noDataView;
 @property (nonatomic, strong) NSArray *viewControllers;
 @property (nonatomic, strong) UIViewController *currentViewController;
 @end
@@ -30,23 +28,16 @@
     self.automaticallyAdjustsScrollViewInsets = NO;
     
     _flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
-    [self.flexibleNavBar.titleButton setTitle:@"Channels" forState:UIControlStateNormal];
-
-    [self.flexibleNavBar.rightBarButton setTitle:@"New" forState:UIControlStateNormal];
-    
-    [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
-
+   
     [self.view addSubview:self.flexibleNavBar];
     
     //segmented control
     _segmentedControl = [UISegmentedControl new];
     self.segmentedControl.tintColor = [UIColor whiteColor];
     
-    [self.segmentedControl insertSegmentWithTitle:@"Suggested" atIndex:0 animated:NO];
-    [self.segmentedControl insertSegmentWithTitle:@"My Channels" atIndex:1 animated:NO];
-    [self.segmentedControl insertSegmentWithTitle:@"Following" atIndex:2 animated:NO];
+    [self.view addSubview:self.currentViewController.view];
+    [self.view bringSubviewToFront:self.flexibleNavBar];
     
-    // Suggested + Hosting + Following + Private
     self.segmentedControl.selectedSegmentIndex = 0;
     BLKFlexibleHeightBarSubviewLayoutAttributes *expanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     expanded.frame = CGRectMake(20, self.flexibleNavBar.frame.size.height, VIEW_WIDTH - 40, 30);
@@ -59,6 +50,27 @@
     [self.segmentedControl addTarget:self action:@selector(segmentedControlChanged:) forControlEvents:UIControlEventValueChanged];
     [self.flexibleNavBar addSubview:self.segmentedControl];
     self.flexibleNavBar.maximumBarHeight = 110;
+    
+    [self setupNavbar];
+    [self setupSegments];
+    
+    //show first view controller
+    [self segmentedControlChanged:self.segmentedControl];
+}
+
+- (void)setupNavbar {
+    [self.flexibleNavBar.titleButton setTitle:@"Channels" forState:UIControlStateNormal];
+    
+    [self.flexibleNavBar.rightBarButton setTitle:@"New" forState:UIControlStateNormal];
+    
+    [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)setupSegments {
+    [self.segmentedControl insertSegmentWithTitle:@"Suggested" atIndex:0 animated:NO];
+    [self.segmentedControl insertSegmentWithTitle:@"My Channels" atIndex:1 animated:NO];
+    [self.segmentedControl insertSegmentWithTitle:@"Following" atIndex:2 animated:NO];
+    self.segmentedControl.selectedSegmentIndex = 0;
     
     YAFindGroupsViewConrtoller *suggested = [YAFindGroupsViewConrtoller new];
     suggested.flexibleNavBar = self.flexibleNavBar;
@@ -76,13 +88,6 @@
     following.flexibleNavBar = self.flexibleNavBar;
     
     self.viewControllers = @[suggested, myChannels, following];
-    
-    self.currentViewController = suggested;
-    
-    [self addChildViewController:self.currentViewController];
-    
-    [self.view addSubview:self.currentViewController.view];
-    [self.view bringSubviewToFront:self.flexibleNavBar];
 }
 
 - (void)segmentedControlChanged:(UISegmentedControl*)segmentedControl {

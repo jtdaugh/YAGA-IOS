@@ -24,6 +24,7 @@
 #import "YABubbleView.h"
 #import "YAUserPermissions.h"
 #import "YAPopoverView.h"
+#import "YAStreamsViewController.h"
 
 @interface YAMainTabBarController () <UITabBarControllerDelegate>
 
@@ -50,9 +51,9 @@
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YALatestStreamViewController new]];
+    UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAStreamsViewController new]];
     vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
-    vc0.tabBarItem.title = @"Grid";
+    vc0.tabBarItem.title = @"Latest";
     
     UIViewController *vc1 = [UIViewController new];
 

@@ -22,10 +22,7 @@
 
 #import "YAEventManager.h"
 #import "YAPopoverView.h"
-#import "BLKDelegateSplitter.h"
-#import "BLKFlexibleHeightBar.h"
 #import "FacebookStyleBarBehaviorDefiner.h"
-#import "YABarBehaviorDefiner.h"
 
 @protocol GridViewControllerDelegate;
 
@@ -54,8 +51,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
 @property (nonatomic, strong) RLMResults *sortedVideos;
-
-@property (nonatomic, strong) BLKDelegateSplitter *delegateSplitter;
 @end
 
 static NSString *cellID = @"Cell";
@@ -102,19 +97,12 @@ static NSString *cellID = @"Cell";
     self.collectionView.alwaysBounceVertical = YES;
     self.collectionView.dataSource = self;
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
-    
-    self.flexibleNavBar = [self createNavBar];
-    self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
-    self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
-
 
     [self.collectionView setAllowsMultipleSelection:NO];
     self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.backgroundColor = [UIColor whiteColor];
-    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 49, 0);
 
     [self.view addSubview:self.collectionView];
-    [self.view addSubview:self.flexibleNavBar];
     self.lastOffset = self.collectionView.contentOffset;
 
     self.lastDownloadPrioritizationIndex = 0;
@@ -154,15 +142,6 @@ static NSString *cellID = @"Cell";
     YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
     vc.group = self.group;
     [self.navigationController pushViewController:vc animated:YES];
-}
-
-- (BLKFlexibleHeightBar *)createNavBar {
-    BLKFlexibleHeightBar *bar = [[BLKFlexibleHeightBar alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width, 66)];
-    bar.minimumBarHeight = 20;
-    bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
-    
-    bar.backgroundColor = PRIMARY_COLOR;
-    return bar;
 }
 
 - (void)videoWithServerId:(NSString *)serverId

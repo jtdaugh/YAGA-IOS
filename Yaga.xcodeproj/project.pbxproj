@@ -24,6 +24,7 @@
 		41BE04241B883B75006737A7 /* o2.png in Resources */ = {isa = PBXBuildFile; fileRef = 41BE04231B883B75006737A7 /* o2.png */; };
 		41CCA74B196CD58B00DDAFDA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */; };
 		41D53FF01B1FB4A4004DB886 /* YACenterImageButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 41D53FEF1B1FB4A4004DB886 /* YACenterImageButton.m */; };
+		6E0869CA1B94493700A9A161 /* YAStreamsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0869C91B94493700A9A161 /* YAStreamsViewController.m */; };
 		6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */; };
 		6E11CB8C1AB9C8FB00B821A2 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11CB8B1AB9C8FB00B821A2 /* UIImage+Resize.m */; };
 		6E1603F61B184F4A00D5D90E /* YANoServerIdError.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1603F51B184F4A00D5D90E /* YANoServerIdError.m */; };
@@ -193,6 +194,8 @@
 		41CCA74A196CD58B00DDAFDA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		41D53FEE1B1FB4A4004DB886 /* YACenterImageButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YACenterImageButton.h; sourceTree = "<group>"; };
 		41D53FEF1B1FB4A4004DB886 /* YACenterImageButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YACenterImageButton.m; sourceTree = "<group>"; };
+		6E0869C81B94493700A9A161 /* YAStreamsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAStreamsViewController.h; sourceTree = "<group>"; };
+		6E0869C91B94493700A9A161 /* YAStreamsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAStreamsViewController.m; sourceTree = "<group>"; };
 		6E0A374F1A807E4F0034ABB4 /* YAPullToRefreshLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPullToRefreshLoadingView.h; sourceTree = "<group>"; };
 		6E0A37501A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPullToRefreshLoadingView.m; sourceTree = "<group>"; };
 		6E11CB8A1AB9C8FB00B821A2 /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
@@ -720,6 +723,8 @@
 				6E1F1F6C1B908B1A0083CE89 /* YAChannelsViewController.h */,
 				6E1F1F6D1B908B1A0083CE89 /* YAChannelsViewController.m */,
 				6E1F1F6F1B908EA20083CE89 /* YAFlexibleNavbarExtending.h */,
+				6E0869C81B94493700A9A161 /* YAStreamsViewController.h */,
+				6E0869C91B94493700A9A161 /* YAStreamsViewController.m */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -1081,6 +1086,7 @@
 				6EEC2BE51B7E1238004A3393 /* YAPostGroupCell.m in Sources */,
 				88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */,
 				861AF4191A5976E000F125C3 /* YAServer+HostManagment.m in Sources */,
+				6E0869CA1B94493700A9A161 /* YAStreamsViewController.m in Sources */,
 				6EA942191A405C80001803C5 /* YAUtils.m in Sources */,
 				6E40C9E11B32BE2D000CBF49 /* YAFindGroupsViewConrtoller.m in Sources */,
 				6EB995451B3B005A004ACF05 /* YASharingView.m in Sources */,
