@@ -19,7 +19,7 @@
 @implementation YAStreamsViewController
 
 - (void)setupNavbar {
-    [self.flexibleNavBar.titleButton setTitle:@"Latest" forState:UIControlStateNormal];
+    [self.flexibleNavBar.titleButton setTitle:@"Grid" forState:UIControlStateNormal];
 }
 
 - (void)setupSegments {

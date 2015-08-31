@@ -16,7 +16,7 @@
 #define VIEW_HEIGHT ([[UIScreen mainScreen] applicationFrame].size.height + (([UIApplication sharedApplication].statusBarHidden)?0:20))
 #define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width
 
-#define ALWAYS_LAUNCH_TO_CAMERA 1
+#define ALWAYS_LAUNCH_TO_CAMERA 0
 
 #define NUM_TILES 96
 #define TILE_WIDTH (VIEW_WIDTH/3)
