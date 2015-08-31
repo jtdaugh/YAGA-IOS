@@ -210,7 +210,7 @@
     self.doneRecordingButton.imageView.tintColor = [UIColor whiteColor];
     self.doneRecordingButton.adjustsImageWhenHighlighted = YES;
     [self.doneRecordingButton setAlpha:0.0];
-    
+    [self.doneRecordingButton setEnabled:NO];
     [self.view addSubview:self.doneRecordingButton];
 
     CGFloat bottomButtonPaddingX = (self.doneRecordingButton.frame.origin.x-BUTTON_SIZE)/2;
@@ -313,6 +313,8 @@
     [self.view addSubview:self.animatedRecorder];
 
     [self.doneRecordingButton setAlpha:0.0];
+    [self.doneRecordingButton setEnabled:NO];
+    
     [self.recordingCircle setAlpha:0.0];
 //    self.doneRecordingButton.transform = CGAffineTransformMakeScale(0.8, 0.8);
     
@@ -353,6 +355,7 @@
     [UIView animateWithDuration:.618 delay:0.618*2.5 usingSpringWithDamping:0.7 initialSpringVelocity:0.7 options:0 animations:^{
         //
         [self.doneRecordingButton setAlpha:1.0];
+        [self.doneRecordingButton setEnabled:YES];
         [self.doneRecordingButton setTransform:CGAffineTransformIdentity];
     } completion:^(BOOL finished) {
         //
