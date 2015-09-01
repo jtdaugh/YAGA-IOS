@@ -9,6 +9,7 @@
 #import "YAStreamsViewController.h"
 #import "YALatestStreamViewController.h"
 #import "YAMyStreamViewController.h"
+#import "SquareCashStyleBehaviorDefiner.h"
 
 @interface YAStreamsViewController ()
 @property (nonatomic, strong) NSArray *viewControllers;
@@ -20,6 +21,10 @@
 
 - (void)setupNavbar {
     [self.flexibleNavBar.titleButton setTitle:@"Grid" forState:UIControlStateNormal];
+    
+    self.flexibleNavBar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];
+    [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
+    [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
 }
 
 - (void)setupSegments {
@@ -32,7 +37,7 @@
     
     YAMyStreamViewController *myStream = [YAMyStreamViewController new];
     myStream.flexibleNavBar = self.flexibleNavBar;
-    
+
     self.viewControllers = @[latestStream, myStream];
 }
 @end

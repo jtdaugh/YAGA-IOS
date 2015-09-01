@@ -101,19 +101,16 @@ static NSString *cellID = @"Cell";
     self.collectionView.alwaysBounceVertical = YES;
     self.collectionView.dataSource = self;
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
-
+    [self.view addSubview:self.collectionView];
+    
     if(self.navigationController) {
         self.flexibleNavBar = [self createNavBar];
-        self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
-        self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
+        [self.view addSubview:self.flexibleNavBar];
     }
     [self.collectionView setAllowsMultipleSelection:NO];
     self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.backgroundColor = [UIColor whiteColor];
-    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 49, 0);
 
-    [self.view addSubview:self.collectionView];
-    [self.view addSubview:self.flexibleNavBar];
     self.lastOffset = self.collectionView.contentOffset;
 
     self.lastDownloadPrioritizationIndex = 0;
@@ -185,6 +182,8 @@ static NSString *cellID = @"Cell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    [self setupFlexibleNavBar];
     
     for (YAVideoCell *cell in [self.collectionView visibleCells]) {
         if ([cell isKindOfClass:[YAVideoCell class]]) {
@@ -742,5 +741,18 @@ static NSString *cellID = @"Cell";
     [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_HUMANITY_VISIT_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_HUMANITY_VISIT_BODY", @"") dismissText:@"Got it" addToView:self.navigationController.view] show];
     
 }
+
+- (void)setupFlexibleNavBar {
+    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
+    self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
+    self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
+    
+    self.navigationController.navigationBar.translucent = NO;
+    
+    //important to reassign initial pull to refresh inset, there is no way to recreate it
+    self.collectionView.pullToRefreshView.originalTopInset = self.collectionView.contentInset.top;
+    //self.collectionView.contentOffset = CGPointMake(0, -self.flexibleNavBar.maximumBarHeight);
+}
+
 
 @end
