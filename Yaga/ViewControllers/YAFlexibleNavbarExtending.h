@@ -10,5 +10,5 @@
 #import "YAStandardFlexibleHeightBar.h"
 
 @protocol YAFlexibleNavbarExtending <NSObject>
-@property (nonatomic, strong) YAStandardFlexibleHeightBar *flexibleNavBar;
+@property (nonatomic, strong) BLKFlexibleHeightBar *flexibleNavBar;
 @end

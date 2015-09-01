@@ -38,5 +38,5 @@
 
 - (NSInteger)gifGridSection;
 
-@property (nonatomic, strong) YAStandardFlexibleHeightBar *flexibleNavBar;
+@property (nonatomic, strong) BLKFlexibleHeightBar *flexibleNavBar;
 @end
