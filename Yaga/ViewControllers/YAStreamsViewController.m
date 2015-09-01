@@ -32,7 +32,7 @@
     [self.segmentedControl addLayoutAttributes:expanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *collapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     collapsed.frame = CGRectMake(20, 0, VIEW_WIDTH - 40, 0);
-    collapsed.alpha = -1; //to hide it even quicker
+    collapsed.alpha = 0; //to hide it even quicker
     [self.segmentedControl addLayoutAttributes:collapsed forProgress:1.0];
     
     self.flexibleNavBar.maximumBarHeight = 70;
