@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "YAStandardFlexibleHeightBar.h"
 
-@interface YAChannelsViewController : UIViewController
+@interface YAChannelsViewController : UIViewController<UISearchBarDelegate, UITableViewDataSource>
 @property (nonatomic, readonly) YAStandardFlexibleHeightBar *flexibleNavBar;
 
 @property (nonatomic, readonly) UISegmentedControl *segmentedControl;

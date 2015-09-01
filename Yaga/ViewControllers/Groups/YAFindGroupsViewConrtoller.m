@@ -31,13 +31,6 @@
 @property (nonatomic, strong) NSMutableSet *pendingRequestsInProgress;
 
 @property (nonatomic, strong) UITableView *tableView;
-@property (nonatomic, strong) UISearchBar *searchBar;
-@property (nonatomic, strong) UIActivityIndicatorView *searchActivity;
-@property (nonatomic, strong) UIActivityIndicatorView *searchTableActivity;
-@property (nonatomic, strong) UILabel *searchResultLabel;
-
-@property (atomic, assign) BOOL groupsListLoaded;
-@property (atomic, assign) BOOL findGroupsFinished;
 
 @property (nonatomic, strong) NSArray *featuredGroups;
 @property (nonatomic, strong) NSArray *suggestedGroups;
@@ -84,7 +77,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    if (![self.groupsDataArray count] && ![self.searchBar.text length]) {
+    if (![self.groupsDataArray count]) {
         // Don't auto trigger this if already populated, shouldn't change that often
         [self.tableView triggerPullToRefresh];
     }
@@ -94,8 +87,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    
-    [self.searchBar removeFromSuperview];
 }
 
 - (void)accessoryButtonTapped:(UIButton*)sender event:(id)event{
@@ -227,37 +218,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 - (void)setupFlexibleNavBar {
-    self.flexibleNavBar.maximumBarHeight = 150;
-    self.flexibleNavBar.minimumBarHeight = 66;
-    
-    //search bar
-    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(20, 108, VIEW_WIDTH-40, 30)];
-    self.searchBar.searchTextPositionAdjustment = UIOffsetMake(20, 0);
-    self.searchBar.backgroundImage = [[UIImage alloc] init];
-    self.searchBar.barStyle = UIBarStyleDefault;
-    self.searchBar.barTintColor = self.flexibleNavBar.backgroundColor;
-    self.searchBar.translucent = NO;
-    self.searchBar.tintColor = [UIColor colorWithWhite:0.5 alpha:1];
-    self.searchBar.delegate = self;
-    self.searchBar.alpha = 0.8;
-    
-    BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    searchBarExpanded.frame = CGRectMake(20, 108, VIEW_WIDTH-40, 30);
-    [self.searchBar addLayoutAttributes:searchBarExpanded forProgress:0.0];
-    BLKFlexibleHeightBarSubviewLayoutAttributes *searchBarCollapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    searchBarCollapsed.frame = CGRectMake(20, 27, VIEW_WIDTH-40, 30);
-    [self.searchBar addLayoutAttributes:searchBarCollapsed forProgress:1.0];
-    [self.flexibleNavBar addSubview:self.searchBar];
-    
-    //post adjustments
-    self.flexibleNavBar.behaviorDefiner = [SquareCashStyleBehaviorDefiner new];
-    [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
-    [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
     self.tableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
     self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
     self.tableView.delegate = (id<UITableViewDelegate>)self.delegateSplitter;
-    
-    [self.view bringSubviewToFront:self.flexibleNavBar];
     
     self.navigationController.navigationBar.translucent = NO;
 
@@ -266,120 +229,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     self.tableView.contentOffset = CGPointMake(0, -self.flexibleNavBar.maximumBarHeight);
 }
 
-#pragma mark - UISearchBarDelegate
-
-//doesn't work?
-- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
-    searchBar.text = @"";
-    [searchBar resignFirstResponder];
-    [searchBar setShowsCancelButton:NO animated:YES];
-    [self.searchResultLabel removeFromSuperview];
-    [self.searchTableActivity removeFromSuperview];
-    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
-
-    self.groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
-    [self filterAndReload:YES];
-}
-
-- (void)restoreNonSearchResults {
-    [self.searchResultLabel removeFromSuperview];
-    [self.searchTableActivity removeFromSuperview];
-    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
-    [self.searchActivity removeFromSuperview];
-    self.searchActivity = nil;
-    
-    self.groupsDataArray = [[NSUserDefaults standardUserDefaults] objectForKey:kFindGroupsCachedResponse];
-    [self filterAndReload:YES];
-}
-
-- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
-    [searchBar setShowsCancelButton:YES animated:YES];
-    [[Mixpanel sharedInstance] track:@"Searched Channels"];
-
-}
-
-- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
-    [searchBar resignFirstResponder];
-    [searchBar setShowsCancelButton:NO animated:YES];
-}
-
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
-
-    __weak typeof(self) weakSelf = self;
-    if(searchBar.text.length) {
-        if(!self.searchActivity)
-            self.searchActivity = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-        self.searchActivity.frame = CGRectMake(15, 10, 10, 10);
-        [self.searchBar addSubview:self.searchActivity];
-        [self.searchActivity  startAnimating];
-        [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeNever];
-        
-        if(!self.searchTableActivity)
-            self.searchTableActivity = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-        self.searchTableActivity.frame = CGRectMake(self.tableView.frame.size.width/2- self.searchTableActivity.frame.size.width/2, self.tableView.frame.size.height/4,  self.searchTableActivity.frame.size.width,  self.searchTableActivity.frame.size.height);
-        self.searchTableActivity.color = PRIMARY_COLOR;
-        [self.searchTableActivity startAnimating];
-        [self.tableView addSubview:self.searchTableActivity];
-        
-        if(!self.searchResultLabel)
-            self.searchResultLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.searchTableActivity.frame.origin.y + self.searchTableActivity.frame.size.height, self.tableView.frame.size.width, 50)];
-        self.searchResultLabel.text =[NSString stringWithFormat:@"Searching %@", searchBar.text];
-        self.searchResultLabel.textColor = PRIMARY_COLOR;
-        self.searchResultLabel.font = [UIFont fontWithName:BIG_FONT size:26];
-        self.searchResultLabel.textAlignment = NSTextAlignmentCenter;
-        [self.tableView addSubview:self.searchResultLabel];
-        
-        self.groupsDataArray = nil;
-        [self filterAndReload:YES];
-
-        [[YAServer sharedServer] searchGroupsByName:[searchBar.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] withCompletion:^(id response, NSError *error) {
-            if(error) {
-                [YAUtils showHudWithText:@"Error occured, try later"];
-                
-                [self restoreNonSearchResults];
-                return;
-            }
-            [weakSelf.searchTableActivity removeFromSuperview];
-
-            [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeAlways];
-            [self.searchActivity removeFromSuperview];
-            self.searchActivity = nil;
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                NSArray *readableArray = [YAUtils readableGroupsArrayFromResponse:response];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if (weakSelf.searchBar.text.length != 0) { // If search bar is empty, should be using cached results.
-                        if(readableArray.count) {
-                            weakSelf.groupsDataArray = readableArray;
-                            [weakSelf.searchResultLabel removeFromSuperview];
-                            weakSelf.searchResultLabel = nil;
-                        }
-                        else {
-                            weakSelf.groupsDataArray = nil;
-                            weakSelf.searchResultLabel.text = [NSString stringWithFormat:@"Nothing found for %@", searchBar.text];
-                        }
-                        [weakSelf filterAndReload:YES];
-                    }
-                });
-            });
-            
-        }];
-    }
-    else {
-        [self restoreNonSearchResults];
-    }
-}
-
 #pragma mark - Private
 - (void)filterAndReload:(BOOL)reload {
     NSArray *filtered = self.groupsDataArray;
-    
-    if(self.searchBar.text.length != 0) {
-        // Re-filter in case search query changed since request.
-        filtered = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
-            return [[((NSString *)evaluatedObject[YA_RESPONSE_NAME]) lowercaseString] rangeOfString:[self.searchBar.text lowercaseString]].location != NSNotFound;
-        }]];
-    }
     
     self.featuredGroups = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
         return [evaluatedObject[@"featured"] isEqual: @YES];

@@ -109,9 +109,6 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)setupFlexibleBar {
-    self.flexibleNavBar.maximumBarHeight = 110;
-    self.flexibleNavBar.minimumBarHeight = 20;
-    
     self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
     self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
     self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 0, 0);
