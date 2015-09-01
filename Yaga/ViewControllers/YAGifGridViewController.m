@@ -751,7 +751,7 @@ static NSString *cellID = @"Cell";
     
     //important to reassign initial pull to refresh inset, there is no way to recreate it
     self.collectionView.pullToRefreshView.originalTopInset = self.collectionView.contentInset.top;
-    //self.collectionView.contentOffset = CGPointMake(0, -self.flexibleNavBar.maximumBarHeight);
+    self.collectionView.contentOffset = CGPointMake(0, -self.flexibleNavBar.maximumBarHeight);
 }
 
 
