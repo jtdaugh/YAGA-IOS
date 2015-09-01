@@ -19,6 +19,7 @@
 #import "GroupsTableViewCell.h"
 #import "NameGroupViewController.h"
 #import "YAGroupGridViewController.h"
+#import "OrderedDictionary.h"
 
 #define kAccessoryButtonWidth 70
 static NSString *CellIdentifier = @"GroupsCell";
@@ -37,11 +38,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 @property (nonatomic, strong) BLKDelegateSplitter *searchDelegateSplitter;
 
-@property (nonatomic, strong) NSArray *searchResults;
+@property (nonatomic, strong) NSArray *serverResults;
+@property (nonatomic, strong) MutableOrderedDictionary *searchResultsDictionary;
 @property (nonatomic, strong) NSMutableSet *pendingRequestsInProgress;
-
-@property (nonatomic, strong) NSArray *featuredGroups;
-@property (nonatomic, strong) NSArray *suggestedGroups;
 @end
 
 @implementation YAChannelsViewController
@@ -265,9 +264,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         self.searchResultLabel.textAlignment = NSTextAlignmentCenter;
         [self.searchTableView addSubview:self.searchResultLabel];
 
-        self.searchResults = nil;
+        self.searchResultsDictionary = nil;
         
-        [self filterAndReload:YES];
+        [self.searchTableView reloadData];
 
         [[YAServer sharedServer] searchGroupsByName:[searchBar.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] withCompletion:^(id response, NSError *error) {
             if(error) {
@@ -286,12 +285,12 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (weakSelf.searchBar.text.length != 0) { // If search bar is empty, should be using cached results.
                         if(readableArray.count) {
-                            weakSelf.searchResults = readableArray;
+                            weakSelf.serverResults = readableArray;
                             [weakSelf.searchResultLabel removeFromSuperview];
                             weakSelf.searchResultLabel = nil;
                         }
                         else {
-                            weakSelf.searchResults = nil;
+                            weakSelf.serverResults = nil;
                             weakSelf.searchResultLabel.text = [NSString stringWithFormat:@"Nothing found for %@", searchBar.text];
                         }
                         [weakSelf filterAndReload:YES];
@@ -304,44 +303,81 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 - (void)filterAndReload:(BOOL)reload {
-    NSArray *filtered = self.searchResults;
-    
-    RLMResults *localChannels = [YAGroup objectsWhere:[NSString stringWithFormat:@"name CONTAINS '%@'", self.searchBar.text]];
+    self.searchResultsDictionary = [MutableOrderedDictionary new];
     
     if(self.searchBar.text.length != 0) {
         // Re-filter in case search query changed since request.
-        filtered = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
+        self.serverResults = [self.serverResults filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
             return [[((NSString *)evaluatedObject[YA_RESPONSE_NAME]) lowercaseString] rangeOfString:[self.searchBar.text lowercaseString]].location != NSNotFound;
         }]];
     }
     
-    self.featuredGroups = [filtered filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
+    NSArray *featured = [self.serverResults filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
         return [evaluatedObject[@"featured"] isEqual: @YES];
     }]];
     
-    NSMutableArray *suggested = [NSMutableArray arrayWithArray:filtered];
-    [suggested removeObjectsInArray:self.featuredGroups];
+    if(featured.count)
+        [self.searchResultsDictionary setObject:featured forKey:@"FEATURED"];
+    
+    NSMutableArray *suggested = [NSMutableArray arrayWithArray:self.serverResults];
+    [suggested removeObjectsInArray:featured];
     
     // Sort non-featured groups by public first
-    self.suggestedGroups = [suggested sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult(id obj1, id obj2) {
+    suggested = [[suggested sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult(id obj1, id obj2) {
         BOOL onePrivate = [obj1[YA_RESPONSE_PRIVATE] boolValue], twoPrivate = [obj2[YA_RESPONSE_PRIVATE] boolValue];
         return (onePrivate == twoPrivate) ? NSOrderedSame : (onePrivate ? NSOrderedDescending : NSOrderedAscending);
-    }];
+    }] copy];
     
-    if (reload)
+    if(suggested.count)
+        [self.searchResultsDictionary setObject:suggested forKey:@"SUGGESTED"];
+   
+    NSArray *serverGroupNames = [[featured valueForKey:@"name"] arrayByAddingObjectsFromArray:[suggested valueForKey:@"name"]];
+    
+    if(reload) {
+        //local search
+        NSArray *localPublic = [self localArrayOfChannelsQueriedBy:[NSString stringWithFormat:@"publicGroup = 1 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup' && name CONTAINS '%@'", self.searchBar.text]];
+        
+        if(localPublic.count)
+            [self.searchResultsDictionary setObject:localPublic forKey:@"PUBLIC"];
+        
+        NSArray *localPrivate = [self localArrayOfChannelsQueriedBy:[NSString stringWithFormat:@"publicGroup = 0 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup' && name CONTAINS '%@'", self.searchBar.text]];
+        
+        if(localPrivate.count)
+            [self.searchResultsDictionary setObject:localPrivate forKey:@"PRIVATE"];
+        
+        NSArray *localFollowing = [self localArrayOfChannelsQueriedBy:[NSString stringWithFormat:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup' && name CONTAINS '%@'", self.searchBar.text]];
+        
+        
+        if(localFollowing.count)
+            [self.searchResultsDictionary setObject:localPrivate forKey:@"FOLLOWING"];
+        
         [self.searchTableView reloadData];
+    }
+}
+
+- (NSArray*)localArrayOfChannelsQueriedBy:(NSString*)query {
+    RLMResults *queryResult = [[YAGroup allObjects] objectsWhere:query];
+    
+    NSArray *resultArray;
+    if(queryResult.count) {
+        queryResult = [queryResult sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+        resultArray = [self arrayFromRLMResults:queryResult];
+    }
+    
+    return resultArray;
+}
+
+- (NSMutableArray *)arrayFromRLMResults:(RLMResults *)results {
+    NSMutableArray *arr = [NSMutableArray array];
+    for (YAGroup *group in results) {
+        [arr addObject:[group dictionaryRepresentation]];
+    }
+    return arr;
 }
 
 - (NSDictionary*)groupDataAtIndexPath:(NSIndexPath*)indexPath {
-    NSDictionary *result;
-    if(indexPath.section == 0) {
-        result = self.featuredGroups.count != 0 ? self.featuredGroups[indexPath.row] : self.suggestedGroups[indexPath.row];
-    }
-    else {
-        result = self.suggestedGroups[indexPath.row];
-    }
-    
-    return result;
+    NSArray *sectionGroupData = [self.searchResultsDictionary objectAtIndex:indexPath.section];
+    return [sectionGroupData objectAtIndex:indexPath.row];
 }
 
 - (NSString*)twoLinesDescriptionFromGroupData:(NSDictionary*)groupData {
@@ -381,7 +417,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         [self.pendingRequestsInProgress removeObject:groupData[YA_RESPONSE_ID]];
         if(!error) {
             
-            NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.searchResults];
+            NSMutableArray *upatedDataArray = [NSMutableArray arrayWithArray:self.serverResults];
             
             if (private) {
                 NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
@@ -393,7 +429,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                 [[NSUserDefaults standardUserDefaults] setObject:upatedDataArray forKey:kFindGroupsCachedResponse];
             }
             
-            self.searchResults = upatedDataArray;
+            self.serverResults = upatedDataArray;
             
             [self filterAndReload:NO];
             
@@ -435,20 +471,12 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 #pragma mark - TableView DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    NSUInteger result = self.featuredGroups.count ? 1 : 0;
-    
-    result += self.suggestedGroups.count ? 1 : 0;
-    
-    return result;
+    return self.searchResultsDictionary.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSUInteger result = section == 0 && self.featuredGroups.count ? self.featuredGroups.count : self.suggestedGroups.count;
-    
-    if(!result)
-        result = 1;
-    
-    return result;
+    NSArray *sectionArray = [self.searchResultsDictionary objectAtIndex:section];
+    return sectionArray.count;
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
@@ -456,7 +484,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(self.featuredGroups.count == 0 && self.suggestedGroups.count == 0)
+    if(self.searchResultsDictionary.count == 0)
         return 150;
     
     return 100;
@@ -469,7 +497,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(15, 15, VIEW_WIDTH - 15, 20)];
     label.font = [UIFont fontWithName:BOLD_FONT size:14];
     label.textColor = SECONDARY_COLOR;
-    label.text = section == 0 && self.featuredGroups.count ? @"FEATURED" : @"SUGGESTED";
+    label.text = [self.searchResultsDictionary keyAtIndex:section];
     [result addSubview:label];
     
     return result;
@@ -487,13 +515,13 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     cell.backgroundView = [[UIView alloc] initWithFrame:cell.bounds];
     
-    if(self.suggestedGroups.count == 0 && self.featuredGroups.count == 0) {
-        cell.textLabel.text = NSLocalizedString(@"Nothing has been found", @"");
-        cell.textLabel.numberOfLines = 0;
-        cell.textLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
-        cell.textLabel.textColor = PRIMARY_COLOR;
-        return cell;
-    }
+//    if(self.suggestedGroups.count == 0 && self.featuredGroups.count == 0) {
+//        cell.textLabel.text = NSLocalizedString(@"Nothing has been found", @"");
+//        cell.textLabel.numberOfLines = 0;
+//        cell.textLabel.font = [UIFont fontWithName:BOLD_FONT size:18];
+//        cell.textLabel.textColor = PRIMARY_COLOR;
+//        return cell;
+//    }
     
     NSDictionary *groupData = [self groupDataAtIndexPath:indexPath];
     BOOL private = [groupData[YA_RESPONSE_PRIVATE] boolValue];

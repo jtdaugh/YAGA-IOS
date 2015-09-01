@@ -65,6 +65,8 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 
 + (YAGroup*)group;
 + (YAGroup*)groupWithServerResponseDictionary:(NSDictionary*)dictionary;
+
+- (NSDictionary*)dictionaryRepresentation;
 @end
 
 // This protocol enables typed collections. i.e.:

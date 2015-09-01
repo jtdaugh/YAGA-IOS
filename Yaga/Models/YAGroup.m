@@ -833,4 +833,10 @@
     video.caption_rotation = ![videoDic[YA_RESPONSE_ROTATION] isKindOfClass:[NSNull class]] ? [videoDic[YA_RESPONSE_ROTATION] floatValue] : 0;
 }
 
+- (NSDictionary*)dictionaryRepresentation {
+    NSDictionary *result = @{YA_RESPONSE_NAME:self.name, YA_RESPONSE_PRIVATE:[NSNumber numberWithBool:!self.publicGroup], YA_RESPONSE_MEMBERS:@"NOT IMPLEMENTED...", YA_RESPONSE_FOLLOWER_COUNT:[NSNumber numberWithInteger:self.followerCount]};
+    return result;
+}
+
+
 @end
