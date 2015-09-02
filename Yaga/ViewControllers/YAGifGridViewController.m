@@ -493,10 +493,8 @@ static NSString *cellID = @"Cell";
     if (!self.scrolling) {
         [cell renderLightweightContent];
         [cell renderHeavyWeightContent];
-    } else {
-        if (!self.scrollingFast) {
-            [cell renderLightweightContent];
-        }
+    } else if (!self.scrollingFast) {
+        [cell renderLightweightContent];
     }
     
     return cell;
@@ -612,9 +610,11 @@ static NSString *cellID = @"Cell";
     
     self.assetsPrioritisationHandled = NO;
     
-    
     BOOL fast = [self calculateScrollingFast];
-    if (self.scrollingFast && !fast) {
+    if (!fast && scrollView.contentOffset.y == -self.collectionView.pullToRefreshView.originalTopInset) {
+        // Animated back to top to hide pull to refresh
+        [self scrollingDidStop];
+    } else if (self.scrollingFast && !fast) {
         [self scrollingDidSlowDown];
     }
     self.scrollingFast = fast;
@@ -633,6 +633,10 @@ static NSString *cellID = @"Cell";
     if (!decelerate) {
         [self scrollingDidStop];
     }
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
+    [self scrollingDidStop];
 }
 
 // Show the cell gifs & event counts

@@ -200,6 +200,9 @@
 - (void)renderInitialContent {
 //    DLog(@"Rendering INITIAL cell content");
     [self renderUsername];
+
+    self.gifView.shouldPlayGifAutomatically = NO;
+    
     [self loadAndShowPreviewGifIfReady];
 }
 
@@ -208,9 +211,9 @@
 //    DLog(@"Rendering LIGHT cell content");
     if (self.lightWeightContentRendered) return;
     self.lightWeightContentRendered = YES;
-    
-    [self showLoaderGifIfNeeded];
     [self renderCaption];
+
+    [self showLoaderGifIfNeeded];
 }
 
 // This will get called when scrolling stops. Render things that aren't critical to the UI
@@ -219,6 +222,9 @@
     if (self.heavyWeightContentRendered) return;
     self.heavyWeightContentRendered = YES;
     
+    self.gifView.shouldPlayGifAutomatically = YES;
+    [self animateGifView:YES];
+
 
     //uploading progress
     if (self.video) {
@@ -297,7 +303,6 @@
 
 - (void)showCachedImage:(id)image animatedImage:(BOOL)animatedImage {
     if(animatedImage) {
-        self.gifView.shouldPlayGifAutomatically = YES;
         self.gifView.animatedImage = image;
     } else{
         self.gifView.image = image;
