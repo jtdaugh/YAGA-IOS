@@ -19,6 +19,11 @@
 
 @implementation YAStreamsViewController
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor blackColor];
+}
+
 - (void)setupNavbar {
     [self.flexibleNavBar.titleButton setTitle:@"" forState:UIControlStateNormal];
     

@@ -114,8 +114,10 @@ static NSString *cellID = @"Cell";
     self.lastOffset = self.collectionView.contentOffset;
 
     self.lastDownloadPrioritizationIndex = 0;
-    
+    [self setupFlexibleNavBar];
+
     [self reload];
+
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupWillRefresh:) name:GROUP_WILL_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
@@ -182,8 +184,6 @@ static NSString *cellID = @"Cell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    [self setupFlexibleNavBar];
     
     for (YAVideoCell *cell in [self.collectionView visibleCells]) {
         if ([cell isKindOfClass:[YAVideoCell class]]) {

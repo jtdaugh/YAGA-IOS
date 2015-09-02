@@ -80,7 +80,7 @@
         self.username.shadowColor = [UIColor blackColor];
         self.username.shadowOffset = CGSizeMake(1, 1);
         [self.containerView addSubview:self.username];
-        
+    
         CGFloat statusSize = 12;
         self.videoStatus = [[UIView alloc] initWithFrame:CGRectMake(self.bounds.size.width - VIDEO_STATUS_BOTTOM_MARGIN - statusSize,
                                                                     self.bounds.size.height - statusSize - VIDEO_STATUS_BOTTOM_MARGIN,
@@ -143,31 +143,10 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoChanged:) name:VIDEO_CHANGED_NOTIFICATION object:nil];
         self.lightWeightContentRendered = NO;
         self.heavyWeightContentRendered = NO;
+    
     }
     
     return self;
-}
-
-- (void)layoutSubviews {
-    
-    CGRect frame = self.containerView.frame;
-    
-    CGRect userFrame = self.username.frame;
-    userFrame.origin.y = frame.size.height - userFrame.size.height - USERNAME_BOTTOM_MARGIN;
-    self.username.frame = userFrame;
-    
-    CGRect eventCountFrame = self.eventCountLabel.frame;
-    eventCountFrame.origin.y = frame.size.height - eventCountFrame.size.height - COMMENT_COUNT_BOTTOM_MARGIN;
-    self.eventCountLabel.frame = eventCountFrame;
-    
-    CGRect commentFrame = self.commentIcon.frame;
-    commentFrame.origin.y = frame.size.height - commentFrame.size.height - COMMENTS_ICON_BOTTOM_MARGIN;
-    self.commentIcon.frame = commentFrame;
-    
-    CGRect videoStatusFrame = self.videoStatus.frame;
-    videoStatusFrame.origin.y = frame.size.height - videoStatusFrame.size.height - VIDEO_STATUS_BOTTOM_MARGIN;
-    self.videoStatus.frame = videoStatusFrame;
-
 }
 
 - (void)animateGifView:(BOOL)animate {

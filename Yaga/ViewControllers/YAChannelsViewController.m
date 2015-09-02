@@ -47,7 +47,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+        
     self.automaticallyAdjustsScrollViewInsets = NO;
     
     _flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
@@ -126,17 +126,21 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     vc.view.alpha = 0;
     
     [self addChildViewController:vc];
-    [self.currentViewController.view removeFromSuperview];
     vc.view.frame = self.view.bounds;
     [self.view addSubview:vc.view];
     [self.view bringSubviewToFront:self.flexibleNavBar];
     [vc didMoveToParentViewController:self];
-    [self.currentViewController removeFromParentViewController];
-    self.currentViewController = vc;
     self.navigationItem.title = vc.title;
     
     [UIView animateWithDuration:0.1 animations:^{
+        self.currentViewController.view.alpha = 0;
         vc.view.alpha = 1;
+    } completion:^(BOOL finished) {
+        if (finished) {
+            [self.currentViewController.view removeFromSuperview];
+            [self.currentViewController removeFromParentViewController];
+            self.currentViewController = vc;
+        }
     }];
 }
 
