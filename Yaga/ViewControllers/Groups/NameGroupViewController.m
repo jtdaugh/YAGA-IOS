@@ -30,8 +30,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     [self.navigationController setNavigationBarHidden:NO];
-    self.navigationController.navigationBar.backgroundColor = HOSTING_GROUP_COLOR;
-    self.navigationController.navigationBar.barTintColor = HOSTING_GROUP_COLOR;
+    self.navigationController.navigationBar.backgroundColor = PRIVATE_GROUP_COLOR;
+    self.navigationController.navigationBar.barTintColor = PRIVATE_GROUP_COLOR;
 
     [self.view setBackgroundColor:[UIColor whiteColor]];
     self.navigationItem.title = @"New Channel";
@@ -44,9 +44,9 @@
     
     CGSize segSize = CGSizeMake(VIEW_WIDTH *.8, 30);
     self.publicControl = [[UISegmentedControl alloc] initWithFrame:CGRectMake((VIEW_WIDTH - segSize.width)/2, origin, segSize.width, segSize.height)];
-    self.publicControl.tintColor = HOSTING_GROUP_COLOR;
-    [self.publicControl insertSegmentWithTitle:@"Public" atIndex:0 animated:NO];
-    [self.publicControl insertSegmentWithTitle:@"Private" atIndex:1 animated:NO];
+    self.publicControl.tintColor = PRIVATE_GROUP_COLOR;
+    [self.publicControl insertSegmentWithTitle:@"Private" atIndex:0 animated:NO];
+    [self.publicControl insertSegmentWithTitle:@"Public" atIndex:1 animated:NO];
     self.publicControl.selectedSegmentIndex = 0;
     [self.publicControl addTarget:self action:@selector(publicSwitchChanged) forControlEvents:UIControlEventValueChanged];
     
@@ -72,9 +72,9 @@
     [self.groupNameTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.groupNameTextField setTextAlignment:NSTextAlignmentCenter];
     [self.groupNameTextField setFont:[UIFont fontWithName:BIG_FONT size:30]];
-    [self.groupNameTextField setTextColor:HOSTING_GROUP_COLOR];
+    [self.groupNameTextField setTextColor:PRIVATE_GROUP_COLOR];
     [self.groupNameTextField becomeFirstResponder];
-    [self.groupNameTextField setTintColor:HOSTING_GROUP_COLOR];
+    [self.groupNameTextField setTintColor:PRIVATE_GROUP_COLOR];
     [self.groupNameTextField setReturnKeyType:UIReturnKeyDone];
     [self.groupNameTextField addTarget:self action:@selector(editingChanged) forControlEvents:UIControlEventEditingChanged];
     [self.view addSubview:self.groupNameTextField];
@@ -145,7 +145,7 @@
 - (void)editingChanged {
     if([self.groupNameTextField.text length] > 0){
         [UIView animateWithDuration:0.3 animations:^{
-            if (self.publicControl.selectedSegmentIndex == 0) {
+            if (self.publicControl.selectedSegmentIndex == 1) {
                 [self.doneButton setAlpha:1.0];
                 [self.addCohostsButton setAlpha:1.0];
             } else {
@@ -154,7 +154,7 @@
         }];
     } else {
         [UIView animateWithDuration:0.3 animations:^{
-            if (self.publicControl.selectedSegmentIndex == 0) {
+            if (self.publicControl.selectedSegmentIndex == 1) {
                 [self.doneButton setAlpha:0.0];
                 [self.addCohostsButton setAlpha:0.0];
             } else {
@@ -167,7 +167,7 @@
 - (void)publicSwitchChanged {
     CGFloat doneAlpha, addAlpha, nextAlpha;
     UIColor *color;
-    if (self.publicControl.selectedSegmentIndex == 0) {
+    if (self.publicControl.selectedSegmentIndex == 1) {
         // Public
         doneAlpha = 1;
         addAlpha = 1;
@@ -199,7 +199,7 @@
 
     YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
     vc.inCreateGroupFlow = YES;
-    vc.publicGroup = (self.publicControl.selectedSegmentIndex == 0);
+    vc.publicGroup = (self.publicControl.selectedSegmentIndex == 1);
 //    vc.initialVideo = self.initialVideo;
     vc.groupName = self.groupNameTextField.text;
     [self.navigationController pushViewController:vc animated:YES];
@@ -210,7 +210,7 @@
     [[Mixpanel sharedInstance] track:@"Done Creating Public Channel"];
 
     NSString *groupName = self.groupNameTextField.text;
-    BOOL isPrivate = (self.publicControl.selectedSegmentIndex != 0);
+    BOOL isPrivate = (self.publicControl.selectedSegmentIndex == 0);
     __weak typeof(self) weakSelf = self;
     [YAGroup groupWithName:groupName isPrivate:isPrivate withCompletion:^(NSError *error, id result) {
         if(error) {

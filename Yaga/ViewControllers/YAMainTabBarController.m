@@ -52,13 +52,15 @@
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
     UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAStreamsViewController new]];
-    vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
+    vc0.tabBarItem.image = [UIImage imageNamed:@"FilmBarItem"];
+    vc0.tabBarItem.selectedImage = [UIImage imageNamed:@"FilmBarItemFilled"];
     vc0.tabBarItem.title = @"Videos";
     
     UIViewController *vc1 = [UIViewController new];
 
     UIViewController *vc2 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAChannelsViewController new]];
     vc2.tabBarItem.image = [UIImage imageNamed:@"ChannelsBarItem"];
+    vc2.tabBarItem.selectedImage = [UIImage imageNamed:@"ChannelsBarItemFilled"];
     vc2.tabBarItem.title = @"Channels";
 
 //    UIViewController *vc2 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
