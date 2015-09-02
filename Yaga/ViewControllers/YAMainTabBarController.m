@@ -53,7 +53,7 @@
     
     UIViewController *vc0 = [[YASloppyNavigationController alloc] initWithRootViewController:[YAStreamsViewController new]];
     vc0.tabBarItem.image = [UIImage imageNamed:@"StreamBarItem"];
-    vc0.tabBarItem.title = @"Latest";
+    vc0.tabBarItem.title = @"Videos";
     
     UIViewController *vc1 = [UIViewController new];
 

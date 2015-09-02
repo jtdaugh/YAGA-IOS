@@ -96,27 +96,28 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 - (void)setupSegments {
-    [self.segmentedControl insertSegmentWithTitle:@"Suggested" atIndex:0 animated:NO];
-    [self.segmentedControl insertSegmentWithTitle:@"My Channels" atIndex:1 animated:NO];
-    [self.segmentedControl insertSegmentWithTitle:@"Following" atIndex:2 animated:NO];
+    [self.segmentedControl insertSegmentWithTitle:@"Private" atIndex:0 animated:NO];
+    [self.segmentedControl insertSegmentWithTitle:@"Public" atIndex:1 animated:NO];
+    [self.segmentedControl insertSegmentWithTitle:@"Discover" atIndex:2 animated:NO];
     self.segmentedControl.selectedSegmentIndex = 0;
     
-    YAFindGroupsViewConrtoller *suggested = [YAFindGroupsViewConrtoller new];
-    suggested.flexibleNavBar = self.flexibleNavBar;
+    YAGroupsListViewController *private = [YAGroupsListViewController new];
+    private.queriesForSection = [MutableOrderedDictionary new];
+    [private.queriesForSection setObject:@"publicGroup = 0 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'" forKey:kNoSectionName];
     
-    YAGroupsListViewController *myChannels = [YAGroupsListViewController new];
-    myChannels.queriesForSection = [MutableOrderedDictionary new];
-    [myChannels.queriesForSection setObject:@"publicGroup = 1 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'" forKey:@"PUBLIC"];
-    [myChannels.queriesForSection setObject:@"publicGroup = 0 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'" forKey:@"PRIVATE"];
+    private.flexibleNavBar = self.flexibleNavBar;
     
-    myChannels.flexibleNavBar = self.flexibleNavBar;
+    YAGroupsListViewController *public = [YAGroupsListViewController new];
+    public.queriesForSection = [MutableOrderedDictionary new];
+    [public.queriesForSection setObject:@"amMember = 1 && publicGroup = 1 && streamGroup = 0 && name != 'EmptyGroup'" forKey:@"HOSTING"];
+    [public.queriesForSection setObject:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup'" forKey:@"FOLLOWING"];
+    public.flexibleNavBar = self.flexibleNavBar;
+
+    YAFindGroupsViewConrtoller *discover = [YAFindGroupsViewConrtoller new];
+    discover.flexibleNavBar = self.flexibleNavBar;
     
-    YAGroupsListViewController *following = [YAGroupsListViewController new];
-    following.queriesForSection = [MutableOrderedDictionary new];
-    [following.queriesForSection setObject:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup'" forKey:kNoSectionName];
-    following.flexibleNavBar = self.flexibleNavBar;
-    
-    self.viewControllers = @[suggested, myChannels, following];
+
+    self.viewControllers = @[private, public, discover];
 }
 
 - (void)segmentedControlChanged:(UISegmentedControl*)segmentedControl {
@@ -349,7 +350,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         
         
         if(localFollowing.count)
-            [self.searchResultsDictionary setObject:localPrivate forKey:@"FOLLOWING"];
+            [self.searchResultsDictionary setObject:localFollowing forKey:@"FOLLOWING"];
         
         [self.searchTableView reloadData];
     }
