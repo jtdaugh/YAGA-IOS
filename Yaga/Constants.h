@@ -16,6 +16,8 @@
 #define VIEW_HEIGHT ([[UIScreen mainScreen] applicationFrame].size.height + (([UIApplication sharedApplication].statusBarHidden)?0:20))
 #define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width
 
+#define DEBUG_SERVER 1
+
 #define ALWAYS_LAUNCH_TO_CAMERA 1
 
 #define NUM_TILES 96
@@ -148,9 +150,6 @@
 
 #define recordButtonWidth 60.0f
 
-#define CAPTION_OVERWRITING_ALLOWED 1
-
-#define DEBUG_SERVER 0
 
 // Sharing
 #define kNewGroupCellId @"postToNewGroupCell"

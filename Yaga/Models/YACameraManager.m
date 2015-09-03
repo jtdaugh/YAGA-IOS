@@ -258,8 +258,11 @@
         //                                       nil];
         //
         
+        CGFloat screenScale = [UIScreen mainScreen].scale;
+        CGSize screenSize = [UIScreen mainScreen].bounds.size;
+        CGSize movieWriterSize = CGSizeMake(screenSize.width * screenScale, screenSize.height * screenScale);
         
-        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:[UIScreen mainScreen].bounds.size fileType:AVFileTypeMPEG4 outputSettings:nil];
+        self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:movieWriterSize fileType:AVFileTypeMPEG4 outputSettings:nil];
         self.movieWriter.encodingLiveVideo = YES;
         self.movieWriter.shouldPassthroughAudio = NO; // default YES
         self.movieWriter.assetWriter.movieFragmentInterval = kCMTimeInvalid;
