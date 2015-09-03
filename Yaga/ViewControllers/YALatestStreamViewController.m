@@ -15,7 +15,6 @@
 
 @property (nonatomic, strong) NSArray *groupsWithPendingUnapproved;
 @property (nonatomic) BOOL shouldForcePullToRefresh;
-
 @end
 
 static NSString *CellIdentifier = @"PendingCell";
@@ -68,6 +67,7 @@ static NSString *CellIdentifier = @"PendingCell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
     [self updatePending];
 }
 

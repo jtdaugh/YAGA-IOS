@@ -53,7 +53,7 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts, 
 - (NSString*)serverId;
 - (NSString*)deviceToken;
 
-@property (nonatomic, readonly) NSMutableDictionary *phonebook;
+@property (nonatomic, strong, readonly) NSMutableDictionary *phonebook;
 
 - (void)iMessageWithFriends:(NSArray*)friendNumbers group:(YAGroup*)group withCompletion:(completionBlock)completion;
 

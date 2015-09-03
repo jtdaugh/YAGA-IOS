@@ -27,26 +27,22 @@
 #import "YASloppyNavigationController.h"
 #import "YAGroupGridViewController.h"
 #import "YAMainTabBarController.h"
-#import "YAStandardFlexibleHeightBar.h"
 #import "BLKDelegateSplitter.h"
 #import "YABarBehaviorDefiner.h"
+#import "YAMainTabBarController.h"
 
 #define FOOTER_HEIGHT (CAMERA_BUTTON_SIZE/2 + 170)
 #define HEADER_HEIGHT 40
 
 @interface YAGroupsListViewController ()
-@property (nonatomic, strong) NSMutableArray *hostingGoups;
-@property (nonatomic, strong) NSMutableArray *privateGroups;
-@property (nonatomic, strong) NSMutableArray *followingGroups;
+@property (nonatomic, strong) MutableOrderedDictionary *groupsDictionary;
 
 @property (nonatomic) BOOL animatePush;
 
 //needed to have pull down to refresh shown for at least 1 second
 @property (nonatomic, strong) NSDate *willRefreshDate;
 @property (nonatomic) CGFloat topInset;
-@property (nonatomic, strong) YAStandardFlexibleHeightBar *flexibleNavBar;
 @property (nonatomic, strong) BLKDelegateSplitter *delegateSplitter;
-@property (nonatomic, strong) UISegmentedControl *segmentedControl;
 @property (nonatomic, strong) UIView *noDataView;
 @end
 
@@ -57,28 +53,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.automaticallyAdjustsScrollViewInsets = NO;
+    
     [self setupCollectionView];
-    self.flexibleNavBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
-    [self.flexibleNavBar.titleButton setTitle:@"My Channels" forState:UIControlStateNormal];
-    [self.flexibleNavBar.leftBarButton setTitle:@"Explore" forState:UIControlStateNormal];
-    [self.flexibleNavBar.leftBarButton addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.flexibleNavBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    self.flexibleNavBar.maximumBarHeight = 110;
-    self.flexibleNavBar.minimumBarHeight = 20;
-
-    [self.flexibleNavBar.rightBarButton addTarget:(YAMainTabBarController *)self.tabBarController action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
-    self.flexibleNavBar.behaviorDefiner = [YABarBehaviorDefiner new];
-    [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
-    [self.flexibleNavBar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
-    
-    self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
-    self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
-    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 0, 0);
-    self.collectionView.alwaysBounceVertical = YES;
-    [self.view addSubview:self.flexibleNavBar];
-    
-    //important to reassign initial pull to refresh inset, there is no way to recreate it
-    self.collectionView.pullToRefreshView.originalTopInset = self.collectionView.contentInset.top;
     
     //notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
@@ -88,23 +64,28 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.animatePush = NO;
     
     [self setupPullToRefresh];
-    
 
     [self updateState];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [self updateState];
-    if (![self.collectionView numberOfSections]) {
-        [self.collectionView triggerPullToRefresh];
-    }
     [super viewWillAppear:animated];
+    
+    [self updateState];
+    BOOL forceRefresh = YES;
+    for (NSArray *array in self.groupsDictionary.allValues) {
+        if ([array count]) {
+            forceRefresh = NO;
+            break;
+        }
+    }
     [[Mixpanel sharedInstance] track:@"Viewed My Channels"];
 
-}
-
-- (void)findGroupsPressed {
-    self.tabBarController.selectedIndex = 1;
+    [self setupFlexibleBar];
+    if (forceRefresh) {
+        [self showNoDataMessage:NO];
+        [self.collectionView triggerPullToRefresh];
+    }
 }
 
 - (void)setupCollectionView {
@@ -130,10 +111,20 @@ static NSString *CellIdentifier = @"GroupsCell";
     [self.collectionView registerClass:[UICollectionReusableView class]
             forSupplementaryViewOfKind: UICollectionElementKindSectionFooter
                    withReuseIdentifier:@"FooterView"];
-//    [self.collectionView registerClass:[UICollectionReusableView class]
-//            forSupplementaryViewOfKind: UICollectionElementKindSectionHeader
-//                   withReuseIdentifier:@"HeaderView"];
 
+    [self.collectionView registerClass:[UICollectionReusableView class]
+            forSupplementaryViewOfKind: UICollectionElementKindSectionHeader
+                   withReuseIdentifier:@"HeaderView"];
+}
+
+- (void)setupFlexibleBar {
+    self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
+    self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
+    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 0, 0);
+    self.collectionView.alwaysBounceVertical = YES;
+    
+    self.collectionView.pullToRefreshView.originalTopInset = self.collectionView.contentInset.top;
+    self.collectionView.contentOffset = CGPointMake(0, -self.flexibleNavBar.maximumBarHeight);
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -189,26 +180,17 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)updateState {
-    RLMResults *hostGroups = [[YAGroup allObjects] objectsWhere:@"publicGroup = 1 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
-    RLMResults *privateGroups = [[YAGroup allObjects] objectsWhere:@"publicGroup = 0 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
-    RLMResults *followGroups = [[YAGroup allObjects] objectsWhere:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup'"];
-    
-    RLMResults *hostingSorted = [hostGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-    RLMResults *privateSorted = [privateGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-    RLMResults *followSorted = [followGroups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-    
-    self.hostingGoups = [self arrayFromRLMResults:hostingSorted];
-    self.followingGroups = [self arrayFromRLMResults:followSorted];
-    self.privateGroups = [self arrayFromRLMResults:privateSorted];
-
-    BOOL noData = self.hostingGoups.count == 0 && self.followingGroups.count == 0 && self.privateGroups.count == 0;
-    BOOL noDataForSelectedSegment = self.segmentedControl.selectedSegmentIndex == 0 ?
-                                                                self.hostingGoups.count == 0 :
-                                                                self.followingGroups.count == 0 && self.privateGroups.count == 0;
-    
-    [self showNoDataMessage:noData || noDataForSelectedSegment];
-    
-    [self showSegmentedControl:!noData];
+    self.groupsDictionary = [MutableOrderedDictionary new];
+    for(NSString *sectionName in self.queriesForSection.allKeys) {
+        NSString *query = self.queriesForSection[sectionName];
+        RLMResults *queryResult = [[YAGroup allObjects] objectsWhere:query];
+        if(queryResult.count) {
+            queryResult = [queryResult sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+            [self.groupsDictionary setObject:[self arrayFromRLMResults:queryResult] forKey:sectionName];
+        }
+    }
+ 
+    [self showNoDataMessage:self.groupsDictionary.count == 0];
 
     [self.collectionView reloadData];
 }
@@ -219,30 +201,6 @@ static NSString *CellIdentifier = @"GroupsCell";
         [arr addObject:obj];
     }
     return arr;
-}
-
-- (NSMutableArray *)arrayForSelectedSegment {
-//    if (section == 0) {
-//        if (self.hostingGoups.count) return self.hostingGoups;
-//        if (self.privateGroups.count) return self.privateGroups;
-//        return self.followingGroups;
-//    } else if (section == 1) {
-//        if (self.hostingGoups.count && self.privateGroups.count) return self.privateGroups;
-//        return self.followingGroups;
-//    }
-//    return self.followingGroups;
-    switch (self.segmentedControl.selectedSegmentIndex) {
-        case 0: {
-            return self.hostingGoups;
-        }
-        case 1: {
-            NSMutableArray *privateAndFollowing = [NSMutableArray arrayWithArray:self.privateGroups];
-            [privateAndFollowing addObjectsFromArray:self.followingGroups];
-            return privateAndFollowing;
-        }
-        default:
-            return nil;
-    }
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -261,123 +219,95 @@ static NSString *CellIdentifier = @"GroupsCell";
     return YES;
 }
 
+- (YAGroup*)groupAtIndexPath:(NSIndexPath*)indexPath {
+    NSArray *groupsForSection = [self.groupsDictionary objectAtIndex:indexPath.section];
+    YAGroup *result = [groupsForSection objectAtIndex:indexPath.item];
+    
+    return result;
+}
+
+
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-//    NSUInteger result = self.hostingGoups.count ? 1 : 0;
-//    result += self.privateGroups.count ? 1 : 0;
-//    result += self.followingGroups.count ? 1 : 0;
-//    
-//    return result;
-    return 1;
+    return self.groupsDictionary.count;
+       
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-        return [self arrayForSelectedSegment].count;
+    NSArray *groupsForSection = [self.groupsDictionary objectAtIndex:section];
+    return groupsForSection.count;
 }
 
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    GroupsCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
-    cell.group = [[self arrayForSelectedSegment] objectAtIndex:indexPath.item];
-    return cell;
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout *)collectionViewLayout
+referenceSizeForHeaderInSection:(NSInteger)section {
+    if([[self.groupsDictionary keyAtIndex:section] isEqualToString:kNoSectionName])
+        return CGSizeMake(0, 0);
+    else
+        return CGSizeMake(VIEW_WIDTH, 40);
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
-    
-    YAGroup *group = [[self arrayForSelectedSegment] objectAtIndex:indexPath.item];
-    YAGroupGridViewController *vc = [YAGroupGridViewController new];
-    vc.group = group;
-    [self.navigationController pushViewController:vc animated:self.animatePush];
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
+           viewForSupplementaryElementOfKind:(NSString *)kind
+                                 atIndexPath:(NSIndexPath *)indexPath {
+    if (kind == UICollectionElementKindSectionFooter) {
+        UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
+        if (![reusableview.subviews count]) {
+            CGSize labelSize = CGSizeMake(VIEW_WIDTH*0.8, 70);
+            UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - labelSize.width)/2, 20, labelSize.width, labelSize.height)];
+            label.numberOfLines = 3;
+            label.font = [UIFont fontWithName:BIG_FONT size:16];
+            label.textColor = [UIColor lightGrayColor];
+            label.textAlignment = NSTextAlignmentCenter;
+            label.text=@"Looking for more?\nExplore popular channels\nor create a new one!";
+            [reusableview addSubview:label];
+
+            CGSize buttonSize = CGSizeMake(VIEW_WIDTH/2 - 30, 50);
+            UIButton *findButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/4 - buttonSize.width/2 + 2, FOOTER_HEIGHT - CAMERA_BUTTON_SIZE/2 - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+            findButton.backgroundColor = [UIColor whiteColor];
+            [findButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+            findButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
+            findButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+            findButton.layer.borderWidth = 3;
+            findButton.layer.cornerRadius = buttonSize.height/2;
+            findButton.layer.masksToBounds = YES;
+            [findButton setTitle:@"Explore" forState:UIControlStateNormal];
+            [findButton addTarget:(YAMainTabBarController *)self.tabBarController  action:@selector(presentFindGroups) forControlEvents:UIControlEventTouchUpInside];
+
+            [reusableview addSubview:findButton];
+
+            UIButton *createButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*3/4 - buttonSize.width/2 - 2, FOOTER_HEIGHT - CAMERA_BUTTON_SIZE/2 - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
+            createButton.backgroundColor = PRIMARY_COLOR;
+            [createButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            createButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
+            createButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+            createButton.layer.borderWidth = 3;
+            createButton.layer.cornerRadius = buttonSize.height/2;
+            createButton.layer.masksToBounds = YES;
+            [createButton setTitle:@"New Channel" forState:UIControlStateNormal];
+            [createButton addTarget:(YAMainTabBarController *)self.tabBarController  action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
+            [reusableview addSubview:createButton];
+        }
+        return reusableview;
+
+    } else if (kind == UICollectionElementKindSectionHeader) {
+        UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
+
+        UILabel *label = (UILabel*)[reusableview viewWithTag:100];
+        if (!label) {
+            label = [[UILabel alloc] initWithFrame:CGRectMake(10, 15, VIEW_WIDTH - 5, 20)];
+            label.tag = 100;
+            label.textColor = SECONDARY_COLOR;
+            label.font = [UIFont fontWithName:BOLD_FONT size:14];
+            [reusableview addSubview:label];
+        }
+        
+        label.text = self.groupsDictionary.allKeys[indexPath.section];
+        return reusableview;
+    }
+    return nil;
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout
-  sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    YAGroup *group  = [[self arrayForSelectedSegment] objectAtIndex:indexPath.item];
-    return [GroupsCollectionViewCell sizeForGroup:group];
-}
 
-
-//- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
-//           viewForSupplementaryElementOfKind:(NSString *)kind
-//                                 atIndexPath:(NSIndexPath *)indexPath {
-//    if (kind == UICollectionElementKindSectionFooter) {
-//        UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterView" forIndexPath:indexPath];
-//        if (![reusableview.subviews count]) {
-//            CGSize labelSize = CGSizeMake(VIEW_WIDTH*0.8, 70);
-//            UILabel *label=[[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - labelSize.width)/2, 20, labelSize.width, labelSize.height)];
-//            label.numberOfLines = 3;
-//            label.font = [UIFont fontWithName:BIG_FONT size:16];
-//            label.textColor = [UIColor lightGrayColor];
-//            label.textAlignment = NSTextAlignmentCenter;
-//            label.text=@"Looking for more?\nExplore popular channels\nor create a new one!";
-//            [reusableview addSubview:label];
-//            
-//            CGSize buttonSize = CGSizeMake(VIEW_WIDTH/2 - 30, 50);
-//            UIButton *findButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/4 - buttonSize.width/2 + 2, FOOTER_HEIGHT - CAMERA_BUTTON_SIZE/2 - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
-//            findButton.backgroundColor = [UIColor whiteColor];
-//            [findButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
-//            findButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
-//            findButton.layer.borderColor = [PRIMARY_COLOR CGColor];
-//            findButton.layer.borderWidth = 3;
-//            findButton.layer.cornerRadius = buttonSize.height/2;
-//            findButton.layer.masksToBounds = YES;
-//            [findButton setTitle:@"Explore" forState:UIControlStateNormal];
-//            [findButton addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
-//
-//            [reusableview addSubview:findButton];
-//            
-//            UIButton *createButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH*3/4 - buttonSize.width/2 - 2, FOOTER_HEIGHT - CAMERA_BUTTON_SIZE/2 - buttonSize.height - 20, buttonSize.width, buttonSize.height)];
-//            createButton.backgroundColor = PRIMARY_COLOR;
-//            [createButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-//            createButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:18];
-//            createButton.layer.borderColor = [PRIMARY_COLOR CGColor];
-//            createButton.layer.borderWidth = 3;
-//            createButton.layer.cornerRadius = buttonSize.height/2;
-//            createButton.layer.masksToBounds = YES;
-//            [createButton setTitle:@"New Channel" forState:UIControlStateNormal];
-//            [createButton addTarget:(YAMainTabBarController *)self.tabBarController  action:@selector(presentCreateGroup) forControlEvents:UIControlEventTouchUpInside];
-//            [reusableview addSubview:createButton];
-//        }
-//        return reusableview;
-//        
-//    } else if (kind == UICollectionElementKindSectionHeader) {
-//        UICollectionReusableView *reusableview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
-//        if (![reusableview.subviews count]) {
-//            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 15, VIEW_WIDTH - 5, 20)];
-//            [reusableview addSubview:label];
-//        }
-//        
-//        NSArray *arr = [self arrayForSegment:indexPath.section];
-//        reusableview.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.9];
-//        
-//        UILabel *label = nil;
-//        for (UIView *subview in reusableview.subviews) {
-//            if ([subview isKindOfClass:[UILabel class]]) {
-//                label = (UILabel *)subview;
-//                break;
-//            }
-//        }
-//
-//        label.font = [UIFont fontWithName:BOLD_FONT size:14];
-//        if (arr == self.hostingGoups) {
-//            label.textColor = HOSTING_GROUP_COLOR;
-//            label.text = @"HOSTING";
-//        } else if (arr == self.privateGroups) {
-//            label.textColor = PRIVATE_GROUP_COLOR;
-//            label.text = @"PRIVATE";
-//        } else {
-//            label.textColor = PUBLIC_GROUP_COLOR;
-//            label.text = @"FOLLOWING";
-//        }
-//        return reusableview;
-//    }
-//    return nil;
-//}
-
-//- (CGSize)collectionView:(UICollectionView *)collectionView
-//                  layout:(UICollectionViewLayout *)collectionViewLayout
-//referenceSizeForHeaderInSection:(NSInteger)section {
-//    return CGSizeMake(VIEW_WIDTH, 40);
-//}
 
 // Footer size
 - (CGSize)collectionView:(UICollectionView *)collectionView
@@ -390,44 +320,32 @@ referenceSizeForFooterInSection:(NSInteger)section {
     return CGSizeZero;
 }
 
-#pragma mark - UISegmentedControl
-
-- (void)showSegmentedControl:(BOOL)show {
-    if(show && !self.segmentedControl) {
-        //segmented control
-        self.segmentedControl = [UISegmentedControl new];
-        self.segmentedControl.tintColor = [UIColor whiteColor];
-        
-        [self.segmentedControl insertSegmentWithTitle:@"Hosting" atIndex:0 animated:NO];
-        [self.segmentedControl insertSegmentWithTitle:@"All" atIndex:1 animated:NO];
-        self.segmentedControl.selectedSegmentIndex = 0;
-        BLKFlexibleHeightBarSubviewLayoutAttributes *expanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-        expanded.frame = CGRectMake(VIEW_WIDTH/4, self.flexibleNavBar.frame.size.height, VIEW_WIDTH/2, 30);
-        expanded.alpha = 1;
-        [self.segmentedControl addLayoutAttributes:expanded forProgress:0.0];
-        BLKFlexibleHeightBarSubviewLayoutAttributes *collapsed = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-        collapsed.frame = CGRectMake(VIEW_WIDTH/4, 0, VIEW_WIDTH/2, 0);
-        collapsed.alpha = -1; //to hide it even quicker
-        [self.segmentedControl addLayoutAttributes:collapsed forProgress:1.0];
-        [self.segmentedControl addTarget:self action:@selector(segmentedControlChanged:) forControlEvents:UIControlEventValueChanged];
-        [self.flexibleNavBar addSubview:self.segmentedControl];
-        self.flexibleNavBar.maximumBarHeight = 110;
-    }
-    else if(!show) {
-        [self.segmentedControl removeFromSuperview];
-        self.segmentedControl = nil;
-        self.flexibleNavBar.maximumBarHeight = 66;
-    }
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    GroupsCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    //adjust collection view and pulltorefresh
-    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 0, 0);
-    self.collectionView.pullToRefreshView.originalTopInset = self.flexibleNavBar.maximumBarHeight;
+    cell.group = [self groupAtIndexPath:indexPath];
+    
+    return cell;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
+    
+    YAGroupGridViewController *vc = [YAGroupGridViewController new];
+    vc.group = [self groupAtIndexPath:indexPath];
+    [self.navigationController pushViewController:vc animated:self.animatePush];
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout
+  sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    YAGroup *group  = [self groupAtIndexPath:indexPath];
+    return [GroupsCollectionViewCell sizeForGroup:group];
 }
 
 - (void)showNoDataMessage:(BOOL)show {
     if(show && !self.noDataView) {
         self.noDataView = [[UIView alloc] initWithFrame:self.collectionView.bounds];
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, self.noDataView.bounds.size.height/2 - 40, VIEW_WIDTH, 60)];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, self.noDataView.bounds.size.height/2 - 140, VIEW_WIDTH, 60)];
         label.font = [UIFont fontWithName:BIG_FONT size:24];
         label.text = @"Nothing here yet";
         label.textAlignment = NSTextAlignmentCenter;
@@ -436,8 +354,8 @@ referenceSizeForFooterInSection:(NSInteger)section {
         [self.noDataView addSubview:label];
         
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        [button addTarget:self action:@selector(findGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
-        button.frame = CGRectMake(VIEW_WIDTH / 4, self.noDataView.bounds.size.height/2 + 20, VIEW_WIDTH / 2, 40);
+        [button addTarget:(YAMainTabBarController *)self.tabBarController  action:@selector(presentFindGroups) forControlEvents:UIControlEventTouchUpInside];
+        button.frame = CGRectMake(VIEW_WIDTH / 4, self.noDataView.bounds.size.height/2 - 90, VIEW_WIDTH / 2, 40);
         [button setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
 
         button.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
@@ -452,9 +370,4 @@ referenceSizeForFooterInSection:(NSInteger)section {
         self.noDataView = nil;
     }
 }
-
-- (void)segmentedControlChanged:(UISegmentedControl*)segmentedControl {
-    [self updateState];
-}
-
 @end

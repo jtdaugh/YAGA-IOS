@@ -65,6 +65,11 @@
     CGRect rect = self.view.bounds;
     rect.size.width += kSeparator;
     
+    
+    self.jpgImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    self.jpgImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.jpgImageView.contentMode = UIViewContentModeScaleAspectFill;
+
     self.scrollView = [[UIScrollView alloc] initWithFrame:rect];
     self.scrollView.delegate = self;
     self.scrollView.backgroundColor = [UIColor blackColor];
@@ -133,19 +138,12 @@
         YAVideo *video  = [self.videos objectAtIndex:self.initialIndex];
         NSString *jpgPath = [YAUtils urlFromFileName:video.jpgFullscreenFilename].path;
         UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
-        if(!self.jpgImageView) {
-            self.jpgImageView = [[UIImageView alloc] initWithImage:jpgImage];
-            self.jpgImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        }
-        else {
-            self.jpgImageView.image = jpgImage;
-        }
-
-        [self.view addSubview:self.jpgImageView];
+        self.jpgImageView.image = jpgImage;
+        if (!self.jpgImageView.superview)
+            [self.view addSubview:self.jpgImageView];
     }
     else {
         [self.jpgImageView removeFromSuperview];
-        self.jpgImageView = nil;
     }
 }
 

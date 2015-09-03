@@ -100,6 +100,9 @@
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     
     self.edgesForExtendedLayout = UIRectEdgeAll;
+    
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+    
     [super viewWillAppear:animated];
     [YACameraManager sharedManager].delegate = self;
     [[YACameraManager sharedManager] setCameraView:self.cameraView];
@@ -115,12 +118,11 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    [YAUtils setSeenCamera];
+    
     [self startRecordingAnimation];
     self.recordingTime = [NSDate date];
-    
-    if (![YAUtils hasSeenCamera])
-        [YAUtils setSeenCamera];
-   
+       
     [[Mixpanel sharedInstance] track:@"Opened Camera"];
 }
 

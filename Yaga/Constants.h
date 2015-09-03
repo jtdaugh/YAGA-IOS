@@ -16,10 +16,14 @@
 #define VIEW_HEIGHT ([[UIScreen mainScreen] applicationFrame].size.height + (([UIApplication sharedApplication].statusBarHidden)?0:20))
 #define VIEW_WIDTH [[UIScreen mainScreen] applicationFrame].size.width
 
+#define DEBUG_SERVER 1
+
+#define ALWAYS_LAUNCH_TO_CAMERA 1
 
 #define NUM_TILES 96
 #define TILE_WIDTH (VIEW_WIDTH/2)
-#define TILE_HEIGHT TILE_WIDTH 
+#define TILE_HEIGHT TILE_WIDTH
+//#define TILE_HEIGHT (VIEW_HEIGHT/4)
 //(IS_IPHONE4 ? TILE_WIDTH / 1.13 : (VIEW_HEIGHT/4))
 
 #define ENLARGED_MULTIPLIER 1.85
@@ -46,8 +50,8 @@
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
 
 #define HOSTING_GROUP_COLOR [UIColor colorWithRed:126.0/255.0 green:73.0/255.0 blue:172.0/255.0 alpha:1.0]
-#define PRIVATE_GROUP_COLOR [UIColor colorWithWhite:0.15 alpha:1]
-#define PUBLIC_GROUP_COLOR PRIMARY_COLOR
+#define PRIVATE_GROUP_COLOR PRIMARY_COLOR
+#define PUBLIC_GROUP_COLOR [UIColor colorWithWhite:0.10 alpha:1]
 #define MUTED_GROUP_COLOR [UIColor colorWithWhite:0.66 alpha:1]
 
 #define BIG_FONT @"Avenir"
@@ -65,8 +69,6 @@
 #define VIDEO_DID_DELETE_NOTIFICATION           @"VIDEO_DID_DELETE_NOTIFICATION"
 #define VIDEO_REJECTED_OR_APPROVED_NOTIFICATION @"VIDEO_REJECTED_OR_APPROVED"
 #define OPEN_VIDEO_NOTIFICATION                 @"OPEN_VIDEO_NOTIFICATION"
-
-#define GROUP_FOLLOW_OR_REQUEST_NOTIFICATION    @"GROUP_FOLLOW_OR_REQUEST_NOTIFICATION"
 
 #define VIDEO_DID_DOWNLOAD_PART_NOTIFICATION    @"VIDEO_DID_DOWNLOAD_PART_NOTIFICATION"
 
@@ -148,9 +150,6 @@
 
 #define recordButtonWidth 60.0f
 
-#define CAPTION_OVERWRITING_ALLOWED 1
-
-#define DEBUG_SERVER 1
 
 // Sharing
 #define kNewGroupCellId @"postToNewGroupCell"
@@ -255,4 +254,5 @@
 
 #define kOpenToPendingVideos                @"kOpenToPending"
 
+#define kNoSectionName                      @"kNoSectionName"
 #endif

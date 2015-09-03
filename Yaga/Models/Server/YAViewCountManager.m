@@ -74,22 +74,24 @@
     
     if (![videoId length]) return;
     
-    self.currentMonitoringVideoRef = [self.videoViewCountRoot childByAppendingPath:videoId];
-    __weak YAViewCountManager *weakSelf = self;
-    [self.currentMonitoringVideoRef observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
-        NSUInteger othersCount = 0;
-        NSUInteger myViewCount = 0;
-        for (FDataSnapshot *child in snapshot.children) {
-            NSUInteger val = [child.value unsignedIntValue];
-            NSString *username = child.key;
-            if ([username isEqualToString:weakSelf.myUsername]) {
-                myViewCount = val;
-            } else {
-                othersCount += val;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        self.currentMonitoringVideoRef = [self.videoViewCountRoot childByAppendingPath:videoId];
+        __weak YAViewCountManager *weakSelf = self;
+        [self.currentMonitoringVideoRef observeEventType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+            NSUInteger othersCount = 0;
+            NSUInteger myViewCount = 0;
+            for (FDataSnapshot *child in snapshot.children) {
+                NSUInteger val = [child.value unsignedIntValue];
+                NSString *username = child.key;
+                if ([username isEqualToString:weakSelf.myUsername]) {
+                    myViewCount = val;
+                } else {
+                    othersCount += val;
+                }
             }
-        }
-        [weakSelf.videoViewCountDelegate videoUpdatedWithMyViewCount:myViewCount otherViewCount:othersCount];
-    }];
+            [weakSelf.videoViewCountDelegate videoUpdatedWithMyViewCount:myViewCount otherViewCount:othersCount];
+        }];
+    });
 }
 
 - (void)monitorGroupWithId:(NSString *)groupId {

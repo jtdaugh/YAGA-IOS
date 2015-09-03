@@ -110,6 +110,12 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     }
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+}
+
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     // HACKY BUT SloppySwiper enables the pangesture on didShowViewController so we need to wait a bit
@@ -433,21 +439,15 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 
 - (void)sendButtonTapped:(id)sender {
     [[Mixpanel sharedInstance] track:@"Done Trimming Tapped"];
-
+    self.sendButton.enabled = NO;
+    
     __weak typeof(self) weakSelf = self;
     [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {
+        self.sendButton.enabled = YES;
         if(!error) {
-            NSError *replaceError;
-            NSURL *resultingUrl;
-            [[NSFileManager defaultManager] replaceItemAtURL:weakSelf.videoUrl withItemAtURL:[weakSelf trimmedFileUrl] backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:&resultingUrl error:&replaceError];
-            if(replaceError) {
-                [YAUtils showNotification:@"Can not save video" type:YANotificationTypeError];
-                return;
-            }
-            [weakSelf deleteTrimmedFile];
 
             YAPostToGroupsViewController *postToGroups = [YAPostToGroupsViewController new];
-            postToGroups.settings = @{@"videoUrl" : weakSelf.videoUrl,
+            postToGroups.settings = @{@"videoUrl" : [weakSelf trimmedFileUrl],
                                       @"captionText":weakSelf.captionText == nil ? @"" : weakSelf.captionText,
                                       @"captionX":[NSNumber numberWithFloat:weakSelf.captionX],
                                       @"captionY":[NSNumber numberWithFloat:weakSelf.captionY],
@@ -480,6 +480,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 - (void)dismissAnimated{
+    [self deleteVideoFile];
     [self deleteTrimmedFile];
     [[Mixpanel sharedInstance] track:@"Dismiss Trim View Tapped"];
 
@@ -535,6 +536,19 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 }
 
 #pragma mark - Trimming
+- (void)deleteVideoFile {
+    NSFileManager *fm = [NSFileManager defaultManager];
+    BOOL exist = [fm fileExistsAtPath:self.videoUrl.path];
+    
+    NSError *error;
+    if (exist) {
+        [fm removeItemAtURL:self.videoUrl error:&error];
+        if (error)
+            DLog(@"file remove error, %@", error.localizedDescription );
+
+    }
+}
+
 -(void)deleteTrimmedFile {
     NSURL *url = [self trimmedFileUrl];
     

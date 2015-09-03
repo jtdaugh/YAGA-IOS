@@ -138,12 +138,6 @@ static NSString *commentCellID = @"CommentCell";
         
         self.viewingAccessories = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         self.adminAccessories = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-
-        if(self.showAdminControls){
-            [self.overlay addSubview:self.adminAccessories];
-        } else {
-            [self.overlay addSubview:self.viewingAccessories];
-        }
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
@@ -236,14 +230,18 @@ static NSString *commentCellID = @"CommentCell";
 #pragma mark - YAVideoPlayerViewDelegate
 
 - (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
-//    DLog(@"progress: %f, priorProgress: %f", progress, self.lastPlaybackProgress);
     
     // If progress went from high to low (looped) or from 0 to valid value.
     if ((progress < self.lastPlaybackProgress && progress != 0.0)
         || (self.lastPlaybackProgress == 0 && progress > 0.0 && progress < CGFLOAT_MAX)) {
         // Slight delay to possibly alleviate grid lag.
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [[YAViewCountManager sharedManager] addViewToVideoWithId:self.video.serverId groupId:self.video.group.serverId user:self.video.creator];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *videoId = self.video.serverId;
+            NSString *groupId = self.video.group.serverId;
+            NSString *creatorName = self.video.creator;
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [[YAViewCountManager sharedManager] addViewToVideoWithId:videoId groupId:groupId user:creatorName];
+            });
         });
     }
     self.lastPlaybackProgress = progress;
@@ -433,10 +431,11 @@ static NSString *commentCellID = @"CommentCell";
     if(self.video.jpgFullscreenFilename.length) {
         UIImageView *jpgImageView;
         
-        if(self.playerView.subviews.count)
+        if(self.playerView.subviews.count) {
             jpgImageView = self.playerView.subviews[0];
-        else {
+        } else {
             jpgImageView = [[UIImageView alloc] init];
+            jpgImageView.contentMode = UIViewContentModeScaleAspectFill;
             jpgImageView.frame = self.bounds;
             [self.playerView addSubview:jpgImageView];
         }

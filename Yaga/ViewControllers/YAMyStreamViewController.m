@@ -56,31 +56,6 @@
     [[YAViewCountManager sharedManager] monitorUser:nil];
 }
 
-- (BLKFlexibleHeightBar *)createNavBar {
-    BLKFlexibleHeightBar *bar = [super createNavBar];
-    CGRect frame = bar.frame;
-    frame.size.height += 30;
-    bar.frame = frame;
-    bar.maximumBarHeight = frame.size.height;
-    
-    UILabel *viewCountLabel = [UILabel new];
-    viewCountLabel.textColor = [UIColor whiteColor];
-    viewCountLabel.font = [UIFont fontWithName:BOLD_FONT size:13];
-    viewCountLabel.textAlignment = NSTextAlignmentCenter;
-    BLKFlexibleHeightBarSubviewLayoutAttributes *expanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    expanded.frame = CGRectMake(50, bar.frame.size.height - 30, VIEW_WIDTH - 100, 20);
-    [viewCountLabel addLayoutAttributes:expanded forProgress:0.0];
-    
-    BLKFlexibleHeightBarSubviewLayoutAttributes *collapsed = [[BLKFlexibleHeightBarSubviewLayoutAttributes alloc] initWithExistingLayoutAttributes:expanded];
-    collapsed.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -frame.size.height + 20), 0.2, 0.2);
-    collapsed.alpha = 0.0;
-    [viewCountLabel addLayoutAttributes:collapsed forProgress:1.0];
-    
-    [bar addSubview:viewCountLabel];
-    self.viewCountLabel = viewCountLabel;
-    return bar;
-}
-
 - (void)updateViewCount {
     self.viewCountLabel.text = [NSString stringWithFormat:@"%lu Total Views", self.viewCount];
 }

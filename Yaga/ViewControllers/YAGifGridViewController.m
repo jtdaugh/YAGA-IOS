@@ -22,10 +22,8 @@
 
 #import "YAEventManager.h"
 #import "YAPopoverView.h"
-#import "BLKDelegateSplitter.h"
-#import "BLKFlexibleHeightBar.h"
 #import "FacebookStyleBarBehaviorDefiner.h"
-#import "YABarBehaviorDefiner.h"
+#import "BLKDelegateSplitter.h"
 
 @protocol GridViewControllerDelegate;
 
@@ -56,6 +54,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, strong) RLMResults *sortedVideos;
 
 @property (nonatomic, strong) BLKDelegateSplitter *delegateSplitter;
+
 @end
 
 static NSString *cellID = @"Cell";
@@ -102,24 +101,23 @@ static NSString *cellID = @"Cell";
     self.collectionView.alwaysBounceVertical = YES;
     self.collectionView.dataSource = self;
     [self.collectionView registerClass:[YAVideoCell class] forCellWithReuseIdentifier:cellID];
+    [self.view addSubview:self.collectionView];
     
-    self.flexibleNavBar = [self createNavBar];
-    self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
-    self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
-
-
+    if(self.navigationController) {
+        self.flexibleNavBar = [self createNavBar];
+        [self.view addSubview:self.flexibleNavBar];
+    }
     [self.collectionView setAllowsMultipleSelection:NO];
     self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.backgroundColor = [UIColor whiteColor];
-    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.frame.size.height, 0, 49, 0);
 
-    [self.view addSubview:self.collectionView];
-    [self.view addSubview:self.flexibleNavBar];
     self.lastOffset = self.collectionView.contentOffset;
 
     self.lastDownloadPrioritizationIndex = 0;
-    
+    [self setupFlexibleNavBar];
+
     [self reload];
+
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupWillRefresh:) name:GROUP_WILL_REFRESH_NOTIFICATION     object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(groupDidRefresh:) name:GROUP_DID_REFRESH_NOTIFICATION     object:nil];
@@ -133,6 +131,14 @@ static NSString *cellID = @"Cell";
     [self setupPullToRefresh];
 }
 
+- (BLKFlexibleHeightBar *)createNavBar {
+    BLKFlexibleHeightBar *bar = [[BLKFlexibleHeightBar alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width, 66)];
+    bar.minimumBarHeight = 20;
+    bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
+    
+    bar.backgroundColor = PRIMARY_COLOR;
+    return bar;
+}
 
 - (void)groupInfoPressed {
     [self openGroupOptions];
@@ -154,15 +160,6 @@ static NSString *cellID = @"Cell";
     YAGroupOptionsViewController *vc = [[YAGroupOptionsViewController alloc] init];
     vc.group = self.group;
     [self.navigationController pushViewController:vc animated:YES];
-}
-
-- (BLKFlexibleHeightBar *)createNavBar {
-    BLKFlexibleHeightBar *bar = [[BLKFlexibleHeightBar alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width, 66)];
-    bar.minimumBarHeight = 20;
-    bar.behaviorDefiner = [FacebookStyleBarBehaviorDefiner new];
-    
-    bar.backgroundColor = PRIMARY_COLOR;
-    return bar;
 }
 
 - (void)videoWithServerId:(NSString *)serverId
@@ -496,10 +493,8 @@ static NSString *cellID = @"Cell";
     if (!self.scrolling) {
         [cell renderLightweightContent];
         [cell renderHeavyWeightContent];
-    } else {
-        if (!self.scrollingFast) {
-            [cell renderLightweightContent];
-        }
+    } else if (!self.scrollingFast) {
+        [cell renderLightweightContent];
     }
     
     return cell;
@@ -615,9 +610,11 @@ static NSString *cellID = @"Cell";
     
     self.assetsPrioritisationHandled = NO;
     
-    
     BOOL fast = [self calculateScrollingFast];
-    if (self.scrollingFast && !fast) {
+    if (!fast && scrollView.contentOffset.y == -self.collectionView.pullToRefreshView.originalTopInset) {
+        // Animated back to top to hide pull to refresh
+        [self scrollingDidStop];
+    } else if (self.scrollingFast && !fast) {
         [self scrollingDidSlowDown];
     }
     self.scrollingFast = fast;
@@ -636,6 +633,10 @@ static NSString *cellID = @"Cell";
     if (!decelerate) {
         [self scrollingDidStop];
     }
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
+    [self scrollingDidStop];
 }
 
 // Show the cell gifs & event counts
@@ -744,5 +745,18 @@ static NSString *cellID = @"Cell";
     [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_HUMANITY_VISIT_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_HUMANITY_VISIT_BODY", @"") dismissText:@"Got it" addToView:self.navigationController.view] show];
     
 }
+
+- (void)setupFlexibleNavBar {
+    self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
+    self.delegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
+    self.collectionView.delegate = (id<UICollectionViewDelegate>)self.delegateSplitter;
+    
+    self.navigationController.navigationBar.translucent = NO;
+    
+    //important to reassign initial pull to refresh inset, there is no way to recreate it
+    self.collectionView.pullToRefreshView.originalTopInset = self.collectionView.contentInset.top;
+    self.collectionView.contentOffset = CGPointMake(0, -self.flexibleNavBar.maximumBarHeight);
+}
+
 
 @end

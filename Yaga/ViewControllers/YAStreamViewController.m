@@ -10,13 +10,14 @@
 
 //DEBUG
 #import "YAVideo.h"
-#import "YAStreamFlexibleNavBar.h"
 #import "YAVideoCell.h"
 #import "YAGroupGridViewController.h"
 #import "YABarBehaviorDefiner.h"
+#import "BLKDelegateSplitter.h"
 
 @interface YAStreamViewController () <YAOpenGroupFromVideoCell>
 @property (nonatomic, assign) NSUInteger videosCountBeforeRefresh;
+@property (nonatomic, strong) BLKDelegateSplitter *delegateSplitter;
 @end
 
 @implementation YAStreamViewController
@@ -50,15 +51,6 @@
     return cell;
 }
 
-- (BLKFlexibleHeightBar *)createNavBar {
-    YAStreamFlexibleNavBar *bar = [YAStreamFlexibleNavBar emptyStreamNavBar];
-    bar.titleLabel.text = self.group.name;
-    bar.behaviorDefiner = [YABarBehaviorDefiner new];
-    [bar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
-    [bar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
-    return bar;
-}
-
 #pragma mark - Overriden
 
 - (void)setupPullToRefresh {
@@ -69,8 +61,7 @@
     // setup infinite scrolling
     
     [self.collectionView addInfiniteScrollingWithActionHandler:^{
-        NSTimeInterval oneHour = 60*60;
-        if ([[NSDate date] timeIntervalSinceDate:weakSelf.group.lastInfiniteScrollEmptyResponseTime] > oneHour) {
+        if ([[NSDate date] timeIntervalSinceDate:weakSelf.group.lastInfiniteScrollEmptyResponseTime] > 10) {
             weakSelf.videosCountBeforeRefresh = weakSelf.group.videos.count;
             [weakSelf.group loadNextPageWithCompletion:nil];
         } else {

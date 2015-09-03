@@ -21,6 +21,12 @@
 
 #define kContactsAccessWasRequested @"kContactsAccessWasRequested"
 
+@interface YAUser ()
+
+@property (nonatomic, strong, readwrite) NSMutableDictionary *phonebook;
+
+@end
+
 @implementation YAUser
 
 + (YAUser*)currentUser {
@@ -129,17 +135,17 @@
     //using last requested yaga users
     NSDictionary *yagaUsersData = [[NSUserDefaults standardUserDefaults] objectForKey:kYagaUsersRequested];
     
-    __block NSMutableArray *usersResults = [NSMutableArray new];
-    __block NSMutableArray *nonUsersResults = [NSMutableArray new];
-    
     [addressBook loadContactsOnQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSArray *contacts, NSError *error) {
         if (!error){
             [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kContactsAccessWasRequested];
             
             NSMutableArray *phoneResults = [NSMutableArray new];
-            self->_phonebook = [NSMutableDictionary new];
+            self.phonebook = [NSMutableDictionary new];
             
             NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
+            
+            NSMutableArray *usersResults = [NSMutableArray new];
+            NSMutableArray *nonUsersResults = [NSMutableArray new];
             
             for(int i = 0; i<[contacts count]; i++){
                 APContact *contact = contacts[i];
@@ -193,8 +199,8 @@
                 completion(nil, orderedResults, NO);
                 
                 NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
-                //request yaga users once per hour
-                if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60]] == NSOrderedDescending) {
+                //request yaga users once per hour, or far more often when debugging.
+                if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:(DEBUG ? 5 : 60*60)]] == NSOrderedDescending) {
                     [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
                         if(error) {
                             if (completion)

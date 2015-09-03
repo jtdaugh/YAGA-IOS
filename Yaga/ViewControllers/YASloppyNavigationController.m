@@ -45,7 +45,6 @@
     self.edgesForExtendedLayout = UIRectEdgeAll;
 
     [self setNavigationBarHidden:YES];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 
     [self.navigationBar setTranslucent:NO];
     [self.navigationBar setTitleTextAttributes:@{

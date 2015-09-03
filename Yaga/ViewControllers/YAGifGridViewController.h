@@ -12,18 +12,18 @@
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAGroup.h"
 #import "YAUser.h"
+#import "YAFlexibleNavbarExtending.h"
 
 @class BLKFlexibleHeightBar;
 
 @interface YAGifGridViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegate,
-    UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver>
+    UIGestureRecognizerDelegate, YASwipingViewControllerDelegate, YAEventCountReceiver, YAFlexibleNavbarExtending>
 
 @property (strong, nonatomic) UICollectionView *collectionView;
 @property (strong, nonatomic) UICollectionViewFlowLayout *gridLayout;
 
 @property (nonatomic) BOOL scrolling;
 @property (strong, nonatomic) YAGroup *group;
-@property (nonatomic, strong) BLKFlexibleHeightBar *flexibleNavBar;
 
 @property (nonatomic) BOOL pendingMode;
 
@@ -38,6 +38,5 @@
 
 - (NSInteger)gifGridSection;
 
-- (BLKFlexibleHeightBar *)createNavBar;
-
+@property (nonatomic, strong) BLKFlexibleHeightBar *flexibleNavBar;
 @end
