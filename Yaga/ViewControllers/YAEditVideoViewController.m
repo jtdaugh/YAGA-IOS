@@ -124,16 +124,6 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     });
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    
-    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
-}
-
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
-}
-
 #pragma mark - layout
 
 - (void)setupTableView {
