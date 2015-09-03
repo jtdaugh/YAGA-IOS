@@ -157,6 +157,7 @@
 // must implement -blockCameraPresentationOnBackground and return YES.
 - (void)didEnterBackground {
     if (!ALWAYS_LAUNCH_TO_CAMERA) return;
+    if (![YAUtils hasSeenCamera]) return;
     
     if (![self isEqual:[UIApplication sharedApplication].keyWindow.rootViewController]) {
         // Only the root should be doing this

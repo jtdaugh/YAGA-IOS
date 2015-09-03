@@ -115,6 +115,8 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    [YAUtils setSeenCamera];
+    
     [self startRecordingAnimation];
     self.recordingTime = [NSDate date];
        

@@ -79,6 +79,9 @@ typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 + (BOOL)hasTappedRecord;
 + (void)setTappedRecord;
 
++ (BOOL)hasSeenCamera;
++ (void)setSeenCamera;
+
 + (BOOL)hasSeenTrimView;
 + (void)setSeenTrimView;
 

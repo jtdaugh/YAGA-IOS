@@ -532,6 +532,13 @@ static NSMutableDictionary *bubblesDictionary;
     [self setDefaultsForKey:TAPPED_RECORD];
 }
 
++ (BOOL)hasSeenCamera {
+    return [self defaultsBoolForKey:SEEN_CAMERA];
+}
++ (void)setSeenCamera {
+    [self setDefaultsForKey:SEEN_CAMERA];
+}
+
 + (BOOL)hasSeenTrimView {
     return [self defaultsBoolForKey:SEEN_TRIM_VIEW];
 }
