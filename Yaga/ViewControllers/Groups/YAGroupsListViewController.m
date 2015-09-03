@@ -346,26 +346,30 @@ referenceSizeForFooterInSection:(NSInteger)section {
 
 - (void)showNoDataMessage:(BOOL)show {
     if(show && !self.noDataView) {
+        BOOL isPrivateList = ([self.queriesForSection objectForKey:kNoSectionName] != nil); // Hacky but the only way to determine whether this is private or public list
+        
         CGRect noDataFrame = self.collectionView.bounds;
-        noDataFrame.origin.y = -self.collectionView.pullToRefreshView.originalTopInset;
-        noDataFrame.size.height -= noDataFrame.origin.y;
+        noDataFrame.origin.y = 0; // for some reason collection view's bounds has a negative y origin
         self.noDataView = [[UIView alloc] initWithFrame:noDataFrame];
         
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, self.noDataView.bounds.size.height/2 - 140, VIEW_WIDTH, 60)];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 50, VIEW_WIDTH, 70)];
         label.font = [UIFont fontWithName:BIG_FONT size:24];
-        label.text = @"Nothing here yet";
+        
+
+        label.text = isPrivateList ? @"Not in any\nprivate channels" : @"Not following any channels";
+        
         label.textAlignment = NSTextAlignmentCenter;
         label.numberOfLines = 0;
         label.textColor = PRIMARY_COLOR;
         [self.noDataView addSubview:label];
         
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        [button addTarget:(YAMainTabBarController *)self.tabBarController  action:@selector(presentFindGroups) forControlEvents:UIControlEventTouchUpInside];
-        button.frame = CGRectMake(VIEW_WIDTH / 4, self.noDataView.bounds.size.height/2 - 90, VIEW_WIDTH / 2, 40);
+        [button addTarget:(YAMainTabBarController *)self.tabBarController  action:(isPrivateList ? @selector(presentCreateGroup) : @selector(presentFindGroups)) forControlEvents:UIControlEventTouchUpInside];
+        button.frame = CGRectMake(20, 140, VIEW_WIDTH - 40, 40);
         [button setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
 
         button.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:20];
-        [button setTitle:@"Tap to explore" forState:UIControlStateNormal];
+        [button setTitle:(isPrivateList ? @"Tap to create one" : @"Tap to explore") forState:UIControlStateNormal];
         [self.noDataView addSubview:button];
         
         [self.collectionView addSubview:self.noDataView];

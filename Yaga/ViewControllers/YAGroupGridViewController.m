@@ -177,7 +177,7 @@
     if (self.group.publicGroup) {
         ((YAProfileFlexibleHeightBar *)self.flexibleNavBar).viewsLabel.text = [NSString stringWithFormat:@"%ld followers    %ld views", (long)self.group.followerCount, self.groupViewCount];
     } else {
-        ((YAProfileFlexibleHeightBar *)self.flexibleNavBar).viewsLabel.text = [NSString stringWithFormat:@"%ld members    %ld views", (long)self.group.members.count, self.groupViewCount];
+        ((YAProfileFlexibleHeightBar *)self.flexibleNavBar).viewsLabel.text = [NSString stringWithFormat:@"%ld members    %ld views", (long)self.group.members.count + 1, self.groupViewCount];  // add 1 to the member count because it excludes you
     }
 }
 
