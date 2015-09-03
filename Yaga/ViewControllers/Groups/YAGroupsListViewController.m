@@ -69,14 +69,23 @@ static NSString *CellIdentifier = @"GroupsCell";
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [self updateState];
-    if (![self.collectionView numberOfSections]) {
-        [self.collectionView triggerPullToRefresh];
-    }
     [super viewWillAppear:animated];
+    
+    [self updateState];
+    BOOL forceRefresh = YES;
+    for (NSArray *array in self.groupsDictionary.allValues) {
+        if ([array count]) {
+            forceRefresh = NO;
+            break;
+        }
+    }
     [[Mixpanel sharedInstance] track:@"Viewed My Channels"];
 
     [self setupFlexibleBar];
+    if (forceRefresh) {
+        [self showNoDataMessage:NO];
+        [self.collectionView triggerPullToRefresh];
+    }
 }
 
 - (void)setupCollectionView {

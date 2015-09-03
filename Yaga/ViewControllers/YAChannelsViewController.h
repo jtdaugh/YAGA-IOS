@@ -14,6 +14,8 @@
 
 @property (nonatomic, readonly) UISegmentedControl *segmentedControl;
 
+@property (nonatomic, strong) NSNumber *initialSegmentIndex;
+
 - (void)setupNavbar;
 - (void)setupSegments;
 @end

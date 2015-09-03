@@ -111,7 +111,7 @@
     } else {
         [YAUtils setSeenFollowingScreen];
         [self showForceFollowTooltip];
-        self.selectedIndex = 2;
+        [self presentFindGroups];
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openGifGridFromNotification:) name:OPEN_GROUP_GRID_NOTIFICATION object:nil];
@@ -215,7 +215,8 @@
     [navController popToRootViewControllerAnimated:NO];
     YAChannelsViewController *channels = navController.viewControllers[0];
     
-    channels.segmentedControl.selectedSegmentIndex = 0;
+    channels.initialSegmentIndex = @(2);
+    channels.segmentedControl.selectedSegmentIndex = 2;
     [channels.segmentedControl sendActionsForControlEvents:UIControlEventValueChanged];
     channels.flexibleNavBar.progress = 0;
 }

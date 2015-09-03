@@ -77,6 +77,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self setupNavbar];
     [self setupSegments];
     
+    if (self.initialSegmentIndex) {
+        self.segmentedControl.selectedSegmentIndex = [self.initialSegmentIndex integerValue];
+    }
     //show first view controller
     [self segmentedControlChanged:self.segmentedControl];
 }
@@ -239,6 +242,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         [self.searchTableView removeFromSuperview];
         self.searchTableView = nil;
     }
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    [searchBar resignFirstResponder];
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
