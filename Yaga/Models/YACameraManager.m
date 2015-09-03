@@ -258,9 +258,8 @@
         //                                       nil];
         //
         
-        CGFloat screenScale = [UIScreen mainScreen].scale;
         CGSize screenSize = [UIScreen mainScreen].bounds.size;
-        CGSize movieWriterSize = CGSizeMake(screenSize.width * screenScale, screenSize.height * screenScale);
+        CGSize movieWriterSize = CGSizeMake(screenSize.width * 2.0, screenSize.height * 2.0);
         
         self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:movieWriterSize fileType:AVFileTypeMPEG4 outputSettings:nil];
         self.movieWriter.encodingLiveVideo = YES;
