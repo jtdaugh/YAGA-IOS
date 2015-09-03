@@ -262,7 +262,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     return result;
 }
 
-- (NSString*)twoLinesDescriptionFromGroupData:(NSDictionary*)groupData {
+- (NSAttributedString*)twoLinesDescriptionFromGroupData:(NSDictionary*)groupData {
     NSString *firstLine;
     NSString *secondLine;
     if ([groupData[YA_RESPONSE_PRIVATE] boolValue]) {
@@ -272,7 +272,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         firstLine = [NSString stringWithFormat:@"%@ %@", groupData[YA_RESPONSE_FOLLOWER_COUNT], ([groupData[YA_RESPONSE_FOLLOWER_COUNT] intValue] == 1)?@"Follower":@"Followers"];
         secondLine = [NSString stringWithFormat:@"Hosted by %@",  groupData[YA_RESPONSE_MEMBERS]];
     }
-    return [NSString stringWithFormat:@"%@\n%@", firstLine, secondLine];
+    NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n%@", firstLine, secondLine] attributes:@{NSFontAttributeName : [UIFont fontWithName:BIG_FONT size:14]}];
+    [attrString setAttributes:@{NSFontAttributeName : [UIFont fontWithName:BOLD_FONT size:14]} range:NSMakeRange(0, firstLine.length)];
+    return attrString;
 }
 
 #pragma mark - TableView DataSource
@@ -371,8 +373,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     cell.detailTextLabel.numberOfLines = 2;
     
     cell.textLabel.text = groupData[YA_RESPONSE_NAME];
-    cell.detailTextLabel.text = [self twoLinesDescriptionFromGroupData:groupData];
-
+    cell.detailTextLabel.attributedText = [self twoLinesDescriptionFromGroupData:groupData];
     
     //ios8 fix
     if ([cell respondsToSelector:@selector(layoutMargins)]) {

@@ -138,12 +138,6 @@ static NSString *commentCellID = @"CommentCell";
         
         self.viewingAccessories = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         self.adminAccessories = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
-
-        if(self.showAdminControls){
-            [self.overlay addSubview:self.adminAccessories];
-        } else {
-            [self.overlay addSubview:self.viewingAccessories];
-        }
         
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
