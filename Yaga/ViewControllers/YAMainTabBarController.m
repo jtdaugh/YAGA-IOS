@@ -222,10 +222,7 @@
     channels.flexibleNavBar.progress = 0;
 }
 
-- (void)openGifGridFromNotification:(NSNotification *)notif {
-    YAGroup *group = notif.object;
-    if (!group) return;
-    
+- (void)pushGifGridForGroup:(YAGroup *)group toPendingTab:(BOOL)pending {
     if (self.presentedViewController) {
         [self dismissViewControllerAnimated:NO completion:nil];
     }
@@ -235,13 +232,18 @@
     YAGroupGridViewController *vc = [YAGroupGridViewController new];
     vc.group = group;
     
-    if ([notif.userInfo[kOpenToPendingVideos] boolValue])
-        vc.openStraightToPendingSection = YES;
+    vc.openStraightToPendingSection = pending;
     
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     
     self.selectedIndex = 2;
     [navVC pushViewController:vc animated:YES];
+}
+
+- (void)openGifGridFromNotification:(NSNotification *)notif {
+    YAGroup *group = notif.object;
+    if (!group) return;
+    [self pushGifGridForGroup:group toPendingTab:[notif.userInfo[kOpenToPendingVideos] boolValue]];
 }
 
 

@@ -8,10 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
+@class YAGroup;
+
 @interface YAMainTabBarController : UITabBarController <UIViewControllerTransitioningDelegate>
 
 - (void)presentCreateGroup;
 - (void)presentFindGroups;
+
+- (void)pushGifGridForGroup:(YAGroup *)group toPendingTab:(BOOL)pending;
 
 - (void)setInitialAnimationFrame:(CGRect)frame;
 - (void)setInitialAnimationTransform:(CGAffineTransform)transform;

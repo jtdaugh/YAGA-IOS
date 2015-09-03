@@ -16,6 +16,7 @@
 #import "YAAssetsCreator.h"
 #import "YAInviteHelper.h"
 #import "YAPostToGroupsViewController.h"
+#import "YAMainTabBarController.h"
 
 @interface YAGroupAddMembersViewController ()
 @property (strong, nonatomic) UIActivityIndicatorView *activityView;
@@ -468,18 +469,25 @@
 }
 
 - (void)dismissAddMembers {
-    // If we presented the create group flow on top of the trim screen, dimisss that & the camera as well.
     if (self.inCreateGroupFlow) {
         UIViewController *presentingVC = self.presentingViewController;
         if ([presentingVC isKindOfClass:[UINavigationController class]]) {
             UIViewController *previousTopVC = ((UINavigationController *)presentingVC).topViewController;
             if ([previousTopVC isKindOfClass:[YAPostToGroupsViewController class]]) {
+                // Dismiss back to post capture groups list, and add new group to list
                 YAGroup *group = self.newlyCreatedGroup;
                 [presentingVC dismissViewControllerAnimated:YES completion:^{
                     [(YAPostToGroupsViewController *)previousTopVC addNewlyCreatedGroupToList:group];
                 }];
                 return;
             }
+        } else if ([presentingVC isKindOfClass:[YAMainTabBarController class]]) {
+            // Dismiss and go straight to new group
+            YAGroup *group = self.newlyCreatedGroup;
+            [presentingVC dismissViewControllerAnimated:YES completion:^{
+                [(YAMainTabBarController *)presentingVC pushGifGridForGroup:group toPendingTab:NO];
+            }];
+            return;
         }
     }
     

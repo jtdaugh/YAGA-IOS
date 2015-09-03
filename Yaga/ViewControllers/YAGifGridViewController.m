@@ -418,7 +418,7 @@ static NSString *cellID = @"Cell";
             [self showActivityIndicator:NO];
 
             if(!self.noVideosLabel) {
-                self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.view.bounds.size.height/1.5)];
+                self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.view.bounds.size.height - self.flexibleNavBar.maximumBarHeight - 49)]; // hardcoded tab bar height :/
                 self.noVideosLabel.font = [UIFont fontWithName:BIG_FONT size:24];
                 if (self.group.streamGroup) {
                     self.noVideosLabel.text = [self.group.serverId isEqualToString:kPublicStreamGroupId] ? NSLocalizedString(@"PUBLIC_STREAM_EMPTY", @"") : NSLocalizedString(@"MY_VIDEOS_EMPTY", @"");

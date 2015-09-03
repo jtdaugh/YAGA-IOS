@@ -14,6 +14,7 @@
 #import "YAUtils.h"
 #import "YAGroupAddMembersViewController.h"
 #import "YAPostToGroupsViewController.h"
+#import "YAMainTabBarController.h"
 
 @interface NameGroupViewController ()
 @property (strong, nonatomic) UITextField *groupNameTextField;
@@ -226,12 +227,20 @@
     if ([presentingVC isKindOfClass:[UINavigationController class]]) {
         UIViewController *previousTopVC = ((UINavigationController *)presentingVC).topViewController;
         if ([previousTopVC isKindOfClass:[YAPostToGroupsViewController class]]) {
+            // Dismiss back to post capture groups list, and add new group to list
             YAGroup *group = self.group;
             [presentingVC dismissViewControllerAnimated:YES completion:^{
                 [(YAPostToGroupsViewController *)previousTopVC addNewlyCreatedGroupToList:group];
             }];
             return;
         }
+    } else if ([presentingVC isKindOfClass:[YAMainTabBarController class]]) {
+        // Dismiss and go straight to new group
+        YAGroup *group = self.group;
+        [presentingVC dismissViewControllerAnimated:YES completion:^{
+            [(YAMainTabBarController *)presentingVC pushGifGridForGroup:group toPendingTab:NO];
+        }];
+        return;
     }
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
