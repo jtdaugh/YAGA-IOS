@@ -629,12 +629,13 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         [[RLMRealm defaultRealm] addObject:group];
         [[RLMRealm defaultRealm] commitWriteTransaction];
         
-        MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Fetching channel data.."];
+        MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Loading channel..."];
         [group refreshWithCompletion:^(NSError *error) {
             [hud hide:YES];
             
             if(error) {
-                [YAUtils showHudWithText:[NSString stringWithFormat:@"Can not fetch group info, error %@", error.localizedDescription]];
+                [YAUtils showHudWithText:@"Couldn't load channel"];
+                //                [YAUtils showHudWithText:[NSString stringWithFormat:@"Can not fetch group info, error %@", error.localizedDescription]];
                 return;
             }
             
