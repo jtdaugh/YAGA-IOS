@@ -413,14 +413,18 @@ static NSString *cellID = @"Cell";
 - (void)showNoVideosMessageIfNeeded {
     if(!self.sortedVideos.count) {
         //group was sucessfully refreshed
-        if([self.group.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame) {
+        if(self.group.streamGroup || [self.group.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame) {
             //hide spinning monkey and show "no videos" label
             [self showActivityIndicator:NO];
 
             if(!self.noVideosLabel) {
-                self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.view.bounds.size.height/2)];
+                self.noVideosLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.view.bounds.size.height/1.5)];
                 self.noVideosLabel.font = [UIFont fontWithName:BIG_FONT size:24];
-                self.noVideosLabel.text = self.pendingMode ? @"Your followers\nare slacking\n\nNo pending videos." : NSLocalizedString(@"THINGS_ARE_QUIET", @"");
+                if (self.group.streamGroup) {
+                    self.noVideosLabel.text = [self.group.serverId isEqualToString:kPublicStreamGroupId] ? NSLocalizedString(@"PUBLIC_STREAM_EMPTY", @"") : NSLocalizedString(@"MY_VIDEOS_EMPTY", @"");
+                } else {
+                    self.noVideosLabel.text = self.pendingMode ? @"Your followers\nare slacking\n\nNo pending videos." : NSLocalizedString(@"THINGS_ARE_QUIET", @"");
+                }
                 self.noVideosLabel.textAlignment = NSTextAlignmentCenter;
                 self.noVideosLabel.numberOfLines = 0;
                 self.noVideosLabel.textColor = PRIMARY_COLOR;

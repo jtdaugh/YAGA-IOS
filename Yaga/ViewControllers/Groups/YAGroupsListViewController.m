@@ -70,7 +70,8 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+    [self setupFlexibleBar];
+
     [self updateState];
     BOOL forceRefresh = YES;
     for (NSArray *array in self.groupsDictionary.allValues) {
@@ -81,9 +82,10 @@ static NSString *CellIdentifier = @"GroupsCell";
     }
     [[Mixpanel sharedInstance] track:@"Viewed My Channels"];
 
-    [self setupFlexibleBar];
     if (forceRefresh) {
         [self showNoDataMessage:NO];
+        
+        // manual trigger pull to refresh
         [self.collectionView triggerPullToRefresh];
     }
 }
@@ -123,7 +125,7 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.collectionView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 0, 0);
     self.collectionView.alwaysBounceVertical = YES;
     
-    self.collectionView.pullToRefreshView.originalTopInset = self.collectionView.contentInset.top;
+    self.collectionView.pullToRefreshView.originalTopInset = self.flexibleNavBar.maximumBarHeight;
     self.collectionView.contentOffset = CGPointMake(0, -self.flexibleNavBar.maximumBarHeight);
 }
 
@@ -344,7 +346,11 @@ referenceSizeForFooterInSection:(NSInteger)section {
 
 - (void)showNoDataMessage:(BOOL)show {
     if(show && !self.noDataView) {
-        self.noDataView = [[UIView alloc] initWithFrame:self.collectionView.bounds];
+        CGRect noDataFrame = self.collectionView.bounds;
+        noDataFrame.origin.y = -self.collectionView.pullToRefreshView.originalTopInset;
+        noDataFrame.size.height -= noDataFrame.origin.y;
+        self.noDataView = [[UIView alloc] initWithFrame:noDataFrame];
+        
         UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, self.noDataView.bounds.size.height/2 - 140, VIEW_WIDTH, 60)];
         label.font = [UIFont fontWithName:BIG_FONT size:24];
         label.text = @"Nothing here yet";

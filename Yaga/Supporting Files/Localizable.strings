@@ -180,6 +180,8 @@
 
 //no videos label
 "THINGS_ARE_QUIET" = "Things are a bit\nquiet in here.\n\n\nAdd a video!\n↓";
+"PUBLIC_STREAM_EMPTY" = "Follow some channels\nor create your own!\n\n\nThen you'll see the\nlatest videos here.";
+"MY_VIDEOS_EMPTY" = "\nAll the videos you take\nwill show up here.\n\n\n\nTake your first video!\n↓";
 
 "Video failed to upload" = "Video failed to upload";
 "Copying video to groups" = "Copying video to channels";
