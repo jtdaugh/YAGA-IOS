@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8187.4" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="RaH-tv-9ok">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8151.3"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
         <!--Phone Number View Controller-->
@@ -39,34 +39,12 @@
                         <animations/>
                     </navigationBar>
                     <connections>
-                        <segue destination="eP5-8N-Wqo" kind="relationship" relationship="rootViewController" id="3HK-PM-oM3"/>
+                        <segue destination="jPu-9f-SMu" kind="relationship" relationship="rootViewController" id="gtF-HO-K8p"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Lle-qX-SkO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3191" y="954"/>
-        </scene>
-        <!--Splash View Controller-->
-        <scene sceneID="mow-9S-gWN">
-            <objects>
-                <viewController id="eP5-8N-Wqo" customClass="YASplashViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="qqk-sf-X3p"/>
-                        <viewControllerLayoutGuide type="bottom" id="KW7-2s-g1K"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="Hno-F8-zvU">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                    <navigationItem key="navigationItem" id="uJd-U4-lLW"/>
-                    <connections>
-                        <segue destination="jPu-9f-SMu" kind="show" identifier="PhoneNumberViewController" id="hzA-ih-cqV"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ZmX-Cc-tP3" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-2395" y="884"/>
+            <point key="canvasLocation" x="-2477" y="774"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="lIh-6a-u94">

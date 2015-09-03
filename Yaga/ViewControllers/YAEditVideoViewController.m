@@ -432,6 +432,8 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
     self.sendButton.enabled = NO;
     
     __weak typeof(self) weakSelf = self;
+    
+    MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:@"Trimming..."];
     [self trimVideoWithStartTime:self.startTime andStopTime:self.endTime completion:^(NSError *error) {
         self.sendButton.enabled = YES;
         if(!error) {
@@ -445,9 +447,11 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
                                       @"captionRotation":[NSNumber numberWithFloat:weakSelf.captionRotation]};
             
             [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+            [hud hide:NO];
             [self.navigationController pushViewController:postToGroups animated:YES];
         }
         else {
+            [hud hide:NO];
             [YAUtils showNotification:@"Error: can't trim video" type:YANotificationTypeError];
         }
     }];
