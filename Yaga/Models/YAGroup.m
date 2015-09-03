@@ -834,7 +834,12 @@
 }
 
 - (NSDictionary*)dictionaryRepresentation {
-    NSDictionary *result = @{YA_RESPONSE_NAME:self.name, YA_RESPONSE_PRIVATE:[NSNumber numberWithBool:!self.publicGroup], YA_RESPONSE_MEMBERS:@"NOT IMPLEMENTED...", YA_RESPONSE_FOLLOWER_COUNT:[NSNumber numberWithInteger:self.followerCount]};
+    NSDictionary *result = @{YA_RESPONSE_NAME:self.name,
+                             YA_GROUP_HOST:@(self.amMember && self.publicGroup),
+                             YA_RESPONSE_ID:self.serverId,
+                             YA_RESPONSE_PRIVATE:[NSNumber numberWithBool:!self.publicGroup],
+                             YA_RESPONSE_MEMBERS:[self membersString],
+                             YA_RESPONSE_FOLLOWER_COUNT:[NSNumber numberWithInteger:self.followerCount]};
     return result;
 }
 

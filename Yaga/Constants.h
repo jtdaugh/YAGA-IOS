@@ -195,6 +195,8 @@
 #define YA_RESPONSE_TOKEN               @"token"
 #define YA_RESPONSE_APPROVED            @"approved"
 
+#define YA_GROUP_HOST                   @"amHost"
+
 #define YA_VIDEO_POST                   @"post"
 #define YA_VIDEO_POSTS                  @"posts"
 #define YA_VIDEO_ATTACHMENT             @"attachment"

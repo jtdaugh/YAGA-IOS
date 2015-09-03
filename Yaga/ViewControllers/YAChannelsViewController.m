@@ -21,6 +21,12 @@
 #import "YAGroupGridViewController.h"
 #import "OrderedDictionary.h"
 
+#define kSectionPublic @"PUBLIC"
+#define kSectionPrivate @"PRIVATE"
+#define kSectionFollowing @"FOLLOWING"
+#define kSectionFeatured @"FEATURED"
+#define kSectionSuggested @"SUGGESTED"
+
 #define kAccessoryButtonWidth 70
 static NSString *CellIdentifier = @"GroupsCell";
 static NSString *HeaderIdentifier = @"GroupsHeader";
@@ -151,6 +157,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self.flexibleNavBar.leftBarButton setTitle:@"" forState:UIControlStateNormal];
     self.flexibleNavBar.leftBarButton.enabled = NO;
     
+    [self.flexibleNavBar.titleButton setTitle:@"Search Channels" forState:UIControlStateNormal];
+
     //search bar
     self.searchBar = [[UISearchBar alloc] initWithFrame:self.segmentedControl.frame];
     self.searchBar.searchTextPositionAdjustment = UIOffsetMake(20, 0);
@@ -194,9 +202,11 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (void)hideSearch {
     [self.flexibleNavBar.leftBarButton setTitle:@"Search" forState:UIControlStateNormal];
     self.flexibleNavBar.leftBarButton.enabled = YES;
+    [self.flexibleNavBar.titleButton setTitle:@"Channels" forState:UIControlStateNormal];
     
     [self.searchTableView removeFromSuperview];
     self.searchTableView = nil;
+    [self.searchTableActivity removeFromSuperview];
     
     BLKFlexibleHeightBarSubviewLayoutAttributes *expanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
     expanded.frame = self.segmentedControl.frame;
@@ -233,12 +243,13 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         [self.searchTableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
         [self.searchTableView registerClass:[GroupsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
         
-        self.searchTableView.contentInset = UIEdgeInsetsMake(75, 0, 44, 0);
+        self.searchTableView.contentInset = UIEdgeInsetsMake(self.flexibleNavBar.maximumBarHeight, 0, 44, 0);
         self.searchDelegateSplitter = [[BLKDelegateSplitter alloc] initWithFirstDelegate:self secondDelegate:self.flexibleNavBar.behaviorDefiner];
         self.searchTableView.delegate = (id<UITableViewDelegate>)self.searchDelegateSplitter;
         self.searchTableView.dataSource = self;
     }
     else if(!self.searchBar.text.length) {
+        
         [self.searchTableView removeFromSuperview];
         self.searchTableView = nil;
     }
@@ -246,6 +257,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
+    UIButton *cancelButton = [searchBar valueForKey:@"_cancelButton"];
+    if ([cancelButton respondsToSelector:@selector(setEnabled:)]) {
+        cancelButton.enabled = YES;
+    }
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
@@ -254,31 +269,22 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     __weak typeof(self) weakSelf = self;
     if(searchBar.text.length) {
-        if(!self.searchActivity)
-            self.searchActivity = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-        self.searchActivity.frame = CGRectMake(15, 10, 10, 10);
-        [self.searchBar addSubview:self.searchActivity];
-        [self.searchActivity  startAnimating];
-        [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setLeftViewMode:UITextFieldViewModeNever];
-
-        if(!self.searchTableActivity)
-            self.searchTableActivity = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-        self.searchTableActivity.frame = CGRectMake(self.searchTableView.frame.size.width/2- self.searchTableActivity.frame.size.width/2, self.searchTableView.frame.size.height/4,  self.searchTableActivity.frame.size.width,  self.searchTableActivity.frame.size.height);
-        self.searchTableActivity.color = PRIMARY_COLOR;
+        if(!self.searchTableActivity.superview)
+            self.searchTableActivity = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        [self.flexibleNavBar.leftBarButton addSubview:self.searchTableActivity];
+        self.searchTableActivity.frame = CGRectMake(10, (self.flexibleNavBar.leftBarButton.frame.size.height - self.searchTableActivity.frame.size.height)/ 2,  self.searchTableActivity.frame.size.width,  self.searchTableActivity.frame.size.height);
         [self.searchTableActivity startAnimating];
-        [self.searchTableView addSubview:self.searchTableActivity];
+//        [self.searchBar addSubview:self.searchTableActivity];
 
-        if(!self.searchResultLabel)
-            self.searchResultLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.searchTableActivity.frame.origin.y + self.searchTableActivity.frame.size.height, self.searchTableView.frame.size.width, 50)];
-        self.searchResultLabel.text =[NSString stringWithFormat:@"Searching %@", searchBar.text];
-        self.searchResultLabel.textColor = PRIMARY_COLOR;
-        self.searchResultLabel.font = [UIFont fontWithName:BIG_FONT size:26];
-        self.searchResultLabel.textAlignment = NSTextAlignmentCenter;
-        [self.searchTableView addSubview:self.searchResultLabel];
+//        if(!self.searchResultLabel)
+//            self.searchResultLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.searchTableActivity.frame.origin.y + self.searchTableActivity.frame.size.height, self.searchTableView.frame.size.width, 50)];
+//        self.searchResultLabel.text =[NSString stringWithFormat:@"Searching %@", searchBar.text];
+//        self.searchResultLabel.textColor = PRIMARY_COLOR;
+//        self.searchResultLabel.font = [UIFont fontWithName:BIG_FONT size:26];
+//        self.searchResultLabel.textAlignment = NSTextAlignmentCenter;
+//        [self.searchTableView addSubview:self.searchResultLabel];
 
-        self.searchResultsDictionary = nil;
-        
-        [self.searchTableView reloadData];
+        [self filterAndReload:YES];
 
         [[YAServer sharedServer] searchGroupsByName:[searchBar.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] withCompletion:^(id response, NSError *error) {
             if(error) {
@@ -317,6 +323,16 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 - (void)filterAndReload:(BOOL)reload {
     self.searchResultsDictionary = [MutableOrderedDictionary new];
     
+    //local search
+    NSArray *localPrivate = [self localArrayOfChannelsQueriedBy:[NSString stringWithFormat:@"publicGroup = 0 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup' && name CONTAINS[c] '%@'", self.searchBar.text]];
+    if(localPrivate.count) [self.searchResultsDictionary setObject:localPrivate forKey:kSectionPrivate];
+    
+    NSArray *localPublic = [self localArrayOfChannelsQueriedBy:[NSString stringWithFormat:@"publicGroup = 1 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup' && name CONTAINS[c] '%@'", self.searchBar.text]];
+    if(localPublic.count) [self.searchResultsDictionary setObject:localPublic forKey:kSectionPublic];
+    
+    NSArray *localFollowing = [self localArrayOfChannelsQueriedBy:[NSString stringWithFormat:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup' && name CONTAINS[c] '%@'", self.searchBar.text]];
+    if(localFollowing.count) [self.searchResultsDictionary setObject:localFollowing forKey:kSectionFollowing];
+    
     if(self.searchBar.text.length != 0) {
         // Re-filter in case search query changed since request.
         self.serverResults = [self.serverResults filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary* evaluatedObject, NSDictionary *bindings) {
@@ -328,9 +344,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         return [evaluatedObject[@"featured"] isEqual: @YES];
     }]];
     
-    if(featured.count)
-        [self.searchResultsDictionary setObject:featured forKey:@"FEATURED"];
-    
+    if(featured.count) [self.searchResultsDictionary setObject:featured forKey:kSectionFeatured];
+
     NSMutableArray *suggested = [NSMutableArray arrayWithArray:self.serverResults];
     [suggested removeObjectsInArray:featured];
     
@@ -340,29 +355,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         return (onePrivate == twoPrivate) ? NSOrderedSame : (onePrivate ? NSOrderedDescending : NSOrderedAscending);
     }] copy];
     
-    if(suggested.count)
-        [self.searchResultsDictionary setObject:suggested forKey:@"SUGGESTED"];
-   
-    NSArray *serverGroupNames = [[featured valueForKey:@"name"] arrayByAddingObjectsFromArray:[suggested valueForKey:@"name"]];
+    if(suggested.count) [self.searchResultsDictionary setObject:suggested forKey:kSectionSuggested];
     
     if(reload) {
-        //local search
-        NSArray *localPublic = [self localArrayOfChannelsQueriedBy:[NSString stringWithFormat:@"publicGroup = 1 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup' && name CONTAINS '%@'", self.searchBar.text]];
-        
-        if(localPublic.count)
-            [self.searchResultsDictionary setObject:localPublic forKey:@"PUBLIC"];
-        
-        NSArray *localPrivate = [self localArrayOfChannelsQueriedBy:[NSString stringWithFormat:@"publicGroup = 0 && amMember = 1 && streamGroup = 0 && name != 'EmptyGroup' && name CONTAINS '%@'", self.searchBar.text]];
-        
-        if(localPrivate.count)
-            [self.searchResultsDictionary setObject:localPrivate forKey:@"PRIVATE"];
-        
-        NSArray *localFollowing = [self localArrayOfChannelsQueriedBy:[NSString stringWithFormat:@"amFollowing = 1 && streamGroup = 0 && name != 'EmptyGroup' && name CONTAINS '%@'", self.searchBar.text]];
-        
-        
-        if(localFollowing.count)
-            [self.searchResultsDictionary setObject:localFollowing forKey:@"FOLLOWING"];
-        
         [self.searchTableView reloadData];
     }
 }
@@ -393,6 +388,7 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
 }
 
 - (NSAttributedString *)twoLinesDescriptionFromGroupData:(NSDictionary*)groupData {
+    
     NSString *firstLine;
     NSString *secondLine;
     if ([groupData[YA_RESPONSE_PRIVATE] boolValue]) {
@@ -400,7 +396,16 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
         secondLine = groupData[YA_RESPONSE_MEMBERS];
     } else {
         firstLine = [NSString stringWithFormat:@"%@ %@", groupData[YA_RESPONSE_FOLLOWER_COUNT], ([groupData[YA_RESPONSE_FOLLOWER_COUNT] intValue] == 1)?@"Follower":@"Followers"];
-        secondLine = [NSString stringWithFormat:@"Hosted by %@",  groupData[YA_RESPONSE_MEMBERS]];
+        if ([groupData[YA_GROUP_HOST] boolValue]) {  // Since search pulls in local results, need to account for hosting
+            NSString *string = groupData[YA_RESPONSE_MEMBERS];
+            if ([string isEqualToString:@"No members"]) {
+                secondLine = @"Hosted by You";
+            } else {
+                secondLine = [NSString stringWithFormat:@"Hosted by You, %@", string];
+            }
+        } else {
+            secondLine = [NSString stringWithFormat:@"Hosted by %@",  groupData[YA_RESPONSE_MEMBERS]];
+        }
     }
     NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n%@", firstLine, secondLine] attributes:@{NSFontAttributeName : [UIFont fontWithName:BIG_FONT size:14]}];
     [attrString setAttributes:@{NSFontAttributeName : [UIFont fontWithName:BOLD_FONT size:14]} range:NSMakeRange(0, firstLine.length)];
@@ -438,10 +443,8 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
                 NSMutableDictionary *joinedGroupData = [NSMutableDictionary dictionaryWithDictionary:groupData];
                 [joinedGroupData setObject:[NSNumber numberWithBool:YES] forKey:YA_RESPONSE_PENDING_MEMBERS];
                 [upatedDataArray replaceObjectAtIndex:[upatedDataArray indexOfObject:groupData] withObject:joinedGroupData];
-                [[NSUserDefaults standardUserDefaults] setObject:upatedDataArray forKey:kFindGroupsCachedResponse];
             } else {
                 [upatedDataArray removeObject:groupData];
-                [[NSUserDefaults standardUserDefaults] setObject:upatedDataArray forKey:kFindGroupsCachedResponse];
             }
             
             self.serverResults = upatedDataArray;
@@ -540,9 +543,10 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     NSDictionary *groupData = [self groupDataAtIndexPath:indexPath];
     BOOL private = [groupData[YA_RESPONSE_PRIVATE] boolValue];
+    BOOL host = [groupData[YA_GROUP_HOST] boolValue];
     
-    UIColor *accessoryColor = private ? PRIVATE_GROUP_COLOR : PUBLIC_GROUP_COLOR;
-    UIColor *textColor = private ? PRIVATE_GROUP_COLOR : PUBLIC_GROUP_COLOR;
+    UIColor *accessoryColor = private ? PRIVATE_GROUP_COLOR : (host ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR);
+    UIColor *textColor = private ? PRIVATE_GROUP_COLOR : (host ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR);
     cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:[YAUtils imageWithColor:[textColor colorWithAlphaComponent:0.3]]];
     
     cell.textLabel.font = [UIFont fontWithName:BOLD_FONT size:26];
@@ -558,13 +562,18 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     if ([cell respondsToSelector:@selector(layoutMargins)]) {
         cell.layoutMargins = UIEdgeInsetsZero;
     }
-    
-    if([self.pendingRequestsInProgress containsObject:groupData[YA_RESPONSE_ID]]) {
-//        UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-//        activityView.frame = CGRectMake(0, 0, kAccessoryButtonWidth, 30);
-//        activityView.color = accessoryColor;
-//        cell.accessoryView = activityView;
-//        [activityView startAnimating];
+
+    if ([self alreadyParticipateInGroupAtIndexPath:indexPath]) {
+        UIImageView *disclosure = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 26, 26)];
+        disclosure.image = [[UIImage imageNamed:@"Disclosure"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        disclosure.tintColor = accessoryColor;
+        cell.accessoryView = disclosure;
+    } else if([self.pendingRequestsInProgress containsObject:groupData[YA_RESPONSE_ID]]) {
+        UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        activityView.frame = CGRectMake(0, 0, kAccessoryButtonWidth, 30);
+        activityView.color = accessoryColor;
+        cell.accessoryView = activityView;
+        [activityView startAnimating];
     }
     else if([groupData[YA_RESPONSE_PENDING_MEMBERS] boolValue]) {
         UILabel *pendingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, kAccessoryButtonWidth, 35)];
@@ -595,9 +604,14 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     return cell;
 }
 
+- (BOOL)alreadyParticipateInGroupAtIndexPath:(NSIndexPath *)indexPath {
+    NSString *sectionKey = [self.searchResultsDictionary keyAtIndex:indexPath.section];
+    return [sectionKey isEqualToString:kSectionPublic] || [sectionKey isEqualToString:kSectionPrivate] || [sectionKey isEqualToString:kSectionFollowing];
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *groupData = [self groupDataAtIndexPath:indexPath];
-    if ([groupData[YA_RESPONSE_PRIVATE] boolValue]) {
+    if ([groupData[YA_RESPONSE_PRIVATE] boolValue] && ![self alreadyParticipateInGroupAtIndexPath:indexPath]) {
         [self.searchTableView deselectRowAtIndexPath:indexPath animated:YES];
         return; // Can't view a private group
     }
