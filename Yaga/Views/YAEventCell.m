@@ -60,7 +60,7 @@
         [self addSubview:self.usernameLabel];
         [self addSubview:self.likeCountLabel];
 
-        self.commentsTextView = [[UITextView alloc] initWithFrame:CGRectMake(initialUsernameWidth, 0, self.frame.size.width - initialUsernameWidth, initialHeight)];
+        self.commentsTextView = [[UITextView alloc] initWithFrame:CGRectMake(initialUsernameWidth, 3, self.frame.size.width - initialUsernameWidth, initialHeight-3)];
         self.commentsTextView.textContainer.lineFragmentPadding = 0;
         self.commentsTextView.textContainerInset = UIEdgeInsetsZero;
         self.commentsTextView.textColor = [UIColor whiteColor];
@@ -146,8 +146,8 @@
     self.usernameLabel.text = username;
     [self layoutUsername:username];
     self.iconImageView.image = [UIImage imageNamed:@"Liked"];
-    [self layoutImageViewWithYOffset:-1.f];
-    [self layoutLikeCountLabelWithYOffset:-1.f];
+    [self layoutImageViewWithYOffset:0];
+    [self layoutLikeCountLabelWithYOffset:0];
     if (likeCount > 1) {
         self.likeCountLabel.text = [NSString stringWithFormat:@"✕ %ld", likeCount];
     } else {
