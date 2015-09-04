@@ -573,26 +573,26 @@ static NSString *commentCellID = @"CommentCell";
     self.rejectButton = [[UIButton alloc] initWithFrame:CGRectMake(approveButtonMargin, VIEW_HEIGHT - approveButtonHeight - approveButtonMargin, approveButtonWidth, approveButtonHeight)];
     [self.rejectButton setTitle:@"Reject" forState:UIControlStateNormal];
     [self.rejectButton addTarget:self action:@selector(rejectPressed) forControlEvents:UIControlEventTouchUpInside];
-    self.rejectButton.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.5];
+    self.rejectButton.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.5];
     [self.rejectButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:22]];
     //    [self.rejectButton.titleLabel setTextColor:SECONDARY_COLOR];
     self.rejectButton.layer.masksToBounds = YES;
     self.rejectButton.layer.cornerRadius = approveButtonHeight/2;
     self.rejectButton.layer.borderWidth = 5.0f;
-    self.rejectButton.layer.borderColor = SECONDARY_COLOR.CGColor;
+    self.rejectButton.layer.borderColor = [UIColor redColor].CGColor;
     [self.adminAccessories addSubview:self.rejectButton];
     
 
     self.approveButton = [[UIButton alloc] initWithFrame:CGRectMake(approveButtonMargin*2 + approveButtonWidth, VIEW_HEIGHT - approveButtonHeight - approveButtonMargin, approveButtonWidth, approveButtonHeight)];
     [self.approveButton setTitle:@"Approve" forState:UIControlStateNormal];
     [self.approveButton addTarget:self action:@selector(approvePressed) forControlEvents:UIControlEventTouchUpInside];
-    self.approveButton.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:0.5];;
+    self.approveButton.backgroundColor = [HOSTING_GROUP_COLOR colorWithAlphaComponent:0.5];;
     [self.approveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:22]];
 //    [self.approveButton.titleLabel setTextColor:PRIMARY_COLOR];
     self.approveButton.layer.masksToBounds = YES;
     self.approveButton.layer.cornerRadius = approveButtonHeight/2;
     self.approveButton.layer.borderWidth = 5.0f;
-    self.approveButton.layer.borderColor = PRIMARY_COLOR.CGColor;
+    self.approveButton.layer.borderColor = HOSTING_GROUP_COLOR.CGColor;
     [self.adminAccessories addSubview:self.approveButton];
     
     self.moreButton = [YAUtils circleButtonWithImage:@"Share" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius - padding,

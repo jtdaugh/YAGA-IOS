@@ -30,6 +30,7 @@
 @property (nonatomic, strong) YAInviteHelper *inviteHelper;
 
 @property (nonatomic, strong) YAStandardFlexibleHeightBar *navBar;
+@property (nonatomic, strong) UIColor *color;
 
 @end
 
@@ -37,6 +38,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.color = self.group.publicGroup ? HOSTING_GROUP_COLOR : PRIVATE_GROUP_COLOR;
+    
     self.automaticallyAdjustsScrollViewInsets = NO;
     
     self.navBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
@@ -57,16 +61,16 @@
     [self.muteButton setBackgroundColor:[UIColor whiteColor]];
     [self.muteButton setTitle:NSLocalizedString(@"Mute", @"") forState:UIControlStateNormal];
     [self.muteButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
-    [self.muteButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+    [self.muteButton setTitleColor:self.color forState:UIControlStateNormal];
     self.muteButton.layer.cornerRadius = 8.0;
     self.muteButton.layer.borderWidth = 3.f;
-    self.muteButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+    self.muteButton.layer.borderColor = [self.color CGColor];
     self.muteButton.layer.masksToBounds = YES;
     [self.muteButton addTarget:self action:@selector(muteTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.muteButton];
     
     self.leaveButton = [[UIButton alloc] initWithFrame:CGRectMake(self.muteButton.frame.origin.x + self.muteButton.frame.size.width + 16, VIEW_HEIGHT - tabBarHeight - buttonHeight - 16, buttonWidth/2-5, buttonHeight)];
-    [self.leaveButton setBackgroundColor:PRIMARY_COLOR];
+    [self.leaveButton setBackgroundColor:self.color];
     [self.leaveButton setTitle:NSLocalizedString(@"Leave", @"") forState:UIControlStateNormal];
     [self.leaveButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
     [self.leaveButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -246,7 +250,7 @@
     
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, self.tableView.frame.size.width - 10, 40)];
     label.text = name;
-    label.textColor = PRIMARY_COLOR;
+    label.textColor = self.color;
     label.font = [UIFont fontWithName:BOLD_FONT size:20];
     [headerView addSubview:label];
     
@@ -323,11 +327,11 @@ static NSString *CellID = @"CellID";
             allowButton.backgroundColor = [UIColor clearColor];
             allowButton.frame = CGRectMake(60, 8, 50, 34);
             allowButton.layer.borderWidth = 1.5f;
-            allowButton.layer.borderColor = [PRIMARY_COLOR CGColor];
+            allowButton.layer.borderColor = [self.color CGColor];
             allowButton.layer.cornerRadius = 4;
             allowButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:26];
-            [allowButton setTintColor:PRIMARY_COLOR];
-            [allowButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+            [allowButton setTintColor:self.color];
+            [allowButton setTitleColor:self.color forState:UIControlStateNormal];
             [allowButton setTitle:@"✓" forState:UIControlStateNormal];
             [allowButton addTarget:self action:@selector(allowJoinButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
             allowButton.titleEdgeInsets = UIEdgeInsetsMake(6, 0, 0, 0);
@@ -363,9 +367,9 @@ static NSString *CellID = @"CellID";
         if (contact.registered || [phonebookItem[nYagaUser] boolValue])
         {
             cell.textLabel.text = [contact displayName];
-            [cell.textLabel setTextColor:PRIMARY_COLOR];
+            [cell.textLabel setTextColor:self.color];
             
-            [cell.detailTextLabel setTextColor:PRIMARY_COLOR];
+            [cell.detailTextLabel setTextColor:self.color];
             UIView *accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Monkey_Pink"]];
             [accessoryView setFrame:CGRectMake(0, 0, 36, 36)];
             cell.accessoryView = accessoryView;

@@ -48,8 +48,8 @@
 #define PRIMARY_COLOR_ACCENT [UIColor blackColor]
 #define SECONDARY_COLOR [UIColor colorWithRed: 60.0f/255.0f green: 178.0f/255.0f blue:226.0f/255.0f alpha:1.0]
 #define TERTIARY_COLOR [UIColor colorWithRed: 139.0f/255.0f green: 5.0f/255.0f blue:195.0f/255.0f alpha:1.0]
-
-#define HOSTING_GROUP_COLOR [UIColor colorWithRed:126.0/255.0 green:73.0/255.0 blue:172.0/255.0 alpha:1.0]
+//#define HOSTING_GROUP_COLOR [UIColor colorWithRed:0.18 green:0.624 blue:0.51 alpha:1] /*#2e9f82*/
+#define HOSTING_GROUP_COLOR [UIColor colorWithRed:0.161 green:0.561 blue:0.459 alpha:1] /*#298f75*/
 #define PRIVATE_GROUP_COLOR PRIMARY_COLOR
 #define PUBLIC_GROUP_COLOR [UIColor colorWithWhite:0.10 alpha:1]
 #define MUTED_GROUP_COLOR [UIColor colorWithWhite:0.66 alpha:1]

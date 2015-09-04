@@ -62,6 +62,9 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     //segmented control
     _segmentedControl = [UISegmentedControl new];
+    [_segmentedControl setTitleTextAttributes:@{NSFontAttributeName : [UIFont fontWithName:BIG_FONT size:16],
+                                                NSBaselineOffsetAttributeName : @(-1.0)
+                                                } forState:UIControlStateNormal];
     self.segmentedControl.tintColor = [UIColor whiteColor];
     
     [self.view addSubview:self.currentViewController.view];

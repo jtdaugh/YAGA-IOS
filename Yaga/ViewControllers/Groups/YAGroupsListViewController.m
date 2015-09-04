@@ -298,11 +298,11 @@ referenceSizeForHeaderInSection:(NSInteger)section {
         if (!label) {
             label = [[UILabel alloc] initWithFrame:CGRectMake(10, 15, VIEW_WIDTH - 5, 20)];
             label.tag = 100;
-            label.textColor = SECONDARY_COLOR;
             label.font = [UIFont fontWithName:BOLD_FONT size:14];
             [reusableview addSubview:label];
         }
         
+        label.textColor = [self.groupsDictionary.allKeys[indexPath.section] isEqualToString:@"HOSTING"] ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR; // Should be a better way to access whether this is hosting or following
         label.text = self.groupsDictionary.allKeys[indexPath.section];
         return reusableview;
     }

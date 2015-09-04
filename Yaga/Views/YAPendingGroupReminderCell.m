@@ -23,7 +23,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        self.backgroundColor = PRIMARY_COLOR;
+        self.backgroundColor = HOSTING_GROUP_COLOR;
         self.separatorView = [[UIView alloc] initWithFrame:CGRectMake(LEFT_MARGIN, kReminderCellHeight - 1, frame.size.width - LEFT_MARGIN, 1)];
         self.separatorView.backgroundColor = [UIColor whiteColor];
         self.boldSeparatorView = [[UIView alloc] initWithFrame:CGRectMake(0, kReminderCellHeight - 2, frame.size.width, 2)];
