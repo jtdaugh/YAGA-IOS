@@ -7,7 +7,7 @@
 //
 
 #import "YAGifGridViewController.h"
-#import "YAProfileFlexibleHeightBar.h"
+#import "YAPrivateGroupFlexibleHeightBar.h"
 
 @interface YAGroupGridViewController : YAGifGridViewController
 

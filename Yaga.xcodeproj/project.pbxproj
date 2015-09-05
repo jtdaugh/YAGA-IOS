@@ -141,9 +141,12 @@
 		88A4B0281B83B19000D0D34E /* YALatestStreamViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A4B0271B83B19000D0D34E /* YALatestStreamViewController.m */; };
 		88A4B02B1B83B63200D0D34E /* YAPendingGroupReminderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A4B02A1B83B63200D0D34E /* YAPendingGroupReminderCell.m */; };
 		88AAC39F1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88AAC39E1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m */; };
+		88B14A111B9ABA1500523BD3 /* YAPublicGroupFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B14A101B9ABA1500523BD3 /* YAPublicGroupFlexibleHeightBar.m */; };
+		88B14A151B9ABDA200523BD3 /* YAHostingGroupFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B14A141B9ABDA200523BD3 /* YAHostingGroupFlexibleHeightBar.m */; };
+		88B14A181B9ACF2700523BD3 /* YAPrivateGroupFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B14A171B9ACF2700523BD3 /* YAPrivateGroupFlexibleHeightBar.m */; };
 		88DFCC8D1B7BF04A002448F9 /* YAGroupGridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC8C1B7BF04A002448F9 /* YAGroupGridViewController.m */; };
 		88DFCC901B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC8F1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m */; };
-		88DFCC931B7C5002002448F9 /* YAProfileFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC921B7C5002002448F9 /* YAProfileFlexibleHeightBar.m */; };
+		88DFCC931B7C5002002448F9 /* YAGroupFlexibleHeightBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88DFCC921B7C5002002448F9 /* YAGroupFlexibleHeightBar.m */; };
 		88E3E21C1B2FBCE000BF5E83 /* YAViewCountManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */; };
 		88E3E21F1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */; };
 		88EE22FF1B85780200FDDA26 /* YABarBehaviorDefiner.m in Sources */ = {isa = PBXBuildFile; fileRef = 88EE22FE1B85780200FDDA26 /* YABarBehaviorDefiner.m */; };
@@ -406,12 +409,18 @@
 		88A4B02A1B83B63200D0D34E /* YAPendingGroupReminderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPendingGroupReminderCell.m; sourceTree = "<group>"; };
 		88AAC39D1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAStreamFlexibleNavBar.h; sourceTree = "<group>"; };
 		88AAC39E1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAStreamFlexibleNavBar.m; sourceTree = "<group>"; };
+		88B14A101B9ABA1500523BD3 /* YAPublicGroupFlexibleHeightBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPublicGroupFlexibleHeightBar.m; sourceTree = "<group>"; };
+		88B14A121B9ABA2100523BD3 /* YAPublicGroupFlexibleHeightBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPublicGroupFlexibleHeightBar.h; sourceTree = "<group>"; };
+		88B14A131B9ABD9100523BD3 /* YAHostingGroupFlexibleHeightBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAHostingGroupFlexibleHeightBar.h; sourceTree = "<group>"; };
+		88B14A141B9ABDA200523BD3 /* YAHostingGroupFlexibleHeightBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAHostingGroupFlexibleHeightBar.m; sourceTree = "<group>"; };
+		88B14A161B9ACF1E00523BD3 /* YAPrivateGroupFlexibleHeightBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAPrivateGroupFlexibleHeightBar.h; sourceTree = "<group>"; };
+		88B14A171B9ACF2700523BD3 /* YAPrivateGroupFlexibleHeightBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAPrivateGroupFlexibleHeightBar.m; sourceTree = "<group>"; };
 		88DFCC8B1B7BF04A002448F9 /* YAGroupGridViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupGridViewController.h; sourceTree = "<group>"; };
 		88DFCC8C1B7BF04A002448F9 /* YAGroupGridViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupGridViewController.m; sourceTree = "<group>"; };
 		88DFCC8E1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAStandardFlexibleHeightBar.h; sourceTree = "<group>"; };
 		88DFCC8F1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAStandardFlexibleHeightBar.m; sourceTree = "<group>"; };
-		88DFCC911B7C5002002448F9 /* YAProfileFlexibleHeightBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAProfileFlexibleHeightBar.h; sourceTree = "<group>"; };
-		88DFCC921B7C5002002448F9 /* YAProfileFlexibleHeightBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAProfileFlexibleHeightBar.m; sourceTree = "<group>"; };
+		88DFCC911B7C5002002448F9 /* YAGroupFlexibleHeightBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAGroupFlexibleHeightBar.h; sourceTree = "<group>"; };
+		88DFCC921B7C5002002448F9 /* YAGroupFlexibleHeightBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAGroupFlexibleHeightBar.m; sourceTree = "<group>"; };
 		88E3E21A1B2FBCE000BF5E83 /* YAViewCountManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAViewCountManager.h; sourceTree = "<group>"; };
 		88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAViewCountManager.m; sourceTree = "<group>"; };
 		88E3E21D1B2FE0CA00BF5E83 /* YAWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAWeakTimerTarget.h; sourceTree = "<group>"; };
@@ -777,12 +786,7 @@
 				6E9188C21A3F3A5A0034AB63 /* VENTokenField */,
 				6E32D72B1A5AEEBA00EAB261 /* YACameraFocusSquare.h */,
 				6E32D72C1A5AEEBA00EAB261 /* YACameraFocusSquare.m */,
-				88DFCC8E1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.h */,
-				88DFCC8F1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m */,
-				88AAC39D1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.h */,
-				88AAC39E1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m */,
-				88DFCC911B7C5002002448F9 /* YAProfileFlexibleHeightBar.h */,
-				88DFCC921B7C5002002448F9 /* YAProfileFlexibleHeightBar.m */,
+				88B14A0F1B9AA24200523BD3 /* Bars */,
 				6E5C99181A5EAFAA00A9F586 /* YAActivityView.h */,
 				6E5C99191A5EAFAA00A9F586 /* YAActivityView.m */,
 				6ECCCDF61A804EF000B1E1BC /* YAProgressView.h */,
@@ -904,6 +908,25 @@
 				88EE22FE1B85780200FDDA26 /* YABarBehaviorDefiner.m */,
 			);
 			name = UtilityClasses;
+			sourceTree = "<group>";
+		};
+		88B14A0F1B9AA24200523BD3 /* Bars */ = {
+			isa = PBXGroup;
+			children = (
+				88DFCC8E1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.h */,
+				88DFCC8F1B7C4FED002448F9 /* YAStandardFlexibleHeightBar.m */,
+				88AAC39D1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.h */,
+				88AAC39E1B86E9B600AD2B6D /* YAStreamFlexibleNavBar.m */,
+				88DFCC911B7C5002002448F9 /* YAGroupFlexibleHeightBar.h */,
+				88DFCC921B7C5002002448F9 /* YAGroupFlexibleHeightBar.m */,
+				88B14A161B9ACF1E00523BD3 /* YAPrivateGroupFlexibleHeightBar.h */,
+				88B14A171B9ACF2700523BD3 /* YAPrivateGroupFlexibleHeightBar.m */,
+				88B14A121B9ABA2100523BD3 /* YAPublicGroupFlexibleHeightBar.h */,
+				88B14A101B9ABA1500523BD3 /* YAPublicGroupFlexibleHeightBar.m */,
+				88B14A131B9ABD9100523BD3 /* YAHostingGroupFlexibleHeightBar.h */,
+				88B14A141B9ABDA200523BD3 /* YAHostingGroupFlexibleHeightBar.m */,
+			);
+			name = Bars;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1057,6 +1080,7 @@
 				882F082D1AEF6F12007FAA66 /* YAPanGestureRecognizer.m in Sources */,
 				86A9ED3C1A4D91B6002EDE76 /* UIImage+Color.m in Sources */,
 				6E1E209A1A6EF2E90041DF54 /* YAGifCreationOperation.m in Sources */,
+				88B14A181B9ACF2700523BD3 /* YAPrivateGroupFlexibleHeightBar.m in Sources */,
 				6E2DC5EC1B7DEE620072EA4C /* YAPostToGroupsViewController.m in Sources */,
 				6E583B781A65394800639BE5 /* YAAnimatedTransitioningController.m in Sources */,
 				0FDC3AFB1B0E69C0003A688D /* UIWindow+YASnapshot.m in Sources */,
@@ -1078,6 +1102,7 @@
 				8668D3F21ADE646C002ADA45 /* YACopyVideoToClipboardActivity.m in Sources */,
 				6E9187CD1A3F2C270034AB63 /* main.m in Sources */,
 				88E3E21F1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m in Sources */,
+				88B14A151B9ABDA200523BD3 /* YAHostingGroupFlexibleHeightBar.m in Sources */,
 				861AF47C1A5C2B4700F125C3 /* YARealmObjectUnavailableError.m in Sources */,
 				885F53661B3F826700D359DB /* RCounter.m in Sources */,
 				6EB57DEB1B5E6F52003B7374 /* YAEditVideoViewController.m in Sources */,
@@ -1108,6 +1133,7 @@
 				6E6A090C1A562F91002F4A8B /* YAServerTransactionQueue.m in Sources */,
 				6ED8FC0F1ADD6A0B0023750E /* YAGroupOptionsViewController.m in Sources */,
 				6E6A090B1A562F91002F4A8B /* YAServerTransaction.m in Sources */,
+				88B14A111B9ABA1500523BD3 /* YAPublicGroupFlexibleHeightBar.m in Sources */,
 				6E583B741A6535C400639BE5 /* YAVideoPage.m in Sources */,
 				88A4B0281B83B19000D0D34E /* YALatestStreamViewController.m in Sources */,
 				6E9188CF1A3F3A5A0034AB63 /* UIImage+Colors.m in Sources */,
@@ -1136,7 +1162,7 @@
 				6E9188D01A3F3A5A0034AB63 /* UIImage+Resize.m in Sources */,
 				6E6FEC7D1B78C5B700BE9AAB /* YAMainTabBarController.m in Sources */,
 				6E0A37511A807E4F0034ABB4 /* YAPullToRefreshLoadingView.m in Sources */,
-				88DFCC931B7C5002002448F9 /* YAProfileFlexibleHeightBar.m in Sources */,
+				88DFCC931B7C5002002448F9 /* YAGroupFlexibleHeightBar.m in Sources */,
 				6E9188F01A3F3A5A0034AB63 /* VENBackspaceTextField.m in Sources */,
 				6E9188CC1A3F3A5A0034AB63 /* NSString+File.m in Sources */,
 				6EB57DF81B5E7159003B7374 /* SASliderLeft.m in Sources */,

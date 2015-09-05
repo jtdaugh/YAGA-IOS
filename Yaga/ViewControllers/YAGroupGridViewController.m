@@ -11,7 +11,9 @@
 #import "YAServer.h"
 
 #import "BLKFlexibleHeightBar.h"
-#import "YAProfileFlexibleHeightBar.h"
+#import "YAPrivateGroupFlexibleHeightBar.h"
+#import "YAHostingGroupFlexibleHeightBar.h"
+#import "YAPublicGroupFlexibleHeightBar.h"
 #import "YAPullToRefreshLoadingView.h"
 #import "YAViewCountManager.h"
 #import "YAPopoverView.h"
@@ -19,9 +21,7 @@
 @interface YAGroupGridViewController () <YAGroupViewCountDelegate>
 
 @property (nonatomic,strong) UILabel *groupNameLabel;
-@property (nonatomic,strong) UILabel *groupDescriptionLabel;
-@property (nonatomic,strong) UILabel *groupViewsLabel;
-@property (nonatomic,strong) UIButton *followButton;
+@property (nonatomic,strong) UIButton *s;
 @property (nonatomic,strong) UIButton *backButton;
 @property (nonatomic,strong) UIButton *moreButton;
 @property (nonatomic, strong) UISegmentedControl *segmentedControl;
@@ -100,84 +100,66 @@
 }
 
 - (BLKFlexibleHeightBar *)createNavBar {
-    YAProfileFlexibleHeightBar *bar = [YAProfileFlexibleHeightBar emptyProfileBar];
+    YAGroupFlexibleHeightBar *bar;
     if (!self.group.publicGroup) {
-        bar.maximumBarHeight -= 40;
-        CGRect frame = bar.frame;
-        frame.size.height -= 40;
-        bar.frame = frame;
+        bar = [[YAPrivateGroupFlexibleHeightBar alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, kPrivateGroupBarHeight)];
+        self.moreButton = ((YAPrivateGroupFlexibleHeightBar *) bar).moreButton;
+        [((YAPrivateGroupFlexibleHeightBar *) bar).moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    } else {
+        if (self.group.amMember) {
+            bar = [[YAHostingGroupFlexibleHeightBar alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, kHostingGroupBarHeight)];
+            self.segmentedControl = ((YAHostingGroupFlexibleHeightBar *)bar).segmentedControl;
+            [((YAHostingGroupFlexibleHeightBar *)bar).segmentedControl addTarget:self action:@selector(segmentedControlChanged) forControlEvents:UIControlEventValueChanged];
+
+            self.moreButton = ((YAHostingGroupFlexibleHeightBar *)bar).moreButton;
+            [((YAHostingGroupFlexibleHeightBar *)bar).moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+        } else {
+            bar = [[YAPublicGroupFlexibleHeightBar alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, kPublicGroupBarHeight)];
+            [((YAPublicGroupFlexibleHeightBar *)bar).followButton addTarget:self action:@selector(followPressed) forControlEvents:UIControlEventTouchUpInside];
+        }
     }
+    self.groupNameLabel = bar.nameLabel;
+    self.backButton = bar.backButton;
+    
     [bar.behaviorDefiner addSnappingPositionProgress:0.0 forProgressRangeStart:0.0 end:0.5];
     [bar.behaviorDefiner addSnappingPositionProgress:1.0 forProgressRangeStart:0.5 end:1.0];
-    bar.backgroundColor = self.group.publicGroup ? (self.group.amMember ? HOSTING_GROUP_COLOR : PUBLIC_GROUP_COLOR) : PRIVATE_GROUP_COLOR;
-    [bar.backButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
-    self.followButton = bar.followButton;
-    self.segmentedControl = bar.segmentedControl;
-    self.groupDescriptionLabel = bar.descriptionLabel;
-    self.groupViewsLabel = bar.viewsLabel;
-    self.moreButton = bar.moreButton;
-    self.groupNameLabel = bar.nameLabel;
-    [bar.followButton addTarget:self action:@selector(followPressed) forControlEvents:UIControlEventTouchUpInside];
-    [bar.segmentedControl addTarget:self action:@selector(segmentedControlChanged) forControlEvents:UIControlEventValueChanged];
-    [bar.moreButton addTarget:self action:@selector(groupInfoPressed) forControlEvents:UIControlEventTouchUpInside];
-    
     return bar;
+
 }
 
 - (void)updateBarWithGroupInfo {
-    self.groupNameLabel.text = self.group.name;
     NSString *string = self.group.membersString;
     if (self.group.publicGroup) {
+        self.groupNameLabel.text = self.group.name;
         if (self.group.amMember) {
+            // Hosting
             if ([string isEqualToString:@"No members"]) {
-                self.groupDescriptionLabel.text = @"You're the only host";
+                ((YAHostingGroupFlexibleHeightBar *)self.flexibleNavBar).descriptionLabel.text = @"You're the host";
             } else {
-                self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Co-Hosts: %@", self.group.membersString];
+                ((YAHostingGroupFlexibleHeightBar *)self.flexibleNavBar).descriptionLabel.text = [NSString stringWithFormat:@"Co-Hosts: %@", self.group.membersString];
             }
         } else {
-            self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
+            // Following
+            ((YAPublicGroupFlexibleHeightBar *)self.flexibleNavBar).descriptionLabel.text = [NSString stringWithFormat:@"Hosted by %@", self.group.membersString];
+            if (self.group.amFollowing) {
+                self.buttonIsUnfollow = YES;
+                [((YAPublicGroupFlexibleHeightBar *)self.flexibleNavBar).followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
+            } else {
+                self.buttonIsUnfollow = NO;
+                [((YAPublicGroupFlexibleHeightBar *)self.flexibleNavBar).followButton setTitle:@"+ Follow" forState:UIControlStateNormal];
+            }
         }
     } else {
-        // Private group
-        if ([string isEqualToString:@"No members"]) {
-            self.groupDescriptionLabel.text = @"No other members";
-        } else {
-            self.groupDescriptionLabel.text = [NSString stringWithFormat:@"Private channel with %@", self.group.membersString];
-        }
-    }
-    
-    if (!self.group.amMember) {
-        [self.moreButton removeFromSuperview];
-    }
-    
-    if (self.group.amMember) {
-        // show approved/unapproved posts segmented
-        [self.followButton removeFromSuperview];
-        if (!self.group.publicGroup) {
-            [self.segmentedControl removeFromSuperview];
-        }
-    } else {
-        // show follow/unfollow button
-        if (!self.group.publicGroup) {
-            // Enforce that it is a public group.
-            [self.navigationController popViewControllerAnimated:YES];
-        }
-        [self.segmentedControl removeFromSuperview];
-        if (self.group.amFollowing) {
-            self.buttonIsUnfollow = YES;
-            [self.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
-        } else {
-            self.buttonIsUnfollow = NO;
-            [self.followButton setTitle:@"Follow" forState:UIControlStateNormal];
-        }
+        self.groupNameLabel.text = [@"🔒 " stringByAppendingString:self.group.name];
     }
 }
 
 - (void)updateViewCountLabel {
+    ((YAGroupFlexibleHeightBar *)self.flexibleNavBar).viewCountLabel.text = [NSString stringWithFormat:@"%ld", self.groupViewCount];
     if (self.group.publicGroup) {
-        ((YAProfileFlexibleHeightBar *)self.flexibleNavBar).viewsLabel.text = [NSString stringWithFormat:@"%ld followers    %ld views", (long)self.group.followerCount, self.groupViewCount];
+        ((YAGroupFlexibleHeightBar *)self.flexibleNavBar).memberCountLabel.text = [NSString stringWithFormat:@"%ld", self.group.followerCount];
     } else {
-        ((YAProfileFlexibleHeightBar *)self.flexibleNavBar).viewsLabel.text = [NSString stringWithFormat:@"%ld members    %ld views", (long)self.group.members.count + 1, self.groupViewCount];  // add 1 to the member count because it excludes you
+        ((YAGroupFlexibleHeightBar *)self.flexibleNavBar).memberCountLabel.text = [NSString stringWithFormat:@"%ld", (long)self.group.members.count + 1];  // add 1 to the member count because it excludes you
     }
 }
 
@@ -197,7 +179,7 @@
             } else {
                 DLog(@"Left group");
                 self.buttonIsUnfollow = NO;
-                [self.followButton setTitle:@"Follow" forState:UIControlStateNormal];
+                [((YAPublicGroupFlexibleHeightBar *)self.flexibleNavBar).followButton setTitle:@"+ Follow" forState:UIControlStateNormal];
             }
         }];
     } else {
@@ -210,7 +192,7 @@
                 [YAUtils showHudWithText:@"👍"];
                 DLog(@"Followed group");
                 self.buttonIsUnfollow = YES;
-                [self.followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
+                [((YAPublicGroupFlexibleHeightBar *)self.flexibleNavBar).followButton setTitle:@"Unfollow" forState:UIControlStateNormal];
             }
         }];
     }

@@ -17,6 +17,7 @@
 
 @property (nonatomic, strong) UIButton *muteButton;
 @property (nonatomic, strong) UIButton *leaveButton;
+@property (nonatomic, strong) UILabel *publicLabel;
 @property (nonatomic, strong) UITableView *tableView;
 
 @property (nonatomic, strong) RLMResults *sortedMembers;
@@ -81,14 +82,22 @@
     [self.leaveButton addTarget:self action:@selector(leaveTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.leaveButton];
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, self.muteButton.frame.origin.y) style:UITableViewStylePlain];
+    self.publicLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.navBar.frame.size.height, VIEW_WIDTH, 40)];
+    self.publicLabel.textColor = self.color;
+    self.publicLabel.font = [UIFont fontWithName:BOLD_FONT size:16];
+    self.publicLabel.textAlignment = NSTextAlignmentCenter;
+    self.publicLabel.text = self.group.publicGroup ? @"Public Channel" : @"Private Channel";
+    
+    CGFloat originY = self.publicLabel.frame.origin.y + self.publicLabel.frame.size.height;
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, originY, VIEW_WIDTH, self.muteButton.frame.origin.y - originY - 5) style:UITableViewStylePlain];
     self.tableView.backgroundColor = [self.view.backgroundColor copy];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.contentInset = UIEdgeInsetsMake(self.navBar.frame.size.height, 0, 0, 0);
+    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
 
     [self.view addSubview:self.tableView];
+    [self.view addSubview:self.publicLabel];
     [self.view addSubview:self.navBar]; // Nav bar must be above tableView
 
     

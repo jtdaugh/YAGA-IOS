@@ -389,7 +389,7 @@
         [self changeGroupOnServer];
     } else {
         self.inviteHelper = [[YAInviteHelper alloc] initWithContactsToInvite:self.contactsThatNeedInvite groupName:self.groupName viewController:self cancelText:@"Skip" completion:^(BOOL sent) {
-            self.inviteHelper = nil; // Do the weird __block and nil thing so inviteHelper doesn't get released until here. Could also make it a property.
+            self.inviteHelper = nil;
             [self changeGroupOnServer];
         }];
         [self.inviteHelper show];
@@ -400,17 +400,6 @@
 
 - (void)changeGroupOnServer {
     
-    //If we come from GridViewController
-    __block BOOL found = NO;
-    [self.navigationController.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj isKindOfClass:[YAGroupOptionsViewController class]]) {
-            found = YES;
-            *stop = YES;
-        }
-    }];
-    
-    self.inCreateGroupFlow = !found;
-
     __weak typeof(self) weakSelf = self;
 
     if(self.existingGroup && (!self.existingGroupDirty || (self.selectedContacts.count == 0))) {
