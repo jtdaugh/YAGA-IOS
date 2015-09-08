@@ -96,7 +96,7 @@
         self.view.transform = CGAffineTransformMakeScale(1.0f, 1.0f);
         self.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     } completion:^(BOOL finished){
-        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+        [[UIApplication sharedApplication] setStatusBarHidden:YES];
     }];
 }
 

@@ -93,6 +93,11 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     [self segmentedControlChanged:self.segmentedControl];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+}
+
 - (void)setupNavbar {
     [self.flexibleNavBar.titleButton setTitle:@"Channels" forState:UIControlStateNormal];
     

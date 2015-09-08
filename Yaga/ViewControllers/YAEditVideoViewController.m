@@ -103,7 +103,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     
     if (self.videoPlayerView.URL) {
         self.videoPlayerView.playWhenReady = YES;
@@ -113,7 +113,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
-    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -446,7 +446,7 @@ typedef void(^trimmingCompletionBlock)(NSError *error);
                                       @"captionScale":[NSNumber numberWithFloat:weakSelf.captionScale],
                                       @"captionRotation":[NSNumber numberWithFloat:weakSelf.captionRotation]};
             
-            [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+            [[UIApplication sharedApplication] setStatusBarHidden:NO];
             [hud hide:NO];
             [self.navigationController pushViewController:postToGroups animated:YES];
         }

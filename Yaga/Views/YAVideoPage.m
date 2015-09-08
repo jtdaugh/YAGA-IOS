@@ -52,6 +52,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *shareButton;
 @property (nonatomic, strong) UIButton *moreButton;
 @property (nonatomic, strong) UIButton *deleteButton;
+@property (nonatomic, strong) UIButton *flagButton;
 @property (nonatomic, strong) UIButton *commentButton;
 
 @property (nonatomic, strong) UIView *viewingAccessories;
@@ -601,11 +602,17 @@ static NSString *commentCellID = @"CommentCell";
     [self.viewingAccessories addSubview:self.moreButton];
 //    self.shareButton.layer.zPosition = 100;
     
-//    self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(padding + buttonRadius, padding*2 + buttonRadius)];
-//    [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.overlay addSubview:self.deleteButton];
-//    self.deleteButton.layer.zPosition = 100;
+    self.deleteButton = [YAUtils circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH -  padding - buttonRadius, padding + buttonRadius)];
+    [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.viewingAccessories addSubview:self.deleteButton];
     
+    self.flagButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - buttonRadius*2 - padding, padding, buttonRadius*2,  buttonRadius*2)];
+    self.flagButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
+    [self.flagButton setImage:[[UIImage imageNamed:@"Flag"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    self.flagButton.tintColor = [UIColor whiteColor];
+    [self.flagButton addTarget:self action:@selector(flagButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.viewingAccessories addSubview:self.flagButton];
+
     self.commentButton = [YAUtils circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.viewingAccessories addSubview:self.commentButton];
@@ -614,7 +621,8 @@ static NSString *commentCellID = @"CommentCell";
     [self.heartButton setBackgroundImage:[UIImage imageNamed:@"Liked"] forState:UIControlStateHighlighted];
     [self.heartButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.viewingAccessories addSubview:self.heartButton];
-    
+
+
     [self setupCommentsContainer];
 
     const CGFloat radius = 40;
@@ -662,6 +670,23 @@ static NSString *commentCellID = @"CommentCell";
         //
     }];
 
+}
+
+
+- (void)deleteButtonPressed {
+    [YAUtils confirmDeleteVideo:self.video withConfirmationBlock:^{
+        if(self.video.realm)
+            [self.video removeFromGroupAndStreamsWithCompletion:nil removeFromServer:YES];
+        else
+            [self closeAnimated];
+    }];
+}
+
+- (void)flagButtonPressed {
+    [YAUtils confirmFlagVideo:self.video withConfirmationBlock:^{
+        [YAUtils showHudWithText:@"Thanks. We'll take a look"];
+        [[Mixpanel sharedInstance] track:@"Video Flagged" properties:@{@"video id":self.video.serverId}];
+    }];
 }
 
 - (void)approvePressed {
@@ -1075,6 +1100,8 @@ static NSString *commentCellID = @"CommentCell";
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
     self.deleteButton.hidden = !self.myVideo;
+    self.flagButton.hidden = self.myVideo || !self.video.group.publicGroup;
+    
 //    self.moreButton.hidden = !self.myVideo;
 
     [self initializeCaption];
@@ -1104,8 +1131,6 @@ static NSString *commentCellID = @"CommentCell";
     // self.captionerLabel.hidden = !mp4Downloaded || !self.captionField.text.length;
 //    self.captionButton.hidden = !mp4Downloaded;
 
-
-    self.deleteButton.hidden = !mp4Downloaded && !self.myVideo;
 
 //    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
 //                    forState:UIControlStateNormal];
@@ -1312,6 +1337,12 @@ static NSString *commentCellID = @"CommentCell";
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     if (self.deleteButton.superview != nil) {
         if ([touch.view isDescendantOfView:self.deleteButton]) {
+            // we touched our control surface
+            return NO; // ignore the touch
+        }
+    }
+    if (self.flagButton.superview != nil) {
+        if ([touch.view isDescendantOfView:self.flagButton]) {
             // we touched our control surface
             return NO; // ignore the touch
         }

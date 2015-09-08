@@ -97,11 +97,9 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     
-    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     
     self.edgesForExtendedLayout = UIRectEdgeAll;
-    
-    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     
     [super viewWillAppear:animated];
     [YACameraManager sharedManager].delegate = self;
@@ -129,7 +127,7 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
-    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
     
     [self.flashTimer invalidate];
     [self.strobeTimer invalidate];

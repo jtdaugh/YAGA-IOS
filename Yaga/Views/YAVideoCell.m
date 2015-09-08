@@ -71,12 +71,12 @@
         
         [self setBackgroundColor:[UIColor colorWithWhite:0.96 alpha:1.0]];
         
-        self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/2, self.bounds.size.height - 30 - USERNAME_BOTTOM_MARGIN, self.bounds.size.width/2 - 5, 30)];
+        self.username = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width/3, self.bounds.size.height - 30 - USERNAME_BOTTOM_MARGIN, self.bounds.size.width*2/3 - 5, 30)];
         [self.username setTextAlignment:NSTextAlignmentRight];
         [self.username setMinimumScaleFactor:0.5];
         [self.username setAdjustsFontSizeToFitWidth:YES];
         [self.username setTextColor:[UIColor whiteColor]];
-        [self.username setFont:[UIFont fontWithName:BIG_FONT size:20]];
+        [self.username setFont:[UIFont fontWithName:BIG_FONT size:16]];
         self.username.shadowColor = [UIColor blackColor];
         self.username.shadowOffset = CGSizeMake(1, 1);
         [self.containerView addSubview:self.username];
@@ -116,7 +116,7 @@
         self.groupButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
         self.groupButton.titleLabel.adjustsFontSizeToFitWidth = YES;
         self.groupButton.titleLabel.textColor = [UIColor whiteColor];
-        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
         
         self.groupButton.titleLabel.layer.shadowColor = [UIColor blackColor].CGColor;
         self.groupButton.titleLabel.layer.shadowOffset = CGSizeMake(1.0,1.0);

@@ -36,6 +36,8 @@ typedef void (^stringCompletionBlock)(NSString *string, NSError *error);
 
 //video actions
 + (void)confirmDeleteVideo:(YAVideo*)video withConfirmationBlock:(confirmationBlock)block;
++ (void)confirmFlagVideo:(YAVideo*)video withConfirmationBlock:(confirmationBlock)block;
+
 //Alert view
 + (instancetype)instance;
 + (void)showAlertViewWithTitle:(NSString*)title

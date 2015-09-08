@@ -8,7 +8,7 @@
 
 #import "BLKFlexibleHeightBar.h"
 
-#define kTitleOriginCollapsed 16.0
+#define kTitleOriginCollapsed 20.0
 #define kTitleOriginExpanded 26.0
 #define kTitleMaxFont 34.0
 

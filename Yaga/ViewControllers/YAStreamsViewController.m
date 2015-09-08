@@ -24,6 +24,11 @@
     self.view.backgroundColor = [UIColor blackColor];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+}
+
 - (void)setupNavbar {
     [self.flexibleNavBar.titleButton setTitle:@"" forState:UIControlStateNormal];
     

@@ -40,7 +40,7 @@
     groupNameLabel.adjustsFontSizeToFitWidth = YES;
     
     BLKFlexibleHeightBarSubviewLayoutAttributes *nameExpanded = [BLKFlexibleHeightBarSubviewLayoutAttributes new];
-    nameExpanded.frame = CGRectMake(60, kTitleOriginExpanded, VIEW_WIDTH-120, 40);
+    nameExpanded.frame = CGRectMake(60, kTitleOriginExpanded, VIEW_WIDTH-120, 46);
     [groupNameLabel addLayoutAttributes:nameExpanded forProgress:0.0];
     BLKFlexibleHeightBarSubviewLayoutAttributes *nameCollapsed = [[BLKFlexibleHeightBarSubviewLayoutAttributes alloc] initWithExistingLayoutAttributes:nameExpanded];
     nameCollapsed.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, kTitleOriginCollapsed - kTitleOriginExpanded), 0.8, 0.8);

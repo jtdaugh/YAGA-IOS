@@ -241,6 +241,36 @@ static NSMutableDictionary *bubblesDictionary;
     [vc presentViewController:confirmAlert animated:YES completion:nil];
 }
 
++ (void)confirmFlagVideo:(YAVideo*)video withConfirmationBlock:(confirmationBlock)block {
+    NSString *alertMessageText = @"Think this video shouldn't be here?\n\nLet us know and we'll take a look.";
+    
+    MSAlertController*confirmAlert = [MSAlertController
+                                      alertControllerWithTitle:@"Report Video"
+                                      message:alertMessageText
+                                      preferredStyle:MSAlertControllerStyleAlert];
+    
+    [confirmAlert addAction:[MSAlertAction
+                             actionWithTitle:NSLocalizedString(@"Cancel", nil)
+                             style:MSAlertActionStyleCancel
+                             handler:^(MSAlertAction *action) {
+                                 
+                             }]];
+    
+    [confirmAlert addAction:[MSAlertAction
+                             actionWithTitle:NSLocalizedString(@"Report", nil)
+                             style:MSAlertActionStyleDestructive
+                             handler:^(MSAlertAction *action) {
+                                 if(block)
+                                     block();
+                             }]];
+    
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    vc = [vc presentedViewController] ? [vc presentedViewController] : vc;
+    
+    [vc presentViewController:confirmAlert animated:YES completion:nil];
+
+}
+
 + (void)shareVideoOnFacebook:(YAVideo*)video {
     SLComposeViewController *controller = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
     

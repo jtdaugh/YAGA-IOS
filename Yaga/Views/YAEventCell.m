@@ -17,7 +17,6 @@
 @property (nonatomic, strong) UILabel *usernameLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) UIImageView *iconImageView;
-@property (nonatomic, strong) UIButton *deleteButton;
 
 @property (nonatomic, strong) UITextView *commentsTextView;
 @property (nonatomic, strong) UILabel *likeCountLabel;
@@ -51,7 +50,7 @@
         self.likeCountLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         self.likeCountLabel.userInteractionEnabled = NO;
 
-//
+
 //        self.commentsTextView.layer.shadowColor = [UIColor blackColor].CGColor;
 //        self.commentsTextView.layer.shadowOffset = CGSizeMake(1.0, 1.0);
 //        self.commentsTextView.layer.shadowOpacity = 1.0;
@@ -90,22 +89,7 @@
         self.timestampLabel.shadowColor = [UIColor blackColor];
         self.timestampLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         [self addSubview:self.timestampLabel];
-        
 
-        // Text Delete button
-        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, initialHeight)];
-        [self.deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE - 3.0f]];
-        [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
-        [self.deleteButton setTitleColor:[UIColor colorWithRed:158.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0] forState:UIControlStateNormal];
-
-        [self.deleteButton addTarget:self action:@selector(deletePressed) forControlEvents:UIControlEventTouchUpInside];
-        self.deleteButton.layer.shadowColor = [UIColor blackColor].CGColor;
-        self.deleteButton.layer.shadowOffset = CGSizeMake(0.5, 0.5);
-        self.deleteButton.layer.shadowOpacity = 0.3;
-        self.deleteButton.layer.shadowRadius = 0.0f;
-        [self.deleteButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-
-        [self addSubview:self.deleteButton];
 
 //        [self.usernameLabel setBackgroundColor:[UIColor greenColor]];
 //        [self.commentsTextView setBackgroundColor:[UIColor redColor]];
@@ -162,7 +146,6 @@
     self.usernameLabel.text = username;
     [self layoutUsername:username];
     self.timestampLabel.text = timestamp;
-    self.deleteButton.hidden = !isOwnVideo;
     self.commentsTextView.text = @"";
     self.likeCountLabel.text = @"";
     [self layoutPostViews];
@@ -190,36 +173,28 @@
 }
 
 - (void)layoutPostViews {
-    CGFloat deleteWidth = self.deleteButton.frame.size.width;
 
     CGRect timestampFrame = self.timestampLabel.frame;
     timestampFrame.origin.x = self.usernameLabel.frame.origin.x + self.usernameLabel.frame.size.width + COMMENTS_SPACE_AFTER_USERNAME;
-    timestampFrame.size.width = self.frame.size.width - timestampFrame.origin.x - deleteWidth;
+    timestampFrame.size.width = self.frame.size.width - timestampFrame.origin.x - 5;
     self.timestampLabel.frame = timestampFrame;
     [self.timestampLabel sizeToFit];
     timestampFrame = self.timestampLabel.frame;
     timestampFrame.origin.y = (USERNAME_HEIGHT - timestampFrame.size.height)/2;
     self.timestampLabel.frame = timestampFrame;
     
-    CGRect deleteFrame = self.deleteButton.frame;
-    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + COMMENTS_SPACE_AFTER_USERNAME;
-    deleteFrame.size.width = deleteWidth;
-    self.deleteButton.frame = deleteFrame;
 }
 
 - (void)setVideoState:(YAEventCellVideoState)state{
     switch (state) {
         case YAEventCellVideoStateUploading:
             self.timestampLabel.text = @"Uploading...";
-            [self.deleteButton setTitle:@"Cancel" forState:UIControlStateNormal];
             break;
         case YAEventCellVideoStateUnapproved:
             self.timestampLabel.text = @"Pending";
-            [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
             break;
         case YAEventCellVideoStateApproved:
             self.timestampLabel.text = [NSString stringWithFormat:@"%@", self.timestamp];
-            [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
             break;
     }
     [self layoutPostViews];
@@ -231,30 +206,18 @@
             self.commentsTextView.hidden = NO;
             self.iconImageView.hidden = YES;
             self.timestampLabel.hidden = YES;
-            self.deleteButton.hidden = YES;
             break;
         case YAEventTypePost:
             self.commentsTextView.hidden = YES;
             self.iconImageView.hidden = YES;
             self.timestampLabel.hidden = NO;
-            self.deleteButton.hidden = NO;
             break;
         case YAEventTypeLike:
             self.iconImageView.hidden = NO;
             self.commentsTextView.hidden = YES;
             self.timestampLabel.hidden = YES;
-            self.deleteButton.hidden = YES;
             break;
     }
-}
-
-- (void)deletePressed {
-    [YAUtils confirmDeleteVideo:self.containingVideoPage.video withConfirmationBlock:^{
-        if(self.containingVideoPage.video.realm)
-            [self.containingVideoPage.video removeFromGroupAndStreamsWithCompletion:nil removeFromServer:YES];
-        else
-            [self.containingVideoPage closeAnimated];
-    }];;
 }
 
 #pragma mark - Class methods

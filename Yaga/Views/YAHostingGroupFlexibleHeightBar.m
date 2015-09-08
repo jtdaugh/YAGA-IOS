@@ -27,6 +27,10 @@
 
 - (void)addSegmentCtrl {
     UISegmentedControl *seg = [UISegmentedControl new];
+    [seg setTitleTextAttributes:@{NSFontAttributeName : [UIFont fontWithName:BIG_FONT size:16],
+                                 NSBaselineOffsetAttributeName : @(-1.0)
+                                 } forState:UIControlStateNormal];
+
     seg.tintColor = [UIColor whiteColor];
     [seg insertSegmentWithTitle:@"Approved" atIndex:0 animated:NO];
     [seg insertSegmentWithTitle:@"Pending" atIndex:1 animated:NO];
