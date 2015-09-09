@@ -177,7 +177,6 @@
             [self.members addObject:contact];
 
     }
-    self.amFollowing = (self.publicGroup && !self.amMember);
     
     //delete local contacts which do not exist on server anymore
     NSArray *serverContactIds = [[dictionary[@"members"] valueForKey:@"user"] valueForKey:@"id"];
@@ -261,7 +260,8 @@
             }
             
             [group updateFromServerResponeDictionarty:dict];
-            
+            group.amFollowing = (group.publicGroup && !group.amMember); // We can set following here because this request only returns groups u are in or follow
+
             if(!existingGroups.count)
                 [[RLMRealm defaultRealm] addObject:group];
         }
@@ -486,6 +486,7 @@
             NSString *name = self.name;
             [[RLMRealm defaultRealm] beginWriteTransaction];
             self.amFollowing = NO;
+            self.followerCount -= 1;
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
             //will force groups list to update
@@ -500,19 +501,20 @@
 - (void)followWithCompletion:(completionBlock)completion {
     [[YAServer sharedServer] followGroupWithId:self.serverId withCompletion:^(id response, NSError *error) {
         if(error) {
-            DLog(@"can't unfollow channel with name: %@, error %@", self.name, error.localizedDescription);
+            DLog(@"can't follow channel with name: %@, error %@", self.name, error.localizedDescription);
             completion(error);
         }
         else {
             NSString *name = self.name;
             [[RLMRealm defaultRealm] beginWriteTransaction];
             self.amFollowing = YES;
+            self.followerCount += 1;
             [[RLMRealm defaultRealm] commitWriteTransaction];
             
             //will force groups list to update
             [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:nil userInfo:nil];
             
-            DLog(@"successfully unfollowed channel with name: %@", name);
+            DLog(@"successfully followed channel with name: %@", name);
             completion(nil);
         }
     }];

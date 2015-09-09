@@ -226,15 +226,20 @@
                                     [self.phonebook setObject:phonebookItem forKey:phone];
                                 }
                                 NSPredicate *phoneNumPredicate = [NSPredicate predicateWithFormat:@"%K == %@", nPhone, phone];
-                                if ([[usersResults filteredArrayUsingPredicate:phoneNumPredicate] count]) {
-                                    // already in yaga users array, do nothing. Should update entry maybe?
-                                } else {
-                                    NSArray *newUser = [nonUsersResults filteredArrayUsingPredicate:phoneNumPredicate];
-                                    if ([newUser count]) {
-                                        [nonUsersResults removeObjectsInArray:newUser];
-                                        [usersResults addObjectsFromArray:newUser];
+                                    @try {
+                                        if ([[usersResults filteredArrayUsingPredicate:phoneNumPredicate] count]) {
+                                            // already in yaga users array, do nothing. Should update entry maybe?
+                                        } else {
+                                            NSArray *newUser = [nonUsersResults filteredArrayUsingPredicate:phoneNumPredicate];
+                                            if ([newUser count]) {
+                                                [nonUsersResults removeObjectsInArray:newUser];
+                                                [usersResults addObjectsFromArray:newUser];
+                                            }
+                                        }
                                     }
-                                }
+                                    @catch (NSException *exception) {
+                                        DLog(@"Address book exception");
+                                    }
                                 [yagaUserDictionary setObject:yagaUserDic forKey:phone];
                             }
 

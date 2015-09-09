@@ -179,6 +179,7 @@
                 DLog(@"Failed to leave group");
             } else {
                 DLog(@"Left group");
+                [self updateViewCountLabel];
                 self.buttonIsUnfollow = NO;
                 [((YAPublicGroupFlexibleHeightBar *)self.flexibleNavBar).followButton setTitle:@"+ Follow" forState:UIControlStateNormal];
             }
@@ -191,6 +192,7 @@
                 [YAUtils showHudWithText:@"👎"];
             } else {
                 [YAUtils showHudWithText:@"👍"];
+                [self updateViewCountLabel];
                 DLog(@"Followed group");
                 self.buttonIsUnfollow = YES;
                 [((YAPublicGroupFlexibleHeightBar *)self.flexibleNavBar).followButton setTitle:@"Unfollow" forState:UIControlStateNormal];

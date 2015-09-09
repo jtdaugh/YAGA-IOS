@@ -628,9 +628,6 @@ static NSString *HeaderIdentifier = @"GroupsHeader";
     
     void (^openGroupBlock)(YAGroup *group, NSIndexPath *indexPath) = ^(YAGroup *group, NSIndexPath *indexPath){
         [self.searchTableView deselectRowAtIndexPath:indexPath animated:YES];
-        [[RLMRealm defaultRealm] beginWriteTransaction];
-        group.amFollowing = NO; // Need to reset this here, because other code assumes visibilty == following.
-        [[RLMRealm defaultRealm] commitWriteTransaction];
         
         YAGroupGridViewController *vc = [YAGroupGridViewController new];
         vc.group = group;
