@@ -54,6 +54,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *flagButton;
 @property (nonatomic, strong) UIButton *commentButton;
+@property (nonatomic, strong) UILabel *groupName;
 
 @property (nonatomic, strong) UIView *viewingAccessories;
 
@@ -613,6 +614,18 @@ static NSString *commentCellID = @"CommentCell";
     [self.flagButton addTarget:self action:@selector(flagButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.viewingAccessories addSubview:self.flagButton];
 
+    CGFloat nameWidth = self.flagButton.frame.origin.x - self.XButton.frame.origin.x - self.XButton.frame.size.width - 20;
+    self.groupName = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - nameWidth) / 2, self.XButton.frame.origin.y, nameWidth, self.XButton.frame.size.height)];
+    self.groupName.font = [UIFont fontWithName:BOLD_FONT size:24];
+    self.groupName.textAlignment = NSTextAlignmentCenter;
+    self.groupName.adjustsFontSizeToFitWidth = YES;
+    self.groupName.textColor = [UIColor whiteColor];
+    self.groupName.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.groupName.layer.shadowRadius = 0.0f;
+    self.groupName.layer.shadowOpacity = 1.0;
+    self.groupName.layer.shadowOffset = CGSizeMake(0.5, 0.5);
+    [self.viewingAccessories addSubview:self.groupName];
+    
     self.commentButton = [YAUtils circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.viewingAccessories addSubview:self.commentButton];
@@ -1099,6 +1112,8 @@ static NSString *commentCellID = @"CommentCell";
     DLog(@"update controls");
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
+    self.groupName.text = self.video.group.name;
+    self.groupName.hidden = !self.streamMode;
     self.deleteButton.hidden = !self.myVideo;
     self.flagButton.hidden = self.myVideo || !self.video.group.publicGroup;
     

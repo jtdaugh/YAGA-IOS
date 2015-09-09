@@ -31,6 +31,7 @@
 - (id)initWithVideos:(NSArray *)videos initialIndex:(NSUInteger)initialIndex;
 
 @property (nonatomic, assign) BOOL pendingMode;
+@property (nonatomic, assign) BOOL streamMode;
 
 @end
 

@@ -188,6 +188,7 @@
         
         YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:pageFrame];
         page.presentingVC = self;
+        page.streamMode = self.streamMode;
         [page setShowAdminControls:self.pendingMode];
         
         pageFrame.origin.x = pageFrame.size.width;

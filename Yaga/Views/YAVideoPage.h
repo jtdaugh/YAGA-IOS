@@ -28,6 +28,9 @@
 @property (nonatomic, assign) BOOL showAdminControls;
 
 @property (nonatomic, assign) BOOL showBottomControls;
+
+@property (nonatomic, assign) BOOL streamMode;
+
 - (void)showSharingOptions;
 
 @end

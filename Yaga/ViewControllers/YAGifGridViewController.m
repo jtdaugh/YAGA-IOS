@@ -551,6 +551,7 @@ static NSString *cellID = @"Cell";
     swipingVC.delegate = self;
     
     swipingVC.pendingMode = self.pendingMode;
+    swipingVC.streamMode = self.group.streamGroup;
     
     swipingVC.transitioningDelegate = (YASloppyNavigationController *)self.navigationController;
     swipingVC.modalPresentationStyle = UIModalPresentationCustom;
