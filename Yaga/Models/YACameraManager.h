@@ -10,7 +10,7 @@
 #import "GPUImage.h"
 
 typedef void (^YARecordingCompletionBlock)(NSURL *outputUrl);
-typedef void (^YAPostCaptureCompletionBlock)(NSURL *outputUrl, NSTimeInterval duration, UIImage *firstFrameImage);
+typedef void (^YAPostCaptureCompletionBlock)(NSURL *outputUrl, NSTimeInterval duration, NSError *error);
 
 @interface YACameraView : GPUImageView
 // Just fo abstraction

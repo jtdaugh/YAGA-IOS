@@ -79,7 +79,7 @@
         [combinedVideoComposition removeTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(lengthToRemove, 100000))];
     }
     
-    if (!exportQuality) exportQuality = AVAssetExportPresetPassthrough;
+    if (!exportQuality) exportQuality = AVAssetExportPresetHighestQuality;
     
     duration = CMTimeGetSeconds(combinedVideoComposition.duration);
     
@@ -97,7 +97,7 @@
         if (weakSelf.exportSession.status == AVAssetExportSessionStatusCompleted){
             completion(weakSelf.exportSession.outputURL, duration, nil);
         } else {
-            completion(nil, 0, [NSError new]);
+            completion(nil, 0, [weakSelf.exportSession error]);
         }
         weakSelf.exportSession = nil;
     }];

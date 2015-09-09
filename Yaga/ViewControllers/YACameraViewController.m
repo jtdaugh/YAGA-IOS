@@ -107,9 +107,11 @@
     if (![YACameraManager sharedManager].initialized) {
         [[YACameraManager sharedManager] initCamera];
         [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:YES];
-    } else if (!self.shownViaBackgrounding) { // Otherwise let app delegate handle it
-        self.shownViaBackgrounding = NO;
+    } else if (!self.shownViaBackgrounding) {
         [[YACameraManager sharedManager] resumeCameraAndNeedsRestart:NO];
+    } else {
+        // Otherwise let app delegate handle it this time.
+        self.shownViaBackgrounding = NO;
     }
 }
 
@@ -415,8 +417,22 @@
     
     self.doneRecordingButton.hidden = YES;
     [self.view addSubview:self.activityIndicator];
-    [[YACameraManager sharedManager] stopContiniousRecordingAndPrepareOutput:YES completion:^(NSURL *outputUrl, NSTimeInterval duration, UIImage *firstFrameImage) {
-        [self presentTrimViewWithOutputUrl:outputUrl duration:duration];
+    [[YACameraManager sharedManager] stopContiniousRecordingAndPrepareOutput:YES completion:^(NSURL *outputUrl, NSTimeInterval duration, NSError *error) {
+        if (error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+
+                [self.activityIndicator removeFromSuperview];
+                self.doneRecordingButton.hidden = NO;
+                if (self.hud) {
+                    [self.hud hide:YES];
+                }
+                [YAUtils showHudWithText:@"Sorry! Something went wrong."];
+
+                [self startRecordingAnimation];
+            });
+        } else {
+            [self presentTrimViewWithOutputUrl:outputUrl duration:duration];
+        }
     }];
 }
 

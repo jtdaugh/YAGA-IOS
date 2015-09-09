@@ -179,7 +179,7 @@
 - (void)pauseCameraAndStop:(BOOL)stop {
     if (_initialized){
         DLog(@"pausing camera capture");
-        [self stopContiniousRecordingAndPrepareOutput:NO completion:^(NSURL *outputUrl, NSTimeInterval duration, UIImage *firstFrameImage) {
+        [self stopContiniousRecordingAndPrepareOutput:NO completion:^(NSURL *outputUrl, NSTimeInterval duration, NSError *error) {
             // discard
         }];
         
@@ -322,7 +322,6 @@
         
         NSTimeInterval estimatedDuration = 0;
         NSMutableArray *urlsToConcat = [NSMutableArray array];
-        UIImage *previewFrameImage = nil;
         for (int i = (int)[weakSelf.recordingSequenceUrls count] - 1; i >= 0; i--) {
             // Go thru recordings from recent to old, appending until time is >= MAX_INTERVAL
             estimatedDuration += [(NSNumber *)self.recordingSequenceDurations[i] doubleValue];
@@ -335,14 +334,17 @@
         
         [[YAAssetsCreator sharedCreator] concatenateAssetsAtURLs:urlsToConcat
                                                    withOutputURL:fileURL
-                                                   exportQuality:AVAssetExportPresetPassthrough
+                                                   exportQuality:AVAssetExportPresetHighestQuality
                                                limitedToDuration:MAXIMUM_TRIM_TOTAL_LENGTH
                                                       completion:^(NSURL *filePath, NSTimeInterval totalDuration, NSError *error) {
-                                                          
+                                                          if (error) {
+                                                              completion(nil, 0, error);
+                                                              return;
+                                                          }
                                                           [weakSelf deleteRecordingData];
                                                           
                                                           dispatch_async(dispatch_get_main_queue(), ^{
-                                                              completion(filePath, totalDuration, previewFrameImage);
+                                                              completion(filePath, totalDuration, nil);
                                                           });
         }];
         
