@@ -353,7 +353,7 @@
 }
 
 - (void)renderUsername {
-    self.username.text = self.video.pending && self.video.group.publicGroup ? @"Pending" : self.video.creator;
+    self.username.text = (self.video.pending && self.video.group.publicGroup && !self.video.group.amMember) ? @"Pending" : self.video.creator;
     [self.groupButton setTitle:self.video.group.name forState:UIControlStateNormal];
 }
 
