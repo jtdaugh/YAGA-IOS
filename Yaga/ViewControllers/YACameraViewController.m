@@ -62,9 +62,9 @@ typedef enum {
 
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
-@property (strong, nonatomic) UIButton *leftBottomButton;
 
-@property (strong, nonatomic) UIButton *rightBottomButton;
+@property (strong, nonatomic) UIButton *topLeftButton;
+@property (strong, nonatomic) UIButton *topRightButton;
 
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressFullScreenGestureRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressRedButtonGestureRecognizer;
@@ -135,7 +135,7 @@ typedef enum {
         tapGestureRecognizer.delegate = self;
         [self.white addGestureRecognizer:tapGestureRecognizer];
         
-        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 8, 10, BUTTON_SIZE, BUTTON_SIZE)];
+        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 8, VIEW_HEIGHT/2 - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
@@ -145,7 +145,7 @@ typedef enum {
         [self.view addSubview:self.switchCameraButton];
         
         CGFloat flashSize = BUTTON_SIZE - 8;
-        UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, flashSize, flashSize)];
+        UIButton *flashButton = [[UIButton alloc] initWithFrame:CGRectMake(10, VIEW_HEIGHT/2 - flashSize - 10, flashSize, flashSize)];
         //    flashButton.translatesAutoresizingMaskIntoConstraints = NO;
         [flashButton addTarget:self action:@selector(toggleFlash:) forControlEvents:UIControlEventTouchUpInside];
         [flashButton setImage:[UIImage imageNamed:@"TorchOff"] forState:UIControlStateNormal];
@@ -154,17 +154,17 @@ typedef enum {
         [self.cameraAccessories addObject:self.flashButton];
         [self.view addSubview:self.flashButton];
         
-        self.rightBottomButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2,
-                                                                     (VIEW_HEIGHT/2 - INFO_SIZE - INFO_PADDING*2),
+        self.topRightButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2,
+                                                                     INFO_PADDING,
                                                                      INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
-        self.rightBottomButton.imageEdgeInsets = UIEdgeInsetsMake(INFO_PADDING, INFO_PADDING, INFO_PADDING, INFO_PADDING);
-        [self.rightBottomButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.rightBottomButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
-        [self.rightBottomButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        self.rightBottomButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-        [self.cameraAccessories addObject:self.rightBottomButton];
-        [self.view addSubview:self.rightBottomButton];
+        self.topRightButton.imageEdgeInsets = UIEdgeInsetsMake(INFO_PADDING, INFO_PADDING, INFO_PADDING, INFO_PADDING);
+        [self.topRightButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.topRightButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
+        [self.topRightButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        self.topRightButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
+        [self.cameraAccessories addObject:self.topRightButton];
+        [self.view addSubview:self.topRightButton];
 
         //current group
         self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 0, 200, HEADER_HEIGHT)];
@@ -211,20 +211,13 @@ typedef enum {
         [self.countdownLabel setTextColor:PRIMARY_COLOR];
         [self.view addSubview:self.countdownLabel];
     
-        self.leftBottomButton = [[UIButton alloc] initWithFrame:CGRectMake(10, VIEW_HEIGHT/2 - 30, 100, 30)];
-        self.leftBottomButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        self.topLeftButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 0, 100, 30)];
+        self.topLeftButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
 //        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
-        self.leftBottomButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-        [self.leftBottomButton addTarget:self action:@selector(leftBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.cameraAccessories addObject:self.leftBottomButton];
-        [self.view addSubview:self.leftBottomButton];
-        
-        self.unviewedVideosBadge = [[UIImageView alloc] initWithFrame:CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f, kUnviwedBadgeWidth, kUnviwedBadgeWidth)];
-        self.unviewedVideosBadge.image = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:0.5]];
-        self.unviewedVideosBadge.clipsToBounds = YES;
-        self.unviewedVideosBadge.layer.cornerRadius = kUnviwedBadgeWidth/2;
-        [self.cameraAccessories addObject:self.unviewedVideosBadge];
-        [self.view addSubview:self.unviewedVideosBadge];
+        self.topLeftButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
+        [self.topLeftButton addTarget:self action:@selector(leftBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.cameraAccessories addObject:self.topLeftButton];
+        [self.view addSubview:self.topLeftButton];
         
         [self setCameraButtonMode:[YAUser currentUser].currentGroup ? YACameraButtonModeBackAndInfo : YACAmeraButtonModeFindAndCreate];
         
@@ -641,10 +634,10 @@ typedef enum {
             //
             self.view.frame = CGRectMake(0, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
             self.cameraView.frame = CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
-            [self.rightBottomButton setAlpha:0.0];
+            [self.topRightButton setAlpha:0.0];
 //            [self.groupButton setAlpha:0.0];
             [self.unviewedVideosBadge setAlpha:0.0];
-            [self.leftBottomButton setAlpha:0.0];
+            [self.topLeftButton setAlpha:0.0];
 //            self.flashButton.frame = flashFrame;
 //            self.switchCameraButton.frame = switchCamFrame;
             
@@ -1018,7 +1011,6 @@ typedef enum {
 - (void)updateUnviewedVideosBadge {
     BOOL hidden = ![YAUser currentUser].currentGroup || ![[YAUser currentUser] hasUnviewedVideosInGroups];
     self.unviewedVideosBadge.alpha = hidden ? 0 : 1;
-    self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
 }
 
 #pragma mark Group Notifications
@@ -1087,7 +1079,7 @@ typedef enum {
 }
 
 - (void)updateCameraButtonsWithMode:(YACameraButtonMode)mode {
-    self.rightBottomButton.alpha = 0;
+    self.topRightButton.alpha = 0;
     
     if(mode == YACAmeraButtonModeFindAndCreate) {
         
@@ -1097,21 +1089,19 @@ typedef enum {
 //        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
         
         //right button
-        [self.rightBottomButton setImage:nil forState:UIControlStateNormal];
-        self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - 110, VIEW_HEIGHT/2 - 35, 100, 30);
-        [self.rightBottomButton setTitle:NSLocalizedString(@"Create Group", @"") forState:UIControlStateNormal];
+        [self.topRightButton setImage:nil forState:UIControlStateNormal];
+        self.topRightButton.frame = CGRectMake(VIEW_WIDTH - 110, 0, 100, 30);
+        [self.topRightButton setTitle:NSLocalizedString(@"Create Group", @"") forState:UIControlStateNormal];
         self.logo.hidden = NO;
 
         [UIView animateWithDuration:0.2 animations:^{
-            self.leftBottomButton.alpha = 0;
-            self.rightBottomButton.alpha = 1;
+            self.topLeftButton.alpha = 0;
+            self.topRightButton.alpha = 1;
             self.groupButton.alpha = 0;
             self.logo.alpha = 1;
-            self.unviewedVideosBadge.alpha = 0;
-            self.unviewedVideosBadge.frame = CGRectMake(self.leftBottomButton.frame.origin.x + self.leftBottomButton.frame.size.width + 5, self.leftBottomButton.frame.origin.y + self.leftBottomButton.frame.size.height/2.0f - kUnviwedBadgeWidth/2.0f + 1, kUnviwedBadgeWidth, kUnviwedBadgeWidth);
         } completion:^(BOOL finished) {
             //
-            self.leftBottomButton.hidden = YES;
+            self.topLeftButton.hidden = YES;
             self.unviewedVideosBadge.hidden = YES;
         }];
     }
@@ -1120,32 +1110,31 @@ typedef enum {
         UIImage *backImage = [UIImage imageNamed:@"Back"];
         backImage = [UIImage imageWithCGImage:[backImage CGImage] scale:(backImage.scale * 3) orientation:(backImage.imageOrientation)];
         
-        self.leftBottomButton.hidden = NO;
-        [self.leftBottomButton setImage:backImage forState:UIControlStateNormal];
-        self.leftBottomButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
-        [self.leftBottomButton setTitle:NSLocalizedString(@"Groups", @"") forState:UIControlStateNormal];
-        self.leftBottomButton.frame = CGRectMake(5, VIEW_HEIGHT/2 - 35, 80, 30);
-        self.leftBottomButton.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.leftBottomButton.layer.shadowRadius = 1.0f;
-        self.leftBottomButton.layer.shadowOpacity = 1.0;
-        self.leftBottomButton.layer.shadowOffset = CGSizeZero;
-
+        self.topLeftButton.hidden = NO;
+        [self.topLeftButton setImage:backImage forState:UIControlStateNormal];
+        self.topLeftButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
+        [self.topLeftButton setTitle:NSLocalizedString(@"Groups", @"") forState:UIControlStateNormal];
+        self.topLeftButton.frame = CGRectMake(5, 0, 80, 30);
+        self.topLeftButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.topLeftButton.layer.shadowRadius = 1.0f;
+        self.topLeftButton.layer.shadowOpacity = 1.0;
+        self.topLeftButton.layer.shadowOffset = CGSizeZero;
         //right button
-        self.rightBottomButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, (VIEW_HEIGHT/2 - INFO_SIZE - INFO_PADDING*2) + 5, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
-        [self.rightBottomButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.rightBottomButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
-        [self.rightBottomButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        self.rightBottomButton.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.rightBottomButton.layer.shadowRadius = 1.0f;
-        self.rightBottomButton.layer.shadowOpacity = 1.0;
-        self.rightBottomButton.layer.shadowOffset = CGSizeZero;
+        self.topRightButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, 0, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
+        [self.topRightButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.topRightButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
+        [self.topRightButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        self.topRightButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.topRightButton.layer.shadowRadius = 1.0f;
+        self.topRightButton.layer.shadowOpacity = 1.0;
+        self.topRightButton.layer.shadowOffset = CGSizeZero;
 
-        self.leftBottomButton.hidden = NO;
+        self.topLeftButton.hidden = NO;
         self.unviewedVideosBadge.hidden = NO;
 
         [UIView animateWithDuration:0.2 animations:^{
-            self.rightBottomButton.alpha = 1;
-            self.leftBottomButton.alpha = 1;
+            self.topRightButton.alpha = 1;
+            self.topRightButton.alpha = 1;
             self.groupButton.alpha = 1;
             self.logo.alpha = 0;
             [self updateUnviewedVideosBadge];

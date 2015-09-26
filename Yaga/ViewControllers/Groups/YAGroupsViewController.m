@@ -32,6 +32,9 @@
 
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
+
+@property (nonatomic, strong) RLMResults *contacts;
+
 @property (nonatomic, strong) YAGroup *editingGroup;
 @property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
 @property (nonatomic) BOOL animatePush;
@@ -41,9 +44,17 @@
 
 @end
 
-static NSString *CellIdentifier = @"GroupsCell";
+static NSString *GroupsCellIdentifier = @"GroupsCell";
+static NSString *FriendsCellIdentifier = @"FriendsCell";
 
 @implementation YAGroupsViewController
+
+- (void)setListType:(YABottomHalfListType)listType {
+    if (listType != _listType) {
+        _listType = listType;
+        [self updateState];
+    }
+}
 
 - (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset {
     self = [super init];
@@ -99,7 +110,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.backgroundColor = [self.view.backgroundColor copy];
     self.collectionView.contentInset = UIEdgeInsetsMake(self.topInset, 0, 0, 0);
-    [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:CellIdentifier];
+    [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:GroupsCellIdentifier];
+    [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:FriendsCellIdentifier];
     [self.collectionView registerClass:[UICollectionReusableView class]
             forSupplementaryViewOfKind: UICollectionElementKindSectionFooter
                    withReuseIdentifier:@"FooterView"];
@@ -141,6 +153,8 @@ static NSString *CellIdentifier = @"GroupsCell";
     
     [self.collectionView addPullToRefreshWithActionHandler:^{
         weakSelf.willRefreshDate = [NSDate date];
+        
+#warning refresh friends instead if needed?
         [YAGroup updateGroupsFromServerWithCompletion:^(NSError *error) {
             [weakSelf delayedHidePullToRefresh];
         }];
@@ -190,7 +204,7 @@ static NSString *CellIdentifier = @"GroupsCell";
 //    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
     self.groups = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-    
+    self.contacts = [YAContact allObjects];
     [self.collectionView reloadData];
 }
 
@@ -216,41 +230,59 @@ static NSString *CellIdentifier = @"GroupsCell";
 
 }
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.groups.count;
+    return (self.listType == YAListOfFriends) ? self.contacts.count : self.groups.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    GroupsCollectionViewCell *cell;
-    
-    cell = [collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
-    YAGroup *group = [self.groups objectAtIndex:indexPath.item];
-    
-    cell.groupName = group.name;
-    
-    cell.membersString = group.membersString;
-    
-    cell.muted = group.muted;
+    if (self.listType == YAListOfGroups) {
+        GroupsCollectionViewCell *cell;
+        
+        cell = [collectionView dequeueReusableCellWithReuseIdentifier:GroupsCellIdentifier forIndexPath:indexPath];
+        YAGroup *group = [self.groups objectAtIndex:indexPath.item];
+        
+        cell.groupName = group.name;
+        
+        cell.membersString = group.membersString;
+        
+        cell.muted = group.muted;
 
-    cell.publicGroup = group.publicGroup;
+        cell.publicGroup = group.publicGroup;
+        
+        cell.showUpdatedIndicator = group.hasUnviewedVideos;
+        
+        return cell;
+    } else {
+        GroupsCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:FriendsCellIdentifier forIndexPath:indexPath];
+        YAContact *contact = [self.contacts objectAtIndex:indexPath.item];
+        cell.groupName = [contact displayName];
+        cell.membersString = @"";
     
-    cell.showUpdatedIndicator = group.hasUnviewedVideos;
-    
-    return cell;
+        return cell;
+    }
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
-    YAGroup *group = self.groups[indexPath.item];
-    [YAUser currentUser].currentGroup = group;
-    [self.delegate swapOutOfOnboardingState];
-    [self.delegate updateCameraAccessoriesWithViewIndex:1];
+    
+    if (self.listType == YAListOfGroups) {
+        YAGroup *group = self.groups[indexPath.item];
+        [YAUser currentUser].currentGroup = group;
+        [self.delegate swapOutOfOnboardingState];
+        [self.delegate updateCameraAccessoriesWithViewIndex:1];
+    } else {
+        // vattt to do?
+    }
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    YAGroup *group = self.groups[indexPath.item];
-    NSString *membersString = group.membersString;
+    if (self.listType == YAListOfGroups) {
+        YAGroup *group = self.groups[indexPath.item];
+        NSString *membersString = group.membersString;
     
-    return [GroupsCollectionViewCell sizeForMembersString:membersString];
+        return [GroupsCollectionViewCell sizeForMembersString:membersString];
+    } else {
+        return [GroupsCollectionViewCell sizeForMembersString:@""];
+    }
 }
 
 

@@ -109,6 +109,8 @@
     _groupsViewController = [[YAGroupsViewController alloc] initWithCollectionViewTopInset:topInset];;
     
     _groupsViewController.delegate = self;
+    _groupsViewController.listType = YAListOfGroups;
+    
     _bottomNavigationController = [[UINavigationController alloc] initWithRootViewController:_groupsViewController];
     _bottomNavigationController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
     [_bottomNavigationController.view.layer setMasksToBounds:NO];
@@ -189,7 +191,7 @@
     _cameraViewController.delegate = self;
     
     // Add shadow to camera view
-    _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
+    _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2);
     _cameraViewController.view.layer.masksToBounds = NO;
     _cameraViewController.view.layer.shadowOffset = CGSizeMake(0, 8);
     _cameraViewController.view.layer.shadowRadius = 3;
@@ -204,12 +206,13 @@
 - (void)groupsPressed {
     self.groupsButton.selected = YES;
     self.friendsButton.selected = NO;
+    self.groupsViewController.listType = YAListOfGroups;
 }
 
 - (void)friendsPressed {
     self.groupsButton.selected = NO;
     self.friendsButton.selected = YES;
-    
+    self.groupsViewController.listType = YAListOfFriends;
 }
 
 - (void)swapOutOfOnboardingState {

@@ -9,6 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "YAGridViewController.h"
 
+typedef enum : NSUInteger {
+    YAListOfGroups,
+    YAListOfFriends
+} YABottomHalfListType;
+
 @interface YAGroupsViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate>
 
 - (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset;
@@ -20,5 +25,7 @@
 @property (nonatomic, strong) UITapGestureRecognizer *collectionTapToClose;
 
 @property (nonatomic, weak) id<YAGridViewControllerDelegate> delegate;
+
+@property (nonatomic) YABottomHalfListType listType;
 
 @end
