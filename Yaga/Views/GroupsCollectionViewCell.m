@@ -20,7 +20,7 @@
 #define ACCESSORY_SIZE 26
 #define LEFT_MARGIN 40
 #define RIGHT_MARGIN 10
-#define Y_MARGIN 20
+#define Y_MARGIN 10
 #define NAME_HEIGHT 30
 #define MEMBERS_HEIGHT 24
 #define BETWEEN_MARGIN 5

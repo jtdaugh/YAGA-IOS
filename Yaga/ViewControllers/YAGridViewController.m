@@ -16,6 +16,7 @@
 #import "YAUtils.h"
 #import "YAGroupOptionsViewController.h"
 #import "YACameraManager.h"
+#import "UIImage+Color.h"
 
 #import "YACameraViewController.h"
 #import "YAGroupsViewController.h"
@@ -29,7 +30,7 @@
 //Swift headers
 //#import "Yaga-Swift.h"
 
-#define HEADER_HEIGHT 32
+#define HEADER_HEIGHT (recordButtonWidth/2)
 #define HEADER_SPACING 6
 
 @interface YAGridViewController ()
@@ -40,6 +41,10 @@
 @property (nonatomic, strong) UIView *onboardingHeaderView;
 @property (nonatomic, strong) UILabel *onboardingLabel;
 @property (nonatomic, strong) UIView *myGroupsHeaderView;
+
+@property (nonatomic, strong) UIButton *groupsButton;
+@property (nonatomic, strong) UIButton *friendsButton;
+
 @property (nonatomic, strong) YAGroupsViewController *groupsViewController;
 
 @property (nonatomic) BOOL onboarding;
@@ -117,11 +122,32 @@
     self.myGroupsHeaderView =[[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
     self.myGroupsHeaderView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
 
-    UILabel *myGroupsLabel = [[UILabel alloc] initWithFrame:CGRectMake(40, 5, 200, HEADER_HEIGHT-10)];
-    [myGroupsLabel setFont:[UIFont fontWithName:BOLD_FONT size:16]];
-    myGroupsLabel.textColor = [UIColor lightGrayColor];
-    myGroupsLabel.text = @"My Groups";
-    [self.myGroupsHeaderView addSubview:myGroupsLabel];
+    self.groupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2, HEADER_HEIGHT)];
+    [self.groupsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+    self.groupsButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0);
+    self.groupsButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    [self.groupsButton setBackgroundImage:[UIImage imageWithColor:PRIMARY_COLOR] forState:UIControlStateSelected];
+    [self.groupsButton setBackgroundImage:nil forState:UIControlStateNormal];
+    [self.groupsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+    [self.groupsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+    [self.groupsButton setTitle:@"Groups" forState:UIControlStateNormal];
+    [self.groupsButton addTarget:self action:@selector(groupsPressed) forControlEvents:UIControlEventTouchUpInside];
+
+    [self.myGroupsHeaderView addSubview:self.groupsButton];
+    
+    self.groupsButton.selected = YES;
+    
+    self.friendsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2, 0, VIEW_WIDTH/2, HEADER_HEIGHT)];
+    [self.friendsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+    self.friendsButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 20);
+    self.friendsButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+    [self.friendsButton setBackgroundImage:[UIImage imageWithColor:PRIMARY_COLOR] forState:UIControlStateSelected];
+    [self.friendsButton setBackgroundImage:nil forState:UIControlStateNormal];
+    [self.friendsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+    [self.friendsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+    [self.friendsButton setTitle:@"Friends" forState:UIControlStateNormal];
+    [self.friendsButton addTarget:self action:@selector(friendsPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.myGroupsHeaderView addSubview:self.friendsButton];
     
     if (!self.onboarding) {
         [self setupCameraViewController];
@@ -173,6 +199,17 @@
     [self addChildViewController:_cameraViewController];
     [self.view addSubview:_cameraViewController.view];
 
+}
+
+- (void)groupsPressed {
+    self.groupsButton.selected = YES;
+    self.friendsButton.selected = NO;
+}
+
+- (void)friendsPressed {
+    self.groupsButton.selected = NO;
+    self.friendsButton.selected = YES;
+    
 }
 
 - (void)swapOutOfOnboardingState {
