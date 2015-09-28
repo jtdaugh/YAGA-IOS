@@ -61,6 +61,7 @@ typedef enum {
 @property (strong, nonatomic) UIImageView *logo;
 @property (nonatomic, strong) UIButton *backButton;
 @property (nonatomic, strong) UIButton *settingsButton;
+@property (nonatomic, strong) UIButton *createChatButton;
 @property (nonatomic, strong) UIButton *infoButton;
 
 @property (nonatomic, strong) UIView *homeCameraAccessoryWrapper;
@@ -163,13 +164,36 @@ typedef enum {
         self.settingsButton = [[UIButton alloc] initWithFrame:CGRectMake(2, (HEADER_HEIGHT - BUTTON_SIZE) / 2, BUTTON_SIZE, BUTTON_SIZE)];
         self.settingsButton.imageEdgeInsets = UIEdgeInsetsMake(12, 12, 12, 12);
         [self.settingsButton setImage:[UIImage imageNamed:@"User"] forState:UIControlStateNormal];
-//        [self.settingsButton addTarget:self action:@selector(showSettings) forControlEvents:UIControlEventTouchUpInside];
+        [self.settingsButton addTarget:self action:@selector(showSettings) forControlEvents:UIControlEventTouchUpInside];
         self.settingsButton.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.settingsButton.layer.shadowRadius = 1.0f;
         self.settingsButton.layer.shadowOpacity = 1.0;
         self.settingsButton.layer.shadowOffset = CGSizeZero;
         [self.homeCameraAccessoryWrapper addSubview:self.settingsButton];
+
         
+        self.createChatButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + recordButtonWidth/2, VIEW_HEIGHT/2, VIEW_WIDTH/2 - recordButtonWidth/2, recordButtonWidth/2)];
+        [self.createChatButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+        self.createChatButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 20);
+        self.createChatButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+        [self.createChatButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+        [self.createChatButton setTitle:@"+ New Chat" forState:UIControlStateNormal];
+        [self.createChatButton addTarget:self action:@selector(createChatPressed) forControlEvents:UIControlEventTouchUpInside];
+
+        [self.cameraAccessories addObject:self.createChatButton];
+        [self.view addSubview:self.createChatButton];
+        
+//        self.createChatButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - 150, (HEADER_HEIGHT - 30) / 2, 150, 30)];
+//        self.createChatButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 10);
+//        self.createChatButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+//        [self.createChatButton setTitle:@"+ New Chat" forState:UIControlStateNormal];
+//        self.createChatButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:22];
+//        [self.createChatButton addTarget:self action:@selector(createChatPressed) forControlEvents:UIControlEventTouchUpInside];
+//        self.createChatButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+//        self.createChatButton.layer.shadowRadius = 1.0f;
+//        self.createChatButton.layer.shadowOpacity = 1.0;
+//        self.createChatButton.layer.shadowOffset = CGSizeZero;
+//        [self.homeCameraAccessoryWrapper addSubview:self.createChatButton];
         
         self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BUTTON_SIZE,
                                                                      (HEADER_HEIGHT - BUTTON_SIZE) / 2,
@@ -184,7 +208,7 @@ typedef enum {
         UIImage *backImage = [UIImage imageNamed:@"Back"];
         backImage = [UIImage imageWithCGImage:[backImage CGImage] scale:(backImage.scale * 3) orientation:(backImage.imageOrientation)];
         
-        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (HEADER_HEIGHT - BUTTON_SIZE) / 2, 80, BUTTON_SIZE)];
+        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (HEADER_HEIGHT - 30) / 2, 80, 30)];
         [self.backButton setImage:backImage forState:UIControlStateNormal];
         self.backButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
         [self.backButton setTitle:NSLocalizedString(@"Back", @"") forState:UIControlStateNormal];
@@ -219,7 +243,7 @@ typedef enum {
         self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, (HEADER_HEIGHT - logoHeight) / 2, logoWidth, logoHeight)];
         [self.logo setContentMode:UIViewContentModeScaleAspectFit];
         [self.logo setImage:[UIImage imageNamed:@"Logo"]];
-        [self.homeCameraAccessoryWrapper addSubview:self.logo];
+//        [self.homeCameraAccessoryWrapper addSubview:self.logo];
         
         //record button
         self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
@@ -428,13 +452,21 @@ typedef enum {
     [self openGroupOptions];
 }
 
+- (void)createChatPressed {
+    [self.delegate showCreateGroup];
+}
+
+- (void)showSettings {
+    [[[UIAlertView alloc] initWithTitle:@"Not implemented" message:nil delegate:nil cancelButtonTitle:@"Word" otherButtonTitles:nil] show];
+}
+
 - (void)cameraViewTapped:(id)sender {
     [self.delegate scrollToTop];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [UIView animateKeyframesWithDuration:2 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat animations:^{
+    [UIView animateKeyframesWithDuration:2 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat | UIViewAnimationOptionAllowUserInteraction animations:^{
         [UIView addKeyframeWithRelativeStartTime:0.3 relativeDuration:0.7 animations:^{
             self.recordButton.backgroundColor = [UIColor redColor];
         }];
@@ -802,6 +834,7 @@ typedef enum {
     
     self.recordButton.hidden = YES;
     
+    [self.view sendSubviewToBack:self.createChatButton]; // it'll be brought back to front by showCameraAccessories:YES later
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
         [self showRecordingAccessories:1];
@@ -1076,14 +1109,17 @@ typedef enum {
 - (void)updateCameraButtonsWithMode:(YACameraTopAccessoriesMode)mode {
     self.gridCameraAccessoryWrapper.hidden = NO;
     self.homeCameraAccessoryWrapper.hidden = NO;
+    self.createChatButton.hidden = mode == YACameraTopAccessoriesModeGrid; // don't animate it out, but allow it to animate back in
     
     [UIView animateWithDuration:0.2 animations:^{
         if(mode == YACameraTopAccessoriesModeHome) {
             self.homeCameraAccessoryWrapper.alpha = 1;
             self.gridCameraAccessoryWrapper.alpha = 0;
+            self.createChatButton.alpha = 1;
         } else {
             self.homeCameraAccessoryWrapper.alpha = 0;
             self.gridCameraAccessoryWrapper.alpha = 1;
+            self.createChatButton.alpha = 0;
         }
     } completion:^(BOOL finished) {
         if(mode == YACameraTopAccessoriesModeHome) {

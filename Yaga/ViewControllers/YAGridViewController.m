@@ -137,7 +137,7 @@
     [self.addChatButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
     [self.addChatButton setTitle:@"+ New Chat" forState:UIControlStateNormal];
     [self.addChatButton addTarget:self action:@selector(newChatPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.myGroupsHeaderView addSubview:self.addChatButton];
+//    [self.myGroupsHeaderView addSubview:self.addChatButton];
     
     if (!self.onboarding) {
         [self setupCameraViewController];
@@ -179,7 +179,7 @@
     _cameraViewController.delegate = self;
     
     // Add shadow to camera view
-    _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2);
+    _cameraViewController.view.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2 + recordButtonWidth/2);
     _cameraViewController.view.layer.masksToBounds = NO;
     _cameraViewController.view.layer.shadowOffset = CGSizeMake(0, 8);
     _cameraViewController.view.layer.shadowRadius = 3;

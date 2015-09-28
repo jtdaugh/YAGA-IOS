@@ -13,6 +13,7 @@
 - (void)openGroupOptions;
 - (void)scrollToTop;
 - (void)backPressed;
+- (void)showCreateGroup;
 - (void)presentNewlyRecordedVideo:(YAVideo *)video;
 @end
 
