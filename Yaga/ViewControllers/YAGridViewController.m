@@ -42,8 +42,8 @@
 @property (nonatomic, strong) UILabel *onboardingLabel;
 @property (nonatomic, strong) UIView *myGroupsHeaderView;
 
-@property (nonatomic, strong) UIButton *groupsButton;
-@property (nonatomic, strong) UIButton *friendsButton;
+@property (nonatomic, strong) UILabel *chatsLabel;
+@property (nonatomic, strong) UIButton *addChatButton;
 
 @property (nonatomic, strong) YAGroupsViewController *groupsViewController;
 
@@ -109,7 +109,6 @@
     _groupsViewController = [[YAGroupsViewController alloc] initWithCollectionViewTopInset:topInset];;
     
     _groupsViewController.delegate = self;
-    _groupsViewController.listType = YAListOfGroups;
     
     _bottomNavigationController = [[UINavigationController alloc] initWithRootViewController:_groupsViewController];
     _bottomNavigationController.view.frame = CGRectMake(0, CAMERA_MARGIN, VIEW_WIDTH, VIEW_HEIGHT - CAMERA_MARGIN);
@@ -124,31 +123,21 @@
     self.myGroupsHeaderView =[[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
     self.myGroupsHeaderView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
 
-    self.groupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH/2, HEADER_HEIGHT)];
-    [self.groupsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
-    self.groupsButton.titleEdgeInsets = UIEdgeInsetsMake(0, 20, 0, 0);
-    self.groupsButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
-    [self.groupsButton setBackgroundImage:[UIImage imageWithColor:PRIMARY_COLOR] forState:UIControlStateSelected];
-    [self.groupsButton setBackgroundImage:nil forState:UIControlStateNormal];
-    [self.groupsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
-    [self.groupsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
-    [self.groupsButton setTitle:@"Chats" forState:UIControlStateNormal];
-
-    [self.myGroupsHeaderView addSubview:self.groupsButton];
+    self.chatsLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, VIEW_WIDTH/2 - recordButtonWidth/2 - 20, HEADER_HEIGHT)];
+    [self.chatsLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+    self.chatsLabel.textColor = [UIColor grayColor];
+    self.chatsLabel.text = @"Chats";
     
-    self.groupsButton.selected = YES;
+    [self.myGroupsHeaderView addSubview:self.chatsLabel];
     
-    self.friendsButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2, 0, VIEW_WIDTH/2, HEADER_HEIGHT)];
-    [self.friendsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
-    self.friendsButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 20);
-    self.friendsButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-    [self.friendsButton setBackgroundImage:[UIImage imageWithColor:PRIMARY_COLOR] forState:UIControlStateSelected];
-    [self.friendsButton setBackgroundImage:nil forState:UIControlStateNormal];
-    [self.friendsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
-    [self.friendsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
-    [self.friendsButton setTitle:@"+ New Chat" forState:UIControlStateNormal];
-    [self.friendsButton addTarget:self action:@selector(newChatPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.myGroupsHeaderView addSubview:self.friendsButton];
+    self.addChatButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + recordButtonWidth/2, 0, VIEW_WIDTH/2 - recordButtonWidth/2, HEADER_HEIGHT)];
+    [self.addChatButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+    self.addChatButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 20);
+    self.addChatButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+    [self.addChatButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
+    [self.addChatButton setTitle:@"+ New Chat" forState:UIControlStateNormal];
+    [self.addChatButton addTarget:self action:@selector(newChatPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.myGroupsHeaderView addSubview:self.addChatButton];
     
     if (!self.onboarding) {
         [self setupCameraViewController];
@@ -220,9 +209,15 @@
     }
 }
 
+- (void)createChatFinishedWithGroup:(YAGroup *)group wasPreexisting:(BOOL)preexisting {
+    [self.groupsViewController updateState];
+}
+
 - (void)showCreateGroup {
     YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
-    [self.navigationController presentViewController:vc animated:YES completion:nil];
+    UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:vc];
+    navVC.navigationBarHidden = YES;
+    [self.navigationController presentViewController:navVC animated:YES completion:nil];
 }
 
 - (void)showFindGroups {

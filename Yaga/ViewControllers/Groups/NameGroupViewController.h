@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface NameGroupViewController : UIViewController<UITextFieldDelegate>
-@property (strong, nonatomic) NSMutableArray *membersDic;
 
-@property (nonatomic, strong) YAVideo *initialVideo;
+@property (strong, nonatomic) NSMutableArray *selectedContacts;
 
 @end

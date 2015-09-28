@@ -13,12 +13,16 @@
 #import <Realm/Realm.h>
 #import "YAUtils.h"
 #import "YAGroupAddMembersViewController.h"
+#import "YaPostToGroupsViewController.h"
+#import "YAGridViewController.h"
 
 @interface NameGroupViewController ()
 @property (strong, nonatomic) UITextField *groupNameTextField;
 @property (strong, nonatomic) UIButton *nextButton;
 @property (strong, nonatomic) UIButton *backButton;
 @property (strong, nonatomic) YAGroup *group;
+@property (strong, nonatomic) UIActivityIndicatorView *activityView;
+
 @end
 
 @implementation NameGroupViewController
@@ -37,7 +41,7 @@
     [backButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:backButton];
 
-    CGFloat width = VIEW_WIDTH * .8;
+    CGFloat width = VIEW_WIDTH * .9;
     
     DLog(@" view width: %f", VIEW_WIDTH);
     
@@ -74,7 +78,7 @@
     CGFloat buttonWidth = VIEW_WIDTH * 0.7;
     self.nextButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH-buttonWidth)/2, origin, buttonWidth, VIEW_HEIGHT*.1)];
     [self.nextButton setBackgroundColor:[UIColor whiteColor]];
-    [self.nextButton setTitle:NSLocalizedString(@"Next", @"") forState:UIControlStateNormal];
+    [self.nextButton setTitle:NSLocalizedString(@"Done", @"") forState:UIControlStateNormal];
     [self.nextButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
 //    [self.nextButton.titleLabel setTextColor: [UIColor blackColor]];
 //    self.nextButton.titleLabel.textColor = [UIColor blackColor];
@@ -82,7 +86,7 @@
     [self.nextButton setAlpha:0.0];
     self.nextButton.layer.cornerRadius = 8.0;
     self.nextButton.layer.masksToBounds = YES;
-    [self.nextButton addTarget:self action:@selector(nextScreen) forControlEvents:UIControlEventTouchUpInside];
+    [self.nextButton addTarget:self action:@selector(donePressed) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.nextButton];    
 }
 
@@ -115,12 +119,60 @@
     }
 }
 
-- (void)nextScreen {
-//    YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
-//    vc.inCreateGroupFlow = YES;
-//    vc.initialVideo = self.initialVideo;
-//    vc.groupName = self.groupNameTextField.text;
-//    [self.navigationController pushViewController:vc animated:YES];
+- (void)dismissWithNewGroup:(YAGroup *)group {
+    UIViewController *presentingVC = self.presentingViewController;
+    if ([presentingVC isKindOfClass:[UINavigationController class]]) {
+        presentingVC = ((UINavigationController *) presentingVC).topViewController;
+    }
+    if ([presentingVC isKindOfClass:[YAGridViewController class]]) {
+        [presentingVC dismissViewControllerAnimated:YES completion:^{
+            [(YAGridViewController *)presentingVC createChatFinishedWithGroup:group wasPreexisting:NO];
+        }];
+        return;
+    } else if ([presentingVC isKindOfClass:[YAPostToGroupsViewController class]]) {
+        // Dismiss and go straight to new group
+        [presentingVC dismissViewControllerAnimated:YES completion:^{
+            [(YAPostToGroupsViewController *)presentingVC createChatFinishedWithGroup:group wasPreexisting:NO];
+        }];
+        return;
+    }
+}
+
+- (void)showActivity:(BOOL)show {
+    if(show) {
+        self.nextButton.titleLabel.hidden = YES;
+        self.activityView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(self.nextButton.frame.size.width/2 - 15, self.nextButton.frame.size.height/2 - 15, 30, 30)];
+        [self.nextButton addSubview:self.activityView];
+    }
+    else {
+        [self.activityView removeFromSuperview];
+        self.activityView = nil;
+        self.nextButton.titleLabel.hidden = NO;
+    }
+}
+
+- (void)donePressed {
+    __weak typeof(self) weakSelf = self;
+    [YAGroup groupWithName:self.groupNameTextField.text withCompletion:^(NSError *error, id result) {
+        if(error) {
+            [weakSelf showActivity:NO];
+        } else {
+            YAGroup *newGroup = result;
+            [YAUser currentUser].currentGroup = newGroup;
+            __weak typeof(newGroup) weakGroup = newGroup;
+            [newGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
+                [weakSelf.groupNameTextField resignFirstResponder];
+                [weakSelf showActivity:NO];
+                if(!error) {
+                    [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
+                    [weakSelf dismissWithNewGroup:weakGroup];
+                }
+            }];
+            
+        }
+    }];
+
+    
 }
 
 

@@ -12,7 +12,6 @@
 
 @property (nonatomic, strong) NSDictionary *settings;
 
-- (void)addNewlyCreatedGroupToList:(YAGroup *)group;
-- (BOOL)blockCameraPresentationOnBackground;
+- (void)createChatFinishedWithGroup:(YAGroup *)group wasPreexisting:(BOOL)preexisting;
 
 @end

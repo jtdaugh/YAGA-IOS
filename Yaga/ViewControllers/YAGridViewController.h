@@ -33,4 +33,6 @@ YACameraViewControllerDelegate, YAGridViewControllerDelegate>
 
 @property (nonatomic, readonly) YACameraViewController *cameraViewController;
 
+- (void)createChatFinishedWithGroup:(YAGroup *)group wasPreexisting:(BOOL)preexisting;
+
 @end

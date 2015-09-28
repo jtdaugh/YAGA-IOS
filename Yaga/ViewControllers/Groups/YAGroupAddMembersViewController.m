@@ -14,6 +14,7 @@
 #import "NSString+Hash.h"
 #import "YAUtils.h"
 #import "YAServer.h"
+#import "YAPostToGroupsViewController.h"
 
 @interface YAGroupAddMembersViewController ()
 @property (strong, nonatomic) UIView *topBar;
@@ -29,6 +30,9 @@
 @property (nonatomic, strong) NSArray *contactsThatNeedInvite;
 
 @property (nonatomic, readonly) BOOL existingGroupDirty;
+
+@property (nonatomic, strong) YAGroup *newlyCreatedGroup;
+@property (nonatomic) BOOL preexistingGroup;
 
 @end
 
@@ -171,7 +175,7 @@
     [self.cancelButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
     [self.cancelButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
     self.cancelButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-    [self.cancelButton addTarget:self action:@selector(doneTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.cancelButton addTarget:self action:@selector(dismissAddMembers) forControlEvents:UIControlEventTouchUpInside];
     [self.topBar addSubview:self.cancelButton];
     
     
@@ -415,55 +419,70 @@
 }
 
 - (YAGroup *)equivalentGroupForSelectedContacts {
+    // return the existing group if only one user
+    if ([self.selectedContacts count] != 1) {
+        return nil;
+    }
     for (YAGroup *group in [YAGroup allObjects]) {
-        if ([group.members count] != [self.selectedContacts count]) {
+        if ([group.members count] != 1) {
             continue;
         }
-        BOOL groupMatch = YES;
-        for (YAContact *contact in group.members) {
-            BOOL contactMatch = false;
-            for (NSDictionary *contactDict in self.selectedContacts) {
-                if ([contactDict[nPhone] isEqualToString:contact.number]) {
-                    contactMatch = true;
-                    break;
-                }
-            }
-            if (!contactMatch) {
-                groupMatch = NO;
-                break;
-            }
-        }
-        if (groupMatch) {
+        YAContact *contact = [group.members firstObject];
+        NSDictionary *contactDict = [self.selectedContacts firstObject];
+        if ([contactDict[nPhone] isEqualToString:contact.number]) {
             return group;
         }
     }
     return nil;
+
+//    for (YAGroup *group in [YAGroup allObjects]) {
+//        if ([group.members count] != [self.selectedContacts count]) {
+//            continue;
+//        }
+//        BOOL groupMatch = YES;
+//        for (YAContact *contact in group.members) {
+//            BOOL contactMatch = false;
+//            for (NSDictionary *contactDict in self.selectedContacts) {
+//                if ([contactDict[nPhone] isEqualToString:contact.number]) {
+//                    contactMatch = true;
+//                    break;
+//                }
+//            }
+//            if (!contactMatch) {
+//                groupMatch = NO;
+//                break;
+//            }
+//        }
+//        if (groupMatch) {
+//            return group;
+//        }
+//    }
+//    return nil;
 }
 
 - (void)dismissAddMembers {
-    if (self.inCreateGroupFlow) {
+    if (self.inCreateGroupFlow && self.newlyCreatedGroup) {
         UIViewController *presentingVC = self.presentingViewController;
         if ([presentingVC isKindOfClass:[YAGridViewController class]]) {
-            UIViewController *previousTopVC = ((UINavigationController *)presentingVC).topViewController;
-            if ([previousTopVC isKindOfClass:[YAPostToGroupsViewController class]]) {
-                // Dismiss back to post capture groups list, and add new group to list
-                YAGroup *group = self.newlyCreatedGroup;
-                [presentingVC dismissViewControllerAnimated:YES completion:^{
-                    [(YAPostToGroupsViewController *)previousTopVC addNewlyCreatedGroupToList:group];
-                }];
-                return;
-            }
-        } else if ([presentingVC isKindOfClass:[YAMainTabBarController class]]) {
+            YAGroup *group = self.newlyCreatedGroup;
+            BOOL pre = self.preexistingGroup;
+            [presentingVC dismissViewControllerAnimated:YES completion:^{
+                [(YAGridViewController *)presentingVC createChatFinishedWithGroup:group wasPreexisting:pre];
+            }];
+            return;
+        } else if ([presentingVC isKindOfClass:[YAPostToGroupsViewController class]]) {
             // Dismiss and go straight to new group
             YAGroup *group = self.newlyCreatedGroup;
+            BOOL pre = self.preexistingGroup;
             [presentingVC dismissViewControllerAnimated:YES completion:^{
-                [(YAMainTabBarController *)presentingVC pushGifGridForGroup:group toPendingTab:NO];
+                [(YAPostToGroupsViewController *)presentingVC createChatFinishedWithGroup:group wasPreexisting:pre];
             }];
             return;
         }
     }
-    
-    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    else {
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 
@@ -483,18 +502,9 @@
             if(!error) {
                 [[Mixpanel sharedInstance] track:@"Group changed" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
                 
-                weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
-                if (![weakSelf.contactsThatNeedInvite count]) {
-                    NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), weakSelf.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
-                    [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
-                    [weakSelf popToGridViewController];
-                } else {
-                    // Push the invite screen
-                    YAInviteViewController *nextVC = [YAInviteViewController new];
-                    nextVC.inCreateGroupFlow = NO;
-                    nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
-                    [weakSelf.navigationController pushViewController:nextVC animated:YES];
-                }
+                NSString *notificationMessage = [NSString stringWithFormat:@"%@ '%@' %@", NSLocalizedString(@"Group", @""), weakSelf.existingGroup.name, NSLocalizedString(@"Updated successfully", @"")];
+                [YAUtils showNotification:notificationMessage type:YANotificationTypeSuccess];
+                [weakSelf dismissAddMembers];
             }
 
         }];
@@ -505,7 +515,42 @@
         
         
         // Check if equivalent group already exists, if so just open to it
-        
+        YAGroup *existing = [self equivalentGroupForSelectedContacts];
+        if (existing) {
+            self.preexistingGroup = YES;
+            self.newlyCreatedGroup = existing;
+            [YAUser currentUser].currentGroup = existing;
+            [self dismissAddMembers];
+        } else {
+            if ([self.selectedContacts count] > 1) {
+                // prompt for group name
+                NameGroupViewController *vc = [NameGroupViewController new];
+                vc.selectedContacts = self.selectedContacts;
+                [self showActivity:NO];
+                [self.navigationController pushViewController:vc animated:YES];
+            } else {
+                [YAGroup groupWithName:@"abcd" withCompletion:^(NSError *error, id result) {
+                    if(error) {
+                        [weakSelf showActivity:NO];
+                    } else {
+                        YAGroup *newGroup = result;
+                        [YAUser currentUser].currentGroup = newGroup;
+                        self.newlyCreatedGroup = newGroup;
+                        self.preexistingGroup = NO;
+                        
+                        [newGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
+                            [weakSelf showActivity:NO];
+                            if(!error) {
+                                [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
+                                
+                                [self dismissAddMembers];
+                            }
+                        }];
+                        
+                    }
+                }];
+            }
+        }
         
         // Otherwise, if group is multiple people, prompt for group name
         
@@ -513,49 +558,12 @@
         // If just one person, name group "name1, name2" although this wont be visible on client
         
         
-        [YAGroup groupWithName:[NSString stringWithFormat:@"%@ and %@",[YAUser currentUser].username,   withCompletion:^(NSError *error, id result) {
-            if(error) {
-                [weakSelf showActivity:NO];
-            } else {
-                YAGroup *newGroup = result;
-                [YAUser currentUser].currentGroup = newGroup;
-                
-                [newGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
-                    [weakSelf showActivity:NO];
-                    if(!error) {
-                        [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
-                        
-                        weakSelf.contactsThatNeedInvite = [weakSelf filterContactsToInvite];
-                        if (![weakSelf.contactsThatNeedInvite count]) {
-                            [weakSelf popToGridViewController];
-                        } else {
-                            YAInviteViewController *nextVC = [YAInviteViewController new];
-                            nextVC.inCreateGroupFlow = YES;
-                            nextVC.contactsThatNeedInvite = weakSelf.contactsThatNeedInvite;
-                            [weakSelf.navigationController pushViewController:nextVC animated:YES];
-                        }
-                    }
-                }];
-
-            }
-        }];
 
     }
 }
 
 - (void)popToGridViewController {
     [self.navigationController popToRootViewControllerAnimated:YES];
-}
-
-- (NSArray *)filterContactsToInvite {
-    NSMutableArray *contactsNotOnYaga = [NSMutableArray new];
-    for (NSDictionary *contact in self.selectedContacts) {
-        BOOL yagaUser = [((NSNumber*)contact[nYagaUser]) boolValue];
-        if (!yagaUser){
-            [contactsNotOnYaga addObject:contact];
-        }
-    }
-    return contactsNotOnYaga;
 }
 
 - (BOOL)validateSelectedContacts {

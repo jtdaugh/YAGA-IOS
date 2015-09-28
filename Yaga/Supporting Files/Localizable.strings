@@ -161,8 +161,8 @@
 "Leaving group" = "Leaving group";
 "Group left" = "Group left";
 "Can not leave group" = "Can not leave group";
-"Creating group" = "Creating group";
-"Can not create group" = "Can not create group";
+"Creating group" = "Creating chat";
+"Can not create group" = "Can not create chat";
 "Deleting video" = "Deleting video";
 "Video deleted" = "Video deleted";
 "Can't delete video" = "Can't delete video";

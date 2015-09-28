@@ -34,8 +34,6 @@
 @interface YAGroupsViewController ()
 @property (nonatomic, strong) RLMResults *groups;
 
-@property (nonatomic, strong) RLMResults *contacts;
-
 @property (nonatomic, strong) YAGroup *editingGroup;
 @property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
 @property (nonatomic) BOOL animatePush;
@@ -49,13 +47,6 @@ static NSString *GroupsCellIdentifier = @"GroupsCell";
 static NSString *FriendsCellIdentifier = @"FriendsCell";
 
 @implementation YAGroupsViewController
-
-- (void)setListType:(YABottomHalfListType)listType {
-    if (listType != _listType) {
-        _listType = listType;
-        [self updateState];
-    }
-}
 
 - (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset {
     self = [super init];
@@ -187,7 +178,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 }
 
 - (void)groupDidChange:(NSNotification*)notif {
-    if ([self.navigationController.visibleViewController isEqual:self]) {
+    if ([self.navigationController.topViewController isEqual:self]) {
         //open current group if needed
         if([YAUser currentUser].currentGroup) {
             YACollectionViewController *vc = [YACollectionViewController new];
@@ -205,7 +196,6 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 //    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
     self.groups = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
-    self.contacts = [YAContact allObjects];
     [self.collectionView reloadData];
 }
 
@@ -231,7 +221,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 
 }
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return (self.listType == YAListOfFriends) ? self.contacts.count : self.groups.count;
+    return self.groups.count;
 }
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
@@ -240,11 +230,11 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.listType == YAListOfGroups) {
+    YAGroup *group = [self.groups objectAtIndex:indexPath.item];
+    if (group.members.count > 1 || group.members.count == 0) {
         GroupsCollectionViewCell *cell;
         
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:GroupsCellIdentifier forIndexPath:indexPath];
-        YAGroup *group = [self.groups objectAtIndex:indexPath.item];
         
         cell.groupName = group.name;
         
@@ -257,8 +247,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
         return cell;
     } else {
         FriendCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:FriendsCellIdentifier forIndexPath:indexPath];
-        YAContact *contact = [self.contacts objectAtIndex:indexPath.item];
-        cell.name = [contact displayName];
+        cell.name = [[group.members firstObject] displayName];
     
         return cell;
     }
@@ -267,21 +256,16 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
     
-    if (self.listType == YAListOfGroups) {
-        YAGroup *group = self.groups[indexPath.item];
-        [YAUser currentUser].currentGroup = group;
-        [self.delegate swapOutOfOnboardingState];
-        [self.delegate updateCameraAccessoriesWithViewIndex:1];
-    } else {
-        // vattt to do?
-    }
+    YAGroup *group = self.groups[indexPath.item];
+    [YAUser currentUser].currentGroup = group;
+    [self.delegate swapOutOfOnboardingState];
+    [self.delegate updateCameraAccessoriesWithViewIndex:1];
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.listType == YAListOfGroups) {
-        YAGroup *group = self.groups[indexPath.item];
+    YAGroup *group = [self.groups objectAtIndex:indexPath.item];
+    if (group.members.count > 1 || group.members.count == 0) {
         NSString *membersString = group.membersString;
-    
         return [GroupsCollectionViewCell sizeForMembersString:membersString];
     } else {
         return [FriendCollectionViewCell size];

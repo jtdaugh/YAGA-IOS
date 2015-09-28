@@ -9,11 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "YAGridViewController.h"
 
-typedef enum : NSUInteger {
-    YAListOfGroups,
-    YAListOfFriends
-} YABottomHalfListType;
-
 @interface YAGroupsViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate>
 
 - (instancetype)initWithCollectionViewTopInset:(CGFloat)topInset;
@@ -26,6 +21,6 @@ typedef enum : NSUInteger {
 
 @property (nonatomic, weak) id<YAGridViewControllerDelegate> delegate;
 
-@property (nonatomic) YABottomHalfListType listType;
+- (void)updateState;
 
 @end
