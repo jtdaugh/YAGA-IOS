@@ -349,7 +349,7 @@ referenceSizeForFooterInSection:(NSInteger)section {
 }
 
 - (void)createCellPressed:(id)sender {
-//    [self.delegate showCreateGroupWithInitialVideo:nil];
+    [self.delegate showCreateGroup];
 }
 
 - (void)findCellPressed:(id)sender {

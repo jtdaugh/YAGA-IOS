@@ -69,11 +69,6 @@
                                                  name:OPEN_GROUP_OPTIONS_NOTIFICATION
                                                object:nil];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(showCreateGroup:)
-                                                 name:BEGIN_CREATE_GROUP_FROM_VIDEO_NOTIFICATION
-                                               object:nil];
-
 }
 
 - (void)dealloc {
@@ -163,7 +158,7 @@
         self.onboardingLabel.textColor = [UIColor whiteColor];
         self.onboardingLabel.lineBreakMode = NSLineBreakByWordWrapping;
         self.onboardingLabel.numberOfLines = 2;
-        self.onboardingLabel.text = @"Welcome!\nPick a group and enjoy!";
+        self.onboardingLabel.text = @"Welcome!\nPick a chat and enjoy!";
         [self.onboardingHeaderView addSubview:self.onboardingLabel];
         CGRect headerFrame = self.myGroupsHeaderView.frame;
         headerFrame.origin.y = VIEW_HEIGHT/3- CAMERA_MARGIN;

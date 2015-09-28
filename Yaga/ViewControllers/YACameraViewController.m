@@ -114,6 +114,7 @@ typedef enum {
     if(self) {
         self.view.frame = CGRectMake(0, -0, VIEW_WIDTH, VIEW_HEIGHT / 2 + recordButtonWidth/2);
         
+        
         self.cameraView = [[YACameraView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT/2)];
         [self.cameraView setBackgroundColor:[UIColor blackColor]];
         [self.view addSubview:self.cameraView];
@@ -134,7 +135,7 @@ typedef enum {
         tapGestureRecognizer.delegate = self;
         [self.white addGestureRecognizer:tapGestureRecognizer];
         
-        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 8, VIEW_HEIGHT/2 - BUTTON_SIZE - 10, BUTTON_SIZE, BUTTON_SIZE)];
+        self.switchCameraButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width - BUTTON_SIZE - 8, VIEW_HEIGHT/2 - BUTTON_SIZE - 6, BUTTON_SIZE, BUTTON_SIZE)];
         //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
         [self.switchCameraButton addTarget:self action:@selector(switchCamera:) forControlEvents:UIControlEventTouchUpInside];
         [self.switchCameraButton setImage:[UIImage imageNamed:@"Switch"] forState:UIControlStateNormal];
@@ -169,11 +170,11 @@ typedef enum {
         self.settingsButton.layer.shadowRadius = 1.0f;
         self.settingsButton.layer.shadowOpacity = 1.0;
         self.settingsButton.layer.shadowOffset = CGSizeZero;
-        [self.homeCameraAccessoryWrapper addSubview:self.settingsButton];
+//        [self.homeCameraAccessoryWrapper addSubview:self.settingsButton];
 
-        
         self.createChatButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 + recordButtonWidth/2, VIEW_HEIGHT/2, VIEW_WIDTH/2 - recordButtonWidth/2, recordButtonWidth/2)];
         [self.createChatButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+        self.createChatButton.titleLabel.adjustsFontSizeToFitWidth = YES;
         self.createChatButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 20);
         self.createChatButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
         [self.createChatButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
@@ -243,7 +244,7 @@ typedef enum {
         self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, (HEADER_HEIGHT - logoHeight) / 2, logoWidth, logoHeight)];
         [self.logo setContentMode:UIViewContentModeScaleAspectFit];
         [self.logo setImage:[UIImage imageNamed:@"Logo"]];
-//        [self.homeCameraAccessoryWrapper addSubview:self.logo];
+        [self.homeCameraAccessoryWrapper addSubview:self.logo];
         
         //record button
         self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
@@ -445,6 +446,7 @@ typedef enum {
 }
 
 - (void)backButtonPressed {
+    [self collapseCamera:nil];
     [self.delegate backPressed];
 }
 
@@ -668,7 +670,8 @@ typedef enum {
 //        switchCamFrame.origin.y = VIEW_HEIGHT/2 - switchCamFrame.size.height - 10;
 
         [self animateToOriginalCameraFrame];
-        
+        [self.view bringSubviewToFront:self.createChatButton]; // it'll be brought back to front by showCameraAccessories:YES later
+
         self.largeCamera = NO;
     }
 }
@@ -680,19 +683,22 @@ typedef enum {
         }
         
         self.previousViewFrame = self.view.frame;
-        
+        [self.view sendSubviewToBack:self.createChatButton]; // it'll be brought back to front by showCameraAccessories:YES later
+
 //        [self startEnlargeAnimation];
 //        CGRect flashFrame = self.flashButton.frame;
 //        flashFrame.origin.y = VIEW_HEIGHT - flashFyasrame.size.height - 14;
 //        CGRect switchCamFrame = self.switchCameraButton.frame;
 //        switchCamFrame.origin.y = VIEW_HEIGHT - switchCamFrame.size.height - 10;
 
+        
         [UIView animateWithDuration:0.2 delay:0.0 options:0 animations:^{
             self.view.frame = CGRectMake(0, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
             self.cameraView.frame = CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
             [self.unviewedVideosBadge setAlpha:0.0];
-            self.flashButton.center = CGPointMake(self.flashButton.center.x, VIEW_HEIGHT - recordButtonWidth + 20);
-            self.switchCameraButton.center = CGPointMake(self.switchCameraButton.center.x, VIEW_HEIGHT - recordButtonWidth + 20);
+            self.flashButton.center = CGPointMake((VIEW_WIDTH/2 - recordButtonWidth/2)/2, VIEW_HEIGHT - recordButtonWidth + 20);
+            self.switchCameraButton.center = CGPointMake(VIEW_WIDTH - (VIEW_WIDTH/2 - recordButtonWidth/2)/2,
+                                                         VIEW_HEIGHT - recordButtonWidth + 20);
             self.recordButton.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT - recordButtonWidth + 20);
         } completion:^(BOOL finished) {
         }];
@@ -709,7 +715,7 @@ typedef enum {
 
 - (void)handleHold:(UILongPressGestureRecognizer *)recognizer {
 //    DLog(@"%ld", (unsigned long)recognizer.state);
-
+    
     CGPoint loc = [recognizer locationInView:self.view];
     if (recognizer.state == UIGestureRecognizerStateEnded) {
         if ([self touchDragStateForPoint:loc] == YATouchDragStateInsideFlip && loc.y ) {
@@ -720,6 +726,13 @@ typedef enum {
             [self endHold];
         }
     } else if (recognizer.state == UIGestureRecognizerStateBegan){
+        if (recognizer == self.longPressRedButtonGestureRecognizer) {
+            if ([recognizer locationInView:self.view.superview].y < recordButtonWidth) {
+                [self.delegate scrollToTop];
+                return;
+            }
+        }
+        
         if (self.accidentalDragOffscreenTimer) {
             // invalidate the timer to continue recording
             DLog(@"accidental offscreen drag ended");
@@ -834,7 +847,6 @@ typedef enum {
     
     self.recordButton.hidden = YES;
     
-    [self.view sendSubviewToBack:self.createChatButton]; // it'll be brought back to front by showCameraAccessories:YES later
     [UIView animateWithDuration:0.2 animations:^{
         [self showCameraAccessories:0];
         [self showRecordingAccessories:1];
@@ -948,8 +960,8 @@ typedef enum {
         [self showRecordingAccessories:0];
         self.recordButton.transform = CGAffineTransformIdentity;
         self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
-        self.flashButton.center = CGPointMake(self.flashButton.center.x, VIEW_HEIGHT/2 - 10 - self.flashButton.frame.size.height / 2);
-        self.switchCameraButton.center = CGPointMake(self.switchCameraButton.center.x, VIEW_HEIGHT/2 - 10 - self.switchCameraButton.frame.size.height / 2);
+        self.flashButton.center = CGPointMake(BUTTON_SIZE/2 + 5, VIEW_HEIGHT/2 - 10 - self.flashButton.frame.size.height / 2);
+        self.switchCameraButton.center = CGPointMake(VIEW_WIDTH - BUTTON_SIZE/2 - 10, VIEW_HEIGHT/2 - 6 - self.switchCameraButton.frame.size.height / 2);
     
     } completion:^(BOOL finished) {
         self.largeCamera = NO;
@@ -1090,7 +1102,7 @@ typedef enum {
 - (void)enableScrollToTop:(BOOL)enable {
     if(enable && ! self.scrollToTopTapRecognizer) {
         self.scrollToTopTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cameraViewTapped:)];
-        [self.cameraView addGestureRecognizer:self.scrollToTopTapRecognizer];
+        [self.view addGestureRecognizer:self.scrollToTopTapRecognizer];
     }
     else {
         [self.cameraView removeGestureRecognizer:self.scrollToTopTapRecognizer];

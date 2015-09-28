@@ -23,7 +23,7 @@ typedef void (^cameraCompletion)(void);
 - (void)setInitialAnimationFrame:(CGRect)initialFrame;
 - (void)swapOutOfOnboardingState;
 - (void)showFindGroups;
-
+- (void)showCreateGroup;
 
 @end
 
