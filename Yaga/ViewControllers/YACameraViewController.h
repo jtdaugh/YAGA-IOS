@@ -16,10 +16,10 @@
 - (void)presentNewlyRecordedVideo:(YAVideo *)video;
 @end
 
-typedef NS_ENUM(NSUInteger, YACameraButtonMode) {
-    YACameraButtonModeNoButtons,
-    YACAmeraButtonModeFindAndCreate,
-    YACameraButtonModeBackAndInfo
+typedef NS_ENUM(NSUInteger, YACameraTopAccessoriesMode) {
+    YACameraTopAccessoriesModeNone,
+    YACameraTopAccessoriesModeHome,
+    YACameraTopAccessoriesModeGrid
 };
 
 @interface YACameraViewController : UIViewController<UIGestureRecognizerDelegate>
@@ -32,6 +32,6 @@ typedef NS_ENUM(NSUInteger, YACameraButtonMode) {
 - (void)enableRecording:(BOOL)enable;
 - (void)enableScrollToTop:(BOOL)enable;
 
-- (void)setCameraButtonMode:(YACameraButtonMode)mode;
+- (void)setCameraButtonMode:(YACameraTopAccessoriesMode)mode;
 
 @end

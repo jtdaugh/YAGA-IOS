@@ -12,12 +12,14 @@
 
 @property (nonatomic, strong) UILabel *nameLabel;
 @property (nonatomic, strong) UILabel *membersLabel;
-@property(nonatomic, strong) UIImageView *disclosureImageView;
+@property (nonatomic, strong) UILabel *vidCountLabel;
+@property (nonatomic, strong) UIImageView *disclosureImageView;
 @property (nonatomic, strong) UIView *separatorView;
 
 @end
 
-#define ACCESSORY_SIZE 26
+#define ACCESSORY_SIZE 18
+#define VID_COUNT_WIDTH 70
 #define LEFT_MARGIN 20
 #define RIGHT_MARGIN 10
 #define Y_MARGIN 12
@@ -33,14 +35,14 @@
     if (self) {
         self.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:self.bounds alpha:0.3];
 
-        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN, Y_MARGIN, [GroupsCollectionViewCell contentWidth], NAME_HEIGHT)];
+        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN, Y_MARGIN, [GroupsCollectionViewCell maxNameWidth], NAME_HEIGHT)];
         [self.nameLabel setFont:[UIFont fontWithName:BOLD_FONT size:26]];
         self.nameLabel.textColor = PRIMARY_COLOR;
         self.nameLabel.adjustsFontSizeToFitWidth = YES;
 
         self.membersLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.nameLabel.frame.origin.x,
                                                                      self.nameLabel.frame.size.height + Y_MARGIN + BETWEEN_MARGIN,
-                                                                     self.nameLabel.frame.size.width,
+                                                                     [GroupsCollectionViewCell maxDescriptionWidth],
                                                                      MEMBERS_HEIGHT)];
         self.membersLabel.numberOfLines = 0;
         self.membersLabel.lineBreakMode = NSLineBreakByWordWrapping;
@@ -51,18 +53,26 @@
         self.membersLabel.layer.masksToBounds = NO;
         
         [self setBackgroundColor:[UIColor clearColor]];
-                
-        self.disclosureImageView = [[UIImageView alloc] initWithFrame:CGRectMake(self.frame.size.width - RIGHT_MARGIN - ACCESSORY_SIZE, (TOTAL_HEIGHT - ACCESSORY_SIZE)/2, ACCESSORY_SIZE, ACCESSORY_SIZE)];
+        
+        self.vidCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.frame.size.width - RIGHT_MARGIN - ACCESSORY_SIZE - 5 - VID_COUNT_WIDTH, (TOTAL_HEIGHT - MEMBERS_HEIGHT - BETWEEN_MARGIN - ACCESSORY_SIZE)/2, VID_COUNT_WIDTH, ACCESSORY_SIZE)];
+        self.vidCountLabel.textColor = PRIMARY_COLOR;
+        self.vidCountLabel.font = [UIFont fontWithName:BIG_FONT size:16];
+        self.vidCountLabel.textAlignment = NSTextAlignmentRight;
+        self.vidCountLabel.adjustsFontSizeToFitWidth = YES;
+
+        self.disclosureImageView = [[UIImageView alloc] initWithFrame:CGRectMake(self.frame.size.width - RIGHT_MARGIN - ACCESSORY_SIZE, (TOTAL_HEIGHT - MEMBERS_HEIGHT - BETWEEN_MARGIN - ACCESSORY_SIZE)/2, ACCESSORY_SIZE, ACCESSORY_SIZE)];
         self.disclosureImageView.tintColor = PRIMARY_COLOR;
         [self.disclosureImageView setImage:[[UIImage imageNamed:@"Disclosure"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         self.disclosureImageView.contentMode = UIViewContentModeScaleAspectFit;
         
         self.separatorView = [[UIView alloc] initWithFrame:CGRectMake(20, frame.size.height - 0.5, VIEW_WIDTH - 20, 0.5)];
-        self.separatorView.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1];
+//        self.separatorView.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1];
+        self.separatorView.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:0.2];
         [self addSubview:self.separatorView];
         
         [self addSubview:self.nameLabel];
         [self addSubview:self.membersLabel];
+        [self addSubview:self.vidCountLabel];
         [self addSubview:self.disclosureImageView];
     }
     
@@ -76,8 +86,11 @@
 
 }
 
+- (void)setVidCount:(NSUInteger)vidCount {
+    self.vidCountLabel.text = [NSString stringWithFormat:@"%lu %@", vidCount, vidCount == 1 ? @"vid" : @"vids"];
+}
+
 - (void)setPublicGroup:(BOOL)publicGroup {
-    CGFloat indicatorSize = 10;
     UIImage *img;
     if(publicGroup){
 
@@ -96,7 +109,7 @@
 - (void)setMembersString:(NSString *)membersString {
     self.membersLabel.text = membersString;
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
-    CGRect rect = [membersString boundingRectWithSize:CGSizeMake([GroupsCollectionViewCell contentWidth], CGFLOAT_MAX)
+    CGRect rect = [membersString boundingRectWithSize:CGSizeMake([GroupsCollectionViewCell maxDescriptionWidth], CGFLOAT_MAX)
                                        options:NSStringDrawingUsesLineFragmentOrigin
                                     attributes:attributes
                                        context:nil];
@@ -119,8 +132,12 @@
     self.nameLabel.textColor = muted ? [UIColor lightGrayColor] : PRIMARY_COLOR;
 }
 
-+ (CGFloat)contentWidth {
-    return VIEW_WIDTH - LEFT_MARGIN - RIGHT_MARGIN - ACCESSORY_SIZE - 5.0f;
++ (CGFloat)maxNameWidth {
+    return VIEW_WIDTH - LEFT_MARGIN - RIGHT_MARGIN - ACCESSORY_SIZE - VID_COUNT_WIDTH - 10.0f;
+}
+
++ (CGFloat)maxDescriptionWidth {
+    return VIEW_WIDTH - LEFT_MARGIN - RIGHT_MARGIN;
 }
 
 + (CGFloat)cellHeight {
@@ -129,7 +146,7 @@
 
 + (CGSize)sizeForMembersString:(NSString *)string {
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};
-    CGRect rect = [string boundingRectWithSize:CGSizeMake([GroupsCollectionViewCell contentWidth], CGFLOAT_MAX)
+    CGRect rect = [string boundingRectWithSize:CGSizeMake([GroupsCollectionViewCell maxDescriptionWidth], CGFLOAT_MAX)
                                               options:NSStringDrawingUsesLineFragmentOrigin
                                            attributes:attributes
                                               context:nil];

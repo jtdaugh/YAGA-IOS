@@ -21,6 +21,12 @@
 
 #define kContactsAccessWasRequested @"kContactsAccessWasRequested"
 
+@interface YAUser ()
+
+@property (nonatomic, strong, readwrite) NSMutableDictionary *phonebook;
+
+@end
+
 @implementation YAUser
 
 + (YAUser*)currentUser {
@@ -125,6 +131,7 @@
     return (NSMutableArray *) self.messages[groupId];
 }
 
+
 #pragma mark - Refactored
 - (void)importContactsWithCompletion:(contactsImportedBlock)completion excludingPhoneNumbers:(NSSet*)excludePhonesSet {
     
@@ -151,11 +158,13 @@
         if (!error){
             [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kContactsAccessWasRequested];
             
-            __block NSMutableArray *result = [NSMutableArray new];
             NSMutableArray *phoneResults = [NSMutableArray new];
-            _phonebook = [NSMutableDictionary new];
+            self.phonebook = [NSMutableDictionary new];
             
             NBPhoneNumberUtil *phoneUtil = [NBPhoneNumberUtil new];
+            
+            NSMutableArray *usersResults = [NSMutableArray new];
+            NSMutableArray *nonUsersResults = [NSMutableArray new];
             
             for(int i = 0; i<[contacts count]; i++){
                 APContact *contact = contacts[i];
@@ -163,7 +172,7 @@
                 for(int j = 0; j<[contact.phones count]; j++){
                     
                     NSError *aError = nil;
-
+                    
                     NBPhoneNumber *myNumber = [phoneUtil parse:contact.phones[j]
                                                  defaultRegion:[YAUser currentUser].countryCode
                                                          error:&aError];
@@ -183,14 +192,19 @@
                                                    nFirstname: [NSString stringWithFormat:@"%@", contact.firstName],
                                                    nLastname : [NSString stringWithFormat:@"%@", contact.lastName],
                                                    nYagaUser : [NSNumber numberWithBool:yagaUserData != nil]}];
-                                                   
+                    
                     if(yagaUserData && yagaUserData[nName] != [NSNull null]) {
                         [item setObject:yagaUserData[nName] forKey:nUsername];
                     }
-
+                    
                     if(![excludePhonesSet containsObject:num])
                     {
-                        [result addObject:item];
+                        if (yagaUserData) {
+                            [usersResults addObject:item];
+                        } else {
+                            [nonUsersResults addObject:item];
+                        }
+                        
                         [phoneResults addObject:num];
                     }
                     
@@ -199,39 +213,66 @@
             }
             if(completion)
             {
-                completion(nil, result);
+                NSMutableArray *orderedResults = [[usersResults arrayByAddingObjectsFromArray:nonUsersResults] mutableCopy];
+                
+                completion(nil, orderedResults, NO);
                 
                 NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
-                
-                //request yaga users once per hour
-                if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60]] == NSOrderedDescending) {
+                //request yaga users once per hour, or far more often when debugging.
+                if(!lastRequested || [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:(DEBUG ? 5 : 60*60)]] == NSOrderedDescending) {
                     [[YAServer sharedServer] getYagaUsersFromPhonesArray:phoneResults withCompletion:^(id response, NSError *error) {
-                        NSMutableDictionary *yagaUserDictionary = [NSMutableDictionary new];
-                        
-                        for(NSDictionary *yagaUserDic in response) {
-                            NSString *phone = yagaUserDic[nPhone];
+                        if(error) {
+                            if (completion)
+                                completion(error, nil, NO);
+                        }
+                        else {
+                            NSMutableDictionary *yagaUserDictionary = [NSMutableDictionary new];
                             
-                            if(!phone.length)
-                                continue;
-                            
-                            NSMutableDictionary *phonebookItem = [self.phonebook objectForKey:phone];
-                            
-                            if(phonebookItem) {
-                                [phonebookItem setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];
-                                NSString *username = yagaUserDic[nName];
-                                if([username isKindOfClass:[NSString class]] && username.length != 0)
-                                    [phonebookItem setObject:username forKey:nUsername];
+                            for(NSDictionary *yagaUserDic in response) {
+                                NSString *phone = yagaUserDic[nPhone];
                                 
-                                [self.phonebook setObject:phonebookItem forKey:phone];
+                                if(!phone.length)
+                                    continue;
+                                
+                                NSMutableDictionary *phonebookItem = [self.phonebook objectForKey:phone];
+                                
+                                if(phonebookItem) {
+                                    [phonebookItem setObject:[NSNumber numberWithBool:YES] forKey:nYagaUser];
+                                    NSString *username = yagaUserDic[nName];
+                                    if([username isKindOfClass:[NSString class]] && username.length != 0)
+                                        [phonebookItem setObject:username forKey:nUsername];
+                                    
+                                    [self.phonebook setObject:phonebookItem forKey:phone];
+                                }
+                                NSPredicate *phoneNumPredicate = [NSPredicate predicateWithFormat:@"%K == %@", nPhone, phone];
+                                @try {
+                                    if ([[usersResults filteredArrayUsingPredicate:phoneNumPredicate] count]) {
+                                        // already in yaga users array, do nothing. Should update entry maybe?
+                                    } else {
+                                        NSArray *newUser = [nonUsersResults filteredArrayUsingPredicate:phoneNumPredicate];
+                                        if ([newUser count]) {
+                                            [nonUsersResults removeObjectsInArray:newUser];
+                                            [usersResults addObjectsFromArray:newUser];
+                                        }
+                                    }
+                                }
+                                @catch (NSException *exception) {
+                                    DLog(@"Address book exception");
+                                }
+                                [yagaUserDictionary setObject:yagaUserDic forKey:phone];
                             }
                             
-                            [yagaUserDictionary setObject:yagaUserDic forKey:phone];
+                            [usersResults sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:nCompositeName ascending:YES]]];
+                            
+                            [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastYagaUsersRequestDate];
+                            [[NSUserDefaults standardUserDefaults] setObject:yagaUserDictionary forKey:kYagaUsersRequested];
+                            
+                            if(completion) {
+                                NSMutableArray *orderedResults = [[usersResults arrayByAddingObjectsFromArray:nonUsersResults] mutableCopy];
+                                completion(nil, orderedResults, YES);
+                            }
                         }
                         
-                        [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastYagaUsersRequestDate];
-                        [[NSUserDefaults standardUserDefaults] setObject:yagaUserDictionary forKey:kYagaUsersRequested];
-                        
-                        completion(nil, result);
                     }];
                 }
             }
@@ -239,10 +280,11 @@
         else
         {
             if(completion)
-                completion([NSError errorWithDomain:@"NO DOMAIN" code:0 userInfo:nil], nil);
+                completion([NSError errorWithDomain:@"NO DOMAIN" code:0 userInfo:nil], nil, NO);
         }
     }];
 }
+
 
 
 - (NSString*)formatDate:(NSDate*)date {

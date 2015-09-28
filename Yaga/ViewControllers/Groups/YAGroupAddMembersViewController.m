@@ -106,7 +106,7 @@
     }
     
     __weak typeof(self) weakSelf = self;
-    [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
+    [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts, BOOL sentToServer) {
         if (error) {
             //show error
         }

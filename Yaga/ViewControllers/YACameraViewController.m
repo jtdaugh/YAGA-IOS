@@ -24,11 +24,7 @@
 #import "YAPopoverView.h"
 
 #define BUTTON_SIZE (VIEW_WIDTH / 7)
-#define HEADER_HEIGHT 60.f
-
-
-#define INFO_PADDING 10.f
-#define INFO_SIZE 30.f
+#define HEADER_HEIGHT 56.f
 
 #define kUnviwedBadgeWidth 10
 
@@ -42,7 +38,7 @@ typedef enum {
 
 @property (nonatomic, strong) YACameraView *cameraView;
 
-@property (nonatomic) YACameraButtonMode cameraButtonsMode;
+@property (nonatomic) YACameraTopAccessoriesMode cameraButtonsMode;
 
 @property (strong, nonatomic) UIView *indicator;
 @property (strong, nonatomic) UILabel *indicatorText;
@@ -57,22 +53,24 @@ typedef enum {
 @property (strong, nonatomic) NSMutableArray *recordingAccessories;
 @property (strong, nonatomic) UIButton *switchCameraButton;
 @property (strong, nonatomic) UIImageView *unviewedVideosBadge;
-@property (strong, nonatomic) UIButton *groupButton;
-@property (strong, nonatomic) UIImageView *logo;
 
 @property (strong, nonatomic) UIButton *flashButton;
 @property (strong, nonatomic) UIButton *recordButton;
 
-@property (strong, nonatomic) UIButton *topLeftButton;
-@property (strong, nonatomic) UIButton *topRightButton;
+@property (strong, nonatomic) UIButton *groupButton;
+@property (strong, nonatomic) UIImageView *logo;
+@property (nonatomic, strong) UIButton *backButton;
+@property (nonatomic, strong) UIButton *settingsButton;
+@property (nonatomic, strong) UIButton *infoButton;
+
+@property (nonatomic, strong) UIView *homeCameraAccessoryWrapper;
+@property (nonatomic, strong) UIView *gridCameraAccessoryWrapper;
 
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressFullScreenGestureRecognizer;
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPressRedButtonGestureRecognizer;
 @property (nonatomic) BOOL audioInputAdded;
 
 @property (nonatomic, strong) UILabel *recordTooltipLabel;
-
-@property (nonatomic, strong) UIButton *openSettingsButton;
 
 @property (nonatomic, strong) CTCallCenter *callCenter;
 
@@ -154,18 +152,52 @@ typedef enum {
         [self.cameraAccessories addObject:self.flashButton];
         [self.view addSubview:self.flashButton];
         
-        self.topRightButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2,
-                                                                     INFO_PADDING,
-                                                                     INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2)];
-        //    switchButton.translatesAutoresizingMaskIntoConstraints = NO;
-        self.topRightButton.imageEdgeInsets = UIEdgeInsetsMake(INFO_PADDING, INFO_PADDING, INFO_PADDING, INFO_PADDING);
-        [self.topRightButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.topRightButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
-        [self.topRightButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        self.topRightButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-//        [self.cameraAccessories addObject:self.topRightButton];
-//        [self.view addSubview:self.topRightButton];
+        self.homeCameraAccessoryWrapper = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
+        [self.view addSubview:self.homeCameraAccessoryWrapper];
+        [self.cameraAccessories addObject:self.homeCameraAccessoryWrapper];
+        
+        self.gridCameraAccessoryWrapper = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, HEADER_HEIGHT)];
+        [self.view addSubview:self.gridCameraAccessoryWrapper];
+        [self.cameraAccessories addObject:self.gridCameraAccessoryWrapper];
+        
+        self.settingsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (HEADER_HEIGHT - BUTTON_SIZE) / 2, BUTTON_SIZE, BUTTON_SIZE)];
+        self.settingsButton.imageEdgeInsets = UIEdgeInsetsMake(12, 12, 12, 12);
+        [self.settingsButton setImage:[UIImage imageNamed:@"User"] forState:UIControlStateNormal];
+//        [self.settingsButton addTarget:self action:@selector(showSettings) forControlEvents:UIControlEventTouchUpInside];
+        self.settingsButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.settingsButton.layer.shadowRadius = 1.0f;
+        self.settingsButton.layer.shadowOpacity = 1.0;
+        self.settingsButton.layer.shadowOffset = CGSizeZero;
+        [self.homeCameraAccessoryWrapper addSubview:self.settingsButton];
+        
+        
+        self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BUTTON_SIZE,
+                                                                     (HEADER_HEIGHT - BUTTON_SIZE) / 2,
+                                                                     BUTTON_SIZE, BUTTON_SIZE)];
+        self.infoButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
+        [self.infoButton addTarget:self action:@selector(infoButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
+        [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        self.infoButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
+        [self.gridCameraAccessoryWrapper addSubview:self.infoButton];
 
+        UIImage *backImage = [UIImage imageNamed:@"Back"];
+        backImage = [UIImage imageWithCGImage:[backImage CGImage] scale:(backImage.scale * 3) orientation:(backImage.imageOrientation)];
+        
+        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (HEADER_HEIGHT - BUTTON_SIZE) / 2, 80, BUTTON_SIZE)];
+        [self.backButton setImage:backImage forState:UIControlStateNormal];
+        self.backButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
+        [self.backButton setTitle:NSLocalizedString(@"Back", @"") forState:UIControlStateNormal];
+        self.backButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+        self.backButton.layer.shadowRadius = 1.0f;
+        self.backButton.layer.shadowOpacity = 1.0;
+        self.backButton.layer.shadowOffset = CGSizeZero;
+        self.backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        self.backButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:22];
+        [self.backButton addTarget:self action:@selector(backButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.gridCameraAccessoryWrapper addSubview:self.backButton];
+        
+        
         //current group
         self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 0, 200, HEADER_HEIGHT)];
         [self.groupButton addTarget:self action:@selector(openGroupOptions) forControlEvents:UIControlEventTouchUpInside];
@@ -175,32 +207,33 @@ typedef enum {
         } else {
             [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
         }
-        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:22]];
+        [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
         self.groupButton.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.groupButton.layer.shadowRadius = 1.0f;
         self.groupButton.layer.shadowOpacity = 1.0;
         self.groupButton.layer.shadowOffset = CGSizeZero;
-        [self.cameraAccessories addObject:self.groupButton];
-        [self.view addSubview:self.groupButton];
+        [self.gridCameraAccessoryWrapper addSubview:self.groupButton];
 
-        CGFloat logoWidth = VIEW_WIDTH/6;
-        CGFloat logoHeight = VIEW_HEIGHT/12;
-        self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, 8, logoWidth, logoHeight)];
+        CGFloat logoWidth = VIEW_WIDTH/5;
+        CGFloat logoHeight = VIEW_HEIGHT/10;
+        self.logo = [[UIImageView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/2 - logoWidth/2, (HEADER_HEIGHT - logoHeight) / 2, logoWidth, logoHeight)];
         [self.logo setContentMode:UIViewContentModeScaleAspectFit];
         [self.logo setImage:[UIImage imageNamed:@"Logo"]];
-        [self.cameraAccessories addObject:self.logo];
-        [self.view addSubview:self.logo];
+        [self.homeCameraAccessoryWrapper addSubview:self.logo];
         
         //record button
         self.recordButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cameraView.frame.size.width/2.0 - recordButtonWidth/2.0, self.cameraView.frame.size.height - recordButtonWidth/2.0, recordButtonWidth, recordButtonWidth)];
-        [self.recordButton setBackgroundColor:[UIColor redColor]];
+        [self.recordButton setBackgroundColor:PRIMARY_COLOR];
         [self.recordButton.layer setCornerRadius:recordButtonWidth/2.0];
         [self.recordButton.layer setBorderColor:[UIColor whiteColor].CGColor];
         [self.recordButton.layer setBorderWidth:4.0f];
         [self.cameraAccessories addObject:self.recordButton];
         [self.view addSubview:self.recordButton];
         
-        
+//        [UIView animateWithDuration:1 delay:0.0 options:UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat | UIViewAnimationOptionCurveEaseInOut animations:^{
+//            self.recordButton.backgroundColor = [UIColor redColor];
+//        } completion:NULL];
+
         CGFloat labelWidth = 96;
         self.countdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, labelWidth, labelWidth)];
         self.countdownLabel.alpha = 0.0;
@@ -216,16 +249,6 @@ typedef enum {
         [self.countdownLabel setTextColor:PRIMARY_COLOR];
         [self.view addSubview:self.countdownLabel];
     
-        self.topLeftButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 0, 100, 30)];
-        self.topLeftButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-//        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
-        self.topLeftButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-        [self.topLeftButton addTarget:self action:@selector(leftBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.cameraAccessories addObject:self.topLeftButton];
-        [self.view addSubview:self.topLeftButton];
-        
-        [self setCameraButtonMode:[YAUser currentUser].currentGroup ? YACameraButtonModeBackAndInfo : YACAmeraButtonModeFindAndCreate];
-        
         CGFloat width = 48;
         self.recordingIndicator = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - width/2, 20, width, width)];
         UIImageView *monkeyIndicator = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, width, width)];
@@ -285,6 +308,8 @@ typedef enum {
         [self.view addSubview:self.trashZone];
         
         [self showRecordingAccessories:NO];
+        
+        [self setCameraButtonMode:[YAUser currentUser].currentGroup ? YACameraTopAccessoriesModeGrid : YACameraTopAccessoriesModeHome];
         
         [self enableScrollToTop:YES];
                 
@@ -395,24 +420,12 @@ typedef enum {
     }
 }
 
-
-- (void)leftBottomButtonPressed {
-    if([YAUser currentUser].currentGroup) {
-        [self.delegate backPressed];
-    }
-    else {
-//        YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
-//        [self presentViewController:navController animated:YES completion:nil];
-    }
+- (void)backButtonPressed {
+    [self.delegate backPressed];
 }
 
-- (void)rightBottomButtonPressed {
-    if([YAUser currentUser].currentGroup) {
-        [self openGroupOptions];
-    }
-    else {
-        [self.navigationController pushViewController:[NameGroupViewController new] animated:YES];
-    }
+- (void)infoButtonPressed {
+    [self openGroupOptions];
 }
 
 - (void)cameraViewTapped:(id)sender {
@@ -421,6 +434,12 @@ typedef enum {
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    [UIView animateKeyframesWithDuration:2 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat animations:^{
+        [UIView addKeyframeWithRelativeStartTime:0.3 relativeDuration:0.7 animations:^{
+            self.recordButton.backgroundColor = [UIColor redColor];
+        }];
+    } completion:nil];
+
     [self updateUnviewedVideosBadge];
 }
 
@@ -635,19 +654,14 @@ typedef enum {
 //        flashFrame.origin.y = VIEW_HEIGHT - flashFyasrame.size.height - 14;
 //        CGRect switchCamFrame = self.switchCameraButton.frame;
 //        switchCamFrame.origin.y = VIEW_HEIGHT - switchCamFrame.size.height - 10;
+
         [UIView animateWithDuration:0.2 delay:0.0 options:0 animations:^{
-            //
             self.view.frame = CGRectMake(0, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
             self.cameraView.frame = CGRectMake(-(VIEW_HEIGHT * 3/4 - VIEW_WIDTH)/2, 0, VIEW_HEIGHT * 3/4, VIEW_HEIGHT);
-            [self.topRightButton setAlpha:0.0];
-//            [self.groupButton setAlpha:0.0];
             [self.unviewedVideosBadge setAlpha:0.0];
-            [self.topLeftButton setAlpha:0.0];
-//            self.flashButton.frame = flashFrame;
-//            self.switchCameraButton.frame = switchCamFrame;
-            
-//            self.recordButton.transform = CGAffineTransformMakeScale(1.5, 1.5);
-            self.recordButton.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT - recordButtonWidth);
+            self.flashButton.center = CGPointMake(self.flashButton.center.x, VIEW_HEIGHT - recordButtonWidth + 20);
+            self.switchCameraButton.center = CGPointMake(self.switchCameraButton.center.x, VIEW_HEIGHT - recordButtonWidth + 20);
+            self.recordButton.center = CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT - recordButtonWidth + 20);
         } completion:^(BOOL finished) {
         }];
         
@@ -901,6 +915,9 @@ typedef enum {
         [self showRecordingAccessories:0];
         self.recordButton.transform = CGAffineTransformIdentity;
         self.recordButton.frame = CGRectMake(VIEW_WIDTH/2 - recordButtonWidth/2, VIEW_HEIGHT/2 - recordButtonWidth/2, recordButtonWidth, recordButtonWidth);
+        self.flashButton.center = CGPointMake(self.flashButton.center.x, VIEW_HEIGHT/2 - 10 - self.flashButton.frame.size.height / 2);
+        self.switchCameraButton.center = CGPointMake(self.switchCameraButton.center.x, VIEW_HEIGHT/2 - 10 - self.switchCameraButton.frame.size.height / 2);
+    
     } completion:^(BOOL finished) {
         self.largeCamera = NO;
     }];
@@ -993,6 +1010,7 @@ typedef enum {
         if(show)
             [self.view bringSubviewToFront:v];
     }
+    
 }
 
 - (void)showRecordingAccessories:(BOOL)show {
@@ -1027,45 +1045,13 @@ typedef enum {
 - (void)groupDidChange:(NSNotification *)notification {
     if ([YAUser currentUser].currentGroup.members.count == 1) {
         [self.groupButton setTitle:[[[YAUser currentUser].currentGroup.members firstObject] displayName] forState:UIControlStateNormal];
+        self.infoButton.hidden = YES;
+        self.groupButton.enabled = NO;
     } else {
         [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
+        self.infoButton.hidden = NO;
+        self.groupButton.enabled = YES;
     }
-}
-
-#pragma mark Settings
-- (void)addOpenSettingsButton {
-    if(!self.openSettingsButton) {
-        CGRect r = self.cameraView.bounds;
-        r.size.height /= 2;
-        r.size.width *= .6;
-        r.origin.x = (self.view.frame.size.width - r.size.width)/2;
-        r.origin.y = 100;
-        
-        self.openSettingsButton = [[UIButton alloc] initWithFrame:r];
-        [self.openSettingsButton setTitle:NSLocalizedString(@"Enable Camera", @"") forState:UIControlStateNormal];
-        [self.openSettingsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        self.openSettingsButton.titleLabel.font = [UIFont fontWithName:BOLD_FONT size:24];
-        [self.openSettingsButton addTarget:self action:@selector(openSettings:) forControlEvents:UIControlEventTouchUpInside];
-        [self.openSettingsButton.titleLabel setTextAlignment:NSTextAlignmentCenter];
-        [self.openSettingsButton.titleLabel setNumberOfLines:0];
-        self.openSettingsButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        [self.view addSubview:self.openSettingsButton];
-        
-        [self.recordTooltipLabel removeFromSuperview];
-        self.recordTooltipLabel = nil;
-    }
-}
-
-- (void)removeOpenSettingsButton {
-    if(self.openSettingsButton) {
-        [self.openSettingsButton removeFromSuperview];
-        self.openSettingsButton = nil;
-    }
-}
-
-- (void)openSettings:(id)sender {
-    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-    [[UIApplication sharedApplication] openURL:url];
 }
 
 - (void)enableScrollToTop:(BOOL)enable {
@@ -1079,7 +1065,7 @@ typedef enum {
     }
 }
 
-- (void)setCameraButtonMode:(YACameraButtonMode)mode {
+- (void)setCameraButtonMode:(YACameraTopAccessoriesMode)mode {
     if (mode == self.cameraButtonsMode) {
         return;
     }
@@ -1087,73 +1073,25 @@ typedef enum {
     [self updateCameraButtonsWithMode:mode];
 }
 
-- (void)updateCameraButtonsWithMode:(YACameraButtonMode)mode {
-    self.topRightButton.alpha = 0;
+- (void)updateCameraButtonsWithMode:(YACameraTopAccessoriesMode)mode {
+    self.gridCameraAccessoryWrapper.hidden = NO;
+    self.homeCameraAccessoryWrapper.hidden = NO;
     
-    if(mode == YACAmeraButtonModeFindAndCreate) {
-        
-        //left button
-//        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
-//        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
-//        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
-        
-        //right button
-        [self.topRightButton setImage:nil forState:UIControlStateNormal];
-        self.topRightButton.frame = CGRectMake(VIEW_WIDTH - 110, 0, 100, 30);
-        [self.topRightButton setTitle:NSLocalizedString(@"Create Group", @"") forState:UIControlStateNormal];
-        self.logo.hidden = NO;
-
-        [UIView animateWithDuration:0.2 animations:^{
-            self.topLeftButton.alpha = 0;
-            self.topRightButton.alpha = 1;
-            self.groupButton.alpha = 0;
-            self.logo.alpha = 1;
-        } completion:^(BOOL finished) {
-            //
-            self.topLeftButton.hidden = YES;
-            self.unviewedVideosBadge.hidden = YES;
-        }];
-    }
-    else {
-        //left button
-        UIImage *backImage = [UIImage imageNamed:@"Back"];
-        backImage = [UIImage imageWithCGImage:[backImage CGImage] scale:(backImage.scale * 3) orientation:(backImage.imageOrientation)];
-        
-        self.topLeftButton.hidden = NO;
-        [self.topLeftButton setImage:backImage forState:UIControlStateNormal];
-        self.topLeftButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
-        [self.topLeftButton setTitle:NSLocalizedString(@"Back", @"") forState:UIControlStateNormal];
-        self.topLeftButton.frame = CGRectMake(5, 0, 80, 30);
-        self.topLeftButton.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.topLeftButton.layer.shadowRadius = 1.0f;
-        self.topLeftButton.layer.shadowOpacity = 1.0;
-        self.topLeftButton.layer.shadowOffset = CGSizeZero;
-        //right button
-        self.topRightButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, 0, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
-        [self.topRightButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.topRightButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
-        [self.topRightButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        self.topRightButton.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.topRightButton.layer.shadowRadius = 1.0f;
-        self.topRightButton.layer.shadowOpacity = 1.0;
-        self.topRightButton.layer.shadowOffset = CGSizeZero;
-
-        self.topLeftButton.hidden = NO;
-        self.unviewedVideosBadge.hidden = NO;
-
-        [UIView animateWithDuration:0.2 animations:^{
-            self.topRightButton.alpha = 1;
-            self.topRightButton.alpha = 1;
-            self.groupButton.alpha = 1;
-            self.logo.alpha = 0;
-            [self updateUnviewedVideosBadge];
-
-        } completion:^(BOOL finished) {
-            self.logo.hidden = YES;
-        }];
-    }
-
-    
+    [UIView animateWithDuration:0.2 animations:^{
+        if(mode == YACameraTopAccessoriesModeHome) {
+            self.homeCameraAccessoryWrapper.alpha = 1;
+            self.gridCameraAccessoryWrapper.alpha = 0;
+        } else {
+            self.homeCameraAccessoryWrapper.alpha = 0;
+            self.gridCameraAccessoryWrapper.alpha = 1;
+        }
+    } completion:^(BOOL finished) {
+        if(mode == YACameraTopAccessoriesModeHome) {
+            self.gridCameraAccessoryWrapper.hidden = YES;
+        } else {
+            self.homeCameraAccessoryWrapper.hidden = YES;
+        }
+    }];
 }
 
 

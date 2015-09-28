@@ -13,7 +13,7 @@
 
 @class YAUser;
 
-typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
+typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts, BOOL sentToServer);
 
 @protocol CNetworkingDelegate <NSObject>
 @optional
@@ -53,7 +53,7 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts);
 - (NSString*)phoneNumber;
 - (NSString*)deviceToken;
 
-@property (nonatomic, readonly) NSMutableDictionary *phonebook;
+@property (nonatomic, strong, readonly) NSMutableDictionary *phonebook;
 
 - (void)iMessageWithFriends:(NSArray*)friendNumbers group:(YAGroup*)group withCompletion:(completionBlock)completion;
 

@@ -317,7 +317,7 @@
 }
 
 - (void)updateCameraAccessoriesWithViewIndex:(NSUInteger)index {
-    [self.cameraViewController setCameraButtonMode:index ? YACameraButtonModeBackAndInfo : YACAmeraButtonModeFindAndCreate];
+    [self.cameraViewController setCameraButtonMode:index ? YACameraTopAccessoriesModeGrid : YACameraTopAccessoriesModeHome];
 }
 
 #pragma mark - YACameraViewControllerDelegate

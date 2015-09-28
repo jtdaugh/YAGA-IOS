@@ -16,11 +16,11 @@ typedef void (^editButtonClickedBlock)(void);
 
 @property (nonatomic, strong) NSString *groupName;
 @property (nonatomic, strong) NSString *membersString;
+@property (nonatomic) NSUInteger vidCount;
 @property (nonatomic) BOOL muted;
 @property (nonatomic) BOOL publicGroup;
 
 + (CGFloat)cellHeight;
-+ (CGFloat)contentWidth;
 
 + (CGSize) sizeForMembersString:(NSString *)string;
 

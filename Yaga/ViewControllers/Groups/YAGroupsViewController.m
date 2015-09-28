@@ -32,7 +32,9 @@
 #define FOOTER_HEIGHT 170
 
 @interface YAGroupsViewController ()
-@property (nonatomic, strong) RLMResults *groups;
+@property (nonatomic, strong) NSArray *groups;
+@property (nonatomic, strong) NSArray *memberCountAtIndex;
+@property (nonatomic, strong) NSArray *membersStringsByIndex;
 
 @property (nonatomic, strong) YAGroup *editingGroup;
 @property (nonatomic, strong) YAFindGroupsViewConrtoller *findGroups;
@@ -129,7 +131,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
     
     //load phonebook if it wasn't done before
     if(![YAUser currentUser].phonebook.count) {
-        [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSArray *contacts) {
+        [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts, BOOL sentToServer) {
             if (!error) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.collectionView reloadData];
@@ -195,7 +197,19 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 - (void)updateState {
 //    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
-    self.groups = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    RLMResults *results = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    NSMutableArray *arr = [NSMutableArray new];
+    NSMutableArray *counts = [NSMutableArray new];
+    NSMutableArray *strings = [NSMutableArray new];
+    for (YAGroup *group in results) {
+        [arr addObject:group];
+        [counts addObject:@(group.members.count)];
+        [strings addObject:[group membersString]];
+    }
+    self.groups = arr;
+    self.memberCountAtIndex = counts;
+    self.membersStringsByIndex = strings;
+    
     [self.collectionView reloadData];
 }
 
@@ -231,23 +245,24 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAGroup *group = [self.groups objectAtIndex:indexPath.item];
-    if (group.members.count > 1 || group.members.count == 0) {
+    NSUInteger count = [[self.memberCountAtIndex objectAtIndex:indexPath.item] unsignedIntegerValue];
+    if (count != 1) {
         GroupsCollectionViewCell *cell;
         
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:GroupsCellIdentifier forIndexPath:indexPath];
         
         cell.groupName = group.name;
-        
         cell.membersString = group.membersString;
         
         cell.muted = group.muted;
-
+        cell.vidCount = group.videos.count;
         cell.publicGroup = group.publicGroup;
         
         return cell;
     } else {
         FriendCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:FriendsCellIdentifier forIndexPath:indexPath];
         cell.name = [[group.members firstObject] displayName];
+        cell.vidCount = group.videos.count;
     
         return cell;
     }
@@ -263,9 +278,9 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    YAGroup *group = [self.groups objectAtIndex:indexPath.item];
-    if (group.members.count > 1 || group.members.count == 0) {
-        NSString *membersString = group.membersString;
+    NSUInteger count = [[self.memberCountAtIndex objectAtIndex:indexPath.item] unsignedIntegerValue];
+    if (count != 1) {
+        NSString *membersString = [self.membersStringsByIndex objectAtIndex:indexPath.item];
         return [GroupsCollectionViewCell sizeForMembersString:membersString];
     } else {
         return [FriendCollectionViewCell size];
@@ -289,7 +304,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
         label.font = [UIFont fontWithName:BIG_FONT size:16];
         label.textColor = [UIColor lightGrayColor];
         label.textAlignment = NSTextAlignmentCenter;
-        label.text=@"Looking for more?\nExplore groups your friends\nare in or create a new group!";
+        label.text=@"Looking for more?\nFind groups your friends are in\nor start a new chat!";
         [reusableview addSubview:label];
         
         CGSize buttonSize = CGSizeMake(VIEW_WIDTH/2 - 30, 50);
@@ -314,7 +329,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
         createButton.layer.borderWidth = 3;
         createButton.layer.cornerRadius = buttonSize.height/2;
         createButton.layer.masksToBounds = YES;
-        [createButton setTitle:@"Create Group" forState:UIControlStateNormal];
+        [createButton setTitle:@"New Chat" forState:UIControlStateNormal];
         [createButton addTarget:self action:@selector(createCellPressed:) forControlEvents:UIControlEventTouchUpInside];
         [reusableview addSubview:createButton];
         

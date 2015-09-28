@@ -13,9 +13,9 @@
 
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic) BOOL muted;
+@property (nonatomic) NSUInteger vidCount;
 
 + (CGFloat)cellHeight;
-+ (CGFloat)contentWidth;
 
 + (CGSize)size;
 

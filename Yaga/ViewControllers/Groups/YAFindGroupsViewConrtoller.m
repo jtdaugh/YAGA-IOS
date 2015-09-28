@@ -269,7 +269,7 @@ static NSString *CellIdentifier = @"GroupsCell";
         NSDate *lastYagaUsersRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastYagaUsersRequestDate];
         if(!lastYagaUsersRequested) {
             //force upload phone contacts in case there is no information on server yet otherwise searchGroups will return nothgin
-            [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts) {
+            [[YAUser currentUser] importContactsWithCompletion:^(NSError *error, NSMutableArray *contacts, BOOL sentToServer) {
                 searchGroupsBlock();
             } excludingPhoneNumbers:nil];
         }
