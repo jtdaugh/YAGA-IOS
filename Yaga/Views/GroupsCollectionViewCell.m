@@ -13,6 +13,7 @@
 @property (nonatomic, strong) UILabel *nameLabel;
 @property (nonatomic, strong) UILabel *membersLabel;
 @property(nonatomic, strong) UIImageView *disclosureImageView;
+@property (nonatomic, strong) UIView *separatorView;
 
 @end
 
@@ -56,6 +57,9 @@
         [self.disclosureImageView setImage:[[UIImage imageNamed:@"Disclosure"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         self.disclosureImageView.contentMode = UIViewContentModeScaleAspectFit;
         
+        self.separatorView = [[UIView alloc] initWithFrame:CGRectMake(20, frame.size.height - 0.5, VIEW_WIDTH - 20, 0.5)];
+        self.separatorView.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1];
+        [self addSubview:self.separatorView];
         
         [self addSubview:self.nameLabel];
         [self addSubview:self.membersLabel];
@@ -100,6 +104,9 @@
     CGRect frame = self.membersLabel.frame;
     frame.size.height = rect.size.height;
     self.membersLabel.frame = frame;
+    
+    self.separatorView.frame = CGRectMake(20, frame.origin.y + frame.size.height + Y_MARGIN - 0.5, VIEW_WIDTH - 20, 0.5);
+    
 //    [self.membersLabel sizeToFit];
 //    self.clipsToBounds = NO;
 

@@ -42,6 +42,9 @@
         [self.disclosureImageView setImage:[[UIImage imageNamed:@"Disclosure"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         self.disclosureImageView.contentMode = UIViewContentModeScaleAspectFit;
         
+        UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(20, frame.size.height - 0.5, VIEW_WIDTH - 20, 0.5)];
+        separatorView.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1];
+        [self addSubview:separatorView];
         
         [self addSubview:self.nameLabel];
         [self addSubview:self.disclosureImageView];
