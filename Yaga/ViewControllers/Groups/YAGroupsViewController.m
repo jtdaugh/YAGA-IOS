@@ -12,6 +12,7 @@
 #import "YAUtils.h"
 
 #import "GroupsCollectionViewCell.h"
+#import "FriendCollectionViewCell.h"
 #import "YAServer.h"
 #import "UIImage+Color.h"
 #import "YAServer.h"
@@ -111,7 +112,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
     self.collectionView.backgroundColor = [self.view.backgroundColor copy];
     self.collectionView.contentInset = UIEdgeInsetsMake(self.topInset, 0, 0, 0);
     [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:GroupsCellIdentifier];
-    [self.collectionView registerClass:[GroupsCollectionViewCell class] forCellWithReuseIdentifier:FriendsCellIdentifier];
+    [self.collectionView registerClass:[FriendCollectionViewCell class] forCellWithReuseIdentifier:FriendsCellIdentifier];
     [self.collectionView registerClass:[UICollectionReusableView class]
             forSupplementaryViewOfKind: UICollectionElementKindSectionFooter
                    withReuseIdentifier:@"FooterView"];
@@ -233,6 +234,11 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
     return (self.listType == YAListOfFriends) ? self.contacts.count : self.groups.count;
 }
 
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
+{
+    return UIEdgeInsetsMake(10, 0, 0, 0); // add additional 10px above first row
+}
+
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     if (self.listType == YAListOfGroups) {
         GroupsCollectionViewCell *cell;
@@ -248,14 +254,11 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 
         cell.publicGroup = group.publicGroup;
         
-        cell.showUpdatedIndicator = group.hasUnviewedVideos;
-        
         return cell;
     } else {
-        GroupsCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:FriendsCellIdentifier forIndexPath:indexPath];
+        FriendCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:FriendsCellIdentifier forIndexPath:indexPath];
         YAContact *contact = [self.contacts objectAtIndex:indexPath.item];
-        cell.groupName = [contact displayName];
-        cell.membersString = @"";
+        cell.name = [contact displayName];
     
         return cell;
     }
@@ -281,7 +284,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
     
         return [GroupsCollectionViewCell sizeForMembersString:membersString];
     } else {
-        return [GroupsCollectionViewCell sizeForMembersString:@""];
+        return [FriendCollectionViewCell size];
     }
 }
 
@@ -345,7 +348,7 @@ referenceSizeForFooterInSection:(NSInteger)section {
 }
 
 - (void)createCellPressed:(id)sender {
-    [self.delegate showCreateGroupWithInitialVideo:nil];
+//    [self.delegate showCreateGroupWithInitialVideo:nil];
 }
 
 - (void)findCellPressed:(id)sender {

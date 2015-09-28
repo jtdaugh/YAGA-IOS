@@ -14,10 +14,6 @@
 
 @property (strong, nonatomic) YAGroup *existingGroup;
 @property (readonly, nonatomic) NSMutableArray *selectedContacts;
-
 @property (nonatomic, assign) BOOL inCreateGroupFlow;
-@property (nonatomic, copy) NSString *groupName;
-
-@property (nonatomic, assign) YAVideo *initialVideo;
 
 @end

@@ -10,7 +10,6 @@
 
 @interface GroupsCollectionViewCell ()
 
-@property(nonatomic, strong) UIImageView *updatedIndicator;
 @property (nonatomic, strong) UILabel *nameLabel;
 @property (nonatomic, strong) UILabel *membersLabel;
 @property(nonatomic, strong) UIImageView *disclosureImageView;
@@ -18,7 +17,7 @@
 @end
 
 #define ACCESSORY_SIZE 26
-#define LEFT_MARGIN 40
+#define LEFT_MARGIN 20
 #define RIGHT_MARGIN 10
 #define Y_MARGIN 12
 #define NAME_HEIGHT 30
@@ -57,17 +56,10 @@
         [self.disclosureImageView setImage:[[UIImage imageNamed:@"Disclosure"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         self.disclosureImageView.contentMode = UIViewContentModeScaleAspectFit;
         
-        CGFloat indicatorSize = 10;
-        self.updatedIndicator = [[UIImageView alloc] initWithFrame:CGRectMake((LEFT_MARGIN-indicatorSize)/2, (TOTAL_HEIGHT-indicatorSize)/2, indicatorSize, indicatorSize)];
-        UIImage *img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.0]];
-        self.updatedIndicator.image = img;
-        self.updatedIndicator.layer.cornerRadius = indicatorSize/2.f;
-        self.updatedIndicator.layer.masksToBounds = YES;
         
         [self addSubview:self.nameLabel];
         [self addSubview:self.membersLabel];
         [self addSubview:self.disclosureImageView];
-        [self addSubview:self.updatedIndicator];
     }
     
     return self;
@@ -95,10 +87,6 @@
         self.disclosureImageView.tintColor = PRIMARY_COLOR;
         img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.0]];
     }
-    
-    self.updatedIndicator.image = img;
-    self.updatedIndicator.layer.cornerRadius = indicatorSize/2.f;
-    self.updatedIndicator.layer.masksToBounds = YES;
 }
 
 - (void)setMembersString:(NSString *)membersString {
@@ -117,10 +105,6 @@
 
 //    self.membersLabel.layer.borderColor = [[UIColor redColor] CGColor];
 //    self.membersLabel.layer.borderWidth = 2;
-}
-
-- (void)setShowUpdatedIndicator:(BOOL)showUpdatedIndicator {
-    self.updatedIndicator.hidden = !showUpdatedIndicator;
 }
 
 - (void)setMuted:(BOOL)muted {

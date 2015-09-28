@@ -18,6 +18,7 @@
 @interface YAGroupAddMembersViewController ()
 @property (strong, nonatomic) UIView *topBar;
 @property (strong, nonatomic) UIButton *doneButton;
+@property (strong, nonatomic) UIButton *cancelButton;
 @property (strong, nonatomic) UIActivityIndicatorView *activityView;
 @property (strong, nonatomic) VENTokenField *searchBar;
 @property (strong, nonatomic) UILabel *placeHolder;
@@ -33,6 +34,8 @@
 
 #define kSearchedByUsername @"SearchedByUsername"
 #define kSearchedByPhone    @"SearchedByPhone"
+
+#define kTopBarHeight 50
 
 @implementation YAGroupAddMembersViewController
 
@@ -51,7 +54,7 @@
     [self.view setBackgroundColor:PRIMARY_COLOR];
     
     [self addNavBarView];
-    CGFloat origin = 64;
+    CGFloat origin = kTopBarHeight;
     
     VENTokenField *searchBar = [[VENTokenField alloc] initWithFrame:CGRectMake(0, origin, VIEW_WIDTH, 44)];
     [searchBar setBackgroundColor:[UIColor whiteColor]];
@@ -141,33 +144,36 @@
 
 - (void)addNavBarView {
     
-    self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, 64)];
+    self.topBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, kTopBarHeight)];
     self.topBar.backgroundColor = PRIMARY_COLOR;
-    UILabel *groupNameLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 28, 200, 30)];
+    UILabel *groupNameLabel = [[UILabel alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 10, 200, 30)];
     groupNameLabel.textColor = [UIColor whiteColor];
     groupNameLabel.textAlignment = NSTextAlignmentCenter;
-    [groupNameLabel setFont:[UIFont fontWithName:BIG_FONT size:20]];
-    groupNameLabel.text = self.existingGroup ? self.existingGroup.name : @"Add Members";
+    [groupNameLabel setFont:[UIFont fontWithName:BIG_FONT size:22]];
+    groupNameLabel.text = self.existingGroup ? self.existingGroup.name : @"New Chat";
     [self.topBar addSubview:groupNameLabel];
     
-    UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 25, 34, 34)];
-    backButton.imageEdgeInsets = UIEdgeInsetsMake(5, 5, 5, 5);
-    [backButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
-    backButton.tintColor = [UIColor whiteColor];
-    [backButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-    [backButton addTarget:self action:@selector(backButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    [self.topBar addSubview:backButton];
-    
     CGFloat doneWidth = 70;
-    self.doneButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - doneWidth - 10, 31, doneWidth, 28)];
+    self.doneButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - doneWidth - 10, 10, doneWidth, 30)];
     [self.doneButton setTitle:@"Done" forState:UIControlStateNormal];
     [self.doneButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.doneButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
     [self.doneButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
     self.doneButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
     [self.doneButton addTarget:self action:@selector(doneTapped) forControlEvents:UIControlEventTouchUpInside];
-    [self.doneButton setEnabled:NO];
+    self.doneButton.hidden = YES;
     [self.topBar addSubview:self.doneButton];
+    
+    
+    self.cancelButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - doneWidth - 10, 10, doneWidth, 30)];
+    [self.cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
+    [self.cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.cancelButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
+    [self.cancelButton.titleLabel setFont:[UIFont fontWithName:BIG_FONT size:18]];
+    self.cancelButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+    [self.cancelButton addTarget:self action:@selector(doneTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.topBar addSubview:self.cancelButton];
+    
     
     [self.view addSubview:self.topBar];
     
@@ -276,9 +282,11 @@
     [self.searchBar reloadData];
     
     if([self numberOfTokensInTokenField:self.searchBar] > 0){
-        [self.doneButton setEnabled:YES];
+        self.doneButton.hidden = NO;
+        self.cancelButton.hidden = YES;
     } else {
-        [self.doneButton setEnabled:NO];
+        self.doneButton.hidden = YES;
+        self.cancelButton.hidden = NO;
     }
 }
 
@@ -386,32 +394,83 @@
 }
 
 - (void)showActivity:(BOOL)show {
-    self.doneButton.hidden = show;
     if(show) {
-        self.activityView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - 35, 30, 30, 30)];
+        self.activityView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(VIEW_WIDTH - 35, 10, 30, 30)];
         [self.topBar addSubview:self.activityView];
         [self.activityView startAnimating];
+        self.doneButton.hidden = YES;
+        self.cancelButton.hidden = YES;
     }
     else {
         [self.activityView removeFromSuperview];
         self.activityView = nil;
+        if([self numberOfTokensInTokenField:self.searchBar] > 0){
+            self.doneButton.hidden = NO;
+            self.cancelButton.hidden = YES;
+        } else {
+            self.doneButton.hidden = YES;
+            self.cancelButton.hidden = NO;
+        }
     }
 }
+
+- (YAGroup *)equivalentGroupForSelectedContacts {
+    for (YAGroup *group in [YAGroup allObjects]) {
+        if ([group.members count] != [self.selectedContacts count]) {
+            continue;
+        }
+        BOOL groupMatch = YES;
+        for (YAContact *contact in group.members) {
+            BOOL contactMatch = false;
+            for (NSDictionary *contactDict in self.selectedContacts) {
+                if ([contactDict[nPhone] isEqualToString:contact.number]) {
+                    contactMatch = true;
+                    break;
+                }
+            }
+            if (!contactMatch) {
+                groupMatch = NO;
+                break;
+            }
+        }
+        if (groupMatch) {
+            return group;
+        }
+    }
+    return nil;
+}
+
+- (void)dismissAddMembers {
+    if (self.inCreateGroupFlow) {
+        UIViewController *presentingVC = self.presentingViewController;
+        if ([presentingVC isKindOfClass:[YAGridViewController class]]) {
+            UIViewController *previousTopVC = ((UINavigationController *)presentingVC).topViewController;
+            if ([previousTopVC isKindOfClass:[YAPostToGroupsViewController class]]) {
+                // Dismiss back to post capture groups list, and add new group to list
+                YAGroup *group = self.newlyCreatedGroup;
+                [presentingVC dismissViewControllerAnimated:YES completion:^{
+                    [(YAPostToGroupsViewController *)previousTopVC addNewlyCreatedGroupToList:group];
+                }];
+                return;
+            }
+        } else if ([presentingVC isKindOfClass:[YAMainTabBarController class]]) {
+            // Dismiss and go straight to new group
+            YAGroup *group = self.newlyCreatedGroup;
+            [presentingVC dismissViewControllerAnimated:YES completion:^{
+                [(YAMainTabBarController *)presentingVC pushGifGridForGroup:group toPendingTab:NO];
+            }];
+            return;
+        }
+    }
+    
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
 
 #pragma mark - Navigation
 - (void)doneTapped {
     if(![self validateSelectedContacts])
         return;
-
-    //If we come from GridViewController
-    __block BOOL found = NO;
-    [self.navigationController.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj isKindOfClass:[YAGridViewController class]]) {
-            found = YES;
-            *stop = YES;
-        }
-    }];
-    self.inCreateGroupFlow = !found;
     
     __weak typeof(self) weakSelf = self;
     
@@ -444,15 +503,22 @@
         // New group. Nested requests to create group and then add members
         [self showActivity:YES];
         
-        [YAGroup groupWithName:self.groupName withCompletion:^(NSError *error, id result) {
+        
+        // Check if equivalent group already exists, if so just open to it
+        
+        
+        // Otherwise, if group is multiple people, prompt for group name
+        
+        
+        // If just one person, name group "name1, name2" although this wont be visible on client
+        
+        
+        [YAGroup groupWithName:[NSString stringWithFormat:@"%@ and %@",[YAUser currentUser].username,   withCompletion:^(NSError *error, id result) {
             if(error) {
                 [weakSelf showActivity:NO];
             } else {
                 YAGroup *newGroup = result;
                 [YAUser currentUser].currentGroup = newGroup;
-                if (weakSelf.initialVideo ) {
-                    [weakSelf postInitialVideo];
-                }
                 
                 [newGroup addMembers:self.selectedContacts withCompletion:^(NSError *error) {
                     [weakSelf showActivity:NO];
@@ -475,18 +541,6 @@
         }];
 
     }
-}
-
-- (void)postInitialVideo {
-    // Always call this server method so video immediately appears in newly created group. Copy video currently waits on server stuff.
-    if (self.initialVideo.group) {
-        [[YAServer sharedServer] copyVideo:self.initialVideo toGroupsWithIds:@[[YAUser currentUser].currentGroup.serverId] withCompletion:^(id response, NSError *error) {
-            // Do nothing for now.
-        }];
-    } else {
-        [[YAServer sharedServer] postUngroupedVideo:self.initialVideo toGroups:@[[YAUser currentUser].currentGroup]];
-    }
-    [[NSNotificationCenter defaultCenter] postNotificationName:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:self.initialVideo];
 }
 
 - (void)popToGridViewController {

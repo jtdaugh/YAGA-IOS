@@ -163,8 +163,8 @@ typedef enum {
         [self.topRightButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.topRightButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
         self.topRightButton.titleLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-        [self.cameraAccessories addObject:self.topRightButton];
-        [self.view addSubview:self.topRightButton];
+//        [self.cameraAccessories addObject:self.topRightButton];
+//        [self.view addSubview:self.topRightButton];
 
         //current group
         self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 0, 200, HEADER_HEIGHT)];
@@ -1079,72 +1079,72 @@ typedef enum {
 }
 
 - (void)updateCameraButtonsWithMode:(YACameraButtonMode)mode {
-    self.topRightButton.alpha = 0;
-    
-    if(mode == YACAmeraButtonModeFindAndCreate) {
-        
-        //left button
-//        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
-//        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
-//        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
-        
-        //right button
-        [self.topRightButton setImage:nil forState:UIControlStateNormal];
-        self.topRightButton.frame = CGRectMake(VIEW_WIDTH - 110, 0, 100, 30);
-        [self.topRightButton setTitle:NSLocalizedString(@"Create Group", @"") forState:UIControlStateNormal];
-        self.logo.hidden = NO;
-
-        [UIView animateWithDuration:0.2 animations:^{
-            self.topLeftButton.alpha = 0;
-            self.topRightButton.alpha = 1;
-            self.groupButton.alpha = 0;
-            self.logo.alpha = 1;
-        } completion:^(BOOL finished) {
-            //
-            self.topLeftButton.hidden = YES;
-            self.unviewedVideosBadge.hidden = YES;
-        }];
-    }
-    else {
-        //left button
-        UIImage *backImage = [UIImage imageNamed:@"Back"];
-        backImage = [UIImage imageWithCGImage:[backImage CGImage] scale:(backImage.scale * 3) orientation:(backImage.imageOrientation)];
-        
-        self.topLeftButton.hidden = NO;
-        [self.topLeftButton setImage:backImage forState:UIControlStateNormal];
-        self.topLeftButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
-        [self.topLeftButton setTitle:NSLocalizedString(@"Groups", @"") forState:UIControlStateNormal];
-        self.topLeftButton.frame = CGRectMake(5, 0, 80, 30);
-        self.topLeftButton.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.topLeftButton.layer.shadowRadius = 1.0f;
-        self.topLeftButton.layer.shadowOpacity = 1.0;
-        self.topLeftButton.layer.shadowOffset = CGSizeZero;
-        //right button
-        self.topRightButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, 0, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
-        [self.topRightButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.topRightButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
-        [self.topRightButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        self.topRightButton.layer.shadowColor = [[UIColor blackColor] CGColor];
-        self.topRightButton.layer.shadowRadius = 1.0f;
-        self.topRightButton.layer.shadowOpacity = 1.0;
-        self.topRightButton.layer.shadowOffset = CGSizeZero;
-
-        self.topLeftButton.hidden = NO;
-        self.unviewedVideosBadge.hidden = NO;
-
-        [UIView animateWithDuration:0.2 animations:^{
-            self.topRightButton.alpha = 1;
-            self.topRightButton.alpha = 1;
-            self.groupButton.alpha = 1;
-            self.logo.alpha = 0;
-            [self updateUnviewedVideosBadge];
-
-        } completion:^(BOOL finished) {
-            self.logo.hidden = YES;
-        }];
-    }
-
-    
+//    self.topRightButton.alpha = 0;
+//    
+//    if(mode == YACAmeraButtonModeFindAndCreate) {
+//        
+//        //left button
+////        [self.leftBottomButton setImage:nil forState:UIControlStateNormal];
+////        [self.leftBottomButton setTitle:NSLocalizedString(@"Find Groups", @"") forState:UIControlStateNormal];
+////        self.leftBottomButton.frame = CGRectMake(10, VIEW_HEIGHT/2 - 35, 100, 30);
+//        
+//        //right button
+//        [self.topRightButton setImage:nil forState:UIControlStateNormal];
+//        self.topRightButton.frame = CGRectMake(VIEW_WIDTH - 110, 0, 100, 30);
+//        [self.topRightButton setTitle:NSLocalizedString(@"Create Group", @"") forState:UIControlStateNormal];
+//        self.logo.hidden = NO;
+//
+//        [UIView animateWithDuration:0.2 animations:^{
+//            self.topLeftButton.alpha = 0;
+//            self.topRightButton.alpha = 1;
+//            self.groupButton.alpha = 0;
+//            self.logo.alpha = 1;
+//        } completion:^(BOOL finished) {
+//            //
+//            self.topLeftButton.hidden = YES;
+//            self.unviewedVideosBadge.hidden = YES;
+//        }];
+//    }
+//    else {
+//        //left button
+//        UIImage *backImage = [UIImage imageNamed:@"Back"];
+//        backImage = [UIImage imageWithCGImage:[backImage CGImage] scale:(backImage.scale * 3) orientation:(backImage.imageOrientation)];
+//        
+//        self.topLeftButton.hidden = NO;
+//        [self.topLeftButton setImage:backImage forState:UIControlStateNormal];
+//        self.topLeftButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
+//        [self.topLeftButton setTitle:NSLocalizedString(@"Groups", @"") forState:UIControlStateNormal];
+//        self.topLeftButton.frame = CGRectMake(5, 0, 80, 30);
+//        self.topLeftButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+//        self.topLeftButton.layer.shadowRadius = 1.0f;
+//        self.topLeftButton.layer.shadowOpacity = 1.0;
+//        self.topLeftButton.layer.shadowOffset = CGSizeZero;
+//        //right button
+//        self.topRightButton.frame = CGRectMake(VIEW_WIDTH - INFO_SIZE - INFO_PADDING*2, 0, INFO_SIZE+INFO_PADDING*2, INFO_SIZE+INFO_PADDING*2);
+//        [self.topRightButton addTarget:self action:@selector(rightBottomButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+//        [self.topRightButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
+//        [self.topRightButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
+//        self.topRightButton.layer.shadowColor = [[UIColor blackColor] CGColor];
+//        self.topRightButton.layer.shadowRadius = 1.0f;
+//        self.topRightButton.layer.shadowOpacity = 1.0;
+//        self.topRightButton.layer.shadowOffset = CGSizeZero;
+//
+//        self.topLeftButton.hidden = NO;
+//        self.unviewedVideosBadge.hidden = NO;
+//
+//        [UIView animateWithDuration:0.2 animations:^{
+//            self.topRightButton.alpha = 1;
+//            self.topRightButton.alpha = 1;
+//            self.groupButton.alpha = 1;
+//            self.logo.alpha = 0;
+//            [self updateUnviewedVideosBadge];
+//
+//        } completion:^(BOOL finished) {
+//            self.logo.hidden = YES;
+//        }];
+//    }
+//
+//    
 }
 
 

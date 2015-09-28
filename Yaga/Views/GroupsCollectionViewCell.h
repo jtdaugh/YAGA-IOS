@@ -18,7 +18,6 @@ typedef void (^editButtonClickedBlock)(void);
 @property (nonatomic, strong) NSString *membersString;
 @property (nonatomic) BOOL muted;
 @property (nonatomic) BOOL publicGroup;
-@property (nonatomic) BOOL showUpdatedIndicator;
 
 + (CGFloat)cellHeight;
 + (CGFloat)contentWidth;

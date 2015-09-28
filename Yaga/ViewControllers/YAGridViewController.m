@@ -132,8 +132,7 @@
     [self.groupsButton setBackgroundImage:nil forState:UIControlStateNormal];
     [self.groupsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
     [self.groupsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
-    [self.groupsButton setTitle:@"Groups" forState:UIControlStateNormal];
-    [self.groupsButton addTarget:self action:@selector(groupsPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.groupsButton setTitle:@"Chats" forState:UIControlStateNormal];
 
     [self.myGroupsHeaderView addSubview:self.groupsButton];
     
@@ -147,8 +146,8 @@
     [self.friendsButton setBackgroundImage:nil forState:UIControlStateNormal];
     [self.friendsButton setTitleColor:PRIMARY_COLOR forState:UIControlStateNormal];
     [self.friendsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
-    [self.friendsButton setTitle:@"Friends" forState:UIControlStateNormal];
-    [self.friendsButton addTarget:self action:@selector(friendsPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.friendsButton setTitle:@"+ New Chat" forState:UIControlStateNormal];
+    [self.friendsButton addTarget:self action:@selector(newChatPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.myGroupsHeaderView addSubview:self.friendsButton];
     
     if (!self.onboarding) {
@@ -203,16 +202,8 @@
 
 }
 
-- (void)groupsPressed {
-    self.groupsButton.selected = YES;
-    self.friendsButton.selected = NO;
-    self.groupsViewController.listType = YAListOfGroups;
-}
-
-- (void)friendsPressed {
-    self.groupsButton.selected = NO;
-    self.friendsButton.selected = YES;
-    self.groupsViewController.listType = YAListOfFriends;
+- (void)newChatPressed {
+    [self showCreateGroup];
 }
 
 - (void)swapOutOfOnboardingState {
@@ -229,27 +220,14 @@
     }
 }
 
-- (void)showCreateGroup:(NSNotification *)notif {
-    YAVideo *video = notif.object;
-    [self showCreateGroupWithInitialVideo:video];
-}
-
-- (void)showCreateGroupWithInitialVideo:(YAVideo *)initialVideo {
-    NameGroupViewController *vc = [NameGroupViewController new];
-    if (initialVideo) {
-        vc.initialVideo = initialVideo; // may be nil
-        [self.navigationController dismissViewControllerAnimated:NO completion:^{
-            [self.navigationController pushViewController:vc animated:NO];
-        }];
-    } else {
-        [self.navigationController pushViewController:vc animated:YES];
-    }
+- (void)showCreateGroup {
+    YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
+    [self.navigationController presentViewController:vc animated:YES completion:nil];
 }
 
 - (void)showFindGroups {
     YAGroupsNavigationController *navController = [[YAGroupsNavigationController alloc] initWithRootViewController:[YAFindGroupsViewConrtoller new]];
     [self presentViewController:navController animated:YES completion:nil];
-
 }
 
 - (UICollectionView *)getRelevantCollectionView {
