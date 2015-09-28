@@ -13,7 +13,7 @@
 
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic) BOOL muted;
-@property (nonatomic) NSUInteger vidCount;
+@property (nonatomic, strong) NSString *accessoryString;
 
 + (CGFloat)cellHeight;
 

@@ -246,6 +246,9 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAGroup *group = [self.groups objectAtIndex:indexPath.item];
     NSUInteger count = [[self.memberCountAtIndex objectAtIndex:indexPath.item] unsignedIntegerValue];
+    
+    NSString *dateString = [[YAUser currentUser] formatUpdatedAtDate:group.updatedAt];
+    
     if (count != 1) {
         GroupsCollectionViewCell *cell;
         
@@ -255,15 +258,14 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
         cell.membersString = group.membersString;
         
         cell.muted = group.muted;
-        cell.vidCount = group.videos.count;
+        cell.accessoryString = dateString;
         cell.publicGroup = group.publicGroup;
         
         return cell;
     } else {
         FriendCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:FriendsCellIdentifier forIndexPath:indexPath];
         cell.name = [[group.members firstObject] displayName];
-        cell.vidCount = group.videos.count;
-    
+        cell.accessoryString = dateString;
         return cell;
     }
 }

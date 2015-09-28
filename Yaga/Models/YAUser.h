@@ -48,6 +48,7 @@ typedef void (^contactsImportedBlock)(NSError *error, NSMutableArray *contacts, 
 - (void)logout;
 
 - (void)importContactsWithCompletion:(contactsImportedBlock)completion excludingPhoneNumbers:(NSSet*)excludePhonesSet;
+- (NSString*)formatUpdatedAtDate:(NSDate*)date;
 - (NSString*)formatDate:(NSDate*)date;
 - (NSString*)username;
 - (NSString*)phoneNumber;

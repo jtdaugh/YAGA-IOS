@@ -11,7 +11,7 @@
 @interface FriendCollectionViewCell ()
 
 @property (nonatomic, strong) UILabel *nameLabel;
-@property (nonatomic, strong) UILabel *vidCountLabel;
+@property (nonatomic, strong) UILabel *accessoryLabel;
 @property(nonatomic, strong) UIImageView *disclosureImageView;
 
 @end
@@ -36,11 +36,11 @@
         self.nameLabel.textColor = PRIMARY_COLOR;
         self.nameLabel.adjustsFontSizeToFitWidth = YES;
 
-        self.vidCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.frame.size.width - RIGHT_MARGIN - ACCESSORY_SIZE - 5 - VID_COUNT_WIDTH, (TOTAL_HEIGHT - ACCESSORY_SIZE)/2, VID_COUNT_WIDTH, ACCESSORY_SIZE)];
-        self.vidCountLabel.textColor = PRIMARY_COLOR;
-        self.vidCountLabel.font = [UIFont fontWithName:BIG_FONT size:16];
-        self.vidCountLabel.textAlignment = NSTextAlignmentRight;
-        self.vidCountLabel.adjustsFontSizeToFitWidth = YES;
+        self.accessoryLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.frame.size.width - RIGHT_MARGIN - ACCESSORY_SIZE - 5 - VID_COUNT_WIDTH, (TOTAL_HEIGHT - ACCESSORY_SIZE)/2, VID_COUNT_WIDTH, ACCESSORY_SIZE)];
+        self.accessoryLabel.textColor = PRIMARY_COLOR;
+        self.accessoryLabel.font = [UIFont fontWithName:BIG_FONT size:16];
+        self.accessoryLabel.textAlignment = NSTextAlignmentRight;
+        self.accessoryLabel.adjustsFontSizeToFitWidth = YES;
 
         [self setBackgroundColor:[UIColor clearColor]];
                 
@@ -55,7 +55,7 @@
         [self addSubview:separatorView];
         
         [self addSubview:self.nameLabel];
-        [self addSubview:self.vidCountLabel];
+        [self addSubview:self.accessoryLabel];
         [self addSubview:self.disclosureImageView];
     }
     
@@ -63,10 +63,9 @@
 }
 
 
-- (void)setVidCount:(NSUInteger)vidCount {
-    self.vidCountLabel.text = [NSString stringWithFormat:@"%lu %@", vidCount, vidCount == 1 ? @"vid" : @"vids"];
+- (void)setAccessoryString:(NSString *)accessoryString {
+    self.accessoryLabel.text = accessoryString;
 }
-
 - (void)setName:(NSString *)name {
     self.nameLabel.text = name;
 }

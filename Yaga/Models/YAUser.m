@@ -308,6 +308,30 @@
     return [NSString stringWithFormat:@"%@ %@", dayString, [timeFormatter stringFromDate:date]];
 }
 
+- (NSString*)formatUpdatedAtDate:(NSDate*)date {
+    NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitWeekOfYear | NSCalendarUnitWeekday fromDate:date];
+    NSDateComponents *todayComponents = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitWeekOfYear fromDate:[NSDate date]];
+    
+    NSString *dateString = @"";
+    
+    // if same week
+    if(todayComponents.weekOfYear == dateComponents.weekOfYear){
+        // if same day
+        if(todayComponents.day == dateComponents.day){
+            dateString = [timeFormatter stringFromDate:date];
+        } else if(todayComponents.weekOfYear == dateComponents.weekOfYear){ // same week but not same day
+            dateString = [[dateFormatter weekdaySymbols] objectAtIndex:dateComponents.weekday-1];
+        }
+    } else {
+        dateString = [dateFormatter stringFromDate:date];
+    }
+    if ([dateString characterAtIndex:0] == '0') {
+        // remove leading 0
+        dateString = [dateString stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:@""];
+    }
+    return dateString;
+}
+
 - (NSString*)username {
     return [[YAUser currentUser] objectForKey:nUsername];
 }

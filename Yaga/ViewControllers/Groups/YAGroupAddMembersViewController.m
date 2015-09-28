@@ -529,7 +529,15 @@
                 [self showActivity:NO];
                 [self.navigationController pushViewController:vc animated:YES];
             } else {
-                [YAGroup groupWithName:@"abcd" withCompletion:^(NSError *error, id result) {
+                NSString *friendName = nil;
+                NSDictionary *friend = [self.selectedContacts firstObject];
+                if ([friend objectForKey:nUsername]) {
+                    friendName = friend[nUsername];
+                } else {
+                    friendName = [[(NSString *)friend[nCompositeName] componentsSeparatedByString:@" "] firstObject];
+                }
+                NSString *chatName = [NSString stringWithFormat:@"%@ and %@", [YAUser currentUser].username, friendName];
+                [YAGroup groupWithName:chatName withCompletion:^(NSError *error, id result) {
                     if(error) {
                         [weakSelf showActivity:NO];
                     } else {
@@ -542,7 +550,6 @@
                             [weakSelf showActivity:NO];
                             if(!error) {
                                 [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
-                                
                                 [self dismissAddMembers];
                             }
                         }];

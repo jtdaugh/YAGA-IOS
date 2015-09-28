@@ -160,7 +160,7 @@ typedef enum {
         [self.view addSubview:self.gridCameraAccessoryWrapper];
         [self.cameraAccessories addObject:self.gridCameraAccessoryWrapper];
         
-        self.settingsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (HEADER_HEIGHT - BUTTON_SIZE) / 2, BUTTON_SIZE, BUTTON_SIZE)];
+        self.settingsButton = [[UIButton alloc] initWithFrame:CGRectMake(2, (HEADER_HEIGHT - BUTTON_SIZE) / 2, BUTTON_SIZE, BUTTON_SIZE)];
         self.settingsButton.imageEdgeInsets = UIEdgeInsetsMake(12, 12, 12, 12);
         [self.settingsButton setImage:[UIImage imageNamed:@"User"] forState:UIControlStateNormal];
 //        [self.settingsButton addTarget:self action:@selector(showSettings) forControlEvents:UIControlEventTouchUpInside];
@@ -174,7 +174,7 @@ typedef enum {
         self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BUTTON_SIZE,
                                                                      (HEADER_HEIGHT - BUTTON_SIZE) / 2,
                                                                      BUTTON_SIZE, BUTTON_SIZE)];
-        self.infoButton.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
+        self.infoButton.imageEdgeInsets = UIEdgeInsetsMake(9, 10, 11, 10);
         [self.infoButton addTarget:self action:@selector(infoButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
@@ -1047,7 +1047,7 @@ typedef enum {
         [self.groupButton setTitle:[[[YAUser currentUser].currentGroup.members firstObject] displayName] forState:UIControlStateNormal];
         self.infoButton.hidden = YES;
         self.groupButton.enabled = NO;
-    } else {
+    } else if ([YAUser currentUser].currentGroup) {
         [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
         self.infoButton.hidden = NO;
         self.groupButton.enabled = YES;

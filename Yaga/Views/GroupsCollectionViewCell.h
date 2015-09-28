@@ -16,7 +16,7 @@ typedef void (^editButtonClickedBlock)(void);
 
 @property (nonatomic, strong) NSString *groupName;
 @property (nonatomic, strong) NSString *membersString;
-@property (nonatomic) NSUInteger vidCount;
+@property (nonatomic, strong) NSString *accessoryString;
 @property (nonatomic) BOOL muted;
 @property (nonatomic) BOOL publicGroup;
 
