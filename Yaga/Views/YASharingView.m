@@ -133,7 +133,7 @@
 - (void)crosspostPressed {
     YAPostToGroupsViewController *vc = [YAPostToGroupsViewController new];
     vc.video = self.video;
-    [((UIViewController *)self.page.presentingVC).navigationController pushViewController:vc animated:YES];
+    [((UIViewController *)self.page.presentingVC) presentViewController:vc animated:YES completion:nil];
 }
 
 - (void)setTopButtonsHidden:(BOOL)hidden animated:(BOOL)animated {

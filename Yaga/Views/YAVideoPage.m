@@ -748,35 +748,28 @@ static NSString *commentCellID = @"CommentCell";
     CGFloat yOrigin = VIEW_HEIGHT - POSTCAPTURE_BUTTON_HEIGHT;
     self.cancelSendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
     [self.cancelSendButton setTitle:@"Cancel" forState:UIControlStateNormal];
-    self.cancelSendButton.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.8];
+    self.cancelSendButton.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.7];
     [self.cancelSendButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
     [self.cancelSendButton addTarget:self action:@selector(closeAnimated) forControlEvents:UIControlEventTouchUpInside];
     [self.postCaptureOverlay addSubview:self.cancelSendButton];
     
     yOrigin -= POSTCAPTURE_BUTTON_HEIGHT;
     
-    if ([YAUser currentUser].currentGroup) {
-        self.changeGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
-        [self.changeGroupsButton setTitle:@"Change Recipients" forState:UIControlStateNormal];
-        self.changeGroupsButton.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.7];
-        [self.changeGroupsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-        [self.changeGroupsButton addTarget:self action:@selector(changeGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.postCaptureOverlay addSubview:self.changeGroupsButton];
+    self.changeGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
+    [self.changeGroupsButton setTitle:[YAUser currentUser].currentGroup ? @"Change Recipients" : @"Choose Recipients" forState:UIControlStateNormal];
+    self.changeGroupsButton.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.7];
+    [self.changeGroupsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+    [self.changeGroupsButton addTarget:self action:@selector(changeGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.postCaptureOverlay addSubview:self.changeGroupsButton];
 
-        yOrigin -= POSTCAPTURE_BUTTON_HEIGHT;
-    }
+    yOrigin -= POSTCAPTURE_BUTTON_HEIGHT;
     
-    NSString *buttonTitle;
-    if ([YAUser currentUser].currentGroup) {
-        YAGroup *group = [YAUser currentUser].currentGroup;
-        NSString *groupName = (group.members.count == 1) ? [[group.members firstObject] displayName] : group.name;
-        buttonTitle = [NSString stringWithFormat:@"Send to %@", groupName];
-    } else {
-        buttonTitle = @"Choose Recipients";
-    }
+    YAGroup *group = [YAUser currentUser].currentGroup;
+    NSString *groupName = (group.members.count == 1) ? [[group.members firstObject] displayName] : group.name;
+    NSString *buttonTitle = [NSString stringWithFormat:@"Send to %@", groupName];
     
     self.confirmSendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
-    self.confirmSendButton.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:0.6];
+    self.confirmSendButton.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:0.7];
     [self.confirmSendButton setTitle:buttonTitle forState:UIControlStateNormal];
     [self.confirmSendButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
     self.confirmSendButton.titleLabel.textColor = [UIColor whiteColor];
@@ -785,9 +778,11 @@ static NSString *commentCellID = @"CommentCell";
 //    [self.confirmSendButton setContentEdgeInsets:UIEdgeInsetsZero];
 //    [self.confirmSendButton setImageEdgeInsets:UIEdgeInsetsMake(0, self.confirmSendButton.frame.size.width - 20 - 30, 0, 20)];
 //    [self.confirmSendButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
-
     [self.confirmSendButton addTarget:self action:@selector(confirmSendPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.postCaptureOverlay addSubview:self.confirmSendButton];
+    
+    if ([YAUser currentUser].currentGroup) {
+        [self.postCaptureOverlay addSubview:self.confirmSendButton];
+    }
 
     [UIView animateWithDuration:0.2 animations:^{
         self.overlay.alpha = 0;
@@ -797,23 +792,15 @@ static NSString *commentCellID = @"CommentCell";
     }];
 }
 
-- (void)pushChooseGroups {
+- (void)changeGroupsPressed {
     YAPostToGroupsViewController *vc = [YAPostToGroupsViewController new];
     vc.video = self.video;
     [((UIViewController *)self.presentingVC).navigationController pushViewController:vc animated:YES];
 }
 
-- (void)changeGroupsPressed {
-    [self pushChooseGroups];
-}
-
 - (void)confirmSendPressed {
-    if ([YAUser currentUser].currentGroup) {
-        [[YAServer sharedServer] postUngroupedVideo:self.video toGroups:@[[YAUser currentUser].currentGroup]];
-        [self closeAnimated];
-    } else {
-        [self pushChooseGroups];
-    }
+    [[YAServer sharedServer] postUngroupedVideo:self.video toGroups:@[[YAUser currentUser].currentGroup]];
+    [self closeAnimated];
 }
 
 - (void)setupCaptionButtonContainer {

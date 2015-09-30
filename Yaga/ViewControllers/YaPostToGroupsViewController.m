@@ -40,7 +40,7 @@
     
     YAStandardFlexibleHeightBar *navBar = [YAStandardFlexibleHeightBar emptyStandardFlexibleBar];
     [navBar.titleButton setTitle:@"Choose Recipients" forState:UIControlStateNormal];
-    [navBar.leftBarButton setImage:[[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    [navBar.leftBarButton setImage:self.video.group ? [UIImage imageNamed:@"X"] : [[UIImage imageNamed:@"Back"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [navBar.rightBarButton setImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
     [navBar.leftBarButton addTarget:self action:@selector(backPressed) forControlEvents:UIControlEventTouchUpInside];
     [navBar.rightBarButton addTarget:self action:@selector(addNewGroup) forControlEvents:UIControlEventTouchUpInside];
@@ -59,7 +59,7 @@
     [self.view addSubview:self.tableView];
     [self.view addSubview:navBar]; // Need the navBar on top of tableView
     
-    RLMResults *groups = [YAGroup allObjects];
+    RLMResults *groups = self.video.group ? [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId != '%@'", self.video.group.serverId]] : [YAGroup allObjects];
     RLMResults *groupsSorted = [groups sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     
     self.groups = [self arrayFromRLMResults:groupsSorted];
@@ -98,7 +98,11 @@
 }
 
 - (void)backPressed {
-    [self.navigationController popViewControllerAnimated:YES];
+    if (self.video.group) {
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    } else {
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 #pragma mark - Table View Data Source
