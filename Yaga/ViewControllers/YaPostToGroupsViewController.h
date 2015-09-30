@@ -12,6 +12,8 @@
 
 @property (nonatomic, strong) NSDictionary *settings;
 
+@property (nonatomic, strong) YAVideo *video;
+
 - (void)createChatFinishedWithGroup:(YAGroup *)group wasPreexisting:(BOOL)preexisting;
 
 @end

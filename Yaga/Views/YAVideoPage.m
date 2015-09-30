@@ -27,13 +27,14 @@
 #import "Constants.h"
 #import "YAViewCountManager.h"
 #import "RCounter.h"
-
+#import "YAPostToGroupsViewController.h"
 #import "YASharingView.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
 
 #define CAPTION_BUTTON_HEIGHT 80.f
+#define POSTCAPTURE_BUTTON_HEIGHT 60.f
 #define CAPTION_DONE_PROPORTION 0.5
 
 #define DOWN_MOVEMENT_TRESHHOLD 800.0f
@@ -61,6 +62,10 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
 
+@property (nonatomic, strong) UIButton *cancelSendButton;
+@property (nonatomic, strong) UIButton *confirmSendButton;
+@property (nonatomic, strong) UIButton *changeGroupsButton;
+
 @property BOOL loading;
 @property (strong, nonatomic) UIView *loader;
 @property (nonatomic, strong) YAProgressView *progressView;
@@ -74,6 +79,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UILongPressGestureRecognizer *hideGestureRecognizer;
 
 @property (strong, nonatomic) UIView *overlay;
+@property (strong, nonatomic) UIView *postCaptureOverlay;
 
 @property (strong, nonatomic) UIView *serverCaptionWrapperView;
 @property (strong, nonatomic) UITextView *serverCaptionTextView;
@@ -146,7 +152,7 @@ static NSString *commentCellID = @"CommentCell";
         
         self.overlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
         [self addSubview:self.overlay];
-        
+
         [self.playerView addObserver:self forKeyPath:@"readyToPlay" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(downloadDidStart:) name:AFNetworkingOperationDidStartNotification object:nil];
@@ -571,6 +577,7 @@ static NSString *commentCellID = @"CommentCell";
     
     [self setupCaptionButtonContainer];
     [self setupCaptionGestureRecognizers];
+    
     [self.overlay bringSubviewToFront:self.moreButton];
     [self.overlay bringSubviewToFront:self.commentButton];
     [self.overlay bringSubviewToFront:self.heartButton];
@@ -733,6 +740,82 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
+- (void)addPostCaptureButtons {
+    self.postCaptureOverlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
+    [self addSubview:self.postCaptureOverlay];
+    self.postCaptureOverlay.alpha = 0;
+    
+    CGFloat yOrigin = VIEW_HEIGHT - POSTCAPTURE_BUTTON_HEIGHT;
+    self.cancelSendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
+    [self.cancelSendButton setTitle:@"Cancel" forState:UIControlStateNormal];
+    self.cancelSendButton.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.8];
+    [self.cancelSendButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+    [self.cancelSendButton addTarget:self action:@selector(closeAnimated) forControlEvents:UIControlEventTouchUpInside];
+    [self.postCaptureOverlay addSubview:self.cancelSendButton];
+    
+    yOrigin -= POSTCAPTURE_BUTTON_HEIGHT;
+    
+    if ([YAUser currentUser].currentGroup) {
+        self.changeGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
+        [self.changeGroupsButton setTitle:@"Change Recipients" forState:UIControlStateNormal];
+        self.changeGroupsButton.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.7];
+        [self.changeGroupsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+        [self.changeGroupsButton addTarget:self action:@selector(changeGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.postCaptureOverlay addSubview:self.changeGroupsButton];
+
+        yOrigin -= POSTCAPTURE_BUTTON_HEIGHT;
+    }
+    
+    NSString *buttonTitle;
+    if ([YAUser currentUser].currentGroup) {
+        YAGroup *group = [YAUser currentUser].currentGroup;
+        NSString *groupName = (group.members.count == 1) ? [[group.members firstObject] displayName] : group.name;
+        buttonTitle = [NSString stringWithFormat:@"Send to %@", groupName];
+    } else {
+        buttonTitle = @"Choose Recipients";
+    }
+    
+    self.confirmSendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
+    self.confirmSendButton.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:0.6];
+    [self.confirmSendButton setTitle:buttonTitle forState:UIControlStateNormal];
+    [self.confirmSendButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
+    self.confirmSendButton.titleLabel.textColor = [UIColor whiteColor];
+//    [self.confirmSendButton setImage:self.video.group ? [UIImage imageNamed:@"Check"] : [UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
+//    self.confirmSendButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+//    [self.confirmSendButton setContentEdgeInsets:UIEdgeInsetsZero];
+//    [self.confirmSendButton setImageEdgeInsets:UIEdgeInsetsMake(0, self.confirmSendButton.frame.size.width - 20 - 30, 0, 20)];
+//    [self.confirmSendButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
+
+    [self.confirmSendButton addTarget:self action:@selector(confirmSendPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.postCaptureOverlay addSubview:self.confirmSendButton];
+
+    [UIView animateWithDuration:0.2 animations:^{
+        self.overlay.alpha = 0;
+        self.postCaptureOverlay.alpha = 1;
+    } completion:^(BOOL finished) {
+        self.overlay.hidden = YES;
+    }];
+}
+
+- (void)pushChooseGroups {
+    YAPostToGroupsViewController *vc = [YAPostToGroupsViewController new];
+    vc.video = self.video;
+    [((UIViewController *)self.presentingVC).navigationController pushViewController:vc animated:YES];
+}
+
+- (void)changeGroupsPressed {
+    [self pushChooseGroups];
+}
+
+- (void)confirmSendPressed {
+    if ([YAUser currentUser].currentGroup) {
+        [[YAServer sharedServer] postUngroupedVideo:self.video toGroups:@[[YAUser currentUser].currentGroup]];
+        [self closeAnimated];
+    } else {
+        [self pushChooseGroups];
+    }
+}
+
 - (void)setupCaptionButtonContainer {
     self.captionButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - CAPTION_BUTTON_HEIGHT, VIEW_WIDTH, CAPTION_BUTTON_HEIGHT)];
     [self.overlay addSubview:self.captionButtonContainer];
@@ -860,11 +943,11 @@ static NSString *commentCellID = @"CommentCell";
 - (void)toggleEditingCaption:(BOOL)editing {
     if (!self.video.group) {
         // Toggle sharing view and caption editing for unposted video state
-        self.sharingView.hidden = NO;
+        self.postCaptureOverlay.hidden = NO;
         [UIView animateWithDuration:0.2 animations:^{
-            self.sharingView.alpha = editing ? 0.0 : 1.0;
+            self.postCaptureOverlay.alpha = editing ? 0.0 : 1.0;
         } completion:^(BOOL finished) {
-            self.sharingView.hidden = editing;
+            self.postCaptureOverlay.hidden = editing;
         }];
     }
     
@@ -1205,8 +1288,7 @@ static NSString *commentCellID = @"CommentCell";
     if (self.editingCaption) return;
     if ([recognizer isEqual:self.likeDoubleTapRecognizer]) {
         [self addLike];
-    } else if ([recognizer isEqual:self.captionTapRecognizer] ||
-               [recognizer isEqual:self.sharingView.crosspostTapOutRecognizer]) {
+    } else if ([recognizer isEqual:self.captionTapRecognizer]) {
         [self toggleEditingCaption:YES];
         CGPoint loc = [recognizer locationInView:self];
         
@@ -1225,7 +1307,7 @@ static NSString *commentCellID = @"CommentCell";
 //        
 //    }
     if (self.video.group) {
-        [self collapseCrosspost];
+        [self collapseShareSheet];
     }
     
     [self toggleEditingCaption:YES];
@@ -1315,11 +1397,6 @@ static NSString *commentCellID = @"CommentCell";
 //    self.moreButton.hidden = !self.myVideo;
 
     [self initializeCaption];
-    
-    if (!self.video.group) {
-        // hacky delay to do this after you can see video.
-        [self performSelector:@selector(shareButtonPressed:) withObject:nil afterDelay:0.25];
-    }
     
     BOOL mp4Downloaded = [self.video.mp4Filename length] > 0;
 
@@ -1488,7 +1565,7 @@ static NSString *commentCellID = @"CommentCell";
                                                     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
                                                         
                                                         [hud hide:YES];
-                                                        [self collapseCrosspost];
+                                                        [self collapseShareSheet];
                                                         //Your code goes in here
                                                         DLog(@"Main Thread Code");
                                                         
@@ -1540,11 +1617,10 @@ static NSString *commentCellID = @"CommentCell";
         [self.sharingView setTopButtonsHidden:NO animated:YES];
     }];
     
-    SEL target = self.video.group ? @selector(doneCrosspostingTapOut:) : @selector(handleTap:);
-    [self.sharingView.crosspostTapOutRecognizer addTarget:self action:target];
+    [self.sharingView.crosspostTapOutRecognizer addTarget:self action:@selector(doneCrosspostingTapOut:)];
 }
 
-- (void)collapseCrosspost {
+- (void)collapseShareSheet {
     DLog(@"collapsing...");
     [self setGesturesEnabled:YES];
     [self.sharingView setTopButtonsHidden:YES animated:NO];
@@ -1569,7 +1645,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)doneCrosspostingTapOut:(UITapGestureRecognizer *)recognizer {
     DLog(@"rec");
-    [self collapseCrosspost];
+    [self collapseShareSheet];
 }
 
 #pragma mark - UITableView delegate methods (groups list)

@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "YASwipeToDismissViewController.h"
 
-@protocol YASuspendableGesturesDelegate <NSObject>
+@protocol YASuspendableGesturesDelegate
 - (void)suspendAllGestures:(id)sender;
 - (void)restoreAllGestures:(id)sender;
 - (void)dismissAnimated;

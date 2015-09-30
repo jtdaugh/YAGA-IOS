@@ -199,7 +199,7 @@ typedef enum {
         self.infoButton = [[UIButton alloc] initWithFrame:CGRectMake(VIEW_WIDTH - BUTTON_SIZE,
                                                                      (HEADER_HEIGHT - BUTTON_SIZE) / 2,
                                                                      BUTTON_SIZE, BUTTON_SIZE)];
-        self.infoButton.imageEdgeInsets = UIEdgeInsetsMake(9, 10, 11, 10);
+        self.infoButton.imageEdgeInsets = UIEdgeInsetsMake(8, 9, 10, 9);
         [self.infoButton addTarget:self action:@selector(infoButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [self.infoButton setImage:[UIImage imageNamed:@"InfoWhite"] forState:UIControlStateNormal];
         [self.infoButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
@@ -986,13 +986,13 @@ typedef enum {
     [[YACameraManager sharedManager] stopRecordingWithCompletion:^(NSURL *recordedURL) {
         DLog(@"got here");
         if (!weakSelf.cancelledRecording) {
-            if ([YAUser currentUser].currentGroup) {
-                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:recordedURL
-                                                                 addToGroup:[YAUser currentUser].currentGroup
-                                                isImmediatelyAfterRecording:YES];
-            } else {
+//            if ([YAUser currentUser].currentGroup) {
+//                [[YAAssetsCreator sharedCreator] createVideoFromRecodingURL:recordedURL
+//                                                                 addToGroup:[YAUser currentUser].currentGroup
+//                                                isImmediatelyAfterRecording:YES];
+//            } else {
                 [[YAAssetsCreator sharedCreator] createUnsentVideoFromRecodingURL:recordedURL];
-            }
+//            }
         }
     }];
 }

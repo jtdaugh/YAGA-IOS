@@ -48,28 +48,28 @@
     // Do any additional setup after loading the view.
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    if (self.video.invalidated) return;
-    if (self.destinationGroup) {
-        if (self.destinationGroup.publicGroup) {
-            if (![YAUtils hasRecordedPublicVideo]) {
-                [self showFirstPublicVideoTooltip];
-                [YAUtils setRecordedPublicVideo];
-            }
-        } else {
-            if (![YAUtils hasRecordedPrivateVideo]) {
-                [self showFirstPrivateVideoTooltip];
-                [YAUtils setRecordedPrivateVideo];
-            }
-        }
-    } else {
-        if (![YAUtils hasRecordedUngroupedVideo]) {
-            [self showFirstUngroupedVideoTooltip];
-            [YAUtils setRecordedUngroupedVideo];
-        }
-    }
-}
+//- (void)viewDidAppear:(BOOL)animated {
+//    [super viewDidAppear:animated];
+//    if (self.video.invalidated) return;
+//    if (self.destinationGroup) {
+//        if (self.destinationGroup.publicGroup) {
+//            if (![YAUtils hasRecordedPublicVideo]) {
+//                [self showFirstPublicVideoTooltip];
+//                [YAUtils setRecordedPublicVideo];
+//            }
+//        } else {
+//            if (![YAUtils hasRecordedPrivateVideo]) {
+//                [self showFirstPrivateVideoTooltip];
+//                [YAUtils setRecordedPrivateVideo];
+//            }
+//        }
+//    } else {
+//        if (![YAUtils hasRecordedUngroupedVideo]) {
+//            [self showFirstUngroupedVideoTooltip];
+//            [YAUtils setRecordedUngroupedVideo];
+//        }
+//    }
+//}
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
@@ -89,7 +89,6 @@
 }
 
 - (void)videoDidChange:(NSNotification *)notification {
-    // Only act if this notification is for video on visible page
     if (!self.video || [self.video isInvalidated]) return;
     
     if([notification.object isEqual:self.video] && self.destinationGroup) {
@@ -112,6 +111,7 @@
 - (void)initVideoPage {
     YAVideoPage *page = [[YAVideoPage alloc] initWithFrame:self.view.bounds];
     page.presentingVC = self;
+    
     [self.view addSubview:page];
     
     if (self.destinationGroup) {
@@ -130,6 +130,7 @@
     }
     [page setVideo:self.video shouldPreload:YES];
     page.playerView.playWhenReady = YES;
+    [page addPostCaptureButtons];
     self.videoPage = page;
 }
 

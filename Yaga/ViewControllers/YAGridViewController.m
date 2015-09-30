@@ -353,13 +353,17 @@
 
 - (void)presentNewlyRecordedVideo:(YAVideo *)video {
     YAPostCaptureViewController *vc = [[YAPostCaptureViewController alloc] initWithVideo:video];
-    vc.transitioningDelegate = self;
-    vc.modalPresentationStyle = UIModalPresentationCustom;
+    
+    UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:vc];
+    navVC.navigationBarHidden = YES;
+    
+    navVC.transitioningDelegate = self;
+    navVC.modalPresentationStyle = UIModalPresentationCustom;
     
     [self setInitialAnimationFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     // We don't actually want this to animate in, but the dismiss animation doesnt work if animated = NO;
     // So set the initial frame to the end frame.
-    [self presentViewController:vc animated:YES completion:nil];
+    [self presentViewController:navVC animated:YES completion:nil];
 }
 
 - (void)setInitialAnimationFrame:(CGRect)initialFrame {
