@@ -29,6 +29,7 @@
 #import "RCounter.h"
 #import "YAPostToGroupsViewController.h"
 #import "YASharingView.h"
+#import "FBShimmeringView.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
@@ -61,10 +62,6 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, strong) UIButton *moreButton;
 @property (nonatomic, strong) UIButton *deleteButton;
 @property (nonatomic, strong) UIButton *commentButton;
-
-@property (nonatomic, strong) UIButton *cancelSendButton;
-@property (nonatomic, strong) UIButton *confirmSendButton;
-@property (nonatomic, strong) UIButton *changeGroupsButton;
 
 @property BOOL loading;
 @property (strong, nonatomic) UIView *loader;
@@ -741,47 +738,65 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)addPostCaptureButtons {
+    BOOL inGroup = [YAUser currentUser].currentGroup != nil;
+    
     self.postCaptureOverlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT)];
     [self addSubview:self.postCaptureOverlay];
     self.postCaptureOverlay.alpha = 0;
     
     CGFloat yOrigin = VIEW_HEIGHT - POSTCAPTURE_BUTTON_HEIGHT;
-    self.cancelSendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
-    [self.cancelSendButton setTitle:@"Cancel" forState:UIControlStateNormal];
-    self.cancelSendButton.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.7];
-    [self.cancelSendButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-    [self.cancelSendButton addTarget:self action:@selector(closeAnimated) forControlEvents:UIControlEventTouchUpInside];
-    [self.postCaptureOverlay addSubview:self.cancelSendButton];
+    UIButton *cancelSendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
+    [cancelSendButton setTitle:@"Cancel" forState:UIControlStateNormal];
+    cancelSendButton.backgroundColor = [[UIColor redColor] colorWithAlphaComponent:0.7];
+    [cancelSendButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:26]];
+    [cancelSendButton addTarget:self action:@selector(closeAnimated) forControlEvents:UIControlEventTouchUpInside];
+    [self.postCaptureOverlay addSubview:cancelSendButton];
     
-    yOrigin -= POSTCAPTURE_BUTTON_HEIGHT;
-    
-    self.changeGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
-    [self.changeGroupsButton setTitle:[YAUser currentUser].currentGroup ? @"Change Recipients" : @"Choose Recipients" forState:UIControlStateNormal];
-    self.changeGroupsButton.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.7];
-    [self.changeGroupsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-    [self.changeGroupsButton addTarget:self action:@selector(changeGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.postCaptureOverlay addSubview:self.changeGroupsButton];
+    CGFloat height = POSTCAPTURE_BUTTON_HEIGHT;
+    if (!inGroup) {
+        yOrigin -= POSTCAPTURE_BUTTON_HEIGHT*1.5;
+        FBShimmeringView *shimmeringView = [[FBShimmeringView alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT*1.5)];
+        shimmeringView.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.7];
+        [self.postCaptureOverlay addSubview:shimmeringView];
+        
+        UIButton *changeGroupsButton = [[UIButton alloc] initWithFrame:shimmeringView.bounds];
+        [changeGroupsButton setTitle:@"Choose Recipients" forState:UIControlStateNormal];
+        [changeGroupsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:26]];
+        [changeGroupsButton addTarget:self action:@selector(changeGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
+        shimmeringView.contentView = changeGroupsButton;
+        
+        // Start shimmering.
+        shimmeringView.shimmering = YES;
 
-    yOrigin -= POSTCAPTURE_BUTTON_HEIGHT;
+    } else {
+        yOrigin -= POSTCAPTURE_BUTTON_HEIGHT;
+        UIButton *changeGroupsButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
+        [changeGroupsButton setTitle:@"Change Recipients" forState:UIControlStateNormal];
+        changeGroupsButton.backgroundColor = [SECONDARY_COLOR colorWithAlphaComponent:0.7];
+        [changeGroupsButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:26]];
+        [changeGroupsButton addTarget:self action:@selector(changeGroupsPressed) forControlEvents:UIControlEventTouchUpInside];
+        [self.postCaptureOverlay addSubview:changeGroupsButton];
+    }
     
-    YAGroup *group = [YAUser currentUser].currentGroup;
-    NSString *groupName = (group.members.count == 1) ? [[group.members firstObject] displayName] : group.name;
-    NSString *buttonTitle = [NSString stringWithFormat:@"Send to %@", groupName];
-    
-    self.confirmSendButton = [[UIButton alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT)];
-    self.confirmSendButton.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:0.7];
-    [self.confirmSendButton setTitle:buttonTitle forState:UIControlStateNormal];
-    [self.confirmSendButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-    self.confirmSendButton.titleLabel.textColor = [UIColor whiteColor];
-//    [self.confirmSendButton setImage:self.video.group ? [UIImage imageNamed:@"Check"] : [UIImage imageNamed:@"Disclosure"] forState:UIControlStateNormal];
-//    self.confirmSendButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-//    [self.confirmSendButton setContentEdgeInsets:UIEdgeInsetsZero];
-//    [self.confirmSendButton setImageEdgeInsets:UIEdgeInsetsMake(0, self.confirmSendButton.frame.size.width - 20 - 30, 0, 20)];
-//    [self.confirmSendButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 8, 0, 48 - 16)];
-    [self.confirmSendButton addTarget:self action:@selector(confirmSendPressed) forControlEvents:UIControlEventTouchUpInside];
-    
-    if ([YAUser currentUser].currentGroup) {
-        [self.postCaptureOverlay addSubview:self.confirmSendButton];
+
+    if (inGroup) {
+        YAGroup *group = [YAUser currentUser].currentGroup;
+        NSString *groupName = (group.members.count == 1) ? [[group.members firstObject] displayName] : group.name;
+        NSString *buttonTitle = [NSString stringWithFormat:@"Send to %@", groupName];
+
+        yOrigin -= POSTCAPTURE_BUTTON_HEIGHT*1.5;
+
+        FBShimmeringView *shimmeringView = [[FBShimmeringView alloc] initWithFrame:CGRectMake(0, yOrigin, VIEW_WIDTH, POSTCAPTURE_BUTTON_HEIGHT*1.5)];
+        shimmeringView.backgroundColor = [PRIMARY_COLOR colorWithAlphaComponent:0.7];
+        [self.postCaptureOverlay addSubview:shimmeringView];
+
+        UIButton *confirmSendButton = [[UIButton alloc] initWithFrame:shimmeringView.bounds];
+        [confirmSendButton setTitle:buttonTitle forState:UIControlStateNormal];
+        [confirmSendButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:26]];
+        confirmSendButton.titleLabel.textColor = [UIColor whiteColor];
+        [confirmSendButton addTarget:self action:@selector(confirmSendPressed) forControlEvents:UIControlEventTouchUpInside];
+        shimmeringView.contentView = confirmSendButton;
+        shimmeringView.shimmering = YES;
     }
 
     UIButton *xButton = [YAUtils circleButtonWithImage:@"X" diameter:44 center:CGPointMake(VIEW_WIDTH - 22 - 4, 4 + 22)];

@@ -20,4 +20,5 @@ pod 'GPUImage', :git => 'https://github.com/yagainc/GPUImage.git', :commit => '7
 pod 'Harpy'
 pod 'SloppySwiper'
 pod 'FBSDKShareKit'
+pod 'Shimmer'
 pod 'BLKFlexibleHeightBar'

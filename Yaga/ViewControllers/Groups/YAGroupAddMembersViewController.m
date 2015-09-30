@@ -432,6 +432,9 @@
         if ([contactDict[nPhone] isEqualToString:contact.number]) {
             return group;
         }
+        if ([contactDict[nUsername] isEqualToString:contact.username]) {
+            return group;
+        }
     }
     return nil;
 
@@ -463,6 +466,9 @@
 - (void)dismissAddMembers {
     if (self.inCreateGroupFlow && self.newlyCreatedGroup) {
         UIViewController *presentingVC = self.presentingViewController;
+        if ([presentingVC isKindOfClass:[UINavigationController class]]) {
+            presentingVC = ((UINavigationController *) presentingVC).topViewController;
+        }
         if ([presentingVC isKindOfClass:[YAGridViewController class]]) {
             YAGroup *group = self.newlyCreatedGroup;
             BOOL pre = self.preexistingGroup;

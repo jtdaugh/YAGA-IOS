@@ -88,7 +88,24 @@
     return arr;
 }
 
-- (void)addNewlyCreatedGroupToList:(YAGroup *)group {
+- (void)createChatFinishedWithGroup:(YAGroup *)group wasPreexisting:(BOOL)preexisting {
+    if (preexisting) {
+        // find index
+        int index = -1;
+        for (int i = 0; i < self.groups.count; i++) {
+            YAGroup *groupAtIndex = self.groups[i];
+            if ([group.serverId isEqualToString:groupAtIndex.serverId]) {
+                index = i;
+                break;
+            }
+        }
+        if (index != -1) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+            [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+            [self showHidePostMessage];
+            return;
+        }
+    }
     NSIndexPath *newIndex;
     [self.groups insertObject:group atIndex:0];
     newIndex = [NSIndexPath indexPathForRow:0 inSection:0];
@@ -145,10 +162,11 @@
 #pragma mark - Private
 - (void)addNewGroup {
     YAGroupAddMembersViewController *newGroupVC = [YAGroupAddMembersViewController new];
+    newGroupVC.inCreateGroupFlow = YES;
     UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:newGroupVC];
     navVC.navigationBarHidden = YES;
     
-    [[Mixpanel sharedInstance] track:@"Create New Channel after post"];
+    [[Mixpanel sharedInstance] track:@"Create New Chat after post"];
     
     [self presentViewController:navVC animated:YES completion:nil];
 }
@@ -160,7 +178,7 @@
         
         if(selectedIndexPaths.count > 0) {
             NSString *pluralSuffix = selectedIndexPaths.count == 1 ? @" >" : @"s >";
-            NSString *sendTitle = [NSString stringWithFormat:@"Send to %lu channel%@", selectedIndexPaths.count, pluralSuffix];
+            NSString *sendTitle = [NSString stringWithFormat:@"Send to %lu chat%@", selectedIndexPaths.count, pluralSuffix];
             
             [self.sendButton setTitle:sendTitle forState:UIControlStateNormal];
             self.sendButton.frame = CGRectMake(0, self.view.bounds.size.height - kSendButtonHeight, self.view.bounds.size.width, kSendButtonHeight);

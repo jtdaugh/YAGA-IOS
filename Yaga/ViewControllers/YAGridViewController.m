@@ -210,6 +210,7 @@
 
 - (void)showCreateGroup {
     YAGroupAddMembersViewController *vc = [YAGroupAddMembersViewController new];
+    vc.inCreateGroupFlow = YES;
     UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:vc];
     navVC.navigationBarHidden = YES;
     [self.navigationController presentViewController:navVC animated:YES completion:nil];
