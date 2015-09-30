@@ -784,11 +784,17 @@ static NSString *commentCellID = @"CommentCell";
         [self.postCaptureOverlay addSubview:self.confirmSendButton];
     }
 
-    [UIView animateWithDuration:0.2 animations:^{
-        self.overlay.alpha = 0;
+    UIButton *xButton = [YAUtils circleButtonWithImage:@"X" diameter:44 center:CGPointMake(VIEW_WIDTH - 22 - 4, 4 + 22)];
+    xButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
+    xButton.alpha = 0.8;
+    [xButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.postCaptureOverlay addSubview:xButton];
+
+    
+    self.overlay.hidden = YES;
+    [UIView animateWithDuration:0.3 animations:^{
         self.postCaptureOverlay.alpha = 1;
     } completion:^(BOOL finished) {
-        self.overlay.hidden = YES;
     }];
 }
 
@@ -805,7 +811,7 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)setupCaptionButtonContainer {
     self.captionButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - CAPTION_BUTTON_HEIGHT, VIEW_WIDTH, CAPTION_BUTTON_HEIGHT)];
-    [self.overlay addSubview:self.captionButtonContainer];
+    [self addSubview:self.captionButtonContainer];
     
 //    self.textButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
 //    [self.textButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
@@ -928,13 +934,11 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)toggleEditingCaption:(BOOL)editing {
-    if (!self.video.group) {
+    if (self.postCaptureOverlay) {
+        [self bringSubviewToFront:self.postCaptureOverlay];
         // Toggle sharing view and caption editing for unposted video state
-        self.postCaptureOverlay.hidden = NO;
         [UIView animateWithDuration:0.2 animations:^{
             self.postCaptureOverlay.alpha = editing ? 0.0 : 1.0;
-        } completion:^(BOOL finished) {
-            self.postCaptureOverlay.hidden = editing;
         }];
     }
     
@@ -1158,7 +1162,7 @@ static NSString *commentCellID = @"CommentCell";
     [self resizeTextAboveKeyboardWithAnimation:NO];
     
     [self.editableCaptionWrapperView addSubview:self.editableCaptionTextView];
-    [self.overlay addSubview:self.editableCaptionWrapperView];
+    [self addSubview:self.editableCaptionWrapperView];
     
     [self.editableCaptionTextView becomeFirstResponder];
 }

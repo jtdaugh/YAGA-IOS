@@ -468,8 +468,8 @@ typedef enum {
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [UIView animateKeyframesWithDuration:2 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat | UIViewAnimationOptionAllowUserInteraction animations:^{
-        [UIView addKeyframeWithRelativeStartTime:0.3 relativeDuration:0.7 animations:^{
+    [UIView animateKeyframesWithDuration:4 delay:0.0 options:UIViewKeyframeAnimationOptionAutoreverse | UIViewKeyframeAnimationOptionRepeat | UIViewAnimationOptionAllowUserInteraction animations:^{
+        [UIView addKeyframeWithRelativeStartTime:0.1 relativeDuration:0.9 animations:^{
             self.recordButton.backgroundColor = [UIColor redColor];
         }];
     } completion:nil];
