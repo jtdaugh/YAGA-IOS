@@ -43,7 +43,7 @@
 static NSString *commentCellID = @"CommentCell";
 
 
-@interface YAVideoPage ()  <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>
+@interface YAVideoPage ()  <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, YAVideoPlayerViewDelegate>
 
 @property (nonatomic, strong) YAActivityView *activityView;
 
@@ -127,6 +127,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (nonatomic, assign) BOOL myVideo;
 
 @property (strong, nonatomic) YASharingView *sharingView;
+@property (nonatomic) CGFloat lastPlaybackProgress;
 
 @end
 
@@ -142,6 +143,7 @@ static NSString *commentCellID = @"CommentCell";
 
         [self addSubview:self.activityView];
         _playerView = [YAVideoPlayerView new];
+        _playerView.delegate = self;
         [self addSubview:self.playerView];
         
         // So captions dont spread between videos.
@@ -214,27 +216,6 @@ static NSString *commentCellID = @"CommentCell";
         [indexArray addObject:[NSIndexPath indexPathForRow:i inSection:0]];
     }
     [self.commentsTableView insertRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationTop];
-}
-
-#pragma mark - YAViewCountDelegate
-
-- (void)updatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount {
-    if ((myViewCount + othersViewCount) > 0) {
-        if (self.viewCounter.hidden) {
-            self.viewCounter.alpha = 0;
-            self.viewCountImageView.alpha = 0;
-            self.viewCounter.hidden = NO;
-            self.viewCountImageView.hidden = NO;
-            [UIView animateWithDuration:0.5f animations:^{
-                self.viewCounter.alpha = 1;
-                self.viewCountImageView.alpha = 0.7;
-            }];
-        }
-        [self.viewCounter updateValue:(int)(othersViewCount + myViewCount) animate:YES];
-    } else {
-        self.viewCounter.hidden = YES;
-        self.viewCountImageView.hidden = YES;
-    }
 }
 
 #pragma mark - keyboard
@@ -329,6 +310,7 @@ static NSString *commentCellID = @"CommentCell";
     if([_video isInvalidated] || ![_video.localId isEqualToString:video.localId]) {
         
         _video = video;
+        self.lastPlaybackProgress = CGFLOAT_MAX; // So that any initial player progress adds viewCount
 
 //        self.debugLabel.text = video.serverId;
         
@@ -1456,147 +1438,9 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)moreButtonPressed:(id)sender {
-    
     [self shareButtonPressed:nil];
-    
-//    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"✌🏾"
-//                                                             delegate:self
-//                                                    cancelButtonTitle:@"Cancel"
-//                                               destructiveButtonTitle:nil
-//                                                    otherButtonTitles:@"Post to other groups", @"Share", @"Add Caption", @"Save to Camera Roll", @"Delete", nil];
-//    actionSheet.destructiveButtonIndex = 4;
-//    actionSheet.cancelButtonIndex = 5;
-//    [actionSheet showInView:self];
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    DLog(@"button index: %lu", buttonIndex);
-    switch (buttonIndex) {
-        case 0: {
-            // Post to other groups
-            [self shareButtonPressed:nil];
-            break;
-        } case 1: {
-            // export and share
-            [self externalShareButtonPressed];
-            break;
-        } case 2: {
-            // Add Caption
-            [self captionButtonPressed];
-            break;
-        } case 3: {
-            // save to camera roll
-            [self saveToCameraRollPressed];
-            break;
-        } case 4: {
-            // delete
-            [YAUtils confirmDeleteVideo:self.video withConfirmationBlock:^{
-                if(self.video.realm)
-                    [self.video removeFromCurrentGroupWithCompletion:nil removeFromServer:[YAUser currentUser].currentGroup != nil];
-                else
-                    [self closeAnimated];
-            }];
-            
-            break;
-        } default: {
-            DLog(@"no switch case for button with index: %lu", (unsigned long)buttonIndex);
-        }
-    }
-}
-
-
-# pragma saving stuff
-- (void)externalShareButtonPressed {
-    //    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
-    NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
-    NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-    
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.labelText = NSLocalizedString(@"Exporting", @"");
-    hud.mode = MBProgressHUDModeIndeterminate;
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-                                                completion:^(NSURL *filePath, NSError *error) {
-                                                    if (error) {
-                                                        DLog(@"Error: can't add bumber");
-                                                    } else {
-                                                        
-                                                        NSURL *videoFile = filePath;
-                                                        //            YACopyVideoToClipboardActivity *copyActivity = [YACopyVideoToClipboardActivity new];
-                                                        UIActivityViewController *activityViewController =
-                                                        [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
-                                                                                          applicationActivities:@[]];
-                                                        
-                                                        //        activityViewController.excludedActivityTypes = @[UIActivityTypeCopyToPasteboard];
-                                                        
-                                                        
-                                                        YASwipingViewController *presentingVC = (YASwipingViewController *) self.presentingVC;
-                                                        [presentingVC presentViewController:activityViewController
-                                                                                   animated:YES
-                                                                                 completion:^{
-                                                                                     [hud hide:YES];
-                                                                                 }];
-                                                        
-                                                        [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-                                                            if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
-                                                                NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
-                                                                [YAUtils showHudWithText:message];
-                                                            }
-                                                            else if ([activityType isEqualToString:@"yaga.copy.video"]) {
-                                                                NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
-                                                                [YAUtils showHudWithText:message];
-                                                            }
-                                                            if(completed){
-//                                                                [self.page collapseCrosspost];
-                                                            }
-                                                        }];
-                                                    }
-                                                }];
-}
-
-
-#pragma mark - Sharing
-- (void)saveToCameraRollPressed {
-    /*
-     if (UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(path)) {
-     UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
-     }
-     */
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.labelText = NSLocalizedString(@"Saving", @"");
-    hud.mode = MBProgressHUDModeIndeterminate;
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-                                                completion:^(NSURL *filePath, NSError *error) {
-                                                    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-                                                        
-                                                        [hud hide:YES];
-                                                        [self collapseShareSheet];
-                                                        //Your code goes in here
-                                                        DLog(@"Main Thread Code");
-                                                        
-                                                    }];
-                                                    if (error) {
-                                                        DLog(@"Error: can't add bumber");
-                                                    } else {
-                                                        
-                                                        if(UIVideoAtPathIsCompatibleWithSavedPhotosAlbum([filePath path])) {
-                                                            UISaveVideoAtPathToSavedPhotosAlbum([filePath path], self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
-                                                        }
-                                                        
-                                                    }
-                                                }];
-}
-
-- (void)video:(NSString*)videoPath didFinishSavingWithError:(NSError*)error contextInfo:(void*)contextInfo {
-    if (error) {
-        NSString *message = @"Video Saving Failed";
-        [YAUtils showHudWithText:message];
-    } else {
-        NSString *message = @"Saved! ✌️";
-        [YAUtils showHudWithText:message];
-    }
-}
 
 - (void)shareButtonPressed:(id)sender {
     DLog(@"two thirds: %f", VIEW_HEIGHT * 2 / 3);
@@ -1788,5 +1632,52 @@ static NSString *commentCellID = @"CommentCell";
         [self showLoading:!((YAVideoPlayerView*)object).readyToPlay];
     }
 }
+
+
+
+#pragma mark - YAVideoPlayerViewDelegate
+
+- (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
+    
+    // If progress went from high to low (looped) or from 0 to valid value.
+    if ((progress < self.lastPlaybackProgress && progress != 0.0)
+        || (self.lastPlaybackProgress == 0 && progress > 0.0 && progress < CGFLOAT_MAX)) {
+        // Slight delay to possibly alleviate grid lag.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *videoId = self.video.serverId;
+            NSString *groupId = self.video.group.serverId;
+            NSString *creatorName = self.video.creator;
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [[YAViewCountManager sharedManager] addViewToVideoWithId:videoId groupId:groupId user:creatorName];
+            });
+        });
+    }
+    self.lastPlaybackProgress = progress;
+}
+
+
+#pragma mark - YAViewCountDelegate
+
+- (void)videoUpdatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount {
+    if ((myViewCount + othersViewCount) > 0) {
+        if (self.viewCounter.hidden) {
+            self.viewCounter.alpha = 0;
+            self.viewCountImageView.alpha = 0;
+            self.viewCounter.hidden = NO;
+            self.viewCountImageView.hidden = NO;
+            [UIView animateWithDuration:0.5f animations:^{
+                self.viewCounter.alpha = 1;
+                self.viewCountImageView.alpha = 0.7;
+            }];
+        }
+        [self.viewCounter updateValue:(int)(othersViewCount + myViewCount) animate:YES];
+    } else {
+        self.viewCounter.hidden = YES;
+        self.viewCountImageView.hidden = YES;
+    }
+}
+
+
+
 
 @end

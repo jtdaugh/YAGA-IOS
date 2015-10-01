@@ -131,16 +131,9 @@ static NSString *cellID = @"Cell";
     [self.delegate swapOutOfOnboardingState];
     [self.delegate updateCameraAccessoriesWithViewIndex:1];
 
-    if([YAUser currentUser].currentGroup.publicGroup) {
-        if (![YAUtils hasVisitedHumanity]) {
-            [self showHumanityTooltip];
-            [YAUtils setVisitedHumanity];
-        }
-    } else {
-        if (![YAUtils hasVisitedPrivateGroup]) {
-            [self showPrivateGroupTooltip];
-            [YAUtils setVisitedPrivateGroup];
-        }
+    if (![YAUtils hasVisitedPrivateGroup]) {
+        [self showPrivateGroupTooltip];
+        [YAUtils setVisitedPrivateGroup];
     }
 }
 
@@ -702,13 +695,5 @@ static NSString *cellID = @"Cell";
 - (void)showPrivateGroupTooltip {
     [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_GROUP_VISIT_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_GROUP_VISIT_BODY", @""), [YAUser currentUser].currentGroup.name, [[YAUser currentUser].currentGroup.members count]] dismissText:@"Got it" addToView:self.parentViewController.parentViewController.view] show];
 }
-
-
-- (void)showHumanityTooltip {
-    
-    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_HUMANITY_VISIT_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_HUMANITY_VISIT_BODY", @"") dismissText:@"Got it" addToView:self.parentViewController.parentViewController.view] show];
-    
-}
-
 
 @end

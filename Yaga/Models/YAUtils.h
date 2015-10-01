@@ -60,14 +60,10 @@ typedef void (^confirmationBlock)(void);
 + (BOOL)hasVisitedGifGrid;
 + (void)setVisitedGifGrid;
 
-+ (BOOL)hasVisitedHumanity;
-+ (void)setVisitedHumanity;
 + (BOOL)hasVisitedPrivateGroup;
 + (void)setVisitedPrivateGroup;
 + (BOOL)hasRecordedPrivateVideo;
 + (void)setRecordedPrivateVideo;
-+ (BOOL)hasRecordedPublicVideo;
-+ (void)setRecordedPublicVideo;
 + (BOOL)hasRecordedUngroupedVideo;
 + (void)setRecordedUngroupedVideo;
 

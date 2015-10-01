@@ -90,22 +90,6 @@
     self.accessoryLabel.text = accessoryString;
 }
 
-- (void)setPublicGroup:(BOOL)publicGroup {
-    UIImage *img;
-    if(publicGroup){
-
-        self.nameLabel.textColor = SECONDARY_COLOR;
-        self.disclosureImageView.tintColor = SECONDARY_COLOR;
-        
-        img = [YAUtils imageWithColor:[SECONDARY_COLOR colorWithAlphaComponent:1.0]];
-
-    } else {
-        self.nameLabel.textColor = PRIMARY_COLOR;
-        self.disclosureImageView.tintColor = PRIMARY_COLOR;
-        img = [YAUtils imageWithColor:[PRIMARY_COLOR colorWithAlphaComponent:1.0]];
-    }
-}
-
 - (void)setMembersString:(NSString *)membersString {
     self.membersLabel.text = membersString;
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont fontWithName:BIG_FONT size:14]};

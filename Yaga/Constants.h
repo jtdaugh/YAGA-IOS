@@ -105,8 +105,6 @@
 #define kLastYagaUsersRequestDate   @"kLastYagaUsersRequestDate"
 #define kYagaUsersRequested         @"kYagaUsersRequested"
 
-#define kLastPublicGroupsRequestDate @"kLastPublicGroupsRequestDate"
-
 // Captions
 #define STANDARDIZED_DEVICE_WIDTH 320.f
 #define STANDARDIZED_CAPTION_PADDING 5.f
@@ -127,6 +125,6 @@
 #define recordButtonWidth 90.0f
 #define GIF_GRID_UNSEEN @"gifsUnseen"
 
-#define DEBUG_SERVER 1
+#define DEBUG_SERVER 0
 
 #endif

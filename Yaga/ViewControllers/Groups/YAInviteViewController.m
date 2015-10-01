@@ -315,7 +315,7 @@
             [friendNumbers addObject:contact[nPhone]];
     }
     
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:videoURL completion:^(NSURL *filePath, NSError *error) {
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:videoURL withCaption:nil completion:^(NSURL *filePath, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
                 [self.hud hide:NO];

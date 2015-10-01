@@ -37,7 +37,6 @@
 #define API_AUTH_BY_SMS_TEMPLATE            @"%@/auth/request/"
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
-#define API_PUBLIC_GROUPS_TEMPLATE          @"%@/groups/public/"
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
 #define API_GROUP_JOIN_TEMPLATE             @"%@/groups/%@/join/"
 
@@ -469,13 +468,12 @@
     }];
 }
 
-- (void)getGroupsWithCompletion:(responseBlock)completion publicGroups:(BOOL)publicGroups
-{
+- (void)getGroupsWithCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     
-    NSString *api = [NSString stringWithFormat:publicGroups ? API_PUBLIC_GROUPS_TEMPLATE : API_GROUPS_TEMPLATE, self.base_api];
+    NSString *api = [NSString stringWithFormat:API_GROUPS_TEMPLATE, self.base_api];
     
-    DLog(@"updating groups from server... public: %@", publicGroups ? @"Yes" : @"No");
+    DLog(@"updating groups from server...");
     
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
@@ -815,7 +813,7 @@
     YAGroup *firstGroup = groups[0];
     dispatch_async(dispatch_get_main_queue(), ^{
         video.group = firstGroup;
-        video.pending = firstGroup.publicGroup;
+        video.pending = NO;
 
         [firstGroup.realm beginWriteTransaction];
         [firstGroup.videos insertObject:video atIndex:0];

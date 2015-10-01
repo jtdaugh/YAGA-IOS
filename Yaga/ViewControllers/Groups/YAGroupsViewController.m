@@ -197,7 +197,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
 - (void)updateState {
 //    self.groups = [[YAGroup allObjects] sortedResultsUsingProperty:@"updatedAt" ascending:NO];
     
-    RLMResults *results = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"publicGroup" ascending:NO], [RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
+    RLMResults *results = [[YAGroup allObjects] sortedResultsUsingDescriptors:@[[RLMSortDescriptor sortDescriptorWithProperty:@"updatedAt" ascending:NO]]];
     NSMutableArray *arr = [NSMutableArray new];
     NSMutableArray *counts = [NSMutableArray new];
     NSMutableArray *strings = [NSMutableArray new];
@@ -259,8 +259,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
         
         cell.muted = group.muted;
         cell.accessoryString = dateString;
-        cell.publicGroup = group.publicGroup;
-        
+
         return cell;
     } else {
         FriendCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:FriendsCellIdentifier forIndexPath:indexPath];

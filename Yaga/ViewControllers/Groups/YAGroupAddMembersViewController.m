@@ -549,7 +549,6 @@
                         [weakSelf showActivity:NO];
                     } else {
                         YAGroup *newGroup = result;
-                        [YAUser currentUser].currentGroup = newGroup;
                         self.newlyCreatedGroup = newGroup;
                         self.preexistingGroup = NO;
                         
@@ -557,6 +556,7 @@
                             [weakSelf showActivity:NO];
                             if(!error) {
                                 [[Mixpanel sharedInstance] track:@"Group created" properties:@{@"friends added":[NSNumber numberWithInteger:weakSelf.selectedContacts.count]}];
+                                [YAUser currentUser].currentGroup = newGroup;
                                 [self dismissAddMembers];
                             }
                         }];

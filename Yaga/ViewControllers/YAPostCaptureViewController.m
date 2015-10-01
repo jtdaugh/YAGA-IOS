@@ -72,6 +72,8 @@
 //}
 
 - (void)dealloc {
+    [YAViewCountManager sharedManager].videoViewCountDelegate = nil;
+    [[YAViewCountManager sharedManager] monitorVideoWithId:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_DID_DELETE_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:DID_CREATE_GROUP_FROM_VIDEO_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:VIDEO_CHANGED_NOTIFICATION object:nil];
@@ -93,9 +95,9 @@
     
     if([notification.object isEqual:self.video] && self.destinationGroup) {
         if ([YAVideo serverIdStatusForVideo:self.video] == YAVideoServerIdStatusConfirmed) {
-            [[YAViewCountManager sharedManager] switchVideoId:self.video.serverId];
+            [[YAViewCountManager sharedManager] monitorVideoWithId:self.video.serverId];
         } else {
-            [[YAViewCountManager sharedManager] switchVideoId:nil];
+            [[YAViewCountManager sharedManager] monitorVideoWithId:nil];
         }
         
         // Reload comments, which will initialize with firebase if serverID just became ready.
@@ -121,12 +123,13 @@
         [[YAEventManager sharedManager] fetchEventsForVideoWithServerId:self.video.serverId localId:self.video.localId inGroup:self.video.group.serverId withServerIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
     
         YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:page.video];
-        [[YAViewCountManager sharedManager] switchVideoId:(status == YAVideoServerIdStatusConfirmed) ? self.video.serverId : nil];
-        [YAViewCountManager sharedManager].viewCountDelegate = page;
+        
+        [YAViewCountManager sharedManager].videoViewCountDelegate = page;
+        [[YAViewCountManager sharedManager] monitorVideoWithId:(status == YAVideoServerIdStatusConfirmed) ? page.video.serverId : nil];
 
     } else {
-        [[YAViewCountManager sharedManager] switchVideoId:nil];
-        [YAViewCountManager sharedManager].viewCountDelegate = page;
+        [YAViewCountManager sharedManager].videoViewCountDelegate = page;
+        [[YAViewCountManager sharedManager] monitorVideoWithId:nil];
     }
     [page setVideo:self.video shouldPreload:YES];
     page.playerView.playWhenReady = YES;
@@ -169,10 +172,6 @@
 
 - (void)showFirstPrivateVideoTooltip {
     [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_GROUP_POST_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_GROUP_POST_BODY", @""), [YAUser currentUser].currentGroup.name] dismissText:@"Got it" addToView:self.videoPage] show];
-}
-
-- (void)showFirstPublicVideoTooltip {
-    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_HUMANITY_POST_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_HUMANITY_POST_BODY", @""), [YAUser currentUser].currentGroup.name] dismissText:@"Got it" addToView:self.videoPage] show];
 }
 
 - (void)showFirstUngroupedVideoTooltip {

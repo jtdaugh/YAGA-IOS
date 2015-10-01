@@ -87,7 +87,7 @@
         
         NSArray *files = @[@"Message", @"FB", @"Twitter", @"CameraRoll"];
         
-        UIView *tapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH, VIEW_HEIGHT - shareBarHeight - 60)];
+        UIView *tapOutView = [[UIView alloc] initWithFrame:CGRectMake(0, 60, VIEW_WIDTH, VIEW_HEIGHT - shareBarHeight - copyHeight - 60)];
         tapOutView.backgroundColor = [UIColor clearColor];
         [self addSubview:tapOutView];
         self.crosspostTapOutRecognizer = [[UITapGestureRecognizer alloc] init];
@@ -158,7 +158,17 @@
     self.hud.mode = MBProgressHUDModeIndeterminate;
     self.hud.labelText = @"Exporting";
     
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:url completion:^(NSURL *filePath, NSError *error) {
+    
+    NSDictionary *captionDetails = nil;
+    if ([self.video.caption length]) {
+        captionDetails = @{@"text" : self.video.caption,
+                           @"x" : @(self.video.caption_x),
+                           @"y" : @(self.video.caption_y),
+                           @"scale" : @(self.video.caption_scale),
+                           @"rotation" : @(self.video.caption_rotation)
+                           };
+    }
+    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:url withCaption:captionDetails completion:^(NSURL *filePath, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.hud hide:NO];
             
@@ -170,17 +180,19 @@
         });
         
     }];
-
+    
 }
 
 - (void)shareVideoWithActionType:(NSUInteger)type fileUrl:(NSURL *)fileUrl {
     switch (type) {
         case 0: {
+            [[Mixpanel sharedInstance] track:@"Share to iMessage Pressed"];
+            
             //iMessage
             
             NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
             NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-
+            
             MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
             messageController.messageComposeDelegate = self;
             [messageController setBody:detailText];
@@ -192,11 +204,12 @@
             [(UIViewController *) self.page.presentingVC presentViewController:messageController animated:YES completion:^{
                 //                [self.hud hide:NO];
                 [self.hud hide:YES];
-//                [self showSuccessHud];
+                //                [self showSuccessHud];
             }];
             
             break;
         } case 1: {
+            [[Mixpanel sharedInstance] track:@"Share to Facebook Pressed"];
             
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
             ALAssetsLibraryWriteVideoCompletionBlock videoWriteCompletionBlock =
@@ -214,8 +227,8 @@
                                                  withContent:content
                                                     delegate:self];
                     [self.hud hide:YES];
-
-
+                    
+                    
                 }
             };
             
@@ -225,22 +238,24 @@
                                             completionBlock:videoWriteCompletionBlock];
             }
             
-//            dialog.delegate = self;
-//            [dialog show];
-//            [self showSuccessHud];
+            //            dialog.delegate = self;
+            //            [dialog show];
+            //            [self showSuccessHud];
             
             break;
         } case 2: {
+            [[Mixpanel sharedInstance] track:@"Share to Twitter Pressed"];
+            
             // Twitter
             [self.hud hide:YES];
-
+            
             [self getTwitterAccount:^(ACAccount *account) {
                 
                 if (account) {
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                         //
                         NSURL *videoUrl = [YAUtils urlFromFileName:self.video.mp4Filename];
-    //                    [NSURL URLWithString:self.video.mp4Filename];
+                        //                    [NSURL URLWithString:self.video.mp4Filename];
                         
                         NSData *data = [NSData dataWithContentsOfURL: videoUrl];
                         self.hud = [MBProgressHUD showHUDAddedTo:self.page animated:YES];
@@ -249,20 +264,24 @@
                         
                         NSString *caption = ![self.video.caption isEqualToString:@""] ? [NSString stringWithFormat:@"%@ ", self.video.caption] : @"";
                         NSString *detailText = [NSString stringWithFormat:@"%@#yaga http://getyaga.com", caption];
-
+                        
                         [SocialVideoHelper uploadTwitterVideo:data account:account text:detailText withCompletion:^{
                             
                             [self showSuccessHud];
+                            [[Mixpanel sharedInstance] track:@"Shared to Twitter succeeded"];
+                            
                             
                         }];
                     }];
                 }
                 
             }];
-
+            
             break;
         } case 3: {
             // save
+            [[Mixpanel sharedInstance] track:@"Save to Camera Roll Pressed"];
+            
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
             [library writeVideoAtPathToSavedPhotosAlbum:fileUrl completionBlock:^(NSURL *assetURL, NSError *error){
                 if(error) {
@@ -301,21 +320,22 @@
     [(UIViewController *)self.page.presentingVC dismissViewControllerAnimated:YES completion:nil];
     switch (result) {
         case MessageComposeResultCancelled: {
-            [[Mixpanel sharedInstance] track:@"iMessage cancelled"];
+            [[Mixpanel sharedInstance] track:@"Share to iMessage cancelled"];
             break;
         }
         case MessageComposeResultFailed:
         {
-            [[Mixpanel sharedInstance] track:@"iMessage failed"];
+            [[Mixpanel sharedInstance] track:@"Share to iMessage failed"];
             [YAUtils showNotification:@"failed to send message" type:YANotificationTypeError];
-//            [self popToGridViewController];
+            //            [self popToGridViewController];
             break;
         }
             
         case MessageComposeResultSent:
-            [[Mixpanel sharedInstance] track:@"iMessage sent"];
+            [[Mixpanel sharedInstance] track:@"Share to iMessage sent"];
             //            [YAUtils showNotification:@"message sent" type:YANotificationTypeSuccess];
-//            [self popToGridViewController];
+            //            [self popToGridViewController];
+            
             
             break;
     }
@@ -337,14 +357,14 @@
             if (accounts.count > 0){
                 
                 if(accounts.count > 1){
-                
+                    
                     [self accountSelector:accounts withBlock:block];
                 } else {
                     ACAccount *twitterAccount = [accounts objectAtIndex:0];
                     //                [twitterAccount username]
                     block(twitterAccount);
                 }
-            
+                
                 
                 // Creating a request to get the info about a user on Twitter
             }
@@ -384,104 +404,20 @@
 #pragma mark - FBSDKSharingDelegate
 - (void)sharer:(id<FBSDKSharing>)sharer didCompleteWithResults :(NSDictionary *)results {
     NSLog(@"FB: SHARE RESULTS=%@\n",[results debugDescription]);
+    [[Mixpanel sharedInstance] track:@"Shared to FB"];
+    
 }
 
 - (void)sharer:(id<FBSDKSharing>)sharer didFailWithError:(NSError *)error {
     NSLog(@"FB: ERROR=%@\n",[error debugDescription]);
+    [[Mixpanel sharedInstance] track:@"Shared to FB failed"];
+    
 }
 
 - (void)sharerDidCancel:(id<FBSDKSharing>)sharer {
     NSLog(@"FB: CANCELED SHARER=%@\n",[sharer debugDescription]);
+    [[Mixpanel sharedInstance] track:@"Shared to FB cancelled"];
 }
 
-- (void)externalShareButtonPressed {
-    //    [self animateButton:self.shareButton withImageName:@"Share" completion:nil];
-    NSString *caption = ![self.video.caption isEqualToString:@""] ? self.video.caption : @"Yaga";
-    NSString *detailText = [NSString stringWithFormat:@"%@ — http://getyaga.com", caption];
-    
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.labelText = NSLocalizedString(@"Exporting", @"");
-    hud.mode = MBProgressHUDModeIndeterminate;
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-                                                completion:^(NSURL *filePath, NSError *error) {
-                                                    if (error) {
-                                                        DLog(@"Error: can't add bumber");
-                                                    } else {
-                                                        
-                                                        NSURL *videoFile = filePath;
-                                                        //            YACopyVideoToClipboardActivity *copyActivity = [YACopyVideoToClipboardActivity new];
-                                                        UIActivityViewController *activityViewController =
-                                                        [[UIActivityViewController alloc] initWithActivityItems:@[detailText, videoFile]
-                                                                                          applicationActivities:@[]];
-                                                        
-                                                        UIViewController *presentingVC = (UIViewController *) self.page.presentingVC;
-                                                        [presentingVC presentViewController:activityViewController
-                                                                                                                   animated:YES
-                                                                                                                 completion:^{
-                                                                                                                     [hud hide:YES];
-                                                                                                                 }];
-                                                        
-                                                        [activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
-                                                            if([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
-                                                                NSString *message = completed ? NSLocalizedString(@"Video saved to camera roll", @"") : NSLocalizedString(@"Video failed to save to camera roll", @"");
-                                                                [YAUtils showHudWithText:message];
-                                                            }
-                                                            else if ([activityType isEqualToString:@"yaga.copy.video"]) {
-                                                                NSString *message = completed ? NSLocalizedString(@"Video copied to clipboard", @"") : NSLocalizedString(@"Video failed to copy to clipboard", @"");
-                                                                [YAUtils showHudWithText:message];
-                                                            }
-                                                            if(completed){
-                                                                [self.page collapseShareSheet];
-                                                            }
-                                                        }];
-                                                    }
-                                                }];
-}
-
-
-#pragma mark - Sharing
-- (void)saveToCameraRollPressed {
-    /*
-     if (UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(path)) {
-     UISaveVideoAtPathToSavedPhotosAlbum(path, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
-     }
-     */
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:[UIApplication sharedApplication].keyWindow animated:YES];
-    hud.labelText = NSLocalizedString(@"Saving", @"");
-    hud.mode = MBProgressHUDModeIndeterminate;
-    
-    [[YAAssetsCreator sharedCreator] addBumberToVideoAtURL:[YAUtils urlFromFileName:self.video.mp4Filename]
-                                                completion:^(NSURL *filePath, NSError *error) {
-                                                    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-                                                        
-                                                        [hud hide:YES];
-                                                        [self.page collapseShareSheet];
-                                                        //Your code goes in here
-                                                        DLog(@"Main Thread Code");
-                                                        
-                                                    }];
-                                                    if (error) {
-                                                        DLog(@"Error: can't add bumber");
-                                                    } else {
-                                                        
-                                                        if(UIVideoAtPathIsCompatibleWithSavedPhotosAlbum([filePath path])) {
-                                                            UISaveVideoAtPathToSavedPhotosAlbum([filePath path], self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
-                                                        }
-                                                        
-                                                    }
-                                                }];
-}
-
-- (void)video:(NSString*)videoPath didFinishSavingWithError:(NSError*)error contextInfo:(void*)contextInfo {
-    if (error) {
-        NSString *message = @"Video Saving Failed";
-        [YAUtils showHudWithText:message];
-        
-    } else {
-        NSString *message = @"Saved! ✌️";
-        [YAUtils showHudWithText:message];
-    }
-}
 
 @end

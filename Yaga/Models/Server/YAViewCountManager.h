@@ -8,24 +8,32 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol YAViewCountDelegate <NSObject>
+@protocol YAVideoViewCountDelegate <NSObject>
+- (void)videoUpdatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount;
+@end
 
-- (void)updatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount;
+@protocol YAGroupViewCountDelegate <NSObject>
+- (void)groupUpdatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount;
+@end
 
+@protocol YAUserViewCountDelegate <NSObject>
+- (void)userUpdatedWithMyViewCount:(NSUInteger)myViewCount otherViewCount:(NSUInteger)othersViewCount;
 @end
 
 @interface YAViewCountManager : NSObject
 
 + (instancetype)sharedManager;
 
-@property (nonatomic, weak) id<YAViewCountDelegate> viewCountDelegate;
-@property (nonatomic, readonly) NSUInteger myViewCount;
-@property (nonatomic, readonly) NSUInteger othersViewCount;
+@property (nonatomic, weak) id<YAVideoViewCountDelegate> videoViewCountDelegate;
+@property (nonatomic, weak) id<YAGroupViewCountDelegate> groupViewCountDelegate;
+@property (nonatomic, weak) id<YAUserViewCountDelegate> userViewCountDelegate;
 
-- (void)switchVideoId:(NSString *)videoId;
-- (void)killMonitoring;
+- (void)monitorVideoWithId:(NSString *)videoId;
+- (void)monitorGroupWithId:(NSString *)groupId;
+- (void)monitorUser:(NSString *)username;
 
-- (void)didBeginWatchingVideoWithInterval:(NSTimeInterval)interval;
-- (void)stoppedWatchingVideo;
+- (void)killAllMonitoring;
+
+- (void)addViewToVideoWithId:(NSString *)videoId groupId:(NSString *)groupId user:(NSString *)user;
 
 @end

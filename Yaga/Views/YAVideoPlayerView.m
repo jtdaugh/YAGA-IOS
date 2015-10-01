@@ -8,13 +8,13 @@
 
 #import "YAVideoPlayerView.h"
 
-#import "YAViewCountManager.h"
 #import "YAWeakTimerTarget.h"
 
 #define NUM_OF_COPIES 100
 
 @interface YAVideoPlayerView ()
 @property (strong) AVPlayerItem* playerItem;
+@property (nonatomic, strong) id playbackObserver;
 @property (nonatomic, strong) NSTimer *viewCountTimer;
 @end
 
@@ -140,7 +140,6 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 #pragma mark
 - (void)dealloc
 {
-    [[YAViewCountManager sharedManager] stoppedWatchingVideo];
     [self.player removeObserver:self forKeyPath:@"currentItem"];
     [self.player removeObserver:self forKeyPath:@"rate"];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
@@ -346,15 +345,38 @@ static void *AVPlayerDemoPlaybackViewControllerCurrentItemObservationContext = &
 
 - (void)play {
     float singlePlayTime = CMTimeGetSeconds(self.playerItem.asset.duration) / (float) NUM_OF_COPIES;
-    [[YAViewCountManager sharedManager] didBeginWatchingVideoWithInterval:singlePlayTime];
     
     [self.player play];
-    
+
     //hide fullscreen jpg preview
     if(self.subviews.count && [self.subviews[0] isKindOfClass:[UIImageView class]]) {
         UIImageView *jpgView = self.subviews[0];
-//        [jpgView removeFromSuperview];
+        //        [jpgView removeFromSuperview];
         [self sendSubviewToBack:jpgView];
+    }
+
+    //add playback observer
+    [self.player removeTimeObserver:self.playbackObserver];
+    
+    CMTime interval = CMTimeMake(33, 1000);
+    __weak typeof(self) weakSelf = self;
+    
+    self.playbackObserver = [self.player addPeriodicTimeObserverForInterval:interval queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+        CGFloat endTime = CMTimeGetSeconds(weakSelf.player.currentItem.asset.duration);
+        
+        if (endTime != 0) {
+            CGFloat currentTime = CMTimeGetSeconds(weakSelf.player.currentTime);
+            CGFloat normalizedTime;
+            normalizedTime = fmodf(currentTime, endTime/NUM_OF_COPIES);
+            [weakSelf playbackProgressChanged:normalizedTime duration:endTime/NUM_OF_COPIES];
+        }
+    }];
+
+}
+
+- (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration {
+    if([self.delegate respondsToSelector:@selector(playbackProgressChanged:duration:)]) {
+        [self.delegate playbackProgressChanged:progress duration:duration];
     }
 }
 

@@ -209,7 +209,7 @@ typedef enum {
         UIImage *backImage = [UIImage imageNamed:@"Back"];
         backImage = [UIImage imageWithCGImage:[backImage CGImage] scale:(backImage.scale * 3) orientation:(backImage.imageOrientation)];
         
-        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (HEADER_HEIGHT - 30) / 2, 80, 30)];
+        self.backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, (HEADER_HEIGHT - 30) / 2, 70, 30)];
         [self.backButton setImage:backImage forState:UIControlStateNormal];
         self.backButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
         [self.backButton setTitle:NSLocalizedString(@"Back", @"") forState:UIControlStateNormal];
@@ -224,7 +224,9 @@ typedef enum {
         
         
         //current group
-        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - 200)/2, 0, 200, HEADER_HEIGHT)];
+        CGFloat groupButtonWidth = VIEW_WIDTH - (self.backButton.frame.size.width * 2);
+        
+        self.groupButton = [[UIButton alloc] initWithFrame:CGRectMake((VIEW_WIDTH - groupButtonWidth)/2, 0, groupButtonWidth, HEADER_HEIGHT)];
         [self.groupButton addTarget:self action:@selector(openGroupOptions) forControlEvents:UIControlEventTouchUpInside];
         
         if ([YAUser currentUser].currentGroup.members.count == 1) {
@@ -232,6 +234,8 @@ typedef enum {
         } else {
             [self.groupButton setTitle:[YAUser currentUser].currentGroup.name forState:UIControlStateNormal];
         }
+        
+        self.groupButton.titleLabel.adjustsFontSizeToFitWidth = YES;
         [self.groupButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
         self.groupButton.layer.shadowColor = [[UIColor blackColor] CGColor];
         self.groupButton.layer.shadowRadius = 1.0f;
@@ -1067,11 +1071,7 @@ typedef enum {
 }
 
 - (void)openGroupOptions {
-    if([YAUser currentUser].currentGroup.publicGroup) {
-        [self showHumanityTooltip];
-    } else {
-        [self.delegate openGroupOptions];
-    }
+    [self.delegate openGroupOptions];
 }
 
 #pragma mark -
@@ -1141,12 +1141,5 @@ typedef enum {
         }
     }];
 }
-
-
-- (void)showHumanityTooltip {
-    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_HUMANITY_VISIT_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_HUMANITY_VISIT_BODY", @"") dismissText:@"Got it" addToView:self.parentViewController.view] show];
-}
-
-
 
 @end

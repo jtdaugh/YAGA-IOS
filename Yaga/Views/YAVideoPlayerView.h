@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 
+@protocol YAVideoPlayerViewDelegate <NSObject>
+- (void)playbackProgressChanged:(CGFloat)progress duration:(CGFloat)duration;
+@end
+
 @interface YAVideoPlayerView : UIView {
     NSURL *_URL;
 }
@@ -19,6 +23,8 @@
 
 @property (nonatomic, assign) BOOL playWhenReady;
 @property (nonatomic, assign) BOOL readyToPlay;
+
+@property (nonatomic, weak) id<YAVideoPlayerViewDelegate> delegate;
 
 - (BOOL)isPlaying;
 - (void)play;

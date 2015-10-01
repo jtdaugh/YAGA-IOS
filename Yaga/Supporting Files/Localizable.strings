@@ -61,9 +61,6 @@
 
 "iMESSAGE_COME_JOIN_ME_TEXT" = "I added you to the %@ group on Yaga. Get it now on the App Store!\nhttp://getyaga.com";
 
-"FIRST_HUMANITY_VISIT_TITLE" = "Humanity";
-"FIRST_HUMANITY_VISIT_BODY" = "Humanity contains every Yaga user in the world. \n\n We go through all posts and only approve the best.";
-
 "FIRST_GROUP_VISIT_TITLE" = "Welcome";
 "FIRST_GROUP_VISIT_BODY" = "\"%@\" is a closed group with %i other members.\n\nVideos to the group are private and you'll never lose them.";
 
@@ -72,10 +69,6 @@
 
 "FIRST_NOGROUP_POST_TITLE" = "Pick groups";
 "FIRST_NOGROUP_POST_BODY" = "You weren't inside a group when you took this video.\n\nSo, pick which groups you'd like to send it to.\n\nOr swipe the video away to delete it forever.";
-
-"FIRST_HUMANITY_POST_TITLE" = "Pending approval";
-"FIRST_HUMANITY_POST_BODY" = "Only the best videos are featured in Humanity.\n\nWe'll notify you if yours gets approved.";
-
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
 

@@ -22,8 +22,6 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property BOOL hasUnviewedVideos;
 @property BOOL muted;
 
-@property BOOL publicGroup;
-
 @property RLMArray<YAContact> *members;
 @property RLMArray<YAContact> *pending_members;
 @property RLMArray<YAVideo> *videos;

@@ -17,9 +17,7 @@
 #import "YAServer.h"
 #import "Constants.h"
 
-#define HUMANITY_VISITED @"humanityVisited"
 #define PRIVATE_GROUP_VISITED @"groupVisited"
-#define HAS_RECORDED_PUBLIC_VIDEO @"publicRecorded"
 #define HAS_RECORDED_PRIVATE_VIDEO @"privateRecorded"
 #define HAS_RECORDED_UNGROUPED_VIDEO @"ungroupedRecorded"
 
@@ -473,15 +471,6 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-+ (BOOL)hasVisitedHumanity {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:HUMANITY_VISITED];
-}
-
-+ (void)setVisitedHumanity {
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HUMANITY_VISITED];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
 + (BOOL)hasVisitedPrivateGroup {
     return [[NSUserDefaults standardUserDefaults] boolForKey:PRIVATE_GROUP_VISITED];
 }
@@ -497,15 +486,6 @@
 
 + (void)setRecordedPrivateVideo {
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HAS_RECORDED_PRIVATE_VIDEO];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-+ (BOOL)hasRecordedPublicVideo {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:HAS_RECORDED_PUBLIC_VIDEO];
-}
-
-+ (void)setRecordedPublicVideo {
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HAS_RECORDED_PUBLIC_VIDEO];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 

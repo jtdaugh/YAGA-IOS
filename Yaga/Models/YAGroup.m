@@ -38,9 +38,6 @@
 }
 
 - (NSString*)membersString {
-    if(self.publicGroup) {
-        return @"All Yaga Users";
-    }
     
     if(!self.members.count) {
         return NSLocalizedString(@"No members", @"");
@@ -212,7 +209,7 @@
 }
 
 + (void)updateGroupsFromServerWithCompletion:(completionBlock)block {
-    void (^successBlock)(id, BOOL) = ^void(id response, BOOL publicGroups) {
+    void (^successBlock)(id) = ^void(id response) {
         NSAssert([response isKindOfClass:[NSArray class]], @"unexpected server result");
         
         [[RLMRealm defaultRealm] beginWriteTransaction];
@@ -234,9 +231,7 @@
             else {
                 group = [YAGroup group];
             }
-            
-            group.publicGroup = publicGroups;
-            
+
             [group updateFromServerResponeDictionarty:dict];
             
             if(!existingGroups.count)
@@ -246,9 +241,7 @@
         NSArray *serverGroupIds = [groups valueForKey:@"id"];
         NSMutableSet *groupsToDelete = [NSMutableSet set];
         
-        NSString *predicate = [NSString stringWithFormat:@"publicGroup = %d", publicGroups];
-        
-        for (YAGroup *group in [[YAGroup allObjects] objectsWhere:predicate]) {
+        for (YAGroup *group in [YAGroup allObjects]) {
             if(![serverGroupIds containsObject:group.serverId] && ![[YAServerTransactionQueue sharedQueue] hasPendingAddTransactionForGroup:group]) {
                 BOOL currentGroupToRemove = [[YAUser currentUser].currentGroup.localId isEqualToString:group.localId];
                 
@@ -288,11 +281,8 @@
         
         [[NSNotificationCenter defaultCenter] postNotificationName:GROUPS_REFRESHED_NOTIFICATION object:nil];
         
-        //do not call completion block for public groups request
-        if(!publicGroups) {
-            if(block)
-                block(nil);
-        }
+        if(block)
+            block(nil);
     };
 
     [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
@@ -300,37 +290,10 @@
             if(block)
                 block(error);
             return;
+        } else {
+            successBlock(response);
         }
-        else {
-            successBlock(response, NO);
-            
-            //shall we request publc groups
-            NSDate *lastRequested = [[NSUserDefaults standardUserDefaults] objectForKey:kLastPublicGroupsRequestDate];
-            
-            //request yaga users once per 6 hours
-            if(lastRequested && [[NSDate date] compare:[lastRequested dateByAddingTimeInterval:60*60*6]] == NSOrderedAscending) {
-                DLog(@"6 hours hasn't passed yet, exiting");
-                block(nil);
-                return;
-            }
-            else {
-                [[YAServer sharedServer] getGroupsWithCompletion:^(id response, NSError *error) {
-                    [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:kLastPublicGroupsRequestDate];
-                    
-                    if(error) {
-                        if(block)
-                            block(error);
-                        
-                        return;
-                    }
-                    else {
-                        successBlock(response, YES);
-                    }
-                } publicGroups:YES];
-            }
-            
-        }
-    } publicGroups:NO];
+    }];
 }
 
 #pragma mark - Server synchronisation: send updates to server

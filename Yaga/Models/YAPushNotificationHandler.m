@@ -94,9 +94,6 @@ typedef void (^groupChangedCompletionBlock)(void);
     else if([eventName isEqualToString:@"request"]) {
         [self handleGroupJoinRequest];
     }
-    else if([eventName isEqualToString:@"approve"]) {
-        [self handleApprovePublic];
-    }
 }
 
 - (void)handlePostEvent {
@@ -163,11 +160,6 @@ typedef void (^groupChangedCompletionBlock)(void);
             [[NSNotificationCenter defaultCenter] postNotificationName:OPEN_GROUP_OPTIONS_NOTIFICATION object:nil];
         });
     }];
-}
-
-- (void)handleApprovePublic {
-    NSString *groupId = self.meta[@"group_id"];
-    [self openGroupWithId:groupId refresh:YES completion:nil];
 }
 
 #pragma mark - Utils

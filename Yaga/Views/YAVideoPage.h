@@ -15,7 +15,7 @@
 @protocol YASuspendableGesturesDelegate;
 
 @interface YAVideoPage : UIView<UITextViewDelegate, UIActionSheetDelegate,
-    UIGestureRecognizerDelegate, YAEventReceiver, YAViewCountDelegate>
+    UIGestureRecognizerDelegate, YAEventReceiver, YAVideoViewCountDelegate>
 
 @property (nonatomic, strong) YAVideo *video;
 @property (nonatomic, readonly) YAVideoPlayerView *playerView;
