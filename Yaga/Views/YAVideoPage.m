@@ -193,6 +193,26 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
+- (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId didRemoveEvent:(YAEvent *)event {
+    if (!self.video.invalidated) {
+        if ([serverId isEqualToString:self.video.serverId] || [localId isEqualToString:self.video.localId]) {
+            YAEvent *eventToRemove;
+            NSInteger eventIndex = 0;
+            for (YAEvent *videoEvent in self.events) {
+                if ([videoEvent.key isEqualToString:event.key]) {
+                    eventToRemove = videoEvent;
+                    break;
+                }
+                eventIndex++;
+            }
+            if (eventToRemove) {
+                [self.events removeObject:eventToRemove];
+                [self.commentsTableView deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:eventIndex inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
+            }
+        }
+    }
+}
+
 - (void)videoWithServerId:(NSString *)serverId
                   localId:(NSString *)localId
     receivedInitialEvents:(NSArray *)events {
@@ -461,8 +481,8 @@ static NSString *commentCellID = @"CommentCell";
     viewCountView.backgroundColor = [UIColor clearColor];
     [self.overlay addSubview:viewCountView];
     
-    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(viewCountSize.width/2 + 1, 0)];
-                        
+    self.viewCounter = [[RCounter alloc] initWithValue:0 origin:CGPointMake(viewCountSize.width/2, 0)];
+    
     self.viewCounter.layer.shadowColor = [[UIColor blackColor] CGColor];
     self.viewCounter.layer.shadowRadius = 0.0f;
     self.viewCounter.layer.shadowOpacity = 1.0;
@@ -471,7 +491,7 @@ static NSString *commentCellID = @"CommentCell";
 
     CGSize viewCountImgSize = CGSizeMake(25, 20);
     self.viewCountImageView = [[UIImageView alloc]initWithFrame:CGRectMake(viewCountSize.width/2 - 1 - viewCountImgSize.width,
-                                                                           2,
+                                                                           1,
                                                                            viewCountImgSize.width, viewCountImgSize.height)];
     self.viewCountImageView.image = [UIImage imageNamed:@"Views"];
     self.viewCountImageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -503,7 +523,7 @@ static NSString *commentCellID = @"CommentCell";
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.commentButton];
 
-    self.heartButton = [YAUtils circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(buttonRadius*3 + padding*2, VIEW_HEIGHT - buttonRadius - padding)];
+    self.heartButton = [YAUtils circleButtonWithImage:@"Like" diameter:buttonRadius*2 center:CGPointMake(buttonRadius*3 + padding*3, VIEW_HEIGHT - buttonRadius - padding)];
     [self.heartButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.heartButton];
     
@@ -1315,11 +1335,29 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)addLike {
-
+    
     YAEvent *event = [YAEvent new];
     event.eventType = YAEventTypeLike;
+    event.likeCount = @(1);
     event.username = [YAUser currentUser].username;
+    
+    BOOL userHasLiked = NO;
+    for (YAEvent *videoEvent in self.events) {
+        if ([videoEvent.username isEqualToString:[YAUser currentUser].username] && videoEvent.eventType == YAEventTypeLike) {
+            userHasLiked = YES;
+            [[YAEventManager sharedManager] removeEvent:videoEvent toVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+            event = videoEvent;
+            event.likeCount = @([event.likeCount integerValue] + 1);
+            break;
+        }
+    }
+    
     [[YAEventManager sharedManager] addEvent:event toVideoWithServerId:self.video.serverId localId:self.video.localId serverIdStatus:[YAVideo serverIdStatusForVideo:self.video]];
+    
+    // Scroll to bottom
+    [self.commentsTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+    [[Mixpanel sharedInstance] track:@"Liked Video"];
+    
 }
 
 - (void)hideHold:(UILongPressGestureRecognizer *) recognizer {
@@ -1434,6 +1472,7 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)closeAnimated {
+    [self.commentsTextField resignFirstResponder];
     [self.presentingVC dismissAnimated];
 }
 

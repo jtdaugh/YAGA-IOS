@@ -19,13 +19,14 @@
     }
     event.key = snapshot.key;
     event.username = snapshot.value[@"username"];
-
+    
     NSString *type = snapshot.value[@"type"];
     if ([type isEqualToString:@"comment"]) {
         event.eventType = YAEventTypeComment;
         event.comment = snapshot.value[@"comment"];
     } else if ([type isEqualToString:@"like"]) {
         event.eventType = YAEventTypeLike;
+        event.likeCount = snapshot.value[@"likeCount"];
     } else if ([type isEqualToString:@"post"]) {
         event.eventType = YAEventTypePost;
         event.timestamp = snapshot.value[@"timestamp"];
@@ -38,6 +39,7 @@
 + (YAEvent *)eventForCreationOfVideo:(YAVideo *)video {
     YAEvent *event = [YAEvent new];
     event.eventType = YAEventTypePost;
+    
     event.username = video.creator;
     event.timestamp = [[YAUser currentUser] formatDate:video.createdAt];
     return event;
@@ -53,6 +55,7 @@
             break;
         case YAEventTypeLike:
             dict[@"type"] = @"like";
+            dict[@"likeCount"] = self.likeCount;
             break;
         case YAEventTypePost:
             dict[@"type"] = @"post";

@@ -210,7 +210,7 @@ static NSString *cellID = @"Cell";
     if(needRefresh) {
         [self refreshCurrentGroup];
     } else {
-        [[YAEventManager sharedManager] groupChanged];
+        [[YAEventManager sharedManager] groupChanged:[YAUser currentUser].currentGroup];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         [self playVisible:YES];
     }

@@ -10,14 +10,16 @@
 
 #import "YAUser.h"
 
+#define USERNAME_HEIGHT 26
+#define MAX_USERNAME_WIDTH (VIEW_WIDTH*0.5)
 @interface YAEventCell ()
 
 @property (nonatomic, strong) UILabel *usernameLabel;
 @property (nonatomic, strong) UILabel *timestampLabel;
 @property (nonatomic, strong) UIImageView *iconImageView;
-@property (nonatomic, strong) UIButton *deleteButton;
 
 @property (nonatomic, strong) UITextView *commentsTextView;
+@property (nonatomic, strong) UILabel *likeCountLabel;
 
 @property (nonatomic, strong) NSString *timestamp;
 
@@ -30,24 +32,34 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.backgroundColor = [UIColor clearColor];
-        CGFloat initialUsernameWidth = 100, initialHeight = 26;
+        CGFloat initialUsernameWidth = 100, initialHeight = USERNAME_HEIGHT;
         self.usernameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, initialUsernameWidth, initialHeight)];
         self.usernameLabel.textColor = PRIMARY_COLOR;
         self.usernameLabel.font = [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE];
-        
         self.usernameLabel.shadowColor = [UIColor blackColor];
         self.usernameLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         self.usernameLabel.userInteractionEnabled = NO;
-
-//
-//        self.commentsTextView.layer.shadowColor = [UIColor blackColor].CGColor;
-//        self.commentsTextView.layer.shadowOffset = CGSizeMake(1.0, 1.0);
-//        self.commentsTextView.layer.shadowOpacity = 1.0;
-//        self.commentsTextView.layer.shadowRadius = 0.0f;
+        self.usernameLabel.adjustsFontSizeToFitWidth = YES;
+        self.usernameLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+        self.usernameLabel.minimumScaleFactor = 0.5;
+        
+        self.likeCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(initialUsernameWidth + 11, 0, self.frame.size.width - (initialUsernameWidth + 30), initialHeight)];
+        self.likeCountLabel.textColor = [UIColor whiteColor];
+        self.likeCountLabel.font = [UIFont boldSystemFontOfSize:13];
+        self.likeCountLabel.shadowColor = [UIColor blackColor];
+        self.likeCountLabel.shadowOffset = CGSizeMake(0.5, 0.5);
+        self.likeCountLabel.userInteractionEnabled = NO;
+        
+        
+        //        self.commentsTextView.layer.shadowColor = [UIColor blackColor].CGColor;
+        //        self.commentsTextView.layer.shadowOffset = CGSizeMake(1.0, 1.0);
+        //        self.commentsTextView.layer.shadowOpacity = 1.0;
+        //        self.commentsTextView.layer.shadowRadius = 0.0f;
         
         [self addSubview:self.usernameLabel];
-
-        self.commentsTextView = [[UITextView alloc] initWithFrame:CGRectMake(initialUsernameWidth, 0, self.frame.size.width - initialUsernameWidth, initialHeight)];
+        [self addSubview:self.likeCountLabel];
+        
+        self.commentsTextView = [[UITextView alloc] initWithFrame:CGRectMake(initialUsernameWidth, 3, self.frame.size.width - initialUsernameWidth, initialHeight-3)];
         self.commentsTextView.textContainer.lineFragmentPadding = 0;
         self.commentsTextView.textContainerInset = UIEdgeInsetsZero;
         self.commentsTextView.textColor = [UIColor whiteColor];
@@ -69,35 +81,20 @@
         self.iconImageView.contentMode = UIViewContentModeScaleAspectFit;
         [self addSubview:self.iconImageView];
         
-        self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 3, initialUsernameWidth, initialHeight)];
+        self.timestampLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 5, initialUsernameWidth, initialHeight)];
         self.timestampLabel.textColor = [UIColor colorWithWhite:0.85 alpha:0.75];
         self.timestampLabel.font = [UIFont systemFontOfSize:COMMENTS_FONT_SIZE-3.f];
         self.timestampLabel.userInteractionEnabled = NO;
-
+        
         self.timestampLabel.shadowColor = [UIColor blackColor];
         self.timestampLabel.shadowOffset = CGSizeMake(0.5, 0.5);
         [self addSubview:self.timestampLabel];
         
-
-        // Text Delete button
-        self.deleteButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, initialHeight)];
-        [self.deleteButton.titleLabel setFont:[UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE - 3.0f]];
-        [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
-        [self.deleteButton setTitleColor:[UIColor colorWithRed:158.0f/255.0f green:11.0f/255.0f blue:15.0f/255.0f alpha:1.0] forState:UIControlStateNormal];
-
-        [self.deleteButton addTarget:self action:@selector(deletePressed) forControlEvents:UIControlEventTouchUpInside];
-        self.deleteButton.layer.shadowColor = [UIColor blackColor].CGColor;
-        self.deleteButton.layer.shadowOffset = CGSizeMake(0.5, 0.5);
-        self.deleteButton.layer.shadowOpacity = 0.3;
-        self.deleteButton.layer.shadowRadius = 0.0f;
-        [self.deleteButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-
-        [self addSubview:self.deleteButton];
-
-//        [self.usernameLabel setBackgroundColor:[UIColor greenColor]];
-//        [self.commentsTextView setBackgroundColor:[UIColor redColor]];
+        
+        //        [self.usernameLabel setBackgroundColor:[UIColor greenColor]];
+        //        [self.commentsTextView setBackgroundColor:[UIColor redColor]];
     }
-    return self;    
+    return self;
 }
 
 - (void)configureCellWithEvent:(YAEvent *)event {
@@ -106,12 +103,12 @@
             [self configureCommentCellWithUsername:event.username comment:event.comment];
             break;
         case YAEventTypeLike:
-            [self configureLikeCellWithUsername:event.username];
+            [self configureLikeCellWithUsername:event.username likeCount:event.likeCount ? event.likeCount.integerValue : 0];
             break;
         case YAEventTypePost:
             [self configurePostCellWithUsername:event.username
                                       timestamp:event.timestamp
-                                     isOwnVideo:[event.username isEqualToString:[YAUser currentUser].username]];
+                                     isOwnVideo:[[[event.username componentsSeparatedByString:@" "] firstObject] isEqualToString:[YAUser currentUser].username]];
             break;
     }
 }
@@ -124,16 +121,22 @@
     CGRect commentFrame = self.commentsTextView.frame;
     commentFrame.origin.x = self.usernameLabel.frame.size.width + 8.0f;
     commentFrame.size = [[self class] sizeForCommentsCellWithUsername:username comment:comment];
+    self.likeCountLabel.text = @"";
     self.commentsTextView.frame = commentFrame;
 }
 
-- (void)configureLikeCellWithUsername:(NSString *)username {
+- (void)configureLikeCellWithUsername:(NSString *)username likeCount:(NSInteger)likeCount {
     [self setCellType:YAEventTypeLike];
     self.usernameLabel.text = username;
     [self layoutUsername:username];
     self.iconImageView.image = [UIImage imageNamed:@"Liked"];
-    [self layoutImageViewWithYOffset:-1.f];
-    
+    [self layoutImageViewWithYOffset:0];
+    [self layoutLikeCountLabelWithYOffset:0];
+    if (likeCount > 1) {
+        self.likeCountLabel.text = [NSString stringWithFormat:@"✕ %ld", likeCount];
+    } else {
+        self.likeCountLabel.text = @"";
+    }
 }
 
 - (void)configurePostCellWithUsername:(NSString *)username timestamp:(NSString *)timestamp isOwnVideo:(BOOL)isOwnVideo {
@@ -143,12 +146,16 @@
     self.usernameLabel.text = username;
     [self layoutUsername:username];
     self.timestampLabel.text = timestamp;
-    self.deleteButton.hidden = !isOwnVideo;
+    self.commentsTextView.text = @"";
+    self.likeCountLabel.text = @"";
     [self layoutPostViews];
 }
 
 - (void)layoutUsername:(NSString *)username {
-    self.usernameLabel.frame = [[self class] frameForUsernameLabel:username];
+    CGFloat width = [[self class] frameForUsernameLabel:username].size.width;
+    CGRect frame = self.usernameLabel.frame;
+    frame.size.width = width > MAX_USERNAME_WIDTH ? MAX_USERNAME_WIDTH : width;
+    self.usernameLabel.frame = frame;
 }
 
 - (void)layoutImageViewWithYOffset:(CGFloat)yOffset {
@@ -158,34 +165,36 @@
     self.iconImageView.frame = imageFrame;
 }
 
-- (void)layoutPostViews {
-    CGFloat deleteWidth = self.deleteButton.frame.size.width;
+- (void)layoutLikeCountLabelWithYOffset:(CGFloat)yOffset {
+    CGRect likeCountLabelFrame = self.likeCountLabel.frame;
+    likeCountLabelFrame.origin.x = CGRectGetMaxX(self.iconImageView.frame);
+    likeCountLabelFrame.origin.y = yOffset;
+    self.likeCountLabel.frame = likeCountLabelFrame;
+}
 
+- (void)layoutPostViews {
+    
     CGRect timestampFrame = self.timestampLabel.frame;
     timestampFrame.origin.x = self.usernameLabel.frame.origin.x + self.usernameLabel.frame.size.width + COMMENTS_SPACE_AFTER_USERNAME;
-    timestampFrame.size.width = self.frame.size.width - timestampFrame.origin.x - deleteWidth;
+    timestampFrame.size.width = self.frame.size.width - timestampFrame.origin.x - 5;
     self.timestampLabel.frame = timestampFrame;
     [self.timestampLabel sizeToFit];
+    timestampFrame = self.timestampLabel.frame;
+    timestampFrame.origin.y = (USERNAME_HEIGHT - timestampFrame.size.height)/2;
+    self.timestampLabel.frame = timestampFrame;
     
-    CGRect deleteFrame = self.deleteButton.frame;
-    deleteFrame.origin.x = self.timestampLabel.frame.origin.x + self.timestampLabel.frame.size.width + COMMENTS_SPACE_AFTER_USERNAME;
-    deleteFrame.size.width = deleteWidth;
-    self.deleteButton.frame = deleteFrame;
 }
 
 - (void)setVideoState:(YAEventCellVideoState)state{
     switch (state) {
         case YAEventCellVideoStateUploading:
             self.timestampLabel.text = @"Uploading...";
-            [self.deleteButton setTitle:@"Cancel" forState:UIControlStateNormal];
             break;
         case YAEventCellVideoStateUnapproved:
-            self.timestampLabel.text = @"Pending Approval";
-            [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+            self.timestampLabel.text = @"Pending";
             break;
         case YAEventCellVideoStateApproved:
             self.timestampLabel.text = [NSString stringWithFormat:@"%@", self.timestamp];
-            [self.deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
             break;
     }
     [self layoutPostViews];
@@ -197,30 +206,18 @@
             self.commentsTextView.hidden = NO;
             self.iconImageView.hidden = YES;
             self.timestampLabel.hidden = YES;
-            self.deleteButton.hidden = YES;
             break;
         case YAEventTypePost:
             self.commentsTextView.hidden = YES;
             self.iconImageView.hidden = YES;
             self.timestampLabel.hidden = NO;
-            self.deleteButton.hidden = NO;
             break;
         case YAEventTypeLike:
             self.iconImageView.hidden = NO;
             self.commentsTextView.hidden = YES;
             self.timestampLabel.hidden = YES;
-            self.deleteButton.hidden = YES;
             break;
     }
-}
-
-- (void)deletePressed {
-    [YAUtils confirmDeleteVideo:self.containingVideoPage.video withConfirmationBlock:^{
-        if(self.containingVideoPage.video.realm)
-            [self.containingVideoPage.video removeFromCurrentGroupWithCompletion:nil removeFromServer:[YAUser currentUser].currentGroup != nil];
-        else
-            [self.containingVideoPage closeAnimated];
-    }];;
 }
 
 #pragma mark - Class methods
@@ -246,8 +243,8 @@
 
 + (CGRect)frameForUsernameLabel:(NSString *)username {
     NSDictionary *usernameAttributes = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:COMMENTS_FONT_SIZE]};
-    CGRect rect = [username boundingRectWithSize:CGSizeMake(VIEW_WIDTH/2, CGFLOAT_MAX)
-                                         options:NSStringDrawingUsesLineFragmentOrigin
+    CGRect rect = [username boundingRectWithSize:CGSizeMake(MAX_USERNAME_WIDTH, USERNAME_HEIGHT)
+                                         options:NSStringDrawingTruncatesLastVisibleLine
                                       attributes:usernameAttributes
                                          context:nil];
     

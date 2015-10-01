@@ -12,6 +12,7 @@
 @protocol YAEventReceiver <NSObject>
 
 - (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId didReceiveNewEvent:(YAEvent *)event;
+- (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId didRemoveEvent:(YAEvent *)event;
 - (void)videoWithServerId:(NSString *)serverId localId:(NSString *)localId receivedInitialEvents:(NSArray *)events;
 
 @end
@@ -57,10 +58,14 @@
 // If serverIdStatus is NIL or UNSTABLE, the event will be written locally.
 // If serverIdStatus is CONFIRMED, event will be sent to firebase
 - (void)addEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId
-    serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
+  serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
 
+
+- (void)updateEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
+
+- (void)removeEvent:(YAEvent *)event toVideoWithServerId:(NSString *)serverId localId:(NSString *)localId serverIdStatus:(YAVideoServerIdStatus)serverIdStatus;
 
 // If group changed or first call, clears out any memory.
-- (void)groupChanged;
+- (void)groupChanged:(YAGroup *)group;
 
 @end

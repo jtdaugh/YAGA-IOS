@@ -860,7 +860,7 @@
     //otherwise save copy data for later execution when video is uploaded
     else {
         NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
-        NSMutableSet *groupIds = [NSMutableSet setWithSet:crosspostData[video.localId]];
+        NSMutableSet *groupIds = [NSMutableSet setWithArray:crosspostData[video.localId]];
         [groupIds addObjectsFromArray:groupIdsToCopyTo];
         
         [crosspostData setObject:groupIds.allObjects forKey:video.localId];
@@ -872,7 +872,7 @@
 
 - (void)executePendingCopyForVideo:(YAVideo*)video {
     NSMutableDictionary *crosspostData = [NSMutableDictionary dictionaryWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:kCrosspostData]];
-    NSArray *groupIds = [crosspostData[video.localId] allObjects];
+    NSArray *groupIds = crosspostData[video.localId];
     
     if(groupIds.count) {
         [self copyVideo:video toGroupsWithIds:groupIds withCompletion:^(id response, NSError *error) {
@@ -959,6 +959,13 @@
 
 - (BOOL)serverUp {
     @synchronized(self) {
+        if (!self.reachability) {
+            [self startMonitoringInternetConnection:YES];
+            // Return YES to possibly let the user make the request with no internet and wait behind a spinner.
+            // Return NO to show a false "No internet" message (but only once).
+            // Going with YES for now.
+            return YES;
+        }
         return [self.reachability isReachable];
     }
 }
