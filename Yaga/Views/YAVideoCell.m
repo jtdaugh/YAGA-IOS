@@ -222,9 +222,12 @@
     if (self.heavyWeightContentRendered) return;
     self.heavyWeightContentRendered = YES;
     
-    self.gifView.shouldPlayGifAutomatically = YES;
-    [self animateGifView:YES];
+    float randomTime = ((float)rand() / RAND_MAX) * 0.2;
     
+    self.gifView.shouldPlayGifAutomatically = YES;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(randomTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (self.heavyWeightContentRendered) [self animateGifView:YES]; // double check no invalidation
+    });
     
     //uploading progress
     if (self.video) {
