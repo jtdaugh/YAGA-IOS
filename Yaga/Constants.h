@@ -102,7 +102,7 @@
 
 #define kCountryCode        @"kCountryCode"
 
-#define kFindGroupsCachedResponse @"kFindGroupsCachedResponse"
+#define kFindGroupsCachedResponse @"kFindGroupsCachedLatestResponse"
 
 #define kLastYagaUsersRequestDate   @"kLastYagaUsersRequestDate"
 #define kYagaUsersRequested         @"kYagaUsersRequested"
@@ -127,6 +127,6 @@
 #define recordButtonWidth 90.0f
 #define GIF_GRID_UNSEEN @"gifsUnseen"
 
-#define DEBUG_SERVER 0
+#define DEBUG_SERVER 1
 
 #endif

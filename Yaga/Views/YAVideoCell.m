@@ -349,7 +349,7 @@
         self.captionWrapper.hidden = YES;
     }
     self.username.textAlignment = NSTextAlignmentRight;
-    self.username.text = self.video.pending ? @"Pending" : self.video.creator;
+    self.username.text = self.video.gifFilename ? self.video.creator : @"Loading...";
 }
 
 #pragma mark - UITapGestureRecognizer actions

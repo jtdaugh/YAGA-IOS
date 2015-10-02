@@ -87,6 +87,7 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UIView *editableCaptionWrapperView;
 @property (strong, nonatomic) UITextView *editableCaptionTextView;
 
+@property (nonatomic, strong) UIButton *postCaptureCaptionButton;
 @property (nonatomic) CGFloat textFieldHeight;
 @property (nonatomic) CGAffineTransform textFieldTransform;
 @property (nonatomic) CGPoint textFieldCenter;
@@ -251,9 +252,9 @@ static NSString *commentCellID = @"CommentCell";
 - (void)keyboardWillShow:(NSNotification*)notification
 {
     // Don't move stuff if its the caption keyboard. Only for the comments one.
+    self.playerView.player.volume = PLAYER_TURNED_DOWN_AUDIO;
     if (self.editingCaption) return;
     [self setGesturesEnabled:NO];
-    self.playerView.player.volume = PLAYER_TURNED_DOWN_AUDIO;
     self.commentsTapOutRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(commentsTapOut:)];
     [self addGestureRecognizer:self.commentsTapOutRecognizer];
     [self moveControls:notification up:YES];
@@ -261,11 +262,12 @@ static NSString *commentCellID = @"CommentCell";
 
 - (void)keyboardWillHide:(NSNotification*)notification
 {
+    self.playerView.player.volume = 1.0;
+
     if (self.editingCaption) return;
 
     [self setGesturesEnabled:YES];
     
-    self.playerView.player.volume = 1.0;
 
     [self removeGestureRecognizer:self.commentsTapOutRecognizer];
     // Don't move stuff if its the caption keyboard. Only for the comments one.
@@ -783,6 +785,7 @@ static NSString *commentCellID = @"CommentCell";
     [cancelSendButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:26]];
     [cancelSendButton addTarget:self action:@selector(closeAnimated) forControlEvents:UIControlEventTouchUpInside];
     [self.postCaptureOverlay addSubview:cancelSendButton];
+
     
     CGFloat height = POSTCAPTURE_BUTTON_HEIGHT;
     if (!inGroup) {
@@ -831,12 +834,13 @@ static NSString *commentCellID = @"CommentCell";
         shimmeringView.shimmering = YES;
     }
 
-    UIButton *xButton = [YAUtils circleButtonWithImage:@"X" diameter:44 center:CGPointMake(VIEW_WIDTH - 22 - 4, 4 + 22)];
-    xButton.transform = CGAffineTransformMakeScale(0.85, 0.85);
-    xButton.alpha = 0.8;
+    UIButton *xButton = [YAUtils circleButtonWithImage:@"X" diameter:44 center:CGPointMake(VIEW_WIDTH - 22 - 6, 6 + 22)];
     [xButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.postCaptureOverlay addSubview:xButton];
 
+    self.postCaptureCaptionButton = [YAUtils circleButtonWithImage:@"Text" diameter:44 center:CGPointMake(22 + 6, 6 + 22)];
+    [self.postCaptureCaptionButton addTarget:self action:@selector(captionButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.postCaptureOverlay addSubview:self.postCaptureCaptionButton];
     
     self.overlay.hidden = YES;
     [UIView animateWithDuration:0.3 animations:^{
@@ -944,6 +948,10 @@ static NSString *commentCellID = @"CommentCell";
     [self.editableCaptionWrapperView removeFromSuperview];
     self.editableCaptionTextView = nil;
     [self toggleEditingCaption:NO];
+    if (![self.captionTapRecognizer.view isEqual:self]) {
+        [self addGestureRecognizer:self.captionTapRecognizer];
+    }
+
     // remove caption and replace done/cancel buttons with text button
 }
 
@@ -959,30 +967,24 @@ static NSString *commentCellID = @"CommentCell";
 //}
 
 - (void)setGesturesEnabled:(BOOL)enabled {
-    if ([self.video isInvalidated] || !self.video.group) {
-        self.hideGestureRecognizer.enabled = enabled;
-        self.captionTapRecognizer.enabled = NO;
-        self.likeDoubleTapRecognizer.enabled = NO;
-        if (enabled) {
-            [self.presentingVC restoreAllGestures:self];
-        } else {
-            [self.presentingVC suspendAllGestures:self];
-        }
+    self.hideGestureRecognizer.enabled = enabled;
+    self.captionTapRecognizer.enabled = enabled;
+    self.likeDoubleTapRecognizer.enabled = enabled;
+    if (enabled) {
+        [self.presentingVC restoreAllGestures:self];
     } else {
-        self.hideGestureRecognizer.enabled = enabled;
-        self.captionTapRecognizer.enabled = enabled;
-        self.likeDoubleTapRecognizer.enabled = enabled;
-        if (enabled) {
-            [self.presentingVC restoreAllGestures:self];
-        } else {
-            [self.presentingVC suspendAllGestures:self];
-        }
+        [self.presentingVC suspendAllGestures:self];
+    }
+
+    if (self.postCaptureOverlay) {
+        self.likeDoubleTapRecognizer.enabled = NO;
     }
 }
 
 - (void)toggleEditingCaption:(BOOL)editing {
     if (self.postCaptureOverlay) {
-        [self bringSubviewToFront:self.postCaptureOverlay];
+//        [self bringSubviewToFront:self.postCaptureOverlay];
+        
         // Toggle sharing view and caption editing for unposted video state
         [UIView animateWithDuration:0.2 animations:^{
             self.postCaptureOverlay.alpha = editing ? 0.0 : 1.0;
@@ -1033,10 +1035,11 @@ static NSString *commentCellID = @"CommentCell";
 // TODO: Send to server, not firebase, and manually insert serverCaptionWrapper(andText)View
 - (void)commitCurrentCaption {
     if (self.editableCaptionTextView) {
+        [self.postCaptureCaptionButton removeFromSuperview];
+
         [self.editableCaptionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
         [self.editableCaptionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
         [self.editableCaptionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
-        [self.editableCaptionTextView removeGestureRecognizer:self.captionTapRecognizer];
         [self removeGestureRecognizer:self.captionTapRecognizer];
         
         NSString *text = self.editableCaptionTextView.text;
@@ -1054,7 +1057,11 @@ static NSString *commentCellID = @"CommentCell";
         self.editableCaptionWrapperView = nil;
         self.editableCaptionTextView = nil;
         self.serverCaptionTextView.editable = NO;
-        [self.overlay sendSubviewToBack:self.serverCaptionWrapperView];
+        
+        [self.serverCaptionWrapperView removeFromSuperview];
+        UIView *view = self.postCaptureOverlay ? self.postCaptureOverlay : self.overlay;
+        [view addSubview:self.serverCaptionWrapperView];
+        [view sendSubviewToBack:self.serverCaptionWrapperView];
         [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
     }
 }
@@ -1151,7 +1158,9 @@ static NSString *commentCellID = @"CommentCell";
     __weak YAVideoPage *weakSelf = self;
     
     // sort of hacky way to enable confirming/cancelling caption when near buttons
-    [self.overlay bringSubviewToFront:self.captionButtonContainer];
+    [self bringSubviewToFront:self.editableCaptionTextView];
+    [self bringSubviewToFront:self.captionButtonContainer];
+
     
     [UIView animateWithDuration:0.2f animations:^{
         weakSelf.editableCaptionWrapperView.frame = wrapperFrame;
@@ -1209,6 +1218,7 @@ static NSString *commentCellID = @"CommentCell";
     [self resizeTextAboveKeyboardWithAnimation:NO];
     
     [self.editableCaptionWrapperView addSubview:self.editableCaptionTextView];
+    
     [self addSubview:self.editableCaptionWrapperView];
     
     [self.editableCaptionTextView becomeFirstResponder];
@@ -1230,7 +1240,9 @@ static NSString *commentCellID = @"CommentCell";
     self.captionBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
     
     self.captionBlurOverlay.frame = self.bounds;
-    [self.overlay insertSubview:self.captionBlurOverlay belowSubview:self.editableCaptionWrapperView];
+    
+    [self insertSubview:self.captionBlurOverlay belowSubview:self.editableCaptionWrapperView];
+
     [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
     
     if (self.editableCaptionTextView) {
@@ -1341,14 +1353,9 @@ static NSString *commentCellID = @"CommentCell";
 }
 
 - (void)captionButtonPressed {
-//    if(self.video.group){
-//        
-//    }
-    if (self.video.group) {
-        [self collapseShareSheet];
-    }
     
     [self toggleEditingCaption:YES];
+    
     
     float randomX = ((float)rand() / RAND_MAX) * 100;
     float randomY = ((float)rand() / RAND_MAX) * 200;
@@ -1676,6 +1683,12 @@ static NSString *commentCellID = @"CommentCell";
     }
     if (self.deleteButton.superview != nil) {
         if ([touch.view isDescendantOfView:self.deleteButton]) {
+            // we touched our control surface
+            return NO; // ignore the touch
+        }
+    }
+    if (self.postCaptureCaptionButton.superview != nil) {
+        if ([touch.view isDescendantOfView:self.postCaptureCaptionButton]) {
             // we touched our control surface
             return NO; // ignore the touch
         }
