@@ -37,6 +37,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic, assign) NSUInteger paginationThreshold;
 
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
+@property (nonatomic, assign) NSUInteger lastDownloadPrioritizationIndex;
 
 @property (strong, nonatomic) UILabel *toolTipLabel;
 
@@ -51,6 +52,7 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic) CGPoint lastOffset;
 @property (nonatomic) BOOL scrollingFast;
+@property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
 @end
 
@@ -212,7 +214,6 @@ static NSString *cellID = @"Cell";
     } else {
         [[YAEventManager sharedManager] groupChanged:[YAUser currentUser].currentGroup];
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-        [self playVisible:YES];
     }
 }
 
@@ -295,7 +296,6 @@ static NSString *cellID = @"Cell";
         [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
         if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
             [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-        [self playVisible:YES];
         
         [self delayedHidePullToRefresh];
     };
@@ -337,7 +337,6 @@ static NSString *cellID = @"Cell";
     __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [weakSelf.collectionView.pullToRefreshView stopAnimating];
-        [weakSelf playVisible:YES];
         [weakSelf showNoVideosMessageIfNeeded];
     });
 }
@@ -486,10 +485,16 @@ static NSString *cellID = @"Cell";
         });
     }
     
-    [self updateScrollingFast];
-    cell.shouldPlayGifAutomatically = !self.scrollingFast;
     cell.video = video;
+
     
+    if (!self.scrolling) {
+        [cell renderLightweightContent];
+        [cell renderHeavyWeightContent];
+    } else if (!self.scrollingFast) {
+        [cell renderLightweightContent];
+    }
+
     [self handlePagingForIndexPath:indexPath];
     
     return cell;
@@ -541,122 +546,157 @@ static NSString *cellID = @"Cell";
 }
 
 #pragma mark - UIScrollView
-- (void)updateScrollingFast {
+
+#pragma mark - UIScrollView
+- (BOOL)calculateScrollingFast {
     if(!self.collectionView.superview) {
-        self.scrollingFast = NO;
-        return;
+        return NO;
     }
     
     CGPoint currentOffset = self.collectionView.contentOffset;
-    _scrollingFast = NO;
+    NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
     
-    CGFloat distance = currentOffset.y - self.lastOffset.y;
-    //The multiply by 10, / 1000 isn't really necessary.......
-    CGFloat scrollSpeedNotAbs = (distance * 10) / 1000; //in pixels per millisecond
+    NSTimeInterval timeDiff = currentTime - self.lastScrollingSpeedTime;
+    CGFloat pointsTravelled = currentOffset.y - self.lastOffset.y;
     
-    CGFloat scrollSpeed = fabs(scrollSpeedNotAbs);
-    if (scrollSpeed > 0.06) {
-        _scrollingFast = YES;
-    } else {
-        _scrollingFast = NO;
-    }
+    CGFloat pointsPerSecond = fabs(pointsTravelled / timeDiff);
     
     self.lastOffset = currentOffset;
+    self.lastScrollingSpeedTime = currentTime;
+    
+    //    DLog(@"SCROLLING FAST: %@. diffY: %f , time: %f", (pointsPerSecond > VIEW_HEIGHT) ? @"YES" : @"NO", pointsTravelled, timeDiff);
+    return (pointsPerSecond > VIEW_HEIGHT);
+    
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self.delegate scrollViewDidScroll];
+
+    if (scrollView.contentSize.height == 0) return;
+    if(self.disableScrollHandling) {
+        return;
+    }
     
     [[YAAssetsCreator sharedCreator] cancelGifOperations];
     
     self.assetsPrioritisationHandled = NO;
     
-    if(self.disableScrollHandling) {
-        return;
+    BOOL fast = [self calculateScrollingFast];
+    if (!fast && scrollView.contentOffset.y == -self.collectionView.pullToRefreshView.originalTopInset) {
+        // Animated back to top to hide pull to refresh
+        [self scrollingDidStop];
+    } else if (self.scrollingFast && !fast) {
+        [self scrollingDidSlowDown];
     }
-    
-    [self updateScrollingFast];
-    
-    [self playVisible:!self.scrollingFast];
-    
+    self.scrollingFast = fast;
     self.scrolling = YES;
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
-    [self playVisible:YES];
+    [self scrollingDidStop];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    self.scrolling = NO;
-    
-    if(!self.assetsPrioritisationHandled)
-        [self prioritiseDownloadsForVisibleCells];
+    [self scrollingDidStop];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
-        [self playVisible:YES];
-        
-        [self prioritiseDownloadsForVisibleCells];
-        self.assetsPrioritisationHandled = YES;
+        [self scrollingDidStop];
     }
 }
 
-- (void)playVisible:(BOOL)playValue {
-    //the following line will ensure visibleCells will return correct results
-    [self.collectionView layoutIfNeeded];
-    
-    for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
-        [videoCell animateGifView:playValue];
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
+    [self scrollingDidStop];
+}
 
-        if (playValue) {
-            // Only set event count if gifs should be playing
-            YAVideo *vid = videoCell.video;
-            if(vid.invalidated)
-                continue;
-            NSUInteger eventCount = [[YAEventManager sharedManager] getEventCountForVideoWithServerId:vid.serverId localId:vid.localId serverIdStatus:[YAVideo serverIdStatusForVideo:vid]];
-            [videoCell setEventCount:eventCount];
+// Show the cell gifs & event counts
+- (void)scrollingDidSlowDown {
+    [self.collectionView layoutIfNeeded]; // Ensure visibleCells returns correct cells
+    for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
+        if ([videoCell isKindOfClass:[YAVideoCell class]]) {
+            [videoCell renderLightweightContent];
         }
     }
 }
 
-#pragma mark - Assets creation
-
-- (void)prioritiseDownloadsForVisibleCells {
+// Show the captions
+- (void)scrollingDidStop {
+    self.scrolling = NO;
     
-    //sort them fist
-    NSArray *visibleVideoIndexes = [[[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"] sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        return [obj1 compare:obj2];
-    }];
-    NSMutableArray *videos = [NSMutableArray new];
-    for(NSNumber *visibleVideoIndex in visibleVideoIndexes) {
-        [videos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:[visibleVideoIndex integerValue]]];
+    [self.collectionView layoutIfNeeded]; // Ensure visibleCells returns correct cells
+    for(YAVideoCell *videoCell in self.collectionView.visibleCells) {
+        if ([videoCell isKindOfClass:[YAVideoCell class]]) {
+            [videoCell renderLightweightContent]; // Will know if its already been rendered
+            [videoCell renderHeavyWeightContent];
+        }
     }
     
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:videos invisibleVideos:nil];
+    if (!self.assetsPrioritisationHandled) {
+        NSNumber *firstVisibleIndex = [[[[self.collectionView indexPathsForVisibleItems] valueForKey:@"item"] sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            return [obj1 compare:obj2];
+        }] firstObject];
+        
+        [self enqueueAssetsCreationJobsStartingFromVideoIndex:[firstVisibleIndex integerValue]];
+        self.assetsPrioritisationHandled = YES;
+    }
+    
 }
 
+#pragma mark - Assets creation
+
 - (void)enqueueAssetsCreationJobsStartingFromVideoIndex:(NSUInteger)initialIndex {
-    NSUInteger maxCount = self.paginationThreshold;
-    if(maxCount > [YAUser currentUser].currentGroup.videos.count)
-        maxCount = [YAUser currentUser].currentGroup.videos.count;
+    BOOL killExisting = NO;
+    if (ABS(self.lastDownloadPrioritizationIndex - initialIndex) > kNumberOfItemsBelowToDownload) {
+        killExisting = YES;
+    }
+    self.lastDownloadPrioritizationIndex = initialIndex;
     
     //the following line will ensure indexPathsForVisibleItems will return correct results
     [self.collectionView layoutIfNeeded];
     
     NSMutableArray *visibleVideos = [NSMutableArray new];
     NSMutableArray *invisibleVideos = [NSMutableArray new];
-    for(NSUInteger videoIndex = initialIndex; videoIndex < maxCount; videoIndex++) {
-        if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"row"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
+    
+    NSUInteger beginIndex = initialIndex;
+    if (initialIndex >= kNumberOfItemsBelowToDownload) beginIndex -= kNumberOfItemsBelowToDownload; // Cant always subtract cuz overflow
+    NSUInteger endIndex = MIN([YAUser currentUser].currentGroup.videos.count, initialIndex + kNumberOfItemsBelowToDownload);
+    
+    for(NSUInteger videoIndex = beginIndex; videoIndex < endIndex; videoIndex++) {
+        if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
             [visibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
         }
         else {
             [invisibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
         }
-        
     }
     
-    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:visibleVideos invisibleVideos:invisibleVideos];
+    [[YAAssetsCreator sharedCreator] enqueueAssetsCreationJobForVisibleVideos:visibleVideos invisibleVideos:invisibleVideos killExistingJobs:killExisting];
+}
+
+#pragma mark - YASwipingControllerDelegate
+- (void)swipingController:(id)controller didScrollToIndex:(NSUInteger)index {
+    NSSet *visibleIndexes = [NSSet setWithArray:[[self.collectionView indexPathsForVisibleItems] valueForKey:@"item"]];
+    
+    //don't do anything if it's visible already
+    if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]]) {
+        return;
+    }
+    
+    if(index < [self collectionView:self.collectionView numberOfItemsInSection:0]) {
+        UIEdgeInsets tmp = self.collectionView.contentInset;
+        
+        [self.collectionView setContentInset:UIEdgeInsetsZero];//Make(collectionViewHeight/2, 0, collectionViewHeight/2, 0)];
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
+        
+        //even not animated scrollToItemAtIndexPath call takes some time, using hack
+        __weak typeof(self) weakSelf = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            weakSelf.collectionView.contentInset = tmp;
+            
+            [weakSelf scrollingDidStop];
+        });
+    }
 }
 
 #pragma mark - Paging
@@ -674,37 +714,6 @@ static NSString *cellID = @"Cell";
             [weakSelf enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
             
             DLog(@"Page %lu loaded", (unsigned long)self.paginationThreshold / kPaginationDefaultThreshold);
-        });
-    }
-}
-
-#pragma mark - YASwipingControllerDelegate
-- (void)swipingController:(id)controller scrollToIndex:(NSUInteger)index {
-    NSSet *visibleIndexes = [NSSet setWithArray:[[self.collectionView indexPathsForVisibleItems] valueForKey:@"row"]];
-    
-    //don't do anything if it's visible already
-    if([visibleIndexes containsObject:[NSNumber numberWithInteger:index]]) {
-        [self.delegate scrollViewDidScroll]; //just make sure grid and camera has correct frames
-        return;
-    }
-    
-    if(index < [self collectionView:self.collectionView numberOfItemsInSection:0]) {
-        UIEdgeInsets tmp = self.collectionView.contentInset;
-        
-        [self.collectionView setContentInset:UIEdgeInsetsZero];//Make(collectionViewHeight/2, 0, collectionViewHeight/2, 0)];
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
-        
-        //even not animated scrollToItemAtIndexPath call takes some time, using hack
-        __weak typeof(self) weakSelf = self;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            weakSelf.collectionView.contentInset = tmp;
-            
-            [weakSelf.delegate scrollViewDidScroll];
-            
-            [weakSelf playVisible:YES];
-            
-            [weakSelf prioritiseDownloadsForVisibleCells];
-            weakSelf.assetsPrioritisationHandled = YES;
         });
     }
 }

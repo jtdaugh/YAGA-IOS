@@ -84,7 +84,8 @@ DEPENDENCIES:
   - Realm (~> 0.93.2)
   - Shimmer
   - SloppySwiper
-  - SVPullToRefresh
+  - SVPullToRefresh (from `https://github.com/yagainc/SVPullToRefresh.git`, commit
+    `79220c9b0ddeb6a0fb7aa3bdc8b7681be8f3fdf7`)
   - UCZProgressView
 
 EXTERNAL SOURCES:
@@ -93,6 +94,9 @@ EXTERNAL SOURCES:
   GPUImage:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019
     :git: https://github.com/yagainc/GPUImage.git
+  SVPullToRefresh:
+    :commit: 79220c9b0ddeb6a0fb7aa3bdc8b7681be8f3fdf7
+    :git: https://github.com/yagainc/SVPullToRefresh.git
 
 CHECKOUT OPTIONS:
   FLAnimatedImage:
@@ -101,6 +105,9 @@ CHECKOUT OPTIONS:
   GPUImage:
     :commit: 714beb8f3d8a477245d95b1610ccdd40f7867019
     :git: https://github.com/yagainc/GPUImage.git
+  SVPullToRefresh:
+    :commit: 79220c9b0ddeb6a0fb7aa3bdc8b7681be8f3fdf7
+    :git: https://github.com/yagainc/SVPullToRefresh.git
 
 SPEC CHECKSUMS:
   AFDownloadRequestOperation: 748a1643423e1ddb23f2178f778087d4f0ae8ac7

@@ -8,7 +8,7 @@ pod 'libPhoneNumber-iOS', '~> 0.7'
 pod 'FrameAccessor', '~> 1.0'
 pod 'FLAnimatedImage', :git => 'https://github.com/yagainc/FLAnimatedImage.git'
 pod 'NSDate-Time-Ago', :inhibit_warnings => true
-pod 'SVPullToRefresh'
+pod 'SVPullToRefresh', :git => 'https://github.com/yagainc/SVPullToRefresh.git', :commit => '79220c9b0ddeb6a0fb7aa3bdc8b7681be8f3fdf7'
 pod 'UCZProgressView'
 pod 'OrderedDictionary'
 pod 'AFDownloadRequestOperation'
