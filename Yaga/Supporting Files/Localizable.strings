@@ -61,14 +61,17 @@
 
 "iMESSAGE_COME_JOIN_ME_TEXT" = "I added you to the %@ group on Yaga. Get it now on the App Store!\nhttp://getyaga.com";
 
-"FIRST_GROUP_VISIT_TITLE" = "Welcome";
-"FIRST_GROUP_VISIT_BODY" = "\"%@\" is a closed group with %i other members.\n\nVideos to the group are private and you'll never lose them.";
+"FIRST_GROUP_VISIT_TITLE" = "Group Video Chat";
+"FIRST_GROUP_VISIT_BODY" = "\"%@\" is a chat with %i other members.\n\nVideos to the group are private and you'll never lose them.";
+
+"FIRST_FRIEND_CHAT_VISIT_TITLE" = "Chat with %@";
+"FIRST_FRIEND_CHAT_VISIT_BODY" = "Only you and %@ can see this video chat.\n\nThe videos will never expire, so scroll back through old memories whenever you want.";
 
 "FIRST_GROUP_POST_TITLE" = "That was easy";
-"FIRST_GROUP_POST_BODY" = "Your video is now sending to \"%@\".\n\nTap the video to caption.\n\nSwipe it down to return to the camera.";
+"FIRST_GROUP_POST_BODY" = "Tap anywhere to add a caption, and send your video in just one tap.\n\nOr swipe the video away to delete it forever.";
 
-"FIRST_NOGROUP_POST_TITLE" = "Pick groups";
-"FIRST_NOGROUP_POST_BODY" = "You weren't inside a group when you took this video.\n\nSo, pick which groups you'd like to send it to.\n\nOr swipe the video away to delete it forever.";
+"FIRST_NOGROUP_POST_TITLE" = "Choose chats";
+"FIRST_NOGROUP_POST_BODY" = "You weren't inside a chat when you took this video.\n\nTap anywhere to add a caption, then pick which groups you'd like to send it to.\n\nOr swipe the video away to delete it forever.";
 
 "Couldn't create gif, video invalidated" = "Couldn't create gif, video invalidated";
 
@@ -169,7 +172,7 @@
 "Can not copy video to groups" = "Can not copy video to groups";
 
 "Find Groups" = "Find Groups";
-"Join Groups" = "Join Groups";
+"Join Groups" = "Join Group Chats";
 "Request" = "Request";
 "Pending" = "Pending";
 "Searching groups" = "Searching groups";

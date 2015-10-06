@@ -60,6 +60,8 @@ typedef void (^confirmationBlock)(void);
 + (BOOL)hasVisitedGifGrid;
 + (void)setVisitedGifGrid;
 
++ (BOOL)hasVisitedFriendChat;
++ (void)setVisitedFriendChat;
 + (BOOL)hasVisitedPrivateGroup;
 + (void)setVisitedPrivateGroup;
 + (BOOL)hasRecordedPrivateVideo;

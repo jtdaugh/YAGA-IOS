@@ -307,7 +307,7 @@ static NSString *FriendsCellIdentifier = @"FriendsCell";
         label.font = [UIFont fontWithName:BIG_FONT size:16];
         label.textColor = [UIColor lightGrayColor];
         label.textAlignment = NSTextAlignmentCenter;
-        label.text=@"Looking for more?\nFind groups your friends are in\nor start a new chat!";
+        label.text=@"Looking for more?\nFind group chats your friends are in\nor start a new chat!";
         [reusableview addSubview:label];
         
         CGSize buttonSize = CGSizeMake(VIEW_WIDTH/2 - 30, 50);

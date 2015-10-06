@@ -116,6 +116,15 @@
 #define CAPTION_FONT_SIZE 54.0
 #define CAPTION_STROKE_WIDTH 3.f
 
+
+//video page
+#define CAPTION_DEFAULT_SCALE 0.75f
+#define CAPTION_WRAPPER_INSET 100.f
+
+#define CAPTION_BUTTON_HEIGHT 80.f
+#define CAPTION_DONE_PROPORTION 0.5
+
+
 // Comments
 #define COMMENTS_BOTTOM_MARGIN 50.f
 #define COMMENTS_SIDE_MARGIN 9.f
@@ -130,6 +139,6 @@
 #define kNumberOfItemsAboveToDownload 4
 #define kNumberOfItemsBelowToDownload 8
 
-#define DEBUG_SERVER 1
+#define DEBUG_SERVER 0
 
 #endif

@@ -126,6 +126,7 @@
 		8890451D1B18FF8700B3C4D7 /* YAEventCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8890451C1B18FF8700B3C4D7 /* YAEventCell.m */; };
 		88A3CCCB1BB75FE100A73DD2 /* FriendCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A3CCCA1BB75FE100A73DD2 /* FriendCollectionViewCell.m */; settings = {ASSET_TAGS = (); }; };
 		88A3CCCE1BB8BE2100A73DD2 /* YaPostToGroupsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88A3CCCD1BB8BE2100A73DD2 /* YaPostToGroupsViewController.m */; settings = {ASSET_TAGS = (); }; };
+		88D5ACB21BC36E43001C7B1B /* YAApplyCaptionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 88D5ACB11BC36E43001C7B1B /* YAApplyCaptionView.m */; settings = {ASSET_TAGS = (); }; };
 		88E3E21C1B2FBCE000BF5E83 /* YAViewCountManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */; };
 		88E3E21F1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */; };
 		88F906561B3A224400EE5527 /* YAPostCaptureViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88F906551B3A224400EE5527 /* YAPostCaptureViewController.m */; };
@@ -349,6 +350,8 @@
 		88A3CCCA1BB75FE100A73DD2 /* FriendCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FriendCollectionViewCell.m; sourceTree = "<group>"; };
 		88A3CCCC1BB8BE2100A73DD2 /* YaPostToGroupsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YaPostToGroupsViewController.h; sourceTree = "<group>"; };
 		88A3CCCD1BB8BE2100A73DD2 /* YaPostToGroupsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YaPostToGroupsViewController.m; sourceTree = "<group>"; };
+		88D5ACB01BC36E43001C7B1B /* YAApplyCaptionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAApplyCaptionView.h; sourceTree = "<group>"; };
+		88D5ACB11BC36E43001C7B1B /* YAApplyCaptionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAApplyCaptionView.m; sourceTree = "<group>"; };
 		88E3E21A1B2FBCE000BF5E83 /* YAViewCountManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAViewCountManager.h; sourceTree = "<group>"; };
 		88E3E21B1B2FBCE000BF5E83 /* YAViewCountManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAViewCountManager.m; sourceTree = "<group>"; };
 		88E3E21D1B2FE0CA00BF5E83 /* YAWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YAWeakTimerTarget.h; sourceTree = "<group>"; };
@@ -708,6 +711,8 @@
 				41235F191B4C93E400B08ED5 /* YAPopoverView.m */,
 				888270A91BBBC36D00D5A3FD /* YAStandardFlexibleHeightBar.h */,
 				888270AA1BBBC36D00D5A3FD /* YAStandardFlexibleHeightBar.m */,
+				88D5ACB01BC36E43001C7B1B /* YAApplyCaptionView.h */,
+				88D5ACB11BC36E43001C7B1B /* YAApplyCaptionView.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1013,6 +1018,7 @@
 				88A3CCCE1BB8BE2100A73DD2 /* YaPostToGroupsViewController.m in Sources */,
 				6E9187BD1A3F2C270034AB63 /* AppDelegate.m in Sources */,
 				6EEDB8E51A8A555C000BB909 /* YANotificationView.m in Sources */,
+				88D5ACB21BC36E43001C7B1B /* YAApplyCaptionView.m in Sources */,
 				6E9188D21A3F3A5A0034AB63 /* YAUser.m in Sources */,
 				6EB995421B3B0035004ACF05 /* YASwipeToDismissViewController.m in Sources */,
 				6E9188E71A3F3A5A0034AB63 /* YaOnboardingNavigationController.m in Sources */,
@@ -1126,7 +1132,7 @@
 				INFOPLIST_FILE = "Yaga/Yaga-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.getyaga.yagaprod;
+				PRODUCT_BUNDLE_IDENTIFIER = com.getyaga.yagapoooooop;
 				PRODUCT_NAME = Yaga;
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";
@@ -1155,7 +1161,7 @@
 				INFOPLIST_FILE = "Yaga/Yaga-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.getyaga.yagaprod;
+				PRODUCT_BUNDLE_IDENTIFIER = com.getyaga.yagapoooooop;
 				PRODUCT_NAME = Yaga;
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Yaga/Supporting Files/Yaga-Bridging-Header.h";

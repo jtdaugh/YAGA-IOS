@@ -75,6 +75,7 @@
     [self.titleLabel setTextColor:[UIColor blackColor]];
     [self.titleLabel setTextAlignment:NSTextAlignmentCenter];
     [self.contentArea addSubview:self.titleLabel];
+    self.titleLabel.adjustsFontSizeToFitWidth = YES;
     
     self.dismissButton = [[UIButton alloc] initWithFrame:CGRectMake(0, self.contentArea.frame.size.height - accessoryHeight, self.contentArea.frame.size.width, accessoryHeight)];
     [self.dismissButton setBackgroundColor:PRIMARY_COLOR];

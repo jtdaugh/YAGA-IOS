@@ -108,7 +108,7 @@
     }
     NSIndexPath *newIndex;
     [self.groups insertObject:group atIndex:0];
-    newIndex = [NSIndexPath indexPathForRow:0 inSection:0];
+    newIndex = [NSIndexPath indexPathForRow:1 inSection:0];
     [self.tableView insertRowsAtIndexPaths:@[newIndex] withRowAnimation:UITableViewRowAnimationFade];
     [self.tableView selectRowAtIndexPath:newIndex animated:YES scrollPosition:UITableViewScrollPositionNone];
     [self showHidePostMessage];
@@ -128,30 +128,33 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.groups.count;
+    return self.groups.count + 1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     YAPostGroupCell *cell = (YAPostGroupCell*)[tableView dequeueReusableCellWithIdentifier:kCellId forIndexPath:indexPath];
-    
-    YAGroup *group = [self.groups objectAtIndex:indexPath.item];
-    
-    cell.textLabel.text = group.members.count == 1 ? [[group.members firstObject] displayName] : group.name;
+    if (indexPath.item == 0) {
+        // new chat button
+        cell.textLabel.text = @"+ New Chat";
+    } else {
+        YAGroup *group = [self.groups objectAtIndex:indexPath.item - 1];
+        cell.textLabel.text = group.members.count == 1 ? [[group.members firstObject] displayName] : group.name;
+    }
     [cell setSelectionColor:PRIMARY_COLOR];
-    
     return cell;
 }
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [[Mixpanel sharedInstance] track:@"Selected Group"];
-    
-//    if ([self arrayForSection:indexPath.section] == self.followingGroups) {
-//        if (![YAUtils hasSeenPendingApprovalMessage]) {
-//            [YAUtils setSeenPendingApprovalMessage];
-//            [self showFirstPendingApprovalSelectionPopover];
-//        }
-//    }
-    [self showHidePostMessage];
+    if (indexPath.item == 0) {
+        // pressed new chat button
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        [self addNewGroup];
+    } else {
+        [self showHidePostMessage];
+    }
 }
+
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self showHidePostMessage];
 }
@@ -197,8 +200,8 @@
     NSMutableArray *groupIds = [NSMutableArray new];
     
     for (NSIndexPath *indexPath in self.tableView.indexPathsForSelectedRows) {
-        [groups addObject:[self.groups objectAtIndex:indexPath.item]];
-        [groupIds addObject:((YAGroup *)[self.groups objectAtIndex:indexPath.item]).serverId];
+        [groups addObject:[self.groups objectAtIndex:indexPath.item - 1]];
+        [groupIds addObject:((YAGroup *)[self.groups objectAtIndex:indexPath.item - 1]).serverId];
     }
     if ([groups count]) {
         if (self.video.group) {
@@ -231,10 +234,5 @@
 - (BOOL)blockCameraPresentationOnBackground {
     return YES;
 }
-
-
-//- (void)showFirstPendingApprovalSelectionPopover {
-//    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_PENDING_APPROVAL_POST_TITLE", @"") bodyText:NSLocalizedString(@"FIRST_PENDING_APPROVAL_POST_BODY", @"") dismissText:@"Got it" addToView:self.view] show];
-//}
 
 @end

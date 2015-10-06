@@ -30,6 +30,7 @@
 #import "YAPostToGroupsViewController.h"
 #import "YASharingView.h"
 #import "FBShimmeringView.h"
+#import "YAApplyCaptionView.h"
 
 #define CAPTION_DEFAULT_SCALE 0.75f
 #define CAPTION_WRAPPER_INSET 100.f
@@ -84,29 +85,12 @@ static NSString *commentCellID = @"CommentCell";
 @property (strong, nonatomic) UITextView *serverCaptionTextView;
 @property (strong, nonatomic) FDataSnapshot *currentCaptionSnapshot;
 
-@property (strong, nonatomic) UIView *editableCaptionWrapperView;
-@property (strong, nonatomic) UITextView *editableCaptionTextView;
-
 @property (nonatomic, strong) UIButton *postCaptureCaptionButton;
-@property (nonatomic) CGFloat textFieldHeight;
-@property (nonatomic) CGAffineTransform textFieldTransform;
-@property (nonatomic) CGPoint textFieldCenter;
-
-@property (strong, nonatomic) UITapGestureRecognizer *captionTapOutGestureRecognizer;
-@property (strong, nonatomic) YAPanGestureRecognizer *panGestureRecognizer;
-@property (strong, nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
-@property (strong, nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
-
-@property (nonatomic, strong) UIButton *cancelWhileTypingButton;
 
 @property (nonatomic, strong) NSMutableArray *events;
 
 @property (nonatomic, strong) UIButton *textButton;
-@property (nonatomic, strong) UIButton *rajsBelovedDoneButton;
-@property (nonatomic, strong) UIButton *cancelCaptionButton;
 @property (nonatomic) BOOL editingCaption;
-
-@property (nonatomic, strong) UIView *captionButtonContainer;
 
 @property (nonatomic, strong) UIVisualEffectView *commentsBlurOverlay;
 
@@ -559,11 +543,6 @@ static NSString *commentCellID = @"CommentCell";
     [self.heartButton addTarget:self action:@selector(addLike) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.heartButton];
     
-
-    self.cancelWhileTypingButton = [[UIButton alloc] initWithFrame:CGRectMake(15, 15, 30, 30)];
-    [self.cancelWhileTypingButton setImage:[UIImage imageNamed:@"Remove"] forState:UIControlStateNormal];
-    [self.cancelWhileTypingButton addTarget:self action:@selector(captionCancelPressedWhileTyping) forControlEvents:UIControlEventTouchUpInside];
-    
     [self setupCommentsContainer];
 
     const CGFloat radius = 40;
@@ -605,9 +584,6 @@ static NSString *commentCellID = @"CommentCell";
     self.hideGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(hideHold:)];
     [self.hideGestureRecognizer setMinimumPressDuration:0.2f];
     [self addGestureRecognizer:self.hideGestureRecognizer];
-    
-    [self setupCaptionButtonContainer];
-    [self setupCaptionGestureRecognizers];
     
     [self.overlay bringSubviewToFront:self.moreButton];
     [self.overlay bringSubviewToFront:self.commentButton];
@@ -860,45 +836,18 @@ static NSString *commentCellID = @"CommentCell";
     [self closeAnimated];
 }
 
-- (void)setupCaptionButtonContainer {
-    self.captionButtonContainer = [[UIView alloc] initWithFrame:CGRectMake(0, VIEW_HEIGHT - CAPTION_BUTTON_HEIGHT, VIEW_WIDTH, CAPTION_BUTTON_HEIGHT)];
-    [self addSubview:self.captionButtonContainer];
-    
-//    self.textButton = [[UIButton alloc] initWithFrame:CGRectMake(BOTTOM_ACTION_MARGIN + BOTTOM_ACTION_SIZE, 0, BOTTOM_ACTION_SIZE, BOTTOM_ACTION_SIZE)];
-//    [self.textButton setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
-//    self.textButton.tintColor = [YAUtils UIColorFromUsernameString:[YAUser currentUser].username];
-//    [self.textButton addTarget:self action:@selector(textButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-//    
-    self.cancelCaptionButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH*(1.0-CAPTION_DONE_PROPORTION), CAPTION_BUTTON_HEIGHT)];
-    [self.cancelCaptionButton setTitle:@"Cancel" forState:UIControlStateNormal];
-    self.cancelCaptionButton.backgroundColor = [UIColor colorWithRed:(231.f/255.f) green:(76.f/255.f) blue:(60.f/255.f) alpha:.75];
-    [self.cancelCaptionButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-    [self.cancelCaptionButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-
-    self.rajsBelovedDoneButton = [[UIButton alloc] initWithFrame:CGRectMake(self.cancelCaptionButton.frame.size.width, 0, VIEW_WIDTH*CAPTION_DONE_PROPORTION, CAPTION_BUTTON_HEIGHT)];
-    self.rajsBelovedDoneButton.backgroundColor = SECONDARY_COLOR;
-    [self.rajsBelovedDoneButton setTitle:@"Done" forState:UIControlStateNormal];
-    [self.rajsBelovedDoneButton.titleLabel setFont:[UIFont fontWithName:BOLD_FONT size:24]];
-    [self.rajsBelovedDoneButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-
-    [self.captionButtonContainer addSubview:self.textButton];
-    [self.captionButtonContainer addSubview:self.rajsBelovedDoneButton];
-    [self.captionButtonContainer addSubview:self.cancelCaptionButton];
-    
-    [self toggleEditingCaption:NO];
-}
-
 // initial adding of caption. modifications will instead call -updateCaptionFromSnapshot
 - (void)insertCaption {
     UIView *textWrapper = [[UIView alloc] initWithFrame:CGRectInfinite];
-    UITextView *textView = [self textViewWithCaptionAttributes];
+    UITextView *textView = [YAApplyCaptionView textViewWithCaptionAttributes];
+    textView.delegate = self;
     textView.text = self.video.caption;
     textView.editable = NO;
     
     CGSize newSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
     CGRect captionFrame = CGRectMake(0, 0, newSize.width, newSize.height);
     textView.frame = captionFrame;
-
+    
     CGFloat xPos = self.video.caption_x * VIEW_WIDTH;
     CGFloat yPos = self.video.caption_y * VIEW_HEIGHT;
     
@@ -907,7 +856,7 @@ static NSString *commentCellID = @"CommentCell";
                                      newSize.width,
                                      newSize.height);
     textWrapper.frame = wrapperFrame;
-
+    
     [textWrapper addSubview:textView];
     
     CGFloat displayScale = self.video.caption_scale * CAPTION_SCREEN_MULTIPLIER;
@@ -915,18 +864,18 @@ static NSString *commentCellID = @"CommentCell";
     CGAffineTransform transform = CGAffineTransformMakeRotation(self.video.caption_rotation);
     CGAffineTransform final = CGAffineTransformScale(transform, displayScale, displayScale);
     textWrapper.transform = final;
-
+    
     [self.overlay addSubview:textWrapper];
     [self.overlay sendSubviewToBack:textWrapper];
     
     self.serverCaptionWrapperView = textWrapper;
     self.serverCaptionTextView = textView;
     self.serverCaptionTextView.userInteractionEnabled = NO;
-    
+   
     if ([[self gestureRecognizers] containsObject:self.captionTapRecognizer]) {
         [self removeGestureRecognizer:self.captionTapRecognizer];
     }
-    
+
     textWrapper.alpha = 0;
     CGAffineTransform original = textWrapper.transform;
     textWrapper.transform = CGAffineTransformScale(textWrapper.transform, 0.75, 0.75);
@@ -937,34 +886,6 @@ static NSString *commentCellID = @"CommentCell";
     } completion:nil];
 }
 
-#pragma mark - caption gestures
-
-- (void)captionCancelPressedWhileTyping {
-    self.editableCaptionTextView.text = @"";
-    [self doneTypingCaption];
-}
-
-- (void)cancelButtonPressed:(id)sender {
-    [self.editableCaptionWrapperView removeFromSuperview];
-    self.editableCaptionTextView = nil;
-    [self toggleEditingCaption:NO];
-    if (![self.captionTapRecognizer.view isEqual:self]) {
-        [self addGestureRecognizer:self.captionTapRecognizer];
-    }
-
-    // remove caption and replace done/cancel buttons with text button
-}
-
-- (void)doneButtonPressed:(id)sender {
-    // Send caption data to firebase
-    [self toggleEditingCaption:NO];
-    [self commitCurrentCaption];
-}
-
-//- (void)textButtonPressed:(id)sender {
-//    [self addCaptionAtPoint:CGPointMake(VIEW_WIDTH/2, VIEW_HEIGHT/2)];
-//    [self toggleEditingCaption:YES];
-//}
 
 - (void)setGesturesEnabled:(BOOL)enabled {
     self.hideGestureRecognizer.enabled = enabled;
@@ -995,7 +916,6 @@ static NSString *commentCellID = @"CommentCell";
     if (editing) {
         [self setGesturesEnabled:NO];
         self.serverCaptionWrapperView.hidden = YES;
-        self.captionButtonContainer.hidden = NO;
 //        self.textButton.hidden = YES;
         self.deleteButton.hidden = YES;
         self.moreButton.hidden = YES;
@@ -1011,7 +931,6 @@ static NSString *commentCellID = @"CommentCell";
         self.serverCaptionWrapperView.hidden = NO;
 
         // could be prettier if i fade all of this
-        self.captionButtonContainer.hidden = YES;
 //        self.textButton.hidden = NO;
         self.deleteButton.hidden = NO;
         self.moreButton.hidden = NO;
@@ -1032,306 +951,45 @@ static NSString *commentCellID = @"CommentCell";
     return YES;
 }
 
-// TODO: Send to server, not firebase, and manually insert serverCaptionWrapper(andText)View
-- (void)commitCurrentCaption {
-    if (self.editableCaptionTextView) {
-        [self.postCaptureCaptionButton removeFromSuperview];
-
-        [self.editableCaptionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
-        [self.editableCaptionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
-        [self.editableCaptionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
-        [self removeGestureRecognizer:self.captionTapRecognizer];
-        
-        NSString *text = self.editableCaptionTextView.text;
-        CGFloat x = ceil(self.textFieldCenter.x / VIEW_WIDTH * 10000.0) / 10000.0;
-        CGFloat y = ceil(self.textFieldCenter.y / VIEW_HEIGHT * 10000.0) / 10000.0;
-        
-        CGAffineTransform t = self.textFieldTransform;
-        CGFloat scale = sqrt(t.a * t.a + t.c * t.c);
-        scale = ceil(scale / CAPTION_SCREEN_MULTIPLIER * 10000.0) / 10000.0;
-        
-        CGFloat rotation = ceil(atan2f(t.b, t.a) * 10000.0) / 10000.0;
-        
-        self.serverCaptionWrapperView = self.editableCaptionWrapperView;
-        self.serverCaptionTextView = self.editableCaptionTextView;
-        self.editableCaptionWrapperView = nil;
-        self.editableCaptionTextView = nil;
-        self.serverCaptionTextView.editable = NO;
-        
-        [self.serverCaptionWrapperView removeFromSuperview];
-        UIView *view = self.postCaptureOverlay ? self.postCaptureOverlay : self.overlay;
-        [view addSubview:self.serverCaptionWrapperView];
-        [view sendSubviewToBack:self.serverCaptionWrapperView];
-        [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
-    }
-}
-
-- (void) setupCaptionGestureRecognizers {
-    self.panGestureRecognizer = [[YAPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
-    self.panGestureRecognizer.delegate = self;
-    
-    self.rotateGestureRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handleRotate:)];
-    self.rotateGestureRecognizer.delegate = self;
-    
-    self.pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
-    self.pinchGestureRecognizer.delegate = self;
-}
-
-// These 3 recognizers should work simultaneously only with eachother
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)a
-    shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)b {
-    if ([a isEqual:self.panGestureRecognizer]) {
-        if ([b isEqual:self.rotateGestureRecognizer] || [b isEqual:self.pinchGestureRecognizer]) {
-            return YES;
-        }
-    }
-    if ([a isEqual:self.rotateGestureRecognizer]) {
-        if ([b isEqual:self.panGestureRecognizer] || [b isEqual:self.pinchGestureRecognizer]) {
-            return YES;
-        }
-    }
-    if ([a isEqual:self.pinchGestureRecognizer]) {
-        if ([b isEqual:self.panGestureRecognizer] || [b isEqual:self.rotateGestureRecognizer]) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
-
-- (void)handlePan:(UIPanGestureRecognizer *)recognizer {
-    CGPoint translation = [recognizer translationInView:self];
-    recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x,
-                                         MIN(recognizer.view.center.y + translation.y, VIEW_HEIGHT*.666));
-    
-    [recognizer setTranslation:CGPointMake(0, 0) inView:self];
-    
-//    if (recognizer.state == UIGestureRecognizerStateBegan && self.captionTextView.isFirstResponder)
-//        [self doneEditingCaption];
-    
-    if (recognizer.state == UIGestureRecognizerStateEnded) {
-        
-        CGPoint finalPoint = recognizer.view.center;
-        recognizer.view.center = finalPoint;
-        self.textFieldCenter = finalPoint;
-    }
-}
-
-- (void)handleRotate:(UIRotationGestureRecognizer *)recognizer {
-    CGAffineTransform newTransform = CGAffineTransformRotate(recognizer.view.transform, recognizer.rotation);
-    recognizer.view.transform = newTransform;
-    recognizer.rotation = 0;
-    self.textFieldTransform = newTransform;
-}
-
-- (void)handlePinch:(UIPinchGestureRecognizer *)recognizer {
-    CGAffineTransform newTransform = CGAffineTransformScale(recognizer.view.transform, recognizer.scale, recognizer.scale);
-    recognizer.view.transform = newTransform;
-    recognizer.scale = 1;
-    self.textFieldTransform = newTransform;
-}
-
-
-#pragma mark - Caption Positioning
-
-
-- (void)positionTextViewAboveKeyboard{
-    self.editableCaptionWrapperView.transform = CGAffineTransformIdentity;
-    [self.editableCaptionWrapperView removeGestureRecognizer:self.panGestureRecognizer];
-    [self.editableCaptionWrapperView removeGestureRecognizer:self.rotateGestureRecognizer];
-    [self.editableCaptionWrapperView removeGestureRecognizer:self.pinchGestureRecognizer];
-
-    [self resizeTextAboveKeyboardWithAnimation:YES];
-}
-
-
-
-- (void)moveTextViewBackToSpot {
-    CGFloat fixedWidth = MAX_CAPTION_WIDTH;
-    CGSize newSize = [self.editableCaptionTextView sizeThatFits:CGSizeMake(fixedWidth, MAXFLOAT)];
-    CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, CAPTION_WRAPPER_INSET, newSize.width, newSize.height);
-    CGRect wrapperFrame = CGRectMake(self.textFieldCenter.x - (newSize.width/2.f) - CAPTION_WRAPPER_INSET,
-                                 self.textFieldCenter.y - (newSize.height/2.f) - CAPTION_WRAPPER_INSET,
-                                 newSize.width + (2.f*CAPTION_WRAPPER_INSET),
-                                 newSize.height + (2.f*CAPTION_WRAPPER_INSET));
-
-    __weak YAVideoPage *weakSelf = self;
-    
-    // sort of hacky way to enable confirming/cancelling caption when near buttons
-    [self bringSubviewToFront:self.editableCaptionTextView];
-    [self bringSubviewToFront:self.captionButtonContainer];
-
-    
-    [UIView animateWithDuration:0.2f animations:^{
-        weakSelf.editableCaptionWrapperView.frame = wrapperFrame;
-        weakSelf.editableCaptionTextView.frame = captionFrame;
-        weakSelf.editableCaptionWrapperView.transform = self.textFieldTransform;
-    } completion:^(BOOL finished) {
-        [weakSelf.editableCaptionWrapperView addGestureRecognizer:self.panGestureRecognizer];
-        [weakSelf.editableCaptionWrapperView addGestureRecognizer:self.rotateGestureRecognizer];
-        [weakSelf.editableCaptionWrapperView addGestureRecognizer:self.pinchGestureRecognizer];
-    }];
-}
-
-- (CGSize)sizeThatFitsString:(NSString *)string {
-    CGRect frame = [string boundingRectWithSize:CGSizeMake(MAX_CAPTION_WIDTH, CGFLOAT_MAX)
-                                      options:NSStringDrawingUsesLineFragmentOrigin
-                                   attributes:@{ NSFontAttributeName:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE],
-                                                 NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                 NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH] } context:nil];
-    return frame.size;
-}
-
-// returns the same text view, modified. dont need to use return type if u dont wanna
-- (UITextView *)textViewWithCaptionAttributes {
-    UITextView *textView = [UITextView new];
-    textView.alpha = 1;
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"." attributes:@{
-                                                                                              NSStrokeColorAttributeName:[UIColor whiteColor],
-                                                                                              NSStrokeWidthAttributeName:[NSNumber numberWithFloat:-CAPTION_STROKE_WIDTH]
-                                                                                              }];
-    [textView setAttributedText:string];
-    [textView setBackgroundColor: [UIColor clearColor]]; //[UIColor colorWithWhite:1.0 alpha:0.1]];
-    [textView setTextColor:PRIMARY_COLOR];
-    [textView setFont:[UIFont fontWithName:CAPTION_FONT size:CAPTION_FONT_SIZE]];
-    
-    [textView setTextAlignment:NSTextAlignmentCenter];
-    [textView setAutocorrectionType:UITextAutocorrectionTypeNo];
-    [textView setReturnKeyType:UIReturnKeyDone];
-    [textView setScrollEnabled:NO];
-    textView.textContainer.lineFragmentPadding = 0;
-    textView.textContainerInset = UIEdgeInsetsZero;
-    textView.delegate = self;
-    
-    return textView;
-}
-
 - (void)beginEditableCaptionAtPoint:(CGPoint)point initalText:(NSString *)text initalTransform:(CGAffineTransform)transform {
+    YAApplyCaptionView *applyCaptionView = [[YAApplyCaptionView alloc] initWithFrame:CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT) captionPoint:point initialText:text initialTransform:transform];
+    
+    __weak YAApplyCaptionView *weakApplyCaptionView = applyCaptionView;
+    
+    [self.serverCaptionWrapperView removeFromSuperview];
+    
+    self.textButton.hidden = YES;
+    self.XButton.hidden = YES;
+    
+    applyCaptionView.completionHandler = ^(BOOL completed, UIView *captionView, UITextView *captionTextView, NSString *text, CGFloat x, CGFloat y, CGFloat scale, CGFloat rotation){
+        [self toggleEditingCaption:NO];
+        if (completed) {
+            [[Mixpanel sharedInstance] track:@"Completed Caption"];
+            
+            self.textButton.hidden = YES;
+            self.postCaptureCaptionButton.hidden = YES;
+            [self.video updateCaption:text withXPosition:x yPosition:y scale:scale rotation:rotation];
 
-    self.textFieldCenter = point;
-    self.textFieldTransform = transform;
-    self.editableCaptionWrapperView = [[UIView alloc] initWithFrame:CGRectInfinite];
-    
-    self.editableCaptionTextView = [self textViewWithCaptionAttributes];
-    self.editableCaptionTextView.text = text;
-    
-    [self resizeTextAboveKeyboardWithAnimation:NO];
-    
-    [self.editableCaptionWrapperView addSubview:self.editableCaptionTextView];
-    
-    [self addSubview:self.editableCaptionWrapperView];
-    
-    [self.editableCaptionTextView becomeFirstResponder];
-}
+            self.serverCaptionWrapperView = captionView;
+            self.serverCaptionTextView = captionTextView;
+            [captionView setUserInteractionEnabled:NO];
+            [self.serverCaptionWrapperView removeFromSuperview];
+            UIView *view = self.postCaptureOverlay ? self.postCaptureOverlay : self.overlay;
+            [view addSubview:self.serverCaptionWrapperView];
+            [view sendSubviewToBack:self.serverCaptionWrapperView];
+            
+            if ([[self gestureRecognizers] containsObject:self.captionTapRecognizer]) {
+                [self removeGestureRecognizer:self.captionTapRecognizer];
+            }
 
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+        }
+        [weakApplyCaptionView removeFromSuperview];
+    };
     
-    if([text isEqualToString:@"\n"]) {
-        [self doneTypingCaption];
-        return NO;
-    }
-    
-    return [self doesFit:textView string:text range:range];
-}
-
-- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
-    UIVisualEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
-    
-    self.captionBlurOverlay = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-    
-    self.captionBlurOverlay.frame = self.bounds;
-    
-    [self insertSubview:self.captionBlurOverlay belowSubview:self.editableCaptionWrapperView];
-
-    [self.captionBlurOverlay addSubview:self.cancelWhileTypingButton];
-    
-    if (self.editableCaptionTextView) {
-        [self positionTextViewAboveKeyboard];
-    }
-
-    return YES;
-}
-
-- (float)doesFit:(UITextView*)textView string:(NSString *)myString range:(NSRange) range;
-{
-    CGSize maxFrame = [self sizeThatFitsString:@"AA\nAA\nAA"];
-    maxFrame.width = MAX_CAPTION_WIDTH;
-    
-    NSMutableAttributedString *atrs = [[NSMutableAttributedString alloc] initWithAttributedString: textView.textStorage];
-    [atrs replaceCharactersInRange:range withString:myString];
-    
-    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:atrs];
-    NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize: CGSizeMake(maxFrame.width, FLT_MAX)];
-    NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
-    
-    [layoutManager addTextContainer:textContainer];
-    [textStorage addLayoutManager:layoutManager];
-    float textHeight = [layoutManager
-                        usedRectForTextContainer:textContainer].size.height;
-    
-    if (textHeight >= maxFrame.height - 1) {
-        DLog(@" textHeight >= maxViewHeight - 1");
-        return NO;
-    } else
-        return YES;
+    [self addSubview:applyCaptionView];
 }
 
 
-- (void)textViewDidChange:(UITextView *)textView {
-    // Should only be called while keyboard is up
-    [self resizeTextAboveKeyboardWithAnimation:NO];
-}
-
-- (void)resizeTextAboveKeyboardWithAnimation:(BOOL)animated {
-    NSString *captionText = [self.editableCaptionTextView.text length] ? self.editableCaptionTextView.text : @"A";
-    CGSize size = [self sizeThatFitsString:captionText];
-    CGRect wrapperFrame = CGRectMake((VIEW_WIDTH / 2.f) - (size.width/2.f) - CAPTION_WRAPPER_INSET,
-                                    (VIEW_HEIGHT / 2.f) - (size.height/2.f) - CAPTION_WRAPPER_INSET,
-                                    size.width + (2*CAPTION_WRAPPER_INSET),
-                                    size.height + (2*CAPTION_WRAPPER_INSET));
-    
-    CGRect captionFrame = CGRectMake(CAPTION_WRAPPER_INSET, 0, size.width, size.height);
-    
-    if (animated) {
-        [UIView animateWithDuration:0.2f animations:^{
-            self.editableCaptionWrapperView.frame = wrapperFrame;
-            self.editableCaptionTextView.frame = captionFrame;
-        }];
-    } else {
-        self.editableCaptionWrapperView.frame = wrapperFrame;
-        self.editableCaptionTextView.frame = captionFrame;
-    }
-
-}
-
-// Send the comment
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [self commentsSendPressed:nil];
-    return NO;
-}
-
-
-- (void)textViewDidBeginEditing:(UITextView *)textView {
-    self.captionTapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneEditingTapOut:)];
-    [self addGestureRecognizer:self.captionTapOutGestureRecognizer];
-}
-
-- (void)doneEditingTapOut:(id)sender {
-    [self doneTypingCaption];
-}
-
-- (void)doneTypingCaption {
-    [self removeGestureRecognizer:self.captionTapOutGestureRecognizer];
-    
-    [self.editableCaptionTextView resignFirstResponder];
-    [self.captionBlurOverlay removeFromSuperview];
-    
-    if (![self.editableCaptionTextView.text length]) {
-        [self cancelButtonPressed:nil];
-    } else {
-        [self moveTextViewBackToSpot];
-    }
-}
 
 - (void)handleTap:(UITapGestureRecognizer *) recognizer {
     DLog(@"tapped");
@@ -1675,12 +1333,6 @@ static NSString *commentCellID = @"CommentCell";
 
 // Ignore like tap if in trash button, share button, or caption button, or a tap in the caption field.
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    if (self.captionButtonContainer.superview != nil) {
-        if ([touch.view isDescendantOfView:self.captionButtonContainer]) {
-            // we touched our control surface
-            return NO; // ignore the touch
-        }
-    }
     if (self.deleteButton.superview != nil) {
         if ([touch.view isDescendantOfView:self.deleteButton]) {
             // we touched our control surface

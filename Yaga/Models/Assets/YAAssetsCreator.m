@@ -20,6 +20,7 @@
 #import "YADownloadManager.h"
 #import "UIImage+Resize.h"
 #import "YACameraManager.h"
+#import "YAApplyCaptionView.h"
 
 @interface YAAssetsCreator ()
 @property (nonatomic, strong) NSOperationQueue *gifQueue;
@@ -116,7 +117,7 @@
     CGSize videoSize = [clipVideoTrack naturalSize];
     
     // Just to get the layer size
-    UITextView *textView = [[self class] textViewWithCaptionAttributes];
+    UITextView *textView = [YAApplyCaptionView textViewWithCaptionAttributes];
     textView.text = caption[@"text"];
     CGSize layerSize = [textView sizeThatFits:CGSizeMake(MAX_CAPTION_WIDTH, MAXFLOAT)];
     

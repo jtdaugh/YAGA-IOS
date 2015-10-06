@@ -133,9 +133,16 @@ static NSString *cellID = @"Cell";
     [self.delegate swapOutOfOnboardingState];
     [self.delegate updateCameraAccessoriesWithViewIndex:1];
 
-    if (![YAUtils hasVisitedPrivateGroup]) {
-        [self showPrivateGroupTooltip];
-        [YAUtils setVisitedPrivateGroup];
+    if ([YAUser currentUser].currentGroup.members.count == 1) {
+        if (![YAUtils hasVisitedFriendChat]) {
+            [self showFriendChatTooltip];
+            [YAUtils setVisitedFriendChat];
+        }
+    } else {
+        if (![YAUtils hasVisitedPrivateGroup]) {
+            [self showPrivateGroupTooltip];
+            [YAUtils setVisitedPrivateGroup];
+        }
     }
 }
 
@@ -723,6 +730,11 @@ static NSString *cellID = @"Cell";
 
 - (void)showPrivateGroupTooltip {
     [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_GROUP_VISIT_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_GROUP_VISIT_BODY", @""), [YAUser currentUser].currentGroup.name, [[YAUser currentUser].currentGroup.members count]] dismissText:@"Got it" addToView:self.parentViewController.parentViewController.view] show];
+}
+
+- (void)showFriendChatTooltip {
+    NSString *name = [((YAContact *)[[YAUser currentUser].currentGroup.members firstObject]) displayName];
+    [[[YAPopoverView alloc] initWithTitle:[NSString stringWithFormat:NSLocalizedString(@"FIRST_FRIEND_CHAT_VISIT_TITLE", @""), name] bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_FRIEND_CHAT_VISIT_BODY", @""), name] dismissText:@"Got it" addToView:self.parentViewController.parentViewController.view] show];
 }
 
 @end

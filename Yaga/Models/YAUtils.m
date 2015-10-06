@@ -17,6 +17,7 @@
 #import "YAServer.h"
 #import "Constants.h"
 
+#define FRIEND_CHAT_VISITED @"friendVisited"
 #define PRIVATE_GROUP_VISITED @"groupVisited"
 #define HAS_RECORDED_PRIVATE_VIDEO @"privateRecorded"
 #define HAS_RECORDED_UNGROUPED_VIDEO @"ungroupedRecorded"
@@ -477,6 +478,15 @@
 
 + (void)setVisitedPrivateGroup {
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PRIVATE_GROUP_VISITED];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (BOOL)hasVisitedFriendChat {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:FRIEND_CHAT_VISITED];
+}
+
++ (void)setVisitedFriendChat {
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:FRIEND_CHAT_VISITED];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 

@@ -76,7 +76,7 @@
         [self.username setMinimumScaleFactor:0.5];
         [self.username setAdjustsFontSizeToFitWidth:YES];
         [self.username setTextColor:[UIColor whiteColor]];
-        [self.username setFont:[UIFont fontWithName:BIG_FONT size:16]];
+        [self.username setFont:[UIFont fontWithName:BIG_FONT size:18]];
         self.username.shadowColor = [UIColor blackColor];
         self.username.shadowOffset = CGSizeMake(1, 1);
         [self.containerView addSubview:self.username];
@@ -213,7 +213,6 @@
     if (self.lightWeightContentRendered) return;
     self.lightWeightContentRendered = YES;
     [self renderCaption];
-    
 }
 
 // This will get called when scrolling stops. Render things that aren't critical to the UI

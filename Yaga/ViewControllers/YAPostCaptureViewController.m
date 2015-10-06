@@ -171,7 +171,8 @@
 #pragma mark - tooltips
 
 - (void)showFirstPrivateVideoTooltip {
-    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_GROUP_POST_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_GROUP_POST_BODY", @""), [YAUser currentUser].currentGroup.name] dismissText:@"Got it" addToView:self.videoPage] show];
+    NSString *name = [YAUser currentUser].currentGroup.members.count == 1 ? [[[YAUser currentUser].currentGroup.members firstObject] displayName] : [YAUser currentUser].currentGroup.name;
+    [[[YAPopoverView alloc] initWithTitle:NSLocalizedString(@"FIRST_GROUP_POST_TITLE", @"") bodyText:[NSString stringWithFormat:NSLocalizedString(@"FIRST_GROUP_POST_BODY", @""), name] dismissText:@"Got it" addToView:self.videoPage] show];
 }
 
 - (void)showFirstUngroupedVideoTooltip {
