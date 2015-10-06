@@ -30,6 +30,13 @@
 @property (nonatomic, strong) dispatch_semaphore_t recordingSemaphore;
 @property (nonatomic) BOOL isInitialized;
 
+
+@property (strong, nonatomic) GPUImageFilter *filter;
+@property NSUInteger filterIndex;
+@property (strong, nonatomic) UILabel *filterLabel;
+@property (strong, nonatomic) NSArray *filters;
+@property (strong, nonatomic) GPUImageFilter *currentFilter;
+
 @end
 
 @implementation YACameraManager
@@ -47,6 +54,8 @@
     self = [super init];
     if (self) {
         self.isInitialized = NO;
+        self.filters = @[@"#nofilter", @"Doozy", @"Toon"];
+        self.filterIndex = 0;
     }
     return self;
 }
@@ -195,6 +204,13 @@
         
         
         self.movieWriter = [[GPUImageMovieWriter alloc] initWithMovieURL:self.currentlyRecordingUrl size:CGSizeMake(480.0, 640.0) fileType:AVFileTypeMPEG4 outputSettings:videoSettings];
+        
+        if(self.currentFilter){
+            [self.currentFilter addTarget:self.movieWriter];
+        } else {
+            [self.videoCamera addTarget:self.movieWriter];
+        }
+        
         self.movieWriter.encodingLiveVideo = YES;
         self.movieWriter.shouldPassthroughAudio = NO; // default YES
         self.movieWriter.assetWriter.movieFragmentInterval = kCMTimeInvalid;
@@ -321,5 +337,108 @@
     }
     return YES;
 }
+
+
+- (NSString *)nextFilter {
+    
+    [self removeFilterAtIndex:self.filterIndex];
+    
+    self.filterIndex++;
+    if(self.filterIndex > ([self.filters count] - 1)){
+        self.filterIndex = 0;
+    }
+    
+    [self addFilterAtIndex:self.filterIndex];
+    
+    NSLog(@"%@", self.filters[self.filterIndex]);
+    
+    return self.filters[self.filterIndex];
+}
+
+- (NSString *)previousFilter {
+    [self removeFilterAtIndex:self.filterIndex];
+    
+    self.filterIndex--;
+    if(self.filterIndex == -1){
+        self.filterIndex = [self.filters count] - 1;
+    }
+    
+    [self addFilterAtIndex:self.filterIndex];
+    
+    return self.filters[self.filterIndex];
+}
+
+- (NSString *)removeAllFilters {
+    return @"#nofilter";
+}
+
+- (void)removeFilterAtIndex:(NSUInteger)index {
+    switch (index) {
+        case 0: {
+            // #nofilter
+            break;
+        }
+        case 1: {
+            [self.currentFilter removeTarget:self.currentCameraView];
+            [self.videoCamera removeTarget:self.currentFilter];
+            [self.videoCamera addTarget:self.currentCameraView];
+            self.currentFilter = nil;
+            break;
+        }
+        case 2: {
+            [self.currentFilter removeTarget:self.currentCameraView];
+            [self.videoCamera removeTarget:self.currentFilter];
+            [self.videoCamera addTarget:self.currentCameraView];
+            self.currentFilter = nil;
+            break;
+        }
+        default:
+            break;
+    }
+    
+}
+
+- (void)addFilterAtIndex:(NSUInteger)index {
+    switch (index) {
+        case 0: {
+            // #nofilter
+            NSLog(@"case 0");
+            break;
+            
+        }
+        case 1: {
+            // doozy
+            NSLog(@"case 2?");
+            // toon
+            GPUImageSwirlFilter *swirl = [[GPUImageSwirlFilter alloc] init];
+            [swirl setAngle:0.15];
+            self.currentFilter = swirl;
+            
+            [self.currentFilter addTarget:self.currentCameraView];
+            [self.videoCamera removeTarget:self.currentCameraView];
+            [self.videoCamera addTarget:self.currentFilter];
+            break;
+        }
+        case 2: {
+            NSLog(@"case 2?");
+            // toon
+            GPUImageSmoothToonFilter *toon = [[GPUImageSmoothToonFilter alloc] init];
+            //            toon setB
+            //            toon set
+            self.currentFilter = toon;
+            
+            [self.currentFilter addTarget:self.currentCameraView];
+            [self.videoCamera removeTarget:self.currentCameraView];
+            [self.videoCamera addTarget:self.currentFilter];
+            break;
+            //            self.
+        }
+            
+        default:
+            break;
+    }
+}
+
+
 
 @end

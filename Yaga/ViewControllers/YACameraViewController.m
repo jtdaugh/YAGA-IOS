@@ -346,11 +346,11 @@ typedef enum {
 
         self.swipeCameraLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraLeft:)];
         self.swipeCameraLeft.direction = UISwipeGestureRecognizerDirectionLeft;
-//        [self.cameraView addGestureRecognizer:self.swipeCameraLeft];
+        [self.cameraView addGestureRecognizer:self.swipeCameraLeft];
         
         self.swipeCameraRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedCameraRight:)];
         self.swipeCameraRight.direction = UISwipeGestureRecognizerDirectionRight;
-//        [self.cameraView addGestureRecognizer:self.swipeCameraRight];
+        [self.cameraView addGestureRecognizer:self.swipeCameraRight];
 
         self.swipeEnlargeCamera = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeCamera:)];
         self.swipeEnlargeCamera.direction = UISwipeGestureRecognizerDirectionDown;
@@ -541,42 +541,18 @@ typedef enum {
 //    }];
 }
 
+
 - (void)swipedCameraRight:(UISwipeGestureRecognizer *)recognizer {
     DLog(@"swiped right");
-    [self removeFilterAtIndex:self.filterIndex];
-    
-    self.filterIndex--;
-    if(self.filterIndex == -1){
-        self.filterIndex = [self.filters count] - 1;
-    }
-    
-    [self addFilterAtIndex:self.filterIndex];
-    
-    [self showFilterLabel:self.filters[self.filterIndex]];
+
+    [self showFilterLabel:[[YACameraManager sharedManager] previousFilter]];
 
 }
 
 - (void)swipedCameraLeft:(UISwipeGestureRecognizer *)recognizer {
     DLog(@"swiped left");
     
-    // remove filter at index: self.filterIndex
-    
-    // filterIndex++
-    
-    // add filter at index: self.filterIndex
-    
-    // show filter label: self.filters[self.filterIndex
-    
-    [self removeFilterAtIndex:self.filterIndex];
-    
-    self.filterIndex++;
-    if(self.filterIndex > ([self.filters count] - 1)){
-        self.filterIndex = 0;
-    }
-    
-    [self addFilterAtIndex:self.filterIndex];
-    
-    [self showFilterLabel:self.filters[self.filterIndex]];
+    [self showFilterLabel:[[YACameraManager sharedManager] nextFilter]];
 }
 
 - (void) showFilterLabel:(NSString *) label {
@@ -626,44 +602,6 @@ typedef enum {
     
 }
 
-- (void)removeFilterAtIndex:(NSUInteger)index {
-    switch (index) {
-        case 0:
-            // #nofilter
-            break;
-            
-        case 1:
-            // beats
-            [self.audioPlayer stop];
-            self.audioPlayer = nil;
-            
-            break;
-        default:
-            break;
-    }
-    
-}
-
-- (void)addFilterAtIndex:(NSUInteger)index {
-    switch (index) {
-        case 0: {
-            // #nofilter
-            DLog(@"case 0");
-            break;
-            
-        }
-        case 1: {
-            // beats
-            NSString *path = [[NSBundle mainBundle] pathForResource:@"snoop" ofType:@"mp3"];
-            NSURL *url = [NSURL fileURLWithPath:path];
-            self.audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:nil];
-            self.audioPlayer.numberOfLoops = -1;
-            [self.audioPlayer play];
-        }
-        default:
-            break;
-    }
-}
 
 - (void)collapseCamera:(UISwipeGestureRecognizer *)recognizer {
     
