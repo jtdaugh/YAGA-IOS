@@ -36,6 +36,7 @@
 @property (strong, nonatomic) UILabel *filterLabel;
 @property (strong, nonatomic) NSArray *filters;
 @property (strong, nonatomic) GPUImageFilter *currentFilter;
+@property (nonatomic) CGFloat doozyDirection;
 
 @end
 
@@ -54,8 +55,9 @@
     self = [super init];
     if (self) {
         self.isInitialized = NO;
-        self.filters = @[@"#nofilter", @"Doozy", @"Toon"];
+        self.filters = @[@"#nofilter", @"Doozy", @"Toon", @"Newspaper", @"Bulge"];
         self.filterIndex = 0;
+        self.doozyDirection = 0;
     }
     return self;
 }
@@ -217,7 +219,6 @@
         //        [self.movieWriter setHasAudioTrack:TRUE audioSettings:audioSettings];
         self.videoCamera.audioEncodingTarget = self.movieWriter;
         
-        [self.videoCamera addTarget:self.movieWriter];
         [self.movieWriter startRecording];
         
         self.capturePreviewImage = nil;
@@ -378,22 +379,13 @@
             // #nofilter
             break;
         }
-        case 1: {
+        default: {
             [self.currentFilter removeTarget:self.currentCameraView];
             [self.videoCamera removeTarget:self.currentFilter];
             [self.videoCamera addTarget:self.currentCameraView];
             self.currentFilter = nil;
             break;
         }
-        case 2: {
-            [self.currentFilter removeTarget:self.currentCameraView];
-            [self.videoCamera removeTarget:self.currentFilter];
-            [self.videoCamera addTarget:self.currentCameraView];
-            self.currentFilter = nil;
-            break;
-        }
-        default:
-            break;
     }
     
 }
@@ -411,8 +403,14 @@
             NSLog(@"case 2?");
             // toon
             GPUImageSwirlFilter *swirl = [[GPUImageSwirlFilter alloc] init];
-            [swirl setAngle:0.15];
+            [swirl setRadius:0.7];
+            [swirl setAngle:0.1];
+            
             self.currentFilter = swirl;
+            
+            if (self.doozyDirection == 0)
+                [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(changeDoozy) userInfo:nil repeats:YES];
+                self.doozyDirection = 1;
             
             [self.currentFilter addTarget:self.currentCameraView];
             [self.videoCamera removeTarget:self.currentCameraView];
@@ -430,12 +428,45 @@
             [self.currentFilter addTarget:self.currentCameraView];
             [self.videoCamera removeTarget:self.currentCameraView];
             [self.videoCamera addTarget:self.currentFilter];
+            
             break;
             //            self.
+        }
+        case 3: {
+            GPUImageMosaicFilter *filter = [[GPUImageMosaicFilter alloc] init];
+            [filter setColorOn:NO];
+            [filter setDisplayTileSize:CGSizeMake(0.005, 0.005)];
+            [filter setTileSet:@"squares.png"];
+            self.currentFilter = filter;
+            [self.currentFilter addTarget:self.currentCameraView];
+            [self.videoCamera removeTarget:self.currentCameraView];
+            [self.videoCamera addTarget:self.currentFilter];
+            break;
+        }
+        case 4: {
+            GPUImageBulgeDistortionFilter *filter = [[GPUImageBulgeDistortionFilter alloc] init];
+            [filter setRadius:0.4];
+            self.currentFilter = filter;
+            [self.currentFilter addTarget:self.currentCameraView];
+            [self.videoCamera removeTarget:self.currentCameraView];
+            [self.videoCamera addTarget:self.currentFilter];
+            break;
+            
+            
         }
             
         default:
             break;
+    }
+}
+
+- (void)changeDoozy {
+    if ([self.currentFilter isKindOfClass:[GPUImageSwirlFilter class]]) {
+        [(GPUImageSwirlFilter *)self.currentFilter setAngle:((GPUImageSwirlFilter *)self.currentFilter).angle + (.001 * self.doozyDirection)];
+        [(GPUImageSwirlFilter *)self.currentFilter setRadius:((GPUImageSwirlFilter *)self.currentFilter).radius + (.001 * -self.doozyDirection)];
+        if (((GPUImageSwirlFilter *)self.currentFilter).angle <= 0.01 || ((GPUImageSwirlFilter *)self.currentFilter).angle > 0.3) {
+            self.doozyDirection *= -1;
+        }
     }
 }
 
