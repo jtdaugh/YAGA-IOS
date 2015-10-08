@@ -461,6 +461,22 @@
     return results;
 }
 
++ (NSDictionary*)urlParametersFromString:(NSString*)urlString {
+    NSArray *urlComponents = [urlString componentsSeparatedByString:@"&"];
+    
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    
+    for (NSString *keyValuePair in urlComponents)
+    {
+        NSArray *pairComponents = [keyValuePair componentsSeparatedByString:@"="];
+        NSString *key = [[pairComponents firstObject] stringByRemovingPercentEncoding];
+        NSString *value = [[pairComponents lastObject] stringByRemovingPercentEncoding];
+        
+        [result setObject:value forKey:key];
+    }
+    return result;
+}
+
 #pragma mark - Tooltip and userdefaults helpers
 
 + (BOOL)hasVisitedGifGrid {

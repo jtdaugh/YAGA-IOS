@@ -124,6 +124,11 @@
 #define CAPTION_BUTTON_HEIGHT 80.f
 #define CAPTION_DONE_PROPORTION 0.5
 
+//server side paging
+#define YA_RESPONSE_COUNT               @"count"
+#define YA_RESPONSE_NEXT                @"next"
+#define kStreamItemsOnPage                  30
+
 
 // Comments
 #define COMMENTS_BOTTOM_MARGIN 50.f
@@ -139,6 +144,6 @@
 #define kNumberOfItemsAboveToDownload 4
 #define kNumberOfItemsBelowToDownload 8
 
-#define DEBUG_SERVER 0
+#define DEBUG_SERVER 1
 
 #endif

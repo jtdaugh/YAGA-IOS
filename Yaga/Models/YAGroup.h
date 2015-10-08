@@ -22,6 +22,12 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 @property BOOL hasUnviewedVideos;
 @property BOOL muted;
 
+
+//server side paging, we can not use self.videos.count for offset param because of deleted videos which are returned too, keeping nextPageIndex for that
+@property int  nextPageIndex;
+@property NSDate *lastInfiniteScrollEmptyResponseTime; // The last time an infinite scroll returned 0 new or deleted videos
+
+
 @property RLMArray<YAContact> *members;
 @property RLMArray<YAContact> *pending_members;
 @property RLMArray<YAVideo> *videos;
@@ -38,8 +44,12 @@ typedef void(^updateVideosCompletionBlock)(NSError *error, NSArray *newVideos);
 - (void)removeMember:(YAContact*)contact withCompletion:(completionBlock)completion;
 - (void)leaveWithCompletion:(completionBlock)completion;
 - (void)muteUnmuteWithCompletion:(completionBlock)completion;
+
 - (void)refresh;
 - (void)refresh:(BOOL)showPullDownToRefresh;
+- (void)refreshWithCompletion:(completionBlock)completion pageOffset:(NSUInteger)pageOffset showPullDownToRefresh:(BOOL)showPullDownToRefresh;
+- (void)loadNextPageWithCompletion:(completionBlock)completion;
+
 @end
 
 // This protocol enables typed collections. i.e.:

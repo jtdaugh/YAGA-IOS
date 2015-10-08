@@ -33,6 +33,7 @@
 
 #define YA_VIDEO_POST                   @"post"
 #define YA_VIDEO_POSTS                  @"posts"
+#define YA_VIDEO_RESULTS                @"results"
 #define YA_VIDEO_ATTACHMENT             @"attachment"
 #define YA_VIDEO_ATTACHMENT_PREVIEW     @"attachment_preview"
 #define YA_VIDEO_READY_AT               @"ready_at"
@@ -62,7 +63,7 @@ typedef void(^responseBlock)(id response, NSError* error);
 - (void)addGroupMembersByPhones:(NSArray*)phones andUsernames:(NSArray*)usernames toGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)removeGroupMemberByPhone:(NSString*)phone fromGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion;
 - (void)leaveGroupWithId:(NSString*)serverGroupId withCompletion:(responseBlock)completion; //same as removeGroupMemberByPhone but show other localised messages
-- (void)groupInfoWithId:(NSString*)serverGroupId since:(NSDate*)since withCompletion:(responseBlock)completion;
+- (void)groupInfoWithId:(NSString*)serverGroupId pageOffset:(NSUInteger)pageOffset since:(NSDate*)since withCompletion:(responseBlock)completion;
 - (void)renameGroupWithId:(NSString*)serverGroupId newName:(NSString*)newName withCompletion:(responseBlock)completion;
 - (void)muteGroupWithId:(NSString*)serverGroupId mute:(BOOL)mute withCompletion:(responseBlock)completion;
 
