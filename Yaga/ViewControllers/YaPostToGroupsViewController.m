@@ -100,7 +100,7 @@
             }
         }
         if (index != -1) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index+1 inSection:0]; // +1 because of new group row
             [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
             [self showHidePostMessage];
             return;

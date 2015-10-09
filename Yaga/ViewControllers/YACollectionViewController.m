@@ -211,6 +211,8 @@ static NSString *cellID = @"Cell";
 
 - (void)reload {
 
+    [self reloadSortedVideos];
+    
     BOOL needRefresh = NO;
     if(!self.sortedVideos || ![self.sortedVideos count])
         needRefresh = YES;
@@ -280,6 +282,7 @@ static NSString *cellID = @"Cell";
         [self.navigationController popViewControllerAnimated:NO];
         return;
     }
+    
     [self.noVideosLabel removeFromSuperview];
     self.noVideosLabel = nil;
     [self.toolTipLabel removeFromSuperview];
@@ -527,7 +530,7 @@ static NSString *cellID = @"Cell";
     cell.video = video;
 
     
-    if (!self.scrolling) {
+    if (!self.scrolling || (self.collectionView.contentInset.top == self.collectionView.pullToRefreshView.originalTopInset)) {
         [cell renderLightweightContent];
         [cell renderHeavyWeightContent];
     } else if (!self.scrollingFast) {

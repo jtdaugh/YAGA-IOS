@@ -19,9 +19,9 @@
 #import "MBProgressHUD.h"
 
 #if (DEBUG && DEBUG_SERVER)
-#define HOST @"http://www-dev.yaga.video"
+#define HOST @"http://api-dev.yaga.video"
 #else
-#define HOST @"http://www.yaga.video"
+#define HOST @"http://api.yaga.video"
 #endif
 
 #define PORT @"80"
@@ -38,7 +38,6 @@
 
 #define API_GROUPS_TEMPLATE                 @"%@/groups/"
 #define API_GROUP_TEMPLATE                  @"%@/groups/%@/"
-#define API_GROUP_PAGINATED_TEMPLATE        @"%@/groups/%@/?since=%lu&limit=%lu&offset=%lu"
 #define API_GROUP_JOIN_TEMPLATE             @"%@/groups/%@/join/"
 
 #define API_MUTE_GROUP_TEMPLATE             @"%@/groups/%@/mute/"
@@ -435,7 +434,7 @@
     }];
 }
 
-- (void)groupInfoWithId:(NSString*)serverGroupId pageOffset:(NSUInteger)pageOffset since:(NSDate*)since withCompletion:(responseBlock)completion {
+- (void)groupPostsWithId:(NSString*)serverGroupId pageOffset:(NSUInteger)pageOffset since:(NSDate*)since withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
     
     NSString *api;
@@ -457,14 +456,14 @@
         //        NSUInteger since = sortedCreatedAt.count == 0 ? 0 : [(NSDate*)sortedCreatedAt[0] timeIntervalSince1970];
         //
         NSAssert(serverGroupId, @"serverGroup is a required parameter");
-        api = [NSString stringWithFormat:API_GROUP_PAGINATED_TEMPLATE, self.base_api, serverGroupId, (unsigned long)0, (unsigned long)kStreamItemsOnPage, (unsigned long)pageOffset * kStreamItemsOnPage];
+        api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
         
         if(since) {
-            api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
-            NSString *sinceString = [NSString stringWithFormat:@"?since=%lu", (unsigned long)[since timeIntervalSince1970]];
+            NSString *sinceString = [NSString stringWithFormat:@"?since=%lu&limit=100&offset=0", (unsigned long)[since timeIntervalSince1970]];
             api = [api stringByAppendingString:sinceString];
         } else {
-            
+            NSString *paginationString = [NSString stringWithFormat:@"?limit=%lu&offset=%lu", (unsigned long)kStreamItemsOnPage, (unsigned long)pageOffset * kStreamItemsOnPage];
+            api = [api stringByAppendingString:paginationString];
         }
     }
     

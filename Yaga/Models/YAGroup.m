@@ -487,7 +487,7 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:userInfo];
     
     // dont set since parameter if group has no videos yet. Otherwise, one buggy fetch screws state of group until reinstall.
-    [[YAServer sharedServer] groupInfoWithId:self.serverId pageOffset:pageOffset since:(([self.videos count] && pageOffset == 0) ? self.refreshedAt : nil)
+    [[YAServer sharedServer] groupPostsWithId:self.serverId pageOffset:pageOffset since:(([self.videos count] && pageOffset == 0) ? self.refreshedAt : nil)
                               withCompletion:^(id response, NSError *error) {
                                   if(self.isInvalidated) {
                                       if(completion)
@@ -505,9 +505,6 @@
                                       return;
                                   }
                                   else {
-                                      [self.realm beginWriteTransaction];
-                                      self.refreshedAt = [NSDate date];
-                                      [self.realm commitWriteTransaction];
                                       
                                       NSArray *videoDictionaries = response[YA_VIDEO_RESULTS];
                                       DLog(@"received %lu videos for %@ channel", (unsigned long)videoDictionaries.count, self.name);
@@ -529,6 +526,11 @@
                                           }
                                           [self.realm commitWriteTransaction];
                                       }
+                                      
+                                      [self.realm beginWriteTransaction];
+                                      self.refreshedAt = ((YAVideo *)[[self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO] firstObject]).createdAt;
+                                      [self.realm commitWriteTransaction];
+
                                       
                                       [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
                                       

@@ -528,12 +528,11 @@ static NSString *commentCellID = @"CommentCell";
                                                                                                  VIEW_HEIGHT - buttonRadius - padding)];
     [self.moreButton addTarget:self action:@selector(moreButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlay addSubview:self.moreButton];
-//    self.shareButton.layer.zPosition = 100;
+
     
-//    self.deleteButton = [self circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(padding + buttonRadius, padding*2 + buttonRadius)];
-//    [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-//    [self.overlay addSubview:self.deleteButton];
-//    self.deleteButton.layer.zPosition = 100;
+    self.deleteButton = [YAUtils circleButtonWithImage:@"Delete" diameter:buttonRadius*2 center:CGPointMake(VIEW_WIDTH - buttonRadius*3 - padding*2, VIEW_HEIGHT - buttonRadius - padding)];
+    [self.deleteButton addTarget:self action:@selector(deleteButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.overlay addSubview:self.deleteButton];
     
     self.commentButton = [YAUtils circleButtonWithImage:@"comment" diameter:buttonRadius*2 center:CGPointMake(buttonRadius + padding, VIEW_HEIGHT - buttonRadius - padding)];
     [self.commentButton addTarget:self action:@selector(commentButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -586,6 +585,7 @@ static NSString *commentCellID = @"CommentCell";
     [self addGestureRecognizer:self.hideGestureRecognizer];
     
     [self.overlay bringSubviewToFront:self.moreButton];
+    [self.overlay bringSubviewToFront:self.deleteButton];
     [self.overlay bringSubviewToFront:self.commentButton];
     [self.overlay bringSubviewToFront:self.heartButton];
     
@@ -932,7 +932,7 @@ static NSString *commentCellID = @"CommentCell";
 
         // could be prettier if i fade all of this
 //        self.textButton.hidden = NO;
-        self.deleteButton.hidden = NO;
+        self.deleteButton.hidden = ![self.video.creator isEqualToString:[[YAUser currentUser] username]];
         self.moreButton.hidden = NO;
         self.commentsWrapperView.hidden = NO;
         self.XButton.hidden = NO;
@@ -1114,7 +1114,6 @@ static NSString *commentCellID = @"CommentCell";
     DLog(@"update controls");
    
     self.myVideo = [self.video.creator isEqualToString:[[YAUser currentUser] username]];
-    self.deleteButton.hidden = !self.myVideo;
 //    self.moreButton.hidden = !self.myVideo;
 
     [self initializeCaption];
@@ -1145,7 +1144,7 @@ static NSString *commentCellID = @"CommentCell";
 //    self.captionButton.hidden = !mp4Downloaded;
 
 
-    self.deleteButton.hidden = !mp4Downloaded && !self.myVideo;
+    self.deleteButton.hidden = !mp4Downloaded || !self.myVideo;
 
 //    [self.likeCount setTitle:self.video.likes ? [NSString stringWithFormat:@"%ld", (long)self.video.likes] : @""
 //                    forState:UIControlStateNormal];
@@ -1195,6 +1194,7 @@ static NSString *commentCellID = @"CommentCell";
         self.commentButton.alpha = 0.0;
         self.heartButton.alpha = 0.0;
         self.moreButton.alpha = 0.0;
+        self.deleteButton.alpha = 0.0;
         self.XButton.alpha = 0.0;
         [self.sharingView setTransform:CGAffineTransformIdentity];
     } completion:^(BOOL finished) {
@@ -1217,6 +1217,7 @@ static NSString *commentCellID = @"CommentCell";
         self.commentButton.alpha = 1.0;
         self.heartButton.alpha = 1.0;
         self.moreButton.alpha = 1.0;
+        self.deleteButton.alpha = 1.0;
         self.XButton.alpha = 1.0;
         [self.sharingView setTransform:CGAffineTransformMakeTranslation(0, self.sharingView.frame.size.height)];
     } completion:^(BOOL finished) {
@@ -1326,6 +1327,15 @@ static NSString *commentCellID = @"CommentCell";
     }
 }
 
+- (void)deleteButtonPressed {
+    [YAUtils confirmDeleteVideo:self.video withConfirmationBlock:^{
+        if(self.video.realm)
+            [self.video removeFromCurrentGroupWithCompletion:nil removeFromServer:YES];
+        else
+            [self closeAnimated];
+    }];
+}
+
 #pragma mark - UIPanGestureRecognizerDelegate
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
     return YES;
@@ -1347,6 +1357,12 @@ static NSString *commentCellID = @"CommentCell";
     }
     if (self.moreButton.superview != nil) {
         if ([touch.view isDescendantOfView:self.moreButton]) {
+            // we touched our control surface
+            return NO; // ignore the touch
+        }
+    }
+    if (self.deleteButton.superview != nil) {
+        if ([touch.view isDescendantOfView:self.deleteButton]) {
             // we touched our control surface
             return NO; // ignore the touch
         }

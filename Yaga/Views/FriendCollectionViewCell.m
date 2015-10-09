@@ -32,7 +32,7 @@
         self.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:self.bounds alpha:0.3];
 
         self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN, Y_MARGIN, [FriendCollectionViewCell maxNameWidth], NAME_HEIGHT)];
-        [self.nameLabel setFont:[UIFont fontWithName:BOLD_FONT size:26]];
+        [self.nameLabel setFont:[UIFont fontWithName:BIG_FONT size:26]];
         self.nameLabel.textColor = PRIMARY_COLOR;
         self.nameLabel.adjustsFontSizeToFitWidth = YES;
 
