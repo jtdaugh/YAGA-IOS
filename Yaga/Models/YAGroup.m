@@ -528,7 +528,12 @@
                                       }
                                       
                                       [self.realm beginWriteTransaction];
-                                      self.refreshedAt = ((YAVideo *)[[self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO] firstObject]).createdAt;
+                                      YAVideo *mostRecentVideo = [[self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO] firstObject];
+                                      if (mostRecentVideo) {
+                                          self.refreshedAt = mostRecentVideo.createdAt;
+                                      } else {
+                                          self.refreshedAt = [NSDate dateWithTimeIntervalSince1970:1];
+                                      }
                                       [self.realm commitWriteTransaction];
 
                                       

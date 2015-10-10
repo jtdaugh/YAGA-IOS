@@ -14,6 +14,7 @@
 @property (nonatomic, strong) UILabel *membersLabel;
 @property (nonatomic, strong) UILabel *accessoryLabel;
 @property (nonatomic, strong) UIImageView *disclosureImageView;
+@property (nonatomic, strong) UIImageView *iconView;
 @property (nonatomic, strong) UIView *separatorView;
 
 @end
@@ -21,6 +22,8 @@
 #define ACCESSORY_SIZE 18
 #define VID_COUNT_WIDTH 70
 #define LEFT_MARGIN 20
+#define ICON_WIDTH 28
+#define ICON_PADDING 10
 #define RIGHT_MARGIN 10
 #define Y_MARGIN 12
 #define NAME_HEIGHT 30
@@ -35,12 +38,12 @@
     if (self) {
         self.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:self.bounds alpha:0.3];
 
-        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN, Y_MARGIN, [GroupsCollectionViewCell maxNameWidth], NAME_HEIGHT)];
+        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN + ICON_PADDING + ICON_WIDTH, Y_MARGIN, [GroupsCollectionViewCell maxNameWidth], NAME_HEIGHT)];
         [self.nameLabel setFont:[UIFont fontWithName:BIG_FONT size:26]];
         self.nameLabel.textColor = PRIMARY_COLOR;
         self.nameLabel.adjustsFontSizeToFitWidth = YES;
 
-        self.membersLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.nameLabel.frame.origin.x,
+        self.membersLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN,
                                                                      self.nameLabel.frame.size.height + Y_MARGIN + BETWEEN_MARGIN,
                                                                      [GroupsCollectionViewCell maxDescriptionWidth],
                                                                      MEMBERS_HEIGHT)];
@@ -59,6 +62,12 @@
         self.accessoryLabel.font = [UIFont fontWithName:BIG_FONT size:16];
         self.accessoryLabel.textAlignment = NSTextAlignmentRight;
         self.accessoryLabel.adjustsFontSizeToFitWidth = YES;
+        
+        self.iconView = [[UIImageView alloc] initWithFrame:CGRectMake(LEFT_MARGIN, Y_MARGIN + (NAME_HEIGHT - ICON_WIDTH)/2 + 1, ICON_WIDTH, ICON_WIDTH)];
+        self.iconView.contentMode = UIViewContentModeScaleAspectFit;
+        self.iconView.image = [[UIImage imageNamed:@"Group"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        self.iconView.tintColor = PRIMARY_COLOR;
+        [self addSubview:self.iconView];
 
         self.disclosureImageView = [[UIImageView alloc] initWithFrame:CGRectMake(self.frame.size.width - RIGHT_MARGIN - ACCESSORY_SIZE, (TOTAL_HEIGHT - MEMBERS_HEIGHT - BETWEEN_MARGIN - ACCESSORY_SIZE)/2, ACCESSORY_SIZE, ACCESSORY_SIZE)];
         self.disclosureImageView.tintColor = PRIMARY_COLOR;
@@ -117,7 +126,7 @@
 }
 
 + (CGFloat)maxNameWidth {
-    return VIEW_WIDTH - LEFT_MARGIN - RIGHT_MARGIN - ACCESSORY_SIZE - VID_COUNT_WIDTH - 10.0f;
+    return VIEW_WIDTH - LEFT_MARGIN - ICON_WIDTH - ICON_PADDING - RIGHT_MARGIN - ACCESSORY_SIZE - VID_COUNT_WIDTH - 10.0f;
 }
 
 + (CGFloat)maxDescriptionWidth {

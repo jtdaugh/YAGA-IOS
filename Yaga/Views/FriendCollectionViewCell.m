@@ -13,12 +13,15 @@
 @property (nonatomic, strong) UILabel *nameLabel;
 @property (nonatomic, strong) UILabel *accessoryLabel;
 @property(nonatomic, strong) UIImageView *disclosureImageView;
+@property(nonatomic, strong) UIImageView *iconView;
 
 @end
 
 #define ACCESSORY_SIZE 18
 #define VID_COUNT_WIDTH 70
 #define LEFT_MARGIN 20
+#define ICON_SIZE 24
+#define ICON_PADDING 10
 #define RIGHT_MARGIN 10
 #define Y_MARGIN 12
 #define NAME_HEIGHT 30
@@ -31,7 +34,7 @@
     if (self) {
         self.selectedBackgroundView = [YAUtils createBackgroundViewWithFrame:self.bounds alpha:0.3];
 
-        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN, Y_MARGIN, [FriendCollectionViewCell maxNameWidth], NAME_HEIGHT)];
+        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(LEFT_MARGIN + ICON_PADDING + ICON_SIZE, Y_MARGIN, [FriendCollectionViewCell maxNameWidth], NAME_HEIGHT)];
         [self.nameLabel setFont:[UIFont fontWithName:BIG_FONT size:26]];
         self.nameLabel.textColor = PRIMARY_COLOR;
         self.nameLabel.adjustsFontSizeToFitWidth = YES;
@@ -48,6 +51,12 @@
         self.disclosureImageView.tintColor = PRIMARY_COLOR;
         [self.disclosureImageView setImage:[[UIImage imageNamed:@"Disclosure"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
         self.disclosureImageView.contentMode = UIViewContentModeScaleAspectFit;
+        
+        self.iconView = [[UIImageView alloc] initWithFrame:CGRectMake(LEFT_MARGIN, Y_MARGIN + (NAME_HEIGHT - ICON_SIZE)/2, ICON_SIZE, ICON_SIZE)];
+        self.iconView.contentMode = UIViewContentModeScaleAspectFit;
+        self.iconView.image = [[UIImage imageNamed:@"Friend"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        self.iconView.tintColor = PRIMARY_COLOR;
+        [self addSubview:self.iconView];
         
         UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(20, frame.size.height - 0.5, VIEW_WIDTH - 20, 0.5)];
 //        separatorView.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1];
@@ -75,7 +84,7 @@
 }
 
 + (CGFloat)maxNameWidth {
-    return VIEW_WIDTH - LEFT_MARGIN - RIGHT_MARGIN - ACCESSORY_SIZE - VID_COUNT_WIDTH - 10.0f;
+    return VIEW_WIDTH - LEFT_MARGIN - ICON_SIZE - ICON_PADDING - RIGHT_MARGIN - ACCESSORY_SIZE - VID_COUNT_WIDTH - 10.0f;
 }
 
 + (CGFloat)cellHeight {
