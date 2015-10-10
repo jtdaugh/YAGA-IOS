@@ -34,7 +34,11 @@
 
 + (NSDictionary *)defaultPropertyValues
 {
-    return @{@"serverId":@"", @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0], @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0], @"hasUnviewedVideos" : [NSNumber numberWithBool:NO]};
+    return @{@"serverId":@"",
+             @"updatedAt":[NSDate dateWithTimeIntervalSince1970:0],
+             @"lastInfiniteScrollEmptyResponseTime":[NSDate dateWithTimeIntervalSince1970:0],
+             @"refreshedAt":[NSDate dateWithTimeIntervalSince1970:0],
+             @"hasUnviewedVideos" : [NSNumber numberWithBool:NO]};
 }
 
 - (NSString*)membersString {
@@ -464,6 +468,14 @@
 #pragma mark - Videos
 
 - (void)refresh:(BOOL)showPullDownToRefresh {
+    [self refreshWithCompletion:nil pageOffset:0 showPullDownToRefresh:showPullDownToRefresh];
+}
+
+- (void)refresh {
+    [self refresh:NO];
+}
+
+- (void)refreshWithCompletion:(completionBlock)completion pageOffset:(NSUInteger)pageOffset showPullDownToRefresh:(BOOL)showPullDownToRefresh {
     if(self.videosUpdateInProgress)
         return;
     
@@ -471,39 +483,73 @@
     
     //since
     NSDictionary *userInfo = @{kShowPullDownToRefreshWhileRefreshingGroup:[NSNumber numberWithBool:showPullDownToRefresh]};
-
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_WILL_REFRESH_NOTIFICATION object:self userInfo:userInfo];
     
-    [[YAServer sharedServer] groupInfoWithId:self.serverId since:self.refreshedAt
+    // dont set since parameter if group has no videos yet. Otherwise, one buggy fetch screws state of group until reinstall.
+    [[YAServer sharedServer] groupPostsWithId:self.serverId pageOffset:pageOffset since:(([self.videos count] && pageOffset == 0) ? self.refreshedAt : nil)
                               withCompletion:^(id response, NSError *error) {
-        if(self.isInvalidated)
-            return;
-        
-        self.videosUpdateInProgress = NO;
-        if(error) {
-            DLog(@"can't get group %@ info, error %@", self.name, [error localizedDescription]);
-            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
-            return;
-        }
-        else {
-            [self.realm beginWriteTransaction];
-            self.refreshedAt = self.updatedAt;
-            [self updateFromServerResponeDictionarty:response];
-            [self.realm commitWriteTransaction];
-            
-            NSArray *videoDictionaries = response[YA_VIDEO_POSTS];
-            DLog(@"received %lu videos for %@ group", (unsigned long)videoDictionaries.count, self.name);
-            
-            NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
-        }
-    }];
+                                  if(self.isInvalidated) {
+                                      if(completion)
+                                          completion([NSError errorWithDomain:@"YADomain" code:100 userInfo:nil]);
+                                      return;
+                                  }
+                                  
+                                  self.videosUpdateInProgress = NO;
+                                  if(error) {
+                                      DLog(@"can't get channel %@ info, error %@", self.name, [error localizedDescription]);
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:nil];
+                                      if(completion)
+                                          completion(error);
+                                      
+                                      return;
+                                  }
+                                  else {
+                                      
+                                      NSArray *videoDictionaries = response[YA_VIDEO_RESULTS];
+                                      DLog(@"received %lu videos for %@ channel", (unsigned long)videoDictionaries.count, self.name);
+                                      
+                                      NSDictionary *updatedAndNew = [self updateVideosFromDictionaries:videoDictionaries];
+                                      
+                                      if ((self.nextPageIndex == 0 || pageOffset)) {
+                                          [self.realm beginWriteTransaction];
+                                          if ([updatedAndNew[kNewVideos] count] || [updatedAndNew[kUpdatedVideos] count] || [updatedAndNew[kDeletedVideos] count]) {
+                                              //update next page index for public stream group if there are any results.
+                                              NSString *next = response[YA_RESPONSE_NEXT] == [NSNull null] ? nil : response[YA_RESPONSE_NEXT];
+                                              self.nextPageIndex = [[[YAUtils urlParametersFromString:next] objectForKey:@"offset"] intValue] / kStreamItemsOnPage;
+                                              
+                                              DLog(@"updating group: %@, next page index: %d", self.name, self.nextPageIndex);
+                                          } else {
+                                              // If theres no videos in the response, decrement
+                                              self.nextPageIndex = MAX(self.nextPageIndex - 1, 0);
+                                              self.lastInfiniteScrollEmptyResponseTime = [NSDate date];
+                                          }
+                                          [self.realm commitWriteTransaction];
+                                      }
+                                      
+                                      [self.realm beginWriteTransaction];
+                                      YAVideo *mostRecentVideo = [[self.videos sortedResultsUsingProperty:@"createdAt" ascending:NO] firstObject];
+                                      if (mostRecentVideo) {
+                                          self.refreshedAt = mostRecentVideo.createdAt;
+                                      } else {
+                                          self.refreshedAt = [NSDate dateWithTimeIntervalSince1970:1];
+                                      }
+                                      [self.realm commitWriteTransaction];
+
+                                      
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:GROUP_DID_REFRESH_NOTIFICATION object:self userInfo:updatedAndNew];
+                                      
+                                      if(completion)
+                                          completion(nil);
+                                  }
+                              }];
+    
 }
 
-- (void)refresh {
-    [self refresh:NO];
+- (void)loadNextPageWithCompletion:(completionBlock)completion {
+    [self refreshWithCompletion:completion pageOffset:self.nextPageIndex showPullDownToRefresh:NO];
 }
+
 
 - (NSSet*)videoIds {
     NSMutableSet *existingIds = [NSMutableSet set];

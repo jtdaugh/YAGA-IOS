@@ -19,13 +19,13 @@
 #import "MBProgressHUD.h"
 
 #if (DEBUG && DEBUG_SERVER)
-#define HOST @"https://api-dev.yagaprivate.com"
+#define HOST @"http://api-dev.yaga.video"
 #else
-#define HOST @"https://api.yagaprivate.com"
+#define HOST @"http://api.yaga.video"
 #endif
 
-#define PORT @"443"
-#define PORTNUM 443
+#define PORT @"80"
+#define PORTNUM 80
 #define API_ENDPOINT @"/yaga/api/v1"
 
 #define API_USER_PROFILE_TEMPLATE           @"%@/user/profile/"
@@ -63,6 +63,8 @@
 @interface YAServer ()
 
 @property (nonatomic, strong) NSString *base_api;
+@property (nonatomic, strong) NSString *userAgent;
+
 @property (nonatomic, strong) NSString *phoneNumber;
 
 @property (nonatomic, strong) AFHTTPRequestOperationManager *jsonOperationsManager;
@@ -87,6 +89,8 @@
 - (instancetype)init {
     if (self = [super init]) {
         _base_api = [NSString stringWithFormat:@"%@:%@%@", HOST, PORT, API_ENDPOINT];
+        _userAgent = [NSString stringWithFormat:@"YAGA IOS %@", [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]];
+
         _jsonOperationsManager = [AFHTTPRequestOperationManager manager];
         _jsonOperationsManager.requestSerializer = [AFJSONRequestSerializer serializer];
 
@@ -136,6 +140,7 @@
     
     NSString *api = [NSString stringWithFormat:API_USER_PROFILE_TEMPLATE, self.base_api];
     
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil] ;
@@ -160,7 +165,8 @@
     NSDictionary *parameters = @{
                                  @"name": name
                                  };
-    
+
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager PUT:api
            parameters:parameters
               success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -178,6 +184,7 @@
                                  };
     
     NSString *api = [NSString stringWithFormat:API_AUTH_TOKEN_TEMPLATE, self.base_api];
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil] ;
         NSString *token = [dict objectForKey:YA_RESPONSE_TOKEN];
@@ -199,6 +206,7 @@
     NSDictionary *parameters = @{ @"phone" : self.phoneNumber };
     
     NSString *api = [NSString stringWithFormat:API_AUTH_BY_SMS_TEMPLATE, self.base_api];
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(nil, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -222,6 +230,7 @@
                                  @"name": groupName
                                  };
     __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Creating group", @"")];
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
         [hud hide:NO];
@@ -268,6 +277,7 @@
     [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
+    [request setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
@@ -318,6 +328,7 @@
     
     __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Removing members", @"")];
     
+    [request setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
@@ -371,6 +382,7 @@
     
     __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Leaving group", @"")];
     
+    [request setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
@@ -410,6 +422,7 @@
                                  };
     
     __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Renaming group", @"")];
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         [hud hide:NO];
         [YAUtils showHudWithText:NSLocalizedString(@"Group renamed", @"")];
@@ -421,17 +434,41 @@
     }];
 }
 
-- (void)groupInfoWithId:(NSString*)serverGroupId since:(NSDate*)since withCompletion:(responseBlock)completion {
+- (void)groupPostsWithId:(NSString*)serverGroupId pageOffset:(NSUInteger)pageOffset since:(NSDate*)since withCompletion:(responseBlock)completion {
     NSAssert(self.authToken.length, @"auth token not set");
-    NSAssert(serverGroupId, @"serverGroup is a required parameter");
     
-    NSString *api = [NSString stringWithFormat:API_GROUP_TEMPLATE, self.base_api, serverGroupId];
+    NSString *api;
     
-    if(since) {
-        NSString *sinceString = [NSString stringWithFormat:@"?since=%lu", (unsigned long)[since timeIntervalSince1970]];
-        api = [api stringByAppendingString:sinceString];
+    YAGroup *group;
+    RLMResults *groups = [YAGroup objectsWhere:[NSString stringWithFormat:@"serverId = '%@'", serverGroupId]];
+    if([groups count] == 1) {
+        group = groups[0];
     }
     
+    if(group) {
+        //TODO: use since when all pages are downloaded
+        //get oldest refreshedAt to use as since for public stream request
+        //we use only one property on the client "createdAt", it's set to updatedAt when video is updated
+        //        NSArray *sortedCreatedAt = [[streamGroup.videos valueForKey:@"createdAt"] sortedArrayUsingComparator:^NSComparisonResult(NSDate *date1, NSDate* date2) {
+        //            return [date2 compare:date1];
+        //        }];
+        //
+        //        NSUInteger since = sortedCreatedAt.count == 0 ? 0 : [(NSDate*)sortedCreatedAt[0] timeIntervalSince1970];
+        //
+        NSAssert(serverGroupId, @"serverGroup is a required parameter");
+        api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
+        
+        if(since) {
+            NSString *sinceString = [NSString stringWithFormat:@"?since=%lu&limit=100&offset=0", (unsigned long)[since timeIntervalSince1970]];
+            api = [api stringByAppendingString:sinceString];
+        } else {
+            NSString *paginationString = [NSString stringWithFormat:@"?limit=%lu&offset=%lu", (unsigned long)kStreamItemsOnPage, (unsigned long)pageOffset * kStreamItemsOnPage];
+            api = [api stringByAppendingString:paginationString];
+        }
+    }
+    
+//    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSDictionary *dict = [NSDictionary dictionaryFromResponseObject:responseObject withError:nil];
         completion(dict, nil);
@@ -457,6 +494,7 @@
                                  };
     
     __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:mute ? NSLocalizedString(@"Muting group", @"") : NSLocalizedString(@"Unmuting group", @"")];
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager PUT:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         [hud hide:NO];
         [YAUtils showHudWithText:mute ? NSLocalizedString(@"Group muted", @"") : NSLocalizedString(@"Group unmuted", @"")];
@@ -475,6 +513,7 @@
     
     DLog(@"updating groups from server...");
     
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
         DLog(@"updated");
@@ -490,6 +529,7 @@
     
     NSString *api = [NSString stringWithFormat:API_GROUPS_SEARCH_TEMPLATE, self.base_api];
     
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager GET:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -503,6 +543,7 @@
     
     NSString *api = [NSString stringWithFormat:API_GROUP_JOIN_TEMPLATE, self.base_api, serverGroupId];
     
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager PUT:api parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -519,10 +560,6 @@
     NSString *api = [NSString stringWithFormat:API_GROUP_POSTS_TEMPLATE, self.base_api, serverGroupId];
     NSString *videoLocalId = [video.localId copy];
     
-    NSString *userAgent = [NSString stringWithFormat:@"YAGA IOS %@", [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"]];
-    [self.jsonOperationsManager.requestSerializer setValue:userAgent forHTTPHeaderField:@"User-Agent"];
-    
-    
     NSDictionary *parameters = @{
                                  @"name": video.caption,
                                  @"name_x": [NSNumber numberWithFloat:video.caption_x],
@@ -532,6 +569,7 @@
                                  @"font": [NSNumber numberWithInteger:0]
                                  };
 
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager POST:api
             parameters:parameters
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -700,6 +738,7 @@
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_TEMPLATE, self.base_api, serverGroupId, serverVideoId];
     
     __block MBProgressHUD *hud = [YAUtils showIndeterminateHudWithText:NSLocalizedString(@"Deleting video", @"")];
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager DELETE:api
               parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
                   [hud hide:NO];
@@ -750,6 +789,7 @@
     [request setValue:[NSString stringWithFormat:@"Token %@", self.authToken] forHTTPHeaderField:@"Authorization"];
     [request setHTTPBody:json];
     
+    [request setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
@@ -772,6 +812,7 @@
     NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
     NSString *serverVideoId = video.serverId;
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager POST:api
             parameters:nil
                success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -799,6 +840,7 @@
     NSString *serverGroupId = [YAUser currentUser].currentGroup.serverId;
     NSString *serverVideoId = video.serverId;
     NSString *api = [NSString stringWithFormat:API_GROUP_POST_LIKE, self.base_api, serverGroupId, serverVideoId];
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager   DELETE:api
                 parameters:nil
                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -858,6 +900,7 @@
                                      @"groups": groupIdsToCopyTo
                                     };
         
+        [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
         [self.jsonOperationsManager POST:api
                              parameters:parameters
                                 success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -908,6 +951,7 @@
                                  @"locale": [[NSLocale preferredLanguages] objectAtIndex:0]
                                  };
     
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:YA_LAST_DEVICE_TOKEN_SYNC_DATE];
         completion(responseObject, nil);
@@ -1037,6 +1081,7 @@
                                  @"phones": correctPhones
                                  };
     
+    [self.jsonOperationsManager.requestSerializer setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
     [self.jsonOperationsManager POST:api parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

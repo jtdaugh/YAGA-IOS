@@ -119,7 +119,7 @@
     self.myGroupsHeaderView.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0];
 
     self.chatsLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, VIEW_WIDTH/2 - recordButtonWidth/2 - 20, HEADER_HEIGHT)];
-    [self.chatsLabel setFont:[UIFont fontWithName:BOLD_FONT size:20]];
+    [self.chatsLabel setFont:[UIFont fontWithName:BIG_FONT size:26]];
     self.chatsLabel.textColor = [UIColor grayColor];
     self.chatsLabel.text = @"Chats";
     

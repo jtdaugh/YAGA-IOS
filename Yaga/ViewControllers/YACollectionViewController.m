@@ -14,6 +14,7 @@
 #import "YAUtils.h"
 #import "YAServer.h"
 
+#import "UIScrollView+SVInfiniteScrolling.h"
 #import "UIScrollView+SVPullToRefresh.h"
 #import "YAAssetsCreator.h"
 
@@ -34,8 +35,6 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 
 @property (nonatomic, assign) BOOL disableScrollHandling;
 
-@property (nonatomic, assign) NSUInteger paginationThreshold;
-
 @property (assign, nonatomic) BOOL assetsPrioritisationHandled;
 @property (nonatomic, assign) NSUInteger lastDownloadPrioritizationIndex;
 
@@ -54,11 +53,11 @@ static NSString *YAVideoImagesAtlas = @"YAVideoImagesAtlas";
 @property (nonatomic) BOOL scrollingFast;
 @property (nonatomic) NSTimeInterval lastScrollingSpeedTime;
 
+@property (nonatomic, strong) RLMResults *sortedVideos;
+
 @end
 
 static NSString *cellID = @"Cell";
-
-#define kPaginationItemsCountToStartLoadingNextPage 5
 
 @implementation YACollectionViewController
 
@@ -112,7 +111,7 @@ static NSString *cellID = @"Cell";
     if ((self.scrollingFast) || !eventCount) return; // dont update unless the collection view is still
     __weak YACollectionViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
+        NSUInteger index = [self.sortedVideos indexOfObjectWhere:@"(serverId == %@) OR (localId == %@)", serverId, localId];
         if (weakSelf.scrollingFast) return;
         if (index == NSNotFound) {
             return;
@@ -168,7 +167,14 @@ static NSString *cellID = @"Cell";
     [self.collectionView addPullToRefreshWithActionHandler:^{
         [weakSelf refreshCurrentGroup];
     }];
-    
+    [self.collectionView addInfiniteScrollingWithActionHandler:^{
+        if ([[NSDate date] timeIntervalSinceDate:[YAUser currentUser].currentGroup.lastInfiniteScrollEmptyResponseTime] > 10) {
+            [[YAUser currentUser].currentGroup loadNextPageWithCompletion:nil];
+        } else {
+            [weakSelf.collectionView.infiniteScrollingView stopAnimating];
+        }
+    }];
+
     //    self.collectionView.pullToRefreshView.
     
     YAPullToRefreshLoadingView *loadingView = [[YAPullToRefreshLoadingView alloc] initWithFrame:CGRectMake(VIEW_WIDTH/10, 0, VIEW_WIDTH-VIEW_WIDTH/10/2, self.collectionView.pullToRefreshView.bounds.size.height)];
@@ -204,10 +210,11 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)reload {
-    self.paginationThreshold = kPaginationDefaultThreshold;
+
+    [self reloadSortedVideos];
     
     BOOL needRefresh = NO;
-    if(![YAUser currentUser].currentGroup.videos || ![[YAUser currentUser].currentGroup.videos count])
+    if(!self.sortedVideos || ![self.sortedVideos count])
         needRefresh = YES;
     
     if([[YAUser currentUser].currentGroup.updatedAt compare:[YAUser currentUser].currentGroup.refreshedAt] == NSOrderedDescending) {
@@ -224,6 +231,16 @@ static NSString *cellID = @"Cell";
     }
 }
 
+- (void)reloadSortedVideos {
+    RLMArray<YAVideo> *videos = [YAUser currentUser].currentGroup.videos;
+    if ([videos count]) {
+        self.sortedVideos = [videos sortedResultsUsingProperty:@"createdAt" ascending:NO];
+    } else {
+        self.sortedVideos = nil;
+    }
+}
+
+
 - (void)videoDidChange:(NSNotification*)notif {
 
     __weak typeof(self) weakSelf = self;
@@ -239,7 +256,7 @@ static NSString *cellID = @"Cell";
         if(![notif.userInfo[kShouldReloadVideoCell] boolValue])
             return;
         
-        NSUInteger index =[[YAUser currentUser].currentGroup.videos indexOfObject:video];
+        NSUInteger index = [self.sortedVideos indexOfObject:video];
         
         //the following line will ensure indexPathsForVisibleItems will return correct results
         [weakSelf.collectionView layoutIfNeeded];
@@ -265,6 +282,7 @@ static NSString *cellID = @"Cell";
         [self.navigationController popViewControllerAnimated:NO];
         return;
     }
+    
     [self.noVideosLabel removeFromSuperview];
     self.noVideosLabel = nil;
     [self.toolTipLabel removeFromSuperview];
@@ -300,32 +318,48 @@ static NSString *cellID = @"Cell";
     NSArray *deletedVideos = notification.userInfo[kDeletedVideos];
     
     void (^refreshBlock)(void) = ^ {
-        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
-        if([self collectionView:self.collectionView numberOfItemsInSection:0] > 0)
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+        
+        //do not scroll to the top if infinite scrolling is used
+        //        if(!self.collectionView.infiniteScrollingView && [self collectionView:self.collectionView numberOfItemsInSection:[self gifGridSection]] > 0) {
+        //            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:[self gifGridSection]] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+        //            [self scrollingDidStop];
+        //        }
         
         [self delayedHidePullToRefresh];
+        [self enqueueAssetsCreationJobsStartingFromVideoIndex:0];
     };
     
     if (newVideos.count || deletedVideos.count) {
+        [self reloadSortedVideos];
         [self.collectionView reloadData];
+        
         refreshBlock();
     }
     else if(updatedVideos.count) {
         NSMutableArray *indexPathsToReload = [NSMutableArray new];
         
         for (YAVideo *video in updatedVideos) {
-            NSUInteger index = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
-            if(index != NSNotFound && index < [self.collectionView numberOfItemsInSection:0]) {
-                [indexPathsToReload addObject:[NSIndexPath indexPathForRow:index inSection:0]];
+            NSUInteger index = [self.sortedVideos indexOfObject:video];
+            if (index != NSNotFound) {
+                if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:index]]) {
+                    [indexPathsToReload addObject:[NSIndexPath indexPathForItem:index inSection:0]];
+                }
             }
         }
-        if(indexPathsToReload.count) {
-            [self.collectionView performBatchUpdates:^{
-                [self.collectionView reloadItemsAtIndexPaths:indexPathsToReload];
-            } completion:^(BOOL finished) {
+        if(indexPathsToReload && indexPathsToReload.count) {
+            NSUInteger countOfItems = [self collectionView:self.collectionView numberOfItemsInSection:0];
+            
+            if (countOfItems != self.sortedVideos.count || countOfItems == 0) {
+                // If these don't match, we'll get an NSInternalInconsistencyException, so reload the whole table
+                [self.collectionView reloadData];
                 refreshBlock();
-            }];
+            } else {
+                [self.collectionView performBatchUpdates:^{
+                    [self.collectionView reloadItemsAtIndexPaths:indexPathsToReload];
+                } completion:^(BOOL finished) {
+                    refreshBlock();
+                }];
+            }
         }
         else {
             [self delayedHidePullToRefresh];
@@ -335,6 +369,7 @@ static NSString *cellID = @"Cell";
         [self delayedHidePullToRefresh];
     }
 }
+
 - (void)delayedHidePullToRefresh {
     NSTimeInterval seconds = [[NSDate date] timeIntervalSinceDate:self.willRefreshDate];
     
@@ -343,7 +378,10 @@ static NSString *cellID = @"Cell";
         hidePullToRefreshAfter = 0;
     __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(hidePullToRefreshAfter * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [weakSelf.collectionView.pullToRefreshView stopAnimating];
+        if (weakSelf.collectionView.contentInset.top != weakSelf.collectionView.pullToRefreshView.originalTopInset) {
+            [weakSelf.collectionView.pullToRefreshView stopAnimating];
+        }
+        [weakSelf.collectionView.infiniteScrollingView stopAnimating];
         [weakSelf showNoVideosMessageIfNeeded];
     });
 }
@@ -402,7 +440,7 @@ static NSString *cellID = @"Cell";
 }
 
 - (void)showNoVideosMessageIfNeeded {
-    if(![YAUser currentUser].currentGroup.videos.count) {
+    if(!self.sortedVideos.count) {
         //group was sucessfully refreshed
         if([[YAUser currentUser].currentGroup.refreshedAt compare:[NSDate dateWithTimeIntervalSince1970:0]] != NSOrderedSame) {
             //hide spinning monkey and show "no videos" label
@@ -445,7 +483,7 @@ static NSString *cellID = @"Cell";
         
         const CGFloat indicatorWidth  = 50;
         [self.activityView removeFromSuperview];
-        if(![YAUser currentUser].currentGroup.videos.count) {
+        if(!self.sortedVideos.count) {
             self.activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
             self.activityView.color = PRIMARY_COLOR;
             self.activityView.frame = CGRectMake(VIEW_WIDTH/2-indicatorWidth/2, VIEW_HEIGHT/5, indicatorWidth, indicatorWidth);
@@ -467,15 +505,12 @@ static NSString *cellID = @"Cell";
 #pragma mark - UICollectionView
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    NSUInteger videosCount = [YAUser currentUser].currentGroup.videos.count;
-    
-    NSUInteger result = videosCount < self.paginationThreshold ? videosCount : self.paginationThreshold;
-    return result;
+    return self.sortedVideos.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     YAVideoCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:cellID forIndexPath:indexPath];
-    YAVideo *video = [[YAUser currentUser].currentGroup.videos objectAtIndex:indexPath.row];
+    YAVideo *video = [self.sortedVideos objectAtIndex:indexPath.row];
     NSString *serverId = [video.serverId copy];
     NSString *localId = [video.localId copy];
     YAVideoServerIdStatus status = [YAVideo serverIdStatusForVideo:video];
@@ -495,14 +530,12 @@ static NSString *cellID = @"Cell";
     cell.video = video;
 
     
-    if (!self.scrolling) {
+    if (!self.scrolling || (self.collectionView.contentInset.top == self.collectionView.pullToRefreshView.originalTopInset)) {
         [cell renderLightweightContent];
         [cell renderHeavyWeightContent];
     } else if (!self.scrollingFast) {
         [cell renderLightweightContent];
     }
-
-    [self handlePagingForIndexPath:indexPath];
     
     return cell;
 }
@@ -524,7 +557,12 @@ static NSString *cellID = @"Cell";
 
 - (void)openVideoAtIndexPath:(NSIndexPath*)indexPath {
     UICollectionViewLayoutAttributes *attributes = [self.collectionView layoutAttributesForItemAtIndexPath:indexPath];
-    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithInitialIndex:indexPath.row];
+    
+    NSMutableArray *array = [NSMutableArray new];
+    for (YAVideo *video in self.sortedVideos) {
+        [array addObject:video];
+    }
+    YASwipingViewController *swipingVC = [[YASwipingViewController alloc] initWithVideos:array initialIndex:indexPath.row];
     swipingVC.delegate = self;
     
     CGRect initialFrame = attributes.frame;
@@ -541,7 +579,7 @@ static NSString *cellID = @"Cell";
 
 - (void)openVideo:(NSNotification*)notif {
     YAVideo *video = notif.userInfo[@"video"];
-    NSUInteger videoIndex = [[YAUser currentUser].currentGroup.videos indexOfObject:video];
+    NSUInteger videoIndex = [self.sortedVideos indexOfObject:video];
     
     if(videoIndex == NSNotFound) {
         DLog(@"can't find video index in current group");
@@ -667,14 +705,14 @@ static NSString *cellID = @"Cell";
     
     NSUInteger beginIndex = initialIndex;
     if (initialIndex >= kNumberOfItemsBelowToDownload) beginIndex -= kNumberOfItemsBelowToDownload; // Cant always subtract cuz overflow
-    NSUInteger endIndex = MIN([YAUser currentUser].currentGroup.videos.count, initialIndex + kNumberOfItemsBelowToDownload);
+    NSUInteger endIndex = MIN(self.sortedVideos.count, initialIndex + kNumberOfItemsBelowToDownload);
     
     for(NSUInteger videoIndex = beginIndex; videoIndex < endIndex; videoIndex++) {
         if([[self.collectionView.indexPathsForVisibleItems valueForKey:@"item"] containsObject:[NSNumber numberWithInteger:videoIndex]]) {
-            [visibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+            [visibleVideos addObject:[self.sortedVideos objectAtIndex:videoIndex]];
         }
         else {
-            [invisibleVideos addObject:[[YAUser currentUser].currentGroup.videos objectAtIndex:videoIndex]];
+            [invisibleVideos addObject:[self.sortedVideos objectAtIndex:videoIndex]];
         }
     }
     
@@ -702,25 +740,6 @@ static NSString *cellID = @"Cell";
             weakSelf.collectionView.contentInset = tmp;
             
             [weakSelf scrollingDidStop];
-        });
-    }
-}
-
-#pragma mark - Paging
-- (void)handlePagingForIndexPath:(NSIndexPath*)indexPath {
-    if(indexPath.row > self.paginationThreshold - kPaginationItemsCountToStartLoadingNextPage) {
-        NSUInteger oldPaginationThreshold = self.paginationThreshold;
-        self.paginationThreshold += kPaginationDefaultThreshold;
-        
-        //can't call reloadData methods when called from cellForRowAtIndexPath, using delay
-        __weak typeof(self) weakSelf = self;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [weakSelf.collectionView reloadData];
-            
-            //enqueue new assets creation jobs
-            [weakSelf enqueueAssetsCreationJobsStartingFromVideoIndex:oldPaginationThreshold];
-            
-            DLog(@"Page %lu loaded", (unsigned long)self.paginationThreshold / kPaginationDefaultThreshold);
         });
     }
 }

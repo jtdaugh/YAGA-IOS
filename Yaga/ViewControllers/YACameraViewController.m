@@ -1072,6 +1072,7 @@ typedef enum {
             self.createChatButton.alpha = 0;
         }
     } completion:^(BOOL finished) {
+        if (!finished) return;
         if(mode == YACameraTopAccessoriesModeHome) {
             self.gridCameraAccessoryWrapper.hidden = YES;
         } else {

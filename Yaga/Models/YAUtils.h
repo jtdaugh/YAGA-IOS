@@ -56,6 +56,9 @@ typedef void (^confirmationBlock)(void);
 
 + (NSArray*)readableGroupsArrayFromResponse:(NSArray *)response;
 
+//server side paging
++ (NSDictionary*)urlParametersFromString:(NSString*)urlString;
+
 // Tooltip/defaults helpers
 + (BOOL)hasVisitedGifGrid;
 + (void)setVisitedGifGrid;

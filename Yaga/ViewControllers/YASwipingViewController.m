@@ -19,6 +19,7 @@
 @interface YASwipingViewController ()
 
 @property (nonatomic, strong) NSMutableArray *pages;
+@property (nonatomic, strong) NSMutableArray *videos;
 
 @property (nonatomic, assign) NSUInteger currentPageIndex;
 @property (nonatomic, assign) NSUInteger previousPageIndex;
@@ -36,9 +37,10 @@
 
 @implementation YASwipingViewController
 
-- (id)initWithInitialIndex:(NSUInteger)initialIndex {
+- (id)initWithVideos:(NSArray *)videos initialIndex:(NSUInteger)initialIndex {
     self = [super init];
     if(self) {
+        self.videos = videos;
         self.initialIndex = initialIndex;
         self.currentPageIndex = self.initialIndex;
         self.previousPageIndex = self.initialIndex;
@@ -134,7 +136,7 @@
 
 - (void)showJpgPreview:(BOOL)show {
     if(show) {
-        YAVideo *video  = [[YAUser currentUser].currentGroup.videos objectAtIndex:self.initialIndex];
+        YAVideo *video  = [self.videos objectAtIndex:self.initialIndex];
         NSString *jpgPath = [YAUtils urlFromFileName:video.jpgFullscreenFilename].path;
         UIImage *jpgImage = [UIImage imageWithContentsOfFile:jpgPath];
         if(!self.jpgImageView) {
@@ -170,7 +172,7 @@
         result = 0;
     }
     else {
-        if(pageIndex == [YAUser currentUser].currentGroup.videos.count - 1) {
+        if(pageIndex == self.videos.count - 1) {
             if(pageIndex >= 2)
                 result = pageIndex - 2;
             else
@@ -187,7 +189,7 @@
 - (void)initPages {
     self.pages = [[NSMutableArray alloc] initWithCapacity:3];
     
-    self.scrollView.contentSize = CGSizeMake([YAUser currentUser].currentGroup.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
+    self.scrollView.contentSize = CGSizeMake(self.videos.count * self.scrollView.bounds.size.width, self.scrollView.bounds.size.height);
     
     NSUInteger initialTileIndex = [self tileIndexFromPageIndex:self.initialIndex];
     
@@ -242,16 +244,16 @@
         
         [self updateTileAtIndex:0 withVideoAtIndex:0 shouldPreload:preload];
         
-        if([YAUser currentUser].currentGroup.videos.count > 1)
+        if(self.videos.count > 1)
             [self updateTileAtIndex:1 withVideoAtIndex:1 shouldPreload:preload];
         
-        if([YAUser currentUser].currentGroup.videos.count > 2)
+        if(self.videos.count > 2)
             [self updateTileAtIndex:2 withVideoAtIndex:2 shouldPreload:preload];
     }
     //last page, current on the right
-    else if(self.currentPageIndex == [YAUser currentUser].currentGroup.videos.count - 1) {
+    else if(self.currentPageIndex == self.videos.count - 1) {
         //special case when there is less than 3 videos
-        if([YAUser currentUser].currentGroup.videos.count < 3) {
+        if(self.videos.count < 3) {
             self.visibleTileIndex = 1;
             
             //index is always greater than 0 here, as previous condition index == 0 has already passed
@@ -274,12 +276,12 @@
     else if(self.currentPageIndex > 0) {
         self.visibleTileIndex = 1;
         
-        if([YAUser currentUser].currentGroup.videos.count > 0)
+        if(self.videos.count > 0)
             [self updateTileAtIndex:0 withVideoAtIndex:self.currentPageIndex - 1 shouldPreload:preload];
         
         [self updateTileAtIndex:1 withVideoAtIndex:self.currentPageIndex shouldPreload:preload];
         
-        if(self.currentPageIndex + 1 <= [YAUser currentUser].currentGroup.videos.count - 1)
+        if(self.currentPageIndex + 1 <= self.videos.count - 1)
             [self updateTileAtIndex:2 withVideoAtIndex:self.currentPageIndex + 1 shouldPreload:preload];
     }
     
@@ -319,7 +321,7 @@
         scrolledRight = YES;
     }
     
-    NSUInteger lastPageIndex = [YAUser currentUser].currentGroup.videos.count - 1;
+    NSUInteger lastPageIndex = self.videos.count - 1;
     
     if(self.currentPageIndex == lastPageIndex)
         return;
@@ -353,7 +355,7 @@
 }
 
 - (void)updateTileAtIndex:(NSUInteger)tileIndex withVideoAtIndex:(NSUInteger)videoIndex shouldPreload:(BOOL)shouldPlay {
-    YAVideo *video = [YAUser currentUser].currentGroup.videos[videoIndex];
+    YAVideo *video = self.videos[videoIndex];
     YAVideoPage *page = self.pages[tileIndex];
     [page setVideo:video shouldPreload:shouldPlay];
 }

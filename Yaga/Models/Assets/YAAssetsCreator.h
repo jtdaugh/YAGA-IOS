@@ -11,11 +11,11 @@
 #import "YAGroup.h"
 #import "AFHTTPRequestOperation.h"
 
-#define kGifWidth (200)
+#define kGifWidth (140)
 #define kGifFPS_HQ (30.f)
-#define kGifFPS_LQ (4.f)
+#define kGifFPS_LQ (10.f)
 #define kGifPixellationSize (15.f)
-#define kGifSpeed (1.5f)
+#define kGifSpeed (1.75f)
 
 typedef void (^videoOperationCompletion)(NSURL *filePath, NSError *error);
 typedef void (^videoConcatenationCompletion)(NSURL *filePath, NSError *error);
