@@ -8,6 +8,7 @@
 
 #import "YACameraManager.h"
 #import "YAUser.h"
+#import "GPUImageSqueezeFilter.h"
 
 #define MAX_ZOOM_SCALE 4.f
 
@@ -58,17 +59,18 @@
     self = [super init];
     if (self) {
         self.isInitialized = NO;
-        self.filters = @[@"#nofilter", @"Bulge", @"Doozy", @"Trippy", @"#YAGA", ];
+        self.filters = @[@"#nofilter", @"Bulge", @"Squeeze", @"Doozy", @"Trippy", @"#YAGA", @"Makeup" ];
         self.filterIndex = 0;
     }
     return self;
+    
 }
 
 - (void)initCamera {
     if (self.isInitialized) {
         return;
     }
-    self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
+    self.videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionFront];
     self.videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
     self.videoCamera.horizontallyMirrorFrontFacingCamera = YES;
     self.zoomFactor = 1.0;
@@ -406,11 +408,11 @@
             break;
             
         }
-        case 2: {
+        case 3: {
             // toon
             GPUImageSwirlFilter *swirl = [[GPUImageSwirlFilter alloc] init];
-            [swirl setRadius:0.8];
-            [swirl setAngle:0.06];
+            [swirl setRadius:0.9];
+            [swirl setAngle:0.05];
             
             self.currentFilter = swirl;
             self.doozyProgress = 0;
@@ -434,7 +436,9 @@
 //        }
         case 1: {
             GPUImageBulgeDistortionFilter *filter = [[GPUImageBulgeDistortionFilter alloc] init];
-            [filter setRadius:0.4];
+            [filter setRadius:0.3];
+            [filter setScale:.55];
+            [filter setCenter:CGPointMake(0.5, 0.6)];
             self.currentFilter = filter;
             [self.currentFilter addTarget:self.currentCameraView];
             [self.videoCamera removeTarget:self.currentCameraView];
@@ -442,18 +446,18 @@
             break;
             
             
-        }
-        case 3: {
-            GPUImageLowPassFilter *filter =[[GPUImageLowPassFilter alloc] init];
-            [filter setFilterStrength:0.82];
-            self.currentFilter = filter;
-            [self.currentFilter addTarget:self.currentCameraView];
-            [self.videoCamera removeTarget:self.currentCameraView];
-            [self.videoCamera addTarget:self.currentFilter];
-            
-            break;
         }
         case 4: {
+            GPUImageLowPassFilter *filter =[[GPUImageLowPassFilter alloc] init];
+            [filter setFilterStrength:0.75];
+            self.currentFilter = filter;
+            [self.currentFilter addTarget:self.currentCameraView];
+            [self.videoCamera removeTarget:self.currentCameraView];
+            [self.videoCamera addTarget:self.currentFilter];
+            
+            break;
+        }
+        case 5: {
             GPUImageRGBFilter *filter = [[GPUImageRGBFilter alloc] init];
             // Pink RGB
             [filter setRed:1.60];
@@ -466,7 +470,26 @@
             
             break;
         }
-            
+        case 6: {
+            GPUImageBilateralFilter *filter = [[GPUImageBilateralFilter alloc] init];
+            [filter setDistanceNormalizationFactor:9];
+            self.currentFilter = filter;
+            [self.currentFilter addTarget:self.currentCameraView];
+            [self.videoCamera removeTarget:self.currentCameraView];
+            [self.videoCamera addTarget:self.currentFilter];
+            break;
+        }
+        case 2: {
+            GPUImageSqueezeFilter *filter = [[GPUImageSqueezeFilter alloc] init];
+//            [filter setRadius:0.33];
+//            [filter setScale:1.5];
+            self.currentFilter = filter;
+            [self.currentFilter addTarget:self.currentCameraView];
+            [self.videoCamera removeTarget:self.currentCameraView];
+            [self.videoCamera addTarget:self.currentFilter];
+            break;
+        }
+
         default:
             break;
     }

@@ -19,9 +19,9 @@
 #import "MBProgressHUD.h"
 
 #if (DEBUG && DEBUG_SERVER)
-#define HOST @"http://api-dev.yaga.video"
+#define HOST @"https://api-dev.yaga.video"
 #else
-#define HOST @"http://api.yaga.video"
+#define HOST @"https://api.yaga.video"
 #endif
 
 #define PORT @"80"

@@ -134,6 +134,7 @@
 		88FB0A231B1D4F36002C213C /* YAEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A221B1D4F36002C213C /* YAEvent.m */; };
 		88FB0A261B1D5250002C213C /* YAEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A251B1D5250002C213C /* YAEventManager.m */; };
 		88FB0A2C1B1D6D78002C213C /* NSArray+Reverse.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FB0A2B1B1D6D78002C213C /* NSArray+Reverse.m */; };
+		88FC433D1BCB807300F5773C /* GPUImageSqueezeFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 88FC433C1BCB807300F5773C /* GPUImageSqueezeFilter.m */; settings = {ASSET_TAGS = (); }; };
 		C9B9AF05210D4EA3A926F205 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 06099F2997CD40A8B4FA1754 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -366,6 +367,8 @@
 		88FB0A251B1D5250002C213C /* YAEventManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YAEventManager.m; sourceTree = "<group>"; };
 		88FB0A2A1B1D6D78002C213C /* NSArray+Reverse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Reverse.h"; sourceTree = "<group>"; };
 		88FB0A2B1B1D6D78002C213C /* NSArray+Reverse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Reverse.m"; sourceTree = "<group>"; };
+		88FC433B1BCB807300F5773C /* GPUImageSqueezeFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPUImageSqueezeFilter.h; sourceTree = "<group>"; };
+		88FC433C1BCB807300F5773C /* GPUImageSqueezeFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GPUImageSqueezeFilter.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -792,6 +795,8 @@
 				882F082C1AEF6F12007FAA66 /* YAPanGestureRecognizer.m */,
 				88E3E21D1B2FE0CA00BF5E83 /* YAWeakTimerTarget.h */,
 				88E3E21E1B2FE0CA00BF5E83 /* YAWeakTimerTarget.m */,
+				88FC433B1BCB807300F5773C /* GPUImageSqueezeFilter.h */,
+				88FC433C1BCB807300F5773C /* GPUImageSqueezeFilter.m */,
 			);
 			name = UtilityClasses;
 			sourceTree = "<group>";
@@ -1030,6 +1035,7 @@
 				86B864A91A43322F002256FF /* CountryListDataSource.m in Sources */,
 				413734BB1B1D070700ADE96F /* YACrosspostCell.m in Sources */,
 				6E11CB8C1AB9C8FB00B821A2 /* UIImage+Resize.m in Sources */,
+				88FC433D1BCB807300F5773C /* GPUImageSqueezeFilter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
